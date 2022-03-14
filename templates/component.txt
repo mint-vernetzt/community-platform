@@ -1,0 +1,7 @@
+export interface {{ componentName }}Props {}
+
+function {{ pascalCase componentName }}(props: {{ componentName }}Props) {
+  return null;
+}
+
+export default {{ pascalCase componentName}};

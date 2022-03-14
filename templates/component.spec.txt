@@ -1,0 +1,7 @@
+import { render } from "@testing-library/react";
+import {{ pascalCase componentName }} from "./{{ pascalCase componentName }}";
+
+test("render component", () => {
+  const { baseElement } = render(<{{ pascalCase componentName }} />);
+  expect(baseElement).toBeTruthy();
+});
