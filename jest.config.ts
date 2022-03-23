@@ -5,4 +5,5 @@ export default {
   transform: {
     "^.+\\.[tj]sx?$": "babel-jest",
   },
+  setupFilesAfterEnv: ["<rootDir>/jest-setup.ts"],
 };
