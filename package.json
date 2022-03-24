@@ -14,7 +14,7 @@
     "build:styles:watch": "npm run build:styles -- --watch",
     "test": "jest",
     "test:watch": "npm run test -- --watch",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "npm run build:styles:watch | start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
