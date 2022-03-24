@@ -1,0 +1,24 @@
+import { action, loader } from "./${{ fileName }}";
+
+const path = "{{ route }}";
+
+test("call loader with parameter", async () => {
+  const res = await loader({
+    request: new Request(path),
+    params: { {{ componentName }}: "{{ componentName }}" },
+    context: {},
+  });
+
+  expect(res).toBeNull();
+});
+
+test("call action", async () => {
+  const res = await action({
+    request: new Request(path, { method: "POST" }),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toBeNull();
+});
+

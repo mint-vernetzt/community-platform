@@ -8,6 +8,6 @@ export const action: ActionFunction = async (args) => {
   return null;
 };
 
-export default function {{pascalCase fileName}}() {
-  return null;
+export default function {{ pascalCase componentName }}() {
+  return <>{{ pascalCase componentName }}</>;
 }

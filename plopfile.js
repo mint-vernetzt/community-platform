@@ -10,7 +10,7 @@ module.exports = function (
         name: "path",
         message: "Please type in the whole path (e.g. /my/awesome/route).",
         validate: (string) => {
-          return string[0] === "/";
+          return string[0] === "/" && string[string.length - 1] !== "/";
         },
       },
       {
@@ -23,22 +23,61 @@ module.exports = function (
         type: "confirm",
         name: "isParameter",
         message: "Is this a route with parameter?",
+        when: (answers) => {
+          return answers.fileName !== "index";
+        },
+        default: false,
+      },
+      {
+        type: "confirm",
+        name: "skipTest",
+        message: "Do you want to skip test?",
         default: false,
       },
     ],
     actions: (data) => {
-      let path = "app/routes{{ path }}/{{ fileName }}.tsx";
+      let filePath = "app/routes{{ path }}/{{ fileName }}.tsx";
+      let fileName = data.fileName;
+
       if (data.isParameter) {
         // eslint-disable-next-line no-template-curly-in-string
-        path = "app/routes{{ path }}/${{ fileName }}.tsx";
+        filePath = "app/routes{{ path }}/${{ fileName }}.tsx";
       }
-      return [
+
+      const componentName = data.fileName;
+
+      let route = data.path;
+
+      if (data.fileName !== "index" && !data.isParameter) {
+        route = `${route}/${fileName}`;
+      }
+
+      const actions = [
         {
           type: "add",
-          path,
+          path: filePath,
           templateFile: "templates/route.txt",
+          data: {
+            componentName,
+          },
         },
       ];
+
+      if (!data.skipTest) {
+        actions.push({
+          type: "add",
+          path: filePath.replace(".tsx", ".spec.tsx"),
+          templateFile: data.isParameter
+            ? "templates/$route.spec.txt"
+            : "templates/route.spec.txt",
+          data: {
+            fileName,
+            route,
+            componentName,
+          },
+        });
+      }
+      return actions;
     },
   });
 
@@ -54,13 +93,13 @@ module.exports = function (
       {
         type: "confirm",
         name: "skipTest",
-        message: "Do you want to skip test.",
+        message: "Do you want to skip test?",
         default: false,
       },
       {
         type: "confirm",
         name: "skipStories",
-        message: "Do you want to skip stories.",
+        message: "Do you want to skip stories?",
         default: false,
       },
     ],
@@ -97,13 +136,13 @@ module.exports = function (
         type: "input",
         name: "componentsFolder",
         message:
-          "Please type in the path of your components folder (default: app/components  ).",
+          "Please type in the path of your components folder (default: app/components).",
         default: "app/components",
       },
       {
         type: "input",
         name: "componentName",
-        message: "Please type in the component name (e.g. MyComponent ).",
+        message: "Please type in the component name (e.g. MyComponent).",
         default: "MyComponent",
       },
     ],
@@ -123,13 +162,13 @@ module.exports = function (
         type: "input",
         name: "componentsFolder",
         message:
-          "Please type in the path of your components folder (default: app/components  ).",
+          "Please type in the path of your components folder (default: app/components).",
         default: "app/components",
       },
       {
         type: "input",
         name: "componentName",
-        message: "Please type in the component name (e.g. MyComponent ).",
+        message: "Please type in the component name (e.g. MyComponent).",
         default: "MyComponent",
       },
     ],
