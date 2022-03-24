@@ -12,8 +12,17 @@ test("call loader", async () => {
   expect(res).toBeNull();
 });
 
+test("handle empty body", async () => {
+  const responseEmpty = await action({
+    request: new Request(path, { method: "POST" }),
+    params: {},
+    context: {},
+  });
+  expect(responseEmpty.status).toBe(400);
+});
+
 test("handle empty email and/or password", async () => {
-  const responseEmpty: Response = await action({
+  const responseEmpty = await action({
     request: new Request(path, { method: "POST", body: new FormData() }),
     params: {},
     context: {},

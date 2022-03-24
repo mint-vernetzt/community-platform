@@ -7,7 +7,13 @@ export const loader: LoaderFunction = async (args) => {
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch (error) {
+    return json("Bad Request", { status: 400 });
+  }
+  
   const email = formData.get("email");
   const password = formData.get("password");
 
