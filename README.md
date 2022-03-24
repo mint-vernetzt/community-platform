@@ -1,3 +1,13 @@
+# Overview
+
+## Generate files
+
+Run `npm run create` and select generator: 
+
+- **route** - Create route 
+- **component** - Create component 
+- **test** - Create component test 
+- **stories** - Create component stories 
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)
