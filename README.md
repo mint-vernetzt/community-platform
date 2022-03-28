@@ -1,5 +1,10 @@
 # Overview
 
+# First steps
+
+- create `.env` file in root directory (or copy and rename `.env.example`)
+- set `SUPABASE_ANON_KEY`, `SESSION_SECRET` and `SUPABASE_URL`
+
 ## Generate files
 
 Run `npm run create` and select generator: 
