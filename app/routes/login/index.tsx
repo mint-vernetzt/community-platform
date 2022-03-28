@@ -1,4 +1,10 @@
 import { ActionFunction, json, LoaderFunction } from "remix";
+import { authenticator } from "../../auth.server";
+
+export const Routes = {
+  SuccessRedirect: "/",
+  FailureRedirect: "/login",
+};
 
 export const loader: LoaderFunction = async (args) => {
   return null;
@@ -13,7 +19,7 @@ export const action: ActionFunction = async (args) => {
   } catch (error) {
     return json("Bad Request", { status: 400 });
   }
-  
+
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -23,7 +29,10 @@ export const action: ActionFunction = async (args) => {
     return json("Bad Request", { status: 400 });
   }
 
-  return null;
+  return authenticator.authenticate("sb", request, {
+    successRedirect: Routes.SuccessRedirect,
+    failureRedirect: Routes.FailureRedirect,
+  });
 };;
 
 export default function Index() {
