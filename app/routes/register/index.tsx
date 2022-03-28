@@ -1,4 +1,5 @@
 import { ActionFunction, json, LoaderFunction } from "remix";
+import { badRequest, validateFormData } from "../../utils";
 
 export const loader: LoaderFunction = async (args) => {
   return null;
@@ -11,26 +12,16 @@ export const action: ActionFunction = async (args) => {
   try {
     formData = await request.formData();
   } catch (error) {
-    return json("Bad Request", { status: 400 });
+    return badRequest();
   }
 
-  const email = formData.get("email");
-  const password = formData.get("password");
-  const firstName = formData.get("firstName");
-  const lastName = formData.get("lastName");
-  const academicTitle = formData.get("academicTitle");
+  const isFormDataValid = validateFormData(
+    ["email", "password", "firstName", "lastName"],
+    formData
+  );
 
-  if (
-    email === null ||
-    password === null ||
-    firstName === null ||
-    lastName === null ||
-    email === "" ||
-    password === "" ||
-    firstName === "" ||
-    lastName === ""
-  ) {
-    return json("Bad Request", { status: 400 });
+  if (!isFormDataValid) {
+    return badRequest();
   }
 
   return json({});
