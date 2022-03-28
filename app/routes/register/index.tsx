@@ -1,11 +1,5 @@
-import { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, json, LoaderFunction } from "remix";
 import { badRequest, validateFormData } from "../../utils";
-import { authenticator } from "../../auth.server";
-
-export const Routes = {
-  SuccessRedirect: "/",
-  FailureRedirect: "/login",
-};
 
 export const loader: LoaderFunction = async (args) => {
   return null;
@@ -21,15 +15,16 @@ export const action: ActionFunction = async (args) => {
     return badRequest();
   }
 
-  const isFormDataValid = validateFormData(["email", "password"], formData);
+  const isFormDataValid = validateFormData(
+    ["email", "password", "firstName", "lastName"],
+    formData
+  );
+
   if (!isFormDataValid) {
     return badRequest();
   }
 
-  return authenticator.authenticate("sb", request, {
-    successRedirect: Routes.SuccessRedirect,
-    failureRedirect: Routes.FailureRedirect,
-  });
+  return json({});
 };
 
 export default function Index() {
