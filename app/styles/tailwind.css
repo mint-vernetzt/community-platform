@@ -64,7 +64,8 @@
         }
     }
     .form-control .input {
-        &:not(:placeholder-shown) {
+        &:not(:placeholder-shown):not(:required),
+        &:required:valid {
             @apply bg-white;
             outline: none;        
         }
