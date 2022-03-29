@@ -4,8 +4,9 @@ import "@fontsource/source-sans-pro/700.css";
 import InputText from "../FormElements/InputText/InputText";
 import SelectField from "../FormElements/SelectField/SelectField";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
-import InputPassword from "../InputPassword/InputPassword";
+import InputPassword from "../FormElements/InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
+
 
 export interface LoginPageProps {}
 
@@ -60,7 +61,7 @@ function LoginPage(props: LoginPageProps) {
               <InputText label="E-Mail" isRequired />
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4">              
               <InputPassword label="Passwort" isRequired />
             </div>
 
