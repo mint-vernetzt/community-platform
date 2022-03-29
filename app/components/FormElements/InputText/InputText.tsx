@@ -14,7 +14,7 @@ function InputText(props: InputTextProps) {
       <label for={id} className="label">
         {props.label}{props.isRequired ? " *" : ""}       
       </label>
-      {/* add required attribute if necessary */}
+      {/* TODO: add required attribute if necessary */}
       <input type="text" 
         id={id}
         placeholder={placeholder}        
