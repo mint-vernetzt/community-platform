@@ -2,6 +2,7 @@ import "@fontsource/source-sans-pro/400.css";
 import "@fontsource/source-sans-pro/600.css";
 import "@fontsource/source-sans-pro/700.css";
 import InputText from "../FormElements/InputText/InputText";
+import SelectField from "../FormElements/SelectField/SelectField";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import PageBackground from "../PageBackground/PageBackground";
 
@@ -29,7 +30,20 @@ function LoginPage(props: LoginPageProps) {
             <h1 className="mb-8">Neues Profil anlegen</h1>
             
             <div className="flex flex-row -mx-4 mb-4">
-              <div className="basis-6/12 px-4">Select Titel</div>
+              <div className="basis-6/12 px-4"><SelectField label="Titel" options={[
+                {
+                  label: 'Dr.',
+                  value: 'Dr.'
+                },
+                {
+                  label: 'Prof.',
+                  value: 'Prof.'
+                },
+                {
+                  label: 'Prof. Dr.',
+                  value: 'Prof. Dr.'
+                },
+              ]} /></div>
             </div>  
 
             <div className="flex flex-row -mx-4 mb-4">
