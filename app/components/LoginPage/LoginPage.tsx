@@ -4,6 +4,7 @@ import "@fontsource/source-sans-pro/700.css";
 import InputText from "../FormElements/InputText/InputText";
 import SelectField from "../FormElements/SelectField/SelectField";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
+import InputPassword from "../InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
 
 export interface LoginPageProps {}
@@ -60,11 +61,11 @@ function LoginPage(props: LoginPageProps) {
             </div>
 
             <div className="mb-4">
-              <InputText label="Passwort" isRequired />
+              <InputPassword label="Passwort" isRequired />
             </div>
 
             <div className="mb-4">
-              <InputText label="Passwort wiederholen" isRequired />
+              <InputPassword label="Passwort wiederholen" isRequired />
             </div>
 
             <div className="mb-8">
@@ -78,7 +79,7 @@ function LoginPage(props: LoginPageProps) {
                 </label>
               </div>
             </div>
-            <div className="mb-4">
+            <div className="mb-8">
               <button className="btn btn-primary">Account registrieren</button>
             </div>
           </div>  
