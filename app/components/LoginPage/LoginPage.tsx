@@ -22,67 +22,31 @@ function LoginPage(props: LoginPageProps) {
               <HeaderLogo />
             </div>  
             <div className="ml-auto">
-              Bereits Mitglied? <a href="#" className="text-primary font-bold">Anmelden</a>
+              Noch kein Mitglied? <a href="#" className="text-primary font-bold">Registrieren</a>
             </div>  
           </div>  
         </div>  
         <div className="flex flex-row -mx-4">
           <div className="basis-6/12 px-4"> </div>
           <div className="basis-5/12 px-4">
-            <h1 className="mb-8">Neues Profil anlegen</h1>
+            <h1 className="mb-8">Anmelden</h1>
             
-            <div className="flex flex-row -mx-4 mb-4">
-              <div className="basis-6/12 px-4"><SelectField label="Titel" options={[
-                {
-                  label: 'Dr.',
-                  value: 'Dr.'
-                },
-                {
-                  label: 'Prof.',
-                  value: 'Prof.'
-                },
-                {
-                  label: 'Prof. Dr.',
-                  value: 'Prof. Dr.'
-                },
-              ]} /></div>
-            </div>  
-
-            <div className="flex flex-row -mx-4 mb-4">
-              <div className="basis-6/12 px-4">
-                <InputText label="Vorname" isRequired />
-              </div>
-              <div className="basis-6/12 px-4">
-                <InputText label="Nachname" isRequired />
-              </div>
-            </div>  
-
             <div className="mb-4">
-              <InputText label="E-Mail" isRequired />
+              <InputText label="E-Mail" />
             </div>
 
-            <div className="mb-4">              
-              <InputPassword label="Passwort" isRequired />
+            <div className="mb-10">              
+              <InputPassword label="Passwort" />
             </div>
 
-            <div className="mb-4">
-              <InputPassword label="Passwort wiederholen" isRequired />
-            </div>
-
-            <div className="mb-8">
-              <div className="form-control checkbox-privacy">
-                <label className="label cursor-pointer items-start">                  
-                  <input type="checkbox" checked className="checkbox checkbox-primary mr-4" />
-                  <span className="label-text">
-                    Wenn Sie ein Konto erstellen, erklären Sie sich mit unseren Nutzungs-bedingungen, 
-                    Datenschutzrichtlinien und unseren Standardeinstellungen für Benachrichtigungen einverstanden.
-                  </span> 
-                </label>
+            <div className="flex flex-row -mx-4 mb-8 items-center">
+              <div className="basis-6/12 px-4">
+                <button className="btn btn-primary">Login</button>
               </div>
-            </div>
-            <div className="mb-8">
-              <button className="btn btn-primary">Account registrieren</button>
-            </div>
+              <div className="basis-6/12 px-4 text-right">
+                <a href="#" className="text-primary font-bold">Passwort vergessen?</a>
+              </div>
+            </div>              
           </div>  
         </div>  
       </div>  
