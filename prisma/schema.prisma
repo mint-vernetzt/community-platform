@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id            String                 @id @default(uuid())
+  username      String                 @unique
+  firstName     String
+  lastName      String
+  academicTitle String?
+  email         String
+  phone         String?
+  website       String?
+  avatar        String?
+  background    String?
+  facebook      String?
+  linkedin      String?
+  twitter       String?
+  xing          String?
+  job           String?
+  bio           String?
+  skills        String[]
+  interests     String[]
+  publicFields  String[]
+  memberOf      MemberOfOrganization[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @default(now())
+
+  @@map("profiles")
+}
+
+model Organization {
+  id                     String                 @id @default(uuid())
+  name                   String
+  slug                   String                 @unique
+  email                  String
+  phone                  String?
+  street                 String
+  streetNumber           String
+  zipCode                String
+  city                   String
+  website                String?
+  logo                   String?
+  background             String?
+  facebook               String?
+  linkedin               String?
+  twitter                String?
+  xing                   String?
+  bio                    String?
+  type                   String?
+  quote                  String?
+  quoteAuthor            String?
+  quoteAuthorInformation String?
+  supportedBy            String[]
+  publicFields           String[]
+  teamMembers            MemberOfOrganization[]
+  memberOf               MemberOfNetwork[]      @relation(name: "network")
+  networkMembers         MemberOfNetwork[]      @relation(name: "member")
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @default(now())
+
+  @@map("organizations")
+}
+
+model MemberOfOrganization {
+  profile        Profile      @relation(fields: [profileId], references: [id])
+  profileId      String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  isPrivileged   Boolean      @default(false)
+
+  @@id([profileId, organizationId])
+  @@map("members_of_organizations")
+}
+
+model MemberOfNetwork {
+  organization           Organization @relation(fields: [organizationId], references: [id], name: "member")
+  organizationId         String
+  umbrellaOrganization   Organization @relation(fields: [umbrellaOrganizationId], references: [id], name: "network")
+  umbrellaOrganizationId String
+
+  @@id([organizationId, umbrellaOrganizationId])
+  @@map("members_of_networks")
+}

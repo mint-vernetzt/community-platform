@@ -15,9 +15,12 @@
     "test": "jest",
     "test:watch": "npm run test -- --watch",
     "storybook": "npm run build:styles:watch | start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "prisma:migrate": "node -r dotenv/config node_modules/.bin/prisma migrate dev",
+    "prisma:format": "prisma format"
   },
   "dependencies": {
+    "@prisma/client": "^3.11.1",
     "@remix-run/react": "^1.2.3",
     "@remix-run/serve": "^1.2.3",
     "cross-env": "^7.0.3",
@@ -53,6 +56,7 @@
     "eslint-plugin-storybook": "^0.5.7",
     "jest": "^27.5.1",
     "plop": "^3.0.5",
+    "prisma": "^3.11.1",
     "tailwindcss": "^3.0.23",
     "ts-node": "^10.7.0",
     "typescript": "^4.5.5"
