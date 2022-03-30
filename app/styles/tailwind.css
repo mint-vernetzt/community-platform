@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-    /** Fonts  **/
 
     body {
         @apply text-neutral-600;
@@ -83,5 +82,9 @@
     .form-control option[value=""][disabled][selected] {
         @apply bg-neutral-300;        
     }
-    
+
+}
+
+.btn {
+    @apply px-6 h-auto min-h-0 leading-6 py-2 border-0;
 }
