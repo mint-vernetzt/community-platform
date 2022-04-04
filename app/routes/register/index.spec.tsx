@@ -2,6 +2,15 @@ import { action, loader } from "./index";
 
 const path = "/register";
 
+jest.mock("../../auth.server", () => {
+  return {
+    // eslint-disable-next-line
+    signUp: jest.fn().mockImplementation(() => {
+      return {};
+    }),
+  };
+});
+
 test("call loader", async () => {
   const res = await loader({
     request: new Request(path),
@@ -34,6 +43,7 @@ test("handle empty fields", async () => {
   formData.append("password", "");
   formData.append("firstName", "");
   formData.append("lastName", "");
+  formData.append("termsAccepted", "");
   const responseEmptyString = await action({
     request: new Request(path, {
       method: "POST",
@@ -51,6 +61,7 @@ test("academic title can be empty empty fields", async () => {
   formData.append("password", "pa$$w0rd");
   formData.append("firstName", "John");
   formData.append("lastName", "Doe");
+  formData.append("termsAccepted", "on");
   const responseEmpty = await action({
     request: new Request(path, { method: "POST", body: formData }),
     params: {},

@@ -16,11 +16,11 @@ if (process.env.SESSION_SECRET === undefined) {
   throw new Error("'SESSION_SECRET' must be set.");
 }
 
-if (!process.env.SUPABASE_URL) {
+if (process.env.SUPABASE_URL === undefined) {
   throw new Error("'SUPABASE_URL' is required");
 }
 
-if (!process.env.SUPABASE_ANON_KEY) {
+if (process.env.SUPABASE_ANON_KEY === undefined) {
   throw new Error("'SUPABASE_ANON_KEY' is required");
 }
 

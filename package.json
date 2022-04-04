@@ -12,7 +12,7 @@
     "create": "plop",
     "build:styles": "tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/styles.css",
     "build:styles:watch": "npm run build:styles -- --watch",
-    "test": "jest",
+    "test": "cross-env NODE_ENV=test jest",
     "test:watch": "npm run test -- --watch",
     "storybook": "npm run build:styles:watch | start-storybook -p 6006",
     "build-storybook": "build-storybook",
@@ -23,12 +23,14 @@
     "@prisma/client": "^3.11.1",
     "@remix-run/react": "^1.2.3",
     "@remix-run/serve": "^1.2.3",
+    "@supabase/supabase-js": "^1.33.2",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "remix": "^1.2.3",
-    "remix-auth": "^3.2.1"
+    "remix-auth": "^3.2.1",
+    "remix-auth-supabase": "^3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
