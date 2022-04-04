@@ -8,28 +8,30 @@ datasource db {
 }
 
 model Profile {
-  id            String                 @id @default(uuid())
-  username      String                 @unique
-  firstName     String
-  lastName      String
-  academicTitle String?
-  email         String
-  phone         String?
-  website       String?
-  avatar        String?
-  background    String?
-  facebook      String?
-  linkedin      String?
-  twitter       String?
-  xing          String?
-  job           String?
-  bio           String?
-  skills        String[]
-  interests     String[]
-  publicFields  String[]
-  memberOf      MemberOfOrganization[]
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @default(now())
+  id              String                 @id @default(uuid())
+  username        String                 @unique
+  firstName       String                 @map("first_name")
+  lastName        String                 @map("last_name")
+  academicTitle   String?                @map("academic_title")
+  email           String
+  phone           String?
+  website         String?
+  avatar          String?
+  background      String?
+  facebook        String?
+  linkedin        String?
+  twitter         String?
+  xing            String?
+  job             String?
+  bio             String?
+  skills          String[]
+  interests       String[]
+  publicFields    String[]               @map("public_fields")
+  memberOf        MemberOfOrganization[]
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @default(now()) @map("updated_at")
+  termsAccepted   Boolean                @map("terms_accepted")
+  termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
 
   @@map("profiles")
 }
@@ -41,8 +43,8 @@ model Organization {
   email                  String
   phone                  String?
   street                 String
-  streetNumber           String
-  zipCode                String
+  streetNumber           String                 @map("street_number")
+  zipCode                String                 @map("zip_code")
   city                   String
   website                String?
   logo                   String?
@@ -54,15 +56,15 @@ model Organization {
   bio                    String?
   type                   String?
   quote                  String?
-  quoteAuthor            String?
-  quoteAuthorInformation String?
-  supportedBy            String[]
-  publicFields           String[]
+  quoteAuthor            String?                @map("quote_author")
+  quoteAuthorInformation String?                @map("quote_author_information")
+  supportedBy            String[]               @map("supported_by")
+  publicFields           String[]               @map("public_fields")
   teamMembers            MemberOfOrganization[]
   memberOf               MemberOfNetwork[]      @relation(name: "network")
   networkMembers         MemberOfNetwork[]      @relation(name: "member")
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @default(now())
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @default(now()) @map("updated_at")
 
   @@map("organizations")
 }
