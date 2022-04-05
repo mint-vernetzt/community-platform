@@ -12,7 +12,7 @@ export interface LoginPageProps {}
 function LoginPage(props: LoginPageProps) {
   return (
     <div className="">
-      <PageBackground />
+      <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
