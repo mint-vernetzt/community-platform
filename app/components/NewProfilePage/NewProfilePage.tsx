@@ -6,6 +6,10 @@ import PageBackground from "../PageBackground/PageBackground";
 
 export interface NewProfilePageProps {}
 
+/**
+ * 
+ * @deprecated
+ */
 function NewProfilePage(props: NewProfilePageProps) {
   return (
     <div className="">
@@ -18,7 +22,7 @@ function NewProfilePage(props: NewProfilePageProps) {
             </div>
             <div className="ml-auto">
               Bereits Mitglied?{" "}
-              <a href="#" className="text-primary font-bold">
+              <a href="/login" className="text-primary font-bold">
                 Anmelden
               </a>
             </div>
@@ -32,6 +36,7 @@ function NewProfilePage(props: NewProfilePageProps) {
             <div className="flex flex-row -mx-4 mb-4">
               <div className="basis-6/12 px-4">
                 <SelectField
+                  id="academicTitle"
                   label="Titel"
                   options={[
                     {
@@ -53,29 +58,31 @@ function NewProfilePage(props: NewProfilePageProps) {
 
             <div className="flex flex-row -mx-4 mb-4">
               <div className="basis-6/12 px-4">
-                <InputText label="Vorname" isRequired />
+                <InputText id="firstName" label="Vorname" isRequired />
               </div>
               <div className="basis-6/12 px-4">
-                <InputText label="Nachname" isRequired />
+                <InputText id="lastName" label="Nachname" isRequired />
               </div>
             </div>
 
             <div className="mb-4">
-              <InputText label="E-Mail" isRequired />
+              <InputText id="email" label="E-Mail" isRequired />
             </div>
 
             <div className="mb-4">
-              <InputPassword label="Passwort" isRequired />
+              <InputPassword id="password" label="Passwort" isRequired />
             </div>
 
-            <div className="mb-4">
-              <InputPassword label="Passwort wiederholen" isRequired />
-            </div>
+            {/* <div className="mb-4">
+              <InputPassword id="" label="Passwort wiederholen" isRequired />
+            </div> */}
 
             <div className="mb-8">
               <div className="form-control checkbox-privacy">
                 <label className="label cursor-pointer items-start">
                   <input
+                    id="termsAccepted"
+                    name="termsAccepted"
                     type="checkbox"
                     className="checkbox checkbox-primary mr-4"
                   />
@@ -88,7 +95,9 @@ function NewProfilePage(props: NewProfilePageProps) {
               </div>
             </div>
             <div className="mb-8">
-              <button className="btn btn-primary">Account registrieren</button>
+              <button type="submit" className="btn btn-primary">
+                Account registrieren
+              </button>
             </div>
           </div>
         </div>
