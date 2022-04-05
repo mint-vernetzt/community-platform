@@ -9,4 +9,6 @@ export default {
 export const Default: ComponentStory<typeof PageBackground> = () => (
   <PageBackground />
 );
+
 Default.storyName = "default";
+Default.parameters = { controls: { hideNoControlsWarning: true } };

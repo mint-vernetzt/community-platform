@@ -9,4 +9,6 @@ export default {
 export const Default: ComponentStory<typeof NewProfilePage> = () => (
   <NewProfilePage />
 );
+
 Default.storyName = "default";
+Default.parameters = { controls: { hideNoControlsWarning: true } };

@@ -7,4 +7,6 @@ export default {
 } as ComponentMeta<typeof LoginPage>;
 
 export const Default: ComponentStory<typeof LoginPage> = () => <LoginPage />;
+
 Default.storyName = "default";
+Default.parameters = { controls: { hideNoControlsWarning: true } };

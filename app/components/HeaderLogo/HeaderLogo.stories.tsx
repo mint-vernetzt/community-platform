@@ -7,4 +7,6 @@ export default {
 } as ComponentMeta<typeof HeaderLogo>;
 
 export const Default: ComponentStory<typeof HeaderLogo> = () => <HeaderLogo />;
+
 Default.storyName = "default";
+Default.parameters = { controls: { hideNoControlsWarning: true } };
