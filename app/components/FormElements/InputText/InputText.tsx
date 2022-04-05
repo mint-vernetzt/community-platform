@@ -11,7 +11,7 @@ function InputText(props: InputTextProps) {
 
   return (
     <div className="form-control w-full">
-      <label for={id} className="label">
+      <label htmlFor={id} className="label">
         {props.label}
         {props.isRequired ? " *" : ""}
       </label>
