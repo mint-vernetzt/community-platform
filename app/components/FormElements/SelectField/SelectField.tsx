@@ -16,14 +16,15 @@ function SelectField(props: SelectFieldProps) {
   return (
     <div className="form-control w-full">
       <label for={id} className="label">
-        {props.label}{props.isRequired ? " *" : ""}       
+        {props.label}
+        {props.isRequired ? " *" : ""}
       </label>
       {/* TODO: add selected class on change */}
       <select id={id} className="select select-bordered">
         <option disabled selected></option>
         {props.options.map((option, index) => (
-            <option value={option.value}>{option.label}</option>
-        ))}          
+          <option value={option.value}>{option.label}</option>
+        ))}
       </select>
     </div>
   );

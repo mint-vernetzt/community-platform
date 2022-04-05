@@ -6,5 +6,5 @@ export default {
   component: InputText,
 } as ComponentMeta<typeof InputText>;
 
-export const Default: ComponentStory<typeof InputText> = () => <InputText/>;
+export const Default: ComponentStory<typeof InputText> = () => <InputText />;
 Default.storyName = "default";

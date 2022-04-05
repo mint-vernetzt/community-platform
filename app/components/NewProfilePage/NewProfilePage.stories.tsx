@@ -6,5 +6,7 @@ export default {
   component: NewProfilePage,
 } as ComponentMeta<typeof NewProfilePage>;
 
-export const Default: ComponentStory<typeof NewProfilePage> = () => <NewProfilePage/>;
+export const Default: ComponentStory<typeof NewProfilePage> = () => (
+  <NewProfilePage />
+);
 Default.storyName = "default";

@@ -8,17 +8,20 @@ export interface InputTextProps {
 function InputText(props: InputTextProps) {
   const id = props.id ?? props.label;
   const placeholder = props.placeholder ?? " ";
- 
+
   return (
     <div className="form-control w-full">
       <label for={id} className="label">
-        {props.label}{props.isRequired ? " *" : ""}       
+        {props.label}
+        {props.isRequired ? " *" : ""}
       </label>
       {/* TODO: add required attribute if necessary */}
-      <input type="text" 
+      <input
+        type="text"
         id={id}
-        placeholder={placeholder}        
-        className="input input-bordered w-full" />
+        placeholder={placeholder}
+        className="input input-bordered w-full"
+      />
     </div>
   );
 }

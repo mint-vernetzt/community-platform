@@ -6,13 +6,12 @@ module.exports = {
   content: ["./app/**/*.tsx"],
   plugins: [daisyui],
   daisyui: {
-    themes: false,
     themes: [
       {
         mint: {
           primary: "#154194",
-          "primary-content": "#FFFFFF",          
-          secondary: "#b16fab",          
+          "primary-content": "#FFFFFF",
+          secondary: "#b16fab",
           neutral: "#3d4451",
           "base-100": "#ffffff",
         },

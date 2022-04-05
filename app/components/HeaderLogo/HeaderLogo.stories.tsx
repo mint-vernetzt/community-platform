@@ -6,5 +6,5 @@ export default {
   component: HeaderLogo,
 } as ComponentMeta<typeof HeaderLogo>;
 
-export const Default: ComponentStory<typeof HeaderLogo> = () => <HeaderLogo/>;
+export const Default: ComponentStory<typeof HeaderLogo> = () => <HeaderLogo />;
 Default.storyName = "default";

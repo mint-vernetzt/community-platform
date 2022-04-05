@@ -6,5 +6,7 @@ export default {
   component: PageBackground,
 } as ComponentMeta<typeof PageBackground>;
 
-export const Default: ComponentStory<typeof PageBackground> = () => <PageBackground/>;
+export const Default: ComponentStory<typeof PageBackground> = () => (
+  <PageBackground />
+);
 Default.storyName = "default";

@@ -2,7 +2,8 @@ import type { ApiError, User } from "@supabase/supabase-js";
 import { createCookieSessionStorage } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
-import { supabaseClient, type Session } from "./supabase";
+import { supabaseClient } from "./supabase";
+import type { Session } from "./supabase";
 
 export const SESSION_NAME = "sb";
 
@@ -68,14 +69,24 @@ export const authenticator = new Authenticator<Session>(sessionStorage, {
 
 authenticator.use(supabaseStrategy);
 
-export async function signUp(email: string, password: string, metaData: {
-  firstName: string,
-  lastName: string,
-  username: string,
-  academicTitle: String,
-  termsAccepted: "on" | "off",
-}):Promise<{user: User | null, session: Session | null, error: ApiError | null}> {
-
-  const {user, session, error} = await supabaseClient.auth.signUp({email, password}, {data: metaData});
-  return {user, session, error};
-};
+export async function signUp(
+  email: string,
+  password: string,
+  metaData: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    academicTitle: String;
+    termsAccepted: "on" | "off";
+  }
+): Promise<{
+  user: User | null;
+  session: Session | null;
+  error: ApiError | null;
+}> {
+  const { user, session, error } = await supabaseClient.auth.signUp(
+    { email, password },
+    { data: metaData }
+  );
+  return { user, session, error };
+}

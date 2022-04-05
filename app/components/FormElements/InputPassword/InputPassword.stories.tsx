@@ -6,5 +6,7 @@ export default {
   component: InputPassword,
 } as ComponentMeta<typeof InputPassword>;
 
-export const Default: ComponentStory<typeof InputPassword> = () => <InputPassword/>;
+export const Default: ComponentStory<typeof InputPassword> = () => (
+  <InputPassword />
+);
 Default.storyName = "default";

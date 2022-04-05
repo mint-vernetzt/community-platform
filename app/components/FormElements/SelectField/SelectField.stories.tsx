@@ -6,5 +6,7 @@ export default {
   component: SelectField,
 } as ComponentMeta<typeof SelectField>;
 
-export const Default: ComponentStory<typeof SelectField> = () => <SelectField/>;
+export const Default: ComponentStory<typeof SelectField> = () => (
+  <SelectField />
+);
 Default.storyName = "default";
