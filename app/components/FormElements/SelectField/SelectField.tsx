@@ -11,6 +11,8 @@ export interface SelectFieldProps {
 }
 
 function SelectField(props: SelectFieldProps) {
+  const { options = [] } = props;
+
   const id = props.id ?? props.label;
 
   return (
@@ -22,8 +24,10 @@ function SelectField(props: SelectFieldProps) {
       {/* TODO: add selected class on change */}
       <select id={id} className="select select-bordered">
         <option disabled selected></option>
-        {props.options.map((option, index) => (
-          <option value={option.value}>{option.label}</option>
+        {options.map((option, index) => (
+          <option key={`${id}-option-${index}`} value={option.value}>
+            {option.label}
+          </option>
         ))}
       </select>
     </div>
