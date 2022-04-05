@@ -1,6 +1,24 @@
+import { Form, LoaderFunction, Session, useLoaderData } from "remix";
+import { supabaseStrategy } from "../auth.server";
+
+export const loader: LoaderFunction = async (args) => {
+  const { request } = args;
+  const session = await supabaseStrategy.checkSession(request);
+  return { session };
+};
+
 export default function Index() {
+  const loaderData = useLoaderData<{ session: Session | null }>();
+
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+      {loaderData.session !== null ? (
+        <Form action="/logout?index" method="post">
+          <button type="submit" className="button">
+            Logout
+          </button>
+        </Form>
+      ) : null}
       <h1>Welcome to Remix</h1>
       <ul>
         <li>

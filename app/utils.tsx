@@ -14,3 +14,21 @@ export function validateFormData(
   });
   return isValid;
 }
+
+export function generateUsername(firstName: string, lastName: string) {
+  return `${firstName}${lastName}`
+    .toLowerCase()
+    .replace(/[áàâãå]/, "a")
+    .replace(/[äæ]/, "ae")
+    .replace(/[ç]/, "c")
+    .replace(/[éèêë]/, "e")
+    .replace(/[íìîï]/, "i")
+    .replace(/[ñ]/, "n")
+    .replace(/[ß]/, "ss")
+    .replace(/[óòôõ]/, "o")
+    .replace(/[öœø]/, "oe")
+    .replace(/[úùû]/, "u")
+    .replace(/[ü]/, "ue")
+    .replace(/[^\w ]/g, "")
+    .replace(/[\s]/, "");
+}

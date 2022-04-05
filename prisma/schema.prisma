@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id              String                 @id @default(uuid())
+  username        String                 @unique
+  firstName       String                 @map("first_name")
+  lastName        String                 @map("last_name")
+  academicTitle   String?                @map("academic_title")
+  email           String
+  phone           String?
+  website         String?
+  avatar          String?
+  background      String?
+  facebook        String?
+  linkedin        String?
+  twitter         String?
+  xing            String?
+  job             String?
+  bio             String?
+  skills          String[]
+  interests       String[]
+  publicFields    String[]               @map("public_fields")
+  memberOf        MemberOfOrganization[]
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @default(now()) @map("updated_at")
+  termsAccepted   Boolean                @map("terms_accepted")
+  termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
+
+  @@map("profiles")
+}
+
+model Organization {
+  id                     String                 @id @default(uuid())
+  name                   String
+  slug                   String                 @unique
+  email                  String
+  phone                  String?
+  street                 String
+  streetNumber           String                 @map("street_number")
+  zipCode                String                 @map("zip_code")
+  city                   String
+  website                String?
+  logo                   String?
+  background             String?
+  facebook               String?
+  linkedin               String?
+  twitter                String?
+  xing                   String?
+  bio                    String?
+  type                   String?
+  quote                  String?
+  quoteAuthor            String?                @map("quote_author")
+  quoteAuthorInformation String?                @map("quote_author_information")
+  supportedBy            String[]               @map("supported_by")
+  publicFields           String[]               @map("public_fields")
+  teamMembers            MemberOfOrganization[]
+  memberOf               MemberOfNetwork[]      @relation(name: "network")
+  networkMembers         MemberOfNetwork[]      @relation(name: "member")
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @default(now()) @map("updated_at")
+
+  @@map("organizations")
+}
+
+model MemberOfOrganization {
+  profile        Profile      @relation(fields: [profileId], references: [id])
+  profileId      String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  isPrivileged   Boolean      @default(false)
+
+  @@id([profileId, organizationId])
+  @@map("members_of_organizations")
+}
+
+model MemberOfNetwork {
+  organization           Organization @relation(fields: [organizationId], references: [id], name: "member")
+  organizationId         String
+  umbrellaOrganization   Organization @relation(fields: [umbrellaOrganizationId], references: [id], name: "network")
+  umbrellaOrganizationId String
+
+  @@id([organizationId, umbrellaOrganizationId])
+  @@map("members_of_networks")
+}
