@@ -15,6 +15,10 @@ Run `npm run create` and select generator:
 - **test** - Create component test
 - **stories** - Create component stories
 
+## Fonts
+
+To use custom fonts we have to add font files from @fontsource to public folder. Just run `npm run copy:fonts` to do so. If you need more fonts or font faces add them to the script.
+
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)
