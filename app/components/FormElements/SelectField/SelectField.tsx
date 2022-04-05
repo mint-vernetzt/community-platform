@@ -22,7 +22,7 @@ function SelectField(props: SelectFieldProps) {
         {props.isRequired ? " *" : ""}
       </label>
       {/* TODO: add selected class on change */}
-      <select id={id} className="select select-bordered">
+      <select id={id} name={id} className="select select-bordered">
         <option disabled selected></option>
         {options.map((option, index) => (
           <option key={`${id}-option-${index}`} value={option.value}>

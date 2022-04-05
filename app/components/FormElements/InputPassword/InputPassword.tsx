@@ -25,6 +25,7 @@ function InputPassword(props: InputPasswordProps) {
         <input
           type={passwordShown ? "text" : "password"}
           id={id}
+          name={id}
           required
           className="input input-bordered w-full"
         />

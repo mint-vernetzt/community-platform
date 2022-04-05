@@ -19,6 +19,7 @@ function InputText(props: InputTextProps) {
       <input
         type="text"
         id={id}
+        name={id}
         placeholder={placeholder}
         className="input input-bordered w-full"
       />
