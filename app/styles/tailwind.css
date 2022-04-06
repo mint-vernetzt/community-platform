@@ -1,3 +1,107 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@layer base {
+  @font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: 400;
+    src: url("/fonts/source-sans-pro-latin-400-normal.woff");
+  }
+  @font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: 600;
+    src: url("/fonts/source-sans-pro-latin-600-normal.woff");
+  }
+  @font-face {
+    font-family: "Source Sans Pro";
+    font-style: normal;
+    font-weight: 700;
+    src: url("/fonts/source-sans-pro-latin-700-normal.woff");
+  }
+
+  body {
+    @apply text-neutral-600;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-primary mb-2 leading-tight;
+  }
+  h1,
+  .h1 {
+    @apply text-5xl lg:text-7xl mb-4 font-bold;
+  }
+  h2,
+  .h2 {
+    @apply text-4xl lg:text-6xl lg:mb-4;
+  }
+  h3,
+  .h3 {
+    @apply text-2xl lg:text-5xl;
+  }
+  h4,
+  .h4 {
+    @apply text-lg lg:text-3xl;
+  }
+  h5,
+  .h5 {
+    @apply text-base lg:text-xl;
+  }
+  h6,
+  .h6 {
+    @apply text-base lg:text-lg mb-1;
+  }
+  .h0 {
+    @apply text-6xl lg:text-8xl font-bold;
+  }
+  .h0 + h5 {
+    @apply font-bold;
+  }
+
+  .form-control .label {
+    @apply font-semibold p-0 pb-2;
+  }
+  .form-control.checkbox-privacy .label {
+    @apply font-normal p-0;
+  }
+
+  .form-control .input,
+  .form-control .select {
+    @apply border-2 border-neutral-500 bg-neutral-300 text-neutral-900 px-4 py-0 font-semibold h-auto text-base;
+    &:focus {
+      @apply bg-white;
+      outline: none;
+    }
+  }
+  .form-control .input {
+    &:not(:placeholder-shown):not(:required),
+    &:required:valid {
+      @apply bg-white;
+      outline: none;
+    }
+  }
+  .form-control .select {
+    @apply min-h-0;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-control .select[selected] {
+    @apply bg-white;
+  }
+  .form-control option[value=""][disabled][selected] {
+    @apply bg-neutral-300;
+  }
+}
+
+.btn {
+  @apply px-6 h-auto min-h-0 leading-6 py-2 border-0 normal-case;
+}

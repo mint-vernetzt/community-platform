@@ -1,79 +1,18 @@
-import { ActionFunction, Form, json, LoaderFunction } from "remix";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import InputText from "../../components/FormElements/InputText/InputText";
-import SelectField from "../../components/FormElements/SelectField/SelectField";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import { signUp } from "../../auth.server";
-import { prismaClient } from "../../prisma";
-import { badRequest, generateUsername, validateFormData } from "../../utils";
+import InputText from "../FormElements/InputText/InputText";
+import SelectField from "../FormElements/SelectField/SelectField";
+import HeaderLogo from "../HeaderLogo/HeaderLogo";
+import InputPassword from "../FormElements/InputPassword/InputPassword";
+import PageBackground from "../PageBackground/PageBackground";
 
-export const loader: LoaderFunction = async (args) => {
-  return null;
-};
+export interface NewProfilePageProps {}
 
-// TODO: Error handling and passing
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
-
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch (error) {
-    return badRequest();
-  }
-
-  const isFormDataValid = validateFormData(
-    ["email", "password", "firstName", "lastName", "termsAccepted"],
-    formData
-  );
-
-  if (!isFormDataValid) {
-    console.error("form data not valid");
-    return badRequest(); // TODO: return empty fields to highlight
-  }
-
-  const termsAccepted = formData.get("termsAccepted");
-  if (termsAccepted !== "on") {
-    console.error("terms not accepted");
-    return badRequest(); // TODO: return message e.g. "accepting terms are required"
-  }
-
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const firstName = formData.get("firstName") as string;
-  const lastName = formData.get("lastName") as string;
-  const academicTitle = formData.get("academicTitle") as string;
-
-  // TODO: move to database trigger
-  const numberOfProfilesWithSameName = await prismaClient.profile.count({
-    where: { firstName, lastName },
-  });
-  const username = `${generateUsername(firstName, lastName)}${
-    numberOfProfilesWithSameName > 0
-      ? numberOfProfilesWithSameName.toString()
-      : ""
-  }`;
-
-  const { user, session, error } = await signUp(email, password, {
-    firstName,
-    lastName,
-    username,
-    academicTitle,
-    termsAccepted,
-  });
-
-  if (error) {
-    console.error(error);
-    return badRequest(); // TODO: handle and pass error
-  }
-
-  return json({ user, session });
-};
-
-export default function Register() {
+/**
+ * 
+ * @deprecated
+ */
+function NewProfilePage(props: NewProfilePageProps) {
   return (
-    <Form method="post">
+    <div className="">
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
@@ -163,6 +102,8 @@ export default function Register() {
           </div>
         </div>
       </div>
-    </Form>
+    </div>
   );
 }
+
+export default NewProfilePage;

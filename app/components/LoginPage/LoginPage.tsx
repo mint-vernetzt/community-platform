@@ -1,51 +1,18 @@
-import { ActionFunction, Form, json, LoaderFunction } from "remix";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import InputText from "../../components/FormElements/InputText/InputText";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import {
-  authenticator,
-  sessionStorage,
-  supabaseStrategy,
-} from "../../auth.server";
+import InputText from "../FormElements/InputText/InputText";
+import SelectField from "../FormElements/SelectField/SelectField";
+import HeaderLogo from "../HeaderLogo/HeaderLogo";
+import InputPassword from "../FormElements/InputPassword/InputPassword";
+import PageBackground from "../PageBackground/PageBackground";
 
-export const Routes = {
-  SuccessRedirect: "/",
-  FailureRedirect: "/login",
-};
+export interface LoginPageProps {}
 
-type LoaderData = {
-  error: Error | null;
-};
-
-export const loader: LoaderFunction = async (args) => {
-  const { request } = args;
-
-  await supabaseStrategy.checkSession(request, {
-    successRedirect: "/",
-  });
-
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
-
-  const error = session.get(authenticator.sessionErrorKey);
-
-  return json<LoaderData>({ error });
-};
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
-
-  await authenticator.authenticate("sb", request, {
-    successRedirect: Routes.SuccessRedirect,
-    failureRedirect: Routes.FailureRedirect,
-  });
-};
-
-export default function Index() {
+/**
+ *
+ * @deprecated
+ */
+function LoginPage(props: LoginPageProps) {
   return (
-    <Form method="post">
+    <div className="">
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
@@ -89,6 +56,8 @@ export default function Index() {
           </div>
         </div>
       </div>
-    </Form>
+    </div>
   );
 }
+
+export default LoginPage;

@@ -11,7 +11,7 @@ export default function Index() {
   const loaderData = useLoaderData<{ session: Session | null }>();
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+    <div>
       {loaderData.session !== null ? (
         <Form action="/logout?index" method="post">
           <button type="submit" className="button">
