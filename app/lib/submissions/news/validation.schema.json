@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://plattform.mmintvernetzt.de/news.schema.json",
+  "$id": "https://plattform.mintvernetzt.de/news.schema.json",
   "type": "object",
   "properties": {
     "title": {
