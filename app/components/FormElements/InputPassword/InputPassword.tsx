@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 
 export interface InputPasswordProps {
   label: string;
@@ -10,7 +10,8 @@ function InputPassword(props: InputPasswordProps) {
   const id = props.id ?? props.label;
 
   const [passwordShown, setPasswordShown] = useState(false);
-  const togglePassword = () => {
+  const togglePassword: MouseEventHandler = (event) => {
+    event.preventDefault();
     setPasswordShown(!passwordShown);
   };
 

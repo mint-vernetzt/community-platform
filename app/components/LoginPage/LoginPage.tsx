@@ -6,6 +6,10 @@ import PageBackground from "../PageBackground/PageBackground";
 
 export interface LoginPageProps {}
 
+/**
+ *
+ * @deprecated
+ */
 function LoginPage(props: LoginPageProps) {
   return (
     <div className="">
@@ -18,7 +22,7 @@ function LoginPage(props: LoginPageProps) {
             </div>
             <div className="ml-auto">
               Noch kein Mitglied?{" "}
-              <a href="#" className="text-primary font-bold">
+              <a href="/register" className="text-primary font-bold">
                 Registrieren
               </a>
             </div>
@@ -30,19 +34,21 @@ function LoginPage(props: LoginPageProps) {
             <h1 className="mb-8">Anmelden</h1>
 
             <div className="mb-4">
-              <InputText label="E-Mail" />
+              <InputText id="email" label="E-Mail" />
             </div>
 
             <div className="mb-10">
-              <InputPassword label="Passwort" />
+              <InputPassword id="password" label="Passwort" />
             </div>
 
             <div className="flex flex-row -mx-4 mb-8 items-center">
               <div className="basis-6/12 px-4">
-                <button className="btn btn-primary">Login</button>
+                <button type="submit" className="btn btn-primary">
+                  Login
+                </button>
               </div>
               <div className="basis-6/12 px-4 text-right">
-                <a href="#" className="text-primary font-bold">
+                <a href="/reset" className="text-primary font-bold">
                   Passwort vergessen?
                 </a>
               </div>
