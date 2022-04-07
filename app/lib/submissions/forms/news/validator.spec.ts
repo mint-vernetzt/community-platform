@@ -1,5 +1,5 @@
 import { NewsFormData } from "./newsFormData";
-import { validateSubmission } from "../validator/validateSubmission";
+import { validateSubmission } from "../../validator/validateSubmission";
 import * as schema from "./validation.schema.json";
 describe("news submission validator", () => {
   let validFormPost = {

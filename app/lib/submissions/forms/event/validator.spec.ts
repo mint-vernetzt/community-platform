@@ -1,5 +1,5 @@
 import { EventFormData } from "./eventFormData";
-import { validateSubmission } from "../validator/validateSubmission";
+import { validateSubmission } from "../../validator/validateSubmission";
 import * as schema from "./validation.schema.json";
 describe("event submission validator", () => {
   let validFormPost = {

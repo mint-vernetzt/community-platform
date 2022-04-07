@@ -1,7 +1,7 @@
-import { EventFormData } from "~/lib/submissions/event/eventFormData";
+import { EventFormData } from "~/lib/submissions/forms/event/eventFormData";
 import { submissionMailer } from "../../lib/submissions/mailer/submissionMailer";
 import { action, loader } from "./event";
-import * as eventSchema from "../../lib/submissions/event/validation.schema.json";
+import * as eventSchema from "../../lib/submissions/forms/event/validation.schema.json";
 import { mailerOptions } from "../../lib/submissions/mailer/mailerOptions";
 
 jest.mock("../../lib/submissions/mailer/submissionMailer");
