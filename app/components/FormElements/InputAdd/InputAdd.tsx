@@ -8,7 +8,7 @@ export interface InputTextProps {
   isHideable?: boolean;
 }
 
-function InputText(props: InputTextProps) {
+function InputAdd(props: InputAddProps) {
   const id = props.id ?? props.label;
   const placeholder = props.placeholder ?? " ";
   const isHideable = props.isHideable;
@@ -87,10 +87,16 @@ function InputText(props: InputTextProps) {
             className="input input-bordered w-full"
           />
         </div>
+
+        <div className="ml-2">
+          <button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600">
+            +
+          </button>
+        </div>
         {HideButton}
       </div>
     </div>
   );
 }
 
-export default InputText;
+export default InputAdd;

@@ -1,6 +1,6 @@
 import { MouseEventHandler, useState } from "react";
 
-export interface InputTextProps {
+export interface TextAreaProps {
   label: string;
   id?: string;
   placeholder?: string;
@@ -8,7 +8,7 @@ export interface InputTextProps {
   isHideable?: boolean;
 }
 
-function InputText(props: InputTextProps) {
+function TextArea(props: TextAreaProps) {
   const id = props.id ?? props.label;
   const placeholder = props.placeholder ?? " ";
   const isHideable = props.isHideable;
@@ -22,7 +22,7 @@ function InputText(props: InputTextProps) {
   let HideButton;
   if (isHideable) {
     HideButton = (
-      <div className="ml-2">
+      <div className="ml-2 mt-0.5">
         <button
           className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600"
           onClick={toggleVisibility}
@@ -70,22 +70,19 @@ function InputText(props: InputTextProps) {
 
   return (
     <div className="form-control w-full">
-      {props.label && (
-        <label htmlFor={id} className="label">
-          {props.label}
-          {props.isRequired ? " *" : ""}
-        </label>
-      )}
+      <label htmlFor={id} className="label">
+        {props.label}
+        {props.isRequired ? " *" : ""}
+      </label>
       {/* TODO: add required attribute if necessary */}
-      <div className="flex flex-row items-center">
+      <div className="flex flex-row">
         <div className="flex-auto">
-          <input
-            type="text"
+          <textarea
             id={id}
             name={id}
             placeholder={placeholder}
-            className="input input-bordered w-full"
-          />
+            className="textarea textarea-bordered h-24 w-full"
+          ></textarea>
         </div>
         {HideButton}
       </div>
@@ -93,4 +90,4 @@ function InputText(props: InputTextProps) {
   );
 }
 
-export default InputText;
+export default TextArea;

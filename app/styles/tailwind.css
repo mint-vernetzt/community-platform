@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   @font-face {
     font-family: "Source Sans Pro";
@@ -74,6 +73,7 @@
   }
 
   .form-control .input,
+  .form-control .textarea,
   .form-control .select {
     @apply border-2 border-neutral-500 bg-neutral-300 text-neutral-900 px-4 py-0 font-semibold h-auto text-base;
     &:focus {
@@ -81,6 +81,7 @@
       outline: none;
     }
   }
+  .form-control .textarea,
   .form-control .input {
     &:not(:placeholder-shown):not(:required),
     &:required:valid {
@@ -100,8 +101,27 @@
   .form-control option[value=""][disabled][selected] {
     @apply bg-neutral-300;
   }
+
+  .form-control .textarea {
+    @apply h-24 py-2;
+  }
 }
 
 .btn {
   @apply px-6 h-auto min-h-0 leading-6 py-2 border-0 normal-case;
+}
+
+.btn-link {
+  @apply bg-white text-primary;
+}
+
+.btn-outline-primary {
+  @apply bg-white text-primary border border-primary;
+  &:hover {
+    @apply bg-primary text-white;
+  }
+}
+
+.btn-small {
+  @apply py-1;
 }
