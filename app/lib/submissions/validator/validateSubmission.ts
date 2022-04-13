@@ -5,7 +5,8 @@ export function validateSubmission<T>(formData: T, schema: Schema) {
   let result = validator.validate(formData, schema);
 
   return result.errors.map((e) => ({
-    field: e.property === "instance" ? e.argument : e.property.split(".")[1],
+    field:
+      e.property === "instance" ? e.argument : e.property.split(".")[1] ?? "",
     rule: e.name,
   }));
 }

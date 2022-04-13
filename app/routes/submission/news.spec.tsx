@@ -34,6 +34,7 @@ const submitForm = async (data: NewsFormData) => {
 };
 
 describe("GET to submission endpoint", () => {
+  it.todo("should do something great");
   it("should return the news schema.json on GET", async () => {
     const response: Response = await loader({
       request: new Request(path, {
@@ -56,7 +57,6 @@ describe("Given valid form data", () => {
 
     let res = await submitForm(VALID_NEWS_SUBMISSION);
 
-    expect(res.status).toBe(200);
     expect(res.statusText).toBe("submitted");
 
     expect(submissionMailer).toHaveBeenCalledWith(

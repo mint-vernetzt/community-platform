@@ -12,7 +12,7 @@ type MailerOptions = {
 function renderTextTemplate<T>(o: T) {
   return Object.entries(o)
     .map(([key, value]) => `${key.toUpperCase()}: ${value}`)
-    .join("\n");
+    .join("\n --- \n");
 }
 
 export async function submissionMailer<T>(
