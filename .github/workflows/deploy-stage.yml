@@ -16,24 +16,24 @@ jobs:
       SESSION_SECRET: ${{secrets.SESSION_SECRET_STAGE}}
       DATABASE_URL: ${{secrets.DATABASE_URL_STAGE}}
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "16"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
-      - name: "install dependencies"
-        run: npm install
-      - name: "run tests"
-        run: npm test
-      - name: "build application"
-        run: npm run build
-      - name: deploy on server
-        uses: appleboy/scp-action@master
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_STAGE }}
           username: ${{ secrets.USERNAME_STAGE }}
           passphrase: ${{ secrets.PASSPHRASE_STAGE }}
+          key: ${{ secrets.KEY_STAGE }}
           port: ${{ secrets.PORT_STAGE }}
           source: "build,public/build"
           target: ${{ secrets.TARGET_DIR_STAGE }}
+          envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
+          script: |
+            eval `ssh-agent`
+            ssh-add ~/.ssh/github-dk
+            cd repository/
+            git pull
+            npm install
+            npm test
+            npm run build
+            pm2 restart npm
+
