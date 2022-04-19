@@ -1,6 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 
-const prismaClient = new PrismaClient();
-prismaClient.$connect();
+declare global {
+  var __prismaClient: PrismaClient | undefined;
+}
+
+let prismaClient: PrismaClient;
+
+if (process.env.NODE_ENV === "production") {
+  prismaClient = new PrismaClient();
+} else {
+  if (global.__prismaClient === undefined) {
+    global.__prismaClient = new PrismaClient();
+  }
+  prismaClient = global.__prismaClient;
+}
+
+try {
+  prismaClient.$connect();
+  console.log("prismaClient.$connect success");
+} catch (error) {
+  console.error("on prismaClient $connect", error);
+  throw error;
+}
 
 export { prismaClient };
