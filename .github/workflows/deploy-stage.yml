@@ -10,6 +10,11 @@ jobs:
   build-and-deploy-stage:
     name: Build and deploy on stage
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_ANON_KEY: ${{secrets.SUPABASE_ANON_KEY_STAGE}}
+      SUPABASE_URL: ${{secrets.SUPABASE_URL_STAGE}}
+      SESSION_SECRET: ${{secrets.SESSION_SECRET_STAGE}}
+      DATABASE_URL: ${{secrets.DATABASE_URL_STAGE}}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v2
@@ -23,11 +28,6 @@ jobs:
         run: npm test
       - name: "build application"
         run: npm run build
-        env:
-          SUPABASE_ANON_KEY: ${{secrets.SUPABASE_ANON_KEY_STAGE}}
-          SUPABASE_URL: ${{secrets.SUPABASE_URL_STAGE}}
-          SESSION_SECRET: ${{secrets.SESSION_SECRET_STAGE}}
-          DATABASE_URL: ${{secrets.DATABASE_URL_STAGE}}
       - name: deploy on server
         uses: appleboy/scp-action@master
         with:
