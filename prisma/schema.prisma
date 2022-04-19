@@ -89,3 +89,17 @@ model MemberOfNetwork {
   @@id([organizationId, umbrellaOrganizationId])
   @@map("members_of_networks")
 }
+
+model State {
+  agsPrefix String   @unique
+  name      String   @unique
+  districts District[]
+}
+
+model District {
+  ags       String   @unique
+  name      String
+  state     State    @relation(fields: [stateAgsPrefix], references: [agsPrefix])
+  stateAgsPrefix   String
+  @@unique([name, stateAgsPrefix])
+}

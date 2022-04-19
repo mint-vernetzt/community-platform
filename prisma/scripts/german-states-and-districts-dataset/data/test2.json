@@ -1,0 +1,24 @@
+{
+  "data": {
+    "01234": {
+      "state": "BL11",
+      "name": "LK1",
+      "uselessAttribute": "uselessValue",
+      "community": "this value should be ignored"
+    },
+    "01235": {
+      "state": "BL11",
+      "name": "LK2",
+      "uselessAttribute1": "uselessValue",
+      "uselessAttribute2": "uselessValue"
+    },
+    "03456": {
+      "state": "BL13",
+      "name": "LK3"
+    },
+    "04567": {
+      "state": "BL14",
+      "name": "LK4"
+    }
+  }
+}

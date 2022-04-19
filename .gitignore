@@ -13,3 +13,6 @@ node_modules
 
 # tailwind
 /app/styles/styles.css
+
+# misc
+.idea
