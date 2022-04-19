@@ -14,7 +14,7 @@
     "format": "lint-staged",
     "build:styles": "tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/styles.css --postcss",
     "build:styles:watch": "npm run build:styles -- --watch",
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=test node -r dotenv/config node_modules/.bin/jest",
     "test:watch": "npm run test -- --watch",
     "storybook": "npm run build:styles:watch | start-storybook -p 6006",
     "build-storybook": "build-storybook",
