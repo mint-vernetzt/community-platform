@@ -24,8 +24,6 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE_STAGE }}
           key: ${{ secrets.KEY_STAGE }}
           port: ${{ secrets.PORT_STAGE }}
-          source: "build,public/build"
-          target: ${{ secrets.TARGET_DIR_STAGE }}
           envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
           script_stop: true
           script: |
