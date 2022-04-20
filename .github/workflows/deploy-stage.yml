@@ -34,7 +34,6 @@ jobs:
             cd repository/
             git pull
             npm install
-            npm test -- --testTimeout=10000
             npm run build
             pm2 restart npm
 

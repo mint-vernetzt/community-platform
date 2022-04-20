@@ -19,7 +19,7 @@ export default function Index() {
           </button>
         </Form>
       ) : null}
-      <h1>Welcome to Remix Test</h1>
+      <h1>Welcome to Remix Test1</h1>
       <ul>
         <li>
           <a
