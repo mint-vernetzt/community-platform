@@ -7,9 +7,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy-stage:
-    name: Build and deploy on stage
+  login-and-run-commands:
+    name: Build and start on remote
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_ANON_KEY: ${{secrets.SUPABASE_ANON_KEY_STAGE}}
+      SUPABASE_URL: ${{secrets.SUPABASE_URL_STAGE}}
+      SESSION_SECRET: ${{secrets.SESSION_SECRET_STAGE}}
+      DATABASE_URL: ${{secrets.DATABASE_URL_STAGE}}
     steps:
-      - name: "hello world"
-        run: echo "Hello World"
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_STAGE }}
+          username: ${{ secrets.USERNAME_STAGE }}
+          passphrase: ${{ secrets.PASSPHRASE_STAGE }}
+          key: ${{ secrets.KEY_STAGE }}
+          port: ${{ secrets.PORT_STAGE }}
+          envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
+          script_stop: true
+          script: |
+            eval `ssh-agent`
+            ssh-add ~/.ssh/github-dk
+            cd repository/
+            git pull
+            npm install
+            npm run build
+            pm2 restart npm
+
