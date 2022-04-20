@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy-stage:
-    name: Build and deploy on stage
+  login-and-run-commands:
+    name: Build and start on remote
     runs-on: ubuntu-latest
     env:
       SUPABASE_ANON_KEY: ${{secrets.SUPABASE_ANON_KEY_STAGE}}
