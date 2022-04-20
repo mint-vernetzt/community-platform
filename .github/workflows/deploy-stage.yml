@@ -27,13 +27,14 @@ jobs:
           source: "build,public/build"
           target: ${{ secrets.TARGET_DIR_STAGE }}
           envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
+          script_stop: true
           script: |
             eval `ssh-agent`
             ssh-add ~/.ssh/github-dk
             cd repository/
             git pull
             npm install
-            npm test
+            npm test -- --testTimeout=10000
             npm run build
             pm2 restart npm
 
