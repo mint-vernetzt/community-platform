@@ -6,7 +6,7 @@
   "sideEffects": false,
   "scripts": {
     "prepare": "husky install",
-    "build": "npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
+    "build": "npm run build:styles && npm run copy:fonts && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
     "dev": "npm run build:styles:watch | cross-env NODE_ENV=development node -r dotenv/config node_modules/.bin/remix dev",
     "postinstall": "remix setup node",
     "start": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix-serve build",
