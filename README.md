@@ -19,6 +19,15 @@ Run `npm run create` and select generator:
 
 To use custom fonts we have to add font files from @fontsource to public folder. Just run `npm run copy:fonts` to do so. If you need more fonts or font faces add them to the script.
 
+# Local Supabase
+
+Requirements [docker](https://docs.docker.com/get-docker/), [supabase cli](https://supabase.com/docs/reference/cli/installing-and-updating)
+
+1. run `supabase start`
+1. copy values of `anon key`, `API URL` and `DB URL` to the `.env` file
+1. run `make`
+1. browse to `Studio URL` and copy paste content of `supabase.enhancement.sql` to **SQL Editor** and run command
+
 # Welcome to Remix!
 
 - [Remix Docs](https://remix.run/docs)
