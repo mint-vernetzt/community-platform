@@ -20,3 +20,7 @@ node_modules
 # Supabase
 **/supabase/.branches
 **/supabase/.temp
+
+# Cypress
+/cypress/videos
+/cypress/screenshots
