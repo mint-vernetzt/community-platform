@@ -21,7 +21,9 @@
     "prisma:migrate": "node -r dotenv/config node_modules/.bin/prisma migrate dev",
     "prisma:format": "prisma format",
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
-    "make": "make"
+    "make": "make",
+    "test:func": "node -r dotenv/config node_modules/.bin/cypress run",
+    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open"
   },
   "dependencies": {
     "@fontsource/source-sans-pro": "^4.5.6",
