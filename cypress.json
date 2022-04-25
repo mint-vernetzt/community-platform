@@ -1,4 +1,4 @@
 {
   "integrationFolder": "app/",
-  "testFiles": "**/*.integration.*"
+  "testFiles": "**/*.func.*"
 }
