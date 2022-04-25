@@ -9,7 +9,7 @@ it("register user", () => {
   cy.findByLabelText("Passwort *").type("password");
   cy.findByRole("checkbox").click();
   cy.findByText("Account registrieren").click();
-  cy.wait(1000);
+  cy.url().should("eq", "http://localhost:3000/register?index");
 });
 
 after(async () => {
