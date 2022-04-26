@@ -97,3 +97,13 @@ export async function resetPassword(
   const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email);
   return { error };
 }
+
+export async function updatePassword(
+  accessToken: string,
+  password: string
+): Promise<{ error: ApiError | null }> {
+  const { error } = await supabaseClient.auth.api.updateUser(accessToken, {
+    password,
+  });
+  return { error };
+}
