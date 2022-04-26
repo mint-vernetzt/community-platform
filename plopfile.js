@@ -30,8 +30,14 @@ module.exports = function (
       },
       {
         type: "confirm",
-        name: "skipTest",
-        message: "Do you want to skip test?",
+        name: "skipUnitTest",
+        message: "Do you want to skip unit test?",
+        default: false,
+      },
+      {
+        type: "confirm",
+        name: "skipFunctionalTest",
+        message: "Do you want to skip functional test?",
         default: false,
       },
     ],
@@ -63,13 +69,28 @@ module.exports = function (
         },
       ];
 
-      if (!data.skipTest) {
+      if (!data.skipUnitTest) {
         actions.push({
           type: "add",
           path: filePath.replace(".tsx", ".spec.tsx"),
           templateFile: data.isParameter
             ? "templates/$route.spec.txt"
             : "templates/route.spec.txt",
+          data: {
+            fileName,
+            route,
+            componentName,
+          },
+        });
+      }
+
+      if (!data.skipUnitTest) {
+        actions.push({
+          type: "add",
+          path: filePath.replace(".tsx", ".func.tsx"),
+          templateFile: data.isParameter
+            ? "templates/$route.func.txt"
+            : "templates/route.func.txt",
           data: {
             fileName,
             route,
