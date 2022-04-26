@@ -21,7 +21,9 @@
     "prisma:migrate": "node -r dotenv/config node_modules/.bin/prisma migrate dev",
     "prisma:format": "prisma format",
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
-    "make": "make"
+    "make": "make",
+    "test:func": "node -r dotenv/config node_modules/.bin/cypress run",
+    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open"
   },
   "dependencies": {
     "@fontsource/source-sans-pro": "^4.5.6",
@@ -29,6 +31,7 @@
     "@remix-run/react": "^1.2.3",
     "@remix-run/serve": "^1.2.3",
     "@supabase/supabase-js": "^1.33.2",
+    "commander": "^9.1.0",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.0",
     "react": "^17.0.2",
@@ -36,7 +39,6 @@
     "remix": "^1.2.3",
     "remix-auth": "^3.2.1",
     "remix-auth-supabase": "^3.1.0",
-    "commander": "^9.1.0",
     "ts-node": "^10.7.0"
   },
   "devDependencies": {
@@ -53,6 +55,7 @@
     "@storybook/addon-links": "^6.4.19",
     "@storybook/react": "^6.4.19",
     "@storybook/testing-library": "^0.0.9",
+    "@testing-library/cypress": "^8.0.2",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@types/jest": "^27.4.1",
@@ -60,8 +63,10 @@
     "@types/react-dom": "^17.0.9",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
+    "cypress": "^9.5.4",
     "daisyui": "^2.8.0",
     "eslint": "^8.9.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-storybook": "^0.5.7",
     "husky": "^7.0.4",
     "jest": "^27.5.1",

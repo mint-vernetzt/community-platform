@@ -1,5 +1,9 @@
 import { loader } from "./index";
 
+/** @type {jest.Expect} */
+// @ts-ignore
+const expect = global.expect;
+
 const path = "/login";
 
 test("call loader", async () => {
