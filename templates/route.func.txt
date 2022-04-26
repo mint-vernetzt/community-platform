@@ -1,4 +1,9 @@
+const test = it;
 
-it("opens route", () => {
-  cy.visit("http://localhost:3000{{ route }}");
+describe("context", () => {
+  test("opens route", () => {
+    cy.visit("http://localhost:3000{{ route }}");
+  });
 });
+
+export {};
