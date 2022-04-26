@@ -16,3 +16,7 @@ node_modules
 
 # misc
 .idea
+
+# Supabase
+**/supabase/.branches
+**/supabase/.temp
