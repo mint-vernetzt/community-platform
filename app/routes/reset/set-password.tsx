@@ -4,14 +4,13 @@ import {
   json,
   LoaderFunction,
   redirect,
-  useActionData,
   useLoaderData,
 } from "remix";
 import { badRequest, serverError } from "remix-utils";
+import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { updatePassword } from "~/auth.server";
 
 type LoaderData = {
   accessToken: string;
@@ -22,7 +21,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const url = new URL(request.url);
 
-  const accessToken = url.searchParams.get("accessToken");
+  const accessToken = url.searchParams.get("access_token");
   if (typeof accessToken !== "string" || accessToken === "") {
     throw badRequest({ message: "Access token required." });
   }

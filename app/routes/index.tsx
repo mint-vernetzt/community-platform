@@ -22,11 +22,12 @@ export default function Index() {
         submit(null, { action: "/login?index" }); // TODO: maybe we can automatically log in user
       }
       if (type === "recovery") {
-        submit({ accessToken }, { action: "/reset/set-password" });
+        submit(
+          { access_token: accessToken },
+          { action: "/reset/set-password" }
+        );
       }
     }
-
-    console.log(type, accessToken);
   });
 
   return (
