@@ -90,3 +90,20 @@ export async function signUp(
   );
   return { user, session, error };
 }
+
+export async function resetPassword(
+  email: string
+): Promise<{ error: ApiError | null }> {
+  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email);
+  return { error };
+}
+
+export async function updatePassword(
+  accessToken: string,
+  password: string
+): Promise<{ error: ApiError | null }> {
+  const { error } = await supabaseClient.auth.api.updateUser(accessToken, {
+    password,
+  });
+  return { error };
+}

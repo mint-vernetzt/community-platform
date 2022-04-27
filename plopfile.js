@@ -84,7 +84,7 @@ module.exports = function (
         });
       }
 
-      if (!data.skipUnitTest) {
+      if (!data.skipFunctionalTest) {
         actions.push({
           type: "add",
           path: filePath.replace(".tsx", ".func.tsx"),

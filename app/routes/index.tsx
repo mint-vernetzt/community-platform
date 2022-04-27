@@ -1,4 +1,5 @@
-import { Form, LoaderFunction, Session, useLoaderData } from "remix";
+import React from "react";
+import { Form, LoaderFunction, Session, useLoaderData, useSubmit } from "remix";
 import { supabaseStrategy } from "../auth.server";
 
 export const loader: LoaderFunction = async (args) => {
@@ -9,6 +10,25 @@ export const loader: LoaderFunction = async (args) => {
 
 export default function Index() {
   const loaderData = useLoaderData<{ session: Session | null }>();
+  const submit = useSubmit();
+
+  React.useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.hash.slice(1));
+    const type = urlSearchParams.get("type");
+    const accessToken = urlSearchParams.get("access_token");
+
+    if (accessToken !== null) {
+      if (type === "signup") {
+        submit(null, { action: "/login?index" }); // TODO: maybe we can automatically log in user
+      }
+      if (type === "recovery") {
+        submit(
+          { access_token: accessToken },
+          { action: "/reset/set-password" }
+        );
+      }
+    }
+  });
 
   return (
     <div>
