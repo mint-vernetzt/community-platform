@@ -107,3 +107,10 @@ export async function updatePassword(
   });
   return { error };
 }
+export const getUser = async (request: Request): Promise<User | null> => {
+  const session = await supabaseStrategy.checkSession(request);
+  if (session !== null && session.user !== null) {
+    return session.user;
+  }
+  return null;
+};
