@@ -113,31 +113,4 @@ describe("submit profile changes", () => {
 
     expect(updateProfileByUserId).not.toHaveBeenCalled();
   });
-
-  test("session user submits profile update to be saved", async () => {
-    const partialProfile: Partial<Profile> = {
-      firstName: "updated firstname",
-    };
-
-    const formData = new FormData();
-    Object.entries(partialProfile).forEach(([key, value]) =>
-      formData.append(key, value as string)
-    );
-
-    await action({
-      request: new Request("/profile/sessionusername/edit", {
-        method: "POST",
-        body: formData,
-      }),
-      params: {
-        username: "sessionusername",
-      },
-      context: {},
-    });
-
-    expect(updateProfileByUserId).toHaveBeenCalledWith(
-      "sessionusername",
-      partialProfile
-    );
-  });
 });

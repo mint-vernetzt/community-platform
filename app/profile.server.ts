@@ -12,5 +12,12 @@ export async function updateProfileByUsername(
   username: string,
   data: Partial<Profile>
 ) {
-  return true;
+  const result = await prismaClient.profile.update({
+    where: {
+      username,
+    },
+    data,
+  });
+
+  return result;
 }

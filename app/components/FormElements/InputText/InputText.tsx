@@ -6,29 +6,31 @@ export interface InputTextProps {
   placeholder?: string;
   isRequired?: boolean;
   isHideable?: boolean;
+  isPublic?: boolean;
 }
 
 function InputText(props: InputTextProps) {
   const id = props.id ?? props.label;
-  const placeholder = props.placeholder ?? " ";
-  const isHideable = props.isHideable;
-
-  const [inputHidden, inputShown] = useState(false);
-  const toggleVisibility: MouseEventHandler = (event) => {
-    event.preventDefault();
-    inputShown(!inputHidden);
-  };
+  const { placeholder, isHideable, isPublic, ...rest } = props;
 
   let HideButton;
   if (isHideable) {
+    const visibilityToggle = `${id}_visibility`;
     HideButton = (
       <div className="ml-2">
-        <button
+        <input
+          type="checkbox"
+          id={visibilityToggle}
+          name="publicFields"
+          value={id}
+          defaultChecked={isPublic}
+        />
+        <label
+          htmlFor={visibilityToggle}
           className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600"
-          onClick={toggleVisibility}
         >
           <svg
-            className={inputHidden ? "hidden" : "block w-6 h-6"}
+            className={true ? "hidden" : "block w-6 h-6"}
             viewBox="0 0 20 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +46,7 @@ function InputText(props: InputTextProps) {
           </svg>
 
           <svg
-            className={inputHidden ? "block w-4 h-8" : "hidden"}
+            className={false ? "block w-4 h-8" : "hidden"}
             viewBox="0 0 20 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -62,10 +64,9 @@ function InputText(props: InputTextProps) {
               fill="#454C5C"
             />
           </svg>
-        </button>
+        </label>
       </div>
     );
-  } else {
   }
 
   return (
