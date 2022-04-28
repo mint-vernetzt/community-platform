@@ -1,7 +1,7 @@
 import { action, loader } from ".";
 import { Profile } from "@prisma/client";
 import { badRequest, forbidden } from "remix-utils";
-import { updateProfileByUsername } from "../../../../profile.server";
+import { updateProfileByUserId } from "../../../../profile.server";
 import { getUser } from "../../../../auth.server";
 
 /** @type {jest.Expect} */
@@ -22,13 +22,13 @@ jest.mock("../../../../profile.server.ts", () => {
     getProfileByUsername: jest.fn().mockImplementation(() => {
       return { firstName: "sessionusername" };
     }),
-    updateProfileByUsername: jest.fn(),
+    updateProfileByUserId: jest.fn(),
   };
 });
 
-describe("edit profile", () => {
-  beforeEach(() => {
-    getUser.mockImplementationOnce(() => {
+describe("Get profile data of specific user", () => {
+  beforeAll(() => {
+    (getUser as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
   });
@@ -84,8 +84,8 @@ describe("edit profile", () => {
 });
 
 describe("submit profile changes", () => {
-  beforeEach(() => {
-    getUser.mockImplementationOnce(() => {
+  before(() => {
+    (getUser as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
   });
@@ -111,7 +111,7 @@ describe("submit profile changes", () => {
       context: {},
     });
 
-    expect(updateProfileByUsername).not.toHaveBeenCalled();
+    expect(updateProfileByUserId).not.toHaveBeenCalled();
   });
 
   test("session user submits profile update to be saved", async () => {
@@ -135,7 +135,7 @@ describe("submit profile changes", () => {
       context: {},
     });
 
-    expect(updateProfileByUsername).toHaveBeenCalledWith(
+    expect(updateProfileByUserId).toHaveBeenCalledWith(
       "sessionusername",
       partialProfile
     );
