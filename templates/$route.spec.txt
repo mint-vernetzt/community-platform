@@ -1,28 +1,28 @@
 import { action, loader } from "./${{ fileName }}";
 
-/** @type {jest.Expect} */
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const path = "{{ route }}";
 
-test("call loader with parameter", async () => {
-  const res = await loader({
-    request: new Request(path),
-    params: { {{ componentName }}: "{{ componentName }}" },
-    context: {},
+describe("context", () => {
+  test("call loader with parameter", async () => {
+    const res = await loader({
+      request: new Request(path),
+      params: { {{ componentName }}: "{{ componentName }}" },
+      context: {},
+    });
+
+    expect(res).toBeNull();
   });
 
-  expect(res).toBeNull();
-});
+  test("call action", async () => {
+    const res = await action({
+      request: new Request(path, { method: "POST" }),
+      params: {},
+      context: {},
+    });
 
-test("call action", async () => {
-  const res = await action({
-    request: new Request(path, { method: "POST" }),
-    params: {},
-    context: {},
+    expect(res).toBeNull();
   });
-
-  expect(res).toBeNull();
 });
-
