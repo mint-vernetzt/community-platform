@@ -14,7 +14,7 @@ import {
 } from "../../../../profile.server";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { getUser } from "../../../../auth.server";
+import { getUser } from "~/auth.server";
 import InputAdd from "../../../../components/FormElements/InputAdd/InputAdd";
 import InputText from "../../../../components/FormElements/InputText/InputText";
 import SelectField from "../../../../components/FormElements/SelectField/SelectField";
