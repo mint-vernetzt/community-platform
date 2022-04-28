@@ -7,3 +7,10 @@ export async function getProfileByUsername(
     firstName: "Peter",
   };
 }
+
+export async function updateProfileByUsername(
+  username: string,
+  data: Partial<Profile>
+) {
+  return true;
+}

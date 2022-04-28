@@ -1,29 +1,45 @@
 import { ActionFunction, json, LoaderFunction, useParams } from "remix";
-import { badRequest, forbidden, unauthorized } from "remix-utils";
-import { getProfileByUsername } from "../../../../profile.server";
+import { badRequest, forbidden } from "remix-utils";
+import {
+  getProfileByUsername,
+  updateProfileByUsername,
+} from "../../../../profile.server";
 
 import { getUser } from "../../../../auth.server";
+import { Profile } from "@prisma/client";
 
-export const loader: LoaderFunction = async (args) => {
-  const { request, params } = args;
-  const username = params.username; //?
-  const currentUser = await getUser(request); //?
-  const isOwner = currentUser?.user_metadata.username === username;
-
-  if (typeof username !== "string") {
-    return badRequest({ message: "username must be provided" });
+export async function handleAuthorization(request: Request, username: string) {
+  if (typeof username !== "string" || username === "") {
+    throw badRequest({ message: "username must be provided" });
   }
+  const currentUser = await getUser(request);
 
-  if (!isOwner) {
-    return forbidden({ message: "not allowed" });
+  if (currentUser?.user_metadata.username !== username) {
+    throw forbidden({ message: "not allowed" });
   }
+}
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const username = params.username ?? ""; //?
+
+  await handleAuthorization(request, username);
 
   const profileData = await getProfileByUsername(username);
 
   return json(profileData);
 };
 
-export const action: ActionFunction = async (args) => {
+export const action: ActionFunction = async ({ request, params }) => {
+  const username = params.username ?? ""; //?
+  await handleAuthorization(request, username);
+
+  const formData = await request.formData();
+  const profileData: Partial<Profile> = {
+    firstName: formData.get("firstName") as string,
+  };
+
+  await updateProfileByUsername(username, profileData);
+
   return null;
 };
 
