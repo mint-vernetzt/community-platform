@@ -1,4 +1,10 @@
-import { ActionFunction, json, LoaderFunction, useParams } from "remix";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  useActionData,
+  useParams,
+} from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import {
   getProfileByUsername,
@@ -33,18 +39,28 @@ export const action: ActionFunction = async ({ request, params }) => {
   const username = params.username ?? ""; //?
   await handleAuthorization(request, username);
 
+  const intention = params.intention;
+
   const formData = await request.formData();
   const profileData: Partial<Profile> = {
     firstName: formData.get("firstName") as string,
   };
 
-  await updateProfileByUsername(username, profileData);
+  if (intention === "save") {
+    await updateProfileByUsername(username, profileData);
+  }
 
   return null;
 };
 
 export default function Index() {
   let { username } = useParams();
+  let actionData = useActionData<Partial<Profile>>();
 
-  return <>Hello {username}</>;
+  return (
+    <>
+      Hello {username}
+      <pre>{JSON.stringify(actionData, null, 2)}</pre>
+    </>
+  );
 }

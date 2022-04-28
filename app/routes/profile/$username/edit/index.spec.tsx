@@ -26,12 +26,14 @@ jest.mock("../../../../profile.server.ts", () => {
   };
 });
 
-describe("Get profile data of specific user", () => {
-  beforeAll(() => {
-    getUser.mockImplementation(() => {
+describe("edit profile", () => {
+  beforeEach(() => {
+    getUser.mockImplementationOnce(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
   });
+
+  test.skip("reset not yet saved form data", () => {});
 
   test("loader returns profile data", async () => {
     const response: Response = await loader({
@@ -82,7 +84,37 @@ describe("Get profile data of specific user", () => {
 });
 
 describe("submit profile changes", () => {
-  test("session user submits profile update with valid data", async () => {
+  beforeEach(() => {
+    getUser.mockImplementationOnce(() => {
+      return { user_metadata: { username: "sessionusername" } };
+    });
+  });
+
+  test("session user changes data", async () => {
+    const partialProfile: Partial<Profile> = {
+      firstName: "updated firstname",
+    };
+
+    const formData = new FormData();
+    Object.entries(partialProfile).forEach(([key, value]) =>
+      formData.append(key, value as string)
+    );
+
+    await action({
+      request: new Request("/profile/sessionusername/edit", {
+        method: "POST",
+        body: formData,
+      }),
+      params: {
+        username: "sessionusername",
+      },
+      context: {},
+    });
+
+    expect(updateProfileByUsername).not.toHaveBeenCalled();
+  });
+
+  test("session user submits profile update to be saved", async () => {
     const partialProfile: Partial<Profile> = {
       firstName: "updated firstname",
     };
