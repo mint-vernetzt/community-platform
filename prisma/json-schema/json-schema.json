@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "academicTitle": {
+          "type": ["string", "null"]
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": ["string", "null"]
+        },
+        "website": {
+          "type": ["string", "null"]
+        },
+        "avatar": {
+          "type": ["string", "null"]
+        },
+        "background": {
+          "type": ["string", "null"]
+        },
+        "facebook": {
+          "type": ["string", "null"]
+        },
+        "linkedin": {
+          "type": ["string", "null"]
+        },
+        "twitter": {
+          "type": ["string", "null"]
+        },
+        "xing": {
+          "type": ["string", "null"]
+        },
+        "job": {
+          "type": ["string", "null"]
+        },
+        "bio": {
+          "type": ["string", "null"]
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "publicFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "memberOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberOfOrganization"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "termsAccepted": {
+          "type": "boolean"
+        },
+        "termsAcceptedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": ["string", "null"]
+        },
+        "street": {
+          "type": "string"
+        },
+        "streetNumber": {
+          "type": "string"
+        },
+        "zipCode": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "website": {
+          "type": ["string", "null"]
+        },
+        "logo": {
+          "type": ["string", "null"]
+        },
+        "background": {
+          "type": ["string", "null"]
+        },
+        "facebook": {
+          "type": ["string", "null"]
+        },
+        "linkedin": {
+          "type": ["string", "null"]
+        },
+        "twitter": {
+          "type": ["string", "null"]
+        },
+        "xing": {
+          "type": ["string", "null"]
+        },
+        "bio": {
+          "type": ["string", "null"]
+        },
+        "type": {
+          "type": ["string", "null"]
+        },
+        "quote": {
+          "type": ["string", "null"]
+        },
+        "quoteAuthor": {
+          "type": ["string", "null"]
+        },
+        "quoteAuthorInformation": {
+          "type": ["string", "null"]
+        },
+        "supportedBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "publicFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "teamMembers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberOfOrganization"
+          }
+        },
+        "memberOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberOfNetwork"
+          }
+        },
+        "networkMembers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberOfNetwork"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MemberOfOrganization": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "isPrivileged": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "MemberOfNetwork": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "umbrellaOrganization": {
+          "$ref": "#/definitions/Organization"
+        }
+      }
+    },
+    "State": {
+      "type": "object",
+      "properties": {
+        "agsPrefix": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "districts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/District"
+          }
+        }
+      }
+    },
+    "District": {
+      "type": "object",
+      "properties": {
+        "ags": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "profile": {
+      "$ref": "#/definitions/Profile"
+    },
+    "organization": {
+      "$ref": "#/definitions/Organization"
+    },
+    "memberOfOrganization": {
+      "$ref": "#/definitions/MemberOfOrganization"
+    },
+    "memberOfNetwork": {
+      "$ref": "#/definitions/MemberOfNetwork"
+    },
+    "state": {
+      "$ref": "#/definitions/State"
+    },
+    "district": {
+      "$ref": "#/definitions/District"
+    }
+  }
+}
