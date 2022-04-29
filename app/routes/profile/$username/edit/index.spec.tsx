@@ -93,12 +93,18 @@ describe("submit profile changes", () => {
   test("session user changes data", async () => {
     const partialProfile: Partial<Profile> = {
       firstName: "updated firstname",
+      lastName: "updated lastname",
+      publicFields: ["firstName"],
     };
 
     const formData = new FormData();
-    Object.entries(partialProfile).forEach(([key, value]) =>
-      formData.append(key, value as string)
-    );
+    Object.entries(partialProfile).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => formData.append(key, v));
+      } else {
+        formData.append(key, value as string);
+      }
+    });
 
     await action({
       request: new Request("/profile/sessionusername/edit", {
@@ -111,6 +117,9 @@ describe("submit profile changes", () => {
       context: {},
     });
 
-    expect(updateProfileByUserId).not.toHaveBeenCalled();
+    expect(updateProfileByUsername).toHaveBeenCalledWith(
+      "sessionusername",
+      partialProfile
+    );
   });
 });
