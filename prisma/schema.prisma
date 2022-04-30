@@ -17,6 +17,7 @@ model Profile {
   firstName       String                 @map("first_name")
   lastName        String                 @map("last_name")
   academicTitle   String?                @map("academic_title")
+  position        String?
   email           String
   phone           String?
   website         String?

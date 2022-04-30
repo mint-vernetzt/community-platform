@@ -2,8 +2,8 @@ import {
   ActionFunction,
   Form,
   json,
+  Link,
   LoaderFunction,
-  useActionData,
   useLoaderData,
   useParams,
 } from "remix";
@@ -13,7 +13,15 @@ import {
   updateProfileByUsername,
 } from "../../../../profile.server";
 
+import { yupResolver } from "@hookform/resolvers/yup";
 import { getUser } from "../../../../auth.server";
+import InputAdd from "../../../../components/FormElements/InputAdd/InputAdd";
+import InputText from "../../../../components/FormElements/InputText/InputText";
+import SelectField from "../../../../components/FormElements/SelectField/SelectField";
+import TextArea from "../../../../components/FormElements/TextArea/TextArea";
+import HeaderLogo from "../../../../components/HeaderLogo/HeaderLogo";
+import { ProfileFormFields, ProfileFormType, profileSchema } from "./yupSchema";
+import { Controller, useForm } from "react-hook-form";
 import { Profile } from "@prisma/client";
 
 export async function handleAuthorization(request: Request, username: string) {
@@ -29,10 +37,8 @@ export async function handleAuthorization(request: Request, username: string) {
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? ""; //?
-
   await handleAuthorization(request, username);
-
-  const profileData = await getProfileByUsername(username);
+  const profileData = await getProfileByUsername(username, ProfileFormFields);
 
   return json(profileData);
 };
@@ -43,24 +49,50 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const formData = await request.formData();
 
-  const profileData: Partial<Profile> = {
+  const profileData: ProfileFormType = {
+    academicTitle: formData.get("academicTitle") as string,
+    position: formData.get("position") as string,
     firstName: formData.get("firstName") as string,
     lastName: formData.get("lastName") as string,
     publicFields: formData.getAll("publicFields") as string[],
+    email: formData.get("email") as string,
+    phone: formData.get("phone") as string,
+    website: formData.get("website") as string,
+    avatar: formData.get("avatar") as string,
+    background: formData.get("background") as string,
+    job: formData.get("job") as string,
+    bio: formData.get("bio") as string,
+    interests: formData.getAll("interests") as string[],
+    skills: formData.getAll("skills") as string[],
   };
 
-  await updateProfileByUsername(username, profileData);
+  console.log(profileData);
 
-  return json({ errors: { lastName: "required" } });
+  await updateProfileByUsername(username, profileData as Partial<Profile>);
+
+  return null;
 };
 
 export default function Index() {
-  let { username } = useParams();
-  let actionData = useActionData();
-  let profile = useLoaderData<Profile>();
+  const { username } = useParams();
+  //  const actionData = useActionData();
+
+  let profile = useLoaderData<ProfileFormType>() ?? {
+    publicFields: [],
+  };
+
+  const {
+    formState: { isValid, errors },
+    control,
+  } = useForm<ProfileFormType>({
+    mode: "onChange",
+    resolver: yupResolver(profileSchema),
+    defaultValues: profile,
+  });
 
   return (
     <Form method="post">
+      <pre>{JSON.stringify(isValid, null, 2)}</pre>
       <div>
         <header className="shadow-md mb-8">
           <div className="md:container md:mx-auto relative z-10">
@@ -80,13 +112,13 @@ export default function Index() {
                 <h3 className="font-bold mb-7">Profil bearbeiten</h3>
                 <ul>
                   <li>
-                    <a href="" className="block text-3xl text-primary py-3">
+                    <a href="/#" className="block text-3xl text-primary py-3">
                       Persönliche Daten
                     </a>
                   </li>
                   <li>
                     <a
-                      href=""
+                      href="/#"
                       className="block text-3xl text-neutral-500 hover:text-primary py-3"
                     >
                       Login und Sicherheit
@@ -94,7 +126,7 @@ export default function Index() {
                   </li>
                   <li>
                     <a
-                      href=""
+                      href="/#"
                       className="block text-3xl text-neutral-500 hover:text-primary py-3"
                     >
                       Website und Soziale Netzwerke
@@ -106,7 +138,7 @@ export default function Index() {
 
                 <div className="">
                   <a
-                    href=""
+                    href="/#"
                     className="block text-3xl text-neutral-500 hover:text-primary py-3"
                   >
                     Profil löschen
@@ -127,72 +159,116 @@ export default function Index() {
 
               <div className="flex flex-row -mx-4 mb-4">
                 <div className="basis-6/12 px-4">
-                  <SelectField
-                    id="academicTitle"
-                    label="Titel"
-                    options={[
-                      {
-                        label: "Dr.",
-                        value: "Dr.",
-                      },
-                      {
-                        label: "Prof.",
-                        value: "Prof.",
-                      },
-                      {
-                        label: "Prof. Dr.",
-                        value: "Prof. Dr.",
-                      },
-                    ]}
+                  <Controller
+                    name="academicTitle"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectField
+                        {...field}
+                        id="academicTitle"
+                        label="Titel"
+                        options={[
+                          {
+                            label: "Dr.",
+                            value: "Dr.",
+                          },
+                          {
+                            label: "Prof.",
+                            value: "Prof.",
+                          },
+                          {
+                            label: "Prof. Dr.",
+                            value: "Prof. Dr.",
+                          },
+                        ]}
+                      />
+                    )}
                   />
                 </div>
                 <div className="basis-6/12 px-4">
-                  <InputText
-                    id="position"
-                    label="Position"
-                    isHideable
-                    isPublic={profile.publicFields.includes("position")}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-row -mx-4 mb-4">
-                <div className="basis-6/12 px-4">
-                  <InputText
-                    id="firstName"
-                    label="Vorname"
-                    isRequired
-                    defaultValue={profile.firstName}
-                    isPublic={profile.publicFields.includes("firstName")}
-                  />
-                </div>
-                <div className="basis-6/12 px-4">
-                  <InputText
-                    id="lastName"
-                    label="Nachname"
-                    isRequired
-                    defaultValue={profile.lastName}
-                    f
+                  <Controller
+                    name="position"
+                    control={control}
+                    render={({ field }) => (
+                      <InputText
+                        {...field}
+                        id="position"
+                        label="Position"
+                        isPublic={profile.publicFields?.includes("position")}
+                        errorMessage={errors.position?.message}
+                      />
+                    )}
                   />
                 </div>
               </div>
 
               <div className="flex flex-row -mx-4 mb-4">
                 <div className="basis-6/12 px-4">
-                  <InputText
-                    id="email"
-                    label="E-Mail"
-                    isHideable
-                    defaultValue={profile.email}
-                    isPublic={profile.publicFields.includes("email")}
+                  <Controller
+                    name="firstName"
+                    control={control}
+                    render={({ field }) => (
+                      <InputText
+                        {...field}
+                        id="firstName"
+                        label="Vorname"
+                        isPublic={profile.publicFields?.includes("firstName")}
+                        errorMessage={errors.firstName?.message}
+                      />
+                    )}
                   />
                 </div>
                 <div className="basis-6/12 px-4">
-                  <InputText
-                    id="phone"
-                    label="Telefon"
-                    isHideable
-                    defaultValue={profile.phone}
+                  <Controller
+                    name="lastName"
+                    control={control}
+                    render={({ field }) => (
+                      <InputText
+                        {...field}
+                        id="lastName"
+                        label="Nachname"
+                        isPublic={
+                          profile.publicFields?.includes("lastName") ?? false
+                        }
+                        errorMessage={errors.lastName?.message}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row -mx-4 mb-4">
+                <div className="basis-6/12 px-4">
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <InputText
+                        {...field}
+                        type="email"
+                        id="email"
+                        label="E-Mail"
+                        isPublic={
+                          profile.publicFields?.includes("email") ?? false
+                        }
+                        errorMessage={errors.email?.message}
+                      />
+                    )}
+                  />
+                </div>
+                <div className="basis-6/12 px-4">
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <InputText
+                        {...field}
+                        id="phone"
+                        label="Telefon"
+                        isPublic={profile.publicFields?.includes("phone")}
+                        errorMessage={errors.phone?.message}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -227,7 +303,19 @@ export default function Index() {
               </p>
 
               <div className="mb-4">
-                <TextArea label="Kurzbeschreibung" isHideable />
+                <Controller
+                  name="bio"
+                  control={control}
+                  render={({ field }) => (
+                    <TextArea
+                      {...field}
+                      id="bio"
+                      label="Kurzbeschreibung"
+                      isPublic={profile.publicFields?.includes("bio")}
+                      errorMessage={errors.phone?.message}
+                    />
+                  )}
+                />
               </div>
 
               <div className="mb-4">
@@ -298,11 +386,18 @@ export default function Index() {
           <div className="md:container md:mx-auto ">
             <div className="px-4 py-8 flex flex-row items-center justify-end">
               <div className="">
-                <button type="submit" className="btn btn-link">
+                <Link
+                  to={`/profile/${username}/edit`}
+                  reloadDocument
+                  className="btn btn-link"
+                >
                   Änderungen verwerfen
-                </button>
-
-                <button type="submit" className="btn btn-primary ml-4">
+                </Link>
+                <button
+                  type="submit"
+                  className="btn btn-primary ml-4"
+                  xdisabled={!isValid}
+                >
                   Speichern
                 </button>
               </div>

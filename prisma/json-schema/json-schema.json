@@ -19,6 +19,9 @@
         "academicTitle": {
           "type": ["string", "null"]
         },
+        "position": {
+          "type": ["string", "null"]
+        },
         "email": {
           "type": "string"
         },
