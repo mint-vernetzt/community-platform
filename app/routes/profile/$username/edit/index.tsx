@@ -10,19 +10,20 @@ import {
 import { badRequest, forbidden } from "remix-utils";
 import {
   getProfileByUsername,
+  getStatesWithDistricts,
   updateProfileByUsername,
 } from "../../../../profile.server";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { getUser } from "~/auth.server";
+import { getUser } from "../../../../auth.server";
 import InputAdd from "../../../../components/FormElements/InputAdd/InputAdd";
 import InputText from "../../../../components/FormElements/InputText/InputText";
 import SelectField from "../../../../components/FormElements/SelectField/SelectField";
 import TextArea from "../../../../components/FormElements/TextArea/TextArea";
 import HeaderLogo from "../../../../components/HeaderLogo/HeaderLogo";
 import { ProfileFormFields, ProfileFormType, profileSchema } from "./yupSchema";
-import { Controller, useForm } from "react-hook-form";
-import { Profile } from "@prisma/client";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { District, Profile, State } from "@prisma/client";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -38,9 +39,10 @@ export async function handleAuthorization(request: Request, username: string) {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? ""; //?
   await handleAuthorization(request, username);
-  const profileData = await getProfileByUsername(username, ProfileFormFields);
-
-  return json(profileData);
+  const profile = await getProfileByUsername(username, ProfileFormFields);
+  const statesWithDistricts = await getStatesWithDistricts();
+  console.log(profile);
+  return json({ profile, statesWithDistricts });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -48,6 +50,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   await handleAuthorization(request, username);
 
   const formData = await request.formData();
+
+  console.log(formData);
 
   const profileData: ProfileFormType = {
     academicTitle: formData.get("academicTitle") as string,
@@ -66,33 +70,50 @@ export const action: ActionFunction = async ({ request, params }) => {
     skills: formData.getAll("skills") as string[],
   };
 
-  console.log(profileData);
+  //  console.log(profileData);
 
   await updateProfileByUsername(username, profileData as Partial<Profile>);
 
   return null;
 };
 
+type LoaderData = {
+  profile: ProfileFormType;
+  statesWithDistricts: (State & {
+    districts: District[];
+  })[];
+};
+
 export default function Index() {
   const { username } = useParams();
   //  const actionData = useActionData();
 
-  let profile = useLoaderData<ProfileFormType>() ?? {
-    publicFields: [],
-  };
+  let { profile, statesWithDistricts } = useLoaderData<LoaderData>();
 
   const {
     formState: { isValid, errors },
+    register,
     control,
+    watch,
   } = useForm<ProfileFormType>({
     mode: "onChange",
     resolver: yupResolver(profileSchema),
-    defaultValues: profile,
+    defaultValues: profile ?? { publicFields: [], skills: [] },
+  });
+
+  const skills = watch("skills");
+  const {
+    fields: skillFields,
+    append: appendSkill,
+    remove: removeSkill,
+  } = useFieldArray({
+    control,
+    name: "skills",
   });
 
   return (
     <Form method="post">
-      <pre>{JSON.stringify(isValid, null, 2)}</pre>
+      <pre>{JSON.stringify(skills, null, 2)}</pre>
       <div>
         <header className="shadow-md mb-8">
           <div className="md:container md:mx-auto relative z-10">
@@ -159,6 +180,9 @@ export default function Index() {
 
               <div className="flex flex-row -mx-4 mb-4">
                 <div className="basis-6/12 px-4">
+                  <button name="test" value="testomat">
+                    TEST
+                  </button>
                   <Controller
                     name="academicTitle"
                     control={control}
@@ -319,11 +343,54 @@ export default function Index() {
               </div>
 
               <div className="mb-4">
-                <InputAdd label="Aktivitätsgebiete" />
+                <div className="form-control w-full">
+                  <div className="flex flex-row items-center">
+                    <div className="flex-auto">
+                      <SelectField
+                        label="Aktivitätsgebiete"
+                        options={statesWithDistricts.map((state) => ({
+                          label: state.name,
+                          options: state.districts.map((district) => ({
+                            value: district.ags,
+                            label: district.name,
+                          })),
+                        }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="ml-2">
+                  <button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600">
+                    +
+                  </button>
+                </div>
               </div>
 
               <div className="mb-4">
-                <InputAdd label="Kompetenzen" />
+                <InputAdd
+                  label="Kompetenzen"
+                  handleAdd={(value) => appendSkill(value)}
+                />
+                <ul>
+                  {skillFields.map((field, index) => (
+                    <li key={field.id}>
+                      <input
+                        type="text"
+                        {...register(`skills.${index}` as const)}
+                        name="skills"
+                        readOnly
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          removeSkill(index);
+                        }}
+                      >
+                        -
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div className="mb-4">
@@ -341,7 +408,7 @@ export default function Index() {
               </p>
 
               <div className="mb-4">
-                <InputAdd id="offering" />
+                <InputAdd label="offering" />
               </div>
 
               <hr className="border-neutral-400 my-16" />
@@ -393,11 +460,7 @@ export default function Index() {
                 >
                   Änderungen verwerfen
                 </Link>
-                <button
-                  type="submit"
-                  className="btn btn-primary ml-4"
-                  xdisabled={!isValid}
-                >
+                <button type="submit" className="btn btn-primary ml-4">
                   Speichern
                 </button>
               </div>

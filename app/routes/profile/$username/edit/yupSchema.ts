@@ -35,9 +35,9 @@ export const profileSchema = object({
   background: string(),
   job: string(),
   bio: string(),
-  interests: array(string()),
-  skills: array(string()),
-  publicFields: array(string()),
+  interests: array(string().required()),
+  skills: array(string().required()).required(),
+  publicFields: array(string().required()),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;

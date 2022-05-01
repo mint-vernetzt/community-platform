@@ -49,3 +49,15 @@ export async function updateProfileByUsername(
 
   return result;
 }
+
+export async function getAllDistricts() {
+  return await prismaClient.district.findMany();
+}
+
+export async function getStatesWithDistricts() {
+  return await prismaClient.state.findMany({
+    include: {
+      districts: true,
+    },
+  });
+}

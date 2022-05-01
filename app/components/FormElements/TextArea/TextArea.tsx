@@ -1,4 +1,5 @@
 export interface TextAreaProps {
+  id: string;
   label: string;
   isPublic?: boolean;
   errorMessage?: string;
