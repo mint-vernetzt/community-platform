@@ -12,7 +12,27 @@ function ProfilePage(props: ProfilePageProps) {
             <div>
               <HeaderLogo />
             </div>
-            <div className="ml-auto">UserMenu</div>
+            <div className="ml-auto">
+              <div className="dropdown dropdown-end">
+                <label tabIndex="0" className="btn btn-primary w-10 h-10">
+                  AS
+                </label>
+                <ul
+                  tabIndex="0"
+                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
+                  <li>
+                    <a>Profil bearbeiten</a>
+                  </li>
+                  <li>
+                    <a>Profil löschen</a>
+                  </li>
+                  <li>
+                    <a>Ausloggen</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </header>
