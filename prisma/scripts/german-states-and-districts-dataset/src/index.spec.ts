@@ -1,10 +1,14 @@
-import { evaluateJsonObject, prepareQueries } from "./index";
+import { evaluateJsonObject, getAreas, prepareQueries } from "./index";
+
+// @ts-ignore
+const expect = global.expect as jest.Expect;
 
 describe("test evaluateJsonObject() from index.js", () => {
   test("test basic functionality", () => {
     const testJson = {
       "01234": {
-        name: "LK1",
+        name: "1",
+        county: "LK 1",
         state: "BL1",
         uselessAttribute: "uselessValue",
       },
@@ -18,7 +22,8 @@ describe("test evaluateJsonObject() from index.js", () => {
     const districtResults = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        type: "land",
         stateAgsPrefix: "01",
       },
     ];
@@ -32,26 +37,30 @@ describe("test evaluateJsonObject() from index.js", () => {
     const testJson = {
       "01234": {
         ags: "01234",
-        name: "LK1",
+        county: "LK1",
+        name: "1",
         state: "BL1",
         uselessAttribute1: "uselessValue",
         uselessAttribute2: "uselessValue",
       },
       "02345": {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         state: "BL2",
       },
       "02456": {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "SK3",
         state: "BL2",
         uselessAttribute1: "uselessValue",
         uselessAttribute2: "uselessValue",
       },
       "01567": {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         state: "BL1",
       },
     };
@@ -68,22 +77,26 @@ describe("test evaluateJsonObject() from index.js", () => {
     const districtResults = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        type: "land",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        type: "land",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        type: "urban",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        type: "land",
         stateAgsPrefix: "01",
       },
     ];
@@ -96,7 +109,8 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid ags (ags too short)", () => {
     const testJson = {
       "0123": {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
@@ -110,7 +124,8 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid ags (ags too long)", () => {
     const testJson = {
       "0123456789": {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
@@ -124,7 +139,8 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid ags (ags from letters)", () => {
     const testJson = {
       aaaaa: {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
@@ -138,7 +154,8 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid ags (ags from letters and numbers)", () => {
     const testJson = {
       "111aa": {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
@@ -152,13 +169,15 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid stateKey", () => {
     const testJson = {
       "01234": {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
       },
       "02235": {
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         // missing state value
         bundesland: "BL2",
         uselessAttribute: "uselessValue",
@@ -172,13 +191,15 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with invalid districtKey", () => {
     const testJson = {
       "01234": {
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         state: "BL1",
         uselessAttribute: "uselessValue",
         community: "LK1",
       },
       "01235": {
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         state: "BL1",
         uselessAttribute: "uselessValue",
         // missing community value
@@ -192,10 +213,14 @@ describe("test evaluateJsonObject() from index.js", () => {
   test("test with two states that have the same name but different ags prefix", () => {
     const testJson = {
       "01234": {
+        name: "1",
+        county: "LK1",
         state: "BL1",
         community: "LK1",
       },
       "02235": {
+        name: "2",
+        county: "LK2",
         state: "BL1",
         community: "LK2",
       },
@@ -209,7 +234,7 @@ describe("test evaluateJsonObject() from index.js", () => {
     );
   });
 
-  test("test with two districts that have the same name but different ags", () => {
+  test("test with two districts that have the same name and county name but different ags", () => {
     const testJson = {
       "01234": {
         // This is actually an SK
@@ -221,7 +246,7 @@ describe("test evaluateJsonObject() from index.js", () => {
         // This is actually a LK
         state: "BL1",
         name: "A",
-        county: "LKA",
+        county: "SKA",
       },
     };
     expect(() => {
@@ -250,26 +275,31 @@ describe("test prepareQueries() from index.js", () => {
     const currentDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
-    const inputSates = [
+    const currentAreas = getAreas(currentDistricts, currentStates, []);
+    const inputStates = [
       {
         agsPrefix: "01",
         name: "BL1",
@@ -282,36 +312,45 @@ describe("test prepareQueries() from index.js", () => {
     const inputDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
     expect(
       prepareQueries(
-        { states: currentStates, districts: currentDistricts },
         {
-          states: inputSates,
+          states: currentStates,
+          districts: currentDistricts,
+          areas: currentAreas,
+        },
+        {
+          states: inputStates,
           districts: inputDistricts,
         }
       )
     ).toEqual({
       insertStates: [],
       insertDistricts: [],
+      insertAreas: [],
       updateDistricts: [],
       deleteDistricts: [],
       updateStates: [],
@@ -320,9 +359,9 @@ describe("test prepareQueries() from index.js", () => {
   });
 
   test("test with empty database (create all)", () => {
-    const currentStates = [];
-    const currentDistricts = [];
-    const inputSates = [
+    const currentStates: any[] = [];
+    const currentDistricts: any[] = [];
+    const inputStates = [
       {
         agsPrefix: "01",
         name: "BL1",
@@ -335,29 +374,38 @@ describe("test prepareQueries() from index.js", () => {
     const inputDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
+    const currentAreas = getAreas(currentDistricts, currentStates, []);
     expect(
       prepareQueries(
-        { states: currentStates, districts: currentDistricts },
-        { states: inputSates, districts: inputDistricts }
+        {
+          states: currentStates,
+          districts: currentDistricts,
+          areas: currentAreas,
+        },
+        { states: inputStates, districts: inputDistricts }
       )
     ).toEqual({
       insertStates: [
@@ -373,23 +421,59 @@ describe("test prepareQueries() from index.js", () => {
       insertDistricts: [
         {
           ags: "01234",
-          name: "LK1",
+          name: "1",
+          county: "LK1",
           stateAgsPrefix: "01",
         },
         {
           ags: "02345",
-          name: "LK2",
+          name: "2",
+          county: "LK2",
           stateAgsPrefix: "02",
         },
         {
           ags: "02456",
-          name: "LK3",
+          name: "3",
+          county: "LK3",
           stateAgsPrefix: "02",
         },
         {
           ags: "01567",
-          name: "LK4",
+          name: "4",
+          county: "LK4",
           stateAgsPrefix: "01",
+        },
+      ],
+      insertAreas: [
+        {
+          name: "1",
+          type: "district",
+          stateId: "01",
+        },
+        {
+          name: "2",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "3",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "4",
+          type: "district",
+          stateId: "01",
+        },
+        {
+          name: "BL1",
+          stateId: null,
+          type: "state",
+        },
+        {
+          name: "BL2",
+          stateId: null,
+          type: "state",
         },
       ],
       updateDistricts: [],
@@ -413,28 +497,37 @@ describe("test prepareQueries() from index.js", () => {
     const currentDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
+    const currentAreas = getAreas(currentDistricts, currentStates, []);
     expect(
       prepareQueries(
-        { states: currentStates, districts: currentDistricts },
+        {
+          states: currentStates,
+          districts: currentDistricts,
+          areas: currentAreas,
+        },
         {
           states: [],
           districts: [],
@@ -443,6 +536,7 @@ describe("test prepareQueries() from index.js", () => {
     ).toEqual({
       insertStates: [],
       insertDistricts: [],
+      insertAreas: [],
       updateDistricts: [],
       updateStates: [],
       deleteStates: [
@@ -458,22 +552,26 @@ describe("test prepareQueries() from index.js", () => {
       deleteDistricts: [
         {
           ags: "01234",
-          name: "LK1",
+          name: "1",
+          county: "LK1",
           stateAgsPrefix: "01",
         },
         {
           ags: "02345",
-          name: "LK2",
+          name: "2",
+          county: "LK2",
           stateAgsPrefix: "02",
         },
         {
           ags: "02456",
-          name: "LK3",
+          name: "3",
+          county: "LK3",
           stateAgsPrefix: "02",
         },
         {
           ags: "01567",
-          name: "LK4",
+          name: "4",
+          county: "LK4",
           stateAgsPrefix: "01",
         },
       ],
@@ -494,26 +592,31 @@ describe("test prepareQueries() from index.js", () => {
     const currentDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
-    const inputSates = [
+    const currentAreas = getAreas(currentDistricts, currentStates, []);
+    const inputStates = [
       {
         agsPrefix: "01",
         name: "BL1 (neu)",
@@ -526,30 +629,38 @@ describe("test prepareQueries() from index.js", () => {
     const inputDistricts = [
       {
         ags: "01234",
-        name: "LK1 (neu)",
+        name: "1 (neu)",
+        county: "LK1 (neu)",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2 (neu)",
+        name: "2 (neu)",
+        county: "LK2 (neu)",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3 (neu)",
+        name: "3 (neu)",
+        county: "LK3 (neu)",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4 (neu)",
+        name: "4 (neu)",
+        county: "LK4 (neu)",
         stateAgsPrefix: "01",
       },
     ];
     expect(
       prepareQueries(
-        { states: currentStates, districts: currentDistricts },
         {
-          states: inputSates,
+          states: currentStates,
+          districts: currentDistricts,
+          areas: currentAreas,
+        },
+        {
+          states: inputStates,
           districts: inputDistricts,
         }
       )
@@ -569,23 +680,59 @@ describe("test prepareQueries() from index.js", () => {
       updateDistricts: [
         {
           ags: "01234",
-          name: "LK1 (neu)",
+          name: "1 (neu)",
+          county: "LK1 (neu)",
           stateAgsPrefix: "01",
         },
         {
           ags: "02345",
-          name: "LK2 (neu)",
+          name: "2 (neu)",
+          county: "LK2 (neu)",
           stateAgsPrefix: "02",
         },
         {
           ags: "02456",
-          name: "LK3 (neu)",
+          name: "3 (neu)",
+          county: "LK3 (neu)",
           stateAgsPrefix: "02",
         },
         {
           ags: "01567",
-          name: "LK4 (neu)",
+          name: "4 (neu)",
+          county: "LK4 (neu)",
           stateAgsPrefix: "01",
+        },
+      ],
+      insertAreas: [
+        {
+          name: "1 (neu)",
+          type: "district",
+          stateId: "01",
+        },
+        {
+          name: "2 (neu)",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "3 (neu)",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "4 (neu)",
+          type: "district",
+          stateId: "01",
+        },
+        {
+          name: "BL1 (neu)",
+          stateId: null,
+          type: "state",
+        },
+        {
+          name: "BL2 (neu)",
+          stateId: null,
+          type: "state",
         },
       ],
       deleteStates: [],
@@ -607,26 +754,31 @@ describe("test prepareQueries() from index.js", () => {
     const currentDistricts = [
       {
         ags: "01234",
-        name: "LK1",
+        name: "1",
+        county: "LK1",
         stateAgsPrefix: "01",
       },
       {
         ags: "02345",
-        name: "LK2",
+        name: "2",
+        county: "LK2",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3",
+        name: "3",
+        county: "LK3",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4",
+        name: "4",
+        county: "LK4",
         stateAgsPrefix: "01",
       },
     ];
-    const inputSates = [
+    const currentAreas = getAreas(currentDistricts, currentStates, []);
+    const inputStates = [
       {
         agsPrefix: "02",
         name: "BL2 (neu)",
@@ -639,30 +791,38 @@ describe("test prepareQueries() from index.js", () => {
     const inputDistricts = [
       {
         ags: "02345",
-        name: "LK2 (neu)",
+        name: "2 (neu)",
+        county: "LK2 (neu)",
         stateAgsPrefix: "02",
       },
       {
         ags: "02456",
-        name: "LK3 (neu)",
+        name: "3 (neu)",
+        county: "LK3 (neu)",
         stateAgsPrefix: "02",
       },
       {
         ags: "01567",
-        name: "LK4 (neu)",
+        name: "4 (neu)",
+        county: "LK4 (neu)",
         stateAgsPrefix: "01",
       },
       {
         ags: "03567",
-        name: "LK5",
+        name: "5",
+        county: "LK5",
         stateAgsPrefix: "03",
       },
     ];
     expect(
       prepareQueries(
-        { states: currentStates, districts: currentDistricts },
         {
-          states: inputSates,
+          states: currentStates,
+          districts: currentDistricts,
+          areas: currentAreas,
+        },
+        {
+          states: inputStates,
           districts: inputDistricts,
         }
       )
@@ -676,8 +836,41 @@ describe("test prepareQueries() from index.js", () => {
       insertDistricts: [
         {
           ags: "03567",
-          name: "LK5",
+          name: "5",
+          county: "LK5",
           stateAgsPrefix: "03",
+        },
+      ],
+      insertAreas: [
+        {
+          name: "2 (neu)",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "3 (neu)",
+          type: "district",
+          stateId: "02",
+        },
+        {
+          name: "4 (neu)",
+          type: "district",
+          stateId: "01",
+        },
+        {
+          name: "5",
+          type: "district",
+          stateId: "03",
+        },
+        {
+          name: "BL2 (neu)",
+          stateId: null,
+          type: "state",
+        },
+        {
+          name: "BL3",
+          type: "state",
+          stateId: null,
         },
       ],
       updateStates: [
@@ -689,17 +882,20 @@ describe("test prepareQueries() from index.js", () => {
       updateDistricts: [
         {
           ags: "02345",
-          name: "LK2 (neu)",
+          name: "2 (neu)",
+          county: "LK2 (neu)",
           stateAgsPrefix: "02",
         },
         {
           ags: "02456",
-          name: "LK3 (neu)",
+          name: "3 (neu)",
+          county: "LK3 (neu)",
           stateAgsPrefix: "02",
         },
         {
           ags: "01567",
-          name: "LK4 (neu)",
+          name: "4 (neu)",
+          county: "LK4 (neu)",
           stateAgsPrefix: "01",
         },
       ],
@@ -712,7 +908,8 @@ describe("test prepareQueries() from index.js", () => {
       deleteDistricts: [
         {
           ags: "01234",
-          name: "LK1",
+          name: "1",
+          county: "LK1",
           stateAgsPrefix: "01",
         },
       ],
