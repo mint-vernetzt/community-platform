@@ -49,9 +49,6 @@
         "xing": {
           "type": ["string", "null"]
         },
-        "job": {
-          "type": ["string", "null"]
-        },
         "bio": {
           "type": ["string", "null"]
         },
@@ -62,6 +59,18 @@
           }
         },
         "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "offerings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "seekings": {
           "type": "array",
           "items": {
             "type": "string"

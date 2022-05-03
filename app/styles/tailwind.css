@@ -125,3 +125,18 @@
 .btn-small {
   @apply py-1;
 }
+
+.btn-none {
+  @apply bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600;
+}
+
+.toggle-checkbox input[type="checkbox"] {
+  @apply hidden;
+}
+.toggle-checkbox input[type="checkbox"]:checked + label svg:first-child {
+  @apply hidden;
+}
+
+.toggle-checkbox input[type="checkbox"]:checked + label svg:last-child {
+  @apply block h-6 w-6;
+}

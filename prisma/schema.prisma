@@ -27,10 +27,11 @@ model Profile {
   linkedin        String?
   twitter         String?
   xing            String?
-  job             String?
   bio             String?
   skills          String[]
   interests       String[]
+  offerings       String[]
+  seekings        String[]
   publicFields    String[]               @map("public_fields")
   memberOf        MemberOfOrganization[]
   createdAt       DateTime               @default(now()) @map("created_at")

@@ -1,4 +1,5 @@
 import React from "react";
+import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 
 export interface OptionsProps {
   label: string;
@@ -12,6 +13,7 @@ export interface OptGroupProps {
 export interface SelectFieldProps {
   label: string;
   options?: OptionsProps[] | OptGroupProps[];
+  isPublic?: boolean;
 }
 
 const SelectField = React.forwardRef(
@@ -24,35 +26,50 @@ const SelectField = React.forwardRef(
           {label}
           {props.required === true ? " *" : ""}
         </label>
-        {/* TODO: add selected class on change */}
-        <select
-          {...rest}
-          className={`select select-bordered${props.className ?? ""}`}
-        >
-          <option></option>
-          {options.map((option, index) => (
-            <React.Fragment key={index}>
-              {"value" in option && (
-                <option key={`${id}-option-${index}`} value={option.value}>
-                  {option.label}
-                </option>
-              )}
-
-              {"options" in option && (
-                <optgroup key={`${id}-option-${index}`} label={option.label}>
-                  {option.options.map((groupOption, groupOptionIndex) => (
-                    <option
-                      key={`${id}-option-${index}-${groupOptionIndex}`}
-                      value={groupOption.value}
-                    >
-                      {groupOption.label}
+        <div className="flex flex-row items-center">
+          <div className="flex-auto">
+            <select
+              {...rest}
+              className={`select w-full select-bordered${
+                props.className ?? ""
+              }`}
+            >
+              <option></option>
+              {options.map((option, index) => (
+                <React.Fragment key={index}>
+                  {"value" in option && (
+                    <option key={`${id}-option-${index}`} value={option.value}>
+                      {option.label}
                     </option>
-                  ))}
-                </optgroup>
-              )}
-            </React.Fragment>
-          ))}
-        </select>
+                  )}
+
+                  {"options" in option && (
+                    <optgroup
+                      key={`${id}-option-${index}`}
+                      label={option.label}
+                    >
+                      {option.options.map((groupOption, groupOptionIndex) => (
+                        <option
+                          key={`${id}-option-${index}-${groupOptionIndex}`}
+                          value={groupOption.value}
+                        >
+                          {groupOption.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </React.Fragment>
+              ))}
+            </select>
+          </div>
+          {props.isPublic !== undefined && (
+            <ToggleCheckbox
+              name="publicFields"
+              value={props.name}
+              defaultChecked={props.isPublic}
+            />
+          )}
+        </div>
       </div>
     );
   }
