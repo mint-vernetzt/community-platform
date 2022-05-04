@@ -16,7 +16,6 @@ import { badRequest, forbidden } from "remix-utils";
 import {
   getProfileByUserId,
   getAreas,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateProfileByUserId,
   AreasWithState,
 } from "~/profile.server";
