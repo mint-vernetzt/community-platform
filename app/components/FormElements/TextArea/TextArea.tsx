@@ -8,7 +8,7 @@ export interface TextAreaProps {
 }
 
 function TextArea(props: React.HTMLProps<HTMLTextAreaElement> & TextAreaProps) {
-  const { id, isPublic, placeholder, ...rest } = props;
+  const { id, isPublic, placeholder, errorMessage, ...rest } = props;
   return (
     <div className="form-control w-full">
       <label htmlFor={id} className="label">

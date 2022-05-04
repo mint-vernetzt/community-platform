@@ -10,9 +10,12 @@ export interface OptGroupProps {
   label: string;
   options: OptionsProps[];
 }
+
+export type OptionOrGroup = OptionsProps | OptGroupProps;
+
 export interface SelectFieldProps {
   label: string;
-  options?: OptionsProps[] | OptGroupProps[];
+  options?: OptionOrGroup[];
   isPublic?: boolean;
 }
 

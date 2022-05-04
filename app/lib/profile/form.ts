@@ -1,6 +1,15 @@
 import { ProfileFormType } from "../../routes/profile/$username/edit/yupSchema";
 import { capitalizeFirstLetter } from "../string/transform";
 
+/*
+areas: array(
+    object({
+      areaId: number().required(),
+      area: object({ name: string().required() }),
+    })
+  ),
+*/
+
 export function createProfileFromFormData(formData: FormData): ProfileFormType {
   return {
     academicTitle: formData.get("academicTitle") as string,
@@ -15,6 +24,10 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     offerings: (formData.getAll("offerings") ?? []) as string[],
     seekings: (formData.getAll("seekings") ?? []) as string[],
     publicFields: (formData.getAll("publicFields") ?? []) as string[],
+    areas: ((formData.getAll("areas") ?? []) as string[]).map((area) => ({
+      areaId: parseInt(area),
+      area: { name: "" },
+    })),
   };
 }
 

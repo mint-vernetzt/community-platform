@@ -14,14 +14,16 @@ import {
 import { badRequest, forbidden } from "remix-utils";
 
 import {
-  getProfileByUsername,
-  getStatesWithDistricts,
-  updateProfileByUsername,
+  getProfileByUserId,
+  getStatesWithDistricts as getAreas,
+  updateProfileByUserId,
 } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
-import SelectField from "~/components/FormElements/SelectField/SelectField";
+import SelectField, {
+  OptionOrGroup,
+} from "~/components/FormElements/SelectField/SelectField";
 import TextArea from "~/components/FormElements/TextArea/TextArea";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import {
@@ -31,13 +33,15 @@ import {
   validateProfile,
 } from "./yupSchema";
 
-import { District, Profile, State } from "@prisma/client";
+import { Area, Profile, State } from "@prisma/client";
 
 import {
   createProfileFromFormData,
   profileListOperationResolver,
 } from "~/lib/profile/form";
 import { useForm } from "react-hook-form";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -48,22 +52,26 @@ export async function handleAuthorization(request: Request, username: string) {
   if (currentUser?.user_metadata.username !== username) {
     throw forbidden({ message: "not allowed" });
   }
-}
 
+  return currentUser;
+}
+export type AreasWithState = (Area & {
+  state: State | null;
+})[];
 type LoaderData = {
   profile: ProfileFormType;
-  statesWithDistricts: (State & {
-    districts: District[];
-  })[];
+  areaOptions: OptionOrGroup[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? ""; //?
-  await handleAuthorization(request, username);
-  const profile = await getProfileByUsername(username, ProfileFormFields);
-  const statesWithDistricts = await getStatesWithDistricts();
+  const currentUser = await handleAuthorization(request, username);
 
-  return json({ profile, statesWithDistricts });
+  const profile = await getProfileByUserId(currentUser.id, ProfileFormFields);
+  const areas = await getAreas();
+  const areaOptions = createAreaOptionFromData(areas);
+
+  return json({ profile, areaOptions });
 };
 
 type ActionData = {
@@ -72,23 +80,29 @@ type ActionData = {
   lastSubmit: string;
   updated: boolean;
 };
+
+type UpdateProfile = Partial<Profile> & {
+  areas: Pick<ProfileFormType, "areas">;
+};
 export const action: ActionFunction = async ({
   request,
   params,
 }): Promise<ActionData> => {
-  const username = params.username ?? ""; //?
-  await handleAuthorization(request, username);
+  const username = params.username ?? "";
+  const currentUser = await handleAuthorization(request, username);
   const formData = await request.formData();
   let profile = createProfileFromFormData(formData);
   let updated = false;
   const errors = await validateProfile(profile);
-  //  console.log(formData);
+
+  console.log(formData);
   const submit = formData.get("submit");
   if (submit === "submit") {
     console.log("*** ", submit);
-    delete profile.email;
     if (errors === false) {
-      await updateProfileByUsername(username, profile as Partial<Profile>);
+      // TODO: missing error handling if update fails
+      delete profile.email;
+      await updateProfileByUserId(currentUser.id, profile as UpdateProfile);
       updated = true;
       console.log("***", profile);
     } else {
@@ -118,8 +132,7 @@ export const action: ActionFunction = async ({
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { profile: dbProfile, statesWithDistricts } =
-    useLoaderData<LoaderData>();
+  const { profile: dbProfile, areaOptions } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
   const formRef = React.createRef<HTMLFormElement>();
@@ -238,7 +251,6 @@ export default function Index() {
                           value: "Prof. Dr.",
                         },
                       ]}
-                      isPublic={profile.publicFields?.includes("academicTitle")}
                       defaultValue={profile.academicTitle}
                     />
                   </div>
@@ -259,10 +271,8 @@ export default function Index() {
                       {...register("firstName")}
                       id="firstName"
                       label="Vorname"
-                      isPublic={profile.publicFields?.includes("firstName")}
                       defaultValue={profile.firstName}
                       required
-                      errorMessage={errors?.firstName?.message}
                     />
                   </div>
                   <div className="basis-6/12 px-4">
@@ -271,7 +281,6 @@ export default function Index() {
                       id="lastName"
                       label="Nachname"
                       required
-                      isPublic={profile.publicFields?.includes("lastName")}
                       defaultValue={profile.lastName}
                       errorMessage={errors?.lastName?.message}
                     />
@@ -327,27 +336,16 @@ export default function Index() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="form-control w-full">
-                    <div className="flex flex-row items-center">
-                      <div className="flex-auto">
-                        <SelectField
-                          label="Aktivitätsgebiete"
-                          options={statesWithDistricts.map((state) => ({
-                            label: state.name,
-                            options: state.districts.map((district) => ({
-                              value: district.ags,
-                              label: district.name,
-                            })),
-                          }))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="ml-2">
-                    <button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600">
-                      +
-                    </button>
-                  </div>
+                  <SelectAdd
+                    name="areas"
+                    label={"Aktivitätsgebiete"}
+                    entries={profile.areas?.map((area) => ({
+                      label: area.area.name,
+                      value: `${area.areaId}`,
+                    }))}
+                    options={areaOptions}
+                    isPublic={profile.publicFields?.includes("activityAreas")}
+                  />
                 </div>
 
                 <div className="mb-4">
@@ -370,7 +368,7 @@ export default function Index() {
                   />
                 </div>
 
-                <hr className="border-neutral-400 my-16" />
+                <hr className="border-neutral-400 mb-16" />
 
                 <h4 className="mb-4 font-semibold">Ich biete</h4>
 
@@ -406,7 +404,7 @@ export default function Index() {
                   />
                 </div>
 
-                <hr className="border-neutral-400 my-16" />
+                <hr className="border-neutral-400 mb-16" />
 
                 <div className="flex flex-row items-center mb-4">
                   <h4 className="font-semibold">Organisation hinzufügen</h4>

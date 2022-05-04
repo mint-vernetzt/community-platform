@@ -11,6 +11,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AreasOnProfiles {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+  areaId    String
+  area      Area    @relation(fields: [areaId], references: [id])
+
+  @@id([profileId, areaId])
+  @@map("areas_on_profiles")
+}
+
 model Profile {
   id              String                 @id @default(uuid())
   username        String                 @unique
@@ -39,6 +49,7 @@ model Profile {
   termsAccepted   Boolean                @map("terms_accepted")
   termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
 
+  areas AreasOnProfiles[]
   @@map("profiles")
 }
 
@@ -135,5 +146,6 @@ model Area {
   state   State?   @relation(fields: [stateId], references: [agsPrefix])
   stateId String?
 
+  AreasOnProfiles AreasOnProfiles[]
   @@map("areas")
 }
