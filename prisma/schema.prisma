@@ -94,13 +94,40 @@ model State {
   agsPrefix String     @unique
   name      String     @unique
   districts District[]
+  areas     Area[]
+}
+
+enum DistrictType {
+  land
+  urban
+
+  @@map("district_types")
 }
 
 model District {
-  ags            String @unique
+  ags            String       @unique
   name           String
-  state          State  @relation(fields: [stateAgsPrefix], references: [agsPrefix])
+  type           DistrictType
+  state          State        @relation(fields: [stateAgsPrefix], references: [agsPrefix])
   stateAgsPrefix String
 
   @@unique([name, stateAgsPrefix])
+}
+
+enum AreaType {
+  country
+  state
+  district
+
+  @@map("area_types")
+}
+
+model Area {
+  id      String   @id @default(uuid())
+  name    String
+  type    AreaType
+  state   State?   @relation(fields: [stateId], references: [agsPrefix])
+  stateId String?
+
+  @@map("areas")
 }

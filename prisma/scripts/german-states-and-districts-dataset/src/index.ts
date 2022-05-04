@@ -1,6 +1,6 @@
-const https = require("https");
+import https from "https";
+import type { Area, District, DistrictType, State } from "@prisma/client";
 import { prismaClient } from "../../../../app/prisma";
-import type { State, District } from "@prisma/client";
 
 // The main function, which is called by the cli (load-german-states-and-districts.ts)
 export async function main(
@@ -35,6 +35,7 @@ export async function main(
       });
   } else if (filePath) {
     // Imports the districts from the specified file and passes them on to evaluateJsonObject()
+    // @ts-ignore
     const localities = await import(filePath).then((module) => module.default);
 
     await writeToDatabase(
@@ -64,6 +65,25 @@ export async function main(
     ...
 }
 */
+
+export function extractDistrictType(district: District): {
+  name: string;
+  type: DistrictType;
+} {
+  let type: DistrictType = "land";
+  let name = district.name;
+
+  if (name.startsWith("SK")) {
+    type = "urban";
+  }
+
+  if (name.startsWith("SK") || name.startsWith("LK")) {
+    name = name.substring(3);
+  }
+
+  return { name, type };
+}
+
 export function evaluateJsonObject(
   jsonObject: Object,
   stateKey: string,
@@ -83,6 +103,7 @@ export function evaluateJsonObject(
       if (!value[stateKey]) {
         throw new Error("Invalid stateKey: " + stateKey);
       }
+
       states.push({ name: value[stateKey], agsPrefix: key.slice(0, 2) });
     }
     if (
@@ -92,8 +113,17 @@ export function evaluateJsonObject(
       if (!value[districtKey]) {
         throw new Error("Invalid districtKey: " + districtKey);
       }
+
+      let type: DistrictType = "land";
+      let name = value.name;
+
+      if (value.county.startsWith("SK")) {
+        type = "urban";
+      }
+
       districts.push({
-        name: value[districtKey],
+        name,
+        type,
         ags: key,
         stateAgsPrefix: key.slice(0, 2),
       });
@@ -123,17 +153,30 @@ export function evaluateJsonObject(
   for (let i = 0; i < districts.length; i++) {
     for (let j = 0; j < districts.length; j++) {
       if (i != j && districts[i].name == districts[j].name) {
-        throw new Error(
-          "There are districts with the same name but different ags: " +
-            districts[i].name +
-            " (" +
-            districts[i].ags +
-            ") and " +
-            districts[j].name +
-            " (" +
-            districts[j].ags +
-            "), maybe use a different districtKey?"
-        );
+        if (
+          districts[i].name === districts[j].name &&
+          districts[i].type === districts[j].type
+        ) {
+          console.log(districts[i], districts[j]);
+          throw new Error(
+            "There are districts with the same name but different ags: " +
+              districts[i].name +
+              " (" +
+              districts[i].ags +
+              ") and " +
+              districts[j].name +
+              " (" +
+              districts[j].ags +
+              "), maybe use a different districtKey?"
+          );
+        } else {
+          if (districts[i].type === "land") {
+            districts[i].name = `${districts[i].name} (Landkreis)`;
+          }
+          if (districts[j].type === "land") {
+            districts[j].name = `${districts[j].name} (Landkreis)`;
+          }
+        }
       }
     }
   }
@@ -141,13 +184,52 @@ export function evaluateJsonObject(
   return { states: states, districts: districts };
 }
 
+// @ts-ignore
+export function getAreas(districts, states, countries) {
+  let areas: Area[] = [];
+  // @ts-ignore
+  districts.forEach((district) => {
+    const area = {
+      name: district.name,
+      type: "district",
+      stateId: district.stateAgsPrefix,
+    };
+    // @ts-ignore
+    areas.push(area);
+  });
+  // @ts-ignore
+  states.forEach((state) => {
+    const area = {
+      name: state.name,
+      type: "state",
+      stateId: null,
+    };
+    // @ts-ignore
+    areas.push(area);
+  });
+  // @ts-ignore
+  countries.forEach((country) => {
+    const area = {
+      name: country.name,
+      type: "country",
+      stateId: null,
+    };
+    // @ts-ignore
+    areas.push(area);
+  });
+  return areas;
+}
+
 // Prepare the data for writeToDatabase() so that it can efficiently be written to with bulk insert, update, or delete
 export function prepareQueries(
-  current: { states: any[]; districts: any[] },
+  current: { states: any[]; districts: any[]; areas: Area[] },
   data: { states: any[]; districts: any[] }
 ) {
   const currentDistricts = current.districts;
   const currentStates = current.states;
+  const currentAreas = current.areas;
+
+  let areas: Area[] = getAreas(data.districts, data.states, []);
 
   // Sort the new states and districts into the categories create, update and delete
   const insertDistricts = data.districts.filter(
@@ -156,12 +238,23 @@ export function prepareQueries(
         (filterDistrict) => filterDistrict.ags == district.ags
       ).length == 0
   );
+
   const insertStates = data.states.filter(
     (state) =>
       currentStates.filter(
         (filterState) => filterState.agsPrefix == state.agsPrefix
       ).length == 0
   );
+  const insertAreas = areas.filter((area) => {
+    const index = currentAreas.findIndex(
+      (currentArea) =>
+        currentArea.name === area.name &&
+        currentArea.stateId === area.stateId &&
+        currentArea.type === area.type
+    );
+    return index === -1;
+  });
+
   const updateStates = data.states.filter(
     (state) =>
       currentStates.filter(
@@ -179,6 +272,7 @@ export function prepareQueries(
             filterDistrict.stateAgsPrefix != district.stateAgsPrefix)
       ).length > 0
   );
+
   const deleteDistricts = currentDistricts.filter(
     (district) =>
       data.districts.filter(
@@ -195,6 +289,7 @@ export function prepareQueries(
   return {
     insertDistricts: insertDistricts,
     insertStates: insertStates,
+    insertAreas: insertAreas,
     updateStates: updateStates,
     updateDistricts: updateDistricts,
     deleteDistricts: deleteDistricts,
@@ -209,9 +304,10 @@ export async function writeToDatabase(
 ) {
   const currentDistricts = await prismaClient.district.findMany();
   const currentStates = await prismaClient.state.findMany();
+  const currentAreas = await prismaClient.area.findMany();
 
   const queries = prepareQueries(
-    { states: currentStates, districts: currentDistricts },
+    { states: currentStates, districts: currentDistricts, areas: currentAreas },
     data
   );
 
@@ -284,13 +380,18 @@ export async function writeToDatabase(
   await prismaClient.district.createMany({
     data: queries.insertDistricts,
   });
+  await prismaClient.area.createMany({
+    data: queries.insertAreas,
+  });
   verbose &&
     console.log(
       "Created " +
         queries.insertStates.length +
         " states and " +
         queries.insertDistricts.length +
-        " districts"
+        " districts" +
+        queries.insertAreas +
+        " areas"
     );
 }
 
