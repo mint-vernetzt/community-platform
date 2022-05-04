@@ -1,13 +1,12 @@
 import { action, loader } from ".";
 import { Profile } from "@prisma/client";
 import { badRequest, forbidden } from "remix-utils";
-import { updateProfileByUserId } from "../../../../profile.server";
 import { getUser } from "../../../../auth.server";
+import { updateProfileByUserId } from "~/profile.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
-//jest.mock("../../../../auth.server");
 
 jest.mock("../../../../auth.server", () => {
   return {
@@ -84,7 +83,7 @@ describe("Get profile data of specific user", () => {
 });
 
 describe("submit profile changes", () => {
-  before(() => {
+  beforeAll(() => {
     (getUser as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
@@ -117,7 +116,7 @@ describe("submit profile changes", () => {
       context: {},
     });
 
-    expect(updateProfileByUsername).toHaveBeenCalledWith(
+    expect(updateProfileByUserId).toHaveBeenCalledWith(
       "sessionusername",
       partialProfile
     );

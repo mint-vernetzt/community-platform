@@ -24,10 +24,7 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     offerings: (formData.getAll("offerings") ?? []) as string[],
     seekings: (formData.getAll("seekings") ?? []) as string[],
     publicFields: (formData.getAll("publicFields") ?? []) as string[],
-    areas: ((formData.getAll("areas") ?? []) as string[]).map((area) => ({
-      areaId: parseInt(area),
-      area: { name: "" },
-    })),
+    areas: (formData.getAll("areas") ?? []) as string[],
   };
 }
 

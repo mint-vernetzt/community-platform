@@ -15,8 +15,10 @@ import { badRequest, forbidden } from "remix-utils";
 
 import {
   getProfileByUserId,
-  getStatesWithDistricts as getAreas,
+  getAreas,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateProfileByUserId,
+  AreasWithState,
 } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
@@ -33,13 +35,11 @@ import {
   validateProfile,
 } from "./yupSchema";
 
-import { Area, Profile, State } from "@prisma/client";
-
 import {
   createProfileFromFormData,
   profileListOperationResolver,
 } from "~/lib/profile/form";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 
@@ -55,23 +55,26 @@ export async function handleAuthorization(request: Request, username: string) {
 
   return currentUser;
 }
-export type AreasWithState = (Area & {
-  state: State | null;
-})[];
+
 type LoaderData = {
   profile: ProfileFormType;
   areaOptions: OptionOrGroup[];
+  areas: AreasWithState;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? ""; //?
   const currentUser = await handleAuthorization(request, username);
 
-  const profile = await getProfileByUserId(currentUser.id, ProfileFormFields);
+  let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
+  let profile = {
+    ...dbProfile,
+    areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
+  };
   const areas = await getAreas();
   const areaOptions = createAreaOptionFromData(areas);
 
-  return json({ profile, areaOptions });
+  return json({ profile, areaOptions, areas });
 };
 
 type ActionData = {
@@ -81,9 +84,6 @@ type ActionData = {
   updated: boolean;
 };
 
-type UpdateProfile = Partial<Profile> & {
-  areas: Pick<ProfileFormType, "areas">;
-};
 export const action: ActionFunction = async ({
   request,
   params,
@@ -92,21 +92,15 @@ export const action: ActionFunction = async ({
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.formData();
   let profile = createProfileFromFormData(formData);
-  let updated = false;
   const errors = await validateProfile(profile);
+  let updated = false;
 
-  console.log(formData);
   const submit = formData.get("submit");
   if (submit === "submit") {
-    console.log("*** ", submit);
     if (errors === false) {
-      // TODO: missing error handling if update fails
       delete profile.email;
-      await updateProfileByUserId(currentUser.id, profile as UpdateProfile);
+      await updateProfileByUserId(currentUser.id, profile);
       updated = true;
-      console.log("***", profile);
-    } else {
-      console.log("ERRORS:", errors);
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
@@ -114,6 +108,7 @@ export const action: ActionFunction = async ({
       "skills",
       "interests",
       "offerings",
+      "areas",
     ];
 
     listData.forEach((name) => {
@@ -132,18 +127,33 @@ export const action: ActionFunction = async ({
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { profile: dbProfile, areaOptions } = useLoaderData<LoaderData>();
+  const {
+    profile: dbProfile,
+    areaOptions,
+    areas,
+  } = useLoaderData<LoaderData>();
+
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
+
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
   const errors = actionData?.errors as ProfileError;
+  const methods = useForm<ProfileFormType>({
+    defaultValues: profile,
+  });
+
   const {
     register,
+    reset,
     formState: { isDirty },
-  } = useForm<ProfileFormType>({
-    defaultValues: dbProfile,
-  });
+  } = methods;
+  const selectedAreas =
+    profile.areas && areas
+      ? areas
+          .filter((area) => profile.areas.includes(area.id))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      : [];
 
   React.useEffect(() => {
     if (isSubmitting) {
@@ -164,315 +174,335 @@ export default function Index() {
     }
   }, [isSubmitting, formRef, actionData]);
 
+  const isFormChanged = isDirty || actionData?.updated === false;
+
   return (
-    <Form ref={formRef} method="post">
-      <button name="submit" type="submit" value="submit" className="hidden" />
-      <fieldset disabled={transition.state === "submitting"}>
-        <div>
-          <header className="shadow-md mb-8">
-            <div className="md:container md:mx-auto relative z-10">
-              <div className="px-4 pt-3 pb-3 flex flex-row items-center">
-                <div className="">
-                  <HeaderLogo />
-                </div>
-                <div className="ml-auto">UserMenu</div>
-              </div>
-            </div>
-          </header>
-
-          <div className="md:container md:mx-auto relative z-10 pb-44">
-            <div className="flex flex-row -mx-4">
-              <div className="basis-4/12 px-4">
-                <div className="p-4 lg:p-8 pb-15 md:pb-5 rounded-lg bg-neutral-200 shadow-lg relative">
-                  <h3 className="font-bold mb-7">Profil bearbeiten</h3>
-                  <ul>
-                    <li>
-                      <a href="/#" className="block text-3xl text-primary py-3">
-                        Persönliche Daten
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/#"
-                        className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                      >
-                        Login und Sicherheit
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/#"
-                        className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                      >
-                        Website und Soziale Netzwerke
-                      </a>
-                    </li>
-                  </ul>
-
-                  <hr className="border-neutral-400 my-8" />
-
+    <FormProvider {...methods}>
+      <Form
+        ref={formRef}
+        method="post"
+        onSubmit={() => {
+          reset({}, { keepValues: true });
+        }}
+      >
+        <button name="submit" type="submit" value="submit" className="hidden" />
+        <fieldset disabled={transition.state === "submitting"}>
+          <div>
+            <header className="shadow-md mb-8">
+              <div className="md:container md:mx-auto relative z-10">
+                <div className="px-4 pt-3 pb-3 flex flex-row items-center">
                   <div className="">
-                    <a
-                      href="/#"
-                      className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                    >
-                      Profil löschen
-                    </a>
+                    <HeaderLogo />
                   </div>
+                  <div className="ml-auto">UserMenu</div>
                 </div>
               </div>
-              <div className="basis-6/12 px-4">
-                <h1 className="mb-8">Persönliche Daten</h1>
+            </header>
 
-                <h4 className="mb-4 font-semibold">Allgemein</h4>
+            <div className="md:container md:mx-auto relative z-10 pb-44">
+              <div className="flex flex-row -mx-4">
+                <div className="basis-4/12 px-4">
+                  <div className="p-4 lg:p-8 pb-15 md:pb-5 rounded-lg bg-neutral-200 shadow-lg relative">
+                    <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+                    <ul>
+                      <li>
+                        <a
+                          href="/#"
+                          className="block text-3xl text-primary py-3"
+                        >
+                          Persönliche Daten
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/#"
+                          className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                        >
+                          Login und Sicherheit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/#"
+                          className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                        >
+                          Website und Soziale Netzwerke
+                        </a>
+                      </li>
+                    </ul>
 
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
+                    <hr className="border-neutral-400 my-8" />
 
-                <div className="flex flex-row -mx-4 mb-4">
-                  <div className="basis-6/12 px-4">
-                    <SelectField
-                      {...register("academicTitle")}
-                      label="Titel"
-                      options={[
-                        {
-                          label: "Dr.",
-                          value: "Dr.",
-                        },
-                        {
-                          label: "Prof.",
-                          value: "Prof.",
-                        },
-                        {
-                          label: "Prof. Dr.",
-                          value: "Prof. Dr.",
-                        },
-                      ]}
-                      defaultValue={profile.academicTitle}
-                    />
-                  </div>
-                  <div className="basis-6/12 px-4">
-                    <InputText
-                      name="position"
-                      id="position"
-                      label="Position"
-                      defaultValue={profile.position}
-                      isPublic={profile.publicFields?.includes("position")}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-row -mx-4 mb-4">
-                  <div className="basis-6/12 px-4">
-                    <InputText
-                      {...register("firstName")}
-                      id="firstName"
-                      label="Vorname"
-                      defaultValue={profile.firstName}
-                      required
-                    />
-                  </div>
-                  <div className="basis-6/12 px-4">
-                    <InputText
-                      {...register("lastName")}
-                      id="lastName"
-                      label="Nachname"
-                      required
-                      defaultValue={profile.lastName}
-                      errorMessage={errors?.lastName?.message}
-                    />
+                    <div className="">
+                      <a
+                        href="/#"
+                        className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                      >
+                        Profil löschen
+                      </a>
+                    </div>
                   </div>
                 </div>
+                <div className="basis-6/12 px-4">
+                  <h1 className="mb-8">Persönliche Daten</h1>
 
-                <div className="flex flex-row -mx-4 mb-4">
-                  <div className="basis-6/12 px-4">
-                    <InputText
-                      {...register("email")}
-                      type="text"
-                      id="email"
-                      label="E-Mail"
+                  <h4 className="mb-4 font-semibold">Allgemein</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="flex flex-row -mx-4 mb-4">
+                    <div className="basis-6/12 px-4">
+                      <SelectField
+                        {...register("academicTitle")}
+                        label="Titel"
+                        options={[
+                          {
+                            label: "Dr.",
+                            value: "Dr.",
+                          },
+                          {
+                            label: "Prof.",
+                            value: "Prof.",
+                          },
+                          {
+                            label: "Prof. Dr.",
+                            value: "Prof. Dr.",
+                          },
+                        ]}
+                        defaultValue={profile.academicTitle}
+                      />
+                    </div>
+                    <div className="basis-6/12 px-4">
+                      <InputText
+                        {...register("position")}
+                        id="position"
+                        label="Position"
+                        defaultValue={profile.position}
+                        isPublic={profile.publicFields?.includes("position")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row -mx-4 mb-4">
+                    <div className="basis-6/12 px-4">
+                      <InputText
+                        {...register("firstName")}
+                        id="firstName"
+                        label="Vorname"
+                        defaultValue={profile.firstName}
+                        required
+                      />
+                    </div>
+                    <div className="basis-6/12 px-4">
+                      <InputText
+                        {...register("lastName")}
+                        id="lastName"
+                        label="Nachname"
+                        required
+                        defaultValue={profile.lastName}
+                        errorMessage={errors?.lastName?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row -mx-4 mb-4">
+                    <div className="basis-6/12 px-4">
+                      <InputText
+                        {...register("email")}
+                        type="text"
+                        id="email"
+                        label="E-Mail"
+                        readOnly
+                        isPublic={profile.publicFields?.includes("email")}
+                        defaultValue={profile.email}
+                        errorMessage={errors?.email?.message}
+                      />
+                    </div>
+                    <div className="basis-6/12 px-4">
+                      <InputText
+                        {...register("phone")}
+                        id="phone"
+                        label="Telefon"
+                        isPublic={profile.publicFields?.includes("phone")}
+                        defaultValue={profile.phone}
+                        errorMessage={errors?.phone?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <hr className="border-neutral-400 my-16" />
+
+                  <div className="flex flex-row items-center mb-4">
+                    <h4 className="font-semibold">Über mich</h4>
+                  </div>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <TextArea
+                      {...register("bio")}
+                      id="bio"
+                      label="Kurzbeschreibung"
+                      isPublic={profile.publicFields?.includes("bio")}
+                      defaultValue={profile.bio}
+                      errorMessage={errors?.bio?.message}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <SelectAdd
+                      name="areas"
+                      label={"Aktivitätsgebiete"}
+                      placeholder="Aktivitätsgebiete hinzufügen"
+                      entries={selectedAreas.map((area) => ({
+                        label: area.name,
+                        value: area.id,
+                      }))}
+                      options={areaOptions}
+                      isPublic={profile.publicFields?.includes("activityAreas")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="skills"
+                      label="Kompetenzen"
+                      placeholder="Kompetenz hinzufügen"
+                      entries={profile.skills ?? []}
+                      isPublic={profile.publicFields?.includes("skills")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="interests"
+                      label="Interessen"
+                      placeholder="Interesse hinzufügen"
+                      entries={profile.interests ?? []}
+                      isPublic={profile.publicFields?.includes("interests")}
+                    />
+                  </div>
+
+                  <hr className="border-neutral-400 mb-16" />
+
+                  <h4 className="mb-4 font-semibold">Ich biete</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="offerings"
+                      label="Angebot"
                       readOnly
-                      isPublic={profile.publicFields?.includes("email")}
-                      defaultValue={profile.email}
-                      errorMessage={errors?.email?.message}
+                      placeholder="Noch nicht implementiert"
+                      entries={profile.offerings ?? []}
                     />
                   </div>
-                  <div className="basis-6/12 px-4">
-                    <InputText
-                      {...register("phone")}
-                      id="phone"
-                      label="Telefon"
-                      isPublic={profile.publicFields?.includes("phone")}
-                      defaultValue={profile.phone}
-                      errorMessage={errors?.phone?.message}
+
+                  <hr className="border-neutral-400 my-16" />
+
+                  <h4 className="mb-4 font-semibold">Ich suche</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="seekings"
+                      label="Suche"
+                      readOnly
+                      placeholder="Noch nicht implementiert"
+                      entries={profile.seekings ?? []}
                     />
                   </div>
-                </div>
 
-                <hr className="border-neutral-400 my-16" />
+                  <hr className="border-neutral-400 mb-16" />
 
-                <div className="flex flex-row items-center mb-4">
-                  <h4 className="font-semibold">Über mich</h4>
-                </div>
-
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-
-                <div className="mb-4">
-                  <TextArea
-                    {...register("bio")}
-                    id="bio"
-                    label="Kurzbeschreibung"
-                    isPublic={profile.publicFields?.includes("bio")}
-                    defaultValue={profile.bio}
-                    errorMessage={errors?.bio?.message}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <SelectAdd
-                    name="areas"
-                    label={"Aktivitätsgebiete"}
-                    entries={profile.areas?.map((area) => ({
-                      label: area.area.name,
-                      value: `${area.areaId}`,
-                    }))}
-                    options={areaOptions}
-                    isPublic={profile.publicFields?.includes("activityAreas")}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <InputAdd
-                    name="skills"
-                    label="Kompetenzen"
-                    placeholder="Kompetenz hinzufügen"
-                    entries={profile.skills ?? []}
-                    isPublic={profile.publicFields?.includes("skills")}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <InputAdd
-                    name="interests"
-                    label="Interessen"
-                    placeholder="Interesse hinzufügen"
-                    entries={profile.interests ?? []}
-                    isPublic={profile.publicFields?.includes("interests")}
-                  />
-                </div>
-
-                <hr className="border-neutral-400 mb-16" />
-
-                <h4 className="mb-4 font-semibold">Ich biete</h4>
-
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-
-                <div className="mb-4">
-                  <InputAdd
-                    name="offerings"
-                    label="Angebot"
-                    entries={profile.offerings ?? []}
-                  />
-                </div>
-
-                <hr className="border-neutral-400 my-16" />
-
-                <h4 className="mb-4 font-semibold">Ich suche</h4>
-
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-
-                <div className="mb-4">
-                  <InputAdd
-                    name="seekings"
-                    label="Suche"
-                    entries={profile.seekings ?? []}
-                  />
-                </div>
-
-                <hr className="border-neutral-400 mb-16" />
-
-                <div className="flex flex-row items-center mb-4">
-                  <h4 className="font-semibold">Organisation hinzufügen</h4>
-                  <button
-                    type="submit"
-                    className="btn btn-outline-primary ml-auto btn-small"
-                    disabled
-                  >
-                    Organisation anlegen
-                  </button>
-                </div>
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-
-                <div className="mb-4">
-                  <InputAdd
-                    name="organizations"
-                    label="Organisation hinzufügen"
-                    entries={[]}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-            <div className="md:container md:mx-auto ">
-              <div className="px-4 py-8 flex flex-row items-center justify-end">
-                <div className="">
-                  <div className=""></div>
-
-                  <div
-                    className={`float-left mt-2 text-green-500 text-bold ${
-                      actionData?.updated && !isSubmitting
-                        ? "block animate-fade-out"
-                        : "hidden"
-                    }`}
-                  >
-                    Profil wurde aktualisiert.
-                  </div>
-
-                  {isDirty && (
-                    <Link
-                      to={`/profile/${username}/edit`}
-                      reloadDocument
-                      className={`btn btn-link`}
+                  <div className="flex flex-row items-center mb-4">
+                    <h4 className="font-semibold">Organisation hinzufügen</h4>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-primary ml-auto btn-small"
+                      disabled
                     >
-                      Änderungen verwerfen
-                    </Link>
-                  )}
-                  <button
-                    type="submit"
-                    name="submit"
-                    value="submit"
-                    className="btn btn-primary ml-4"
-                    disabled={isSubmitting}
-                  >
-                    Speichern
-                  </button>
+                      Organisation anlegen
+                    </button>
+                  </div>
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="organizations"
+                      label="Organisation hinzufügen"
+                      readOnly
+                      placeholder="Noch nicht implementiert"
+                      entries={[]}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </footer>
-        </div>
-      </fieldset>
-    </Form>
+
+            <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+              <div className="md:container md:mx-auto ">
+                <div className="px-4 py-8 flex flex-row items-center justify-end">
+                  <div className="">
+                    <div className=""></div>
+
+                    <div
+                      className={`float-left mt-2 text-green-500 text-bold ${
+                        actionData?.updated && !isSubmitting
+                          ? "block animate-fade-out"
+                          : "hidden"
+                      }`}
+                    >
+                      Profil wurde aktualisiert.
+                    </div>
+
+                    {isFormChanged && (
+                      <Link
+                        to={`/profile/${username}/edit`}
+                        reloadDocument
+                        className={`btn btn-link`}
+                      >
+                        Änderungen verwerfen
+                      </Link>
+                    )}
+                    <button
+                      type="submit"
+                      name="submit"
+                      value="submit"
+                      className="btn btn-primary ml-4"
+                      disabled={isSubmitting || !isFormChanged}
+                    >
+                      Speichern
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </footer>
+          </div>
+        </fieldset>
+      </Form>
+    </FormProvider>
   );
 }

@@ -1,5 +1,4 @@
-import { Profile } from "@prisma/client";
-import { create } from "cypress/types/lodash";
+import { Area, Profile, State } from "@prisma/client";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
@@ -74,7 +73,7 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
     return await prismaClient.profile.findUnique({
       select: {
         ...select,
-        areas: { select: { areaId: true, area: { select: { name: true } } } },
+        areas: { select: { areaId: true } },
       },
       where,
     });
@@ -87,24 +86,10 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
 }
 
 type UpdateProfile = Partial<Profile> & {
-  areas: Pick<ProfileFormType, "areas">;
+  areas: ProfileFormType["areas"];
 };
 export async function updateProfileByUserId(id: string, data: UpdateProfile) {
   const { areas, ...rest } = data;
-  /*
-  let areaConnections = areas.reduce(
-    (
-      acc: {
-        [key: string]: boolean;
-      },
-      elem: FieldType
-    ) => {
-      acc[elem] = true;
-      return acc;
-    },
-    {}
-  );
-  */
 
   const result = await prismaClient.profile.update({
     where: {
@@ -113,16 +98,15 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
     data: {
       ...rest,
       areas: {
-        connectOrCreate: [
-          {
-            where: {
-              profileId_areaId: { areaId: 2, profileId: id },
-            },
-            create: {
-              areaId: 2,
-            },
+        deleteMany: {},
+        connectOrCreate: areas.map((areaId) => ({
+          where: {
+            profileId_areaId: { areaId, profileId: id },
           },
-        ],
+          create: {
+            areaId,
+          },
+        })),
       },
     },
   });
@@ -134,7 +118,10 @@ export async function getAllDistricts() {
   return await prismaClient.district.findMany();
 }
 
-export async function getStatesWithDistricts() {
+export type AreasWithState = (Area & {
+  state: State | null;
+})[];
+export async function getAreas(): Promise<AreasWithState> {
   return await prismaClient.area.findMany({
     include: {
       state: true,

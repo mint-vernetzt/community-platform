@@ -6,6 +6,6 @@ import SelectAdd from "./SelectAdd";
 const expect = global.expect;
 
 test("render component", () => {
-  const { baseElement } = render(<SelectAdd />);
+  const { baseElement } = render(<SelectAdd name="test" label={""} />);
   expect(baseElement).toBeTruthy();
 });

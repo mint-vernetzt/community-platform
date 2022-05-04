@@ -9,7 +9,7 @@ import { OptionOrGroup } from "~/components/FormElements/SelectField/SelectField
 export function createAreaOptionFromData(
   areas: AreasWithState
 ): OptionOrGroup[] {
-  const divider: OptionsProps = { label: "----------", value: "" };
+  const divider: OptGroupProps = { label: "----------", options: [] };
 
   const nationalEntry = areas.filter((area) => area.type === "country")[0];
   const nationalOption: OptionsProps = {
@@ -17,10 +17,12 @@ export function createAreaOptionFromData(
     value: `${nationalEntry.id}`,
   };
 
-  const states = areas.filter((area) => area.type === "state");
+  const states = areas
+    .filter((area) => area.type === "state")
+    .sort((a, b) => a.name.localeCompare(b.name));
   const stateOptions = states.map((state) => ({
     label: state.name,
-    value: `${state.id}`,
+    value: state.id,
   }));
 
   const districtOptions = states.map((state) => ({
@@ -31,8 +33,9 @@ export function createAreaOptionFromData(
       )
       .map((district) => ({
         label: district.name,
-        value: district.id.toString(),
-      })),
+        value: district.id,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
   }));
 
   return [

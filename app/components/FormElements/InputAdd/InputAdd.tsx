@@ -11,7 +11,8 @@ export interface InputAddProps {
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   const buttonRef = React.createRef<HTMLButtonElement>();
-  const { label, entries, ...rest } = props;
+  const { label, isPublic, ...rest } = props;
+  const entries = props.entries ?? [];
   const id = props.id ?? props.name;
   const name = props.name ?? "";
   const singularName = name.slice(0, -1);
@@ -30,11 +31,11 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
             )}
           </div>
 
-          {props.isPublic !== undefined && (
+          {isPublic !== undefined && (
             <ToggleCheckbox
               name="publicFields"
               value={props.name}
-              defaultChecked={props.isPublic}
+              defaultChecked={isPublic}
             />
           )}
         </div>

@@ -1,5 +1,5 @@
 import { Profile } from "@prisma/client";
-import { array, InferType, number, object, string, ValidationError } from "yup";
+import { array, InferType, object, string, ValidationError } from "yup";
 
 /*
 const ProfileFormFields = [
@@ -36,12 +36,7 @@ export const profileSchema = object({
   offerings: array(string().required()).required(),
   seekings: array(string().required()).required(),
   publicFields: array(string().required()),
-  areas: array(
-    object({
-      areaId: number().required(),
-      area: object({ name: string().required() }),
-    })
-  ),
+  areas: array(string().required()).required(),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;

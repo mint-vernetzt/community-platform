@@ -21,7 +21,7 @@ export interface SelectFieldProps {
 
 const SelectField = React.forwardRef(
   (props: React.HTMLProps<HTMLSelectElement> & SelectFieldProps, ref) => {
-    const { id, label, options = [], ...rest } = props;
+    const { id, label, options = [], isPublic, ...rest } = props;
 
     return (
       <div className="form-control w-full">
@@ -33,7 +33,7 @@ const SelectField = React.forwardRef(
           <div className="flex-auto">
             <select
               {...rest}
-              className={`select w-full select-bordered${
+              className={`select w-full select-bordered ${
                 props.className ?? ""
               }`}
             >

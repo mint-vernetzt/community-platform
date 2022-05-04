@@ -23,7 +23,7 @@ const InputText = React.forwardRef(
             {props.required !== undefined ? "*" : ""}
           </label>
         )}
-        {/* TODO: add required attribute if necessary */}
+
         <div className="flex flex-row items-center">
           <div className="flex-auto">
             <input

@@ -202,12 +202,13 @@ export function getAreas(districts, states, countries) {
     const area = {
       name: state.name,
       type: "state",
-      stateId: null,
+      stateId: state.agsPrefix,
     };
     // @ts-ignore
     areas.push(area);
   });
   // @ts-ignore
+
   countries.forEach((country) => {
     const area = {
       name: country.name,
@@ -217,6 +218,14 @@ export function getAreas(districts, states, countries) {
     // @ts-ignore
     areas.push(area);
   });
+
+  // @ts-ignore
+  areas.push({
+    name: "Bundesweit",
+    type: "country",
+    stateId: null,
+  });
+
   return areas;
 }
 

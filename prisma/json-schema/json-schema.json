@@ -286,6 +286,10 @@
         "name": {
           "type": "string"
         },
+        "type": {
+          "type": "string",
+          "enum": ["land", "urban"]
+        },
         "state": {
           "$ref": "#/definitions/State"
         }
@@ -295,7 +299,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "name": {
           "type": "string"

@@ -15,7 +15,7 @@ export type SelectAddProps = React.HTMLProps<HTMLSelectElement> &
 
 const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
   const buttonRef = React.createRef<HTMLButtonElement>();
-  const { name, entries = [], ref: _ref, ...rest } = props;
+  const { name, entries = [], isPublic, ref: _ref, ...rest } = props;
   const singularName = name.slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
 
@@ -33,6 +33,7 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
                   buttonRef.current?.click();
                 }
               }}
+              className={`clear-after-submit`}
             />
           </div>
           <div className="ml-2">
@@ -40,7 +41,7 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
               ref={buttonRef}
               name="submit"
               type="submit"
-              className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600"
+              className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden"
               value={`add${uppercaseSingularName}`}
             >
               +
@@ -50,7 +51,6 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
       </div>
 
       <ul className="pt-6 pb-12">
-        {JSON.stringify(entries, null, 2)}
         {entries.map((entry) => (
           <li key={`${name}-${entry.value}`} className="flex">
             <div className="font-bold  py-2">
