@@ -99,6 +99,7 @@ export const action: ActionFunction = async ({
     if (errors === false) {
       delete profile.email;
       await updateProfileByUserId(currentUser.id, profile);
+
       updated = true;
     }
   } else {
@@ -282,6 +283,7 @@ export default function Index() {
                         label="Position"
                         defaultValue={profile.position}
                         isPublic={profile.publicFields?.includes("position")}
+                        errorMessage={errors?.position?.message}
                       />
                     </div>
                   </div>
@@ -294,6 +296,7 @@ export default function Index() {
                         label="Vorname"
                         defaultValue={profile.firstName}
                         required
+                        errorMessage={errors?.firstName?.message}
                       />
                     </div>
                     <div className="basis-6/12 px-4">
