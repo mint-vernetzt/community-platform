@@ -133,7 +133,7 @@ export default function Index() {
                     </li>
                     <li>
                       <Form action="/logout?index" method="post">
-                        <button type="submit" className="button">
+                        <button type="submit" className="w-full text-left">
                           Logout
                         </button>
                       </Form>
@@ -142,7 +142,21 @@ export default function Index() {
                 </div>
               </div>
             ) : (
-              <p>Login</p>
+              <div className="ml-auto">
+                <Link
+                  to="/login"
+                  className="text-primary font-bold hover:underline"
+                >
+                  Anmelden
+                </Link>{" "}
+                /{" "}
+                <Link
+                  to="/register"
+                  className="text-primary font-bold hover:underline"
+                >
+                  Registrieren
+                </Link>
+              </div>
             )}
           </div>
         </div>
