@@ -15,6 +15,7 @@ import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 type Mode = "anon" | "authenticated" | "owner";
 
 type ProfileLoaderData = {
+  currentUsername?: string;
   mode: Mode;
   data: Partial<Profile & { areas: { area: Area }[] }>;
 };
@@ -38,12 +39,17 @@ export const loader: LoaderFunction = async (
   let mode: Mode;
   const currentUser = await getUser(request);
 
+  let currentUsername: string | undefined;
+
   if (currentUser === null) {
     mode = "anon";
-  } else if (currentUser.user_metadata.username === username) {
-    mode = "owner";
   } else {
-    mode = "authenticated";
+    currentUsername = currentUser.user_metadata.username;
+    if (currentUsername === username) {
+      mode = "owner";
+    } else {
+      mode = "authenticated";
+    }
   }
 
   const publicFields = [
@@ -66,7 +72,7 @@ export const loader: LoaderFunction = async (
 
   console.log(JSON.stringify(data, undefined, 2));
 
-  return json({ mode, data });
+  return json({ mode, data, currentUsername });
 };
 
 function getInitials(data: Partial<Profile>) {
@@ -99,8 +105,6 @@ function hasContactInformations(data: Partial<Profile>) {
 
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
-  const { username } = useParams();
-
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
 
@@ -124,10 +128,12 @@ export default function Index() {
                     className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                   >
                     <li>
-                      <Link to={`/profile/${username}`}>Profil anzeigen</Link>
+                      <Link to={`/profile/${loaderData.currentUsername}`}>
+                        Profil anzeigen
+                      </Link>
                     </li>
                     <li>
-                      <Link to={`/profile/${username}/edit`}>
+                      <Link to={`/profile/${loaderData.currentUsername}/edit`}>
                         Profil bearbeiten
                       </Link>
                     </li>
@@ -295,7 +301,7 @@ export default function Index() {
                 <div className="flex-initial lg:pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary whitespace-nowrap"
-                    to={`/profile/${username}/edit`}
+                    to={`/profile/${loaderData.currentUsername}/edit`}
                   >
                     {/* TODO: nowrap should be default on buttons, right?*/}
                     Profil bearbeiten
