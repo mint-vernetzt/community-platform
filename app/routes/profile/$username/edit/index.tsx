@@ -62,7 +62,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const username = params.username ?? ""; //?
+  const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
   let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
