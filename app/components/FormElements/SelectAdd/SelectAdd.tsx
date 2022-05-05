@@ -1,3 +1,4 @@
+import { isInteger } from "cypress/types/lodash";
 import * as React from "react";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import SelectField, { SelectFieldProps } from "../SelectField/SelectField";
@@ -34,6 +35,8 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
                 }
               }}
               className={`clear-after-submit`}
+              isPublic={isPublic}
+              publicPosition="top"
             />
           </div>
           <div className="ml-2">
