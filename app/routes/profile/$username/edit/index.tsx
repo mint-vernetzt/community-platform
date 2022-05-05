@@ -407,6 +407,7 @@ export default function Index() {
                       readOnly
                       placeholder="Noch nicht implementiert"
                       entries={profile.offerings ?? []}
+                      isPublic={profile.publicFields?.includes("offerings")}
                     />
                   </div>
 
@@ -427,6 +428,7 @@ export default function Index() {
                       readOnly
                       placeholder="Noch nicht implementiert"
                       entries={profile.seekings ?? []}
+                      isPublic={profile.publicFields?.includes("seekings")}
                     />
                   </div>
 
