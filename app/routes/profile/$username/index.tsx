@@ -9,13 +9,19 @@ import {
 } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { Area, Profile } from "@prisma/client";
-import { getProfileByUsername } from "~/profile.server";
+import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import { getInitials } from "~/lib/profile/getInitials";
 
 type Mode = "anon" | "authenticated" | "owner";
 
+type CurrentUser = Pick<
+  Profile,
+  "username" | "firstName" | "lastName" | "academicTitle"
+>;
+
 type ProfileLoaderData = {
-  currentUsername?: string;
+  currentUser?: CurrentUser;
   mode: Mode;
   data: Partial<Profile & { areas: { area: Area }[] }>;
 };
@@ -37,15 +43,20 @@ export const loader: LoaderFunction = async (
   }
 
   let mode: Mode;
-  const currentUser = await getUser(request);
+  const sessionUser = await getUser(request);
 
-  let currentUsername: string | undefined;
+  let currentUser: CurrentUser | null;
 
-  if (currentUser === null) {
+  if (sessionUser === null) {
     mode = "anon";
   } else {
-    currentUsername = currentUser.user_metadata.username;
-    if (currentUsername === username) {
+    const sessionUserProfile = await getProfileByUserId(sessionUser.id, [
+      "username",
+      "firstName",
+      "lastName",
+    ]);
+    currentUser = sessionUserProfile;
+    if (sessionUser.user_metadata.username === username) {
       mode = "owner";
     } else {
       mode = "authenticated";
@@ -72,17 +83,8 @@ export const loader: LoaderFunction = async (
 
   console.log(JSON.stringify(data, undefined, 2));
 
-  return json({ mode, data, currentUsername });
+  return json({ mode, data, currentUser });
 };
-
-function getInitials(data: Partial<Profile>) {
-  let initials = "";
-  if (data.firstName !== undefined && data.lastName !== undefined) {
-    const { firstName, lastName } = data;
-    initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  }
-  return initials;
-}
 
 function getFullName(data: Partial<Profile>) {
   const { firstName, lastName, academicTitle } = data;
@@ -105,6 +107,10 @@ function hasContactInformations(data: Partial<Profile>) {
 
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
+  let initialsOfCurrentUser = "";
+  if (loaderData.currentUser !== undefined) {
+    initialsOfCurrentUser = getInitials(loaderData.currentUser);
+  }
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
 
@@ -117,23 +123,26 @@ export default function Index() {
               <HeaderLogo />
             </div>
             {/* TODO: link to login on anon*/}
-            {loaderData.mode !== "anon" ? (
+            {loaderData.mode !== "anon" &&
+            loaderData.currentUser !== undefined ? (
               <div className="ml-auto">
                 <div className="dropdown dropdown-end">
                   <label tabIndex={0} className="btn btn-primary w-10 h-10">
-                    {initials}
+                    {initialsOfCurrentUser}
                   </label>
                   <ul
                     tabIndex={0}
                     className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                   >
                     <li>
-                      <Link to={`/profile/${loaderData.currentUsername}`}>
+                      <Link to={`/profile/${loaderData.currentUser.username}`}>
                         Profil anzeigen
                       </Link>
                     </li>
                     <li>
-                      <Link to={`/profile/${loaderData.currentUsername}/edit`}>
+                      <Link
+                        to={`/profile/${loaderData.currentUser.username}/edit`}
+                      >
                         Profil bearbeiten
                       </Link>
                     </li>
@@ -297,17 +306,18 @@ export default function Index() {
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">Hi, ich bin {fullName}</h1>
               </div>
-              {loaderData.mode === "owner" && (
-                <div className="flex-initial lg:pl-4 pt-3 mb-6">
-                  <Link
-                    className="btn btn-outline btn-primary whitespace-nowrap"
-                    to={`/profile/${loaderData.currentUsername}/edit`}
-                  >
-                    {/* TODO: nowrap should be default on buttons, right?*/}
-                    Profil bearbeiten
-                  </Link>
-                </div>
-              )}
+              {loaderData.mode === "owner" &&
+                loaderData.currentUser !== undefined && (
+                  <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                    <Link
+                      className="btn btn-outline btn-primary whitespace-nowrap"
+                      to={`/profile/${loaderData.currentUser.username}/edit`}
+                    >
+                      {/* TODO: nowrap should be default on buttons, right?*/}
+                      Profil bearbeiten
+                    </Link>
+                  </div>
+                )}
             </div>
             {typeof loaderData.data.bio === "string" && (
               <p className="mb-6">
