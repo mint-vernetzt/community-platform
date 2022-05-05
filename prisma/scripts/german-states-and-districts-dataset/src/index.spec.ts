@@ -469,12 +469,12 @@ describe("test prepareQueries() from index.js", () => {
         },
         {
           name: "BL1",
-          stateId: null,
+          stateId: "01",
           type: "state",
         },
         {
           name: "BL2",
-          stateId: null,
+          stateId: "02",
           type: "state",
         },
       ],
@@ -728,12 +728,12 @@ describe("test prepareQueries() from index.js", () => {
         },
         {
           name: "BL1 (neu)",
-          stateId: null,
+          stateId: "01",
           type: "state",
         },
         {
           name: "BL2 (neu)",
-          stateId: null,
+          stateId: "02",
           type: "state",
         },
       ],
@@ -866,13 +866,13 @@ describe("test prepareQueries() from index.js", () => {
         },
         {
           name: "BL2 (neu)",
-          stateId: null,
+          stateId: "02",
           type: "state",
         },
         {
           name: "BL3",
           type: "state",
-          stateId: null,
+          stateId: "03",
         },
       ],
       updateStates: [

@@ -14,6 +14,6 @@
       "~/*": ["./app/*"]
     },
     "noEmit": true,
-    "types": ["cypress", "@testing-library/cypress"]
+    "types": ["cypress", "@testing-library/cypress", "jest"]
   }
 }

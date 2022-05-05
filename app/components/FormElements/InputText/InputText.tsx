@@ -1,30 +1,51 @@
+import * as React from "react";
+import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 export interface InputTextProps {
   label: string;
-  id?: string;
-  placeholder?: string;
-  isRequired?: boolean;
+  isPublic?: boolean;
+  errorMessage?: string;
 }
 
-function InputText(props: InputTextProps) {
-  const id = props.id ?? props.label;
-  const placeholder = props.placeholder ?? " ";
+const InputText = React.forwardRef(
+  (props: React.HTMLProps<HTMLInputElement> & InputTextProps, ref) => {
+    const id = props.id ?? props.label;
+    const { placeholder, isPublic, errorMessage, ...rest } = props;
 
-  return (
-    <div className="form-control w-full">
-      <label htmlFor={id} className="label">
-        {props.label}
-        {props.isRequired ? " *" : ""}
-      </label>
-      {/* TODO: add required attribute if necessary */}
-      <input
-        type="text"
-        id={id}
-        name={id}
-        placeholder={placeholder}
-        className="input input-bordered w-full"
-      />
-    </div>
-  );
-}
+    return (
+      <div className="form-control w-full">
+        {props.label && (
+          <label
+            htmlFor={id}
+            className={`label ${errorMessage ? " text-red-500" : ""}`}
+            title={props.errorMessage}
+          >
+            {props.label}
+            {props.required !== undefined ? "*" : ""}
+          </label>
+        )}
+
+        <div className="flex flex-row items-center">
+          <div className="flex-auto">
+            <input
+              {...rest}
+              type={props.type ?? "text"}
+              className={`input input-bordered w-full ${props.className}`}
+              id={id}
+              name={id}
+            />
+          </div>
+          {props.isPublic !== undefined && (
+            <ToggleCheckbox
+              name="publicFields"
+              value={props.name}
+              defaultChecked={props.isPublic}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+);
 
 export default InputText;
+InputText.displayName = "InputText";

@@ -39,5 +39,15 @@ module.exports = {
     container: {
       center: true,
     },
+    keyframes: {
+      "fade-out": {
+        "0%, 5%": { opacity: 0.0 },
+        "5%, 30%": { opacity: 1.0 },
+        "100%": { opacity: 0.0 },
+      },
+    },
+    animation: {
+      "fade-out": "fade-out 3s ease-in-out forwards",
+    },
   },
 };
