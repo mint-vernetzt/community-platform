@@ -1,6 +1,5 @@
-import { isInteger } from "cypress/types/lodash";
 import * as React from "react";
-import { capitalizeFirstLetter } from "~/lib/string/transform";
+import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import SelectField, { SelectFieldProps } from "../SelectField/SelectField";
 
 export type SelectAddEntry = {

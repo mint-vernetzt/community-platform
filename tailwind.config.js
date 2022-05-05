@@ -36,8 +36,33 @@ module.exports = {
       "1/2": "50%",
       "3/4": "75%",
     },
+    flex: {
+      ...defaultTheme.flex,
+      100: "0 0 100%",
+      label: "0 0 130px",
+      "1/4": "0 0 25%",
+      "1/3": "0 0 33.3333%",
+      "1/2": "0 0 50%",
+      "2/3": "0 0 66.66666%",
+      "5/12": "0 0 41.66666667%",
+      "7/12": "0 0 58.33333333%;",
+      18: "0 0 4.5rem;",
+    },
     container: {
       center: true,
+      padding: {
+        DEFAULT: "1.5rem",
+      },
+    },
+    spacing: {
+      ...defaultTheme.spacing,
+      120: "30rem",
+    },
+    boxShadow: {
+      ...defaultTheme.boxShadow,
+      DEFAULT: "0 2px 16px 0 rgba(0, 0, 0, 0.17)",
+      md: "0 2px 16px 0 rgba(0, 0, 0, 0.37)",
+      lg: "0 8px 24px -4px rgba(0, 0, 0, 0.2)",
     },
     keyframes: {
       "fade-out": {

@@ -6,17 +6,34 @@ export interface TextAreaProps {
   label: string;
   isPublic?: boolean;
   errorMessage?: string;
+  publicPosition?: "top" | "side";
 }
 
 const TextArea = React.forwardRef(
   (props: React.HTMLProps<HTMLTextAreaElement> & TextAreaProps, ref) => {
-    const { id, isPublic, placeholder, errorMessage, ...rest } = props;
+    const {
+      id,
+      isPublic,
+      placeholder,
+      errorMessage,
+      publicPosition = "side",
+      ...rest
+    } = props;
     return (
       <div className="form-control w-full">
-        <label htmlFor={id} className="label">
-          {props.label}
-          {props.required === true ? " *" : ""}
-        </label>
+        <div className="flex flex-row items-center mb-2">
+          <label htmlFor={id} className="label flex-auto">
+            {props.label}
+            {props.required === true ? " *" : ""}
+          </label>
+          {isPublic !== undefined && publicPosition === "top" && (
+            <ToggleCheckbox
+              name="publicFields"
+              value={props.name}
+              defaultChecked={props.isPublic}
+            />
+          )}
+        </div>
         <div className="flex flex-row">
           <div className="flex-auto">
             <textarea
@@ -26,7 +43,7 @@ const TextArea = React.forwardRef(
               className={`textarea textarea-bordered h-24 w-full ${props.className}`}
             ></textarea>
           </div>
-          {props.isPublic !== undefined && (
+          {props.isPublic !== undefined && publicPosition === "side" && (
             <ToggleCheckbox
               name="publicFields"
               value={props.name}

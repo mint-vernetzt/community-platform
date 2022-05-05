@@ -1,5 +1,5 @@
 import * as React from "react";
-import { capitalizeFirstLetter } from "~/lib/string/transform";
+import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 
 export interface InputAddProps {
