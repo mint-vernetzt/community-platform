@@ -91,6 +91,14 @@ export async function signUp(
   return { user, session, error };
 }
 
+export const getUser = async (request: Request): Promise<User | null> => {
+  const session = await supabaseStrategy.checkSession(request);
+  if (session !== null && session.user !== null) {
+    return session.user;
+  }
+  return null;
+};
+
 export async function resetPassword(
   email: string
 ): Promise<{ error: ApiError | null }> {
