@@ -7,16 +7,16 @@ import PageBackground from "../PageBackground/PageBackground";
 export interface NewProfilePageProps {}
 
 /**
- * 
+ *
  * @deprecated
  */
 function NewProfilePage(props: NewProfilePageProps) {
   return (
     <div className="">
       <PageBackground imagePath="/images/default_kitchen.jpg" />
-      <div className="md:container md:mx-auto relative z-10">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
+          <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
             <div className="">
               <HeaderLogo />
             </div>
@@ -28,13 +28,13 @@ function NewProfilePage(props: NewProfilePageProps) {
             </div>
           </div>
         </div>
-        <div className="flex flex-row -mx-4">
-          <div className="basis-6/12 px-4"> </div>
-          <div className="basis-5/12 px-4">
+        <div className="flex flex-col md:flex-row -mx-4">
+          <div className="basis-full md:basis-6/12 px-4"> </div>
+          <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
             <h1 className="mb-8">Neues Profil anlegen</h1>
 
-            <div className="flex flex-row -mx-4 mb-4">
-              <div className="basis-6/12 px-4">
+            <div className="flex flex-row -mx-4">
+              <div className="basis-full lg:basis-6/12 px-4 mb-4">
                 <SelectField
                   id="academicTitle"
                   label="Titel"
@@ -56,11 +56,11 @@ function NewProfilePage(props: NewProfilePageProps) {
               </div>
             </div>
 
-            <div className="flex flex-row -mx-4 mb-4">
-              <div className="basis-6/12 px-4">
+            <div className="flex flex-col lg:flex-row -mx-4">
+              <div className="basis-full lg:basis-6/12 px-4 mb-4">
                 <InputText id="firstName" label="Vorname" isRequired />
               </div>
-              <div className="basis-6/12 px-4">
+              <div className="basis-full lg:basis-6/12 px-4 mb-4">
                 <InputText id="lastName" label="Nachname" isRequired />
               </div>
             </div>
