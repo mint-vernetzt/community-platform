@@ -1,15 +1,20 @@
 import React from "react";
-import { Form, LoaderFunction, Session, useLoaderData, useSubmit } from "remix";
+import { Link, LoaderFunction, redirect, useSubmit } from "remix";
+import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { supabaseStrategy } from "../auth.server";
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const session = await supabaseStrategy.checkSession(request);
+
+  if (session !== null) {
+    return redirect("/explore");
+  }
+
   return { session };
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<{ session: Session | null }>();
   const submit = useSubmit();
 
   React.useEffect(() => {
@@ -31,47 +36,31 @@ export default function Index() {
   });
 
   return (
-    <div>
-      {loaderData.session !== null ? (
-        <Form action="/logout?index" method="post">
-          <button type="submit" className="button">
-            Logout
-          </button>
-        </Form>
-      ) : null}
-      <h1>Welcome to Remix Test3</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-            className="link link-primary"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-            className="link link-primary"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/docs"
-            rel="noreferrer"
-            className="link link-primary"
-          >
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+    <header className="shadow-md mb-8">
+      <div className="md:container md:mx-auto relative z-10">
+        <div className="px-4 pt-3 pb-3 flex flex-row items-center">
+          <div>
+            <Link to="/explore">
+              <HeaderLogo />
+            </Link>
+          </div>
+          <div className="ml-auto">
+            <Link
+              to="/login"
+              className="text-primary font-bold hover:underline"
+            >
+              Anmelden
+            </Link>{" "}
+            /{" "}
+            <Link
+              to="/register"
+              className="text-primary font-bold hover:underline"
+            >
+              Registrieren
+            </Link>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }

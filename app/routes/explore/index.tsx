@@ -71,7 +71,9 @@ export default function Index() {
         <div className="md:container md:mx-auto relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
-              <HeaderLogo />
+              <Link to="/explore">
+                <HeaderLogo />
+              </Link>
             </div>
             {/* TODO: link to login on anon*/}
             {loaderData.currentUser !== undefined ? (
