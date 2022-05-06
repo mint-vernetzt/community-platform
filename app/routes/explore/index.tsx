@@ -172,7 +172,7 @@ export default function Index() {
                   </div>
 
                   {profile.bio !== undefined && (
-                    <p className="mb-3">{profile.bio}</p>
+                    <p className="mb-3 line-clamp-2">{profile.bio}</p>
                   )}
 
                   {profile.areas !== undefined && profile.areas.length > 0 && (
