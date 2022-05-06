@@ -105,6 +105,9 @@ export async function getAreas(): Promise<AreasWithState> {
 
 export async function getAllProfiles() {
   const profiles = await prismaClient.profile.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
     select: {
       username: true,
       firstName: true,
