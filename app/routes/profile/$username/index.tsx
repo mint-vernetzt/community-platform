@@ -299,12 +299,7 @@ export default function Index() {
                 )}
             </div>
             {typeof loaderData.data.bio === "string" && (
-              <p className="mb-6">
-                MINTvernetzt ist die Service- und Anlaufstelle für die Community
-                der MINT-Akteur:innen in Deutschland. Als Community-Managerin
-                freue ich mich über Eure Ideen, Impulse und Inspirationen, um
-                die MINT-Bildung in Deutschland gemeinsam zu stärken.
-              </p>
+              <p className="mb-6">{loaderData.data.bio}</p>
             )}
             {loaderData.data.areas !== undefined &&
               loaderData.data.areas.length > 0 && (

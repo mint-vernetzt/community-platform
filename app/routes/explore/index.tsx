@@ -157,7 +157,7 @@ export default function Index() {
                   to={`/profile/${profile.username}`}
                   className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                 >
-                  <div className="flex items-center flex-row mb-4">
+                  <div className="w-full flex items-center flex-row mb-4">
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md">
                       {getInitials(profile)}
                     </div>
@@ -172,10 +172,7 @@ export default function Index() {
                   </div>
 
                   {profile.bio !== undefined && (
-                    <p className="mb-3">
-                      {profile.bio} LAber lafhefgeuifguiergfuiwhfqdhpqwjd
-                      ddewhfoewf
-                    </p>
+                    <p className="mb-3">{profile.bio}</p>
                   )}
 
                   {profile.areas !== undefined && profile.areas.length > 0 && (
