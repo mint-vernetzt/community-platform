@@ -94,10 +94,29 @@ export async function getAllDistricts() {
 export type AreasWithState = (Area & {
   state: State | null;
 })[];
+
 export async function getAreas(): Promise<AreasWithState> {
   return await prismaClient.area.findMany({
     include: {
       state: true,
     },
   });
+}
+
+export async function getAllProfiles() {
+  const profiles = await prismaClient.profile.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      username: true,
+      firstName: true,
+      lastName: true,
+      academicTitle: true,
+      position: true,
+      bio: true,
+      areas: { select: { area: { select: { name: true } } } },
+    },
+  });
+  return profiles;
 }
