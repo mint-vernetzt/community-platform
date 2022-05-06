@@ -1,17 +1,11 @@
-import { getUser } from "~/auth.server";
-import {
-  Form,
-  json,
-  Link,
-  LoaderFunction,
-  useLoaderData,
-  useParams,
-} from "remix";
-import { badRequest, notFound } from "remix-utils";
 import { Area, Profile } from "@prisma/client";
-import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
+import { badRequest, notFound } from "remix-utils";
+import { getUser } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 
 type Mode = "anon" | "authenticated" | "owner";
 
@@ -45,7 +39,7 @@ export const loader: LoaderFunction = async (
   let mode: Mode;
   const sessionUser = await getUser(request);
 
-  let currentUser: CurrentUser | null;
+  let currentUser: CurrentUser | undefined;
 
   if (sessionUser === null) {
     mode = "anon";
@@ -55,7 +49,7 @@ export const loader: LoaderFunction = async (
       "firstName",
       "lastName",
     ]);
-    currentUser = sessionUserProfile;
+    currentUser = sessionUserProfile || undefined;
     if (sessionUser.user_metadata.username === username) {
       mode = "owner";
     } else {
@@ -81,23 +75,8 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  console.log(JSON.stringify(data, undefined, 2));
-
   return json({ mode, data, currentUser });
 };
-
-function getFullName(data: Partial<Profile>) {
-  const { firstName, lastName, academicTitle } = data;
-  let fullName = "";
-  if (firstName !== undefined && lastName !== undefined) {
-    if (typeof academicTitle === "string") {
-      fullName = `${academicTitle} ${firstName} ${lastName}`;
-    } else {
-      fullName = `${firstName} ${lastName}`;
-    }
-  }
-  return fullName;
-}
 
 function hasContactInformations(data: Partial<Profile>) {
   const hasEmail = typeof data.email === "string" && data.email !== "";
