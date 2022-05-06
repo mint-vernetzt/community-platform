@@ -61,7 +61,7 @@ function EditPersonalData(props: EditPersonalDataProps) {
               </div>
             </div>
 
-            <div className="px-8 lg:px-16 relative mb-16">
+            <div className="px-8 relative mb-16">
               <p className="text-xs flex items-center mb-4">
                 <span className="icon w-4 h-4 mr-3">
                   <svg
