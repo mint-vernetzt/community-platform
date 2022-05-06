@@ -1,10 +1,11 @@
 const daisyui = require("daisyui");
+const lineClamp = require("@tailwindcss/line-clamp");
 const defaultTheme = require("tailwindcss/defaultTheme");
 const { colors, fontSizes } = require("./app/styles/theme");
 
 module.exports = {
   content: ["./app/**/*.tsx"],
-  plugins: [daisyui],
+  plugins: [daisyui, lineClamp],
   daisyui: {
     themes: [
       {
