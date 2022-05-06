@@ -105,6 +105,10 @@
   @apply px-6 h-auto min-h-0 leading-6 py-2 normal-case;
 }
 
+.btn-link {
+  @apply bg-white text-primary;
+}
+
 .badge {
   @apply mr-2 mb-2 px-3 py-1 mt-2 h-auto rounded-lg border-2 text-sm font-semibold whitespace-nowrap;
 }
