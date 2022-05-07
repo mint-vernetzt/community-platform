@@ -11,7 +11,7 @@ import type { MetaFunction } from "remix";
 import styles from "./styles/styles.css";
 
 export const meta: MetaFunction = () => {
-  return { title: "New Remix App" };
+  return { title: "MINTvernetzt Community Plattform (Preview)" };
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
