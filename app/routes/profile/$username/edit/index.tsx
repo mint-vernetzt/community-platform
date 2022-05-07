@@ -241,42 +241,49 @@ export default function Index() {
                   <div className="basis-4/12 px-4">
                     <div className="p-4 lg:p-8 pb-15 md:pb-5 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
                       <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+                      {/*TODO: add missing pages*/}
                       <ul>
                         <li>
                           <a
-                            href="/#"
+                            href={`/profile/${username}/edit`}
                             className="block text-3xl text-primary py-3"
                           >
                             Persönliche Daten
                           </a>
                         </li>
                         <li>
-                          <a
+                          {/* <a
                             href="/#"
                             className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                          >
+                          > */}
+                          <span className="block text-3xl text-neutral-500 py-3">
                             Login und Sicherheit
-                          </a>
+                          </span>
+                          {/* </a> */}
                         </li>
                         <li>
-                          <a
+                          {/* <a
                             href="/#"
                             className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                          >
+                          > */}
+                          <span className="block text-3xl text-neutral-500 py-3">
                             Website und Soziale Netzwerke
-                          </a>
+                          </span>
+                          {/* </a> */}
                         </li>
                       </ul>
 
                       <hr className="border-neutral-400 my-4 lg:my-8" />
 
                       <div className="">
-                        <a
+                        {/* <a
                           href="/#"
                           className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                        >
+                        > */}
+                        <span className="block text-3xl text-neutral-500  py-3">
                           Profil löschen
-                        </a>
+                        </span>
+                        {/* </a> */}
                       </div>
                     </div>
                     <div className="px-8 relative mb-16">
