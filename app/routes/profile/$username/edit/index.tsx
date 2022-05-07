@@ -182,7 +182,7 @@ export default function Index() {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-11">
           <div className="basis-full md:basis-6/12 px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <Link to="/explore">
@@ -237,9 +237,10 @@ export default function Index() {
           <fieldset disabled={transition.state === "submitting"}>
             <div className="container mx-auto px-4 relative z-10 pb-44">
               <div className="flex flex-col lg:flex-row -mx-4">
-                <div className="flex flex-row -mx-4">
+                {/* refactor menu */}
+                <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
                   <div className="basis-4/12 px-4">
-                    <div className="p-4 lg:p-8 pb-15 md:pb-5 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
+                    <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
                       <h3 className="font-bold mb-7">Profil bearbeiten</h3>
                       {/*TODO: add missing pages*/}
                       <ul>
