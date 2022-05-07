@@ -190,7 +190,7 @@ export default function Index() {
                     loaderData.data.email !== "" && (
                       <p className="text-mb mb-2">
                         <a
-                          href="anna.schroeter@mint-vernetzt.de"
+                          href={`mailto:${loaderData.data.email}`}
                           className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                         >
                           <span className="icon w-6 mr-4">
@@ -212,7 +212,7 @@ export default function Index() {
                     loaderData.data.phone !== "" && (
                       <p className="text-md text-neutral-600 mb-2">
                         <a
-                          href="492117570762"
+                          href={`tel:${loaderData.data.phone}`}
                           className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                         >
                           <span className="icon w-6 mr-4">
