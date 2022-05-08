@@ -16,7 +16,13 @@ type LoaderData = {
   currentUser?: CurrentUser;
   profiles?: Pick<
     Profile,
-    "username" | "firstName" | "lastName" | "academicTitle" | "position" | "bio"
+    | "username"
+    | "firstName"
+    | "lastName"
+    | "academicTitle"
+    | "position"
+    | "bio"
+    | "publicFields"
   > &
     { areas: { area: string }[] }[];
 };
@@ -34,6 +40,9 @@ export const loader: LoaderFunction = async (args) => {
       "firstName",
       "lastName",
       "academicTitle",
+      "position",
+      "bio",
+      "publicFields",
     ]);
     currentUser = profile || undefined; // TODO: fix type issue
   }
@@ -46,8 +55,20 @@ export const loader: LoaderFunction = async (args) => {
       profiles = allProfiles;
     } else {
       profiles = allProfiles.map((profile) => {
-        const { position: _position, bio: _bio, ...rest } = profile;
-        return rest;
+        const { bio, position, publicFields, ...otherFields } = profile;
+
+        let extensions: { bio?: string; position?: string } = {};
+        if (publicFields !== undefined) {
+          if (publicFields.includes("bio") && bio !== null) {
+            extensions.bio = bio;
+          }
+
+          if (publicFields.includes("position") && position !== null) {
+            extensions.position = position;
+          }
+        }
+
+        return { ...otherFields, ...extensions };
       });
     }
   }
@@ -57,8 +78,6 @@ export const loader: LoaderFunction = async (args) => {
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
-
-  console.log("loaderData.currentUser");
 
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
