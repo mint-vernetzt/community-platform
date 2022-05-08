@@ -8,7 +8,7 @@ export type ToggleCheckboxProps = React.HTMLProps<HTMLInputElement> & {
 export function ToggleCheckbox(props: ToggleCheckboxProps) {
   const formContext = useFormContext();
   const { name, ...rest } = props;
-  const registerProp = formContext ? { ...formContext.register("name") } : {};
+  const registerProp = formContext ? { ...formContext.register(name) } : {};
 
   const checkboxId = `visibility_${props.value}`;
   return (
