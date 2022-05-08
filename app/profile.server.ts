@@ -115,6 +115,7 @@ export async function getAllProfiles() {
       academicTitle: true,
       position: true,
       bio: true,
+      publicFields: true,
       areas: { select: { area: { select: { name: true } } } },
     },
   });
