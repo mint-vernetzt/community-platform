@@ -1,6 +1,6 @@
 import { Profile } from "@prisma/client";
 import { badRequest, notFound } from "remix-utils";
-import { getProfileByUsername } from "~/profile.server";
+import { getProfileByUsername, getProfileByUserId } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import { loader } from "./index";
 
@@ -20,6 +20,8 @@ jest.mock("~/profile.server", () => {
   return {
     // eslint-disable-next-line
     getProfileByUsername: jest.fn(),
+    // eslint-disable-next-line
+    getProfileByUserId: jest.fn(),
   };
 });
 
@@ -127,11 +129,18 @@ describe("get profile (anon)", () => {
 });
 
 describe("get profile (authenticated)", () => {
+  const sessionUsername = "anotherusername";
+
   beforeAll(() => {
     (getUser as jest.Mock).mockImplementation(() => {
-      return { user_metadata: { username: "anotherusername" } };
+      return { user_metadata: { username: sessionUsername } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
+    (getProfileByUserId as jest.Mock).mockImplementation(() => {
+      return {
+        username: sessionUsername,
+      };
+    });
   });
   test("can read all fields", async () => {
     const res = await loader({
@@ -155,6 +164,7 @@ describe("get profile (authenticated)", () => {
   afterAll(() => {
     (getUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
+    (getProfileByUserId as jest.Mock).mockReset();
   });
 });
 
@@ -164,6 +174,7 @@ describe("get profile (owner)", () => {
       return { user_metadata: { username: profile.username } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
+    (getProfileByUserId as jest.Mock).mockImplementation(() => profile);
   });
 
   test("can read all fields", async () => {
@@ -188,5 +199,6 @@ describe("get profile (owner)", () => {
   afterAll(() => {
     (getUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
+    (getProfileByUserId as jest.Mock).mockReset();
   });
 });
