@@ -149,3 +149,10 @@ model Area {
   AreasOnProfiles AreasOnProfiles[]
   @@map("areas")
 }
+
+model Offer {
+  id    String @id @default(uuid())
+  title String @unique
+
+  @@map("offer")
+}
