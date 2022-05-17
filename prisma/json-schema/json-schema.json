@@ -325,6 +325,17 @@
           }
         }
       }
+    },
+    "Offer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
     }
   },
   "type": "object",
@@ -352,6 +363,9 @@
     },
     "area": {
       "$ref": "#/definitions/Area"
+    },
+    "offer": {
+      "$ref": "#/definitions/Offer"
     }
   }
 }
