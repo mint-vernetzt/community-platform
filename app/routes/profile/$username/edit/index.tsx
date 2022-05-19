@@ -42,6 +42,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
+import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -549,6 +550,31 @@ export default function Index() {
                         isPublic={profile.publicFields?.includes("website")}
                         errorMessage={errors?.website?.message}
                       />
+                    </div>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                    <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <div className="basis-full mb-4">
+                      {socialMediaServices.map((service) => (
+                        <InputText
+                          key={service.id}
+                          {...register(service.id)}
+                          id={service.id}
+                          label={service.label}
+                          placeholder={service.placeholder}
+                          defaultValue={profile[service.id] as string}
+                          isPublic={profile.publicFields?.includes(service.id)}
+                          errorMessage={errors?.[service.id]?.message}
+                        />
+                      ))}
                     </div>
 
                     <hr className="border-neutral-400 my-10 lg:my-16" />
