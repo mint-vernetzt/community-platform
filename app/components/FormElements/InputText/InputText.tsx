@@ -14,13 +14,13 @@ const InputText = React.forwardRef(
     const inputRef = React.createRef<HTMLInputElement>();
     const id = props.id ?? props.label;
     const { isPublic, errorMessage, withClearButton, ...rest } = props;
-
-    const { setValue } = useFormContext();
+    const formContext = useFormContext();
+    const setValue = formContext ? formContext.setValue : null;
 
     const handleClear = (e: React.SyntheticEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (inputRef.current) {
-        if (setValue) {
+        if (setValue !== null) {
           setValue(id, "", { shouldDirty: true });
         }
 
