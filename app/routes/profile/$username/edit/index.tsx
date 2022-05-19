@@ -567,6 +567,29 @@ export default function Index() {
 
                     <hr className="border-neutral-400 my-10 lg:my-16" />
 
+                    <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+
+                    <h4 className="mb-4 font-semibold">Website</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <div className="basis-full mb-4">
+                      <InputText
+                        {...register("website")}
+                        id="website"
+                        label="Website URL"
+                        defaultValue={profile.website}
+                        isPublic={profile.publicFields?.includes("website")}
+                        errorMessage={errors?.website?.message}
+                      />
+                    </div>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
                     <div className="flex flex-row items-center mb-4">
                       <h4 className="font-semibold">Organisation hinzufügen</h4>
                       <button

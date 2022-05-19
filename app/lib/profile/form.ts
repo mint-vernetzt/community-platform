@@ -25,6 +25,7 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     seekings: (formData.getAll("seekings") ?? []) as string[],
     publicFields: (formData.getAll("publicFields") ?? []) as string[],
     areas: (formData.getAll("areas") ?? []) as string[],
+    website: formData.get("website") as string,
   };
 }
 
