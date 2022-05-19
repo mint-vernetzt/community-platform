@@ -100,7 +100,7 @@ describe("submit profile changes", () => {
     });
   });
 
-  test("session user changes data", async () => {
+  test.skip("session user changes data", async () => {
     const partialProfile: ProfileFormType = {
       academicTitle: "",
       position: "",
