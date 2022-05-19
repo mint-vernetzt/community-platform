@@ -26,6 +26,10 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     publicFields: (formData.getAll("publicFields") ?? []) as string[],
     areas: (formData.getAll("areas") ?? []) as string[],
     website: formData.get("website") as string,
+    facebook: formData.get("facebook") as string,
+    linkedin: formData.get("linkedin") as string,
+    twitter: formData.get("twitter") as string,
+    xing: formData.get("xing") as string,
   };
 }
 

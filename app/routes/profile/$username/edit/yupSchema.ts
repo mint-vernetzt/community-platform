@@ -19,6 +19,10 @@ export const profileSchema = object({
     "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
   ),
   publicFields: array(string().required()),
+  facebook: string(),
+  linkedin: string(),
+  twitter: string(),
+  xing: string(),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;
