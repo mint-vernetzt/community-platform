@@ -360,7 +360,7 @@ export default function Index() {
                 <div className="flex-auto">
                   {loaderData.data.offers?.map(({ offer }) => (
                     <Chip
-                      key={offer.id}
+                      key={`offer_${offer.id}`}
                       title={offer.title}
                       slug=""
                       isEnabled
@@ -378,7 +378,7 @@ export default function Index() {
                 <div className="flex-auto">
                   {loaderData.data.seekings?.map(({ offer }) => (
                     <Chip
-                      key={offer.id}
+                      key={`offer_${offer.id}`}
                       title={offer.title}
                       slug=""
                       isEnabled

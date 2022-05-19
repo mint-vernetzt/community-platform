@@ -104,8 +104,6 @@ export const action: ActionFunction = async ({
   let profile = createProfileFromFormData(formData);
   profile["bio"] = removeMoreThan2ConescutiveLinbreaks(profile["bio"] ?? "");
 
-  console.log(formData);
-
   const errors = await validateProfile(profile);
   let updated = false;
 
@@ -164,6 +162,7 @@ export default function Index() {
     reset,
     formState: { isDirty },
   } = methods;
+
   const selectedAreas =
     profile.areas && areas
       ? areas
@@ -205,7 +204,6 @@ export default function Index() {
   }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-
   const initials = getInitials(profile);
 
   return (
@@ -252,8 +250,9 @@ export default function Index() {
       <FormProvider {...methods}>
         <Form
           ref={formRef}
+          name="profileForm"
           method="post"
-          onSubmit={() => {
+          onSubmit={(e: React.SyntheticEvent) => {
             reset({}, { keepValues: true });
           }}
         >
