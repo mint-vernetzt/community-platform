@@ -15,7 +15,7 @@ export const profileSchema = object({
   interests: array(string().required()),
   seekings: array(string().required()).required(),
   website: string().matches(
-    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
     "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
   ),
   publicFields: array(string().required()),
