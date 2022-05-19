@@ -550,6 +550,7 @@ export default function Index() {
                         placeholder="https://www.domainname.tld/"
                         isPublic={profile.publicFields?.includes("website")}
                         errorMessage={errors?.website?.message}
+                        withClearButton
                       />
                     </div>
 
@@ -574,6 +575,7 @@ export default function Index() {
                           defaultValue={profile[service.id] as string}
                           isPublic={profile.publicFields?.includes(service.id)}
                           errorMessage={errors?.[service.id]?.message}
+                          withClearButton
                         />
                       ))}
                     </div>
