@@ -31,12 +31,16 @@ export const profileSchema = object({
   email: string().email(),
   phone: string(),
   bio: string(),
-  interests: array(string().required()),
+  areas: array(string().required()).required(),
   skills: array(string().required()).required(),
+  interests: array(string().required()),
   offerings: array(string().required()).required(),
   seekings: array(string().required()).required(),
+  website: string().matches(
+    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
+  ),
   publicFields: array(string().required()),
-  areas: array(string().required()).required(),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;

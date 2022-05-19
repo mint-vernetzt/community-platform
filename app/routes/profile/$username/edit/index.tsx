@@ -71,6 +71,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     ...dbProfile,
     areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
   };
+
   const areas = await getAreas();
   const areaOptions = createAreaOptionFromData(areas);
 
@@ -524,6 +525,29 @@ export default function Index() {
                         placeholder="Noch nicht implementiert"
                         entries={profile.seekings ?? []}
                         isPublic={profile.publicFields?.includes("seekings")}
+                      />
+                    </div>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                    <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+
+                    <h4 className="mb-4 font-semibold">Website</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <div className="basis-full mb-4">
+                      <InputText
+                        {...register("website")}
+                        id="website"
+                        label="Website URL"
+                        defaultValue={profile.website}
+                        isPublic={profile.publicFields?.includes("website")}
+                        errorMessage={errors?.website?.message}
                       />
                     </div>
 
