@@ -18,6 +18,7 @@ import {
   getAreas,
   updateProfileByUserId,
   AreasWithState,
+  getAllOffers,
 } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
@@ -42,6 +43,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
+import { Offer } from "@prisma/client";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -58,8 +60,8 @@ export async function handleAuthorization(request: Request, username: string) {
 
 type LoaderData = {
   profile: ProfileFormType;
-  areaOptions: OptionOrGroup[];
   areas: AreasWithState;
+  offers: Offer[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -70,11 +72,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   let profile = {
     ...dbProfile,
     areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
+    offers: dbProfile?.offers.map((offer) => offer.offerId) ?? [],
+    seekings: dbProfile?.seekings.map((seeking) => seeking.offerId) ?? [],
   };
-  const areas = await getAreas();
-  const areaOptions = createAreaOptionFromData(areas);
 
-  return json({ profile, areaOptions, areas });
+  const areas = await getAreas();
+  const offers = await getAllOffers();
+
+  return json({ profile, areas, offers });
 };
 
 type ActionData = {
@@ -105,10 +110,10 @@ export const action: ActionFunction = async ({
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
-      "seekings",
       "skills",
       "interests",
-      "offerings",
+      "offers",
+      "seekings",
       "areas",
     ];
 
@@ -128,11 +133,7 @@ export const action: ActionFunction = async ({
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const {
-    profile: dbProfile,
-    areaOptions,
-    areas,
-  } = useLoaderData<LoaderData>();
+  const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
 
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
@@ -143,6 +144,11 @@ export default function Index() {
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
+  const areaOptions = createAreaOptionFromData(areas);
+  const offerOptions = offers.map((o) => ({
+    label: o.title,
+    value: o.id,
+  }));
 
   const {
     register,
@@ -154,6 +160,20 @@ export default function Index() {
       ? areas
           .filter((area) => profile.areas.includes(area.id))
           .sort((a, b) => a.name.localeCompare(b.name))
+      : [];
+
+  const selectedOffers =
+    profile.offers && offers
+      ? offers
+          .filter((offer) => profile.offers.includes(offer.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const selectedSeekings =
+    profile.seekings && offers
+      ? offers
+          .filter((offer) => profile.seekings.includes(offer.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
   React.useEffect(() => {
@@ -496,13 +516,18 @@ export default function Index() {
                     </p>
 
                     <div className="mb-4">
-                      <InputAdd
-                        name="offerings"
+                      <SelectAdd
+                        name="offers"
                         label="Angebot"
-                        readOnly
-                        placeholder="Noch nicht implementiert"
-                        entries={profile.offerings ?? []}
-                        isPublic={profile.publicFields?.includes("offerings")}
+                        entries={selectedOffers.map((area) => ({
+                          label: area.title,
+                          value: area.id,
+                        }))}
+                        options={offerOptions.filter(
+                          (o) => !profile.offers.includes(o.value)
+                        )}
+                        placeholder=""
+                        isPublic={profile.publicFields?.includes("offers")}
                       />
                     </div>
 
@@ -517,12 +542,17 @@ export default function Index() {
                     </p>
 
                     <div className="mb-4">
-                      <InputAdd
+                      <SelectAdd
                         name="seekings"
                         label="Suche"
-                        readOnly
-                        placeholder="Noch nicht implementiert"
-                        entries={profile.seekings ?? []}
+                        entries={selectedSeekings.map((area) => ({
+                          label: area.title,
+                          value: area.id,
+                        }))}
+                        options={offerOptions.filter(
+                          (o) => !profile.seekings.includes(o.value)
+                        )}
+                        placeholder=""
                         isPublic={profile.publicFields?.includes("seekings")}
                       />
                     </div>

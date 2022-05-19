@@ -4,6 +4,16 @@ import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
 type FieldType = keyof Profile;
 
+/**
+ *
+ * type AreaInclude = { areas: { area: { name: string } }[] };
+type OfferInclude = { offers: { offer: { title: string } }[] };
+type SeekingInclude = { seekings: { offer: { title: string } }[] };
+
+type ProfileResult = Profile & AreaInclude & OfferInclude & SeekingInclude;
+ *
+ */
+
 export async function getProfileByUsername(
   username: string
 ): Promise<(Profile & { areas: { area: { name: string } }[] }) | null> {
@@ -24,6 +34,10 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
   const include = {
     areas: true,
     area: { select: { name: true } },
+    offers: true,
+    offer: { select: { title: true } },
+    seekings: true,
+    seeking: { select: { title: true } },
   };
 
   if (fields.length > 0) {
@@ -47,6 +61,8 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
       select: {
         ...select,
         areas: { select: { areaId: true } },
+        seekings: { select: { offerId: true } },
+        offers: { select: { offerId: true } },
       },
       where,
     });
@@ -60,9 +76,11 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
 
 type UpdateProfile = Partial<Profile> & {
   areas: ProfileFormType["areas"];
+  offers: ProfileFormType["offers"];
+  seekings: ProfileFormType["seekings"];
 };
 export async function updateProfileByUserId(id: string, data: UpdateProfile) {
-  const { areas, ...rest } = data;
+  const { areas, offers, seekings, ...rest } = data;
 
   const result = await prismaClient.profile.update({
     where: {
@@ -78,6 +96,28 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
           },
           create: {
             areaId,
+          },
+        })),
+      },
+      offers: {
+        deleteMany: {},
+        connectOrCreate: offers.map((offerId) => ({
+          where: {
+            profileId_offerId: { offerId, profileId: id },
+          },
+          create: {
+            offerId,
+          },
+        })),
+      },
+      seekings: {
+        deleteMany: {},
+        connectOrCreate: seekings.map((offerId) => ({
+          where: {
+            profileId_offerId: { offerId, profileId: id },
+          },
+          create: {
+            offerId,
           },
         })),
       },
@@ -121,3 +161,37 @@ export async function getAllProfiles() {
   });
   return profiles;
 }
+
+export async function getAllOffers() {
+  return await prismaClient.offer.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+}
+
+/*
+function createListUpdateQueryPart(profileId: String, ) {
+  const listUpdates = [
+    { listName: "areas", listId: "areaId", list: areas },
+    { listName: "offers", listId: "offerId", list: offers },
+    { listName: "seekings", listId: "offerId", list: seekings },
+  ].map(({ listName, listId, list }) => ({
+    [listName]: {
+      deleteMany: {},
+      connectOrCreate: list.map((createId) => ({
+        where: {
+          [`profileId_${listId}`]: { [listId]: createId, profileId },
+        },
+        create: {
+          [listId]: createId,
+        },
+      })),
+    },
+  }));
+}
+*/

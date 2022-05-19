@@ -12,6 +12,28 @@
         }
       }
     },
+    "SeekingsOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
+    "OffersOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -75,18 +97,6 @@
             "type": "string"
           }
         },
-        "offerings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "seekings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "publicFields": {
           "type": "array",
           "items": {
@@ -118,6 +128,18 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/AreasOnProfiles"
+          }
+        },
+        "seekings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeekingsOnProfiles"
+          }
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OffersOnProfiles"
           }
         }
       }
@@ -334,6 +356,18 @@
         },
         "title": {
           "type": "string"
+        },
+        "SeekingsOnProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeekingsOnProfiles"
+          }
+        },
+        "OffersOnProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OffersOnProfiles"
+          }
         }
       }
     }
@@ -342,6 +376,12 @@
   "properties": {
     "areasOnProfiles": {
       "$ref": "#/definitions/AreasOnProfiles"
+    },
+    "seekingsOnProfiles": {
+      "$ref": "#/definitions/SeekingsOnProfiles"
+    },
+    "offersOnProfiles": {
+      "$ref": "#/definitions/OffersOnProfiles"
     },
     "profile": {
       "$ref": "#/definitions/Profile"

@@ -33,7 +33,7 @@ export const profileSchema = object({
   bio: string(),
   interests: array(string().required()),
   skills: array(string().required()).required(),
-  offerings: array(string().required()).required(),
+  offers: array(string().required()).required(),
   seekings: array(string().required()).required(),
   publicFields: array(string().required()),
   areas: array(string().required()).required(),

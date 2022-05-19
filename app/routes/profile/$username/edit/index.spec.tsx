@@ -112,7 +112,7 @@ describe("submit profile changes", () => {
       publicFields: ["firstName"],
       areas: [],
       interests: [],
-      offerings: [],
+      offers: [],
       skills: [],
       seekings: [],
     };

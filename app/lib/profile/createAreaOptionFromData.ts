@@ -1,4 +1,3 @@
-import { Area } from "@prisma/client";
 import {
   OptGroupProps,
   OptionsProps,

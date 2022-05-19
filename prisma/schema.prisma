@@ -21,6 +21,26 @@ model AreasOnProfiles {
   @@map("areas_on_profiles")
 }
 
+model SeekingsOnProfiles {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+  offerId   String
+  offer     Offer   @relation(fields: [offerId], references: [id])
+
+  @@id([profileId, offerId])
+  @@map("seekings_on_profiles")
+}
+
+model OffersOnProfiles {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+  offerId   String
+  offer     Offer   @relation(fields: [offerId], references: [id])
+
+  @@id([profileId, offerId])
+  @@map("offers_on_profiles")
+}
+
 model Profile {
   id              String                 @id @default(uuid())
   username        String                 @unique
@@ -40,8 +60,6 @@ model Profile {
   bio             String?
   skills          String[]
   interests       String[]
-  offerings       String[]
-  seekings        String[]
   publicFields    String[]               @map("public_fields")
   memberOf        MemberOfOrganization[]
   createdAt       DateTime               @default(now()) @map("created_at")
@@ -50,6 +68,10 @@ model Profile {
   termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
 
   areas AreasOnProfiles[]
+
+  seekings SeekingsOnProfiles[]
+  offers   OffersOnProfiles[]
+
   @@map("profiles")
 }
 
@@ -153,6 +175,9 @@ model Area {
 model Offer {
   id    String @id @default(uuid())
   title String @unique
+
+  SeekingsOnProfiles SeekingsOnProfiles[]
+  OffersOnProfiles   OffersOnProfiles[]
 
   @@map("offer")
 }
