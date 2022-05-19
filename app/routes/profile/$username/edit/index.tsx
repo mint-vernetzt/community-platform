@@ -23,9 +23,7 @@ import {
 import { getUser } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
-import SelectField, {
-  OptionOrGroup,
-} from "~/components/FormElements/SelectField/SelectField";
+import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextArea from "~/components/FormElements/TextArea/TextArea";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import {
@@ -44,6 +42,7 @@ import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
 import { Offer } from "@prisma/client";
+import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -64,17 +63,23 @@ type LoaderData = {
   offers: Offer[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
-
-  let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
-  let profile = {
+function makeFormProfileFromDbProfile(
+  dbProfile: Awaited<ReturnType<typeof getProfileByUserId>>
+) {
+  return {
     ...dbProfile,
     areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
     offers: dbProfile?.offers.map((offer) => offer.offerId) ?? [],
     seekings: dbProfile?.seekings.map((seeking) => seeking.offerId) ?? [],
   };
+}
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const username = params.username ?? "";
+  const currentUser = await handleAuthorization(request, username);
+
+  let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
+  let profile = makeFormProfileFromDbProfile(dbProfile);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
@@ -97,6 +102,10 @@ export const action: ActionFunction = async ({
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.formData();
   let profile = createProfileFromFormData(formData);
+  profile["bio"] = removeMoreThan2ConescutiveLinbreaks(profile["bio"] ?? "");
+
+  console.log(formData);
+
   const errors = await validateProfile(profile);
   let updated = false;
 

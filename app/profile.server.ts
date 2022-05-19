@@ -4,40 +4,28 @@ import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
 type FieldType = keyof Profile;
 
-/**
- *
- * type AreaInclude = { areas: { area: { name: string } }[] };
-type OfferInclude = { offers: { offer: { title: string } }[] };
-type SeekingInclude = { seekings: { offer: { title: string } }[] };
-
-type ProfileResult = Profile & AreaInclude & OfferInclude & SeekingInclude;
- *
- */
-
-export async function getProfileByUsername(
-  username: string
-): Promise<(Profile & { areas: { area: { name: string } }[] }) | null> {
+export async function getProfileByUsername(username: string) {
   const where = { username };
   const include = {
     areas: { select: { area: { select: { name: true } } } },
+    offers: { select: { offer: { select: { title: true } } } },
+    seekings: { select: { offer: { select: { title: true } } } },
   };
 
   const profile = await prismaClient.profile.findUnique({
     where,
     include,
   });
+
   return profile;
 }
 
 export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
   const where = { id };
   const include = {
-    areas: true,
-    area: { select: { name: true } },
-    offers: true,
-    offer: { select: { title: true } },
-    seekings: true,
-    seeking: { select: { title: true } },
+    areas: { select: { areaId: true } },
+    seekings: { select: { offerId: true } },
+    offers: { select: { offerId: true } },
   };
 
   if (fields.length > 0) {

@@ -1,11 +1,14 @@
-import { Area, Profile } from "@prisma/client";
+import { Area, Offer, Profile } from "@prisma/client";
 import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUser } from "~/auth.server";
+import { Chip } from "~/components/Chip/Chip";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { nl2br } from "~/lib/string/nl2br";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { ProfileFormType } from "./edit/yupSchema";
 
 type Mode = "anon" | "authenticated" | "owner";
 
@@ -14,17 +17,20 @@ type CurrentUser = Pick<
   "username" | "firstName" | "lastName" | "academicTitle"
 >;
 
+type ProfileRelations = { areas: { area: Area }[] } & {
+  offers: { offer: Offer }[];
+} & { seekings: { offer: Offer }[] };
+
 type ProfileLoaderData = {
   currentUser?: CurrentUser;
   mode: Mode;
-  data: Partial<Profile & { areas: { area: Area }[] }>;
+  data: Partial<Profile & ProfileRelations>;
 };
 
 export const loader: LoaderFunction = async (
   args
 ): Promise<Response | ProfileLoaderData> => {
   const { request, params } = args;
-
   const { username } = params;
 
   if (typeof username !== "string" || username === "") {
@@ -49,6 +55,7 @@ export const loader: LoaderFunction = async (
       "firstName",
       "lastName",
     ]);
+
     currentUser = sessionUserProfile || undefined;
     if (sessionUser.user_metadata.username === username) {
       mode = "owner";
@@ -67,7 +74,7 @@ export const loader: LoaderFunction = async (
     ...profile.publicFields,
   ];
 
-  let data: Partial<Profile> = {};
+  let data: Partial<ProfileFormType> = {};
   for (const key in profile) {
     if (mode !== "anon" || publicFields.includes(key)) {
       // @ts-ignore <-- Partials allow undefined, Profile not
@@ -301,7 +308,12 @@ export default function Index() {
                 )}
             </div>
             {typeof loaderData.data.bio === "string" && (
-              <p className="mb-6">{loaderData.data.bio}</p>
+              <p
+                className="mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: nl2br(loaderData.data.bio, true),
+                }}
+              />
             )}
             {loaderData.data.areas !== undefined &&
               loaderData.data.areas.length > 0 && (
@@ -311,7 +323,7 @@ export default function Index() {
                   </div>
                   <div className="lg:flex-auto">
                     {loaderData.data.areas
-                      .map((area) => area.area.name)
+                      .map(({ area }) => area.name)
                       .join(" / ")}
                   </div>
                 </div>
@@ -340,27 +352,41 @@ export default function Index() {
                 </div>
               )}
 
-            {/* TODO: implement offerings and seekings */}
-            {/* <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                Ich biete
+            {loaderData.data.offers?.length && (
+              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
+                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  Ich biete
+                </div>
+                <div className="flex-auto">
+                  {loaderData.data.offers?.map(({ offer }) => (
+                    <Chip
+                      key={offer.id}
+                      title={offer.title}
+                      slug=""
+                      isEnabled
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex-auto">
-                <Chip title="Vernetzung" slug="" isEnabled />
-                <Chip title="Community-Management" slug="" isEnabled />
-                <Chip title="Gute Praxis" slug="" isEnabled />
-                <Chip title="Kommunikation" slug="" isEnabled />
-                <Chip title="Projektmanagement" slug="" isEnabled />
+            )}
+
+            {loaderData.data.seekings?.length && (
+              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
+                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  Ich suche
+                </div>
+                <div className="flex-auto">
+                  {loaderData.data.seekings?.map(({ offer }) => (
+                    <Chip
+                      key={offer.id}
+                      title={offer.title}
+                      slug=""
+                      isEnabled
+                    />
+                  ))}
+                </div>
               </div>
-            </div> */}
-            {/* <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                Ich suche
-              </div>
-              <div className="flex-auto">
-                <Chip title="Vernetzung" slug="" isEnabled />
-              </div>
-            </div> */}
+            )}
 
             {/* TODO: implement organizations */}
             {/* <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
