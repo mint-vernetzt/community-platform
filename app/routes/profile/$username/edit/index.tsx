@@ -291,16 +291,6 @@ export default function Index() {
                           </span>
                           {/* </a> */}
                         </li>
-                        <li>
-                          {/* <a
-                            href="/#"
-                            className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                          > */}
-                          <span className="block text-3xl text-neutral-500 py-3">
-                            Website und Soziale Netzwerke
-                          </span>
-                          {/* </a> */}
-                        </li>
                       </ul>
 
                       <hr className="border-neutral-400 my-4 lg:my-8" />
