@@ -1,13 +1,15 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import TextArea, { TextAreaProps } from "./TextArea";
+import TextAreaWithCounter, {
+  TextAreaWithCounterProps,
+} from "./TextAreaWithCounter";
 
 export default {
   title: "FormElements/TextArea",
-  component: TextArea,
-} as ComponentMeta<typeof TextArea>;
+  component: TextAreaWithCounter,
+} as ComponentMeta<typeof TextAreaWithCounter>;
 
-export const Default: ComponentStory<typeof TextArea> = (
-  args: TextAreaProps
-) => <TextArea {...args} />;
+export const Default: ComponentStory<typeof TextAreaWithCounter> = (
+  args: TextAreaWithCounterProps
+) => <TextAreaWithCounter {...args} />;
 Default.storyName = "default";
 Default.args = {};
