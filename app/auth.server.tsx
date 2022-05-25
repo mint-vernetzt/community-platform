@@ -2,8 +2,9 @@ import type { ApiError, User } from "@supabase/supabase-js";
 import { createCookieSessionStorage } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
-import { supabaseClient } from "./supabase";
+import { supabaseAdmin, supabaseClient } from "./supabase";
 import type { Session } from "./supabase";
+import { prismaClient } from "./prisma";
 
 export const SESSION_NAME = "sb";
 
@@ -117,7 +118,7 @@ export async function updatePassword(
 }
 
 export async function deleteUserByUid(uid: string) {
-  const { error } = await supabaseClient.auth.api.deleteUser(uid);
-
+  await prismaClient.profile.delete({ where: { id: uid } });
+  const { error } = await supabaseAdmin.auth.api.deleteUser(uid);
   return { error };
 }
