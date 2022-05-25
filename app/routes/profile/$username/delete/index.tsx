@@ -11,7 +11,7 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import { handleAuthorization } from "~/lib/auth/handleAuth";
 
 import { getInitials } from "~/lib/profile/getInitials";
-import { deleteProfileByUserId, getProfileByUserId } from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
 
 import Header from "../Header";
 import ProfileMenu from "../ProfileMenu";
@@ -42,9 +42,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   const confirmedToken = formData.get("confirmedToken") as string;
 
   if (confirmedToken === "wirklich löschen") {
-    await deleteProfileByUserId(currentUser.id);
     await deleteUserByUid(currentUser.id);
-    redirect("/");
+
+    return redirect(`/profile/${username}/delete/goodbye`);
   }
 
   return null;
