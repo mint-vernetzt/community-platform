@@ -36,8 +36,7 @@ const InputText = React.forwardRef(
             className={`label ${errorMessage ? " text-red-500" : ""}`}
             title={props.errorMessage}
           >
-            {props.label}
-            {props.required !== undefined ? "*" : ""}
+            {props.label} {props.required !== undefined ? "*" : ""}
           </label>
         )}
 

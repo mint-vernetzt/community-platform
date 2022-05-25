@@ -115,3 +115,9 @@ export async function updatePassword(
   });
   return { error };
 }
+
+export async function deleteUserByUid(uid: string) {
+  const { error } = await supabaseClient.auth.api.deleteUser(uid);
+
+  return { error };
+}
