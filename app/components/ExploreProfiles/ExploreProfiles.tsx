@@ -9,7 +9,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
   return (
     <div>
       <header className="shadow-md mb-8">
-        <div className="md:container md:mx-auto relative z-10">
+        <div className="container relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <HeaderLogo />

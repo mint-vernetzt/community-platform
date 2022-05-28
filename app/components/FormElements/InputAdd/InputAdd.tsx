@@ -21,7 +21,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   return (
     <>
       <div className="form-control w-full">
-        <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-row items-center">
           <div className="flex-auto">
             {props.label && (
               <label htmlFor={id} className="label">

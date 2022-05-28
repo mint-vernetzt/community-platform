@@ -96,8 +96,8 @@ export default function Index() {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="md:container md:mx-auto relative z-11">
-          <div className="px-4 pt-3 pb-3 flex flex-row items-center">
+        <div className="container relative z-10">
+          <div className="py-3 flex flex-row items-center">
             <div>
               <Link to="/explore">
                 <HeaderLogo />
@@ -168,7 +168,7 @@ export default function Index() {
           )}
         </div>
       </section>
-      <div className="container relative z-10 pb-44">
+      <div className="container relative pb-44">
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">

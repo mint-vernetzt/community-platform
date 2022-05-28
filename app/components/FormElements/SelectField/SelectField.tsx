@@ -33,7 +33,7 @@ const SelectField = React.forwardRef(
 
     return (
       <div className="form-control w-full">
-        <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-row items-center">
           <label htmlFor={id} className="label flex-auto">
             {label}
             {props.required === true ? " *" : ""}
