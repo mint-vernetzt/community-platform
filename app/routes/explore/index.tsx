@@ -87,8 +87,8 @@ export default function Index() {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="md:container md:mx-auto relative z-10">
-          <div className="px-4 pt-3 pb-3 flex flex-row items-center">
+        <div className="container relative z-10">
+          <div className="py-3 flex flex-row items-center">
             <div>
               <Link to="/explore">
                 <HeaderLogo />
@@ -164,7 +164,7 @@ export default function Index() {
       >
         <div
           data-testid="grid"
-          className="flex flex-wrap justify-center -md:mx-4 items-stretch"
+          className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
           {loaderData.profiles !== undefined &&
             loaderData.profiles.length > 0 &&

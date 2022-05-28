@@ -77,10 +77,10 @@ export default function SetPassword() {
     <Form method="post">
       <input name="accessToken" type="hidden" value={loaderData?.accessToken} />
       <PageBackground imagePath="/images/default_kitchen.jpg" />
-      <div className="md:container md:mx-auto px-4 relative z-10">
+      <div className="container relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
-            <div className="">
+          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+            <div>
               <HeaderLogo />
             </div>
             <div className="ml-auto"></div>
