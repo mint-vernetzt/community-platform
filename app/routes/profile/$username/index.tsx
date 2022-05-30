@@ -63,7 +63,7 @@ export const loader: LoaderFunction = async (
         "twitter",
         "xing",
       ])
-    : null;
+    : undefined;
 
   const publicFields = [
     "id",

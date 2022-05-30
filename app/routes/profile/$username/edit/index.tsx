@@ -42,7 +42,7 @@ import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
 import { Offer } from "@prisma/client";
-import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
+import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 
 export async function handleAuthorization(request: Request, username: string) {
@@ -103,7 +103,9 @@ export const action: ActionFunction = async ({
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.formData();
   let profile = createProfileFromFormData(formData);
-  profile["bio"] = removeMoreThan2ConescutiveLinbreaks(profile["bio"] ?? "");
+  profile["bio"] = removeMoreThan2ConescutiveLinebreaks(profile["bio"] ?? "");
+
+  console.log(profile);
 
   const errors = await validateProfile(profile);
   let updated = false;
@@ -479,9 +481,6 @@ export default function Index() {
                           value: area.id,
                         }))}
                         options={areaOptions}
-                        isPublic={profile.publicFields?.includes(
-                          "activityAreas"
-                        )}
                       />
                     </div>
 
