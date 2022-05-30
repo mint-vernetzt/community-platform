@@ -1,5 +1,5 @@
 --  Trigger profile creation on user insert
-create function public.create_profile_of_new_user() 
+create function public.create_profile_of_new_user()
 returns trigger as $$
 begin
   insert into public.profiles (id, username, email, first_name, last_name, academic_title, terms_accepted)
@@ -11,3 +11,6 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
+  before delete on auth.users
+  for each row execute procedure public.delete_profile_of_user();
+

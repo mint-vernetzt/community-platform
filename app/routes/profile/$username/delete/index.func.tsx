@@ -19,7 +19,7 @@ before(async () => {
   let user = userList?.filter((user) => user.email === email)[0];
 
   if (user) {
-    await supabase.from("profiles").delete().match({ id: user.id });
+    //    await supabase.from("profiles").delete().match({ id: user.id });
     await supabase.auth.api.deleteUser(user.id);
   }
 
@@ -64,7 +64,7 @@ it("login", () => {
 
 after(async () => {
   if (uid !== undefined) {
-    await supabase.from("profiles").delete().match({ id: uid });
+    //    await supabase.from("profiles").delete().match({ id: uid });
     await supabase.auth.api.deleteUser(uid);
   }
 });
