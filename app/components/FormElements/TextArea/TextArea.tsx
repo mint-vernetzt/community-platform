@@ -7,6 +7,7 @@ export interface TextAreaProps {
   isPublic?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
+  onChange?: Function; // <--- ?
 }
 
 const TextArea = React.forwardRef(
@@ -17,7 +18,6 @@ const TextArea = React.forwardRef(
       placeholder,
       errorMessage,
       publicPosition = "side",
-      onChange,
       ...rest
     } = props;
     return (
@@ -42,7 +42,6 @@ const TextArea = React.forwardRef(
               id={id}
               name={id}
               className={`textarea textarea-bordered h-24 w-full ${props.className}`}
-              onChange={onChange}
             ></textarea>
           </div>
           {props.isPublic !== undefined && publicPosition === "side" && (

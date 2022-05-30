@@ -348,7 +348,6 @@ export default function Index() {
                         defaultValue={profile.bio}
                         errorMessage={errors?.bio?.message}
                         maxCharacters={300}
-                        characterCount={profile.bio?.length}
                       />
                     </div>
 

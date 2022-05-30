@@ -4,7 +4,7 @@ import TextAreaWithCounter, {
 } from "./TextAreaWithCounter";
 
 export default {
-  title: "FormElements/TextArea",
+  title: "FormElements/TextAreaWithCounter",
   component: TextAreaWithCounter,
 } as ComponentMeta<typeof TextAreaWithCounter>;
 

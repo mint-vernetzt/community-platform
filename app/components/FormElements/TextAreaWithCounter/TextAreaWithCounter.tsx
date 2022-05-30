@@ -1,9 +1,9 @@
-import React, { FormEventHandler, useState } from "react";
+import React, { FormEventHandler } from "react";
+import Counter from "../../Counter/Counter";
 import TextArea, { TextAreaProps } from "../TextArea/TextArea";
 
 export interface TextAreaWithCounterProps {
   maxCharacters: number;
-  characterCount: number | undefined;
 }
 
 const TextAreaWithCounter = React.forwardRef(
@@ -13,21 +13,42 @@ const TextAreaWithCounter = React.forwardRef(
       TextAreaWithCounterProps,
     ref
   ) => {
-    const { maxCharacters, ...rest } = props;
-    const [characterCount, updateCharacterCount] =
-      props.characterCount !== undefined
-        ? useState(props.characterCount)
-        : useState(0);
-    const handleTextAreaChange: FormEventHandler = (event) => {
-      console.log(event);
+    const {
+      maxCharacters,
+      defaultValue = "",
+      onChange: defaultOnChange,
+      ...rest
+    } = props;
+    const [characterCount, updateCharacterCount] = React.useState(
+      (defaultValue as string).length
+    );
+    const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (
+      event
+    ) => {
       event.preventDefault();
-      //updateCharacterCount(event.target.value.length);
+      if (defaultOnChange) {
+        defaultOnChange(event);
+      }
+      if (event.currentTarget.value.length > maxCharacters) {
+        event.currentTarget.value = event.currentTarget.value.substring(
+          0,
+          maxCharacters
+        );
+      }
+      updateCharacterCount(event.currentTarget.value.length);
     };
 
-    return <TextArea onChange={handleTextAreaChange} {...rest} ref={ref} />;
-    {
-      /** <CharacterCount characterCount={characterCount} maxCharacters={maxCharacters} /> */
-    }
+    return (
+      <>
+        <TextArea
+          {...rest}
+          defaultValue={defaultValue}
+          ref={ref}
+          onChange={handleTextAreaChange}
+        />
+        <Counter currentCount={characterCount} maxCount={maxCharacters} />
+      </>
+    );
   }
 );
 
