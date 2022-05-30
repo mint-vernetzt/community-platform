@@ -2,10 +2,11 @@ import { Profile } from "@prisma/client";
 import { badRequest, notFound } from "remix-utils";
 import { getProfileByUsername, getProfileByUserId } from "~/profile.server";
 import { getUser } from "~/auth.server";
-import { loader } from "./index";
+import { deriveMode, loader } from "./index";
 
+/** @type {jest.Expect} */
 // @ts-ignore
-const expect = global.expect as jest.Expect;
+const expect = global.expect;
 
 const path = "/profile/$username";
 
@@ -33,6 +34,12 @@ const profile: Partial<Profile> = {
   phone: "+49 0123 456 78",
   publicFields: ["email"],
 };
+
+test("deriveMode", () => {
+  expect(deriveMode("profileUser", "sessionUser")).toBe("authenticated");
+  expect(deriveMode("sessionUser", "sessionUser")).toBe("owner");
+  expect(deriveMode("profileUser", "")).toBe("anon");
+});
 
 describe("errors", () => {
   beforeAll(() => {

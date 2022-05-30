@@ -18,6 +18,7 @@ export interface SelectFieldProps {
   options?: OptionOrGroup[];
   isPublic?: boolean;
   publicPosition?: "top" | "side";
+  visibilityName?: string;
 }
 
 const SelectField = React.forwardRef(
@@ -41,7 +42,7 @@ const SelectField = React.forwardRef(
           {isPublic !== undefined && publicPosition === "top" && (
             <ToggleCheckbox
               name="publicFields"
-              value={props.name}
+              value={props.visibilityName ?? props.name}
               defaultChecked={props.isPublic}
             />
           )}

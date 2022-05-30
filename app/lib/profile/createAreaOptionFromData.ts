@@ -1,10 +1,10 @@
-import { Area } from "@prisma/client";
 import {
   OptGroupProps,
   OptionsProps,
 } from "./../../components/FormElements/SelectField/SelectField";
-import { AreasWithState } from "../../routes/profile/$username/edit/index";
+
 import { OptionOrGroup } from "~/components/FormElements/SelectField/SelectField";
+import { AreasWithState } from "~/profile.server";
 
 export function createAreaOptionFromData(
   areas: AreasWithState

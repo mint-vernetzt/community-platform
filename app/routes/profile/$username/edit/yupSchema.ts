@@ -1,28 +1,6 @@
 import { Profile } from "@prisma/client";
 import { array, InferType, object, string, ValidationError } from "yup";
 
-/*
-const ProfileFormFields = [
-  "academicTitle",
-  "position",
-  "lastName",
-  "email",
-  "phone",
-  "website",
-  "avatar",
-  "background",
-  "job",
-  "bio",
-  "skills",
-  "interests",
-  "publicFields",
-] as const;
-
-type FormFields = typeof ProfileFormFields[number];
-type ProfileForm = Pick<Profile, FormFields>;
-*/
-
-// TODO: object shape should be typed, see above
 export const profileSchema = object({
   academicTitle: string(),
   position: string(),
@@ -31,12 +9,20 @@ export const profileSchema = object({
   email: string().email(),
   phone: string(),
   bio: string(),
-  interests: array(string().required()),
-  skills: array(string().required()).required(),
-  offerings: array(string().required()).required(),
-  seekings: array(string().required()).required(),
-  publicFields: array(string().required()),
   areas: array(string().required()).required(),
+  skills: array(string().required()).required(),
+  offers: array(string().required()).required(),
+  interests: array(string().required()),
+  seekings: array(string().required()).required(),
+  website: string().matches(
+    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
+  ),
+  publicFields: array(string().required()),
+  facebook: string(),
+  linkedin: string(),
+  twitter: string(),
+  xing: string(),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;

@@ -27,6 +27,7 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
             <SelectField
               ref={ref}
               name={`add${uppercaseSingularName}`}
+              visibilityName={name}
               {...rest}
               onChange={(e: React.SyntheticEvent<HTMLSelectElement>) => {
                 if (e.currentTarget.value && buttonRef.current) {

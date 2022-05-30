@@ -18,13 +18,12 @@ import {
   getAreas,
   updateProfileByUserId,
   AreasWithState,
+  getAllOffers,
 } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
-import SelectField, {
-  OptionOrGroup,
-} from "~/components/FormElements/SelectField/SelectField";
+import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextArea from "~/components/FormElements/TextArea/TextArea";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import {
@@ -42,6 +41,9 @@ import { FormProvider, useForm } from "react-hook-form";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
+import { Offer } from "@prisma/client";
+import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
+import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -58,23 +60,32 @@ export async function handleAuthorization(request: Request, username: string) {
 
 type LoaderData = {
   profile: ProfileFormType;
-  areaOptions: OptionOrGroup[];
   areas: AreasWithState;
+  offers: Offer[];
 };
+
+function makeFormProfileFromDbProfile(
+  dbProfile: Awaited<ReturnType<typeof getProfileByUserId>>
+) {
+  return {
+    ...dbProfile,
+    areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
+    offers: dbProfile?.offers.map((offer) => offer.offerId) ?? [],
+    seekings: dbProfile?.seekings.map((seeking) => seeking.offerId) ?? [],
+  };
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
   let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
-  let profile = {
-    ...dbProfile,
-    areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
-  };
-  const areas = await getAreas();
-  const areaOptions = createAreaOptionFromData(areas);
+  let profile = makeFormProfileFromDbProfile(dbProfile);
 
-  return json({ profile, areaOptions, areas });
+  const areas = await getAreas();
+  const offers = await getAllOffers();
+
+  return json({ profile, areas, offers });
 };
 
 type ActionData = {
@@ -92,6 +103,8 @@ export const action: ActionFunction = async ({
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.formData();
   let profile = createProfileFromFormData(formData);
+  profile["bio"] = removeMoreThan2ConescutiveLinebreaks(profile["bio"] ?? "");
+
   const errors = await validateProfile(profile);
   let updated = false;
 
@@ -105,10 +118,10 @@ export const action: ActionFunction = async ({
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
-      "seekings",
       "skills",
       "interests",
-      "offerings",
+      "offers",
+      "seekings",
       "areas",
     ];
 
@@ -128,11 +141,7 @@ export const action: ActionFunction = async ({
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const {
-    profile: dbProfile,
-    areaOptions,
-    areas,
-  } = useLoaderData<LoaderData>();
+  const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
 
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
@@ -143,17 +152,37 @@ export default function Index() {
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
+  const areaOptions = createAreaOptionFromData(areas);
+  const offerOptions = offers.map((o) => ({
+    label: o.title,
+    value: o.id,
+  }));
 
   const {
     register,
     reset,
     formState: { isDirty },
   } = methods;
+
   const selectedAreas =
     profile.areas && areas
       ? areas
           .filter((area) => profile.areas.includes(area.id))
           .sort((a, b) => a.name.localeCompare(b.name))
+      : [];
+
+  const selectedOffers =
+    profile.offers && offers
+      ? offers
+          .filter((offer) => profile.offers.includes(offer.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const selectedSeekings =
+    profile.seekings && offers
+      ? offers
+          .filter((offer) => profile.seekings.includes(offer.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
   React.useEffect(() => {
@@ -176,7 +205,6 @@ export default function Index() {
   }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-
   const initials = getInitials(profile);
 
   return (
@@ -223,8 +251,9 @@ export default function Index() {
       <FormProvider {...methods}>
         <Form
           ref={formRef}
+          name="profileForm"
           method="post"
-          onSubmit={() => {
+          onSubmit={(e: React.SyntheticEvent) => {
             reset({}, { keepValues: true });
           }}
         >
@@ -259,16 +288,6 @@ export default function Index() {
                           > */}
                           <span className="block text-3xl text-neutral-500 py-3">
                             Login und Sicherheit
-                          </span>
-                          {/* </a> */}
-                        </li>
-                        <li>
-                          {/* <a
-                            href="/#"
-                            className="block text-3xl text-neutral-500 hover:text-primary py-3"
-                          > */}
-                          <span className="block text-3xl text-neutral-500 py-3">
-                            Website und Soziale Netzwerke
                           </span>
                           {/* </a> */}
                         </li>
@@ -460,9 +479,6 @@ export default function Index() {
                           value: area.id,
                         }))}
                         options={areaOptions}
-                        isPublic={profile.publicFields?.includes(
-                          "activityAreas"
-                        )}
                       />
                     </div>
 
@@ -496,13 +512,18 @@ export default function Index() {
                     </p>
 
                     <div className="mb-4">
-                      <InputAdd
-                        name="offerings"
+                      <SelectAdd
+                        name="offers"
                         label="Angebot"
-                        readOnly
-                        placeholder="Noch nicht implementiert"
-                        entries={profile.offerings ?? []}
-                        isPublic={profile.publicFields?.includes("offerings")}
+                        entries={selectedOffers.map((area) => ({
+                          label: area.title,
+                          value: area.id,
+                        }))}
+                        options={offerOptions.filter(
+                          (o) => !profile.offers.includes(o.value)
+                        )}
+                        placeholder=""
+                        isPublic={profile.publicFields?.includes("offers")}
                       />
                     </div>
 
@@ -517,14 +538,70 @@ export default function Index() {
                     </p>
 
                     <div className="mb-4">
-                      <InputAdd
+                      <SelectAdd
                         name="seekings"
                         label="Suche"
-                        readOnly
-                        placeholder="Noch nicht implementiert"
-                        entries={profile.seekings ?? []}
+                        entries={selectedSeekings.map((area) => ({
+                          label: area.title,
+                          value: area.id,
+                        }))}
+                        options={offerOptions.filter(
+                          (o) => !profile.seekings.includes(o.value)
+                        )}
+                        placeholder=""
                         isPublic={profile.publicFields?.includes("seekings")}
                       />
+                    </div>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                    <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+
+                    <h4 className="mb-4 font-semibold">Website</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <div className="basis-full mb-4">
+                      <InputText
+                        {...register("website")}
+                        id="website"
+                        label="Website URL"
+                        defaultValue={profile.website}
+                        placeholder="https://www.domainname.tld/"
+                        isPublic={profile.publicFields?.includes("website")}
+                        errorMessage={errors?.website?.message}
+                        withClearButton
+                      />
+                    </div>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                    <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <div className="basis-full mb-4">
+                      {socialMediaServices.map((service) => (
+                        <InputText
+                          key={service.id}
+                          {...register(service.id)}
+                          id={service.id}
+                          label={service.label}
+                          placeholder={service.placeholder}
+                          defaultValue={profile[service.id] as string}
+                          isPublic={profile.publicFields?.includes(service.id)}
+                          errorMessage={errors?.[service.id]?.message}
+                          withClearButton
+                        />
+                      ))}
                     </div>
 
                     <hr className="border-neutral-400 my-10 lg:my-16" />

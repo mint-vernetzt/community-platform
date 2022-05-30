@@ -12,6 +12,28 @@
         }
       }
     },
+    "SeekingsOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
+    "OffersOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -28,40 +50,73 @@
           "type": "string"
         },
         "academicTitle": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "position": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "email": {
           "type": "string"
         },
         "phone": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "website": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "avatar": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "background": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "facebook": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "linkedin": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "twitter": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "xing": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "bio": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "skills": {
           "type": "array",
@@ -70,18 +125,6 @@
           }
         },
         "interests": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "offerings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "seekings": {
           "type": "array",
           "items": {
             "type": "string"
@@ -119,6 +162,18 @@
           "items": {
             "$ref": "#/definitions/AreasOnProfiles"
           }
+        },
+        "seekings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeekingsOnProfiles"
+          }
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OffersOnProfiles"
+          }
         }
       }
     },
@@ -138,7 +193,10 @@
           "type": "string"
         },
         "phone": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "street": {
           "type": "string"
@@ -153,40 +211,76 @@
           "type": "string"
         },
         "website": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "logo": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "background": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "facebook": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "linkedin": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "twitter": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "xing": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "bio": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "type": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "quote": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "quoteAuthor": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "quoteAuthorInformation": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "supportedBy": {
           "type": "array",
@@ -288,7 +382,10 @@
         },
         "type": {
           "type": "string",
-          "enum": ["land", "urban"]
+          "enum": [
+            "land",
+            "urban"
+          ]
         },
         "state": {
           "$ref": "#/definitions/State"
@@ -306,7 +403,11 @@
         },
         "type": {
           "type": "string",
-          "enum": ["country", "state", "district"]
+          "enum": [
+            "country",
+            "state",
+            "district"
+          ]
         },
         "state": {
           "anyOf": [
@@ -325,12 +426,41 @@
           }
         }
       }
+    },
+    "Offer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "SeekingsOnProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeekingsOnProfiles"
+          }
+        },
+        "OffersOnProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OffersOnProfiles"
+          }
+        }
+      }
     }
   },
   "type": "object",
   "properties": {
     "areasOnProfiles": {
       "$ref": "#/definitions/AreasOnProfiles"
+    },
+    "seekingsOnProfiles": {
+      "$ref": "#/definitions/SeekingsOnProfiles"
+    },
+    "offersOnProfiles": {
+      "$ref": "#/definitions/OffersOnProfiles"
     },
     "profile": {
       "$ref": "#/definitions/Profile"
@@ -352,6 +482,9 @@
     },
     "area": {
       "$ref": "#/definitions/Area"
+    },
+    "offer": {
+      "$ref": "#/definitions/Offer"
     }
   }
 }
