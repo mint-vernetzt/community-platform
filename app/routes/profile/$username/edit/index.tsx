@@ -105,8 +105,6 @@ export const action: ActionFunction = async ({
   let profile = createProfileFromFormData(formData);
   profile["bio"] = removeMoreThan2ConescutiveLinebreaks(profile["bio"] ?? "");
 
-  console.log(profile);
-
   const errors = await validateProfile(profile);
   let updated = false;
 
