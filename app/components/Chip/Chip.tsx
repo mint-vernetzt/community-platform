@@ -12,13 +12,11 @@ function getClassNames(isEnabled: boolean, tagHandlerIsCallable: boolean) {
   let classesList: string[] = [`badge badge-outline gap-2`];
 
   if (isEnabled) {
-    classesList.push("badge-secondary is-enabled hover:shadow");
+    classesList.push("badge-secondary is-enabled");
   }
 
   if (!isEnabled && tagHandlerIsCallable) {
-    classesList.push(
-      "bg-white border-secondary-300 primary-100 is-selectable hover:shadow"
-    );
+    classesList.push("bg-white border-secondary-300 primary-100 is-selectable");
   }
 
   if (!isEnabled && !tagHandlerIsCallable) {
