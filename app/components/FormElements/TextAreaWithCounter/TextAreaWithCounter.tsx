@@ -19,9 +19,11 @@ const TextAreaWithCounter = React.forwardRef(
       onChange: defaultOnChange,
       ...rest
     } = props;
-    const [characterCount, updateCharacterCount] = React.useState(
-      (defaultValue as string).length
-    );
+    const defaultValueLength = defaultValue
+      ? (defaultValue as string).length
+      : 0;
+    const [characterCount, updateCharacterCount] =
+      React.useState(defaultValueLength);
     const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (
       event
     ) => {
