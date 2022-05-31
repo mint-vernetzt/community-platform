@@ -12,17 +12,18 @@ datasource db {
 }
 
 model AreasOnProfiles {
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   areaId    String
   area      Area    @relation(fields: [areaId], references: [id])
+
 
   @@id([profileId, areaId])
   @@map("areas_on_profiles")
 }
 
 model SeekingsOnProfiles {
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
   offer     Offer   @relation(fields: [offerId], references: [id])
@@ -32,7 +33,7 @@ model SeekingsOnProfiles {
 }
 
 model OffersOnProfiles {
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
   offer     Offer   @relation(fields: [offerId], references: [id])
@@ -67,8 +68,7 @@ model Profile {
   termsAccepted   Boolean                @map("terms_accepted")
   termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
 
-  areas AreasOnProfiles[]
-
+  areas    AreasOnProfiles[]
   seekings SeekingsOnProfiles[]
   offers   OffersOnProfiles[]
 

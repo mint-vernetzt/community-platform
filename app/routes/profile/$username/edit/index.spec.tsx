@@ -113,8 +113,13 @@ describe("submit profile changes", () => {
       areas: [],
       interests: [],
       offers: [],
-      skills: [],
       seekings: [],
+      website: "",
+      skills: [],
+      facebook: "",
+      linkedin: "",
+      twitter: "",
+      xing: "",
     };
 
     const formData = new FormData();

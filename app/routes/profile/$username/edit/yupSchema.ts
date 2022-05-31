@@ -34,6 +34,7 @@ export type Error = {
   type: string;
   message: string;
 };
+
 export type ProfileError = {
   [key: string]: {
     message: string;

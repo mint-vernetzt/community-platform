@@ -162,6 +162,10 @@ export async function getAllOffers() {
   });
 }
 
+export async function deleteProfileByUserId(id: string) {
+  return await prismaClient.profile.delete({ where: { id } });
+}
+
 /*
 function createListUpdateQueryPart(profileId: String, ) {
   const listUpdates = [
