@@ -30,10 +30,13 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { formAction, Form as RemixForm } from "remix-forms";
+import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 
 const schema = z.object({
   email: z.string().min(1).email(),
   confirmEmail: z.string().min(1).email(),
+  password: z.string().min(1),
+  confirmPassword: z.string().min(1),
 });
 
 export async function handleAuthorization(request: Request, username: string) {
@@ -67,7 +70,7 @@ function makeFormProfileFromDbProfile(
 }
 
 const mutation = makeDomainFunction(schema)(
-  async (values) => console.log(values) /*{
+  async (values) => values /*{
     const { user, error } = await supabase.auth.update({email: 'new@email.com'})
   })  or anything else */
 );
@@ -141,80 +144,146 @@ export default function Index() {
           </div>
         </div>
       </header>
-      <fieldset disabled={transition.state === "submitting"}>
-        <div className="container mx-auto px-4 relative z-10 pb-44">
-          <div className="flex flex-col lg:flex-row -mx-4">
-            {/* refactor menu */}
-            <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
-              <div className="basis-4/12 px-4">
-                <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-                  <h3 className="font-bold mb-7">Profil bearbeiten</h3>
-                  {/*TODO: add missing pages*/}
-                  <ul>
-                    <li>
-                      <a
-                        href={`/profile/${username}/edit`}
-                        className="block text-3xl  text-neutral-500 hover:text-primary py-3"
-                      >
-                        Persönliche Daten
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href={`/profile/${username}/safety`}
-                        className="block text-3xl text-primary py-3"
-                      >
-                        Login und Sicherheit
-                      </a>
-                    </li>
-                  </ul>
+      <RemixForm method="post" schema={schema}>
+        {({ Field, Button, Errors, register }) => (
+          <fieldset disabled={transition.state === "submitting"}>
+            <div className="container mx-auto px-4 relative z-10 pb-44">
+              <div className="flex flex-col lg:flex-row -mx-4">
+                {/* refactor menu */}
+                <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
+                  <div className="basis-4/12 px-4">
+                    <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
+                      <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+                      {/*TODO: add missing pages*/}
+                      <ul>
+                        <li>
+                          <a
+                            href={`/profile/${username}/edit`}
+                            className="block text-3xl  text-neutral-500 hover:text-primary py-3"
+                          >
+                            Persönliche Daten
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            href={`/profile/${username}/safety`}
+                            className="block text-3xl text-primary py-3"
+                          >
+                            Login und Sicherheit
+                          </a>
+                        </li>
+                      </ul>
 
-                  <hr className="border-neutral-400 my-4 lg:my-8" />
+                      <hr className="border-neutral-400 my-4 lg:my-8" />
 
-                  <div className="">
-                    {/* <a
+                      <div className="">
+                        {/* <a
                           href="/#"
                           className="block text-3xl text-neutral-500 hover:text-primary py-3"
                         > */}
-                    <span className="block text-3xl text-neutral-500  py-3">
-                      Profil löschen
-                    </span>
-                    {/* </a> */}
+                        <span className="block text-3xl text-neutral-500  py-3">
+                          Profil löschen
+                        </span>
+                        {/* </a> */}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="basis-6/12 px-4">
+                    <h1 className="mb-8">Login und Sicherheit</h1>
+
+                    <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <Field
+                      name="password"
+                      label="Neues Passwort"
+                      className="mb-4"
+                    >
+                      {({ Errors }) => (
+                        <>
+                          <InputPassword
+                            id="password"
+                            label="Neues Passwort"
+                            {...register("password")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+
+                    <Field name="confirmPassword" label="Wiederholen">
+                      {({ Errors }) => (
+                        <>
+                          <InputPassword
+                            id="confirmPassword"
+                            label="Wiederholen"
+                            {...register("confirmPassword")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <button type="submit" className="btn btn-primary mt-8">
+                      Passwort ändern
+                    </button>
+
+                    <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                    <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
+
+                    <p className="mb-8">
+                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
+                      magna aliquyam erat, sed diam voluptua.
+                    </p>
+
+                    <Field name="email" label="Neue E-Mail" className="mb-4">
+                      {({ Errors }) => (
+                        <>
+                          <InputText
+                            id="email"
+                            label="Neue E-Mail"
+                            {...register("email")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+
+                    <Field name="confirmEmail" label="Wiederholen">
+                      {({ Errors }) => (
+                        <>
+                          <InputText
+                            id="confirmEmail"
+                            label="Wiederholen"
+                            {...register("confirmEmail")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <button type="submit" className="btn btn-primary mt-8">
+                      E-Mail ändern
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="basis-6/12 px-4">
-                <h1 className="mb-8">Login und Sicherheit</h1>
-
-                <h4 className="mb-4 font-semibold">Passwort ändern</h4>
-
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-
-                <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
-
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-              </div>
+              <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+                <div className="md:container md:mx-auto ">
+                  <div className="px-4 py-8 flex flex-row items-center justify-end"></div>
+                </div>
+              </footer>
             </div>
-          </div>
-
-          <RemixForm schema={schema} />
-
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-            <div className="md:container md:mx-auto ">
-              <div className="px-4 py-8 flex flex-row items-center justify-end"></div>
-            </div>
-          </footer>
-        </div>
-      </fieldset>
+          </fieldset>
+        )}
+      </RemixForm>
     </>
   );
 }
