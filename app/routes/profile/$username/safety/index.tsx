@@ -3,6 +3,7 @@ import * as React from "react";
 import {
   ActionFunction,
   Form,
+  FormProps,
   json,
   Link,
   LoaderFunction,
@@ -22,19 +23,18 @@ import {
 } from "~/profile.server";
 import { getUser } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
-import SelectField from "~/components/FormElements/SelectField/SelectField";
-import TextArea from "~/components/FormElements/TextArea/TextArea";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import {
-  ProfileError,
-  ProfileFormFields,
-  ProfileFormType,
-  validateProfile,
-} from "../edit/yupSchema";
+import { ProfileFormFields, ProfileFormType } from "../edit/yupSchema";
 import { Offer } from "@prisma/client";
-import { createProfileFromFormData } from "~/lib/profile/form";
-import { FormProvider, useForm } from "react-hook-form";
 import { getInitials } from "~/lib/profile/getInitials";
+import { z } from "zod";
+import { makeDomainFunction } from "remix-domains";
+import { formAction, Form as RemixForm } from "remix-forms";
+
+const schema = z.object({
+  email: z.string().min(1).email(),
+  confirmEmail: z.string().min(1).email(),
+});
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -66,6 +66,12 @@ function makeFormProfileFromDbProfile(
   };
 }
 
+const mutation = makeDomainFunction(schema)(
+  async (values) => console.log(values) /*{
+    const { user, error } = await supabase.auth.update({email: 'new@email.com'})
+  })  or anything else */
+);
+
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
@@ -79,14 +85,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json({ profile, areas, offers });
 };
 
+export const action: ActionFunction = async ({ request, params }) =>
+  formAction({
+    request,
+    schema,
+    mutation,
+    successPath: `profile/${params.username}/safety`,
+  });
+
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
   const { profile } = useLoaderData<LoaderData>();
-
-  console.log("username: ", username);
-  console.log("transition: ", transition);
-  console.log("profile: ", profile);
 
   const initials = getInitials(profile);
 
@@ -173,6 +183,7 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+
               <div className="basis-6/12 px-4">
                 <h1 className="mb-8">Login und Sicherheit</h1>
 
@@ -194,6 +205,8 @@ export default function Index() {
               </div>
             </div>
           </div>
+
+          <RemixForm schema={schema} />
 
           <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
             <div className="md:container md:mx-auto ">
