@@ -7,7 +7,7 @@ export interface InputTextProps {
 }
 
 const InputText = React.forwardRef(
-  (props: React.HTMLProps<HTMLInputElement> & InputTextProps, ref) => {
+  (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
     const id = props.id ?? props.label;
     const { placeholder, isPublic, errorMessage, ...rest } = props;
 
@@ -28,6 +28,7 @@ const InputText = React.forwardRef(
           <div className="flex-auto">
             <input
               {...rest}
+              ref={forwardRef as React.RefObject<HTMLInputElement>}
               type={props.type ?? "text"}
               className={`input input-bordered w-full ${props.className}`}
               id={id}
