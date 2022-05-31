@@ -24,8 +24,7 @@ import {
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
-import TextArea from "~/components/FormElements/TextArea/TextArea";
-
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import {
   ProfileError,
   ProfileFormFields,
@@ -341,13 +340,15 @@ export default function Index() {
                     </p>
 
                     <div className="mb-4">
-                      <TextArea
+                      <TextAreaWithCounter
                         {...register("bio")}
                         id="bio"
                         label="Kurzbeschreibung"
                         isPublic={profile.publicFields?.includes("bio")}
                         defaultValue={profile.bio}
                         errorMessage={errors?.bio?.message}
+                        maxCharacters={300}
+                        characterCount={profile.bio?.length}
                       />
                     </div>
 
