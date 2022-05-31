@@ -5,7 +5,10 @@ export interface InputPasswordProps {
 }
 
 const InputPassword = React.forwardRef(
-  (props: React.HTMLProps<HTMLInputElement> & InputPasswordProps, ref) => {
+  (
+    props: React.HTMLProps<HTMLInputElement> & InputPasswordProps,
+    forwardRef
+  ) => {
     const id = props.id ?? props.label;
 
     const [passwordShown, setPasswordShown] = useState(false);
@@ -23,6 +26,8 @@ const InputPassword = React.forwardRef(
 
         <div className="relative">
           <input
+            {...props}
+            ref={forwardRef as React.RefObject<HTMLInputElement>}
             type={passwordShown ? "text" : "password"}
             id={id}
             name={id}
