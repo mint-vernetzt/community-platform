@@ -8,9 +8,9 @@ import {
   sessionStorage,
   supabaseStrategy,
 } from "../../auth.server";
-import { Form as RemixForm, FormProps } from "remix-forms";
+import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
 import { z, SomeZodObject } from "zod";
-import { inputFromForm, makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "remix-domains";
 
 const schema = z.object({
   email: z.string().email().min(1),
@@ -46,11 +46,16 @@ export const loader: LoaderFunction = async (args) => {
   return json<LoaderData>({ error });
 };
 
-const checkForm = makeDomainFunction(schema)(async (values) => values);
+const mutation = makeDomainFunction(schema)(async (values) => values);
 
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
-  const result = await checkForm(await inputFromForm(request));
+  const request = args.request.clone();
+
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+  });
 
   if (result.success) {
     await authenticator.authenticate("sb", request, {
@@ -59,7 +64,7 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json(result);
+  return null;
 };
 
 export default function Index() {
@@ -88,7 +93,9 @@ export default function Index() {
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Anmelden</h1>
                 {loaderData.error && (
-                  <div className="alert-error">{loaderData.error.message}</div>
+                  <div className="alert-error p-3 mb-3 text-white">
+                    {loaderData.error.message}
+                  </div>
                 )}
                 <div className="mb-4">
                   <Field name="email" label="E-Mail">
