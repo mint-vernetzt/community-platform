@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { InputError } from "remix-domains";
+
 import {
   ActionFunction,
   Form,
@@ -33,10 +35,11 @@ import { formAction, Form as RemixForm } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 
 const schema = z.object({
-  email: z.string().min(1).email(),
-  confirmEmail: z.string().min(1).email(),
-  password: z.string().min(1),
-  confirmPassword: z.string().min(1),
+  email: z.string().min(1).email().optional(),
+  confirmEmail: z.string().min(1).email().optional(),
+  password: z.string().min(1).optional(),
+  confirmPassword: z.string().min(1).optional(),
+  submitButton: z.string().optional(),
 });
 
 export async function handleAuthorization(request: Request, username: string) {
@@ -69,12 +72,6 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-const mutation = makeDomainFunction(schema)(
-  async (values) => values /*{
-    const { user, error } = await supabase.auth.update({email: 'new@email.com'})
-  })  or anything else */
-);
-
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
@@ -88,13 +85,39 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json({ profile, areas, offers });
 };
 
-export const action: ActionFunction = async ({ request, params }) =>
+const mutation = makeDomainFunction(schema)(
+  async (values) => {
+    if (values.confirmEmail !== values.email) {
+      //throw "Die eingegebenen E-Mails stimmen nicht überein"; // -- Global error
+      throw new InputError(
+        "Die eingegebenen E-Mails stimmen nicht überein",
+        "confirmEmail"
+      ); // -- Field error
+    }
+    if (values.confirmPassword !== values.password) {
+      //throw "Die eingegebenen Passwörter stimmen nicht überein"; // -- Global error
+      throw new InputError(
+        "Die eingegebenen Passwörter stimmen nicht überein",
+        "confirmPassword"
+      ); // -- Field error
+    }
+    return values;
+  }
+  /*await console.log(values) {
+    const { user, error } = await supabase.auth.update({email: 'new@email.com'})
+  }) */
+);
+
+export const action: ActionFunction = async ({ request, params }) => {
   formAction({
     request,
     schema,
     mutation,
-    successPath: `profile/${params.username}/safety`,
+    //successPath: `profile/${params.username}/safety`,
   });
+  console.log(await request.formData());
+  return null;
+};
 
 export default function Index() {
   const { username } = useParams();
@@ -229,10 +252,23 @@ export default function Index() {
                         </>
                       )}
                     </Field>
-                    <button type="submit" className="btn btn-primary mt-8">
-                      Passwort ändern
-                    </button>
 
+                    <Field name="submitButton" label="Passwort ändern">
+                      {({ Errors }) => (
+                        <>
+                          <button
+                            id="submitButton"
+                            type="submit"
+                            value="changePassword"
+                            className="btn btn-primary mt-8"
+                            {...register("submitButton")}
+                          >
+                            Passwort ändern
+                          </button>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
                     <hr className="border-neutral-400 my-10 lg:my-16" />
 
                     <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
@@ -268,9 +304,23 @@ export default function Index() {
                         </>
                       )}
                     </Field>
-                    <button type="submit" className="btn btn-primary mt-8">
-                      E-Mail ändern
-                    </button>
+
+                    <Field name="submitButton" label="E-Mail ändern">
+                      {({ Errors }) => (
+                        <>
+                          <button
+                            id="submitButton"
+                            type="submit"
+                            value="changeEmail"
+                            className="btn btn-primary mt-8"
+                            {...register("submitButton")}
+                          >
+                            E-Mail ändern
+                          </button>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
                   </div>
                 </div>
               </div>
