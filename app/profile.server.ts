@@ -63,12 +63,53 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
 }
 
 type UpdateProfile = Partial<Profile> & {
-  areas: ProfileFormType["areas"];
-  offers: ProfileFormType["offers"];
-  seekings: ProfileFormType["seekings"];
+  areas?: ProfileFormType["areas"];
+  offers?: ProfileFormType["offers"];
+  seekings?: ProfileFormType["seekings"];
 };
 export async function updateProfileByUserId(id: string, data: UpdateProfile) {
   const { areas, offers, seekings, ...rest } = data;
+  let areasQuery, offersQuery, seekingsQuery;
+
+  if (areas !== undefined) {
+    areasQuery = {
+      deleteMany: {},
+      connectOrCreate: areas.map((areaId) => ({
+        where: {
+          profileId_areaId: { areaId, profileId: id },
+        },
+        create: {
+          areaId,
+        },
+      })),
+    };
+  }
+  if (offers !== undefined) {
+    offersQuery = {
+      deleteMany: {},
+      connectOrCreate: offers.map((offerId) => ({
+        where: {
+          profileId_offerId: { offerId, profileId: id },
+        },
+        create: {
+          offerId,
+        },
+      })),
+    };
+  }
+  if (seekings !== undefined) {
+    seekingsQuery = {
+      deleteMany: {},
+      connectOrCreate: seekings.map((offerId) => ({
+        where: {
+          profileId_offerId: { offerId, profileId: id },
+        },
+        create: {
+          offerId,
+        },
+      })),
+    };
+  }
 
   const result = await prismaClient.profile.update({
     where: {
@@ -76,39 +117,9 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
     },
     data: {
       ...rest,
-      areas: {
-        deleteMany: {},
-        connectOrCreate: areas.map((areaId) => ({
-          where: {
-            profileId_areaId: { areaId, profileId: id },
-          },
-          create: {
-            areaId,
-          },
-        })),
-      },
-      offers: {
-        deleteMany: {},
-        connectOrCreate: offers.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
-      seekings: {
-        deleteMany: {},
-        connectOrCreate: seekings.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
+      areas: areasQuery,
+      offers: offersQuery,
+      seekings: seekingsQuery,
     },
   });
 
