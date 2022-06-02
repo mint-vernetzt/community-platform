@@ -5,7 +5,10 @@ export interface InputPasswordProps {
 }
 
 const InputPassword = React.forwardRef(
-  (props: React.HTMLProps<HTMLInputElement> & InputPasswordProps, ref) => {
+  (
+    props: React.HTMLProps<HTMLInputElement> & InputPasswordProps,
+    forwardRef
+  ) => {
     const id = props.id ?? props.label;
 
     const [passwordShown, setPasswordShown] = useState(false);
@@ -23,11 +26,12 @@ const InputPassword = React.forwardRef(
 
         <div className="relative">
           <input
+            {...props}
             type={passwordShown ? "text" : "password"}
             id={id}
             name={id}
-            required={props.required}
             className="input input-bordered w-full"
+            ref={forwardRef as React.RefObject<HTMLInputElement>}
           />
           <button
             className="absolute top-1 right-2 bg-transparent w-6 h-6 m-0.5 flex items-center justify-center rounded-full border border-neutral-400"
