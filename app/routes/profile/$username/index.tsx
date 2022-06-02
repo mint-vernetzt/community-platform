@@ -383,23 +383,24 @@ export default function Index() {
                   </div>
                 </div>
               )}
-            {loaderData.data.seekings?.length && (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Ich suche
+            {loaderData.data.seekings !== undefined &&
+              loaderData.data.seekings.length > 0 && (
+                <div className="flex mb-6 font-semibold flex-col lg:flex-row">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                    Ich suche
+                  </div>
+                  <div className="flex-auto">
+                    {loaderData.data.seekings?.map(({ offer }) => (
+                      <Chip
+                        key={`seeking_${offer.title}`}
+                        title={offer.title}
+                        slug=""
+                        isEnabled
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="flex-auto">
-                  {loaderData.data.seekings?.map(({ offer }) => (
-                    <Chip
-                      key={`seeking_${offer.title}`}
-                      title={offer.title}
-                      slug=""
-                      isEnabled
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
             {/* TODO: implement organizations */}
             {/* <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
               <div className="flex-auto pr-4">
