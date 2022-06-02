@@ -1,45 +1,38 @@
-import * as React from "react";
-
 import { InputError } from "remix-domains";
 
 import {
   ActionFunction,
   Form,
-  FormProps,
   json,
   Link,
   LoaderFunction,
-  useActionData,
   useLoaderData,
   useParams,
   useTransition,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 
-import {
-  AreasWithState,
-  getAllOffers,
-  getAreas,
-  getProfileByUserId,
-  updateProfileByUserId,
-} from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
 import { getUser } from "~/auth.server";
-import InputText from "~/components/FormElements/InputText/InputText";
+import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { ProfileFormFields, ProfileFormType } from "../edit/yupSchema";
-import { Offer } from "@prisma/client";
+import { Profile } from "@prisma/client";
 import { getInitials } from "~/lib/profile/getInitials";
 import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { formAction, Form as RemixForm } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 
-const schema = z.object({
-  email: z.string().min(1).email().optional(),
-  confirmEmail: z.string().min(1).email().optional(),
-  password: z.string().min(1).optional(),
-  confirmPassword: z.string().min(1).optional(),
-  submitButton: z.string().optional(),
+const emailSchema = z.object({
+  email: z.string().min(1).email(),
+  confirmEmail: z.string().min(1).email(),
+  submittedForm: z.string(),
+});
+
+const passwordSchema = z.object({
+  password: z.string().min(1),
+  confirmPassword: z.string().min(1),
+  submittedForm: z.string(),
 });
 
 export async function handleAuthorization(request: Request, username: string) {
@@ -56,44 +49,28 @@ export async function handleAuthorization(request: Request, username: string) {
 }
 
 type LoaderData = {
-  profile: ProfileFormType;
-  areas: AreasWithState;
-  offers: Offer[];
+  profile: Pick<Profile, "email" | "firstName" | "lastName">;
 };
-
-function makeFormProfileFromDbProfile(
-  dbProfile: Awaited<ReturnType<typeof getProfileByUserId>>
-) {
-  return {
-    ...dbProfile,
-    areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
-    offers: dbProfile?.offers.map((offer) => offer.offerId) ?? [],
-    seekings: dbProfile?.seekings.map((seeking) => seeking.offerId) ?? [],
-  };
-}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
-  let profile = makeFormProfileFromDbProfile(dbProfile);
-
-  const areas = await getAreas();
-  const offers = await getAllOffers();
-
-  return json({ profile, areas, offers });
+  let profile = await getProfileByUserId(currentUser.id, [
+    "email",
+    "firstName",
+    "lastName",
+  ]);
+  if (profile === null) {
+    throw new Error(
+      `PrismaClient can't find a profile for the user "${username}"`
+    );
+  }
+  return json({ profile });
 };
 
-const mutation = makeDomainFunction(schema)(
+const passwordMutation = makeDomainFunction(passwordSchema)(
   async (values) => {
-    if (values.confirmEmail !== values.email) {
-      //throw "Die eingegebenen E-Mails stimmen nicht überein"; // -- Global error
-      throw new InputError(
-        "Die eingegebenen E-Mails stimmen nicht überein",
-        "confirmEmail"
-      ); // -- Field error
-    }
     if (values.confirmPassword !== values.password) {
       //throw "Die eingegebenen Passwörter stimmen nicht überein"; // -- Global error
       throw new InputError(
@@ -103,20 +80,40 @@ const mutation = makeDomainFunction(schema)(
     }
     return values;
   }
-  /*await console.log(values) {
-    const { user, error } = await supabase.auth.update({email: 'new@email.com'})
-  }) */
+
+  //const { user, error } = await supabase.auth.update({email: 'new@email.com'});
+);
+
+const emailMutation = makeDomainFunction(emailSchema)(
+  async (values) => {
+    if (values.confirmEmail !== values.email) {
+      //throw "Die eingegebenen E-Mails stimmen nicht überein"; // -- Global error
+      throw new InputError(
+        "Die eingegebenen E-Mails stimmen nicht überein",
+        "confirmEmail"
+      ); // -- Field error
+    }
+    return values;
+  }
+
+  //const { user, error } = await supabase.auth.update({email: 'new@email.com'});
 );
 
 export const action: ActionFunction = async ({ request, params }) => {
-  formAction({
+  const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
+
+  const formData = await requestClone.formData();
+  const submittedForm = formData.get("submittedForm");
+  const schema = submittedForm === "changeEmail" ? emailSchema : passwordSchema;
+  const mutation =
+    submittedForm === "changeEmail" ? emailMutation : passwordMutation;
+
+  return formAction({
     request,
     schema,
-    mutation,
+    mutation, // TODO: Fix later
     //successPath: `profile/${params.username}/safety`,
   });
-  console.log(await request.formData());
-  return null;
 };
 
 export default function Index() {
@@ -124,6 +121,7 @@ export default function Index() {
   const transition = useTransition();
   const { profile } = useLoaderData<LoaderData>();
 
+  // TODO: Change type of getInitials transfer parameter to Pick<Profile, "firstName" | "lastName">; ?
   const initials = getInitials(profile);
 
   return (
@@ -167,173 +165,185 @@ export default function Index() {
           </div>
         </div>
       </header>
-      <RemixForm method="post" schema={schema}>
-        {({ Field, Button, Errors, register }) => (
-          <fieldset disabled={transition.state === "submitting"}>
-            <div className="container mx-auto px-4 relative z-10 pb-44">
-              <div className="flex flex-col lg:flex-row -mx-4">
-                {/* refactor menu */}
-                <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
-                  <div className="basis-4/12 px-4">
-                    <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-                      <h3 className="font-bold mb-7">Profil bearbeiten</h3>
-                      {/*TODO: add missing pages*/}
-                      <ul>
-                        <li>
-                          <a
-                            href={`/profile/${username}/edit`}
-                            className="block text-3xl  text-neutral-500 hover:text-primary py-3"
-                          >
-                            Persönliche Daten
-                          </a>
-                        </li>
-                        <li>
-                          <a
-                            href={`/profile/${username}/safety`}
-                            className="block text-3xl text-primary py-3"
-                          >
-                            Login und Sicherheit
-                          </a>
-                        </li>
-                      </ul>
+      <fieldset disabled={transition.state === "submitting"}>
+        <div className="container mx-auto px-4 relative z-10 pb-44">
+          <div className="flex flex-col lg:flex-row -mx-4">
+            {/* refactor menu */}
+            <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
+              <div className="basis-4/12 px-4">
+                <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
+                  <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+                  {/*TODO: add missing pages*/}
+                  <ul>
+                    <li>
+                      <a
+                        href={`/profile/${username}/edit`}
+                        className="block text-3xl  text-neutral-500 hover:text-primary py-3"
+                      >
+                        Persönliche Daten
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`/profile/${username}/safety`}
+                        className="block text-3xl text-primary py-3"
+                      >
+                        Login und Sicherheit
+                      </a>
+                    </li>
+                  </ul>
 
-                      <hr className="border-neutral-400 my-4 lg:my-8" />
+                  <hr className="border-neutral-400 my-4 lg:my-8" />
 
-                      <div className="">
-                        {/* <a
+                  <div className="">
+                    {/* <a
                           href="/#"
                           className="block text-3xl text-neutral-500 hover:text-primary py-3"
                         > */}
-                        <span className="block text-3xl text-neutral-500  py-3">
-                          Profil löschen
-                        </span>
-                        {/* </a> */}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="basis-6/12 px-4">
-                    <h1 className="mb-8">Login und Sicherheit</h1>
-
-                    <h4 className="mb-4 font-semibold">Passwort ändern</h4>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <Field
-                      name="password"
-                      label="Neues Passwort"
-                      className="mb-4"
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <InputPassword
-                            id="password"
-                            label="Neues Passwort"
-                            {...register("password")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-
-                    <Field name="confirmPassword" label="Wiederholen">
-                      {({ Errors }) => (
-                        <>
-                          <InputPassword
-                            id="confirmPassword"
-                            label="Wiederholen"
-                            {...register("confirmPassword")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-
-                    <Field name="submitButton" label="Passwort ändern">
-                      {({ Errors }) => (
-                        <>
-                          <button
-                            id="submitButton"
-                            type="submit"
-                            value="changePassword"
-                            className="btn btn-primary mt-8"
-                            {...register("submitButton")}
-                          >
-                            Passwort ändern
-                          </button>
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-
-                    <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <Field name="email" label="Neue E-Mail" className="mb-4">
-                      {({ Errors }) => (
-                        <>
-                          <InputText
-                            id="email"
-                            label="Neue E-Mail"
-                            {...register("email")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-
-                    <Field name="confirmEmail" label="Wiederholen">
-                      {({ Errors }) => (
-                        <>
-                          <InputText
-                            id="confirmEmail"
-                            label="Wiederholen"
-                            {...register("confirmEmail")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-
-                    <Field name="submitButton" label="E-Mail ändern">
-                      {({ Errors }) => (
-                        <>
-                          <button
-                            id="submitButton"
-                            type="submit"
-                            value="changeEmail"
-                            className="btn btn-primary mt-8"
-                            {...register("submitButton")}
-                          >
-                            E-Mail ändern
-                          </button>
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
+                    <span className="block text-3xl text-neutral-500  py-3">
+                      Profil löschen
+                    </span>
+                    {/* </a> */}
                   </div>
                 </div>
               </div>
 
-              <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-                <div className="md:container md:mx-auto ">
-                  <div className="px-4 py-8 flex flex-row items-center justify-end"></div>
-                </div>
-              </footer>
+              <div className="basis-6/12 px-4">
+                <h1 className="mb-8">Login und Sicherheit</h1>
+
+                <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+
+                <p className="mb-8">
+                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                  aliquyam erat, sed diam voluptua.
+                </p>
+                <input type="hidden" name="action" value="changePassword" />
+
+                <RemixForm method="post" schema={passwordSchema}>
+                  {({ Field, Button, Errors, register }) => (
+                    <>
+                      <Field
+                        name="password"
+                        label="Neues Passwort"
+                        className="mb-4"
+                      >
+                        {({ Errors }) => (
+                          <>
+                            <InputPassword
+                              id="password"
+                              label="Neues Passwort *"
+                              {...register("password")}
+                            />
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+
+                      <Field name="confirmPassword" label="Wiederholen">
+                        {({ Errors }) => (
+                          <>
+                            <InputPassword
+                              id="confirmPassword"
+                              label="Passwort wiederholen *"
+                              {...register("confirmPassword")}
+                            />
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+                      <Field name="submittedForm" label="Wiederholen">
+                        {({ Errors }) => (
+                          <>
+                            <input
+                              type="hidden"
+                              value="changePassword"
+                              {...register("submittedForm")}
+                            ></input>
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+                      <button type="submit" className="btn btn-primary mt-8">
+                        Passwort ändern
+                      </button>
+                    </>
+                  )}
+                </RemixForm>
+                {/*<Field name="submitButton" label="Passwort ändern">
+                      {({ Errors }) => (
+                        <>
+                          <Errors />
+                        </>
+                      )}
+                      </Field>*/}
+                <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
+
+                <p className="mb-8">
+                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                  aliquyam erat, sed diam voluptua.
+                </p>
+                <RemixForm method="post" schema={emailSchema}>
+                  {({ Field, Button, Errors, register }) => (
+                    <>
+                      <Field name="email" label="Neue E-Mail" className="mb-4">
+                        {({ Errors }) => (
+                          <>
+                            <Input
+                              id="email"
+                              label="Neue E-Mail *"
+                              {...register("email")}
+                            />
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+
+                      <Field name="confirmEmail" label="Wiederholen">
+                        {({ Errors }) => (
+                          <>
+                            <Input
+                              id="confirmEmail"
+                              label="E-Mail wiederholen *"
+                              {...register("confirmEmail")}
+                            />
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+
+                      <Field name="submittedForm" label="Wiederholen">
+                        {({ Errors }) => (
+                          <>
+                            <input
+                              type="hidden"
+                              value="changeEmail"
+                              {...register("submittedForm")}
+                            ></input>
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+                      <button type="submit" className="btn btn-primary mt-8">
+                        E-Mail ändern
+                      </button>
+                    </>
+                  )}
+                </RemixForm>
+              </div>
             </div>
-          </fieldset>
-        )}
-      </RemixForm>
+          </div>
+
+          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+            <div className="md:container md:mx-auto ">
+              <div className="px-4 py-8 flex flex-row items-center justify-end"></div>
+            </div>
+          </footer>
+        </div>
+      </fieldset>
     </>
   );
 }
