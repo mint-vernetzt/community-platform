@@ -6,14 +6,21 @@ import {
   json,
   Link,
   LoaderFunction,
+  Session,
   useLoaderData,
   useParams,
   useTransition,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 
-import { getProfileByUserId } from "~/profile.server";
-import { getUser } from "~/auth.server";
+import { getProfileByUserId, updateProfileByUserId } from "~/profile.server";
+import {
+  authenticator,
+  getUser,
+  sessionStorage,
+  updateEmail,
+  updatePassword,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { Profile } from "@prisma/client";
@@ -22,6 +29,8 @@ import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { formAction, Form as RemixForm } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { supabaseClient } from "~/supabase";
+import { User } from "@supabase/supabase-js";
 
 const emailSchema = z.object({
   email: z.string().min(1).email(),
@@ -69,25 +78,20 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json({ profile });
 };
 
-const passwordMutation = makeDomainFunction(passwordSchema)(
-  async (values) => {
-    if (values.confirmPassword !== values.password) {
-      //throw "Die eingegebenen Passwörter stimmen nicht überein"; // -- Global error
-      throw new InputError(
-        "Die eingegebenen Passwörter stimmen nicht überein",
-        "confirmPassword"
-      ); // -- Field error
-    }
-    return values;
+const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
+  if (values.confirmPassword !== values.password) {
+    throw new InputError(
+      "Die eingegebenen Passwörter stimmen nicht überein",
+      "confirmPassword"
+    ); // -- Field error
   }
 
-  //const { user, error } = await supabase.auth.update({email: 'new@email.com'});
-);
+  return values;
+});
 
 const emailMutation = makeDomainFunction(emailSchema)(
   async (values) => {
     if (values.confirmEmail !== values.email) {
-      //throw "Die eingegebenen E-Mails stimmen nicht überein"; // -- Global error
       throw new InputError(
         "Die eingegebenen E-Mails stimmen nicht überein",
         "confirmEmail"
@@ -99,7 +103,7 @@ const emailMutation = makeDomainFunction(emailSchema)(
   //const { user, error } = await supabase.auth.update({email: 'new@email.com'});
 );
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
 
   const formData = await requestClone.formData();
@@ -108,12 +112,52 @@ export const action: ActionFunction = async ({ request, params }) => {
   const mutation =
     submittedForm === "changeEmail" ? emailMutation : passwordMutation;
 
-  return formAction({
+  const result = formAction({
     request,
     schema,
     mutation, // TODO: Fix later
-    //successPath: `profile/${params.username}/safety`,
   });
+
+  // TODO:
+  // - The code below is executed when the mutation throws an error (thats unwanted behaviour)
+  // - supabaseclient can not be used in the mutation function (Isn't the mutation function supposed for such operations?)
+
+  const sessionUser = await getUser(request);
+  if (sessionUser === null) {
+    throw forbidden({ message: "not allowed" });
+  }
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
+  let { access_token: accessToken } = session.get(authenticator.sessionKey);
+  if (!accessToken) {
+    throw forbidden({ message: "not allowed" }); // TODO: maybe other message
+  }
+  supabaseClient.auth.setAuth(accessToken);
+
+  const email = formData.get("email");
+  if (email !== null) {
+    // TODO: Outsource below code to auth.server.tsx
+    const { user, error } = await supabaseClient.auth.update({
+      email: email as string,
+      data: { email: email as string },
+    });
+    if (error !== null) {
+      throw error;
+    }
+    await updateProfileByUserId(sessionUser.id, { email: email as string });
+  }
+
+  const password = formData.get("password");
+  if (password !== null) {
+    updatePassword(accessToken, password as string);
+  }
+
+  // TODO: Implement Feedback -> Password changed
+  // TODO: Implement Feedback -> Waiting for E-Mail confirmation
+  // TODO: Implement Feedback -> Waiting for second E-Mail confirmation
+
+  return result;
 };
 
 export default function Index() {
@@ -121,7 +165,6 @@ export default function Index() {
   const transition = useTransition();
   const { profile } = useLoaderData<LoaderData>();
 
-  // TODO: Change type of getInitials transfer parameter to Pick<Profile, "firstName" | "lastName">; ?
   const initials = getInitials(profile);
 
   return (
