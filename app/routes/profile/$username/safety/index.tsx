@@ -6,7 +6,7 @@ import {
   json,
   Link,
   LoaderFunction,
-  Session,
+  useActionData,
   useLoaderData,
   useParams,
   useTransition,
@@ -18,7 +18,6 @@ import {
   authenticator,
   getUser,
   sessionStorage,
-  updateEmail,
   updatePassword,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -27,20 +26,27 @@ import { Profile } from "@prisma/client";
 import { getInitials } from "~/lib/profile/getInitials";
 import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
-import { formAction, Form as RemixForm } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { supabaseClient } from "~/supabase";
-import { User } from "@supabase/supabase-js";
 
 const emailSchema = z.object({
-  email: z.string().min(1).email(),
-  confirmEmail: z.string().min(1).email(),
+  email: z
+    .string()
+    .min(1, "Bitte eine E-Mail eingeben.")
+    .email("Ungültige E-Mail"),
+  confirmEmail: z
+    .string()
+    .min(1, "E-Mail wiederholen um Rechtschreibfehler zu vermeiden.")
+    .email("Ungültige E-Mail"),
   submittedForm: z.string(),
 });
 
 const passwordSchema = z.object({
-  password: z.string().min(1),
-  confirmPassword: z.string().min(1),
+  password: z.string().min(1, "Bitte ein Passwort eingeben."),
+  confirmPassword: z
+    .string()
+    .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
   submittedForm: z.string(),
 });
 
@@ -48,24 +54,25 @@ export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const currentUser = await getUser(request);
+  const sessionUser = await getUser(request);
 
-  if (currentUser?.user_metadata.username !== username) {
+  if (sessionUser === null || sessionUser.user_metadata.username !== username) {
     throw forbidden({ message: "not allowed" });
   }
 
-  return currentUser;
+  return sessionUser;
 }
 
 type LoaderData = {
   profile: Pick<Profile, "email" | "firstName" | "lastName">;
+  isUserInEmailChangeProcess: boolean;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+  const sessionUser = await handleAuthorization(request, username);
 
-  let profile = await getProfileByUserId(currentUser.id, [
+  const profile = await getProfileByUserId(sessionUser.id, [
     "email",
     "firstName",
     "lastName",
@@ -75,7 +82,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       `PrismaClient can't find a profile for the user "${username}"`
     );
   }
-  return json({ profile });
+  // TODO: This only works because the meta data is changed before email confirmation is finished (unwanted behaviour?)
+  // What is the difference between the three fields profile.email, sessionUser.email, sessionUser.user_metadata.email (Single source of truth)
+  // In addition a new session has to be started (log out/in) to see the change (refresh session? Log out user after second confirmation?)
+  const isUserInEmailChangeProcess =
+    sessionUser.email !== sessionUser.user_metadata.email;
+
+  return json({ profile, isUserInEmailChangeProcess });
 };
 
 const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
@@ -85,47 +98,44 @@ const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
       "confirmPassword"
     ); // -- Field error
   }
+  // TODO: What are the password restrictions? length, used chars, etc... ?
 
   return values;
 });
 
-const emailMutation = makeDomainFunction(emailSchema)(
-  async (values) => {
-    if (values.confirmEmail !== values.email) {
-      throw new InputError(
-        "Die eingegebenen E-Mails stimmen nicht überein",
-        "confirmEmail"
-      ); // -- Field error
-    }
-    return values;
+const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
+  if (values.confirmEmail !== values.email) {
+    throw new InputError(
+      "Die eingegebenen E-Mails stimmen nicht überein",
+      "confirmEmail"
+    ); // -- Field error
   }
+  return values;
+});
 
-  //const { user, error } = await supabase.auth.update({email: 'new@email.com'});
-);
+export const action: ActionFunction = async ({ request, params }) => {
+  const username = params.username ?? "";
+  const sessionUser = await handleAuthorization(request, username);
 
-export const action: ActionFunction = async ({ request }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
-
   const formData = await requestClone.formData();
   const submittedForm = formData.get("submittedForm");
   const schema = submittedForm === "changeEmail" ? emailSchema : passwordSchema;
   const mutation =
     submittedForm === "changeEmail" ? emailMutation : passwordMutation;
 
-  const result = formAction({
+  const mutationResult = await performMutation({
     request,
     schema,
     mutation, // TODO: Fix later
   });
+  if (!mutationResult.success) {
+    return mutationResult;
+  }
 
   // TODO:
-  // - The code below is executed when the mutation throws an error (thats unwanted behaviour)
-  // - supabaseclient can not be used in the mutation function (Isn't the mutation function supposed for such operations?)
+  // - supabaseclient can not be used in the mutation function (Isn't the mutation function supposed for such operations?
 
-  const sessionUser = await getUser(request);
-  if (sessionUser === null) {
-    throw forbidden({ message: "not allowed" });
-  }
   const session = await sessionStorage.getSession(
     request.headers.get("Cookie")
   );
@@ -145,27 +155,40 @@ export const action: ActionFunction = async ({ request }) => {
     if (error !== null) {
       throw error;
     }
+    // TODO: What if the user does not confirm the email change? The profile table is still updated with the new email
+    // -> Update the profile email at the end point of the second confirmation link
     await updateProfileByUserId(sessionUser.id, { email: email as string });
   }
 
   const password = formData.get("password");
   if (password !== null) {
-    updatePassword(accessToken, password as string);
+    const { error } = await updatePassword(accessToken, password as string);
+    if (error !== null) {
+      throw error;
+    }
   }
 
-  // TODO: Implement Feedback -> Password changed
-  // TODO: Implement Feedback -> Waiting for E-Mail confirmation
-  // TODO: Implement Feedback -> Waiting for second E-Mail confirmation
-
-  return result;
+  return mutationResult;
 };
 
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { profile } = useLoaderData<LoaderData>();
+  const { profile, isUserInEmailChangeProcess } = useLoaderData<LoaderData>();
 
   const initials = getInitials(profile);
+
+  // TODO: Declare type
+  const actionData = useActionData();
+
+  let showPasswordFeedback = false,
+    showEmailFeedback = false;
+  if (actionData !== undefined) {
+    showPasswordFeedback =
+      actionData.success && actionData.data.password !== undefined;
+    showEmailFeedback =
+      actionData.success && actionData.data.email !== undefined;
+  }
 
   return (
     <>
@@ -307,9 +330,13 @@ export default function Index() {
                           </>
                         )}
                       </Field>
+
                       <button type="submit" className="btn btn-primary mt-8">
                         Passwort ändern
                       </button>
+                      {showPasswordFeedback ? (
+                        <div>Passwort wurde erfolgreich geändert!</div>
+                      ) : null}
                     </>
                   )}
                 </RemixForm>
@@ -373,6 +400,24 @@ export default function Index() {
                       <button type="submit" className="btn btn-primary mt-8">
                         E-Mail ändern
                       </button>
+                      {showEmailFeedback ? (
+                        <div>
+                          Ein Bestätigungslink wird an Ihre alte und neue E-Mail
+                          gesendet. Bestätigen Sie beide um den Änderungsprozess
+                          abzuschließen.
+                        </div>
+                      ) : null}
+                      {
+                        // TODO: Insert oldEmail and newEmail
+                        isUserInEmailChangeProcess ? (
+                          <div>
+                            Ihre Änderung von (oldEmail) zu (newEmail) wurde
+                            noch nicht bestätigt. Bitte folgen Sie den
+                            Bestätigungslinks, die an Ihre alte und neue E-Mail
+                            gesendet wurden.
+                          </div>
+                        ) : null
+                      }
                     </>
                   )}
                 </RemixForm>
@@ -390,3 +435,7 @@ export default function Index() {
     </>
   );
 }
+
+// TODO: Handle confirmation links
+// -> Currently the user is redirected to the home directory
+// with a message inside the url (A notice about the second confirmation link)
