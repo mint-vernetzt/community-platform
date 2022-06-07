@@ -13,7 +13,7 @@ export default function ProfileMenu(props: ProfileMenuProps) {
     }  hover:text-primary py-3`;
   return (
     <>
-      <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200   shadow-lg relative mb-8">
+      <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
         <h3 className="font-bold mb-7">Profil bearbeiten</h3>
 
         <ul>
