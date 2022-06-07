@@ -318,7 +318,7 @@ export default function Index() {
                           </>
                         )}
                       </Field>
-                      <Field name="submittedForm" label="Wiederholen">
+                      <Field name="submittedForm">
                         {({ Errors }) => (
                           <>
                             <input
@@ -334,8 +334,21 @@ export default function Index() {
                       <button type="submit" className="btn btn-primary mt-8">
                         Passwort ändern
                       </button>
+                      {/*<span
+                        className={`mt-2 text-green-500 text-bold ${
+                          showPasswordFeedback ? "animate-fade-out" : "hidden"
+                        }`}
+                      >
+                        Passwort wurde geändert.
+                      </span>*/}
                       {showPasswordFeedback ? (
-                        <div>Passwort wurde erfolgreich geändert!</div>
+                        <span
+                          className={
+                            "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                          }
+                        >
+                          Passwort wurde geändert.
+                        </span>
                       ) : null}
                     </>
                   )}
@@ -401,11 +414,13 @@ export default function Index() {
                         E-Mail ändern
                       </button>
                       {showEmailFeedback ? (
-                        <div>
-                          Ein Bestätigungslink wird an Ihre alte und neue E-Mail
-                          gesendet. Bestätigen Sie beide um den Änderungsprozess
-                          abzuschließen.
-                        </div>
+                        <span
+                          className={
+                            "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                          }
+                        >
+                          Bestätigungslink gesendet.
+                        </span>
                       ) : null}
                       {
                         // TODO: Insert oldEmail and newEmail
