@@ -37,7 +37,7 @@ const emailSchema = z.object({
     .string()
     .min(1, "E-Mail wiederholen um Rechtschreibfehler zu vermeiden.")
     .email("Ungültige E-Mail"),
-  submittedForm: z.string(),
+  submittedForm: z.enum(["changeEmail"]), // TODO: Can be exactly one of changeEmail || changePassword
 });
 
 const passwordSchema = z.object({
@@ -45,9 +45,10 @@ const passwordSchema = z.object({
   confirmPassword: z
     .string()
     .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
-  submittedForm: z.string(),
+  submittedForm: z.enum(["changePassword"]),
 });
 
+// TODO: Higher order function
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
