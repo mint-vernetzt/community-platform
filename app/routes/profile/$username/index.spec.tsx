@@ -13,7 +13,7 @@ const path = "/profile/$username";
 jest.mock("~/auth.server", () => {
   return {
     // eslint-disable-next-line
-    getUser: jest.fn(),
+    getUserByRequest: jest.fn(),
   };
 });
 

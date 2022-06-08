@@ -19,6 +19,7 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
   const url = new URL(request.url);
+  console.log(request.url);
   const type = url.searchParams.get("type");
   const accessToken = url.searchParams.get("access_token");
   if (accessToken !== null && type === "email_change") {
