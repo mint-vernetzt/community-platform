@@ -19,7 +19,6 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
   const url = new URL(request.url);
-  console.log(request.url);
   const type = url.searchParams.get("type");
   const accessToken = url.searchParams.get("access_token");
   if (accessToken !== null && type === "email_change") {
@@ -27,15 +26,13 @@ export const loader: LoaderFunction = async (args) => {
     if (error !== null) {
       throw error;
     }
-    if (user !== null) {
-      if (user.email !== undefined) {
-        const profile = await updateProfileByUserId(user.id, {
-          email: user.email,
-        });
-        await supabaseStrategy.checkSession(request, {
-          successRedirect: `/profile/${profile.username}`,
-        });
-      }
+    if (user !== null && user.email !== undefined) {
+      const profile = await updateProfileByUserId(user.id, {
+        email: user.email,
+      });
+      await supabaseStrategy.checkSession(request, {
+        successRedirect: `/profile/${profile.username}`,
+      });
     }
   }
 

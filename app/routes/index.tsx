@@ -37,6 +37,7 @@ export default function Index() {
   const submit = useSubmit();
   const loaderData = useLoaderData();
 
+  // TODO: Move this inside the loader and get url params from request.url ?
   React.useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.hash.slice(1));
     const type = urlSearchParams.get("type");
