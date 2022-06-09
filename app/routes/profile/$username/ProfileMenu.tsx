@@ -26,14 +26,12 @@ export default function ProfileMenu(props: ProfileMenuProps) {
             </NavLink>
           </li>
           <li>
-            {/* <a
-          href="/#"
-          className="block text-3xl text-neutral-500 hover:text-primary py-3"
-        > */}
-            <span className="block text-3xl text-neutral-500 py-3">
+            <NavLink
+              to={`/profile/${username}/safety`}
+              className={({ isActive }) => getClassName(isActive)}
+            >
               Login und Sicherheit
-            </span>
-            {/* </a> */}
+            </NavLink>
           </li>
         </ul>
 
