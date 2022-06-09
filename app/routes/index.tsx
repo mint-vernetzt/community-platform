@@ -1,21 +1,41 @@
 import React from "react";
-import { Link, LoaderFunction, redirect, useSubmit } from "remix";
+import {
+  Link,
+  LoaderFunction,
+  redirect,
+  useLoaderData,
+  useSubmit,
+} from "remix";
+import { forbidden } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { supabaseStrategy } from "../auth.server";
+import { supabaseClient } from "~/supabase";
+import { authenticator, sessionStorage } from "../auth.server";
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const session = await supabaseStrategy.checkSession(request);
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
 
-  if (session !== null) {
-    return redirect("/explore");
+  const sessionValue = session.get(authenticator.sessionKey);
+  const hasSession = sessionValue !== undefined;
+
+  if (hasSession) {
+    const accessToken = sessionValue.access_token;
+
+    if (!accessToken) {
+      throw forbidden({ message: "not allowed" }); // TODO: maybe other message
+    }
+
+    supabaseClient.auth.setAuth(accessToken);
   }
 
-  return { session };
+  return { hasSession };
 };
 
 export default function Index() {
   const submit = useSubmit();
+  const loaderData = useLoaderData();
 
   React.useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.hash.slice(1));
@@ -23,17 +43,21 @@ export default function Index() {
     const accessToken = urlSearchParams.get("access_token");
 
     if (accessToken !== null) {
-      if (type === "signup") {
-        submit(null, { action: "/login?index" }); // TODO: maybe we can automatically log in user
-      }
-      if (type === "recovery") {
+      if (type === "signup" || type === "email_change") {
+        submit({ type, access_token: accessToken }, { action: "/login?index" }); // TODO: maybe we can automatically log in user
+        return;
+      } else if (type === "recovery") {
         submit(
           { access_token: accessToken },
           { action: "/reset/set-password" }
         );
+        return;
       }
     }
-  });
+    if (loaderData.hasSession) {
+      submit(null, { action: "/explore" });
+    }
+  }, [loaderData]);
 
   return (
     <header className="shadow-md mb-8">

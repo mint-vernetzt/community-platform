@@ -20,7 +20,7 @@ const Input = React.forwardRef(
             title={props.errorMessage}
           >
             {props.label}
-            {props.required !== undefined ? "*" : ""}
+            {props.required !== undefined ? " *" : ""}
           </label>
         )}
 

@@ -7,7 +7,7 @@ import {
   useLoaderData,
 } from "remix";
 import { badRequest, serverError } from "remix-utils";
-import { updatePassword } from "../../auth.server";
+import { updatePasswordByAccessToken } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -56,7 +56,7 @@ export const action: ActionFunction = async (args) => {
     if (password !== passwordControl) {
       throw badRequest({ message: "Passwords not identical." });
     }
-    const { error } = await updatePassword(
+    const { error } = await updatePasswordByAccessToken(
       accessToken as string,
       password as string
     );

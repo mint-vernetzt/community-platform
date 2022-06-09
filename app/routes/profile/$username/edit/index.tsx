@@ -20,7 +20,7 @@ import {
   AreasWithState,
   getAllOffers,
 } from "~/profile.server";
-
+import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
@@ -45,13 +45,12 @@ import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebr
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import ProfileMenu from "../ProfileMenu";
 import Header from "../Header";
-import { getUser } from "~/auth.server";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const currentUser = await getUser(request);
+  const currentUser = await getUserByRequest(request);
 
   if (currentUser?.user_metadata.username !== username) {
     throw forbidden({ message: "not allowed" });

@@ -1,7 +1,7 @@
 import { Area, Offer, Profile } from "@prisma/client";
 import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
@@ -49,7 +49,7 @@ export const loader: LoaderFunction = async (
     throw notFound({ message: "Not found" });
   }
 
-  const sessionUser = await getUser(request);
+  const sessionUser = await getUserByRequest(request);
   const mode: Mode = deriveMode(username, sessionUser?.user_metadata?.username);
 
   const currentUser = sessionUser?.id

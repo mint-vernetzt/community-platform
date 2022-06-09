@@ -1,6 +1,6 @@
 import { Profile } from "@prisma/client";
 import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
-import { getUser } from "~/auth.server";
+import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -30,7 +30,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const sessionUser = await getUser(request);
+  const sessionUser = await getUserByRequest(request);
 
   let currentUser: CurrentUser | undefined;
 

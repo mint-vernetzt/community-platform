@@ -1,7 +1,7 @@
 import { action, loader } from ".";
 import { Profile } from "@prisma/client";
 import { badRequest, forbidden } from "remix-utils";
-import { getUser } from "../../../../auth.server";
+import { getUserByRequest } from "../../../../auth.server";
 import { updateProfileByUserId } from "~/profile.server";
 import { ProfileFormType } from "./yupSchema";
 
@@ -38,7 +38,7 @@ jest.mock("../../../../profile.server.ts", () => {
 
 describe("Get profile data of specific user", () => {
   beforeEach(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
   });
@@ -95,7 +95,7 @@ describe("Get profile data of specific user", () => {
 
 describe("submit profile changes", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: "sessionusername" } };
     });
   });

@@ -27,7 +27,7 @@ export default function ProfileMenu(props: ProfileMenuProps) {
           </li>
           <li>
             <NavLink
-              to={`/profile/${username}/safety`}
+              to={`/profile/${username}/security`}
               className={({ isActive }) => getClassName(isActive)}
             >
               Login und Sicherheit

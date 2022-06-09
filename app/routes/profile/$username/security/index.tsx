@@ -13,12 +13,11 @@ import {
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 
-import { getProfileByUserId, updateProfileByUserId } from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
 import {
-  authenticator,
-  getUser,
-  sessionStorage,
-  updatePassword,
+  getUserByRequest,
+  updateEmailOfLoggedInUser,
+  updatePasswordOfLoggedInUser,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
@@ -28,7 +27,6 @@ import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import { supabaseClient } from "~/supabase";
 
 const emailSchema = z.object({
   email: z
@@ -54,7 +52,7 @@ export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const sessionUser = await getUser(request);
+  const sessionUser = await getUserByRequest(request);
 
   if (sessionUser === null || sessionUser.user_metadata.username !== username) {
     throw forbidden({ message: "not allowed" });
@@ -65,7 +63,6 @@ export async function handleAuthorization(request: Request, username: string) {
 
 type LoaderData = {
   profile: Pick<Profile, "email" | "firstName" | "lastName">;
-  isUserInEmailChangeProcess: boolean;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -82,13 +79,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       `PrismaClient can't find a profile for the user "${username}"`
     );
   }
-  // TODO: This only works because the meta data is changed before email confirmation is finished (unwanted behaviour?)
-  // What is the difference between the three fields profile.email, sessionUser.email, sessionUser.user_metadata.email (Single source of truth)
-  // In addition a new session has to be started (log out/in) to see the change (refresh session? Log out user after second confirmation?)
-  const isUserInEmailChangeProcess =
-    sessionUser.email !== sessionUser.user_metadata.email;
 
-  return json({ profile, isUserInEmailChangeProcess });
+  return json({ profile });
 };
 
 const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
@@ -98,7 +90,11 @@ const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
       "confirmPassword"
     ); // -- Field error
   }
-  // TODO: What are the password restrictions? length, used chars, etc... ?
+
+  const { error } = await updatePasswordOfLoggedInUser(values.password);
+  if (error !== null) {
+    throw error.message;
+  }
 
   return values;
 });
@@ -110,71 +106,34 @@ const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
       "confirmEmail"
     ); // -- Field error
   }
+
+  const { error } = await updateEmailOfLoggedInUser(values.email);
+  if (error !== null) {
+    throw error.message;
+  }
+
   return values;
 });
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const sessionUser = await handleAuthorization(request, username);
-
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
+
   const submittedForm = formData.get("submittedForm");
   const schema = submittedForm === "changeEmail" ? emailSchema : passwordSchema;
   const mutation =
     submittedForm === "changeEmail" ? emailMutation : passwordMutation;
-
-  const mutationResult = await performMutation({
+  return performMutation({
     request,
     schema,
     mutation, // TODO: Fix later
   });
-  if (!mutationResult.success) {
-    return mutationResult;
-  }
-
-  // TODO:
-  // - supabaseclient can not be used in the mutation function (Isn't the mutation function supposed for such operations?
-
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
-  let { access_token: accessToken } = session.get(authenticator.sessionKey);
-  if (!accessToken) {
-    throw forbidden({ message: "not allowed" }); // TODO: maybe other message
-  }
-  supabaseClient.auth.setAuth(accessToken);
-
-  const email = formData.get("email");
-  if (email !== null) {
-    // TODO: Outsource below code to auth.server.tsx
-    const { user, error } = await supabaseClient.auth.update({
-      email: email as string,
-      data: { email: email as string },
-    });
-    if (error !== null) {
-      throw error;
-    }
-    // TODO: What if the user does not confirm the email change? The profile table is still updated with the new email
-    // -> Update the profile email at the end point of the second confirmation link
-    await updateProfileByUserId(sessionUser.id, { email: email as string });
-  }
-
-  const password = formData.get("password");
-  if (password !== null) {
-    const { error } = await updatePassword(accessToken, password as string);
-    if (error !== null) {
-      throw error;
-    }
-  }
-
-  return mutationResult;
 };
 
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { profile, isUserInEmailChangeProcess } = useLoaderData<LoaderData>();
+  const { profile } = useLoaderData<LoaderData>();
 
   const initials = getInitials(profile);
 
@@ -251,7 +210,7 @@ export default function Index() {
                     </li>
                     <li>
                       <a
-                        href={`/profile/${username}/safety`}
+                        href={`/profile/${username}/security`}
                         className="block text-3xl text-primary py-3"
                       >
                         Login und Sicherheit
@@ -298,7 +257,8 @@ export default function Index() {
                           <>
                             <InputPassword
                               id="password"
-                              label="Neues Passwort *"
+                              label="Neues Passwort"
+                              required
                               {...register("password")}
                             />
                             <Errors />
@@ -311,7 +271,8 @@ export default function Index() {
                           <>
                             <InputPassword
                               id="confirmPassword"
-                              label="Passwort wiederholen *"
+                              label="Passwort wiederholen"
+                              required
                               {...register("confirmPassword")}
                             />
                             <Errors />
@@ -334,13 +295,6 @@ export default function Index() {
                       <button type="submit" className="btn btn-primary mt-8">
                         Passwort ändern
                       </button>
-                      {/*<span
-                        className={`mt-2 text-green-500 text-bold ${
-                          showPasswordFeedback ? "animate-fade-out" : "hidden"
-                        }`}
-                      >
-                        Passwort wurde geändert.
-                      </span>*/}
                       {showPasswordFeedback ? (
                         <span
                           className={
@@ -353,13 +307,6 @@ export default function Index() {
                     </>
                   )}
                 </RemixForm>
-                {/*<Field name="submitButton" label="Passwort ändern">
-                      {({ Errors }) => (
-                        <>
-                          <Errors />
-                        </>
-                      )}
-                      </Field>*/}
                 <hr className="border-neutral-400 my-10 lg:my-16" />
 
                 <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
@@ -377,7 +324,8 @@ export default function Index() {
                           <>
                             <Input
                               id="email"
-                              label="Neue E-Mail *"
+                              label="Neue E-Mail"
+                              required
                               {...register("email")}
                             />
                             <Errors />
@@ -390,7 +338,8 @@ export default function Index() {
                           <>
                             <Input
                               id="confirmEmail"
-                              label="E-Mail wiederholen *"
+                              label="E-Mail wiederholen"
+                              required
                               {...register("confirmEmail")}
                             />
                             <Errors />
@@ -398,7 +347,7 @@ export default function Index() {
                         )}
                       </Field>
 
-                      <Field name="submittedForm" label="Wiederholen">
+                      <Field name="submittedForm">
                         {({ Errors }) => (
                           <>
                             <input
@@ -422,17 +371,6 @@ export default function Index() {
                           Bestätigungslink gesendet.
                         </span>
                       ) : null}
-                      {
-                        // TODO: Insert oldEmail and newEmail
-                        isUserInEmailChangeProcess ? (
-                          <div>
-                            Ihre Änderung von (oldEmail) zu (newEmail) wurde
-                            noch nicht bestätigt. Bitte folgen Sie den
-                            Bestätigungslinks, die an Ihre alte und neue E-Mail
-                            gesendet wurden.
-                          </div>
-                        ) : null
-                      }
                     </>
                   )}
                 </RemixForm>
@@ -450,7 +388,3 @@ export default function Index() {
     </>
   );
 }
-
-// TODO: Handle confirmation links
-// -> Currently the user is redirected to the home directory
-// with a message inside the url (A notice about the second confirmation link)
