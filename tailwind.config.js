@@ -52,7 +52,15 @@ module.exports = {
     container: {
       center: true,
       padding: {
-        DEFAULT: "1.5rem",
+        DEFAULT: "1rem",
+        xl: "1.5rem",
+      },
+      screens: {
+        sm: "600px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
     },
     spacing: {

@@ -228,330 +228,325 @@ export default function Index() {
             className="hidden"
           />
           <fieldset disabled={transition.state === "submitting"}>
-            <div className="container mx-auto px-4 relative z-10 pb-44">
-              <div className="flex flex-col lg:flex-row -mx-4">
-                <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
-                  <div className="basis-4/12 px-4">
-                    <ProfileMenu username={username as string} />
-                  </div>
-                  <div className="basis-6/12 px-4">
-                    <h1 className="mb-8">Persönliche Daten</h1>
+            <div className="container relative pb-44">
+              <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
+                <div className="basis-4/12 px-4">
+                  <ProfileMenu username={username as string} />
+                </div>
+                <div className="basis-6/12 px-4">
+                  <h1 className="mb-8">Persönliche Daten</h1>
 
-                    <h4 className="mb-4 font-semibold">Allgemein</h4>
+                  <h4 className="mb-4 font-semibold">Allgemein</h4>
 
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
 
-                    <div className="flex flex-col md:flex-row -mx-4">
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <SelectField
-                          {...register("academicTitle")}
-                          label="Titel"
-                          options={[
-                            {
-                              label: "Dr.",
-                              value: "Dr.",
-                            },
-                            {
-                              label: "Prof.",
-                              value: "Prof.",
-                            },
-                            {
-                              label: "Prof. Dr.",
-                              value: "Prof. Dr.",
-                            },
-                          ]}
-                          defaultValue={profile.academicTitle}
-                        />
-                      </div>
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <InputText
-                          {...register("position")}
-                          id="position"
-                          label="Position"
-                          defaultValue={profile.position}
-                          isPublic={profile.publicFields?.includes("position")}
-                          errorMessage={errors?.position?.message}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row -mx-4">
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <InputText
-                          {...register("firstName")}
-                          id="firstName"
-                          label="Vorname"
-                          defaultValue={profile.firstName}
-                          required
-                          errorMessage={errors?.firstName?.message}
-                        />
-                      </div>
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <InputText
-                          {...register("lastName")}
-                          id="lastName"
-                          label="Nachname"
-                          required
-                          defaultValue={profile.lastName}
-                          errorMessage={errors?.lastName?.message}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row -mx-4">
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <InputText
-                          {...register("email")}
-                          type="text"
-                          id="email"
-                          label="E-Mail"
-                          readOnly
-                          isPublic={profile.publicFields?.includes("email")}
-                          defaultValue={profile.email}
-                          errorMessage={errors?.email?.message}
-                        />
-                      </div>
-                      <div className="basis-full md:basis-6/12 px-4 mb-4">
-                        <InputText
-                          {...register("phone")}
-                          id="phone"
-                          label="Telefon"
-                          isPublic={profile.publicFields?.includes("phone")}
-                          defaultValue={profile.phone}
-                          errorMessage={errors?.phone?.message}
-                        />
-                      </div>
-                    </div>
-
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-
-                    <div className="flex flex-row items-center mb-4">
-                      <h4 className="font-semibold">Über mich</h4>
-                    </div>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="mb-4">
-                      <TextAreaWithCounter
-                        {...register("bio")}
-                        id="bio"
-                        label="Kurzbeschreibung"
-                        isPublic={profile.publicFields?.includes("bio")}
-                        defaultValue={profile.bio}
-                        errorMessage={errors?.bio?.message}
-                        maxCharacters={300}
+                  <div className="flex flex-col md:flex-row -mx-4">
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
+                      <SelectField
+                        {...register("academicTitle")}
+                        label="Titel"
+                        options={[
+                          {
+                            label: "Dr.",
+                            value: "Dr.",
+                          },
+                          {
+                            label: "Prof.",
+                            value: "Prof.",
+                          },
+                          {
+                            label: "Prof. Dr.",
+                            value: "Prof. Dr.",
+                          },
+                        ]}
+                        defaultValue={profile.academicTitle}
                       />
                     </div>
-
-                    <div className="mb-4">
-                      <SelectAdd
-                        name="areas"
-                        label={"Aktivitätsgebiete"}
-                        placeholder="Aktivitätsgebiete hinzufügen"
-                        entries={selectedAreas.map((area) => ({
-                          label: area.name,
-                          value: area.id,
-                        }))}
-                        options={areaOptions}
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <InputAdd
-                        name="skills"
-                        label="Kompetenzen"
-                        placeholder="Kompetenz hinzufügen"
-                        entries={profile.skills ?? []}
-                        isPublic={profile.publicFields?.includes("skills")}
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <InputAdd
-                        name="interests"
-                        label="Interessen"
-                        placeholder="Interesse hinzufügen"
-                        entries={profile.interests ?? []}
-                        isPublic={profile.publicFields?.includes("interests")}
-                      />
-                    </div>
-
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-                    <h4 className="mb-4 font-semibold">Ich biete</h4>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="mb-4">
-                      <SelectAdd
-                        name="offers"
-                        label="Angebot"
-                        entries={selectedOffers.map((area) => ({
-                          label: area.title,
-                          value: area.id,
-                        }))}
-                        options={offerOptions.filter(
-                          (o) => !profile.offers.includes(o.value)
-                        )}
-                        placeholder=""
-                        isPublic={profile.publicFields?.includes("offers")}
-                      />
-                    </div>
-
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-
-                    <h4 className="mb-4 font-semibold">Ich suche</h4>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="mb-4">
-                      <SelectAdd
-                        name="seekings"
-                        label="Suche"
-                        entries={selectedSeekings.map((area) => ({
-                          label: area.title,
-                          value: area.id,
-                        }))}
-                        options={offerOptions.filter(
-                          (o) => !profile.seekings.includes(o.value)
-                        )}
-                        placeholder=""
-                        isPublic={profile.publicFields?.includes("seekings")}
-                      />
-                    </div>
-
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-
-                    <h2 className="mb-8">Website und Soziale Netzwerke</h2>
-
-                    <h4 className="mb-4 font-semibold">Website</h4>
-
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="basis-full mb-4">
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
                       <InputText
-                        {...register("website")}
-                        id="website"
-                        label="Website URL"
-                        defaultValue={profile.website}
-                        placeholder="https://www.domainname.tld/"
-                        isPublic={profile.publicFields?.includes("website")}
-                        errorMessage={errors?.website?.message}
+                        {...register("position")}
+                        id="position"
+                        label="Position"
+                        defaultValue={profile.position}
+                        isPublic={profile.publicFields?.includes("position")}
+                        errorMessage={errors?.position?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row -mx-4">
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
+                      <InputText
+                        {...register("firstName")}
+                        id="firstName"
+                        label="Vorname"
+                        defaultValue={profile.firstName}
+                        required
+                        errorMessage={errors?.firstName?.message}
+                      />
+                    </div>
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
+                      <InputText
+                        {...register("lastName")}
+                        id="lastName"
+                        label="Nachname"
+                        required
+                        defaultValue={profile.lastName}
+                        errorMessage={errors?.lastName?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row -mx-4">
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
+                      <InputText
+                        {...register("email")}
+                        type="text"
+                        id="email"
+                        label="E-Mail"
+                        readOnly
+                        isPublic={profile.publicFields?.includes("email")}
+                        defaultValue={profile.email}
+                        errorMessage={errors?.email?.message}
+                      />
+                    </div>
+                    <div className="basis-full md:basis-6/12 px-4 mb-4">
+                      <InputText
+                        {...register("phone")}
+                        id="phone"
+                        label="Telefon"
+                        isPublic={profile.publicFields?.includes("phone")}
+                        defaultValue={profile.phone}
+                        errorMessage={errors?.phone?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                  <div className="flex flex-row items-center mb-4">
+                    <h4 className="font-semibold">Über mich</h4>
+                  </div>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <TextAreaWithCounter
+                      {...register("bio")}
+                      id="bio"
+                      label="Kurzbeschreibung"
+                      isPublic={profile.publicFields?.includes("bio")}
+                      defaultValue={profile.bio}
+                      errorMessage={errors?.bio?.message}
+                      maxCharacters={300}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <SelectAdd
+                      name="areas"
+                      label={"Aktivitätsgebiete"}
+                      placeholder="Aktivitätsgebiete hinzufügen"
+                      entries={selectedAreas.map((area) => ({
+                        label: area.name,
+                        value: area.id,
+                      }))}
+                      options={areaOptions}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="skills"
+                      label="Kompetenzen"
+                      placeholder="Kompetenz hinzufügen"
+                      entries={profile.skills ?? []}
+                      isPublic={profile.publicFields?.includes("skills")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <InputAdd
+                      name="interests"
+                      label="Interessen"
+                      placeholder="Interesse hinzufügen"
+                      entries={profile.interests ?? []}
+                      isPublic={profile.publicFields?.includes("interests")}
+                    />
+                  </div>
+
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
+                  <h4 className="mb-4 font-semibold">Ich biete</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <SelectAdd
+                      name="offers"
+                      label="Angebot"
+                      entries={selectedOffers.map((area) => ({
+                        label: area.title,
+                        value: area.id,
+                      }))}
+                      options={offerOptions.filter(
+                        (o) => !profile.offers.includes(o.value)
+                      )}
+                      placeholder=""
+                      isPublic={profile.publicFields?.includes("offers")}
+                    />
+                  </div>
+
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                  <h4 className="mb-4 font-semibold">Ich suche</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="mb-4">
+                    <SelectAdd
+                      name="seekings"
+                      label="Suche"
+                      entries={selectedSeekings.map((area) => ({
+                        label: area.title,
+                        value: area.id,
+                      }))}
+                      options={offerOptions.filter(
+                        (o) => !profile.seekings.includes(o.value)
+                      )}
+                      placeholder=""
+                      isPublic={profile.publicFields?.includes("seekings")}
+                    />
+                  </div>
+
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                  <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+
+                  <h4 className="mb-4 font-semibold">Website</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="basis-full mb-4">
+                    <InputText
+                      {...register("website")}
+                      id="website"
+                      label="Website URL"
+                      defaultValue={profile.website}
+                      placeholder="https://www.domainname.tld/"
+                      isPublic={profile.publicFields?.includes("website")}
+                      errorMessage={errors?.website?.message}
+                      withClearButton
+                    />
+                  </div>
+
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
+
+                  <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
+
+                  <div className="basis-full mb-4">
+                    {socialMediaServices.map((service) => (
+                      <InputText
+                        key={service.id}
+                        {...register(service.id)}
+                        id={service.id}
+                        label={service.label}
+                        placeholder={service.placeholder}
+                        defaultValue={profile[service.id] as string}
+                        isPublic={profile.publicFields?.includes(service.id)}
+                        errorMessage={errors?.[service.id]?.message}
                         withClearButton
                       />
-                    </div>
+                    ))}
+                  </div>
 
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
+                  <hr className="border-neutral-400 my-10 lg:my-16" />
 
-                    <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+                  <div className="flex flex-row items-center mb-4">
+                    <h4 className="font-semibold">Organisation hinzufügen</h4>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-primary ml-auto btn-small"
+                      disabled
+                    >
+                      Organisation anlegen
+                    </button>
+                  </div>
+                  <p className="mb-8">
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
+                    diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                    aliquyam erat, sed diam voluptua.
+                  </p>
 
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="basis-full mb-4">
-                      {socialMediaServices.map((service) => (
-                        <InputText
-                          key={service.id}
-                          {...register(service.id)}
-                          id={service.id}
-                          label={service.label}
-                          placeholder={service.placeholder}
-                          defaultValue={profile[service.id] as string}
-                          isPublic={profile.publicFields?.includes(service.id)}
-                          errorMessage={errors?.[service.id]?.message}
-                          withClearButton
-                        />
-                      ))}
-                    </div>
-
-                    <hr className="border-neutral-400 my-10 lg:my-16" />
-
-                    <div className="flex flex-row items-center mb-4">
-                      <h4 className="font-semibold">Organisation hinzufügen</h4>
-                      <button
-                        type="submit"
-                        className="btn btn-outline-primary ml-auto btn-small"
-                        disabled
-                      >
-                        Organisation anlegen
-                      </button>
-                    </div>
-                    <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
-                    </p>
-
-                    <div className="mb-4">
-                      <InputAdd
-                        name="organizations"
-                        label="Organisation hinzufügen"
-                        readOnly
-                        placeholder="Noch nicht implementiert"
-                        entries={[]}
-                      />
-                    </div>
+                  <div className="mb-4">
+                    <InputAdd
+                      name="organizations"
+                      label="Organisation hinzufügen"
+                      readOnly
+                      placeholder="Noch nicht implementiert"
+                      entries={[]}
+                    />
                   </div>
                 </div>
               </div>
 
               <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-                <div className="md:container md:mx-auto ">
-                  <div className="px-4 py-8 flex flex-row items-center justify-end">
-                    <div className="">
-                      <div className=""></div>
-
-                      <div
-                        className={`float-left mt-2 text-green-500 text-bold ${
-                          actionData?.updated && !isSubmitting
-                            ? "block animate-fade-out"
-                            : "hidden"
-                        }`}
-                      >
-                        Profil wurde aktualisiert.
-                      </div>
-
-                      {isFormChanged && (
-                        <Link
-                          to={`/profile/${username}/edit`}
-                          reloadDocument
-                          className={`btn btn-link`}
-                        >
-                          Änderungen verwerfen
-                        </Link>
-                      )}
-                      <button
-                        type="submit"
-                        name="submit"
-                        value="submit"
-                        className="btn btn-primary ml-4"
-                        disabled={isSubmitting || !isFormChanged}
-                      >
-                        Speichern
-                      </button>
+                <div className="container">
+                  <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
+                    <div
+                      className={`text-green-500 text-bold ${
+                        actionData?.updated && !isSubmitting
+                          ? "block animate-fade-out"
+                          : "hidden"
+                      }`}
+                    >
+                      Profil wurde aktualisiert.
                     </div>
+
+                    {isFormChanged && (
+                      <Link
+                        to={`/profile/${username}/edit`}
+                        reloadDocument
+                        className={`btn btn-link`}
+                      >
+                        Änderungen verwerfen
+                      </Link>
+                    )}
+                    <div></div>
+                    <button
+                      type="submit"
+                      name="submit"
+                      value="submit"
+                      className="btn btn-primary ml-4"
+                      disabled={isSubmitting || !isFormChanged}
+                    >
+                      Speichern
+                    </button>
                   </div>
                 </div>
               </footer>
