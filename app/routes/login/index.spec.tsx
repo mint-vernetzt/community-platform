@@ -4,7 +4,7 @@ import { loader } from "./index";
 // @ts-ignore
 const expect = global.expect;
 
-const path = "/login";
+const path = "http://localhost:3000/login";
 
 test("call loader", async () => {
   const res = await loader({

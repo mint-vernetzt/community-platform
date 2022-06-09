@@ -1,10 +1,8 @@
 import { Profile } from "@prisma/client";
 
-export function getInitials(data: Partial<Profile>) {
+export function getInitials(data: Pick<Profile, "firstName" | "lastName">) {
   let initials = "";
-  if (data.firstName !== undefined && data.lastName !== undefined) {
-    const { firstName, lastName } = data;
-    initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  }
+  const { firstName, lastName } = data;
+  initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   return initials;
 }

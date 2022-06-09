@@ -5,14 +5,11 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import {
   authenticator,
+  getUserByAccessToken,
   sessionStorage,
   supabaseStrategy,
 } from "../../auth.server";
-
-export const Routes = {
-  SuccessRedirect: "/",
-  FailureRedirect: "/login",
-};
+import { updateProfileByUserId } from "~/profile.server";
 
 type LoaderData = {
   error: Error | null;
@@ -21,8 +18,26 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type");
+  const accessToken = url.searchParams.get("access_token");
+  if (accessToken !== null && type === "email_change") {
+    const { user, error } = await getUserByAccessToken(accessToken);
+    if (error !== null) {
+      throw error;
+    }
+    if (user !== null && user.email !== undefined) {
+      const profile = await updateProfileByUserId(user.id, {
+        email: user.email,
+      });
+      await supabaseStrategy.checkSession(request, {
+        successRedirect: `/profile/${profile.username}`,
+      });
+    }
+  }
+
   await supabaseStrategy.checkSession(request, {
-    successRedirect: "/",
+    successRedirect: "/explore",
   });
 
   const session = await sessionStorage.getSession(
@@ -38,8 +53,8 @@ export const action: ActionFunction = async (args) => {
   const { request } = args;
 
   await authenticator.authenticate("sb", request, {
-    successRedirect: Routes.SuccessRedirect,
-    failureRedirect: Routes.FailureRedirect,
+    successRedirect: "/",
+    failureRedirect: "/login",
   });
 };
 
