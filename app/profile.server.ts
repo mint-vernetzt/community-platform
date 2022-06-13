@@ -121,3 +121,13 @@ export async function getAllProfiles() {
   });
   return profiles;
 }
+
+export async function getNumberOfProfilesWithTheSameName(
+  firstName: string,
+  lastName: string
+) {
+  const numberOfProfilesWithSameName = await prismaClient.profile.count({
+    where: { firstName, lastName },
+  });
+  return numberOfProfilesWithSameName;
+}

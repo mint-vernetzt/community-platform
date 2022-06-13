@@ -1,27 +1,16 @@
 import React from "react";
-import {
-  ActionFunction,
-  Form,
-  json,
-  LoaderFunction,
-  useActionData,
-} from "remix";
+import { ActionFunction, LoaderFunction, useActionData } from "remix";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import InputText from "../../components/FormElements/InputText/InputText";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { signUp } from "../../auth.server";
-import { prismaClient } from "../../prisma";
-import { badRequest, generateUsername, validateFormData } from "../../utils";
-import {
-  Form as RemixForm,
-  formAction,
-  FormProps,
-  performMutation,
-} from "remix-forms";
-import { z, SomeZodObject } from "zod";
+import { generateUsername } from "../../utils";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
+import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
@@ -29,8 +18,7 @@ const schema = z.object({
   lastName: z.string().min(1),
   email: z.string().email().min(1),
   password: z.string().min(1),
-  // privacyTerms: z.enum(["accepted", ""]),
-  privacyTerms: z.boolean(),
+  termsAccepted: z.boolean(),
 });
 
 export const loader: LoaderFunction = async (args) => {
@@ -38,83 +26,44 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  // TODO: move to database trigger
+  const { firstName, lastName, academicTitle, termsAccepted } = values;
+  const numberOfProfilesWithSameName = await getNumberOfProfilesWithTheSameName(
+    firstName,
+    lastName
+  );
+  const username = `${generateUsername(firstName, lastName)}${
+    numberOfProfilesWithSameName > 0
+      ? numberOfProfilesWithSameName.toString()
+      : ""
+  }`;
+
+  const { error } = await signUp(values.email, values.password, {
+    firstName,
+    lastName,
+    username,
+    academicTitle,
+    termsAccepted,
+  });
+  if (error !== null) {
+    throw error.message;
+  }
+
   return values;
 });
 
-// TODO: Error handling and passing
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-
-  const requestClone = request.clone();
-  const formData = await requestClone.formData();
-  console.log(formData.get("privacyTerms"));
 
   return await performMutation({
     request,
     schema,
     mutation,
   });
-
-  // let formData: FormData;
-  // try {
-  //   formData = await request.formData();
-  // } catch (error) {
-  //   return badRequest();
-  // }
-
-  // const isFormDataValid = validateFormData(
-  //   ["email", "password", "firstName", "lastName", "termsAccepted"],
-  //   formData
-  // );
-
-  // const termsAccepted = formData.get("termsAccepted");
-  // console.log("TERMS ACCEPTED: ", termsAccepted);
-  // if (!isFormDataValid) {
-  //   console.error("form data not valid");
-  //   return badRequest(); // TODO: return empty fields to highlight
-  // }
-
-  // if (termsAccepted !== "on") {
-  //   console.error("terms not accepted");
-  //   return badRequest(); // TODO: return message e.g. "accepting terms are required"
-  // }
-
-  // const email = formData.get("email") as string;
-  // const password = formData.get("password") as string;
-  // const firstName = formData.get("firstName") as string;
-  // const lastName = formData.get("lastName") as string;
-  // const academicTitle = formData.get("academicTitle") as string;
-
-  // // TODO: move to database trigger
-  // const numberOfProfilesWithSameName = await prismaClient.profile.count({
-  //   where: { firstName, lastName },
-  // });
-  // const username = `${generateUsername(firstName, lastName)}${
-  //   numberOfProfilesWithSameName > 0
-  //     ? numberOfProfilesWithSameName.toString()
-  //     : ""
-  // }`;
-
-  // const { user, session, error } = await signUp(email, password, {
-  //   firstName,
-  //   lastName,
-  //   username,
-  //   academicTitle,
-  //   termsAccepted,
-  // });
-
-  // if (error) {
-  //   console.error(error);
-  //   return badRequest(); // TODO: handle and pass error
-  // }
-
-  // return json({ user, session });
 };
 
 export default function Register() {
   const actionData = useActionData();
-
-  console.log("ACTION DATA: ", actionData);
 
   return (
     <>
@@ -254,7 +203,7 @@ export default function Register() {
                     <div className="mb-8">
                       <div className="form-control checkbox-privacy">
                         <label className="label cursor-pointer items-start">
-                          <Field name="privacyTerms">
+                          <Field name="termsAccepted">
                             {({ Errors }) => {
                               const ForwardRefComponent = React.forwardRef<
                                 HTMLInputElement,
@@ -274,10 +223,9 @@ export default function Register() {
                               return (
                                 <>
                                   <ForwardRefComponent
-                                    id="privacyTerms"
                                     type="checkbox"
                                     className="checkbox checkbox-primary mr-4"
-                                    {...register("privacyTerms")}
+                                    {...register("termsAccepted")}
                                   />
                                   <Errors />
                                 </>
