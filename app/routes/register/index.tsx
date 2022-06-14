@@ -66,6 +66,7 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Register() {
+  // TODO: Declare type
   const actionData = useActionData();
 
   return (
@@ -108,7 +109,6 @@ export default function Register() {
                           {({ Errors }) => (
                             <>
                               <SelectField
-                                id="academicTitle"
                                 label="Titel"
                                 options={[
                                   {
