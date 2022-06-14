@@ -1,5 +1,10 @@
-import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
-import { badRequest } from "remix-utils";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -13,11 +18,16 @@ const schema = z.object({
   confirmPassword: z
     .string()
     .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
-  accessToken: z.string().min(1),
+  accessToken: z
+    .string()
+    .min(
+      1,
+      "Bitte über den Bestätigungslink in der E-Mail das Passwort ändern."
+    ),
 });
 
 type LoaderData = {
-  accessToken: string;
+  accessToken: string | null;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -26,9 +36,6 @@ export const loader: LoaderFunction = async (args) => {
   const url = new URL(request.url);
 
   const accessToken = url.searchParams.get("access_token");
-  if (typeof accessToken !== "string" || accessToken === "") {
-    throw badRequest({ message: "Access token required." });
-  }
 
   return json<LoaderData>({ accessToken });
 };
@@ -58,6 +65,15 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();
+  // TODO: Declare type
+  const actionData = useActionData();
+  console.log(actionData);
+  const accessToken =
+    loaderData.accessToken !== null
+      ? loaderData.accessToken
+      : actionData !== undefined
+      ? actionData.values.accessToken
+      : "";
 
   return (
     <>
@@ -114,7 +130,7 @@ export default function SetPassword() {
                     <>
                       <input
                         type="hidden"
-                        value={loaderData?.accessToken}
+                        value={accessToken}
                         {...register("accessToken")}
                       ></input>
                       <Errors />
