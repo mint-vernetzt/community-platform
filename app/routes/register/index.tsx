@@ -14,10 +14,13 @@ import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email().min(1),
-  password: z.string().min(1),
+  firstName: z.string().min(1, "Bitte einen Vornamen eingeben."),
+  lastName: z.string().min(1, "Bitte einen Nachnamen eingeben."),
+  email: z
+    .string()
+    .email("Ungültige E-Mail.")
+    .min(1, "Bitte eine E-Mail eingeben."),
+  password: z.string().min(1, "Bitte ein Passwort eingeben."),
   termsAccepted: z.boolean(),
 });
 
