@@ -5,6 +5,16 @@ import InputText from "../../components/FormElements/InputText/InputText";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { validateFormData } from "../../utils";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import { z } from "zod";
+import { makeDomainFunction } from "remix-domains";
+
+const schema = z.object({
+  email: z
+    .string()
+    .email("Ungültige E-Mail.")
+    .min(1, "Bitte eine E-Mail eingeben."),
+});
 
 type ActionData = {
   email: string;
