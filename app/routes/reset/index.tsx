@@ -3,8 +3,12 @@ import { resetPassword } from "../../auth.server";
 import InputText from "../../components/FormElements/InputText/InputText";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { z } from "zod";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 
 const schema = z.object({
@@ -17,12 +21,13 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { error } = await resetPassword(values.email);
 
-  // ignore user with email not exist -> Why?
   if (error !== null && error.message !== "User not found") {
     throw error.message;
   }
   return values;
 });
+
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
@@ -35,15 +40,11 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Index() {
-  // TODO: Declare type
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
 
   return (
     <>
-      {/** TODO: Change image. Where is this image?
-       * Add subtitle "Willkommen in der MINTcommunity!"
-       */}
-      <PageBackground imagePath="/images/default_kitchen.jpg" />
+      <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
@@ -60,7 +61,7 @@ export default function Index() {
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Eine E-Mail zum Zurücksetzen des Passworts wurde an
+                  Eine E-Mail zum Zurücksetzen des Passworts wurde an{" "}
                   <b>{actionData.data.email}</b> geschickt.
                 </p>
               </>

@@ -7,8 +7,12 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { signUp } from "../../auth.server";
 import { generateUsername } from "../../utils";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { z } from "zod";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 
@@ -31,6 +35,8 @@ export const loader: LoaderFunction = async (args) => {
 const mutation = makeDomainFunction(schema)(async (values) => {
   // TODO: move to database trigger
   const { firstName, lastName, academicTitle, termsAccepted } = values;
+  // TODO: Check if username exists because profiles can be deleted.
+  // That leads to username count gets out of sync with the below count of users with same name.
   const numberOfProfilesWithSameName = await getNumberOfProfilesWithTheSameName(
     firstName,
     lastName
@@ -55,6 +61,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
@@ -66,15 +74,11 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Register() {
-  // TODO: Declare type
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
 
   return (
     <>
-      {/** TODO: Change image. Where is this image?
-       * Add subtitle "Werde Teil der MINTcommunity!"
-       */}
-      <PageBackground imagePath="/images/default_kitchen.jpg" />
+      <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">

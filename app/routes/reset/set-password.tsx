@@ -5,13 +5,13 @@ import {
   useActionData,
   useLoaderData,
 } from "remix";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, formAction } from "remix-forms";
+import { z } from "zod";
 import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { Form as RemixForm, formAction } from "remix-forms";
-import { z } from "zod";
-import { InputError, makeDomainFunction } from "remix-domains";
 
 const schema = z.object({
   password: z.string().min(1, "Bitte ein Passwort eingeben."),
@@ -54,6 +54,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+// TODO: Make generic actionData type to reuse in other routes
+type ActionData = {
+  errors: Record<keyof z.infer<typeof schema>, string[]>;
+  values: z.infer<typeof schema>;
+};
+
 export const action: ActionFunction = async ({ request }) => {
   return formAction({
     request,
@@ -63,24 +69,27 @@ export const action: ActionFunction = async ({ request }) => {
   });
 };
 
+export function getAccessToken(
+  loaderData: LoaderData,
+  actionData?: ActionData
+) {
+  if (loaderData.accessToken !== null) {
+    return loaderData.accessToken;
+  }
+  if (actionData !== undefined && actionData.values !== undefined) {
+    return actionData.values.accessToken;
+  }
+  return "";
+}
+
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();
-  // TODO: Declare type
-  const actionData = useActionData();
-  console.log(actionData);
-  const accessToken =
-    loaderData.accessToken !== null
-      ? loaderData.accessToken
-      : actionData !== undefined
-      ? actionData.values.accessToken
-      : "";
+  const actionData = useActionData<ActionData>();
+  const accessToken = getAccessToken(loaderData, actionData);
 
   return (
     <>
-      {/** TODO: Change image. Where is this image?
-       * Add subtitle "Willkommen in der MINTcommunity!"
-       */}
-      <PageBackground imagePath="/images/default_kitchen.jpg" />
+      <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
@@ -103,7 +112,6 @@ export default function SetPassword() {
                         <InputPassword
                           id="password"
                           label="Neues Passwort"
-                          required
                           {...register("password")}
                         />
                         <Errors />
@@ -119,7 +127,6 @@ export default function SetPassword() {
                         <InputPassword
                           id="confirmPassword"
                           label="Passwort wiederholen"
-                          required
                           {...register("confirmPassword")}
                         />
                         <Errors />

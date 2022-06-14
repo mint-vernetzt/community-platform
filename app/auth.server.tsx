@@ -76,7 +76,7 @@ export async function signUp(
     firstName: string;
     lastName: string;
     username: string;
-    academicTitle: String | undefined;
+    academicTitle: string | undefined;
     termsAccepted: boolean;
   }
 ): Promise<{
