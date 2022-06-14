@@ -1,19 +1,12 @@
-import {
-  ActionFunction,
-  Form,
-  json,
-  LoaderFunction,
-  redirect,
-  useLoaderData,
-} from "remix";
-import { badRequest, serverError } from "remix-utils";
+import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
+import { badRequest } from "remix-utils";
 import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { Form as RemixForm, formAction, performMutation } from "remix-forms";
+import { Form as RemixForm, formAction } from "remix-forms";
 import { z } from "zod";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 
 const schema = z.object({
   password: z.string().min(1, "Bitte ein Passwort eingeben."),
@@ -41,53 +34,27 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  if (values.password !== values.confirmPassword) {
+    throw new InputError(
+      "Die eingegebenen Passwörter stimmen nicht überein.",
+      "confirmPassword"
+    ); // -- Field error
+  }
+  const { error } = await updatePassword(values.accessToken, values.password);
+  if (error !== null) {
+    throw error.message;
+  }
   return values;
 });
 
-export const action: ActionFunction = async ({ request }) =>
-  formAction({
+export const action: ActionFunction = async ({ request }) => {
+  return formAction({
     request,
     schema,
     mutation,
     successPath: "/login",
   });
-
-// let formData: FormData;
-// try {
-//   formData = await request.formData();
-// } catch (error) {
-//   throw badRequest({ message: "Invalid Form Data." });
-// }
-
-// const accessToken = formData.get("accessToken");
-// if (accessToken === null || accessToken === "") {
-//   throw badRequest({ message: "Access token required." });
-// }
-
-// const password = formData.get("password");
-// const passwordControl = formData.get("passwordControl");
-
-// if (
-//   password !== null &&
-//   password !== "" &&
-//   passwordControl !== null &&
-//   passwordControl !== ""
-// ) {
-//   if (password !== passwordControl) {
-//     throw badRequest({ message: "Passwords not identical." });
-//   }
-//   const { error } = await updatePassword(
-//     accessToken as string,
-//     password as string
-//   );
-
-//   // ignore user with email not exist
-//   if (error) {
-//     console.error(error.message);
-//     throw serverError({ message: error.message });
-//   }
-// }
-// return redirect("/login");
+};
 
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();

@@ -57,8 +57,9 @@ export default function Index() {
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Das Passwort für <b>{actionData.data.email}</b> wurde
-                  zurückgesetzt. {/*TODO: better text*/}
+                  Um das Passwort zurückzusetzen, bitte auf den Bestätigungslink
+                  drücken, der an <b>{actionData.data.email}</b> versendet
+                  wurde. {/*TODO: better text*/}
                 </p>
               </>
             ) : (
