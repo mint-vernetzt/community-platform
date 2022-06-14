@@ -11,6 +11,16 @@ import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import { z } from "zod";
+import { makeDomainFunction } from "remix-domains";
+
+const schema = z.object({
+  password: z.string().min(1, "Bitte ein Passwort eingeben."),
+  confirmPassword: z
+    .string()
+    .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+});
 
 type LoaderData = {
   accessToken: string;
