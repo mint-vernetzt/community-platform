@@ -305,7 +305,7 @@ export default function Index() {
                             />
                           </svg>
                         </span>
-                        <span>Für alle sichtbar</span>
+                        <span>Öffentlich sichtbar</span>
                       </p>
 
                       <p className="text-xs flex items-center mb-4">
@@ -330,7 +330,7 @@ export default function Index() {
                             />
                           </svg>
                         </span>
-                        <span>Für unregistrierte Nutzer nicht sichtbar</span>
+                        <span>Nur für registrierte Nutzer:innen sichtbar</span>
                       </p>
                     </div>
                   </div>
@@ -340,9 +340,11 @@ export default function Index() {
                     <h4 className="mb-4 font-semibold">Allgemein</h4>
 
                     <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
+                      Welche Informationen möchtest Du über Dich mit der
+                      Community teilen? Über das Augen-Symbol kannst Du
+                      auswählen, ob die Informationen für alle öffentlich
+                      sichtbar sind oder ob Du sie nur mit registrierten
+                      Nutzer:innen teilst.
                     </p>
 
                     <div className="flex flex-col md:flex-row -mx-4">
@@ -434,9 +436,11 @@ export default function Index() {
                     </div>
 
                     <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
+                      Erzähl der Community etwas über Dich: Wer bist Du und was
+                      machst du konkret im MINT-Bereich? In welchen Regionen
+                      Deutschlands bist Du vorrangig aktiv? Welche Kompetenzen
+                      bringst Du mit und welche Themen interessieren Dich im
+                      MINT-Kontext besonders?
                     </p>
 
                     <div className="mb-4">
@@ -490,9 +494,8 @@ export default function Index() {
                     <h4 className="mb-4 font-semibold">Ich biete</h4>
 
                     <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
+                      Was bringst Du mit, wovon die Community profitieren kann?
+                      Wie kannst Du andere Mitglieder unterstützen?
                     </p>
 
                     <div className="mb-4">
@@ -511,9 +514,8 @@ export default function Index() {
                     <h4 className="mb-4 font-semibold">Ich suche</h4>
 
                     <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
+                      Wonach suchst Du? Wie können Dich andere Mitglieder
+                      unterstützen?
                     </p>
 
                     <div className="mb-4">
@@ -530,7 +532,9 @@ export default function Index() {
                     <hr className="border-neutral-400 my-10 lg:my-16" />
 
                     <div className="flex flex-row items-center mb-4">
-                      <h4 className="font-semibold">Organisation hinzufügen</h4>
+                      <h4 className="font-semibold">
+                        Organisation, Netzwerk, Projekt hinzufügen
+                      </h4>
                       <button
                         type="submit"
                         className="btn btn-outline-primary ml-auto btn-small"
@@ -540,15 +544,15 @@ export default function Index() {
                       </button>
                     </div>
                     <p className="mb-8">
-                      Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                      sed diam nonumy eirmod tempor invidunt ut labore et dolore
-                      magna aliquyam erat, sed diam voluptua.
+                      Die Organisation, das Netzwerk oder das Projekt, in dem Du
+                      tätig bist, hat noch kein Profil? Füge es direkt hinzu,
+                      damit auch andere Mitglieder darüber erfahren können.
                     </p>
 
                     <div className="mb-4">
                       <InputAdd
                         name="organizations"
-                        label="Organisation hinzufügen"
+                        label="Organisation, Netzwerk, Projekt hinzufügen"
                         readOnly
                         placeholder="Noch nicht implementiert"
                         entries={[]}

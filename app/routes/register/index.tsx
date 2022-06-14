@@ -71,6 +71,9 @@ export default function Register() {
 
   return (
     <>
+      {/** TODO: Change image. Where is this image?
+       * Add subtitle "Werde Teil der MINTcommunity!"
+       */}
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
@@ -89,20 +92,26 @@ export default function Register() {
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-8">Neues Profil anlegen</h1>
+            <h1 className="mb-4">Neues Profil anlegen</h1>
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
                   Das Profil für <b>{actionData.data.email}</b> wurde erstellt.
-                  Um die Registrierung abzuschließen, schau bitte in deine
-                  E-Mails und klicke auf den Registrierungslink.
-                  {/*TODO: better text*/}
+                  Um die Registrierung abzuschließen, bestätige bitte innerhalb
+                  von 24 Stunden den Registrierungslink in Deinen E-Mails, den
+                  wir Dir über <b>noreply@mail.app.supabase.io</b> zusenden.
+                  Bitte prüfe auch den Spam-Ordner.
                 </p>
               </>
             ) : (
               <RemixForm method="post" schema={schema}>
                 {({ Field, Button, Errors, register }) => (
                   <>
+                    <p className="mb-4">
+                      Hier kannst Du Dein persönliches Profil anlegen. Das
+                      Unternehmen, in dem Du tätig bist, sowie Projekte und
+                      Netzwerke können im nächsten Schritt angelegt werden.
+                    </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
                         <Field name="academicTitle" label="Titel">
@@ -235,18 +244,19 @@ export default function Register() {
                               );
                             }}
                           </Field>
+                          {/** TODO: Insert links */}
                           <span className="label-text">
-                            Wenn Sie ein Konto erstellen, erklären Sie sich mit
-                            unseren Nutzungsbedingungen, Datenschutzrichtlinien
-                            und unseren Standardeinstellungen für
-                            Benachrichtigungen einverstanden.
+                            Ich erkläre mich mit der Geltung der
+                            Nutzungsbedingungen [LINK] einverstanden. Die
+                            Datenschutzerklärung [LINK] habe ich zur Kenntnis
+                            genommen.
                           </span>
                         </label>
                       </div>
                     </div>
                     <div className="mb-8">
                       <button type="submit" className="btn btn-primary">
-                        Account registrieren
+                        Profil anlegen
                       </button>
                     </div>
                   </>

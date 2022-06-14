@@ -149,12 +149,13 @@ export default function Index() {
       </header>
 
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Explore the Community</H1>
+        <H1 like="h0">Entdecke die Community</H1>
         <p className="">
-          Wir entwickeln MINTvernetzt mit Euch (weiter)! Hier könnt Ihr Euch
-          vernetzen, gute Praxis teilen und Kooperationen aufbauen. So machen
-          wir zusammen MINT-Bildungsangebote in Deutschland sichtbar, helfen
-          Euch bei der Weiterentwicklung und schaffen Innovationsräume.
+          Hier siehst Du persönliche Profile sowie Organisationen, Netzwerke und
+          Projekte aus der MINT-Community. Über die Filterfunktion kannst Du
+          herausfinden, welche Organisationen, Netzwerke und Projekte es gibt.
+          Wer ist in Deiner Region aktiv? Mit wem möchtest Du Dich vernetzen? Wo
+          bieten sich Kooperationen an?
         </p>
       </section>
 

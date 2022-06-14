@@ -77,6 +77,9 @@ export default function SetPassword() {
 
   return (
     <>
+      {/** TODO: Change image. Where is this image?
+       * Add subtitle "Willkommen in der MINTcommunity!"
+       */}
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">

@@ -40,6 +40,9 @@ export default function Index() {
 
   return (
     <>
+      {/** TODO: Change image. Where is this image?
+       * Add subtitle "Willkommen in der MINTcommunity!"
+       */}
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
@@ -57,9 +60,8 @@ export default function Index() {
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Um das Passwort zurückzusetzen, bitte auf den Bestätigungslink
-                  drücken, der an <b>{actionData.data.email}</b> versendet
-                  wurde. {/*TODO: better text*/}
+                  Eine E-Mail zum Zurücksetzen des Passworts wurde an
+                  <b>{actionData.data.email}</b> geschickt.
                 </p>
               </>
             ) : (
@@ -67,9 +69,10 @@ export default function Index() {
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
-                      Geben Sie die E-Mail-Adresse ein, die Sie bei Ihrer
-                      Anmeldung verwendet haben, und wir senden Ihnen
-                      Anweisungen zum Zurücksetzen Ihres Passworts.
+                      Du hast Dein Passwort vergessen? Dann gib hier Deine
+                      E-Mail-Adresse ein, die Du bei der Anmeldung verwendet
+                      hast. Wir senden Dir eine Mail, über die Du ein neues
+                      Passwort einstellen kannst.
                     </p>
 
                     <div className="mb-8">
