@@ -20,6 +20,7 @@ const schema = z.object({
   confirmPassword: z
     .string()
     .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+  accessToken: z.string().min(1),
 });
 
 type LoaderData = {
@@ -93,7 +94,6 @@ export default function SetPassword() {
 
   return (
     <>
-      <input name="accessToken" type="hidden" value={loaderData?.accessToken} />
       <PageBackground imagePath="/images/default_kitchen.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
@@ -141,6 +141,19 @@ export default function SetPassword() {
                     )}
                   </Field>
                 </div>
+
+                <Field name="accessToken">
+                  {({ Errors }) => (
+                    <>
+                      <input
+                        type="hidden"
+                        value={loaderData?.accessToken}
+                        {...register("accessToken")}
+                      ></input>
+                      <Errors />
+                    </>
+                  )}
+                </Field>
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">
