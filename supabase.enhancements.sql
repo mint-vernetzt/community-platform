@@ -11,6 +11,3 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
-  before delete on auth.users
-  for each row execute procedure public.delete_profile_of_user();
-
