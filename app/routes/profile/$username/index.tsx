@@ -16,6 +16,7 @@ import { badRequest, forbidden, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
+import InputImage from "~/components/FormElements/InputImage/InputImage";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { ExternalService } from "~/components/types";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -303,7 +304,13 @@ export default function Index() {
                 {loaderData.mode === "owner" && (
                   <Form method="post" encType="multipart/form-data">
                     <label htmlFor="avatarFile">Avatar</label>
-                    <input id="avatarFile" type="file" name="avatarFile" />
+                    <InputImage
+                      id="avatarFile"
+                      name="avatarFile"
+                      maxSize={2 * 1024 * 1024} // 2 MB
+                      maxWidth={500} // 500 px
+                      maxHeight={500} // 500 px
+                    />
                     <button className="btn btn-primary">Upload</button>
                   </Form>
                 )}
