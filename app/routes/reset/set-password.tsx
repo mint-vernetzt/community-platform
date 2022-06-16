@@ -57,8 +57,8 @@ export const action: ActionFunction = async (args) => {
       throw badRequest({ message: "Passwords not identical." });
     }
     const { error } = await updatePasswordByAccessToken(
-      accessToken as string,
-      password as string
+      password as string,
+      accessToken as string
     );
 
     // ignore user with email not exist
