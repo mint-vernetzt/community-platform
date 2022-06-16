@@ -15,3 +15,15 @@ create trigger on_auth_user_created
 -- Create bucket for images
 insert into storage.buckets (id, name)
 values ('images', 'images');
+
+create policy "anyone can access images"
+  on storage.objects for select
+  using ( bucket_id = 'images' );
+
+create policy "anyone can upload images"
+  on storage.objects for insert
+  with check ( bucket_id = 'images');
+
+create policy "anyone can update images"
+  on storage.objects for update
+  with check ( bucket_id = 'images');
