@@ -15,19 +15,17 @@ function InputImage(props: InputImageProps) {
     ...otherProps
   } = props;
 
-  const [error, setError] = React.useState<Error>();
+  const [error, setError] = React.useState<Error | null>(null);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const fileList = event.target.files;
 
-    if (fileList === null) {
+    if (fileList === null || fileList[0] == undefined) {
       setError(new Error("No files received"));
       return;
     }
 
     const file = fileList[0];
-
-    console.log(maxSize, file.size);
 
     if (maxSize !== undefined && file.size > maxSize) {
       setError(new Error(`Image to large (max. ${maxSize} Byte)`));
@@ -45,6 +43,8 @@ function InputImage(props: InputImageProps) {
         setError(new Error(`Image height to large (max. ${maxHeight} px)`));
         return;
       }
+
+      setError(null);
     };
 
     image.src = URL.createObjectURL(file);
@@ -58,7 +58,7 @@ function InputImage(props: InputImageProps) {
         accept={accept}
         {...otherProps}
       />
-      {error && <p>{error.message}</p>}
+      {error !== null && <p>{error.message}</p>}
     </>
   );
 }
