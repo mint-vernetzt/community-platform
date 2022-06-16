@@ -11,7 +11,6 @@ import {
   useActionData,
   useLoaderData,
 } from "remix";
-
 import { badRequest, forbidden, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
@@ -25,6 +24,7 @@ import { nl2br } from "~/lib/string/nl2br";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { supabaseAdmin } from "~/supabase";
+import { createHashFromStream } from "~/utils.server";
 import { ProfileFormType } from "./edit/yupSchema";
 
 type ProfileRelations = { areas: { area: Area }[] } & {
@@ -123,8 +123,6 @@ export const action: ActionFunction = async (args) => {
       return;
     }
 
-    console.log(name, filename);
-
     // Buffer stuff
     const chunks = [];
     for await (let chunk of stream) {
@@ -132,7 +130,11 @@ export const action: ActionFunction = async (args) => {
     }
     const buffer = Buffer.concat(chunks);
 
-    const path = `${sessionUser.id}/${Date.now()}/${filename}`;
+    const hash = await createHashFromStream("md5", stream, "hex");
+    const extension = filename.split(".")[filename.split(".").length - 1];
+    const path = `${hash.substring(0, 2)}/${hash.substring(
+      2
+    )}/avatar.${extension}`;
 
     const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
       .from("images")
