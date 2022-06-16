@@ -11,3 +11,7 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
+
+-- Create bucket for images
+insert into storage.buckets (id, name)
+values ('images', 'images');
