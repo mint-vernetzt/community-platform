@@ -65,7 +65,7 @@ export default function ProfileMenu(props: ProfileMenuProps) {
               />
             </svg>
           </span>
-          <span>Für alle sichtbar</span>
+          <span>Öffentlich sichtbar</span>
         </p>
 
         <p className="text-xs flex items-center mb-4">
@@ -90,7 +90,7 @@ export default function ProfileMenu(props: ProfileMenuProps) {
               />
             </svg>
           </span>
-          <span>Für unregistrierte Nutzer nicht sichtbar</span>
+          <span>Nur für registrierte Nutzer:innen sichtbar</span>
         </p>
       </div>
     </>

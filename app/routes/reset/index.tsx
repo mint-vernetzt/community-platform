@@ -1,52 +1,51 @@
-import { Link, ActionFunction, Form, json, useActionData } from "remix";
-import { badRequest, serverError } from "remix-utils";
+import { ActionFunction, useActionData } from "remix";
 import { resetPassword } from "../../auth.server";
-import InputText from "../../components/FormElements/InputText/InputText";
+import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { validateFormData } from "../../utils";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
+import { makeDomainFunction } from "remix-domains";
 
-type ActionData = {
-  email: string;
-  message: string;
-};
+const schema = z.object({
+  email: z
+    .string()
+    .email("Ungültige E-Mail.")
+    .min(1, "Bitte eine E-Mail eingeben."),
+});
+
+const mutation = makeDomainFunction(schema)(async (values) => {
+  const { error } = await resetPassword(values.email);
+
+  if (error !== null && error.message !== "User not found") {
+    throw error.message;
+  }
+  return values;
+});
+
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch (error) {
-    throw badRequest({ message: "Invalid Form Data." });
-  }
-
-  const isFormDataValid = validateFormData(["email"], formData);
-
-  if (!isFormDataValid) {
-    console.error("Invalid Form Data.");
-    throw badRequest({ message: "Invalid Form Data." }); // TODO: return empty fields to highlight
-  }
-
-  const email = formData.get("email") as string;
-  const { error } = await resetPassword(email);
-
-  // ignore user with email not exist
-  if (error && error.message !== "User not found") {
-    console.error(error.message);
-    throw serverError({ message: error.message });
-  }
-
-  return json<ActionData>({ email, message: "Reset password request sent." });
+  return await performMutation({
+    request,
+    schema,
+    mutation,
+  });
 };
 
 export default function Index() {
   const actionData = useActionData<ActionData>();
 
   return (
-    <Form method="post" action="/reset?index">
-      <PageBackground imagePath="/images/default_kitchen.jpg" />
-      <div className="container relative z-10">
+    <>
+      <PageBackground imagePath="/images/login_background_image.jpg" />
+      <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
             <div>
@@ -59,31 +58,49 @@ export default function Index() {
           <div className="basis-full md:basis-6/12"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
             <h1 className="mb-8">Passwort zurücksetzen</h1>
-            {actionData !== undefined ? (
+            {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Das Passwort für <b>{actionData.email}</b> wurde
-                  zurückgesetzt. {/*TODO: better text*/}
+                  Eine E-Mail zum Zurücksetzen des Passworts wurde an{" "}
+                  <b>{actionData.data.email}</b> geschickt.
                 </p>
               </>
             ) : (
-              <>
-                <p className="mb-4">
-                  Geben Sie die E-Mail-Adresse ein, die Sie bei Ihrer Anmeldung
-                  verwendet haben, und wir senden Ihnen Anweisungen zum
-                  Zurücksetzen Ihres Passworts.
-                </p>
+              <RemixForm method="post" schema={schema}>
+                {({ Field, Button, Errors, register }) => (
+                  <>
+                    <p className="mb-4">
+                      Du hast Dein Passwort vergessen? Dann gib hier Deine
+                      E-Mail-Adresse ein, die Du bei der Anmeldung verwendet
+                      hast. Wir senden Dir eine Mail, über die Du ein neues
+                      Passwort einstellen kannst.
+                    </p>
 
-                <div className="mb-8">
-                  <InputText id="email" label="E-Mail" />
-                </div>
+                    <div className="mb-8">
+                      <Field name="email" label="E-Mail">
+                        {({ Errors }) => (
+                          <>
+                            <Input
+                              id="email"
+                              label="E-Mail"
+                              required
+                              {...register("email")}
+                            />
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+                    </div>
 
-                <div className="mb-8">
-                  <button type="submit" className="btn btn-primary">
-                    Passwort zurücksetzen
-                  </button>
-                </div>
-              </>
+                    <div className="mb-8">
+                      <button type="submit" className="btn btn-primary">
+                        Passwort zurücksetzen
+                      </button>
+                    </div>
+                    <Errors />
+                  </>
+                )}
+              </RemixForm>
             )}
           </div>
         </div>
@@ -92,6 +109,6 @@ export default function Index() {
           <div className="basis-5/12 px-4"></div>
         </div> */}
       </div>
-    </Form>
+    </>
   );
 }
