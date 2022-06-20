@@ -2,8 +2,9 @@ import type { ApiError, User } from "@supabase/supabase-js";
 import { createCookieSessionStorage } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
-import { supabaseClient } from "./supabase";
+import { supabaseAdmin, supabaseClient } from "./supabase";
 import type { Session } from "./supabase";
+import { prismaClient } from "./prisma";
 
 export const SESSION_NAME = "sb";
 
@@ -91,12 +92,27 @@ export async function signUp(
   return { user, session, error };
 }
 
-export const getUser = async (request: Request): Promise<User | null> => {
+export const getUserByRequest = async (
+  request: Request
+): Promise<User | null> => {
   const session = await supabaseStrategy.checkSession(request);
   if (session !== null && session.user !== null) {
     return session.user;
   }
   return null;
+};
+
+export const getUserByAccessToken = async (
+  accessToken: string
+): Promise<{
+  user: User | null;
+  data: User | null;
+  error: ApiError | null;
+}> => {
+  const { user, data, error } = await supabaseClient.auth.api.getUser(
+    accessToken
+  );
+  return { user, data, error };
 };
 
 export async function resetPassword(
@@ -106,12 +122,39 @@ export async function resetPassword(
   return { error };
 }
 
-export async function updatePassword(
-  accessToken: string,
+export async function updatePasswordByAccessToken(
+  password: string,
+  accessToken: string
+): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
+  const { user, data, error } = await supabaseClient.auth.api.updateUser(
+    accessToken,
+    {
+      password,
+    }
+  );
+  return { user, data, error };
+}
+
+export async function updatePasswordOfLoggedInUser(
   password: string
-): Promise<{ error: ApiError | null }> {
-  const { error } = await supabaseClient.auth.api.updateUser(accessToken, {
+): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
+  const { user, data, error } = await supabaseClient.auth.update({
     password,
   });
+  return { user, data, error };
+}
+
+export async function updateEmailOfLoggedInUser(
+  email: string
+): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
+  const { user, data, error } = await supabaseClient.auth.update({
+    email,
+  });
+  return { user, data, error };
+}
+
+export async function deleteUserByUid(uid: string) {
+  await prismaClient.profile.delete({ where: { id: uid } });
+  const { error } = await supabaseAdmin.auth.api.deleteUser(uid);
   return { error };
 }

@@ -7,6 +7,7 @@ export interface TextAreaProps {
   isPublic?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
+  onChange?: Function; // <--- ?
 }
 
 const TextArea = React.forwardRef(

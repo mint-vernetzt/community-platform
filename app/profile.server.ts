@@ -4,26 +4,28 @@ import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
 type FieldType = keyof Profile;
 
-export async function getProfileByUsername(
-  username: string
-): Promise<(Profile & { areas: { area: { name: string } }[] }) | null> {
+export async function getProfileByUsername(username: string) {
   const where = { username };
   const include = {
     areas: { select: { area: { select: { name: true } } } },
+    offers: { select: { offer: { select: { title: true } } } },
+    seekings: { select: { offer: { select: { title: true } } } },
   };
 
   const profile = await prismaClient.profile.findUnique({
     where,
     include,
   });
+
   return profile;
 }
 
 export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
   const where = { id };
   const include = {
-    areas: true,
-    area: { select: { name: true } },
+    areas: { select: { areaId: true } },
+    seekings: { select: { offerId: true } },
+    offers: { select: { offerId: true } },
   };
 
   if (fields.length > 0) {
@@ -47,6 +49,8 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
       select: {
         ...select,
         areas: { select: { areaId: true } },
+        seekings: { select: { offerId: true } },
+        offers: { select: { offerId: true } },
       },
       where,
     });
@@ -59,10 +63,53 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
 }
 
 type UpdateProfile = Partial<Profile> & {
-  areas: ProfileFormType["areas"];
+  areas?: ProfileFormType["areas"];
+  offers?: ProfileFormType["offers"];
+  seekings?: ProfileFormType["seekings"];
 };
 export async function updateProfileByUserId(id: string, data: UpdateProfile) {
-  const { areas, ...rest } = data;
+  const { areas, offers, seekings, ...rest } = data;
+  let areasQuery, offersQuery, seekingsQuery;
+
+  if (areas !== undefined) {
+    areasQuery = {
+      deleteMany: {},
+      connectOrCreate: areas.map((areaId) => ({
+        where: {
+          profileId_areaId: { areaId, profileId: id },
+        },
+        create: {
+          areaId,
+        },
+      })),
+    };
+  }
+  if (offers !== undefined) {
+    offersQuery = {
+      deleteMany: {},
+      connectOrCreate: offers.map((offerId) => ({
+        where: {
+          profileId_offerId: { offerId, profileId: id },
+        },
+        create: {
+          offerId,
+        },
+      })),
+    };
+  }
+  if (seekings !== undefined) {
+    seekingsQuery = {
+      deleteMany: {},
+      connectOrCreate: seekings.map((offerId) => ({
+        where: {
+          profileId_offerId: { offerId, profileId: id },
+        },
+        create: {
+          offerId,
+        },
+      })),
+    };
+  }
 
   const result = await prismaClient.profile.update({
     where: {
@@ -70,17 +117,9 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
     },
     data: {
       ...rest,
-      areas: {
-        deleteMany: {},
-        connectOrCreate: areas.map((areaId) => ({
-          where: {
-            profileId_areaId: { areaId, profileId: id },
-          },
-          create: {
-            areaId,
-          },
-        })),
-      },
+      areas: areasQuery,
+      offers: offersQuery,
+      seekings: seekingsQuery,
     },
   });
 
@@ -131,3 +170,41 @@ export async function getNumberOfProfilesWithTheSameName(
   });
   return numberOfProfilesWithSameName;
 }
+
+export async function getAllOffers() {
+  return await prismaClient.offer.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+}
+
+export async function deleteProfileByUserId(id: string) {
+  return await prismaClient.profile.delete({ where: { id } });
+}
+
+/*
+function createListUpdateQueryPart(profileId: String, ) {
+  const listUpdates = [
+    { listName: "areas", listId: "areaId", list: areas },
+    { listName: "offers", listId: "offerId", list: offers },
+    { listName: "seekings", listId: "offerId", list: seekings },
+  ].map(({ listName, listId, list }) => ({
+    [listName]: {
+      deleteMany: {},
+      connectOrCreate: list.map((createId) => ({
+        where: {
+          [`profileId_${listId}`]: { [listId]: createId, profileId },
+        },
+        create: {
+          [listId]: createId,
+        },
+      })),
+    },
+  }));
+}
+*/

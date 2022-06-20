@@ -1,7 +1,7 @@
 import React from "react";
 import { ActionFunction, LoaderFunction, useActionData } from "remix";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import InputText from "../../components/FormElements/InputText/InputText";
+import Input from "~/components/FormElements/Input/Input";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -81,8 +81,8 @@ export default function Register() {
       <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
-            <div className="">
+          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+            <div>
               <HeaderLogo />
             </div>
             <div className="ml-auto">
@@ -151,7 +151,7 @@ export default function Register() {
                         <Field name="firstName" label="Vorname">
                           {({ Errors }) => (
                             <>
-                              <InputText
+                              <Input
                                 id="firstName"
                                 label="Vorname"
                                 required
@@ -167,7 +167,7 @@ export default function Register() {
                         <Field name="lastName" label="Nachname">
                           {({ Errors }) => (
                             <>
-                              <InputText
+                              <Input
                                 id="lastName"
                                 label="Nachname"
                                 required
@@ -184,7 +184,7 @@ export default function Register() {
                       <Field name="email" label="E-Mail">
                         {({ Errors }) => (
                           <>
-                            <InputText
+                            <Input
                               id="email"
                               label="E-Mail"
                               required

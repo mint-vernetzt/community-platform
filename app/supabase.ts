@@ -28,5 +28,9 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export const supabaseClient = client;
+export const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SERVICE_ROLE_KEY as string
+);
 
 export { Session };

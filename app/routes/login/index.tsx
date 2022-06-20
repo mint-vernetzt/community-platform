@@ -1,16 +1,18 @@
 import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import InputText from "../../components/FormElements/InputText/InputText";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import {
   authenticator,
+  getUserByAccessToken,
   sessionStorage,
   supabaseStrategy,
 } from "../../auth.server";
+import { updateProfileByUserId } from "~/profile.server";
 import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
 import { z, SomeZodObject } from "zod";
 import { makeDomainFunction } from "remix-domains";
+import Input from "~/components/FormElements/Input/Input";
 
 const schema = z.object({
   email: z.string().email().min(1),
@@ -33,8 +35,26 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type");
+  const accessToken = url.searchParams.get("access_token");
+  if (accessToken !== null && type === "email_change") {
+    const { user, error } = await getUserByAccessToken(accessToken);
+    if (error !== null) {
+      throw error;
+    }
+    if (user !== null && user.email !== undefined) {
+      const profile = await updateProfileByUserId(user.id, {
+        email: user.email,
+      });
+      await supabaseStrategy.checkSession(request, {
+        successRedirect: `/profile/${profile.username}`,
+      });
+    }
+  }
+
   await supabaseStrategy.checkSession(request, {
-    successRedirect: "/",
+    successRedirect: "/explore",
   });
 
   const session = await sessionStorage.getSession(
@@ -101,7 +121,7 @@ export default function Index() {
                   <Field name="email" label="E-Mail">
                     {({ Errors }) => (
                       <>
-                        <InputText
+                        <Input
                           id="email"
                           label="E-Mail"
                           {...register("email")}

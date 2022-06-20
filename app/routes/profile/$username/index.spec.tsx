@@ -1,18 +1,19 @@
 import { Profile } from "@prisma/client";
 import { badRequest, notFound } from "remix-utils";
 import { getProfileByUsername, getProfileByUserId } from "~/profile.server";
-import { getUser } from "~/auth.server";
-import { loader } from "./index";
+import { getUserByRequest } from "~/auth.server";
+import { deriveMode, loader } from "./index";
 
+/** @type {jest.Expect} */
 // @ts-ignore
-const expect = global.expect as jest.Expect;
+const expect = global.expect;
 
 const path = "/profile/$username";
 
 jest.mock("~/auth.server", () => {
   return {
     // eslint-disable-next-line
-    getUser: jest.fn(),
+    getUserByRequest: jest.fn(),
   };
 });
 
@@ -34,9 +35,15 @@ const profile: Partial<Profile> = {
   publicFields: ["email"],
 };
 
+test("deriveMode", () => {
+  expect(deriveMode("profileUser", "sessionUser")).toBe("authenticated");
+  expect(deriveMode("sessionUser", "sessionUser")).toBe("owner");
+  expect(deriveMode("profileUser", "")).toBe("anon");
+});
+
 describe("errors", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => null);
+    (getUserByRequest as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => null);
   });
   test("empty username", async () => {
@@ -84,14 +91,14 @@ describe("errors", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
 
 describe("get profile (anon)", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => null);
+    (getUserByRequest as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
   });
 
@@ -123,7 +130,7 @@ describe("get profile (anon)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
@@ -132,7 +139,7 @@ describe("get profile (authenticated)", () => {
   const sessionUsername = "anotherusername";
 
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: sessionUsername } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
@@ -162,7 +169,7 @@ describe("get profile (authenticated)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
   });
@@ -170,7 +177,7 @@ describe("get profile (authenticated)", () => {
 
 describe("get profile (owner)", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: profile.username } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
@@ -197,7 +204,7 @@ describe("get profile (owner)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
   });

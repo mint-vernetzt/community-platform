@@ -1,6 +1,6 @@
 import { Profile } from "@prisma/client";
 import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
-import { getUser } from "~/auth.server";
+import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -30,7 +30,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const sessionUser = await getUser(request);
+  const sessionUser = await getUserByRequest(request);
 
   let currentUser: CurrentUser | undefined;
 
@@ -87,8 +87,8 @@ export default function Index() {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="md:container md:mx-auto relative z-10">
-          <div className="px-4 pt-3 pb-3 flex flex-row items-center">
+        <div className="container relative z-10">
+          <div className="py-3 flex flex-row items-center">
             <div>
               <Link to="/explore">
                 <HeaderLogo />
@@ -165,7 +165,7 @@ export default function Index() {
       >
         <div
           data-testid="grid"
-          className="flex flex-wrap justify-center -md:mx-4 items-stretch"
+          className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
           {loaderData.profiles !== undefined &&
             loaderData.profiles.length > 0 &&

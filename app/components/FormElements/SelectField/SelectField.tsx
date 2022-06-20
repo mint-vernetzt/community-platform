@@ -18,6 +18,7 @@ export interface SelectFieldProps {
   options?: OptionOrGroup[];
   isPublic?: boolean;
   publicPosition?: "top" | "side";
+  visibilityName?: string;
 }
 
 const SelectField = React.forwardRef(
@@ -33,7 +34,7 @@ const SelectField = React.forwardRef(
 
     return (
       <div className="form-control w-full">
-        <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-row items-center">
           <label htmlFor={id} className="label flex-auto">
             {label}
             {props.required === true ? " *" : ""}
@@ -41,7 +42,7 @@ const SelectField = React.forwardRef(
           {isPublic !== undefined && publicPosition === "top" && (
             <ToggleCheckbox
               name="publicFields"
-              value={props.name}
+              value={props.visibilityName ?? props.name}
               defaultChecked={props.isPublic}
             />
           )}
