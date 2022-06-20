@@ -16,6 +16,8 @@ node_modules
 
 # misc
 .idea
+.vscode
+.DS_Store
 
 # Supabase
 **/supabase/.branches
