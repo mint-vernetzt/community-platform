@@ -1,11 +1,42 @@
-import { Profile } from "@prisma/client";
-import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
+import { Offer, Profile } from "@prisma/client";
+import React from "react";
+import {
+  ActionFunction,
+  Form,
+  json,
+  Link,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
-import { getAllProfiles, getProfileByUserId } from "~/profile.server";
+import {
+  AreasWithState,
+  getAllOffers,
+  getAllProfiles,
+  getAreas,
+  getProfileByUserId,
+} from "~/profile.server";
+import { InputError, makeDomainFunction } from "remix-domains";
+import {
+  Form as RemixForm,
+  formAction,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+
+// TODO: Change to enum of all possible area/seeking/offer ids
+const schema = z.object({
+  areaFilter: z.string().optional(),
+  offerFilter: z.string().optional(),
+  seekingFilter: z.string().optional(),
+});
 
 type CurrentUser = Pick<
   Profile,
@@ -25,6 +56,9 @@ type LoaderData = {
     | "publicFields"
   > &
     { areas: { area: string }[] }[];
+
+  areas: AreasWithState;
+  offers: Offer[];
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -73,16 +107,40 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
-  return json({ currentUser, profiles });
+  const areas = await getAreas();
+  const offers = await getAllOffers();
+
+  return json({ currentUser, profiles, areas, offers });
+};
+
+const mutation = makeDomainFunction(schema)(async (values) => {
+  if (!(values.areaFilter || values.offerFilter || values.seekingFilter)) {
+    throw "Bitte ein Filterkriterium auswählen.";
+  }
+  return values;
+});
+
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
+export const action: ActionFunction = async ({ request }) => {
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+  });
+
+  return result;
 };
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
 
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
     initialsOfCurrentUser = getInitials(loaderData.currentUser);
   }
+  const areaOptions = createAreaOptionFromData(loaderData.areas);
 
   return (
     <>
@@ -157,6 +215,97 @@ export default function Index() {
           Wer ist in Deiner Region aktiv? Mit wem möchtest Du Dich vernetzen? Wo
           bieten sich Kooperationen an?
         </p>
+      </section>
+      <section className="container my-8">
+        <RemixForm method="post" schema={schema}>
+          {({ Field, Button, Errors, register }) => (
+            <>
+              <Field
+                name="areaFilter"
+                label="Filtern nach Aktivitätsgebiet:"
+                className="mb-2"
+              >
+                {({ Errors }) => (
+                  <>
+                    <label className="mr-2">Aktivitätsgebiet:</label>
+                    <select {...register("areaFilter")}>
+                      <option></option>
+                      {areaOptions.map((option, index) => (
+                        <React.Fragment key={index}>
+                          {"value" in option && (
+                            <option key={`area-${index}`} value={option.value}>
+                              {option.label}
+                            </option>
+                          )}
+
+                          {"options" in option && (
+                            <optgroup
+                              key={`area-group-${index}`}
+                              label={option.label}
+                            >
+                              {option.options.map(
+                                (groupOption, groupOptionIndex) => (
+                                  <option
+                                    key={`area-${index}-${groupOptionIndex}`}
+                                    value={groupOption.value}
+                                  >
+                                    {groupOption.label}
+                                  </option>
+                                )
+                              )}
+                            </optgroup>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </Field>
+              <Field
+                name="offerFilter"
+                label="Filtern nach Angeboten:"
+                className="mb-2"
+              >
+                {({ Errors }) => (
+                  <>
+                    <label className="mr-2">Angebot:</label>
+                    <select {...register("offerFilter")}>
+                      <option></option>
+                      {loaderData.offers.map((offer, index) => (
+                        <option key={`offer-${index}`} value={offer.id}>
+                          {offer.title}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </Field>
+              <Field
+                name="seekingFilter"
+                label="Filtern nach Gesuchen:"
+                className="mb-2"
+              >
+                {({ Errors }) => (
+                  <>
+                    <label className="mr-2">Gesuch:</label>
+                    <select {...register("seekingFilter")}>
+                      <option></option>
+                      {loaderData.offers.map((offer, index) => (
+                        <option key={`seeking-${index}`} value={offer.id}>
+                          {offer.title}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </Field>
+              <button type="submit" className="btn btn-primary">
+                Filter anwenden
+              </button>
+              <Errors />
+            </>
+          )}
+        </RemixForm>
       </section>
 
       <section
