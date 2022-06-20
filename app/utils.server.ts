@@ -1,16 +1,12 @@
-import { createHash } from "crypto";
-import type { Readable } from "stream";
+import { createHmac } from "crypto";
 import type { BinaryToTextEncoding } from "crypto";
 
-export async function createHashFromStream(
-  hashAlgorithm: string,
-  stream: Readable,
-  encoding: BinaryToTextEncoding
+export async function createHashFromString(
+  string: string,
+  hashAlgorithm: string = "md5",
+  encoding: BinaryToTextEncoding = "hex"
 ) {
-  const hash = createHash(hashAlgorithm);
-  for await (let chunk of stream) {
-    hash.update(chunk);
-  }
-  hash.end();
+  const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
+  hash.update(string);
   return hash.digest(encoding);
 }

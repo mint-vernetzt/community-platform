@@ -5,7 +5,6 @@ import {
   json,
   Link,
   LoaderFunction,
-  redirect,
   unstable_parseMultipartFormData,
   UploadHandler,
   useActionData,
@@ -24,7 +23,7 @@ import { nl2br } from "~/lib/string/nl2br";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { supabaseAdmin } from "~/supabase";
-import { createHashFromStream } from "~/utils.server";
+import { createHashFromString } from "~/utils.server";
 import { ProfileFormType } from "./edit/yupSchema";
 
 type ProfileRelations = { areas: { area: Area }[] } & {
@@ -118,7 +117,7 @@ export const action: ActionFunction = async (args) => {
     const { name, stream, filename } = params;
 
     // Don't process stream
-    if (name !== "avatarFile") {
+    if (name !== "avatar" && name !== "background") {
       stream.resume();
       return;
     }
@@ -130,11 +129,11 @@ export const action: ActionFunction = async (args) => {
     }
     const buffer = Buffer.concat(chunks);
 
-    const hash = await createHashFromStream("md5", stream, "hex");
+    const hash = await createHashFromString(buffer.toString());
     const extension = filename.split(".")[filename.split(".").length - 1];
     const path = `${hash.substring(0, 2)}/${hash.substring(
       2
-    )}/avatar.${extension}`;
+    )}/${name}.${extension}`;
 
     const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
       .from("images")
@@ -152,7 +151,7 @@ export const action: ActionFunction = async (args) => {
         id: sessionUser.id,
       },
       data: {
-        avatar: path,
+        [name]: path,
       },
     });
 
@@ -172,9 +171,10 @@ export const action: ActionFunction = async (args) => {
     uploadHandler
   );
 
-  const publicURL = formData.get("avatarFile");
+  const avatarPublicURL = formData.get("avatar");
+  const backgroundPublicURL = formData.get("background");
 
-  return json({ publicURL });
+  return json({ avatarPublicURL, backgroundPublicURL });
 };
 
 function hasContactInformations(data: Partial<Profile>) {
@@ -283,9 +283,25 @@ export default function Index() {
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">
-              <button className="btn btn-primary" disabled>
-                Hintergrund ändern
-              </button>
+              <Form method="post" encType="multipart/form-data">
+                <label htmlFor="background">Hintergrund</label>
+                <InputImage
+                  id="background"
+                  name="background"
+                  maxSize={5 * 1024 * 1024} // 5 MB
+                  minWidth={1488} // 1488 px
+                  minHeight={480} // 480 px
+                  maxWidth={1920} // 1920 px
+                  maxHeight={1080} // 1080 px
+                />
+                <button className="btn btn-primary">Upload</button>
+              </Form>
+              {actionData !== undefined &&
+                actionData.backgroundPublicURL !== null && (
+                  <a href={actionData.backgroundPublicURL}>
+                    {actionData.backgroundPublicURL}
+                  </a>
+                )}
             </div>
           )}
         </div>
@@ -296,8 +312,9 @@ export default function Index() {
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
                 <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md">
-                  {actionData !== undefined && actionData.publicURL !== null ? (
-                    <a href={actionData.publicURL}>{initials}</a>
+                  {actionData !== undefined &&
+                  actionData.avatarPublicURL !== null ? (
+                    <a href={actionData.avatarPublicURL}>{initials}</a>
                   ) : (
                     initials
                   )}
@@ -305,11 +322,13 @@ export default function Index() {
                 </div>
                 {loaderData.mode === "owner" && (
                   <Form method="post" encType="multipart/form-data">
-                    <label htmlFor="avatarFile">Avatar</label>
+                    <label htmlFor="avatar">Avatar</label>
                     <InputImage
-                      id="avatarFile"
-                      name="avatarFile"
+                      id="avatar"
+                      name="avatar"
                       maxSize={2 * 1024 * 1024} // 2 MB
+                      minWidth={144} // 144 px
+                      minHeight={144} // 144 px
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
                     />

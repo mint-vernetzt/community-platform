@@ -8,6 +8,7 @@ declare global {
       SUPABASE_ANON_KEY: string;
       SESSION_SECRET: string;
       SUPABASE_URL: string;
+      HASH_SECRET: string;
     }
   }
 }
@@ -22,6 +23,10 @@ if (process.env.SUPABASE_URL === undefined) {
 
 if (process.env.SUPABASE_ANON_KEY === undefined) {
   throw new Error("'SUPABASE_ANON_KEY' is required");
+}
+
+if (process.env.HASH_SECRET === undefined) {
+  throw new Error("'HASH_SECRET' is required");
 }
 
 export default function handleRequest(
