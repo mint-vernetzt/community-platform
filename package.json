@@ -77,7 +77,7 @@
     "babel-loader": "^8.2.3",
     "cypress": "^9.5.4",
     "daisyui": "^2.8.0",
-    "esbuild": "^0.14.37",
+    "esbuild": "^0.14.46",
     "eslint": "^8.9.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-storybook": "^0.5.7",
