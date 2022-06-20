@@ -2,6 +2,8 @@ import React from "react";
 
 export type InputImageProps = {
   maxSize?: number;
+  minWidth?: number;
+  minHeight?: number;
   maxWidth?: number;
   maxHeight?: number;
 } & Pick<React.HTMLProps<HTMLInputElement>, "id" | "name" | "accept">;
@@ -9,6 +11,8 @@ export type InputImageProps = {
 function InputImage(props: InputImageProps) {
   const {
     maxSize,
+    minWidth,
+    minHeight,
     maxWidth,
     maxHeight,
     accept = "image/*",
@@ -35,8 +39,16 @@ function InputImage(props: InputImageProps) {
     const image = new Image();
 
     image.onload = () => {
+      if (minWidth !== undefined && image.width < minWidth) {
+        setError(new Error(`Image width to small (min. ${minWidth} px)`));
+        return;
+      }
       if (maxWidth !== undefined && image.width > maxWidth) {
         setError(new Error(`Image width to large (max. ${maxWidth} px)`));
+        return;
+      }
+      if (minHeight !== undefined && image.height < minHeight) {
+        setError(new Error(`Image height to small (min. ${minHeight} px)`));
         return;
       }
       if (maxHeight !== undefined && image.height > maxHeight) {
