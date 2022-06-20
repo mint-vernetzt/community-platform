@@ -43,10 +43,12 @@
     "remix": "^1.2.3",
     "remix-auth": "^3.2.1",
     "remix-auth-supabase": "^3.1.0",
+    "remix-domains": "^0.2.0",
     "remix-forms": "^0.16.1",
     "remix-utils": "^2.11.1",
     "ts-node": "^10.7.0",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+    "zod": "^3.17.3"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
