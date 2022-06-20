@@ -48,8 +48,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     ); // -- Field error
   }
   const { error } = await updatePasswordByAccessToken(
-    values.accessToken,
-    values.password
+    values.password,
+    values.accessToken
   );
   if (error !== null) {
     throw error.message;
