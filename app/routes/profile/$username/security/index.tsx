@@ -305,6 +305,7 @@ export default function Index() {
                           Passwort wurde geändert.
                         </span>
                       ) : null}
+                      <Errors />
                     </>
                   )}
                 </RemixForm>
@@ -372,6 +373,7 @@ export default function Index() {
                           Bestätigungslink gesendet.
                         </span>
                       ) : null}
+                      <Errors />
                     </>
                   )}
                 </RemixForm>

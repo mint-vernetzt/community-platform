@@ -156,6 +156,7 @@ export default function SetPassword() {
                     Passwort speichern
                   </button>
                 </div>
+                <Errors />
               </div>
             </div>
           )}

@@ -97,6 +97,7 @@ export default function Index() {
                         Passwort zurücksetzen
                       </button>
                     </div>
+                    <Errors />
                   </>
                 )}
               </RemixForm>

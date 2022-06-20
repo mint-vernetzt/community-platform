@@ -13,7 +13,7 @@ import {
   performMutation,
 } from "remix-forms";
 import { Schema, z } from "zod";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 
 const schema = z.object({
@@ -35,6 +35,11 @@ export const loader: LoaderFunction = async (args) => {
 const mutation = makeDomainFunction(schema)(async (values) => {
   // TODO: move to database trigger
   const { firstName, lastName, academicTitle, termsAccepted } = values;
+
+  if (!termsAccepted) {
+    throw new InputError("Fehlende Einverständnis.", "termsAccepted");
+  }
+
   // TODO: Check if username exists because profiles can be deleted.
   // That leads to username count gets out of sync with the below count of users with same name.
   const numberOfProfilesWithSameName = await getNumberOfProfilesWithTheSameName(
@@ -263,6 +268,7 @@ export default function Register() {
                         Profil anlegen
                       </button>
                     </div>
+                    <Errors />
                   </>
                 )}
               </RemixForm>
