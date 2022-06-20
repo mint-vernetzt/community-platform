@@ -1,15 +1,29 @@
 import { Area, Offer, Profile } from "@prisma/client";
-import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
-import { badRequest, notFound } from "remix-utils";
+import {
+  ActionFunction,
+  Form,
+  json,
+  Link,
+  LoaderFunction,
+  unstable_parseMultipartFormData,
+  UploadHandler,
+  useActionData,
+  useLoaderData,
+} from "remix";
+import { badRequest, forbidden, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
+import InputImage from "~/components/FormElements/InputImage/InputImage";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { ExternalService } from "~/components/types";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
+import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { supabaseAdmin } from "~/supabase";
+import { createHashFromString } from "~/utils.server";
 import { ProfileFormType } from "./edit/yupSchema";
 
 type ProfileRelations = { areas: { area: Area }[] } & {
@@ -86,6 +100,83 @@ export const loader: LoaderFunction = async (
   return json({ mode, data, currentUser });
 };
 
+export const action: ActionFunction = async (args) => {
+  const { request, params } = args;
+
+  const { username } = params;
+  const sessionUser = await getUserByRequest(request);
+
+  if (
+    sessionUser === null ||
+    username !== sessionUser?.user_metadata?.username
+  ) {
+    throw forbidden({ message: "Not allowed" });
+  }
+
+  const uploadHandler: UploadHandler = async (params) => {
+    const { name, stream, filename } = params;
+
+    // Don't process stream
+    if (name !== "avatar" && name !== "background") {
+      stream.resume();
+      return;
+    }
+
+    // Buffer stuff
+    const chunks = [];
+    for await (let chunk of stream) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+
+    const hash = await createHashFromString(buffer.toString());
+    const extension = filename.split(".")[filename.split(".").length - 1];
+    const path = `${hash.substring(0, 2)}/${hash.substring(
+      2
+    )}/${name}.${extension}`;
+
+    const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .upload(path, buffer, {
+        upsert: true,
+      });
+
+    if (error || data === null) {
+      console.error(error);
+      throw serverError({ message: "Upload failed!" });
+    }
+
+    await prismaClient.profile.update({
+      where: {
+        id: sessionUser.id,
+      },
+      data: {
+        [name]: path,
+      },
+    });
+
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(path);
+
+    if (publicURL === null) {
+      throw serverError({ message: "Can't access public url of image!" });
+    }
+
+    return publicURL;
+  };
+
+  const formData = await unstable_parseMultipartFormData(
+    request,
+    uploadHandler
+  );
+
+  const avatarPublicURL = formData.get("avatar");
+  const backgroundPublicURL = formData.get("background");
+
+  return json({ avatarPublicURL, backgroundPublicURL });
+};
+
 function hasContactInformations(data: Partial<Profile>) {
   const hasEmail = typeof data.email === "string" && data.email !== "";
   const hasPhone = typeof data.phone === "string" && data.phone !== "";
@@ -121,6 +212,8 @@ export default function Index() {
   }
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
+
+  const actionData = useActionData();
 
   return (
     <>
@@ -190,9 +283,25 @@ export default function Index() {
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">
-              <button className="btn btn-primary" disabled>
-                Hintergrund ändern
-              </button>
+              <Form method="post" encType="multipart/form-data">
+                <label htmlFor="background">Hintergrund</label>
+                <InputImage
+                  id="background"
+                  name="background"
+                  maxSize={5 * 1024 * 1024} // 5 MB
+                  minWidth={1488} // 1488 px
+                  minHeight={480} // 480 px
+                  maxWidth={1920} // 1920 px
+                  maxHeight={1080} // 1080 px
+                />
+                <button className="btn btn-primary">Upload</button>
+              </Form>
+              {actionData !== undefined &&
+                actionData.backgroundPublicURL !== null && (
+                  <a href={actionData.backgroundPublicURL}>
+                    {actionData.backgroundPublicURL}
+                  </a>
+                )}
             </div>
           )}
         </div>
@@ -203,8 +312,29 @@ export default function Index() {
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
                 <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md">
-                  {initials}
+                  {actionData !== undefined &&
+                  actionData.avatarPublicURL !== null ? (
+                    <a href={actionData.avatarPublicURL}>{initials}</a>
+                  ) : (
+                    initials
+                  )}
+                  {/* {initials} */}
                 </div>
+                {loaderData.mode === "owner" && (
+                  <Form method="post" encType="multipart/form-data">
+                    <label htmlFor="avatar">Avatar</label>
+                    <InputImage
+                      id="avatar"
+                      name="avatar"
+                      maxSize={2 * 1024 * 1024} // 2 MB
+                      minWidth={144} // 144 px
+                      minHeight={144} // 144 px
+                      maxWidth={500} // 500 px
+                      maxHeight={500} // 500 px
+                    />
+                    <button className="btn btn-primary">Upload</button>
+                  </Form>
+                )}
                 <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>
                 {typeof loaderData.data.position === "string" && (
                   <p className="font-bold text-sm">
