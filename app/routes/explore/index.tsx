@@ -117,6 +117,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (!(values.areaFilter || values.offerFilter || values.seekingFilter)) {
     throw "Bitte ein Filterkriterium auswählen.";
   }
+  console.log(values);
   return values;
 });
 
@@ -216,97 +217,103 @@ export default function Index() {
           bieten sich Kooperationen an?
         </p>
       </section>
-      <section className="container my-8">
-        <RemixForm method="post" schema={schema}>
-          {({ Field, Button, Errors, register }) => (
-            <>
-              <Field
-                name="areaFilter"
-                label="Filtern nach Aktivitätsgebiet:"
-                className="mb-2"
-              >
-                {({ Errors }) => (
-                  <>
-                    <label className="mr-2">Aktivitätsgebiet:</label>
-                    <select {...register("areaFilter")}>
-                      <option></option>
-                      {areaOptions.map((option, index) => (
-                        <React.Fragment key={index}>
-                          {"value" in option && (
-                            <option key={`area-${index}`} value={option.value}>
-                              {option.label}
-                            </option>
-                          )}
 
-                          {"options" in option && (
-                            <optgroup
-                              key={`area-group-${index}`}
-                              label={option.label}
-                            >
-                              {option.options.map(
-                                (groupOption, groupOptionIndex) => (
-                                  <option
-                                    key={`area-${index}-${groupOptionIndex}`}
-                                    value={groupOption.value}
-                                  >
-                                    {groupOption.label}
-                                  </option>
-                                )
-                              )}
-                            </optgroup>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </select>
-                  </>
-                )}
-              </Field>
-              <Field
-                name="offerFilter"
-                label="Filtern nach Angeboten:"
-                className="mb-2"
-              >
-                {({ Errors }) => (
-                  <>
-                    <label className="mr-2">Angebot:</label>
-                    <select {...register("offerFilter")}>
-                      <option></option>
-                      {loaderData.offers.map((offer, index) => (
-                        <option key={`offer-${index}`} value={offer.id}>
-                          {offer.title}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
-              </Field>
-              <Field
-                name="seekingFilter"
-                label="Filtern nach Gesuchen:"
-                className="mb-2"
-              >
-                {({ Errors }) => (
-                  <>
-                    <label className="mr-2">Gesuch:</label>
-                    <select {...register("seekingFilter")}>
-                      <option></option>
-                      {loaderData.offers.map((offer, index) => (
-                        <option key={`seeking-${index}`} value={offer.id}>
-                          {offer.title}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
-              </Field>
-              <button type="submit" className="btn btn-primary">
-                Filter anwenden
-              </button>
-              <Errors />
-            </>
-          )}
-        </RemixForm>
-      </section>
+      {loaderData.currentUser !== undefined ? (
+        <section className="container my-8">
+          <RemixForm method="post" schema={schema}>
+            {({ Field, Button, Errors, register }) => (
+              <>
+                <Field
+                  name="areaFilter"
+                  label="Filtern nach Aktivitätsgebiet:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Aktivitätsgebiet:</label>
+                      <select {...register("areaFilter")}>
+                        <option></option>
+                        {areaOptions.map((option, index) => (
+                          <React.Fragment key={index}>
+                            {"value" in option && (
+                              <option
+                                key={`area-${index}`}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </option>
+                            )}
+
+                            {"options" in option && (
+                              <optgroup
+                                key={`area-group-${index}`}
+                                label={option.label}
+                              >
+                                {option.options.map(
+                                  (groupOption, groupOptionIndex) => (
+                                    <option
+                                      key={`area-${index}-${groupOptionIndex}`}
+                                      value={groupOption.value}
+                                    >
+                                      {groupOption.label}
+                                    </option>
+                                  )
+                                )}
+                              </optgroup>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <Field
+                  name="offerFilter"
+                  label="Filtern nach Angeboten:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Angebot:</label>
+                      <select {...register("offerFilter")}>
+                        <option></option>
+                        {loaderData.offers.map((offer, index) => (
+                          <option key={`offer-${index}`} value={offer.id}>
+                            {offer.title}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <Field
+                  name="seekingFilter"
+                  label="Filtern nach Gesuchen:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Gesuch:</label>
+                      <select {...register("seekingFilter")}>
+                        <option></option>
+                        {loaderData.offers.map((offer, index) => (
+                          <option key={`seeking-${index}`} value={offer.id}>
+                            {offer.title}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <button type="submit" className="btn btn-primary">
+                  Filter anwenden
+                </button>
+                <Errors />
+              </>
+            )}
+          </RemixForm>
+        </section>
+      ) : null}
 
       <section
         className="container my-8 md:my-10 lg:my-20"
