@@ -45,7 +45,7 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
       {}
     );
 
-    return await prismaClient.profile.findUnique({
+    const result = await prismaClient.profile.findUnique({
       select: {
         ...select,
         areas: { select: { areaId: true } },
@@ -54,11 +54,13 @@ export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
       },
       where,
     });
+    return result as typeof result & Profile;
   } else {
-    return await prismaClient.profile.findUnique({
+    const result = await prismaClient.profile.findUnique({
       where,
       include,
     });
+    return result;
   }
 }
 
@@ -155,6 +157,8 @@ export async function getAllProfiles() {
       position: true,
       bio: true,
       publicFields: true,
+      avatar: true,
+      background: true,
       areas: { select: { area: { select: { name: true } } } },
     },
   });
