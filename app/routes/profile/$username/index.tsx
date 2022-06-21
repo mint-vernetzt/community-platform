@@ -1,4 +1,5 @@
 import { Area, Offer, Profile } from "@prisma/client";
+import { GravityType } from "imgproxy/dist/types";
 import {
   ActionFunction,
   Form,
@@ -118,7 +119,7 @@ export const loader: LoaderFunction = async (
       .getPublicUrl(data.avatar);
     if (publicURL !== null) {
       images.avatar = builder
-        .resize("fit", 144, 144)
+        .resize("fill", 144, 144)
         .dpr(2)
         .generateUrl(publicURL);
     }
@@ -129,7 +130,8 @@ export const loader: LoaderFunction = async (
       .getPublicUrl(data.background);
     if (publicURL !== null) {
       images.background = builder
-        .resize("fit", 1488, 480)
+        .resize("fill", 1488, 480)
+        .gravity(GravityType.north_east)
         .dpr(2)
         .generateUrl(publicURL);
     }
@@ -364,7 +366,7 @@ export default function Index() {
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
           {background !== undefined && (
-            <img src={background} alt="" className="object-cover" />
+            <img src={background} alt="" className="object-cover h-full" />
           )}
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">

@@ -67,7 +67,7 @@ export const loader: LoaderFunction = async (args) => {
             .getPublicUrl(avatar);
           if (publicURL !== null) {
             avatarImage = builder
-              .resize("fit", 64, 64)
+              .resize("fill", 64, 64)
               .dpr(2)
               .generateUrl(publicURL);
           }
@@ -98,7 +98,7 @@ export const loader: LoaderFunction = async (args) => {
             .getPublicUrl(avatar);
           if (publicURL !== null) {
             avatarImage = builder
-              .resize("fit", 64, 64)
+              .resize("fill", 64, 64)
               .dpr(2)
               .generateUrl(publicURL);
           }
