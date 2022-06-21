@@ -3,9 +3,11 @@ import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
+import { builder } from "~/imgproxy";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getAllProfiles, getProfileByUserId } from "~/profile.server";
+import { supabaseAdmin } from "~/supabase";
 
 type CurrentUser = Pick<
   Profile,
@@ -23,6 +25,7 @@ type LoaderData = {
     | "position"
     | "bio"
     | "publicFields"
+    | "avatar"
   > &
     { areas: { area: string }[] }[];
 };
@@ -43,6 +46,7 @@ export const loader: LoaderFunction = async (args) => {
       "position",
       "bio",
       "publicFields",
+      "avatar",
     ]);
     currentUser = profile || undefined; // TODO: fix type issue
   }
@@ -55,7 +59,7 @@ export const loader: LoaderFunction = async (args) => {
       profiles = allProfiles;
     } else {
       profiles = allProfiles.map((profile) => {
-        const { bio, position, publicFields, ...otherFields } = profile;
+        const { bio, position, avatar, publicFields, ...otherFields } = profile;
 
         let extensions: { bio?: string; position?: string } = {};
         if (publicFields !== undefined) {
@@ -68,7 +72,21 @@ export const loader: LoaderFunction = async (args) => {
           }
         }
 
-        return { ...otherFields, ...extensions };
+        let avatarImage: string | null = null;
+
+        if (avatar !== null) {
+          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+            .from("images")
+            .getPublicUrl(avatar);
+          if (publicURL !== null) {
+            avatarImage = builder
+              .resize("fit", 64, 64)
+              .dpr(2)
+              .generateUrl(publicURL);
+          }
+        }
+
+        return { ...otherFields, ...extensions, avatar: avatarImage };
       });
     }
   }
@@ -180,8 +198,12 @@ export default function Index() {
                   className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                 >
                   <div className="w-full flex items-center flex-row mb-4">
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md">
-                      {getInitials(profile)}
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                      {profile.avatar !== null ? (
+                        <img src={profile.avatar} alt="" />
+                      ) : (
+                        getInitials(profile)
+                      )}
                     </div>
                     <div className="pl-4">
                       <H3 like="h4" className="text-xl mb-1">
