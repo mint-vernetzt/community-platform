@@ -56,7 +56,25 @@ export const loader: LoaderFunction = async (args) => {
   const allProfiles = await getAllProfiles();
   if (allProfiles !== null) {
     if (sessionUser !== null) {
-      profiles = allProfiles;
+      profiles = allProfiles.map((profile) => {
+        const { avatar, ...otherFields } = profile;
+
+        let avatarImage: string | null = null;
+
+        if (avatar !== null) {
+          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+            .from("images")
+            .getPublicUrl(avatar);
+          if (publicURL !== null) {
+            avatarImage = builder
+              .resize("fit", 64, 64)
+              .dpr(2)
+              .generateUrl(publicURL);
+          }
+        }
+
+        return { ...otherFields, avatar: avatarImage };
+      });
     } else {
       profiles = allProfiles.map((profile) => {
         const { bio, position, avatar, publicFields, ...otherFields } = profile;
