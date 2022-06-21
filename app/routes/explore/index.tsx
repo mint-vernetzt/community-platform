@@ -1,4 +1,5 @@
 import { Profile } from "@prisma/client";
+import { GravityType } from "imgproxy/dist/types";
 import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
@@ -68,6 +69,7 @@ export const loader: LoaderFunction = async (args) => {
           if (publicURL !== null) {
             avatarImage = builder
               .resize("fill", 64, 64)
+              .gravity(GravityType.center)
               .dpr(2)
               .generateUrl(publicURL);
           }
@@ -99,6 +101,7 @@ export const loader: LoaderFunction = async (args) => {
           if (publicURL !== null) {
             avatarImage = builder
               .resize("fill", 64, 64)
+              .gravity(GravityType.center)
               .dpr(2)
               .generateUrl(publicURL);
           }
