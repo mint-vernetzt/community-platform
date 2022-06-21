@@ -1,4 +1,5 @@
 import { Area, Profile, State } from "@prisma/client";
+import { orderBy } from "cypress/types/lodash";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
@@ -185,6 +186,99 @@ export async function getAllOffers() {
 
 export async function deleteProfileByUserId(id: string) {
   return await prismaClient.profile.delete({ where: { id } });
+}
+
+// TODO: Only include public fields
+export async function getAllProfilesWithCustomAreaFilter(areaId: string) {
+  let profiles;
+
+  const areaToFilter = await prismaClient.area.findUnique({
+    where: {
+      id: areaId,
+    },
+    select: {
+      id: true,
+      type: true,
+      stateId: true,
+    },
+  });
+
+  if (areaToFilter) {
+    if (areaToFilter.type === "country") {
+      profiles = await prismaClient.profile.findMany({
+        where: {
+          areas: {
+            some: {},
+          },
+        },
+        // TODO: Order by area type: country -> state -> district
+      });
+    }
+    if (areaToFilter.type === "state") {
+      profiles = await prismaClient.profile.findMany({
+        where: {
+          OR: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    stateId: areaToFilter.stateId,
+                  },
+                },
+              },
+            },
+            {
+              areas: {
+                some: {
+                  area: {
+                    type: "country",
+                  },
+                },
+              },
+            },
+          ],
+        },
+        // TODO: Order by area type: state -> district -> country
+      });
+    }
+    if (areaToFilter.type === "district") {
+      profiles = await prismaClient.profile.findMany({
+        where: {
+          OR: [
+            {
+              areas: {
+                some: {
+                  areaId: areaId,
+                },
+              },
+            },
+            {
+              areas: {
+                some: {
+                  area: {
+                    type: "state",
+                    stateId: areaToFilter.stateId,
+                  },
+                },
+              },
+            },
+            {
+              areas: {
+                some: {
+                  area: {
+                    type: "country",
+                  },
+                },
+              },
+            },
+          ],
+        },
+        // TODO: Order by area type: district -> state -> country
+      });
+    }
+  }
+
+  return profiles;
 }
 
 /*

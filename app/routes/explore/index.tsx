@@ -18,6 +18,7 @@ import {
   AreasWithState,
   getAllOffers,
   getAllProfiles,
+  getAllProfilesWithCustomAreaFilter,
   getAreas,
   getProfileByUserId,
 } from "~/profile.server";
@@ -117,8 +118,14 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (!(values.areaFilter || values.offerFilter || values.seekingFilter)) {
     throw "Bitte ein Filterkriterium auswählen.";
   }
-  console.log(values);
-  return values;
+  let filteredProfiles;
+  if (values.areaFilter) {
+    filteredProfiles = await getAllProfilesWithCustomAreaFilter(
+      values.areaFilter
+    );
+  }
+  console.log(filteredProfiles);
+  return { values, filteredProfiles };
 });
 
 type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
