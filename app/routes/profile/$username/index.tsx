@@ -1,4 +1,5 @@
 import { Area, Offer, Profile } from "@prisma/client";
+import { GravityType } from "imgproxy/dist/types";
 import {
   ActionFunction,
   Form,
@@ -17,6 +18,7 @@ import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIco
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { ExternalService } from "~/components/types";
+import { builder } from "~/imgproxy";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
@@ -24,7 +26,6 @@ import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
-import { ProfileFormType } from "./edit/yupSchema";
 
 type ProfileRelations = { areas: { area: Area }[] } & {
   offers: { offer: Offer }[];
@@ -34,6 +35,11 @@ type ProfileLoaderData = {
   currentUser?: Partial<Profile & ProfileRelations>;
   mode: Mode;
   data: Partial<Profile & ProfileRelations>;
+  images: {
+    avatar?: string;
+    background?: string;
+    currentUserAvatar?: string;
+  };
 };
 
 type Mode = "anon" | "authenticated" | "owner";
@@ -76,6 +82,8 @@ export const loader: LoaderFunction = async (
         "linkedin",
         "twitter",
         "xing",
+        "avatar",
+        "background",
       ])
     : undefined;
 
@@ -86,10 +94,12 @@ export const loader: LoaderFunction = async (
     "lastName",
     "academicTitle",
     "areas",
+    "avatar",
+    "background",
     ...profile.publicFields,
   ];
 
-  let data: Partial<ProfileFormType> = {};
+  let data: Partial<Profile> = {};
   for (const key in profile) {
     if (mode !== "anon" || publicFields.includes(key)) {
       // @ts-ignore <-- Partials allow undefined, Profile not
@@ -97,7 +107,51 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  return json({ mode, data, currentUser });
+  let images: {
+    avatar?: string;
+    background?: string;
+    currentUserAvatar?: string;
+  } = {};
+
+  if (data.avatar !== undefined && data.avatar !== null) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(data.avatar);
+    if (publicURL !== null) {
+      images.avatar = builder
+        .resize("fill", 144, 144)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  if (data.background !== undefined && data.background !== null) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(data.background);
+    if (publicURL !== null) {
+      images.background = builder
+        .resize("fill", 1488, 480)
+        .gravity(GravityType.north_east)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  if (
+    currentUser !== undefined &&
+    currentUser !== null &&
+    currentUser.avatar !== null
+  ) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(currentUser.avatar);
+    if (publicURL !== null) {
+      images.currentUserAvatar = builder
+        .resize("fit", 64, 64)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  return json({ mode, data, currentUser, images });
 };
 
 export const action: ActionFunction = async (args) => {
@@ -171,10 +225,24 @@ export const action: ActionFunction = async (args) => {
     uploadHandler
   );
 
-  const avatarPublicURL = formData.get("avatar");
-  const backgroundPublicURL = formData.get("background");
+  let images: { avatar?: string; background?: string } = {};
 
-  return json({ avatarPublicURL, backgroundPublicURL });
+  const avatarPublicURL = formData.get("avatar");
+  if (avatarPublicURL !== null && typeof avatarPublicURL === "string") {
+    images.avatar = builder
+      .resize("fit", 144, 144)
+      .dpr(2)
+      .generateUrl(avatarPublicURL);
+  }
+  const backgroundPublicURL = formData.get("background");
+  if (backgroundPublicURL !== null && typeof backgroundPublicURL === "string") {
+    images.background = builder
+      .resize("fit", 1488, 480)
+      .dpr(2)
+      .generateUrl(backgroundPublicURL);
+  }
+
+  return json({ images });
 };
 
 function hasContactInformations(data: Partial<Profile>) {
@@ -208,12 +276,28 @@ export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
-    initialsOfCurrentUser = getInitials(loaderData.currentUser);
+    initialsOfCurrentUser = getInitials(loaderData.currentUser); // TODO: fix type error
   }
-  const initials = getInitials(loaderData.data);
+  const initials = getInitials(loaderData.data); // TODO: fix type error
   const fullName = getFullName(loaderData.data);
 
   const actionData = useActionData();
+
+  let avatar;
+  if (actionData !== undefined && actionData.images.avatar !== undefined) {
+    avatar = actionData.images.avatar;
+  } else if (loaderData.images.avatar !== undefined) {
+    avatar = loaderData.images.avatar;
+  }
+
+  console.log("avatar", avatar);
+
+  let background;
+  if (actionData !== undefined && actionData.images.background !== undefined) {
+    background = actionData.images.background;
+  } else if (loaderData.images.background !== undefined) {
+    background = loaderData.images.background;
+  }
 
   return (
     <>
@@ -281,6 +365,9 @@ export default function Index() {
       </header>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
+          {background !== undefined && (
+            <img src={background} alt="" className="object-cover h-full" />
+          )}
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">
               <Form method="post" encType="multipart/form-data">
@@ -296,12 +383,6 @@ export default function Index() {
                 />
                 <button className="btn btn-primary">Upload</button>
               </Form>
-              {actionData !== undefined &&
-                actionData.backgroundPublicURL !== null && (
-                  <a href={actionData.backgroundPublicURL}>
-                    {actionData.backgroundPublicURL}
-                  </a>
-                )}
             </div>
           )}
         </div>
@@ -311,10 +392,9 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md">
-                  {actionData !== undefined &&
-                  actionData.avatarPublicURL !== null ? (
-                    <a href={actionData.avatarPublicURL}>{initials}</a>
+                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+                  {avatar !== undefined ? (
+                    <img src={avatar} alt="" />
                   ) : (
                     initials
                   )}
