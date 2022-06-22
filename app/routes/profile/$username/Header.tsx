@@ -10,7 +10,7 @@ export interface HeaderProps {
 export default function Header({ username, initials }: HeaderProps) {
   return (
     <header className="shadow-md mb-8">
-      <div className="container relative z-10">
+      <div className="container relative z-11">
         <div className="py-3 flex flex-row items-center">
           <div>
             <Link to="/explore">
