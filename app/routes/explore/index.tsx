@@ -18,7 +18,7 @@ import {
   AreasWithState,
   getAllOffers,
   getAllProfiles,
-  getAllProfilesWithCustomAreaFilter,
+  getFilteredProfiles,
   getAreas,
   getProfileByUserId,
 } from "~/profile.server";
@@ -118,13 +118,16 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (!(values.areaFilter || values.offerFilter || values.seekingFilter)) {
     throw "Bitte ein Filterkriterium auswählen.";
   }
-  let filteredProfiles;
-  if (values.areaFilter) {
-    filteredProfiles = await getAllProfilesWithCustomAreaFilter(
-      values.areaFilter
-    );
-  }
-  console.log(filteredProfiles);
+  const filteredProfiles = await getFilteredProfiles(
+    values.areaFilter,
+    values.offerFilter,
+    values.seekingFilter
+  );
+
+  filteredProfiles?.map((profile) => {
+    console.log("\n");
+    console.log(profile.firstName, profile.lastName);
+  });
   return { values, filteredProfiles };
 });
 

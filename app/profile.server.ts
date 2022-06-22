@@ -1,4 +1,4 @@
-import { Area, Profile, State } from "@prisma/client";
+import { Area, Prisma, Profile, State } from "@prisma/client";
 import { orderBy } from "cypress/types/lodash";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
@@ -188,35 +188,38 @@ export async function deleteProfileByUserId(id: string) {
   return await prismaClient.profile.delete({ where: { id } });
 }
 
-// TODO: Only include public fields
-export async function getAllProfilesWithCustomAreaFilter(areaId: string) {
-  let profiles;
+export async function getFilteredProfiles(
+  areaId: string | undefined,
+  offerId: string | undefined,
+  seekingId: string | undefined
+) {
+  let queries = [],
+    areaQuery,
+    offerQuery,
+    seekingQuery;
 
-  const areaToFilter = await prismaClient.area.findUnique({
-    where: {
-      id: areaId,
-    },
-    select: {
-      id: true,
-      type: true,
-      stateId: true,
-    },
-  });
+  if (areaId) {
+    const areaToFilter = await prismaClient.area.findUnique({
+      where: {
+        id: areaId,
+      },
+      select: {
+        type: true,
+        stateId: true,
+      },
+    });
 
-  if (areaToFilter) {
-    if (areaToFilter.type === "country") {
-      profiles = await prismaClient.profile.findMany({
-        where: {
+    if (areaToFilter) {
+      if (areaToFilter.type === "country") {
+        areaQuery = {
           areas: {
             some: {},
           },
-        },
+        };
         // TODO: Order by area type: country -> state -> district
-      });
-    }
-    if (areaToFilter.type === "state") {
-      profiles = await prismaClient.profile.findMany({
-        where: {
+      }
+      if (areaToFilter.type === "state") {
+        areaQuery = {
           OR: [
             {
               areas: {
@@ -237,18 +240,18 @@ export async function getAllProfilesWithCustomAreaFilter(areaId: string) {
               },
             },
           ],
-        },
+        };
         // TODO: Order by area type: state -> district -> country
-      });
-    }
-    if (areaToFilter.type === "district") {
-      profiles = await prismaClient.profile.findMany({
-        where: {
+      }
+      if (areaToFilter.type === "district") {
+        areaQuery = {
           OR: [
             {
               areas: {
                 some: {
-                  areaId: areaId,
+                  area: {
+                    id: areaId,
+                  },
                 },
               },
             },
@@ -272,13 +275,45 @@ export async function getAllProfilesWithCustomAreaFilter(areaId: string) {
               },
             },
           ],
-        },
+        };
         // TODO: Order by area type: district -> state -> country
-      });
+      }
+      queries.push(areaQuery);
     }
   }
 
-  return profiles;
+  if (offerId) {
+    offerQuery = {
+      offers: {
+        some: {
+          offer: {
+            id: offerId,
+          },
+        },
+      },
+    };
+    queries.push(offerQuery);
+  }
+
+  if (seekingId) {
+    seekingQuery = {
+      seekings: {
+        some: {
+          offer: {
+            id: seekingId,
+          },
+        },
+      },
+    };
+    queries.push(seekingQuery);
+  }
+
+  return await prismaClient.profile.findMany({
+    where: {
+      AND: queries, // TODO: Solve type issue
+    },
+    // TODO: Add orderBy
+  });
 }
 
 /*
