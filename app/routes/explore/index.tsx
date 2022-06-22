@@ -127,50 +127,48 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     values.seekingId
   );
   // TODO: Outsource profile sorting to database
+  const profilesWithCountry = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "country")
+    )
+    .sort((a, b) => a.username.localeCompare(b.username));
+  const profilesWithState = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "state")
+    )
+    .sort((a, b) => a.username.localeCompare(b.username));
+  const profilesWithDistrict = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "district")
+    )
+    .sort((a, b) => a.username.localeCompare(b.username));
+
+  let sortedProfiles;
   if (areaToFilter && areaToFilter.type === "country") {
-    // sort: country -> state -> district
-
-    const country = filteredProfiles
-      .filter(/* where area is country);*/)
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const starte = filteredProfiles
-      .filter(/* where area is state);*/)
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const district = filteredProfiles
-      .filter(/* where area is distric);*/)
-      .sort((a, b) => a.username.localeCompare(b.username));
-
-    const profiles = [...country, ...starte, ...district]; // make set || filter with indexOf
-
-    filteredProfiles.sort((profile, nextProfile) => {
-      let sortDirection = 0;
-      profile.areas.map((area) => {
-        nextProfile.areas.map((nextArea) => {
-          if (area.type === "country" && nextArea.type !== "country") {
-            sortDirection = -1;
-            return;
-          }
-          if (area.type === "state" && nextArea.type === "district") {
-            sortDirection = -1;
-            return;
-          }
-        });
-      });
-      return sortDirection;
-    });
+    sortedProfiles = [
+      ...profilesWithCountry,
+      ...profilesWithState,
+      ...profilesWithDistrict,
+    ];
   }
   if (areaToFilter && areaToFilter.type === "state") {
-    // sort: state -> district -> country
+    sortedProfiles = [
+      ...profilesWithState,
+      ...profilesWithDistrict,
+      ...profilesWithCountry,
+    ];
   }
   if (areaToFilter && areaToFilter.type === "district") {
-    // sort: district -> state -> country
+    sortedProfiles = [
+      ...profilesWithDistrict,
+      ...profilesWithState,
+      ...profilesWithCountry,
+    ];
   }
-  // let area = {
-  //   type: "area",
-  // };
-  // filteredProfiles.map((profile) => console.log(profile.areas.includes(area)));
+  const profilesSet = new Set(sortedProfiles);
+  sortedProfiles = Array.from(profilesSet);
 
-  return { values, filteredProfiles };
+  return { values, sortedProfiles };
 });
 
 type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
@@ -197,10 +195,8 @@ export default function Index() {
 
   let profiles = loaderData.profiles;
   if (actionData && actionData.success) {
-    profiles = actionData.data.filteredProfiles; // TODO: Fix type issue
+    profiles = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
-
-  console.log(loaderData.currentUser);
 
   return (
     <>
