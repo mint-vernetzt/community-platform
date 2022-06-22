@@ -312,6 +312,15 @@ export async function getFilteredProfiles(
     where: {
       AND: queries, // TODO: Solve type issue
     },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      academicTitle: true,
+      position: true,
+      bio: true,
+      areas: { select: { area: { select: { name: true } } } },
+    },
     // TODO: Add orderBy
   });
 }

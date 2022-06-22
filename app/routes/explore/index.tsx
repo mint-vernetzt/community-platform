@@ -123,11 +123,6 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     values.offerFilter,
     values.seekingFilter
   );
-
-  filteredProfiles?.map((profile) => {
-    console.log("\n");
-    console.log(profile.firstName, profile.lastName);
-  });
   return { values, filteredProfiles };
 });
 
@@ -152,6 +147,11 @@ export default function Index() {
     initialsOfCurrentUser = getInitials(loaderData.currentUser);
   }
   const areaOptions = createAreaOptionFromData(loaderData.areas);
+
+  let profiles = loaderData.profiles;
+  if (actionData && actionData.success) {
+    profiles = actionData.data.filteredProfiles; // TODO: Fix type issue
+  }
 
   return (
     <>
@@ -333,9 +333,9 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {loaderData.profiles !== undefined &&
-            loaderData.profiles.length > 0 &&
-            loaderData.profiles.map((profile, index) => (
+          {profiles !== undefined &&
+            profiles.length > 0 &&
+            profiles.map((profile, index) => (
               <div
                 key={`profile-${index}`}
                 data-testid="gridcell"
