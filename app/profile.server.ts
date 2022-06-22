@@ -1,5 +1,4 @@
-import { Area, Prisma, Profile, State } from "@prisma/client";
-import { orderBy } from "cypress/types/lodash";
+import { Area, AreaType, Profile, State } from "@prisma/client";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
@@ -143,6 +142,19 @@ export async function getAreas(): Promise<AreasWithState> {
   });
 }
 
+export async function getAreaById(areaId: string) {
+  return await prismaClient.area.findUnique({
+    where: {
+      id: areaId,
+    },
+    select: {
+      id: true,
+      type: true,
+      stateId: true,
+    },
+  });
+}
+
 export async function getAllProfiles() {
   const profiles = await prismaClient.profile.findMany({
     orderBy: {
@@ -189,7 +201,10 @@ export async function deleteProfileByUserId(id: string) {
 }
 
 export async function getFilteredProfiles(
-  areaId: string | undefined,
+  areaToFilter:
+    | { id: string; type: AreaType; stateId: string | null }
+    | null
+    | undefined,
   offerId: string | undefined,
   seekingId: string | undefined
 ) {
@@ -198,88 +213,76 @@ export async function getFilteredProfiles(
     offerQuery,
     seekingQuery;
 
-  if (areaId) {
-    const areaToFilter = await prismaClient.area.findUnique({
-      where: {
-        id: areaId,
-      },
-      select: {
-        type: true,
-        stateId: true,
-      },
-    });
-
-    if (areaToFilter) {
-      if (areaToFilter.type === "country") {
-        areaQuery = {
-          areas: {
-            some: {},
-          },
-        };
-        // TODO: Order by area type: country -> state -> district
-      }
-      if (areaToFilter.type === "state") {
-        areaQuery = {
-          OR: [
-            {
-              areas: {
-                some: {
-                  area: {
-                    stateId: areaToFilter.stateId,
-                  },
-                },
-              },
-            },
-            {
-              areas: {
-                some: {
-                  area: {
-                    type: "country",
-                  },
-                },
-              },
-            },
-          ],
-        };
-        // TODO: Order by area type: state -> district -> country
-      }
-      if (areaToFilter.type === "district") {
-        areaQuery = {
-          OR: [
-            {
-              areas: {
-                some: {
-                  area: {
-                    id: areaId,
-                  },
-                },
-              },
-            },
-            {
-              areas: {
-                some: {
-                  area: {
-                    type: "state",
-                    stateId: areaToFilter.stateId,
-                  },
-                },
-              },
-            },
-            {
-              areas: {
-                some: {
-                  area: {
-                    type: "country",
-                  },
-                },
-              },
-            },
-          ],
-        };
-        // TODO: Order by area type: district -> state -> country
-      }
-      queries.push(areaQuery);
+  if (areaToFilter) {
+    if (areaToFilter.type === "country") {
+      areaQuery = {
+        areas: {
+          some: {},
+        },
+      };
+      // TODO: Order by area type: country -> state -> district
     }
+    if (areaToFilter.type === "state") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: state -> district -> country
+    }
+    if (areaToFilter.type === "district") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  id: areaToFilter.id,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "state",
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: district -> state -> country
+    }
+    queries.push(areaQuery);
   }
 
   if (offerId) {
@@ -319,7 +322,7 @@ export async function getFilteredProfiles(
       academicTitle: true,
       position: true,
       bio: true,
-      areas: { select: { area: { select: { name: true } } } },
+      areas: { select: { area: { select: { name: true, type: true } } } },
     },
     // TODO: Add orderBy
   });

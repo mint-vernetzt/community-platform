@@ -21,6 +21,7 @@ import {
   getFilteredProfiles,
   getAreas,
   getProfileByUserId,
+  getAreaById,
 } from "~/profile.server";
 import { InputError, makeDomainFunction } from "remix-domains";
 import {
@@ -34,9 +35,9 @@ import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData
 
 // TODO: Change to enum of all possible area/seeking/offer ids
 const schema = z.object({
-  areaFilter: z.string().optional(),
-  offerFilter: z.string().optional(),
-  seekingFilter: z.string().optional(),
+  areaId: z.string().optional(),
+  offerId: z.string().optional(),
+  seekingId: z.string().optional(),
 });
 
 type CurrentUser = Pick<
@@ -115,14 +116,60 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  if (!(values.areaFilter || values.offerFilter || values.seekingFilter)) {
-    throw "Bitte ein Filterkriterium auswählen.";
+  let areaToFilter;
+
+  if (values.areaId) {
+    areaToFilter = await getAreaById(values.areaId);
   }
-  const filteredProfiles = await getFilteredProfiles(
-    values.areaFilter,
-    values.offerFilter,
-    values.seekingFilter
+  let filteredProfiles = await getFilteredProfiles(
+    areaToFilter,
+    values.offerId,
+    values.seekingId
   );
+  // TODO: Outsource profile sorting to database
+  if (areaToFilter && areaToFilter.type === "country") {
+    // sort: country -> state -> district
+
+    const country = filteredProfiles
+      .filter(/* where area is country);*/)
+      .sort((a, b) => a.username.localeCompare(b.username));
+    const starte = filteredProfiles
+      .filter(/* where area is state);*/)
+      .sort((a, b) => a.username.localeCompare(b.username));
+    const district = filteredProfiles
+      .filter(/* where area is distric);*/)
+      .sort((a, b) => a.username.localeCompare(b.username));
+
+    const profiles = [...country, ...starte, ...district]; // make set || filter with indexOf
+
+    filteredProfiles.sort((profile, nextProfile) => {
+      let sortDirection = 0;
+      profile.areas.map((area) => {
+        nextProfile.areas.map((nextArea) => {
+          if (area.type === "country" && nextArea.type !== "country") {
+            sortDirection = -1;
+            return;
+          }
+          if (area.type === "state" && nextArea.type === "district") {
+            sortDirection = -1;
+            return;
+          }
+        });
+      });
+      return sortDirection;
+    });
+  }
+  if (areaToFilter && areaToFilter.type === "state") {
+    // sort: state -> district -> country
+  }
+  if (areaToFilter && areaToFilter.type === "district") {
+    // sort: district -> state -> country
+  }
+  // let area = {
+  //   type: "area",
+  // };
+  // filteredProfiles.map((profile) => console.log(profile.areas.includes(area)));
+
   return { values, filteredProfiles };
 });
 
@@ -152,6 +199,8 @@ export default function Index() {
   if (actionData && actionData.success) {
     profiles = actionData.data.filteredProfiles; // TODO: Fix type issue
   }
+
+  console.log(loaderData.currentUser);
 
   return (
     <>
@@ -234,14 +283,14 @@ export default function Index() {
             {({ Field, Button, Errors, register }) => (
               <>
                 <Field
-                  name="areaFilter"
+                  name="areaId"
                   label="Filtern nach Aktivitätsgebiet:"
                   className="mb-2"
                 >
                   {({ Errors }) => (
                     <>
                       <label className="mr-2">Aktivitätsgebiet:</label>
-                      <select {...register("areaFilter")}>
+                      <select {...register("areaId")}>
                         <option></option>
                         {areaOptions.map((option, index) => (
                           <React.Fragment key={index}>
@@ -278,14 +327,14 @@ export default function Index() {
                   )}
                 </Field>
                 <Field
-                  name="offerFilter"
+                  name="offerId"
                   label="Filtern nach Angeboten:"
                   className="mb-2"
                 >
                   {({ Errors }) => (
                     <>
                       <label className="mr-2">Angebot:</label>
-                      <select {...register("offerFilter")}>
+                      <select {...register("offerId")}>
                         <option></option>
                         {loaderData.offers.map((offer, index) => (
                           <option key={`offer-${index}`} value={offer.id}>
@@ -297,14 +346,14 @@ export default function Index() {
                   )}
                 </Field>
                 <Field
-                  name="seekingFilter"
+                  name="seekingId"
                   label="Filtern nach Gesuchen:"
                   className="mb-2"
                 >
                   {({ Errors }) => (
                     <>
                       <label className="mr-2">Gesuch:</label>
-                      <select {...register("seekingFilter")}>
+                      <select {...register("seekingId")}>
                         <option></option>
                         {loaderData.offers.map((offer, index) => (
                           <option key={`seeking-${index}`} value={offer.id}>
