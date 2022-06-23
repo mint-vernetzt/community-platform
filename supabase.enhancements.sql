@@ -11,3 +11,19 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
+
+-- Create bucket for images
+insert into storage.buckets (id, name)
+values ('images', 'images');
+
+create policy "anyone can access images"
+  on storage.objects for select
+  using ( bucket_id = 'images' );
+
+create policy "authenticated user can upload images"
+  on storage.objects for insert
+  with check ( bucket_id = 'images' and auth.role() = 'authenticated');
+
+create policy "authenticated user can update images"
+  on storage.objects for update
+  with check ( bucket_id = 'images' and auth.role() = 'authenticated');
