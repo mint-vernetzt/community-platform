@@ -1,8 +1,14 @@
-import { Area, AreaType, Profile, State } from "@prisma/client";
+import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
-type FieldType = keyof Profile;
+export type ProfileWithRelations = Profile & {
+  areas?: Area[];
+  seekings?: Offer[];
+  offers?: Offer[];
+};
+
+type FieldType = keyof ProfileWithRelations;
 
 export async function getProfileByUsername(username: string) {
   const where = { username };
@@ -22,46 +28,37 @@ export async function getProfileByUsername(username: string) {
 
 export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
   const where = { id };
-  const include = {
-    areas: { select: { areaId: true } },
-    seekings: { select: { offerId: true } },
-    offers: { select: { offerId: true } },
-  };
 
-  if (fields.length > 0) {
-    /**
-     * build select object {KEYn: true} from list of allowed profile fields
-     */
-    let select = fields.reduce(
-      (
-        acc: {
-          [key: string]: boolean;
-        },
-        elem: FieldType
-      ) => {
+  const select = fields.reduce(
+    (
+      acc: {
+        [key: string]: boolean | { select: { [key: string]: boolean } };
+      },
+      elem: FieldType
+    ) => {
+      if (elem === "areas") {
+        acc[elem] = { select: { areaId: true } };
+      } else if (elem === "seekings" || elem === "offers") {
+        acc[elem] = { select: { offerId: true } };
+      } else {
         acc[elem] = true;
-        return acc;
-      },
-      {}
-    );
+      }
+      return acc;
+    },
+    {}
+  );
 
-    const result = await prismaClient.profile.findUnique({
-      select: {
-        ...select,
-        areas: { select: { areaId: true } },
-        seekings: { select: { offerId: true } },
-        offers: { select: { offerId: true } },
-      },
-      where,
-    });
-    return result as typeof result & Profile;
-  } else {
-    const result = await prismaClient.profile.findUnique({
-      where,
-      include,
-    });
-    return result;
+  let query: {
+    select?: Prisma.ProfileSelect;
+    where: Prisma.ProfileWhereUniqueInput;
+  } = { where };
+  if (fields.length > 0) {
+    query = { ...query, select };
   }
+
+  const result = await prismaClient.profile.findUnique(query);
+
+  return result as ProfileWithRelations;
 }
 
 type UpdateProfile = Partial<Profile> & {
@@ -314,8 +311,7 @@ export async function getFilteredProfiles(
     };
     queries.push(seekingQuery);
   }
-
-  return await prismaClient.profile.findMany({
+  const result = await prismaClient.profile.findMany({
     where: {
       AND: queries, // TODO: Solve type issue
     },
@@ -332,6 +328,7 @@ export async function getFilteredProfiles(
     },
     // TODO: Add orderBy
   });
+  return result;
 }
 
 /*

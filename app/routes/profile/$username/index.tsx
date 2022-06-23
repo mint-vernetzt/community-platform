@@ -73,18 +73,7 @@ export const loader: LoaderFunction = async (
   const mode: Mode = deriveMode(username, sessionUser?.user_metadata?.username);
 
   const currentUser = sessionUser?.id
-    ? await getProfileByUserId(sessionUser.id, [
-        "username",
-        "firstName",
-        "lastName",
-        "website",
-        "facebook",
-        "linkedin",
-        "twitter",
-        "xing",
-        "avatar",
-        "background",
-      ])
+    ? await getProfileByUserId(sessionUser.id)
     : undefined;
 
   const publicFields = [

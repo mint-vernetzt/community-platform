@@ -1,4 +1,4 @@
-import { Offer, Profile } from "@prisma/client";
+import { Area, Offer, Profile } from "@prisma/client";
 import React from "react";
 import {
   ActionFunction,
@@ -24,6 +24,7 @@ import {
   getAreas,
   getProfileByUserId,
   getAreaById,
+  ProfileWithRelations,
 } from "~/profile.server";
 import { makeDomainFunction } from "remix-domains";
 import {
@@ -33,14 +34,13 @@ import {
 } from "remix-forms";
 import { Schema, z } from "zod";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+import { supabaseAdmin } from "~/supabase";
 
-// TODO: Change to enum of all possible area/seeking/offer ids
 const schema = z.object({
   areaId: z.string().optional(),
   offerId: z.string().optional(),
   seekingId: z.string().optional(),
 });
-import { supabaseAdmin } from "~/supabase";
 
 type CurrentUser = Pick<
   Profile,
@@ -49,18 +49,7 @@ type CurrentUser = Pick<
 
 type LoaderData = {
   currentUser?: CurrentUser;
-  profiles?: Pick<
-    Profile,
-    | "username"
-    | "firstName"
-    | "lastName"
-    | "academicTitle"
-    | "position"
-    | "bio"
-    | "publicFields"
-    | "avatar"
-  > &
-    { areas: { area: string }[] }[];
+  profiles?: ProfileWithRelations[];
 
   areas: AreasWithState;
   offers: Offer[];
@@ -83,7 +72,9 @@ export const loader: LoaderFunction = async (args) => {
       "bio",
       "publicFields",
       "avatar",
+      "areas",
     ]);
+
     currentUser = profile || undefined; // TODO: fix type issue
   }
 
@@ -154,7 +145,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  let areaToFilter;
+  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
 
   if (values.areaId) {
     areaToFilter = await getAreaById(values.areaId);
@@ -165,10 +156,39 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     values.seekingId
   );
   // TODO: Outsource profile sorting to database
+
+  // Explanation of the below sorting code:
+  //
+  // Expected sorting when filtering for country ("Bundesweit"):
+  // 1. All profiles with a country
+  // 2. All remaining profiles with a state
+  // 3. All remaining profiles with a district
+  //
+  // Expected sorting when filtering for state ("Sachsen", "Saarland", etc...):
+  // 1. All profiles with exactly the filtered state
+  // 2. All remaining profiles with districts inside the filtered state
+  // 3. All remaining profiles with a country
+  //
+  // Expected sorting when filtering for district ("Berlin", "Hamburg", etc...):
+  // 1. All profiles with exactly the filtered district
+  // 2. All remaining profiles with a state that includes the district
+  // 3. All remaining profiles with a country
+  //
+  // To achieve this:
+  // 1. Group the filteredProfiles in ProfilesWithCountry, ProfilesWithState, ProfilesWithDistrict
+  // 2. Sort them alphabetical
+  // 3. Append the groups together getting the order described above
+  // 3.1. Profiles can have more than one area, which leads to the possibility that they got fetched from the database
+  //      because they have a country ("Bundesweit") but also have a state or district the user did not filter for.
+  //      Therefore another filter method is applied filtering out all profiles with the exact state or district.
+  // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
+
+  // 1.
   const profilesWithCountry = filteredProfiles
     .filter((profile) =>
       profile.areas.some((area) => area.area.type === "country")
     )
+    // 2.
     .sort((a, b) => a.username.localeCompare(b.username));
   const profilesWithState = filteredProfiles
     .filter((profile) =>
@@ -181,36 +201,42 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     )
     .sort((a, b) => a.username.localeCompare(b.username));
 
+  // 3.
   let sortedProfiles;
-  if (areaToFilter && areaToFilter.type === "country") {
-    sortedProfiles = [
-      ...profilesWithCountry,
-      ...profilesWithState,
-      ...profilesWithDistrict,
-    ];
+  if (areaToFilter) {
+    const stateId = areaToFilter.stateId; // TypeScript reasons...
+    if (areaToFilter.type === "country") {
+      sortedProfiles = [
+        ...profilesWithCountry,
+        ...profilesWithState,
+        ...profilesWithDistrict,
+      ];
+    }
+    // 3.1.
+    if (areaToFilter.type === "state") {
+      sortedProfiles = [
+        ...profilesWithState.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithDistrict.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithCountry,
+      ];
+    }
+    if (areaToFilter.type === "district") {
+      sortedProfiles = [
+        ...profilesWithDistrict.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithState.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithCountry,
+      ];
+    }
   }
-  if (areaToFilter && areaToFilter.type === "state") {
-    sortedProfiles = [
-      ...profilesWithState.filter((profile) =>
-        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
-      ),
-      ...profilesWithDistrict.filter((profile) =>
-        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
-      ),
-      ...profilesWithCountry,
-    ];
-  }
-  if (areaToFilter && areaToFilter.type === "district") {
-    sortedProfiles = [
-      ...profilesWithDistrict.filter((profile) =>
-        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
-      ),
-      ...profilesWithState.filter((profile) =>
-        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
-      ),
-      ...profilesWithCountry,
-    ];
-  }
+  // 4.
   const profilesSet = new Set(sortedProfiles);
   sortedProfiles = Array.from(profilesSet);
 
@@ -240,6 +266,7 @@ export default function Index() {
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
   let profiles = loaderData.profiles;
+
   if (actionData && actionData.success) {
     profiles = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
