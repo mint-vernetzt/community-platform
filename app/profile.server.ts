@@ -322,7 +322,9 @@ export async function getFilteredProfiles(
       academicTitle: true,
       position: true,
       bio: true,
-      areas: { select: { area: { select: { name: true, type: true } } } },
+      areas: {
+        select: { area: { select: { name: true, type: true, stateId: true } } },
+      },
     },
     // TODO: Add orderBy
   });

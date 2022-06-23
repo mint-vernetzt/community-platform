@@ -153,15 +153,23 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   }
   if (areaToFilter && areaToFilter.type === "state") {
     sortedProfiles = [
-      ...profilesWithState,
-      ...profilesWithDistrict,
+      ...profilesWithState.filter((profile) =>
+        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
+      ),
+      ...profilesWithDistrict.filter((profile) =>
+        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
+      ),
       ...profilesWithCountry,
     ];
   }
   if (areaToFilter && areaToFilter.type === "district") {
     sortedProfiles = [
-      ...profilesWithDistrict,
-      ...profilesWithState,
+      ...profilesWithDistrict.filter((profile) =>
+        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
+      ),
+      ...profilesWithState.filter((profile) =>
+        profile.areas.some((area) => area.area.stateId === areaToFilter.stateId)
+      ),
       ...profilesWithCountry,
     ];
   }
