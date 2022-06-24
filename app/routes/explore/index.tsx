@@ -147,6 +147,10 @@ export const loader: LoaderFunction = async (args) => {
 const mutation = makeDomainFunction(schema)(async (values) => {
   let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
 
+  if (!(values.areaId || values.offerId || values.seekingId)) {
+    throw "";
+  }
+
   if (values.areaId) {
     areaToFilter = await getAreaById(values.areaId);
   }
