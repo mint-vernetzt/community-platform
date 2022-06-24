@@ -322,6 +322,7 @@ export async function getFilteredProfiles(
       academicTitle: true,
       position: true,
       bio: true,
+      avatar: true,
       areas: {
         select: { area: { select: { name: true, type: true, stateId: true } } },
       },
