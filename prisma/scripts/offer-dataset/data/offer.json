@@ -1,5 +1,9 @@
 [
   {
+    "id": "c8a2f41a-6358-4a7a-9c33-e8fca738b961",
+    "title": "Vernetzung"
+  },
+  {
     "id": "338b5bd4-b649-403a-b84f-4ec95670dca1",
     "title": "Digitale Kompetenzen"
   },
@@ -17,7 +21,7 @@
   },
   {
     "id": "5675b2cb-2e2e-47ae-ba40-4290b71aab43",
-    "title": "Kontakt zu Universitäten/ Hochschulen"
+    "title": "Kontakt zu Universitäten / Hochschulen"
   },
   {
     "id": "b896b9e2-ecc3-49d3-8e0f-53bcf52279db",
@@ -57,7 +61,7 @@
   },
   {
     "id": "c3faccfd-3e3e-4297-aa45-efb44ef58d93",
-    "title": "Unterstützung im Bereich Öffentlichkeitsarbeit/ Presse"
+    "title": "Unterstützung im Bereich Öffentlichkeitsarbeit / Presse"
   },
   {
     "id": "2a136937-0492-4382-8e33-8403e16ace9e",
@@ -73,6 +77,6 @@
   },
   {
     "id": "208af4fc-159c-41f6-8600-f53b6b444951",
-    "title": "Unterstützung im Bereich Wirkungsorientierung/ Qualitätsentwicklung}"
+    "title": "Unterstützung im Bereich Wirkungsorientierung / Qualitätsentwicklung"
   }
 ]
