@@ -12,6 +12,17 @@
         }
       }
     },
+    "AreasOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "area": {
+          "$ref": "#/definitions/Area"
+        }
+      }
+    },
     "SeekingsOnProfiles": {
       "type": "object",
       "properties": {
@@ -157,22 +168,22 @@
           "type": "string"
         },
         "email": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "phone": {
           "type": ["string", "null"]
         },
         "street": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "streetNumber": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "zipCode": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "city": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "website": {
           "type": ["string", "null"]
@@ -199,7 +210,10 @@
           "type": ["string", "null"]
         },
         "type": {
-          "type": ["string", "null"]
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrganizationType"
+          }
         },
         "quote": {
           "type": ["string", "null"]
@@ -247,6 +261,12 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "AreasOnOrganizations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AreasOnOrganizations"
+          }
         }
       }
     },
@@ -345,6 +365,12 @@
           "items": {
             "$ref": "#/definitions/AreasOnProfiles"
           }
+        },
+        "AreasOnOrganizations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AreasOnOrganizations"
+          }
         }
       }
     },
@@ -370,12 +396,32 @@
           }
         }
       }
+    },
+    "OrganizationType": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "Organization": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Organization"
+          }
+        }
+      }
     }
   },
   "type": "object",
   "properties": {
     "areasOnProfiles": {
       "$ref": "#/definitions/AreasOnProfiles"
+    },
+    "areasOnOrganizations": {
+      "$ref": "#/definitions/AreasOnOrganizations"
     },
     "seekingsOnProfiles": {
       "$ref": "#/definitions/SeekingsOnProfiles"
@@ -406,6 +452,9 @@
     },
     "offer": {
       "$ref": "#/definitions/Offer"
+    },
+    "organizationType": {
+      "$ref": "#/definitions/OrganizationType"
     }
   }
 }
