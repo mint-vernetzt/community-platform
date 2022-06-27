@@ -6,5 +6,5 @@ prisma-migrate:
 german-states-and-districts-dataset:
 	npx ts-node prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts --verbose
 
-offer-dataset:
-	npx ts-node prisma/scripts/offer-dataset/load-offer-dataset.ts
+import-static-datasets:
+	npx ts-node prisma/scripts/import-static-datasets/index.ts
