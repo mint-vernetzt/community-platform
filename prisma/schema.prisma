@@ -17,9 +17,18 @@ model AreasOnProfiles {
   areaId    String
   area      Area    @relation(fields: [areaId], references: [id])
 
-
   @@id([profileId, areaId])
   @@map("areas_on_profiles")
+}
+
+model AreasOnOrganizations {
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  areaId         String
+  area           Area         @relation(fields: [areaId], references: [id])
+
+  @@id([organizationId, areaId])
+  @@map("areas_on_organization")
 }
 
 model SeekingsOnProfiles {
@@ -79,12 +88,12 @@ model Organization {
   id                     String                 @id @default(uuid())
   name                   String
   slug                   String                 @unique
-  email                  String
+  email                  String?
   phone                  String?
-  street                 String
-  streetNumber           String                 @map("street_number")
-  zipCode                String                 @map("zip_code")
-  city                   String
+  street                 String?
+  streetNumber           String?                @map("street_number")
+  zipCode                String?                @map("zip_code")
+  city                   String?
   website                String?
   logo                   String?
   background             String?
@@ -93,7 +102,7 @@ model Organization {
   twitter                String?
   xing                   String?
   bio                    String?
-  type                   String?
+  type                   OrganizationType[]
   quote                  String?
   quoteAuthor            String?                @map("quote_author")
   quoteAuthorInformation String?                @map("quote_author_information")
@@ -105,6 +114,7 @@ model Organization {
   createdAt              DateTime               @default(now()) @map("created_at")
   updatedAt              DateTime               @default(now()) @map("updated_at")
 
+  AreasOnOrganizations AreasOnOrganizations[]
   @@map("organizations")
 }
 
@@ -168,7 +178,8 @@ model Area {
   state   State?   @relation(fields: [stateId], references: [agsPrefix])
   stateId String?
 
-  AreasOnProfiles AreasOnProfiles[]
+  AreasOnProfiles      AreasOnProfiles[]
+  AreasOnOrganizations AreasOnOrganizations[]
   @@map("areas")
 }
 
@@ -180,4 +191,12 @@ model Offer {
   OffersOnProfiles   OffersOnProfiles[]
 
   @@map("offer")
+}
+
+model OrganizationType {
+  id    String @id @default(uuid())
+  title String @unique
+
+  Organization Organization[]
+  @@map("organization_types")
 }
