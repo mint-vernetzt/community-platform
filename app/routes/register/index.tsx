@@ -37,7 +37,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   const { firstName, lastName, academicTitle, termsAccepted } = values;
 
   if (!termsAccepted) {
-    throw new InputError("Fehlende Einverständnis.", "termsAccepted");
+    throw "Fehlende Einverständnis.";
   }
 
   // TODO: Check if username exists because profiles can be deleted.

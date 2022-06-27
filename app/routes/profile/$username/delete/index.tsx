@@ -22,9 +22,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  const dbProfile = (await getProfileByUserId(
-    currentUser.id
-  )) as unknown as Partial<Profile>;
+  const dbProfile = await getProfileByUserId(currentUser.id);
 
   const initials = getInitials(dbProfile);
 

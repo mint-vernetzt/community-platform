@@ -1,8 +1,14 @@
-import { Area, Profile, State } from "@prisma/client";
+import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
 
-type FieldType = keyof Profile;
+export type ProfileWithRelations = Profile & {
+  areas?: Area[];
+  seekings?: Offer[];
+  offers?: Offer[];
+};
+
+type FieldType = keyof ProfileWithRelations;
 
 export async function getProfileByUsername(username: string) {
   const where = { username };
@@ -22,46 +28,37 @@ export async function getProfileByUsername(username: string) {
 
 export async function getProfileByUserId(id: string, fields: FieldType[] = []) {
   const where = { id };
-  const include = {
-    areas: { select: { areaId: true } },
-    seekings: { select: { offerId: true } },
-    offers: { select: { offerId: true } },
-  };
 
-  if (fields.length > 0) {
-    /**
-     * build select object {KEYn: true} from list of allowed profile fields
-     */
-    let select = fields.reduce(
-      (
-        acc: {
-          [key: string]: boolean;
-        },
-        elem: FieldType
-      ) => {
+  const select = fields.reduce(
+    (
+      acc: {
+        [key: string]: boolean | { select: { [key: string]: boolean } };
+      },
+      elem: FieldType
+    ) => {
+      if (elem === "areas") {
+        acc[elem] = { select: { areaId: true } };
+      } else if (elem === "seekings" || elem === "offers") {
+        acc[elem] = { select: { offerId: true } };
+      } else {
         acc[elem] = true;
-        return acc;
-      },
-      {}
-    );
+      }
+      return acc;
+    },
+    {}
+  );
 
-    const result = await prismaClient.profile.findUnique({
-      select: {
-        ...select,
-        areas: { select: { areaId: true } },
-        seekings: { select: { offerId: true } },
-        offers: { select: { offerId: true } },
-      },
-      where,
-    });
-    return result as typeof result & Profile;
-  } else {
-    const result = await prismaClient.profile.findUnique({
-      where,
-      include,
-    });
-    return result;
+  let query: {
+    select?: Prisma.ProfileSelect;
+    where: Prisma.ProfileWhereUniqueInput;
+  } = { where };
+  if (fields.length > 0) {
+    query = { ...query, select };
   }
+
+  const result = await prismaClient.profile.findUnique(query);
+
+  return result as ProfileWithRelations;
 }
 
 type UpdateProfile = Partial<Profile> & {
@@ -144,6 +141,19 @@ export async function getAreas(): Promise<AreasWithState> {
   });
 }
 
+export async function getAreaById(areaId: string) {
+  return await prismaClient.area.findUnique({
+    where: {
+      id: areaId,
+    },
+    select: {
+      id: true,
+      type: true,
+      stateId: true,
+    },
+  });
+}
+
 export async function getAllProfiles() {
   const profiles = await prismaClient.profile.findMany({
     orderBy: {
@@ -189,6 +199,137 @@ export async function getAllOffers() {
 
 export async function deleteProfileByUserId(id: string) {
   return await prismaClient.profile.delete({ where: { id } });
+}
+
+export async function getFilteredProfiles(
+  areaToFilter:
+    | { id: string; type: AreaType; stateId: string | null }
+    | null
+    | undefined,
+  offerId: string | undefined,
+  seekingId: string | undefined
+) {
+  let queries = [],
+    areaQuery,
+    offerQuery,
+    seekingQuery;
+
+  if (areaToFilter) {
+    if (areaToFilter.type === "country") {
+      areaQuery = {
+        areas: {
+          some: {},
+        },
+      };
+      // TODO: Order by area type: country -> state -> district
+    }
+    if (areaToFilter.type === "state") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: state -> district -> country
+    }
+    if (areaToFilter.type === "district") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  id: areaToFilter.id,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "state",
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: district -> state -> country
+    }
+    queries.push(areaQuery);
+  }
+
+  if (offerId) {
+    offerQuery = {
+      offers: {
+        some: {
+          offer: {
+            id: offerId,
+          },
+        },
+      },
+    };
+    queries.push(offerQuery);
+  }
+
+  if (seekingId) {
+    seekingQuery = {
+      seekings: {
+        some: {
+          offer: {
+            id: seekingId,
+          },
+        },
+      },
+    };
+    queries.push(seekingQuery);
+  }
+  const result = await prismaClient.profile.findMany({
+    where: {
+      AND: queries, // TODO: Solve type issue
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      academicTitle: true,
+      position: true,
+      bio: true,
+      avatar: true,
+      areas: {
+        select: { area: { select: { name: true, type: true, stateId: true } } },
+      },
+    },
+    // TODO: Add orderBy
+  });
+  return result;
 }
 
 /*

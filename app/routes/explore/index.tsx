@@ -1,14 +1,46 @@
-import { Profile } from "@prisma/client";
+import { Area, Offer, Profile } from "@prisma/client";
+import React from "react";
+import {
+  ActionFunction,
+  Form,
+  json,
+  Link,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, json, Link, LoaderFunction, useLoaderData } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { builder } from "~/imgproxy";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
-import { getAllProfiles, getProfileByUserId } from "~/profile.server";
+import {
+  AreasWithState,
+  getAllOffers,
+  getAllProfiles,
+  getFilteredProfiles,
+  getAreas,
+  getProfileByUserId,
+  getAreaById,
+  ProfileWithRelations,
+} from "~/profile.server";
+import { makeDomainFunction } from "remix-domains";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { supabaseAdmin } from "~/supabase";
+
+const schema = z.object({
+  areaId: z.string().optional(),
+  offerId: z.string().optional(),
+  seekingId: z.string().optional(),
+});
 
 type CurrentUser = Pick<
   Profile,
@@ -17,18 +49,10 @@ type CurrentUser = Pick<
 
 type LoaderData = {
   currentUser?: CurrentUser;
-  profiles?: Pick<
-    Profile,
-    | "username"
-    | "firstName"
-    | "lastName"
-    | "academicTitle"
-    | "position"
-    | "bio"
-    | "publicFields"
-    | "avatar"
-  > &
-    { areas: { area: string }[] }[];
+  profiles?: ProfileWithRelations[];
+
+  areas: AreasWithState;
+  offers: Offer[];
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -48,7 +72,9 @@ export const loader: LoaderFunction = async (args) => {
       "bio",
       "publicFields",
       "avatar",
+      "areas",
     ]);
+
     currentUser = profile || undefined; // TODO: fix type issue
   }
 
@@ -112,15 +138,141 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
-  return json({ currentUser, profiles });
+  const areas = await getAreas();
+  const offers = await getAllOffers();
+
+  return json({ currentUser, profiles, areas, offers });
+};
+
+const mutation = makeDomainFunction(schema)(async (values) => {
+  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
+
+  if (!(values.areaId || values.offerId || values.seekingId)) {
+    throw "";
+  }
+
+  if (values.areaId) {
+    areaToFilter = await getAreaById(values.areaId);
+  }
+  let filteredProfiles = await getFilteredProfiles(
+    areaToFilter,
+    values.offerId,
+    values.seekingId
+  );
+  // TODO: Outsource profile sorting to database
+
+  // Explanation of the below sorting code:
+  //
+  // Expected sorting when filtering for country ("Bundesweit"):
+  // 1. All profiles with a country
+  // 2. All remaining profiles with a state
+  // 3. All remaining profiles with a district
+  //
+  // Expected sorting when filtering for state ("Sachsen", "Saarland", etc...):
+  // 1. All profiles with exactly the filtered state
+  // 2. All remaining profiles with districts inside the filtered state
+  // 3. All remaining profiles with a country
+  //
+  // Expected sorting when filtering for district ("Berlin", "Hamburg", etc...):
+  // 1. All profiles with exactly the filtered district
+  // 2. All remaining profiles with a state that includes the district
+  // 3. All remaining profiles with a country
+  //
+  // To achieve this:
+  // 1. Group the filteredProfiles in ProfilesWithCountry, ProfilesWithState, ProfilesWithDistrict
+  // 2. Sort them alphabetical
+  // 3. Append the groups together getting the order described above
+  // 3.1. Profiles can have more than one area, which leads to the possibility that they got fetched from the database
+  //      because they have a country ("Bundesweit") but also have a state or district the user did not filter for.
+  //      Therefore another filter method is applied filtering out all profiles with the exact state or district.
+  // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
+
+  // 1.
+  const profilesWithCountry = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "country")
+    )
+    // 2.
+    .sort((a, b) => a.username.localeCompare(b.username));
+  const profilesWithState = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "state")
+    )
+    .sort((a, b) => a.username.localeCompare(b.username));
+  const profilesWithDistrict = filteredProfiles
+    .filter((profile) =>
+      profile.areas.some((area) => area.area.type === "district")
+    )
+    .sort((a, b) => a.username.localeCompare(b.username));
+
+  // 3.
+  let sortedProfiles;
+  if (areaToFilter) {
+    const stateId = areaToFilter.stateId; // TypeScript reasons...
+    if (areaToFilter.type === "country") {
+      sortedProfiles = [
+        ...profilesWithCountry,
+        ...profilesWithState,
+        ...profilesWithDistrict,
+      ];
+    }
+    // 3.1.
+    if (areaToFilter.type === "state") {
+      sortedProfiles = [
+        ...profilesWithState.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithDistrict.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithCountry,
+      ];
+    }
+    if (areaToFilter.type === "district") {
+      sortedProfiles = [
+        ...profilesWithDistrict.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithState.filter((profile) =>
+          profile.areas.some((area) => area.area.stateId === stateId)
+        ),
+        ...profilesWithCountry,
+      ];
+    }
+  }
+  // 4.
+  const profilesSet = new Set(sortedProfiles);
+  sortedProfiles = Array.from(profilesSet);
+
+  return { values, sortedProfiles };
+});
+
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
+export const action: ActionFunction = async ({ request }) => {
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+  });
+
+  return result;
 };
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
 
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
     initialsOfCurrentUser = getInitials(loaderData.currentUser);
+  }
+  const areaOptions = createAreaOptionFromData(loaderData.areas);
+
+  let profiles = loaderData.profiles;
+
+  if (actionData && actionData.success) {
+    profiles = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
 
   return (
@@ -198,6 +350,103 @@ export default function Index() {
         </p>
       </section>
 
+      {loaderData.currentUser !== undefined ? (
+        <section className="container my-8">
+          <RemixForm method="post" schema={schema}>
+            {({ Field, Button, Errors, register }) => (
+              <>
+                <Field
+                  name="areaId"
+                  label="Filtern nach Aktivitätsgebiet:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Aktivitätsgebiet:</label>
+                      <select {...register("areaId")}>
+                        <option></option>
+                        {areaOptions.map((option, index) => (
+                          <React.Fragment key={index}>
+                            {"value" in option && (
+                              <option
+                                key={`area-${index}`}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </option>
+                            )}
+
+                            {"options" in option && (
+                              <optgroup
+                                key={`area-group-${index}`}
+                                label={option.label}
+                              >
+                                {option.options.map(
+                                  (groupOption, groupOptionIndex) => (
+                                    <option
+                                      key={`area-${index}-${groupOptionIndex}`}
+                                      value={groupOption.value}
+                                    >
+                                      {groupOption.label}
+                                    </option>
+                                  )
+                                )}
+                              </optgroup>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <Field
+                  name="offerId"
+                  label="Filtern nach Angeboten:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Angebot:</label>
+                      <select {...register("offerId")}>
+                        <option></option>
+                        {loaderData.offers.map((offer, index) => (
+                          <option key={`offer-${index}`} value={offer.id}>
+                            {offer.title}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <Field
+                  name="seekingId"
+                  label="Filtern nach Gesuchen:"
+                  className="mb-2"
+                >
+                  {({ Errors }) => (
+                    <>
+                      <label className="mr-2">Gesuch:</label>
+                      <select {...register("seekingId")}>
+                        <option></option>
+                        {loaderData.offers.map((offer, index) => (
+                          <option key={`seeking-${index}`} value={offer.id}>
+                            {offer.title}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </Field>
+                <button type="submit" className="btn btn-primary">
+                  Filter anwenden
+                </button>
+                <Errors />
+              </>
+            )}
+          </RemixForm>
+        </section>
+      ) : null}
+
       <section
         className="container my-8 md:my-10 lg:my-20"
         id="contact-details"
@@ -206,9 +455,9 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {loaderData.profiles !== undefined &&
-            loaderData.profiles.length > 0 &&
-            loaderData.profiles.map((profile, index) => (
+          {profiles !== undefined &&
+            profiles.length > 0 &&
+            profiles.map((profile, index) => (
               <div
                 key={`profile-${index}`}
                 data-testid="gridcell"
