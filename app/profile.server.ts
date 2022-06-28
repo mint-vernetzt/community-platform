@@ -125,6 +125,32 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
   return result;
 }
 
+export async function createOrganizationOnProfile(
+  profileId: string,
+  organizationName: string,
+  organizationSlug: string
+) {
+  const profile = prismaClient.profile.update({
+    where: {
+      id: profileId,
+    },
+    data: {
+      memberOf: {
+        create: {
+          isPrivileged: true,
+          organization: {
+            create: {
+              name: organizationName,
+              slug: organizationSlug,
+            },
+          },
+        },
+      },
+    },
+  });
+  return profile;
+}
+
 export async function getAllDistricts() {
   return await prismaClient.district.findMany();
 }

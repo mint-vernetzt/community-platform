@@ -16,7 +16,15 @@ export function validateFormData(
 }
 
 export function generateUsername(firstName: string, lastName: string) {
-  return `${firstName}${lastName}`
+  return generateValidSlug(`${firstName}${lastName}`);
+}
+
+export function generateOrganizationSlug(name: string) {
+  return generateValidSlug(name);
+}
+
+function generateValidSlug(string: string) {
+  return string
     .toLowerCase()
     .replace(/[áàâãå]/, "a")
     .replace(/[äæ]/, "ae")

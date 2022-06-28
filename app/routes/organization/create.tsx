@@ -1,28 +1,55 @@
-import { ActionFunction, Link, LoaderFunction } from "remix";
+import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { z } from "zod";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
 import Input from "~/components/FormElements/Input/Input";
+import { createOrganizationOnProfile } from "~/profile.server";
+import { forbidden } from "remix-utils";
+import { generateOrganizationSlug } from "~/utils";
+import { getUserByRequest } from "~/auth.server";
 
 const schema = z.object({
+  id: z.string().uuid(),
   organizationName: z
     .string()
-    .min(1, "Bitte einen Namen der Organisation angeben."),
+    .min(1, "Bitte den Namen der Organisation angeben."),
 });
 
-export const loader: LoaderFunction = async () => {
-  return null;
+type LoaderData = {
+  id: string;
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const currentUser = await getUserByRequest(request);
+  if (currentUser === null) {
+    throw forbidden({ message: "not allowed" });
+  }
+
+  return { id: currentUser.id };
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  if (values.organizationName === "error") {
-    throw "error";
+  const slug = generateOrganizationSlug(values.organizationName);
+  try {
+    await createOrganizationOnProfile(values.id, values.organizationName, slug);
+  } catch (error) {
+    throw "Es existiert bereits eine Organisation mit diesem Namen.";
   }
   return values;
 });
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
+  const currentUser = await getUserByRequest(request);
+
+  const requestClone = request.clone();
+  const formData = await requestClone.formData();
+  const formUserId = formData.get("id");
+
+  if (currentUser === null || formUserId !== currentUser.id) {
+    throw forbidden({ message: "not allowed" });
+  }
+
   const formActionResult = formAction({
     request,
     schema,
@@ -32,7 +59,9 @@ export const action: ActionFunction = async ({ request }) => {
   return formActionResult;
 };
 
-export default function Index() {
+export default function Create() {
+  const loaderData = useLoaderData<LoaderData>();
+
   return (
     <>
       <header className="shadow-md mb-8">
@@ -62,6 +91,18 @@ export default function Index() {
                         label="Name der Organisation"
                         {...register("organizationName")}
                       />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
+                <Field name="id">
+                  {({ Errors }) => (
+                    <>
+                      <input
+                        type="hidden"
+                        value={loaderData.id}
+                        {...register("id")}
+                      ></input>
                       <Errors />
                     </>
                   )}
