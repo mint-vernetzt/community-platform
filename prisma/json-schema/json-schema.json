@@ -45,6 +45,17 @@
         }
       }
     },
+    "OrganizationTypesOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "organizationType": {
+          "$ref": "#/definitions/OrganizationType"
+        }
+      }
+    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -209,10 +220,10 @@
         "bio": {
           "type": ["string", "null"]
         },
-        "type": {
+        "types": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OrganizationType"
+            "$ref": "#/definitions/OrganizationTypesOnOrganizations"
           }
         },
         "quote": {
@@ -262,7 +273,7 @@
           "type": "string",
           "format": "date-time"
         },
-        "AreasOnOrganizations": {
+        "areas": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/AreasOnOrganizations"
@@ -406,10 +417,10 @@
         "title": {
           "type": "string"
         },
-        "Organization": {
+        "organizations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Organization"
+            "$ref": "#/definitions/OrganizationTypesOnOrganizations"
           }
         }
       }
@@ -428,6 +439,9 @@
     },
     "offersOnProfiles": {
       "$ref": "#/definitions/OffersOnProfiles"
+    },
+    "organizationTypesOnOrganizations": {
+      "$ref": "#/definitions/OrganizationTypesOnOrganizations"
     },
     "profile": {
       "$ref": "#/definitions/Profile"
