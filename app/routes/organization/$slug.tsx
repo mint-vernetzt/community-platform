@@ -22,100 +22,79 @@ import { builder } from "~/imgproxy";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
+import {
+  getOrganisationBySlug,
+  OrganizationWithRelations,
+} from "~/organization.server";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 
+type LoaderData = {
+  organization: OrganizationWithRelations;
+  isPrivileged: boolean;
+  images: {
+    logo?: string;
+    background?: string;
+  };
+};
+
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const { slug } = params;
-  const currentUser = await getUserByRequest(request);
+  if (slug === undefined || slug === "") {
+    throw badRequest({ message: "organization slug must be provided" });
+  }
+  const loggedInUser = await getUserByRequest(request);
+  const organization = await getOrganisationBySlug(slug);
+  if (organization === null) {
+    throw notFound({ message: "Not found" });
+  }
+  let isPrivileged;
 
-  console.log("CURRENT USER", currentUser);
+  if (loggedInUser === null) {
+    let field: keyof OrganizationWithRelations;
+    for (field in organization) {
+      if (!organization.publicFields.includes(field)) {
+        delete organization[field];
+      }
+    }
+    isPrivileged = false;
+  } else {
+    isPrivileged = organization.teamMembers.some(
+      (member) => member.profileId === loggedInUser.id && member.isPrivileged
+    );
+  }
 
-  //   if (typeof username !== "string" || username === "") {
-  //     throw badRequest({ message: "Username must be provided" });
-  //   }
-
-  //   const profile = await getProfileByUsername(username);
-  //   if (profile === null) {
-  //     throw notFound({ message: "Not found" });
-  //   }
-
-  //   const sessionUser = await getUserByRequest(request);
-  //   const mode: Mode = deriveMode(username, sessionUser?.user_metadata?.username);
-
-  //   const currentUser = sessionUser?.id
-  //     ? await getProfileByUserId(sessionUser.id)
-  //     : undefined;
-
-  //   const publicFields = [
-  //     "id",
-  //     "username",
-  //     "firstName",
-  //     "lastName",
-  //     "academicTitle",
-  //     "areas",
-  //     "avatar",
-  //     "background",
-  //     ...profile.publicFields,
-  //   ];
-
-  //   let data: Partial<Profile> = {};
-  //   for (const key in profile) {
-  //     if (mode !== "anon" || publicFields.includes(key)) {
-  //       // @ts-ignore <-- Partials allow undefined, Profile not
-  //       data[key] = profile[key];
-  //     }
-  //   }
-
-  //   let images: {
-  //     avatar?: string;
-  //     background?: string;
-  //     currentUserAvatar?: string;
-  //   } = {};
-
-  //   if (data.avatar !== undefined && data.avatar !== null) {
-  //     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-  //       .from("images")
-  //       .getPublicUrl(data.avatar);
-  //     if (publicURL !== null) {
-  //       images.avatar = builder
-  //         .resize("fill", 144, 144)
-  //         .dpr(2)
-  //         .generateUrl(publicURL);
-  //     }
-  //   }
-  //   if (data.background !== undefined && data.background !== null) {
-  //     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-  //       .from("images")
-  //       .getPublicUrl(data.background);
-  //     if (publicURL !== null) {
-  //       images.background = builder
-  //         .resize("fill", 1488, 480)
-  //         .gravity(GravityType.north_east)
-  //         .dpr(2)
-  //         .generateUrl(publicURL);
-  //     }
-  //   }
-  //   if (
-  //     currentUser !== undefined &&
-  //     currentUser !== null &&
-  //     currentUser.avatar !== null
-  //   ) {
-  //     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-  //       .from("images")
-  //       .getPublicUrl(currentUser.avatar);
-  //     if (publicURL !== null) {
-  //       images.currentUserAvatar = builder
-  //         .resize("fit", 64, 64)
-  //         .dpr(2)
-  //         .generateUrl(publicURL);
-  //     }
-  //   }
-  //   return json({ mode, data, currentUser, images });
-  return null;
+  let images: {
+    logo?: string;
+    background?: string;
+  } = {};
+  if (organization.logo) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(organization.logo);
+    if (publicURL !== null) {
+      images.logo = builder
+        .resize("fill", 144, 144)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  if (organization.background) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(organization.background);
+    if (publicURL !== null) {
+      images.background = builder
+        .resize("fill", 1488, 480)
+        .gravity(GravityType.north_east)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  return { organization, isPrivileged, images };
 };
 
 export const action: ActionFunction = async (args) => {
