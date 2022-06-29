@@ -491,13 +491,12 @@ export default function Index() {
                     <h4 className="font-semibold">
                       Organisation, Netzwerk, Projekt hinzufügen
                     </h4>
-                    <button
-                      type="submit"
+                    <Link
+                      to="/organization/create"
                       className="btn btn-outline-primary ml-auto btn-small"
-                      disabled
                     >
                       Organisation anlegen
-                    </button>
+                    </Link>
                   </div>
                   <p className="mb-8">
                     Die Organisation, das Netzwerk oder das Projekt, in dem Du

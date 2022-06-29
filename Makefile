@@ -1,4 +1,4 @@
-all: prisma-migrate german-states-and-districts-dataset offer-dataset
+all: prisma-migrate german-states-and-districts-dataset import-static-datasets
 
 prisma-migrate:
 	npm run prisma:migrate
