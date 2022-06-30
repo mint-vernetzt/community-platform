@@ -339,7 +339,7 @@ export default function Index() {
         </div>
       </header>
 
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20 text-center">
+      <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke die Community</H1>
         <p className="">
           Hier siehst Du persönliche Profile sowie Organisationen, Netzwerke und
@@ -355,92 +355,117 @@ export default function Index() {
           <RemixForm method="post" schema={schema}>
             {({ Field, Button, Errors, register }) => (
               <>
-                <Field
-                  name="areaId"
-                  label="Filtern nach Aktivitätsgebiet:"
-                  className="mb-2"
-                >
-                  {({ Errors }) => (
-                    <>
-                      <label className="mr-2">Aktivitätsgebiet:</label>
-                      <select {...register("areaId")}>
-                        <option></option>
-                        {areaOptions.map((option, index) => (
-                          <React.Fragment key={index}>
-                            {"value" in option && (
-                              <option
-                                key={`area-${index}`}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </option>
-                            )}
-
-                            {"options" in option && (
-                              <optgroup
-                                key={`area-group-${index}`}
-                                label={option.label}
-                              >
-                                {option.options.map(
-                                  (groupOption, groupOptionIndex) => (
-                                    <option
-                                      key={`area-${index}-${groupOptionIndex}`}
-                                      value={groupOption.value}
-                                    >
-                                      {groupOption.label}
-                                    </option>
-                                  )
+                <div className="flex flex-wrap -mx-4">
+                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                    <Field
+                      name="areaId"
+                      label="Filtern nach Aktivitätsgebiet:"
+                      className=""
+                    >
+                      {({ Errors }) => (
+                        <>
+                          <label className="block font-semibold mb-2">
+                            Aktivitätsgebiet:
+                          </label>
+                          <select
+                            {...register("areaId")}
+                            className="select w-full select-bordered"
+                          >
+                            <option></option>
+                            {areaOptions.map((option, index) => (
+                              <React.Fragment key={index}>
+                                {"value" in option && (
+                                  <option
+                                    key={`area-${index}`}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </option>
                                 )}
-                              </optgroup>
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </select>
-                    </>
-                  )}
-                </Field>
-                <Field
-                  name="offerId"
-                  label="Filtern nach Angeboten:"
-                  className="mb-2"
-                >
-                  {({ Errors }) => (
-                    <>
-                      <label className="mr-2">Angebot:</label>
-                      <select {...register("offerId")}>
-                        <option></option>
-                        {loaderData.offers.map((offer, index) => (
-                          <option key={`offer-${index}`} value={offer.id}>
-                            {offer.title}
-                          </option>
-                        ))}
-                      </select>
-                    </>
-                  )}
-                </Field>
-                <Field
-                  name="seekingId"
-                  label="Filtern nach Gesuchen:"
-                  className="mb-2"
-                >
-                  {({ Errors }) => (
-                    <>
-                      <label className="mr-2">Gesuch:</label>
-                      <select {...register("seekingId")}>
-                        <option></option>
-                        {loaderData.offers.map((offer, index) => (
-                          <option key={`seeking-${index}`} value={offer.id}>
-                            {offer.title}
-                          </option>
-                        ))}
-                      </select>
-                    </>
-                  )}
-                </Field>
-                <button type="submit" className="btn btn-primary">
-                  Filter anwenden
-                </button>
-                <Errors />
+
+                                {"options" in option && (
+                                  <optgroup
+                                    key={`area-group-${index}`}
+                                    label={option.label}
+                                  >
+                                    {option.options.map(
+                                      (groupOption, groupOptionIndex) => (
+                                        <option
+                                          key={`area-${index}-${groupOptionIndex}`}
+                                          value={groupOption.value}
+                                        >
+                                          {groupOption.label}
+                                        </option>
+                                      )
+                                    )}
+                                  </optgroup>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </select>
+                        </>
+                      )}
+                    </Field>
+                  </div>
+                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                    <Field
+                      name="offerId"
+                      label="Filtern nach Angeboten:"
+                      className=""
+                    >
+                      {({ Errors }) => (
+                        <>
+                          <label className="block font-semibold mb-2">
+                            Angebot:
+                          </label>
+                          <select
+                            {...register("offerId")}
+                            className="select w-full select-bordered"
+                          >
+                            <option></option>
+                            {loaderData.offers.map((offer, index) => (
+                              <option key={`offer-${index}`} value={offer.id}>
+                                {offer.title}
+                              </option>
+                            ))}
+                          </select>
+                        </>
+                      )}
+                    </Field>
+                  </div>
+                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                    <Field
+                      name="seekingId"
+                      label="Filtern nach Gesuchen:"
+                      className=""
+                    >
+                      {({ Errors }) => (
+                        <>
+                          <label className="block font-semibold mb-2">
+                            Gesuch:
+                          </label>
+                          <select
+                            {...register("seekingId")}
+                            className="select w-full select-bordered"
+                          >
+                            <option></option>
+                            {loaderData.offers.map((offer, index) => (
+                              <option key={`seeking-${index}`} value={offer.id}>
+                                {offer.title}
+                              </option>
+                            ))}
+                          </select>
+                        </>
+                      )}
+                    </Field>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button type="submit" className="btn btn-primary">
+                    Filter anwenden
+                  </button>
+                  <Errors />
+                </div>
               </>
             )}
           </RemixForm>
