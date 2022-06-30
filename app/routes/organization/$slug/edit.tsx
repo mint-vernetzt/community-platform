@@ -1,20 +1,31 @@
-import { Organization, OrganizationType } from "@prisma/client";
+import { Area, OrganizationType, Profile } from "@prisma/client";
+import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
   Form,
+  Link,
   LoaderFunction,
   useActionData,
   useLoaderData,
+  useParams,
+  useTransition,
 } from "remix";
-import { badRequest, forbidden, notFound, serverError } from "remix-utils";
-import { array, InferType, object, string } from "yup";
+import { badRequest, forbidden, serverError } from "remix-utils";
+import { array, InferType, object, string, ValidationError } from "yup";
 import { getUserByRequest } from "~/auth.server";
+import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import SelectField from "~/components/FormElements/SelectField/SelectField";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+import { getInitials } from "~/lib/profile/getInitials";
+import { socialMediaServices } from "~/lib/profile/socialMediaServices";
+import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
+import { getAreas, getProfileByUserId } from "~/profile.server";
+import Header from "~/routes/profile/$username/Header";
 
 const organizationSchema = object({
   name: string().required(),
@@ -24,7 +35,10 @@ const organizationSchema = object({
   streetNumber: string(),
   zipCode: string(),
   city: string(),
-  website: string(),
+  website: string().matches(
+    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
+  ),
   logo: string(),
   background: string(),
   facebook: string(),
@@ -44,11 +58,60 @@ const organizationSchema = object({
   areas: array(string().required()).required(),
 });
 
+type Error = {
+  type: string;
+  message: string;
+};
+
+type FormError = {
+  [key: string]: {
+    message: string;
+    errors?: Error[];
+  };
+};
+
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
+async function validateForm(form: OrganizationFormType) {
+  let errors: FormError = {};
+
+  try {
+    await organizationSchema.validate(form, { abortEarly: false });
+  } catch (validationError) {
+    if (validationError instanceof ValidationError) {
+      validationError.inner.forEach((validationError) => {
+        if (validationError.path) {
+          if (!errors[validationError.path]) {
+            errors[validationError.path] = {
+              message: validationError.message,
+              errors: [],
+            };
+          } else {
+            errors[
+              validationError.path
+            ].message += `, ${validationError.message}`;
+          }
+
+          errors[validationError.path].errors?.push({
+            type: (validationError.type as string) ?? "",
+            message: validationError.message,
+          });
+        }
+      });
+    }
+  }
+
+  return Object.keys(errors).length === 0 ? false : errors;
+}
+
 type LoaderData = {
-  organization: OrganizationFormType;
+  organization: Omit<OrganizationFormType, "types" | "areas"> & {
+    types: string[];
+    areas: string[];
+  };
   organizationTypes: OrganizationType[];
+  areas: Area[];
+  profile: Profile;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -64,14 +127,14 @@ export const loader: LoaderFunction = async (args) => {
         },
       },
       include: {
-        areas: {
-          select: {
-            areaId: true,
-          },
-        },
         types: {
           select: {
             organizationTypeId: true,
+          },
+        },
+        areas: {
+          select: {
+            areaId: true,
           },
         },
       },
@@ -105,8 +168,24 @@ export const loader: LoaderFunction = async (args) => {
   }
 
   const organizationTypes = await getOrganizationTypes();
+  const profile = await getProfileByUserId(currentUser.id);
 
-  return { organization, organizationTypes };
+  const areas = await getAreas();
+
+  return {
+    organization: {
+      ...organization,
+      types: organization.types.map((type) => {
+        return type.organizationTypeId;
+      }),
+      areas: organization.areas.map((area) => {
+        return area.areaId;
+      }),
+    },
+    organizationTypes,
+    areas,
+    profile,
+  };
 };
 
 export const action: ActionFunction = async (args) => {
@@ -150,9 +229,9 @@ export const action: ActionFunction = async (args) => {
       quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
       supportedBy: (formData.getAll("supportedBy") ?? []) as string[],
       publicFields: (formData.getAll("publicFields") ?? []) as string[],
-      teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
-      memberOf: (formData.getAll("memberOf") ?? []) as string[],
-      networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
+      // teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
+      // memberOf: (formData.getAll("memberOf") ?? []) as string[],
+      // networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
       areas: (formData.getAll("areas") ?? []) as string[],
     };
 
@@ -167,22 +246,22 @@ export const action: ActionFunction = async (args) => {
   const addListEntry = (
     name: keyof OrganizationFormType,
     value: string,
-    profile: OrganizationFormType
+    organization: OrganizationFormType
   ) => {
     return {
-      ...profile,
-      [name]: [...(profile[name] as string[]), value],
+      ...organization,
+      [name]: [...(organization[name] as string[]), value],
     };
   };
 
   const removeListEntry = (
     name: keyof OrganizationFormType,
     value: string,
-    profile: OrganizationFormType
+    organization: OrganizationFormType
   ) => {
     return {
-      ...profile,
-      [name]: (profile[name] as string[]).filter(
+      ...organization,
+      [name]: (organization[name] as string[]).filter(
         (v) => v !== value
       ) as string[],
     };
@@ -238,46 +317,102 @@ export const action: ActionFunction = async (args) => {
   }
 
   let data = await createOrganizationDataToUpdate(request);
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(organization["bio"] ?? "");
+
+  const errors = await validateForm(data);
+
+  let updated = false;
 
   const formData = await request.clone().formData();
+  const submit = formData.get("submit");
+  if (submit === "submit") {
+    if (errors === false) {
+      try {
+        await prismaClient.organization.update({
+          where: {
+            slug,
+          },
+          data: {
+            ...data,
+            types: {
+              deleteMany: {},
+              connectOrCreate: data.types.map((typeId) => {
+                return {
+                  where: {
+                    organizationId_organizationTypeId: {
+                      organizationTypeId: typeId,
+                      organizationId: organization.id,
+                    },
+                  },
+                  create: {
+                    organizationTypeId: typeId,
+                  },
+                };
+              }),
+            },
+            areas: {
+              deleteMany: {},
+              connectOrCreate: data.areas.map((areaId) => {
+                return {
+                  where: {
+                    organizationId_areaId: {
+                      areaId,
+                      organizationId: organization.id,
+                    },
+                  },
+                  create: {
+                    areaId,
+                  },
+                };
+              }),
+            },
+          },
+        });
 
-  const listData: (keyof OrganizationFormType)[] = [
-    "types",
-    "memberOf",
-    "networkMembers",
-    "teamMembers",
-    "areas",
-  ];
+        updated = true;
+      } catch (error) {
+        console.error(error);
+        throw serverError({ message: "Something went wrong on update." });
+      }
+    }
+  } else {
+    const listData: (keyof OrganizationFormType)[] = [
+      "types",
+      "supportedBy",
+      // "memberOf",
+      // "networkMembers",
+      // "teamMembers",
+      "areas",
+    ];
 
-  listData.forEach((name) => {
-    data = organizationListOperationResolver(data, name, formData);
-  });
-
-  // console.log("data", data);
-
-  // try {
-  //   await prismaClient.organization.update({
-  //     where: {
-  //       slug,
-  //     },
-  //     data: {
-  //       ...data,
-  //     },
-  //   });
-  // } catch (error) {
-  //   console.error(error);
-  //   throw serverError({ message: "Something went wrong on update." });
-  // }
+    listData.forEach((name) => {
+      // TODO: fix type issue
+      // @ts-ignore
+      data = organizationListOperationResolver(data, name, formData);
+    });
+  }
 
   return {
     organization: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    updated,
+    errors,
   };
 };
 
 function Edit() {
-  const { organization: dbOrganization, organizationTypes } =
-    useLoaderData<LoaderData>();
+  const { slug } = useParams();
+  const {
+    organization: dbOrganization,
+    organizationTypes,
+    areas,
+    profile,
+  } = useLoaderData<LoaderData>();
+  const transition = useTransition();
   const actionData = useActionData();
+
+  const formRef = React.createRef<HTMLFormElement>();
+  const isSubmitting = transition.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
 
@@ -287,9 +422,13 @@ function Edit() {
     defaultValues: organization,
   });
 
-  const { register, reset } = methods;
+  const {
+    register,
+    reset,
+    formState: { isDirty },
+  } = methods;
 
-  const errors = undefined;
+  const errors = actionData?.errors as FormError;
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     return {
@@ -305,55 +444,309 @@ function Edit() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
-  console.log(selectedOrganizationTypes);
+  const selectedAreas =
+    organization.areas && areas
+      ? areas
+          .filter((area) => organization.areas.includes(area.id))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      : [];
 
+  const areaOptions = createAreaOptionFromData(areas);
+
+  React.useEffect(() => {
+    if (isSubmitting) {
+      const $inputsToClear =
+        formRef?.current?.getElementsByClassName("clear-after-submit");
+      if ($inputsToClear) {
+        Array.from($inputsToClear).forEach(
+          (a) => ((a as HTMLInputElement).value = "")
+        );
+      }
+    }
+
+    if (actionData?.lastSubmit && formRef.current) {
+      const lastInput = document.getElementsByName(actionData.lastSubmit);
+      if (lastInput) {
+        lastInput[0].focus();
+      }
+    }
+  }, [isSubmitting, formRef, actionData]);
+
+  const isFormChanged = isDirty || actionData?.updated === false;
+  const initials = getInitials(profile);
   return (
-    <FormProvider {...methods}>
-      <Form
-        method="post"
-        onSubmit={(e: React.SyntheticEvent) => {
-          reset({}, { keepValues: true });
-        }}
-      >
-        <h1 className="mb-8">Institutionelle Daten</h1>
-
-        <h4 className="mb-4 font-semibold">Allgemein</h4>
-
-        <p className="mb-8">
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-          sed diam voluptua.
-        </p>
-        <InputText
-          {...register("name")}
-          id="name"
-          label="Name"
-          defaultValue={organization.name}
-          errorMessage={errors?.position?.message}
-        />
-        <SelectAdd
-          name="types"
-          label="Organizationstyp"
-          entries={selectedOrganizationTypes.map((type) => ({
-            label: type.title,
-            value: type.id,
-          }))}
-          options={organizationTypesOptions.filter((option) => {
-            return !organization.types.includes(option.value);
-          })}
-          placeholder=""
-          isPublic={organization.publicFields?.includes("types")}
-        />
-        <button
-          type="submit"
-          name="submit"
-          value="submit"
-          className="btn btn-primary ml-4"
+    <>
+      <Header username={profile.username ?? ""} initials={initials} />
+      <FormProvider {...methods}>
+        <Form
+          ref={formRef}
+          method="post"
+          onSubmit={(e: React.SyntheticEvent) => {
+            reset({}, { keepValues: true });
+          }}
         >
-          Speichern
-        </button>
-      </Form>
-    </FormProvider>
+          <button
+            name="submit"
+            type="submit"
+            value="submit"
+            className="hidden"
+          />
+          <h1 className="mb-8">Institutionelle Daten</h1>
+
+          <h4 className="mb-4 font-semibold">Allgemein</h4>
+
+          <p className="mb-8">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua.
+          </p>
+          <InputText
+            {...register("name")}
+            id="name"
+            label="Name"
+            defaultValue={organization.name}
+            errorMessage={errors?.name?.message}
+          />
+          <InputText
+            {...register("email")}
+            id="email"
+            label="E-Mail"
+            defaultValue={organization.email}
+            errorMessage={errors?.email?.message}
+          />
+          <InputText
+            {...register("phone")}
+            id="phone"
+            label="Telefon"
+            defaultValue={organization.phone}
+            errorMessage={errors?.phone?.message}
+          />
+          <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
+          <InputText
+            {...register("street")}
+            id="street"
+            label="Straßenname"
+            defaultValue={organization.street}
+            errorMessage={errors?.street?.message}
+          />
+          <InputText
+            {...register("streetNumber")}
+            id="streetNumber"
+            label="Hausnummer"
+            defaultValue={organization.streetNumber}
+            errorMessage={errors?.streetNumber?.message}
+          />
+          <InputText
+            {...register("zipCode")}
+            id="zipCode"
+            label="PLZ"
+            defaultValue={organization.zipCode}
+            errorMessage={errors?.zipCode?.message}
+          />
+          <InputText
+            {...register("city")}
+            id="city"
+            label="Stadt"
+            defaultValue={organization.city}
+            errorMessage={errors?.city?.message}
+          />
+
+          <SelectAdd
+            name="types"
+            label="Organizationstyp"
+            entries={selectedOrganizationTypes.map((type) => ({
+              label: type.title,
+              value: type.id,
+            }))}
+            options={organizationTypesOptions.filter((option) => {
+              return !organization.types.includes(option.value);
+            })}
+            placeholder=""
+            isPublic={organization.publicFields?.includes("types")}
+          />
+
+          <div className="flex flex-row items-center mb-4">
+            <h4 className="font-semibold">Über uns</h4>
+          </div>
+
+          <p className="mb-8">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua.
+          </p>
+
+          <div className="mb-4">
+            <TextAreaWithCounter
+              {...register("bio")}
+              id="bio"
+              label="Kurzbeschreibung"
+              isPublic={organization.publicFields?.includes("bio")}
+              defaultValue={organization.bio}
+              errorMessage={errors?.bio?.message}
+              maxCharacters={300}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
+              name="areas"
+              label={"Aktivitätsgebiete"}
+              placeholder="Aktivitätsgebiete hinzufügen"
+              entries={selectedAreas.map((area) => ({
+                label: area.name,
+                value: area.id,
+              }))}
+              options={areaOptions}
+            />
+          </div>
+          <div className="mb-4">
+            <InputAdd
+              name="supportedBy"
+              label="Gefördert von"
+              entries={organization.supportedBy ?? []}
+            />
+          </div>
+          <div className="mb-4">
+            <TextAreaWithCounter
+              {...register("quote")}
+              id="quote"
+              label="Zitat"
+              isPublic={organization.publicFields?.includes("quote")}
+              defaultValue={organization.quote}
+              errorMessage={errors?.quote?.message}
+              maxCharacters={300}
+            />
+          </div>
+          <InputText
+            {...register("quoteAuthor")}
+            id="quoteAuthor"
+            label="Von"
+            defaultValue={organization.quoteAuthor}
+            errorMessage={errors?.quoteAuthor?.message}
+          />
+          <InputText
+            {...register("quoteAuthorInformation")}
+            id="quoteAuthorInformation"
+            label="Zusatzinformationen (Position/Beruf)"
+            defaultValue={organization.quoteAuthorInformation}
+            errorMessage={errors?.quoteAuthorInformation?.message}
+          />
+
+          <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+
+          <h4 className="mb-4 font-semibold">Website</h4>
+
+          <p className="mb-8">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua.
+          </p>
+
+          <div className="basis-full mb-4">
+            <InputText
+              {...register("website")}
+              id="website"
+              label="Website URL"
+              defaultValue={organization.website}
+              placeholder="https://www.domainname.tld/"
+              isPublic={organization.publicFields?.includes("website")}
+              errorMessage={errors?.website?.message}
+              withClearButton
+            />
+          </div>
+
+          <hr className="border-neutral-400 my-10 lg:my-16" />
+
+          <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+
+          <p className="mb-8">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua.
+          </p>
+
+          <div className="basis-full mb-4">
+            {socialMediaServices.map((service) => (
+              <InputText
+                key={service.id}
+                {...register(service.id)}
+                id={service.id}
+                label={service.label}
+                placeholder={service.placeholder}
+                defaultValue={organization[service.id] as string}
+                isPublic={organization.publicFields?.includes(service.id)}
+                errorMessage={errors?.[service.id]?.message}
+                withClearButton
+              />
+            ))}
+          </div>
+
+          <hr className="border-neutral-400 my-10 lg:my-16" />
+
+          <div className="flex flex-row items-center mb-4">
+            <h4 className="font-semibold">
+              Organisation, Netzwerk, Projekt hinzufügen
+            </h4>
+            <Link
+              to="/organization/create"
+              className="btn btn-outline-primary ml-auto btn-small"
+            >
+              Organisation anlegen
+            </Link>
+          </div>
+          <p className="mb-8">
+            Die Organisation, das Netzwerk oder das Projekt, in dem Du tätig
+            bist, hat noch kein Profil? Füge es direkt hinzu, damit auch andere
+            Mitglieder über darüber erfahren können.
+          </p>
+
+          <div className="mb-4">
+            <InputAdd
+              name="organizations"
+              label="Organisation, Netzwerk, Projekt hinzufügen"
+              readOnly
+              placeholder="Noch nicht implementiert"
+              entries={[]}
+            />
+          </div>
+
+          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+            <div className="container">
+              <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
+                <div
+                  className={`text-green-500 text-bold ${
+                    actionData?.updated && !isSubmitting
+                      ? "block animate-fade-out"
+                      : "hidden"
+                  }`}
+                >
+                  Profil wurde aktualisiert.
+                </div>
+
+                {isFormChanged && (
+                  <Link
+                    to={`/organization/${slug}/edit`}
+                    reloadDocument
+                    className={`btn btn-link`}
+                  >
+                    Änderungen verwerfen
+                  </Link>
+                )}
+                <div></div>
+                <button
+                  type="submit"
+                  name="submit"
+                  value="submit"
+                  className="btn btn-primary ml-4"
+                  disabled={isSubmitting || !isFormChanged}
+                >
+                  Speichern
+                </button>
+              </div>
+            </div>
+          </footer>
+        </Form>
+      </FormProvider>
+    </>
   );
 }
 

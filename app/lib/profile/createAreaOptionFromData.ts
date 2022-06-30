@@ -6,6 +6,8 @@ import {
 import { OptionOrGroup } from "~/components/FormElements/SelectField/SelectField";
 import { AreasWithState } from "~/profile.server";
 
+// TODO: not profile only -> move this
+
 export function createAreaOptionFromData(
   areas: AreasWithState
 ): OptionOrGroup[] {
