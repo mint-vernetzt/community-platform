@@ -23,7 +23,6 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import {
-  getOrganizationById,
   getOrganizationBySlug,
   getOrganizationMembersBySlug,
   OrganizationWithRelations,
@@ -55,10 +54,21 @@ export const loader: LoaderFunction = async (args) => {
   }
   const loggedInUser = await getUserByRequest(request);
   let loggedInUserProfile;
+
+  // await connectToUmbrellaOrganization(
+  //   "d4b3aae0-230e-4bc1-bfb3-41034174e0dc",
+  //   "5c78ef63-029f-4c0e-8e2c-df4b2c43e8ef"
+  // );
+
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
     throw notFound({ message: "Not found" });
   }
+
+  // const koerberstiftung = await getOrganizationBySlug("koerberstiftung");
+  // console.log("TEST ORGANISATION", unfilteredOrganization);
+  // console.log("KÖRBERSTIFTUNG", koerberstiftung);
+
   // const organizationById = await getOrganizationById(unfilteredOrganization.id);
   // console.log("ORGANIZATION BY ID", organizationById);
   let organization: Partial<OrganizationWithRelations> = {};
@@ -602,108 +612,111 @@ export default function Index() {
                   </div>
                 </div>
               )}
-            {(loaderData.organization.memberOf &&
-              loaderData.organization.memberOf.length > 0) ||
-              (loaderData.organization.networkMembers &&
-                loaderData.organization.networkMembers.length > 0 && (
-                  <>
-                    <h2 className="mb-6">Teil von</h2>
-                    <div className="flex flex-wrap justify-center -mx-4 items-stretch">
-                      {loaderData.organization.memberOf &&
-                        loaderData.organization.memberOf.length > 0 &&
-                        loaderData.organization.memberOf.map(
-                          ({ umbrellaOrganization }, index) => (
-                            <div
-                              key={`profile-${index}`}
-                              data-testid="gridcell"
-                              className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+            {loaderData.organization.memberOf &&
+              loaderData.organization.memberOf.length > 0 && (
+                <>
+                  <h2 className="mb-6">Teil von</h2>
+                  <div className="flex flex-wrap justify-center -mx-4 items-stretch">
+                    {loaderData.organization.memberOf &&
+                      loaderData.organization.memberOf.length > 0 &&
+                      loaderData.organization.memberOf.map(
+                        ({ umbrellaOrganization }, index) => (
+                          <div
+                            key={`profile-${index}`}
+                            data-testid="gridcell"
+                            className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                          >
+                            <Link
+                              to={`/organization/${umbrellaOrganization.slug}`}
+                              className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                             >
-                              <Link
-                                to={`/organization/${umbrellaOrganization.slug}`}
-                                className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
-                              >
-                                <div className="w-full flex items-center flex-row mb-4">
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                    {umbrellaOrganization.logo ? (
-                                      <img
-                                        src={umbrellaOrganization.logo}
-                                        alt=""
-                                      />
-                                    ) : (
-                                      getOrganizationInitials(
-                                        umbrellaOrganization.name
-                                      )
-                                    )}
-                                  </div>
-                                  <div className="pl-4">
-                                    <H3 like="h4" className="text-xl mb-1">
-                                      {umbrellaOrganization.name}
-                                    </H3>
-                                    {umbrellaOrganization.types &&
-                                      umbrellaOrganization.types.length > 0 && (
-                                        <p className="font-bold text-sm">
-                                          {umbrellaOrganization.types
-                                            .map(
-                                              ({ organizationType }) =>
-                                                organizationType.title
-                                            )
-                                            .join(", ")}
-                                        </p>
-                                      )}
-                                  </div>
+                              <div className="w-full flex items-center flex-row mb-4">
+                                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                                  {umbrellaOrganization.logo ? (
+                                    <img
+                                      src={umbrellaOrganization.logo}
+                                      alt=""
+                                    />
+                                  ) : (
+                                    getOrganizationInitials(
+                                      umbrellaOrganization.name
+                                    )
+                                  )}
                                 </div>
-                              </Link>
-                            </div>
-                          )
-                        )}
-                    </div>
-                    <h2 className="mb-6">Mitglieder</h2>
-                    <div className="flex flex-wrap justify-center -mx-4 items-stretch">
-                      {loaderData.organization.networkMembers &&
-                        loaderData.organization.networkMembers.length > 0 &&
-                        loaderData.organization.networkMembers.map(
-                          ({ organization }, index) => (
-                            <div
-                              key={`profile-${index}`}
-                              data-testid="gridcell"
-                              className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                                <div className="pl-4">
+                                  <H3 like="h4" className="text-xl mb-1">
+                                    {umbrellaOrganization.name}
+                                  </H3>
+                                  {umbrellaOrganization.types &&
+                                    umbrellaOrganization.types.length > 0 && (
+                                      <p className="font-bold text-sm">
+                                        {umbrellaOrganization.types
+                                          .map(
+                                            ({ organizationType }) =>
+                                              organizationType.title
+                                          )
+                                          .join(", ")}
+                                      </p>
+                                    )}
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        )
+                      )}
+                  </div>
+                </>
+              )}
+            {loaderData.organization.networkMembers &&
+              loaderData.organization.networkMembers.length > 0 && (
+                <>
+                  <h2 className="mb-6">Mitglieder</h2>
+                  <div className="flex flex-wrap justify-center -mx-4 items-stretch">
+                    {loaderData.organization.networkMembers &&
+                      loaderData.organization.networkMembers.length > 0 &&
+                      loaderData.organization.networkMembers.map(
+                        ({ organization }, index) => (
+                          <div
+                            key={`profile-${index}`}
+                            data-testid="gridcell"
+                            className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                          >
+                            <Link
+                              to={`/organization/${organization.slug}`}
+                              className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                             >
-                              <Link
-                                to={`/organization/${organization.slug}`}
-                                className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
-                              >
-                                <div className="w-full flex items-center flex-row mb-4">
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                    {organization.logo ? (
-                                      <img src={organization.logo} alt="" />
-                                    ) : (
-                                      getOrganizationInitials(organization.name)
-                                    )}
-                                  </div>
-                                  <div className="pl-4">
-                                    <H3 like="h4" className="text-xl mb-1">
-                                      {organization.name}
-                                    </H3>
-                                    {organization.types &&
-                                      organization.types.length > 0 && (
-                                        <p className="font-bold text-sm">
-                                          {organization.types
-                                            .map(
-                                              ({ organizationType }) =>
-                                                organizationType.title
-                                            )
-                                            .join(", ")}
-                                        </p>
-                                      )}
-                                  </div>
+                              <div className="w-full flex items-center flex-row mb-4">
+                                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                                  {organization.logo ? (
+                                    <img src={organization.logo} alt="" />
+                                  ) : (
+                                    getOrganizationInitials(organization.name)
+                                  )}
                                 </div>
-                              </Link>
-                            </div>
-                          )
-                        )}
-                    </div>
-                  </>
-                ))}
+                                <div className="pl-4">
+                                  <H3 like="h4" className="text-xl mb-1">
+                                    {organization.name}
+                                  </H3>
+                                  {organization.types &&
+                                    organization.types.length > 0 && (
+                                      <p className="font-bold text-sm">
+                                        {organization.types
+                                          .map(
+                                            ({ organizationType }) =>
+                                              organizationType.title
+                                          )
+                                          .join(", ")}
+                                      </p>
+                                    )}
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        )
+                      )}
+                  </div>
+                </>
+              )}
             {loaderData.organization.teamMembers &&
               loaderData.organization.teamMembers.length > 0 && (
                 <>

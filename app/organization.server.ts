@@ -145,6 +145,32 @@ export async function getOrganizationMembersBySlug(slug: string) {
   return organization;
 }
 
+export async function connectToUmbrellaOrganization(
+  organizationId: string,
+  umbrellaOrganizationId: string
+) {
+  const organization = await prismaClient.organization.update({
+    where: { id: organizationId },
+    data: {
+      memberOf: {
+        connectOrCreate: {
+          where: {
+            organizationId_umbrellaOrganizationId: {
+              organizationId: umbrellaOrganizationId,
+              umbrellaOrganizationId: organizationId,
+            },
+          },
+          create: {
+            organizationId: umbrellaOrganizationId,
+          },
+        },
+      },
+    },
+  });
+
+  return organization;
+}
+
 // export async function getOrganizationById(id: string) {
 //   const organization = await prismaClient.organization.findUnique({
 //     where: { id },
