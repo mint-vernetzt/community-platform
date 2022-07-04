@@ -54,23 +54,10 @@ export const loader: LoaderFunction = async (args) => {
   }
   const loggedInUser = await getUserByRequest(request);
   let loggedInUserProfile;
-
-  // await connectToUmbrellaOrganization(
-  //   "d4b3aae0-230e-4bc1-bfb3-41034174e0dc",
-  //   "5c78ef63-029f-4c0e-8e2c-df4b2c43e8ef"
-  // );
-
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
     throw notFound({ message: "Not found" });
   }
-
-  // const koerberstiftung = await getOrganizationBySlug("koerberstiftung");
-  // console.log("TEST ORGANISATION", unfilteredOrganization);
-  // console.log("KÖRBERSTIFTUNG", koerberstiftung);
-
-  // const organizationById = await getOrganizationById(unfilteredOrganization.id);
-  // console.log("ORGANIZATION BY ID", organizationById);
   let organization: Partial<OrganizationWithRelations> = {};
   let userIsPrivileged;
 
@@ -615,42 +602,37 @@ export default function Index() {
             {loaderData.organization.memberOf &&
               loaderData.organization.memberOf.length > 0 && (
                 <>
-                  <h2 className="mb-6">Teil von</h2>
+                  <h2 className="mb-6">Teil der Netzwerke</h2>
                   <div className="flex flex-wrap justify-center -mx-4 items-stretch">
                     {loaderData.organization.memberOf &&
                       loaderData.organization.memberOf.length > 0 &&
                       loaderData.organization.memberOf.map(
-                        ({ umbrellaOrganization }, index) => (
+                        ({ network }, index) => (
                           <div
                             key={`profile-${index}`}
                             data-testid="gridcell"
                             className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                           >
                             <Link
-                              to={`/organization/${umbrellaOrganization.slug}`}
+                              to={`/organization/${network.slug}`}
                               className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                             >
                               <div className="w-full flex items-center flex-row mb-4">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {umbrellaOrganization.logo ? (
-                                    <img
-                                      src={umbrellaOrganization.logo}
-                                      alt=""
-                                    />
+                                  {network.logo ? (
+                                    <img src={network.logo} alt="" />
                                   ) : (
-                                    getOrganizationInitials(
-                                      umbrellaOrganization.name
-                                    )
+                                    getOrganizationInitials(network.name)
                                   )}
                                 </div>
                                 <div className="pl-4">
                                   <H3 like="h4" className="text-xl mb-1">
-                                    {umbrellaOrganization.name}
+                                    {network.name}
                                   </H3>
-                                  {umbrellaOrganization.types &&
-                                    umbrellaOrganization.types.length > 0 && (
+                                  {network.types &&
+                                    network.types.length > 0 && (
                                       <p className="font-bold text-sm">
-                                        {umbrellaOrganization.types
+                                        {network.types
                                           .map(
                                             ({ organizationType }) =>
                                               organizationType.title
@@ -670,37 +652,37 @@ export default function Index() {
             {loaderData.organization.networkMembers &&
               loaderData.organization.networkMembers.length > 0 && (
                 <>
-                  <h2 className="mb-6">Mitglieder</h2>
+                  <h2 className="mb-6">Mitgliedsorganisationen</h2>
                   <div className="flex flex-wrap justify-center -mx-4 items-stretch">
                     {loaderData.organization.networkMembers &&
                       loaderData.organization.networkMembers.length > 0 &&
                       loaderData.organization.networkMembers.map(
-                        ({ organization }, index) => (
+                        ({ networkMember }, index) => (
                           <div
                             key={`profile-${index}`}
                             data-testid="gridcell"
                             className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                           >
                             <Link
-                              to={`/organization/${organization.slug}`}
+                              to={`/organization/${networkMember.slug}`}
                               className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                             >
                               <div className="w-full flex items-center flex-row mb-4">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {organization.logo ? (
-                                    <img src={organization.logo} alt="" />
+                                  {networkMember.logo ? (
+                                    <img src={networkMember.logo} alt="" />
                                   ) : (
-                                    getOrganizationInitials(organization.name)
+                                    getOrganizationInitials(networkMember.name)
                                   )}
                                 </div>
                                 <div className="pl-4">
                                   <H3 like="h4" className="text-xl mb-1">
-                                    {organization.name}
+                                    {networkMember.name}
                                   </H3>
-                                  {organization.types &&
-                                    organization.types.length > 0 && (
+                                  {networkMember.types &&
+                                    networkMember.types.length > 0 && (
                                       <p className="font-bold text-sm">
-                                        {organization.types
+                                        {networkMember.types
                                           .map(
                                             ({ organizationType }) =>
                                               organizationType.title

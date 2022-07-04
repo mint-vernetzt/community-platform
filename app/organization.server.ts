@@ -20,7 +20,7 @@ export type OrganizationWithRelations = Organization & {
     };
   }[];
   memberOf: {
-    umbrellaOrganization: {
+    network: {
       slug: string;
       logo: string | null;
       name: string;
@@ -32,7 +32,7 @@ export type OrganizationWithRelations = Organization & {
     };
   }[];
   networkMembers: {
-    organization: {
+    networkMember: {
       slug: string;
       logo: string | null;
       name: string;
@@ -81,7 +81,7 @@ export async function getOrganizationBySlug(slug: string) {
       },
       memberOf: {
         select: {
-          umbrellaOrganization: {
+          network: {
             select: {
               slug: true,
               logo: true,
@@ -101,7 +101,7 @@ export async function getOrganizationBySlug(slug: string) {
       },
       networkMembers: {
         select: {
-          organization: {
+          networkMember: {
             select: {
               slug: true,
               logo: true,
@@ -144,119 +144,3 @@ export async function getOrganizationMembersBySlug(slug: string) {
 
   return organization;
 }
-
-export async function connectToUmbrellaOrganization(
-  organizationId: string,
-  umbrellaOrganizationId: string
-) {
-  const organization = await prismaClient.organization.update({
-    where: { id: organizationId },
-    data: {
-      memberOf: {
-        connectOrCreate: {
-          where: {
-            organizationId_umbrellaOrganizationId: {
-              organizationId: umbrellaOrganizationId,
-              umbrellaOrganizationId: organizationId,
-            },
-          },
-          create: {
-            organizationId: umbrellaOrganizationId,
-          },
-        },
-      },
-    },
-  });
-
-  return organization;
-}
-
-// export async function getOrganizationById(id: string) {
-//   const organization = await prismaClient.organization.findUnique({
-//     where: { id },
-//     include: {
-//       types: {
-//         select: {
-//           organizationType: {
-//             select: {
-//               title: true,
-//             },
-//           },
-//         },
-//       },
-//       teamMembers: {
-//         select: {
-//           profileId: true,
-//           isPrivileged: true,
-//           profile: {
-//             select: {
-//               username: true,
-//               avatar: true,
-//               firstName: true,
-//               lastName: true,
-//               academicTitle: true,
-//               position: true,
-//             },
-//           },
-//         },
-//       },
-//       memberOf: {
-//         select: {
-//           umbrellaOrganization: {
-//             select: {
-//               slug: true,
-//               logo: true,
-//               name: true,
-//               types: {
-//                 select: {
-//                   organizationType: {
-//                     select: {
-//                       title: true,
-//                     },
-//                   },
-//                 },
-//               },
-//             },
-//           },
-//         },
-//         where: {
-//           organizationId: id,
-//         },
-//       },
-//       networkMembers: {
-//         select: {
-//           organization: {
-//             select: {
-//               slug: true,
-//               logo: true,
-//               name: true,
-//               types: {
-//                 select: {
-//                   organizationType: {
-//                     select: {
-//                       title: true,
-//                     },
-//                   },
-//                 },
-//               },
-//             },
-//           },
-//         },
-//         where: {
-//           umbrellaOrganizationId: id,
-//         },
-//       },
-//       areas: {
-//         select: {
-//           area: {
-//             select: {
-//               name: true,
-//             },
-//           },
-//         },
-//       },
-//     },
-//   });
-
-//   return organization as OrganizationWithRelations | null;
-// }

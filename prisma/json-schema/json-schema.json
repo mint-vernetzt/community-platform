@@ -299,10 +299,10 @@
     "MemberOfNetwork": {
       "type": "object",
       "properties": {
-        "organization": {
+        "network": {
           "$ref": "#/definitions/Organization"
         },
-        "umbrellaOrganization": {
+        "networkMember": {
           "$ref": "#/definitions/Organization"
         }
       }
