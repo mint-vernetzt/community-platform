@@ -38,5 +38,5 @@ function generateValidSlug(string: string) {
     .replace(/[úùû]/, "u")
     .replace(/[ü]/, "ue")
     .replace(/[^\w ]/g, "")
-    .replace(/[\s]/, "");
+    .replace(/[\s]/g, "");
 }
