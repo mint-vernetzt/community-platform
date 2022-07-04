@@ -28,7 +28,7 @@ model AreasOnOrganizations {
   area           Area         @relation(fields: [areaId], references: [id])
 
   @@id([organizationId, areaId])
-  @@map("areas_on_organization")
+  @@map("areas_on_organizations")
 }
 
 model SeekingsOnProfiles {
@@ -49,6 +49,16 @@ model OffersOnProfiles {
 
   @@id([profileId, offerId])
   @@map("offers_on_profiles")
+}
+
+model OrganizationTypesOnOrganizations {
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  organizationTypeId String
+  organizationType   OrganizationType @relation(fields: [organizationTypeId], references: [id])
+
+  @@id([organizationId, organizationTypeId])
+  @@map("organization_types_on_organizations")
 }
 
 model Profile {
@@ -85,14 +95,14 @@ model Profile {
 }
 
 model Organization {
-  id                     String                 @id @default(uuid())
+  id                     String                             @id @default(uuid())
   name                   String
-  slug                   String                 @unique
+  slug                   String                             @unique
   email                  String?
   phone                  String?
   street                 String?
-  streetNumber           String?                @map("street_number")
-  zipCode                String?                @map("zip_code")
+  streetNumber           String?                            @map("street_number")
+  zipCode                String?                            @map("zip_code")
   city                   String?
   website                String?
   logo                   String?
@@ -102,19 +112,24 @@ model Organization {
   twitter                String?
   xing                   String?
   bio                    String?
-  type                   OrganizationType[]
+  types                  OrganizationTypesOnOrganizations[]
   quote                  String?
-  quoteAuthor            String?                @map("quote_author")
-  quoteAuthorInformation String?                @map("quote_author_information")
-  supportedBy            String[]               @map("supported_by")
-  publicFields           String[]               @map("public_fields")
+  quoteAuthor            String?                            @map("quote_author")
+  quoteAuthorInformation String?                            @map("quote_author_information")
+  supportedBy            String[]                           @map("supported_by")
+  publicFields           String[]                           @map("public_fields")
   teamMembers            MemberOfOrganization[]
-  memberOf               MemberOfNetwork[]      @relation(name: "network")
-  networkMembers         MemberOfNetwork[]      @relation(name: "member")
-  createdAt              DateTime               @default(now()) @map("created_at")
-  updatedAt              DateTime               @default(now()) @map("updated_at")
+  // explicit many to many self-relation on prisma
+  // relation points to id to search from
+  // example: member of
+  // organisatzion.id (member) --> "network_member" --> find related "network" entries --> get ids from field network
+  memberOf               MemberOfNetwork[]                  @relation(name: "network_member")
+  networkMembers         MemberOfNetwork[]                  @relation(name: "network")
+  createdAt              DateTime                           @default(now()) @map("created_at")
+  updatedAt              DateTime                           @default(now()) @map("updated_at")
+  areas                  AreasOnOrganizations[]
 
-  AreasOnOrganizations AreasOnOrganizations[]
+
   @@map("organizations")
 }
 
@@ -130,12 +145,12 @@ model MemberOfOrganization {
 }
 
 model MemberOfNetwork {
-  organization           Organization @relation(fields: [organizationId], references: [id], name: "member")
-  organizationId         String
-  umbrellaOrganization   Organization @relation(fields: [umbrellaOrganizationId], references: [id], name: "network")
-  umbrellaOrganizationId String
+  network         Organization @relation(fields: [networkId], references: [id], name: "network")
+  networkId       String
+  networkMember   Organization @relation(fields: [networkMemberId], references: [id], name: "network_member")
+  networkMemberId String
 
-  @@id([organizationId, umbrellaOrganizationId])
+  @@id([networkId, networkMemberId])
   @@map("members_of_networks")
 }
 
@@ -194,9 +209,9 @@ model Offer {
 }
 
 model OrganizationType {
-  id    String @id @default(uuid())
-  title String @unique
+  id            String                             @id @default(uuid())
+  title         String                             @unique
+  organizations OrganizationTypesOnOrganizations[]
 
-  Organization Organization[]
   @@map("organization_types")
 }

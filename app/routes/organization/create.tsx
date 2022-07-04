@@ -50,11 +50,16 @@ export const action: ActionFunction = async ({ request, params }) => {
     throw forbidden({ message: "not allowed" });
   }
 
+  const organizationName = formData.get("organizationName");
+  let slug = "";
+  if (organizationName !== null) {
+    slug = generateOrganizationSlug(organizationName as string);
+  }
   const formActionResult = formAction({
     request,
     schema,
     mutation,
-    successPath: "/explore",
+    successPath: `/organization/${slug}`,
   });
   return formActionResult;
 };
