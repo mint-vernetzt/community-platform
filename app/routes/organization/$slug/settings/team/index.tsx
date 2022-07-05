@@ -15,6 +15,7 @@ type ProfileData = Pick<
 
 type Member = {
   isPrivileged: boolean;
+  organizationId: string;
   profile: ProfileData;
 };
 
@@ -38,6 +39,7 @@ export const loader: LoaderFunction = async (args) => {
   const profiles = await prismaClient.memberOfOrganization.findMany({
     select: {
       isPrivileged: true,
+      organizationId: true,
       profile: {
         select: {
           id: true,
@@ -60,25 +62,28 @@ export const loader: LoaderFunction = async (args) => {
 function MemberRemoveForm(props: Member & { slug: string }) {
   const fetcher = useFetcher();
 
-  const { profile, isPrivileged, slug } = props;
+  const { profile, isPrivileged, organizationId, slug } = props;
   const initials = getInitials(profile);
 
   return (
     <Form
+      method="post"
       key={`${profile.username}`}
       action={`/organization/${slug}/settings/team/remove`}
       schema={deleteSchema}
-      hiddenFields={["id"]}
-      values={{ id: profile.id }}
+      hiddenFields={["profileId", "organizationId"]}
+      values={{ profileId: profile.id, organizationId }}
       fetcher={fetcher}
     >
-      {({ Field, Button }) => {
+      {({ Field, Button, Errors }) => {
         return (
           <>
             <p>
               {initials}, {profile.firstName}, {profile.lastName} {isPrivileged}
             </p>
-            <Field name="id" />
+            <Field name="profileId" />
+            <Field name="organizationId" />
+            <Errors />
             <Button>X</Button>
           </>
         );
