@@ -293,6 +293,10 @@
         "isPrivileged": {
           "type": "boolean",
           "default": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -304,6 +308,10 @@
         },
         "networkMember": {
           "$ref": "#/definitions/Organization"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
