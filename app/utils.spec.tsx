@@ -1,4 +1,4 @@
-import { generateUsername } from "./utils";
+import { generateOrganizationSlug, generateUsername } from "./utils";
 
 // TODO: add more names to test
 test("generate username", () => {
@@ -28,6 +28,40 @@ test("generate username", () => {
   testData.forEach((item) => {
     const { given, expected } = item;
     const username = generateUsername(given.firstName, given.lastName);
+    expect(username).toBe(expected);
+  });
+});
+
+test("generate organization slug", () => {
+  const testData: {
+    given: { organizationName: string };
+    expected: string;
+  }[] = [
+    {
+      given: { organizationName: "Körber Stiftung" },
+      expected: "koerberstiftung",
+    },
+    {
+      given: { organizationName: "Haus der kleinen Forscher" },
+      expected: "hausderkleinenforscher",
+    },
+    {
+      given: { organizationName: "MINTvernetzt" },
+      expected: "mintvernetzt",
+    },
+    {
+      given: { organizationName: "L'organisation" },
+      expected: "lorganisation",
+    },
+    {
+      given: { organizationName: "órgànisation" },
+      expected: "organisation",
+    },
+  ];
+  expect.assertions(testData.length);
+  testData.forEach((item) => {
+    const { given, expected } = item;
+    const username = generateOrganizationSlug(given.organizationName);
     expect(username).toBe(expected);
   });
 });

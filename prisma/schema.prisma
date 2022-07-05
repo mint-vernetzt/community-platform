@@ -119,8 +119,12 @@ model Organization {
   supportedBy            String[]                           @map("supported_by")
   publicFields           String[]                           @map("public_fields")
   teamMembers            MemberOfOrganization[]
-  memberOf               MemberOfNetwork[]                  @relation(name: "network")
-  networkMembers         MemberOfNetwork[]                  @relation(name: "member")
+  // explicit many to many self-relation on prisma
+  // relation points to id to search from
+  // example: member of
+  // organisatzion.id (member) --> "network_member" --> find related "network" entries --> get ids from field network
+  memberOf               MemberOfNetwork[]                  @relation(name: "network_member")
+  networkMembers         MemberOfNetwork[]                  @relation(name: "network")
   createdAt              DateTime                           @default(now()) @map("created_at")
   updatedAt              DateTime                           @default(now()) @map("updated_at")
   areas                  AreasOnOrganizations[]
@@ -130,9 +134,9 @@ model Organization {
 }
 
 model MemberOfOrganization {
-  profile        Profile      @relation(fields: [profileId], references: [id])
+  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId      String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   isPrivileged   Boolean      @default(false)
 
@@ -141,12 +145,12 @@ model MemberOfOrganization {
 }
 
 model MemberOfNetwork {
-  organization           Organization @relation(fields: [organizationId], references: [id], name: "member")
-  organizationId         String
-  umbrellaOrganization   Organization @relation(fields: [umbrellaOrganizationId], references: [id], name: "network")
-  umbrellaOrganizationId String
+  network         Organization @relation(fields: [networkId], references: [id], name: "network", onDelete: Cascade)
+  networkId       String
+  networkMember   Organization @relation(fields: [networkMemberId], references: [id], name: "network_member", onDelete: Cascade)
+  networkMemberId String
 
-  @@id([organizationId, umbrellaOrganizationId])
+  @@id([networkId, networkMemberId])
   @@map("members_of_networks")
 }
 

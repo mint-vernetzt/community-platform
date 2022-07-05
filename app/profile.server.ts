@@ -142,6 +142,24 @@ export async function createOrganizationOnProfile(
             create: {
               name: organizationName,
               slug: organizationSlug,
+              publicFields: [
+                "name",
+                "slug",
+                "street",
+                "streetNumber",
+                "zipCode",
+                "city",
+                "logo",
+                "background",
+                "types",
+                "supportedBy",
+                "publicFields",
+                "teamMembers",
+                "memberOf",
+                "networkMembers",
+                "createdAt",
+                "areas",
+              ],
             },
           },
         },
@@ -358,6 +376,24 @@ export async function getFilteredProfiles(
     // TODO: Add orderBy
   });
   return result;
+}
+
+export async function getOrganisationsOnProfileByUserId(id: string) {
+  return await prismaClient.profile.findUnique({
+    where: { id },
+    select: {
+      memberOf: {
+        select: {
+          isPrivileged: true,
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
 }
 
 /*

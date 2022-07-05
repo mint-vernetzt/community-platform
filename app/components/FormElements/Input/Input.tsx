@@ -9,7 +9,7 @@ export interface InputProps {
 const Input = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputProps, forwardRef) => {
     const id = props.id ?? props.label;
-    const { placeholder, isPublic, errorMessage, ...rest } = props;
+    const { isPublic, errorMessage, ...rest } = props;
 
     return (
       <div className="form-control w-full">
