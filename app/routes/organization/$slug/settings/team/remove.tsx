@@ -6,7 +6,7 @@ import {
   disconnectProfileFromOrganization,
   getMembers,
   handleAuthorization,
-} from "./utils.server";
+} from "././../utils.server";
 
 export const schema = z.object({
   profileId: z.string().uuid(),

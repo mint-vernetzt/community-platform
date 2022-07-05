@@ -5,7 +5,7 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { prismaClient } from "~/prisma";
 import Add from "./add";
 import { schema as deleteSchema } from "./remove";
-import { handleAuthorization } from "./utils.server";
+import { handleAuthorization } from "./../utils.server";
 
 type ProfileData = Pick<
   Profile,

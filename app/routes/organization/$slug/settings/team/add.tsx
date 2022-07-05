@@ -15,7 +15,7 @@ import {
   getOrganizationBySlug,
   getProfileByEmail,
   handleAuthorization,
-} from "./utils.server";
+} from "./../utils.server";
 
 const schema = z.object({
   email: z.string().email(),
