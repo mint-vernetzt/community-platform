@@ -14,6 +14,7 @@ import {
   connectProfileToOrganization,
   getOrganizationBySlug,
   getProfileByEmail,
+  handleAuthorization,
 } from "./utils.server";
 
 const schema = z.object({
@@ -60,6 +61,9 @@ export const loader: LoaderFunction = async (args) => {
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+
+  await handleAuthorization(args);
+
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success) {

@@ -1,12 +1,11 @@
 import { Profile } from "@prisma/client";
 import { LoaderFunction, useFetcher, useLoaderData, useParams } from "remix";
 import { Form } from "remix-forms";
-import { badRequest, notFound } from "remix-utils";
 import { getInitials } from "~/lib/profile/getInitials";
 import { prismaClient } from "~/prisma";
 import Add from "./add";
 import { schema as deleteSchema } from "./remove";
-import { getOrganizationBySlug } from "./utils.server";
+import { handleAuthorization } from "./utils.server";
 
 type ProfileData = Pick<
   Profile,
@@ -22,19 +21,7 @@ type Member = {
 type LoaderData = Member[];
 
 export const loader: LoaderFunction = async (args) => {
-  const { params } = args;
-  const { slug } = params;
-
-  if (slug === undefined) {
-    throw badRequest({ message: "Organization slug missing" });
-  }
-
-  const organization = await getOrganizationBySlug(slug);
-  if (organization === null) {
-    throw notFound({
-      message: `Couldn't find organization with slug "${slug}"`,
-    });
-  }
+  const { organization } = await handleAuthorization(args);
 
   const profiles = await prismaClient.memberOfOrganization.findMany({
     select: {
