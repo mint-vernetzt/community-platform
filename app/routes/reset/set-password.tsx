@@ -17,7 +17,7 @@ const schema = z.object({
   password: z.string().min(1, "Bitte ein Passwort eingeben."),
   confirmPassword: z
     .string()
-    .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+    .min(8, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
   accessToken: z
     .string()
     .min(

@@ -1,34 +1,28 @@
-import { InputError } from "remix-domains";
-
+import { Profile } from "@prisma/client";
 import {
   ActionFunction,
-  Form,
   json,
-  Link,
   LoaderFunction,
   useActionData,
   useLoaderData,
   useParams,
   useTransition,
 } from "remix";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, forbidden } from "remix-utils";
-
-import { getProfileByUserId } from "~/profile.server";
+import { z } from "zod";
 import {
   getUserByRequest,
   updateEmailOfLoggedInUser,
   updatePasswordOfLoggedInUser,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { Profile } from "@prisma/client";
-import { getInitials } from "~/lib/profile/getInitials";
-import { z } from "zod";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import ProfileMenu from "../ProfileMenu";
+import { getInitials } from "~/lib/profile/getInitials";
+import { getProfileByUserId } from "~/profile.server";
 import Header from "../Header";
+import ProfileMenu from "../ProfileMenu";
 
 const emailSchema = z.object({
   email: z
@@ -43,10 +37,10 @@ const emailSchema = z.object({
 });
 
 const passwordSchema = z.object({
-  password: z.string().min(1, "Bitte ein Passwort eingeben."),
+  password: z.string().min(8, "Bitte ein Passwort eingeben."),
   confirmPassword: z
     .string()
-    .min(1, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+    .min(8, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
   submittedForm: z.enum(["changePassword"]),
 });
 
