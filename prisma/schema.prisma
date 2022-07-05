@@ -134,9 +134,9 @@ model Organization {
 }
 
 model MemberOfOrganization {
-  profile        Profile      @relation(fields: [profileId], references: [id])
+  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId      String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   isPrivileged   Boolean      @default(false)
 
@@ -145,9 +145,9 @@ model MemberOfOrganization {
 }
 
 model MemberOfNetwork {
-  network         Organization @relation(fields: [networkId], references: [id], name: "network")
+  network         Organization @relation(fields: [networkId], references: [id], name: "network", onDelete: Cascade)
   networkId       String
-  networkMember   Organization @relation(fields: [networkMemberId], references: [id], name: "network_member")
+  networkMember   Organization @relation(fields: [networkMemberId], references: [id], name: "network_member", onDelete: Cascade)
   networkMemberId String
 
   @@id([networkId, networkMemberId])
