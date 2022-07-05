@@ -2,6 +2,7 @@ import {
   ActionFunction,
   json,
   LoaderFunction,
+  redirect,
   useFetcher,
   useParams,
 } from "remix";
@@ -54,8 +55,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const loader: LoaderFunction = async (args) => {
-  console.log("add loading");
-  return null;
+  return redirect(".");
 };
 
 export const action: ActionFunction = async (args) => {
