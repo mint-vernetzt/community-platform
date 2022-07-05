@@ -1,7 +1,6 @@
-import { Profile } from "@prisma/client";
 import { badRequest, notFound } from "remix-utils";
-import { getProfileByUsername, getProfileByUserId } from "~/profile.server";
 import { getUserByRequest } from "~/auth.server";
+import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { deriveMode, loader } from "./index";
 
 /** @type {jest.Expect} */
@@ -26,13 +25,16 @@ jest.mock("~/profile.server", () => {
   };
 });
 
-const profile: Partial<Profile> = {
+const profile = {
   username: "username",
   firstName: "User",
   lastName: "Name",
   email: "user.name@company.com",
   phone: "+49 0123 456 78",
   publicFields: ["email"],
+  avatar: null,
+  background: null,
+  memberOf: [],
 };
 
 test("deriveMode", () => {

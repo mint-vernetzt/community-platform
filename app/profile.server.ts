@@ -16,6 +16,26 @@ export async function getProfileByUsername(username: string) {
     areas: { select: { area: { select: { name: true } } } },
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
+    memberOf: {
+      select: {
+        organization: {
+          select: {
+            slug: true,
+            logo: true,
+            name: true,
+            types: {
+              select: {
+                organizationType: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
 
   const profile = await prismaClient.profile.findUnique({
