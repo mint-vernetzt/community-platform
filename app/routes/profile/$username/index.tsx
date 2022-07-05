@@ -1,4 +1,10 @@
-import { Area, Offer, Profile } from "@prisma/client";
+import {
+  Area,
+  Offer,
+  Organization,
+  OrganizationType,
+  Profile,
+} from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
 import {
   ActionFunction,
@@ -17,8 +23,10 @@ import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
 import { builder } from "~/imgproxy";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
@@ -27,9 +35,24 @@ import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 
-type ProfileRelations = { areas: { area: Area }[] } & {
+type OrganizationRelations = {
+  types: {
+    organizationType: Pick<OrganizationType, "title">;
+  }[];
+};
+
+type ProfileRelations = {
+  areas: { area: Area }[];
+} & {
   offers: { offer: Offer }[];
-} & { seekings: { offer: Offer }[] };
+} & {
+  seekings: { offer: Offer }[];
+} & {
+  memberOf: {
+    organization: Pick<Organization, "logo" | "name" | "slug"> &
+      OrganizationRelations;
+  }[];
+};
 
 type ProfileLoaderData = {
   currentUser?: Partial<Profile & ProfileRelations>;
@@ -39,6 +62,7 @@ type ProfileLoaderData = {
     avatar?: string;
     background?: string;
     currentUserAvatar?: string;
+    organizationLogos: string[];
   };
 };
 
@@ -76,36 +100,19 @@ export const loader: LoaderFunction = async (
     ? await getProfileByUserId(sessionUser.id)
     : undefined;
 
-  const publicFields = [
-    "id",
-    "username",
-    "firstName",
-    "lastName",
-    "academicTitle",
-    "areas",
-    "avatar",
-    "background",
-    ...profile.publicFields,
-  ];
-
-  let data: Partial<Profile> = {};
-  for (const key in profile) {
-    if (mode !== "anon" || publicFields.includes(key)) {
-      // @ts-ignore <-- Partials allow undefined, Profile not
-      data[key] = profile[key];
-    }
-  }
-
   let images: {
     avatar?: string;
     background?: string;
     currentUserAvatar?: string;
-  } = {};
+    organizationLogos: string[];
+  } = {
+    organizationLogos: [],
+  };
 
-  if (data.avatar !== undefined && data.avatar !== null) {
+  if (profile.avatar !== null) {
     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
       .from("images")
-      .getPublicUrl(data.avatar);
+      .getPublicUrl(profile.avatar);
     if (publicURL !== null) {
       images.avatar = builder
         .resize("fill", 144, 144)
@@ -113,10 +120,10 @@ export const loader: LoaderFunction = async (
         .generateUrl(publicURL);
     }
   }
-  if (data.background !== undefined && data.background !== null) {
+  if (profile.background !== null) {
     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
       .from("images")
-      .getPublicUrl(data.background);
+      .getPublicUrl(profile.background);
     if (publicURL !== null) {
       images.background = builder
         .resize("fill", 1488, 480)
@@ -140,6 +147,45 @@ export const loader: LoaderFunction = async (
         .generateUrl(publicURL);
     }
   }
+  profile.memberOf.map(({ organization }) => {
+    if (organization.logo !== null) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(organization.logo);
+      if (publicURL !== null) {
+        const logo = builder
+          .resize("fill", 64, 64)
+          .gravity(GravityType.center)
+          .dpr(2)
+          .generateUrl(publicURL);
+        images.organizationLogos.push(logo);
+      }
+    } else {
+      images.organizationLogos.push("");
+    }
+  });
+
+  const publicFields = [
+    "id",
+    "username",
+    "firstName",
+    "lastName",
+    "academicTitle",
+    "areas",
+    "avatar",
+    "background",
+    "memberOf",
+    ...profile.publicFields,
+  ];
+
+  let data: Partial<Profile> = {};
+  for (const key in profile) {
+    if (mode !== "anon" || publicFields.includes(key)) {
+      // @ts-ignore <-- Partials allow undefined, Profile not
+      data[key] = profile[key];
+    }
+  }
+
   return json({ mode, data, currentUser, images });
 };
 
@@ -278,8 +324,6 @@ export default function Index() {
   } else if (loaderData.images.avatar !== undefined) {
     avatar = loaderData.images.avatar;
   }
-
-  console.log("avatar", avatar);
 
   let background;
   if (actionData !== undefined && actionData.images.background !== undefined) {
@@ -604,62 +648,69 @@ export default function Index() {
                   </div>
                 </div>
               )}
-            {/* TODO: implement organizations */}
-            {/* <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
-              <div className="flex-auto pr-4">
-                <h3 className="mb-0 font-bold">Assoziert mit</h3>
-              </div>
 
-              <div className="flex-initial pl-4">
-                <button className="btn btn-outline btn-primary">
-                  Organisation anlegen
-                </button>
-              </div>
-            </div>
-            <div className="flex mb-6 text-sm flex-wrap -m-3 flex-col lg:flex-row">
-              <div className="lg:flex-1/2 p-3">
-                <div className="flex p-4 rounded-lg border border-neutral-500">
-                  <div className="mr-4">Logo</div>
-                  <div>
-                    <p className="font-bold">MINTvernetzt</p>
-                    <p>gemeinnützige Organisation, Verein</p>
+            {loaderData.data.memberOf && loaderData.data.memberOf.length > 0 && (
+              <>
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">Mitglied bei</h3>
+                  </div>
+
+                  <div className="flex-initial pl-4">
+                    <Link
+                      to="/organization/create"
+                      className="btn btn-outline btn-primary"
+                    >
+                      Organisation anlegen
+                    </Link>
                   </div>
                 </div>
-              </div>
-
-              <div className="lg:flex-1/2 p-3">
-                <div className="flex p-4 rounded-lg border border-neutral-500">
-                  <div className="mr-4">Logo</div>
-                  <div>
-                    <p className="font-bold">MINTvernetzt</p>
-                    <p>gemeinnützige Organisation, Verein</p>
-                  </div>
+                <div className="flex flex-wrap -mx-4 items-stretch">
+                  {loaderData.data.memberOf.map(({ organization }, index) => (
+                    <div
+                      key={`profile-${index}`}
+                      data-testid="gridcell"
+                      className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                    >
+                      <Link
+                        to={`/organization/${organization.slug}`}
+                        className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                      >
+                        <div className="w-full flex items-center flex-row mb-4">
+                          <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                            {loaderData.images.organizationLogos[index] !==
+                            "" ? (
+                              <img
+                                src={loaderData.images.organizationLogos[index]}
+                                alt=""
+                              />
+                            ) : (
+                              getOrganizationInitials(organization.name)
+                            )}
+                          </div>
+                          <div className="pl-4">
+                            <H3 like="h4" className="text-xl mb-1">
+                              {organization.name}
+                            </H3>
+                            {organization.types &&
+                              organization.types.length > 0 && (
+                                <p className="font-bold text-sm">
+                                  {organization.types
+                                    .map(
+                                      ({ organizationType }) =>
+                                        organizationType.title
+                                    )
+                                    .join(", ")}
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div className="lg:flex-1/2 p-3">
-                <div className="flex p-4 rounded-lg border border-neutral-500">
-                  <div className="mr-4">Logo</div>
-                  <div>
-                    <p className="font-bold">MINTvernetzt</p>
-                    <p>gemeinnützige Organisation, Verein</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:flex-1/2 p-3">
-                <div className="flex p-4 rounded-lg border border-neutral-500">
-                  <div className="mr-4">Logo</div>
-                  <div>
-                    <p className="font-bold">Zukunft durch Innovation</p>
-                    <p>
-                      gemeinnützige Organisation, Verein, gemeinnützige
-                      Organisation, Verein
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div> */}
+              </>
+            )}
           </div>
         </div>
       </div>
