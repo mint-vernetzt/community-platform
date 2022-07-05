@@ -75,10 +75,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   }
   console.log("SLUG", values.slug);
   try {
-    // TODO: Cascade onDelete
     await deleteOrganizationBySlug(values.slug);
-  } catch (e) {
-    console.log(e.message);
+  } catch {
     throw "Die Organisation konnte nicht gelöscht werden.";
   }
   return values;
