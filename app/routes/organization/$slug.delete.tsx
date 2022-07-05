@@ -140,7 +140,7 @@ export default function Delete() {
                           <Input
                             id="confirmedToken"
                             label="Löschung bestätigen"
-                            // TODO: placeholder: wirklich löschen
+                            placeholder="wirklich löschen"
                             {...register("confirmedToken")}
                           />
                           <Errors />
