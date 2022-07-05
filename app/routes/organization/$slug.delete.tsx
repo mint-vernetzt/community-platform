@@ -7,100 +7,121 @@ import {
 } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
-import { forbidden } from "remix-utils";
+import { badRequest, forbidden, notFound } from "remix-utils";
 import { z } from "zod";
-import { deleteUserByUid } from "~/auth.server";
+import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { handleAuthorization } from "~/lib/auth/handleAuth";
 import { getInitials } from "~/lib/profile/getInitials";
 import {
-  getOrganisationsOnProfileByUserId,
-  getProfileByUserId,
-} from "~/profile.server";
-import Header from "../Header";
-import ProfileMenu from "../ProfileMenu";
+  deleteOrganizationBySlug,
+  getOrganizationBySlug,
+} from "~/organization.server";
+import { getProfileByUserId } from "~/profile.server";
+import Header from "~/routes/profile/$username/Header";
 
 const schema = z.object({
   id: z.string().uuid(),
+  username: z.string(),
+  slug: z.string(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
 type LoaderData = {
-  profile: Pick<Profile, "firstName" | "lastName" | "id">;
+  profile: Pick<Profile, "id" | "firstName" | "lastName" | "username">;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+  const loggedInUser = await getUserByRequest(request);
+  if (loggedInUser === null) {
+    throw forbidden({ message: "not allowed" });
+  }
+  const { slug } = params;
+  if (slug === undefined || slug === "") {
+    throw badRequest({ message: "organization slug must be provided" });
+  }
+  const organization = await getOrganizationBySlug(slug);
+  if (organization === null) {
+    throw notFound({ message: "not found" });
+  }
+  const userIsPrivileged = organization.teamMembers.some(
+    (member) => member.profileId === loggedInUser.id && member.isPrivileged
+  );
+  if (!userIsPrivileged) {
+    throw forbidden({ message: "not allowed" });
+  }
 
-  const profile = await getProfileByUserId(currentUser.id, [
+  const profile = await getProfileByUserId(loggedInUser.id, [
+    "id",
     "firstName",
     "lastName",
-    "id",
+    "username",
   ]);
 
   return { profile };
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  // TODO: is user a privileged member of any organisation?
-  const profile = await getOrganisationsOnProfileByUserId(values.id);
-  if (profile === null) {
-    throw "Das Profil konnte nicht gefunden werden.";
+  const organization = await getOrganizationBySlug(values.slug);
+  if (organization === null) {
+    throw "Die zu löschende Organisation konnte nicht gefunden werden.";
   }
-  profile.memberOf.some(({ organization, isPrivileged }) => {
-    if (isPrivileged) {
-      throw `Das Profil besitzt Administratorrechte in der Organisation "${organization.name}" und kann deshalb nicht gelöscht werden.`;
-    }
-    return false;
-  });
+  const userIsPrivileged = organization.teamMembers.some(
+    (member) => member.profileId === values.id && member.isPrivileged
+  );
+  if (!userIsPrivileged) {
+    throw "Für das löschen einer Organisation werden Adminrechte benötigt.";
+  }
+  console.log("SLUG", values.slug);
   try {
-    await deleteUserByUid(values.id);
+    await deleteOrganizationBySlug(values.slug);
   } catch {
-    throw "Das Profil konnte nicht gelöscht werden.";
+    throw "Die Organisation konnte nicht gelöscht werden.";
   }
   return values;
 });
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
-
+  const loggedInUser = await getUserByRequest(request);
   const requestClone = request.clone();
   const formData = await requestClone.formData();
+
   const formUserId = formData.get("id");
-  if (formUserId !== currentUser.id) {
+  if (loggedInUser === null || formUserId !== loggedInUser.id) {
     throw forbidden({ message: "not allowed" });
+  }
+
+  const username = formData.get("username");
+  if (username === null) {
+    throw badRequest({ message: "username must be provided" });
   }
 
   const formActionResult = formAction({
     request,
     schema,
     mutation,
-    successPath: `/profile/${username}/delete/goodbye`,
+    successPath: `/profile/${username}`,
   });
   return formActionResult;
 };
 
-export default function Index() {
+export default function Delete() {
   const { profile } = useLoaderData<LoaderData>();
-  const { username } = useParams();
+  const { slug } = useParams();
   const initials = getInitials(profile);
-
   return (
     <>
-      <Header username={username ?? ""} initials={initials} />
+      <Header username={profile.username} initials={initials} />
 
       <div className="container mx-auto px-4 relative z-10 pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
           <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
             <div className="basis-4/12 px-4">
-              <ProfileMenu username={username ?? ""} />
+              {/** TODO: Add OrganizationMenu (Equivalent to ProfileMenu) */}
             </div>
             <div className="basis-6/12 px-4">
-              <h1 className="mb-8">Profil löschen</h1>
+              <h1 className="mb-8">Organisation löschen</h1>
 
               <h4 className="mb-4 font-semibold">Allgemein</h4>
 
@@ -138,11 +159,35 @@ export default function Index() {
                         </>
                       )}
                     </Field>
+                    <Field name="username">
+                      {({ Errors }) => (
+                        <>
+                          <input
+                            type="hidden"
+                            value={profile.username}
+                            {...register("username")}
+                          ></input>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <Field name="slug">
+                      {({ Errors }) => (
+                        <>
+                          <input
+                            type="hidden"
+                            value={slug || ""}
+                            {...register("slug")}
+                          ></input>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
                     <button
                       type="submit"
                       className="btn btn-outline-primary ml-auto btn-small"
                     >
-                      Profil entgültig löschen
+                      Organisation endgültig löschen
                     </button>
                     <Errors />
                   </>

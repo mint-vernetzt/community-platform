@@ -177,6 +177,8 @@ export type AreasWithState = (Area & {
   state: State | null;
 })[];
 
+// TODO:
+
 export async function getAreas(): Promise<AreasWithState> {
   return await prismaClient.area.findMany({
     include: {
@@ -374,6 +376,24 @@ export async function getFilteredProfiles(
     // TODO: Add orderBy
   });
   return result;
+}
+
+export async function getOrganisationsOnProfileByUserId(id: string) {
+  return await prismaClient.profile.findUnique({
+    where: { id },
+    select: {
+      memberOf: {
+        select: {
+          isPrivileged: true,
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
 }
 
 /*
