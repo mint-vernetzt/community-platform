@@ -83,12 +83,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const currentUser = await getUserByRequest(request);
+  const loggedInUser = await getUserByRequest(request);
   const requestClone = request.clone();
   const formData = await requestClone.formData();
 
   const formUserId = formData.get("id");
-  if (currentUser === null || formUserId !== currentUser.id) {
+  if (loggedInUser === null || formUserId !== loggedInUser.id) {
     throw forbidden({ message: "not allowed" });
   }
 
