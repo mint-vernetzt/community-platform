@@ -1,7 +1,9 @@
-import { ActionFunction, LoaderFunction, redirect } from "remix";
+import { ActionFunction, LoaderFunction, redirect, useFetcher } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
+import { getInitials } from "~/lib/profile/getInitials";
+import { Member } from ".";
 import {
   disconnectProfileFromOrganization,
   getMembers,
@@ -17,6 +19,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   const { profileId, organizationId } = values;
   const members = await getMembers(organizationId);
 
+  // Prevent self deletion
   const privilegedMembersWithoutToRemove = members.filter((member) => {
     return member.isPrivileged && member.profileId !== profileId;
   });
@@ -43,3 +46,36 @@ export const action: ActionFunction = async (args) => {
 
   return result;
 };
+
+export function MemberRemoveForm(props: Member & { slug: string }) {
+  const fetcher = useFetcher();
+
+  const { profile, isPrivileged, organizationId, slug } = props;
+  const initials = getInitials(profile);
+
+  return (
+    <Form
+      method="post"
+      key={`${profile.username}`}
+      action={`/organization/${slug}/settings/team/remove`}
+      schema={schema}
+      hiddenFields={["profileId", "organizationId"]}
+      values={{ profileId: profile.id, organizationId }}
+      fetcher={fetcher}
+    >
+      {({ Field, Button, Errors }) => {
+        return (
+          <>
+            <p>
+              {initials}, {profile.firstName}, {profile.lastName} {isPrivileged}
+            </p>
+            <Field name="profileId" />
+            <Field name="organizationId" />
+            <Errors />
+            <Button>X</Button>
+          </>
+        );
+      }}
+    </Form>
+  );
+}

@@ -1,18 +1,16 @@
 import { Profile } from "@prisma/client";
-import { LoaderFunction, useFetcher, useLoaderData, useParams } from "remix";
-import { Form } from "remix-forms";
-import { getInitials } from "~/lib/profile/getInitials";
+import { LoaderFunction, useLoaderData, useParams } from "remix";
 import { prismaClient } from "~/prisma";
-import Add from "./add";
-import { schema as deleteSchema } from "./remove";
 import { handleAuthorization } from "./../utils.server";
+import Add from "./add";
+import { MemberRemoveForm } from "./remove";
 
 type ProfileData = Pick<
   Profile,
   "id" | "username" | "firstName" | "lastName" | "avatar" | "position"
 >;
 
-type Member = {
+export type Member = {
   isPrivileged: boolean;
   organizationId: string;
   profile: ProfileData;
@@ -45,39 +43,6 @@ export const loader: LoaderFunction = async (args) => {
 
   return members;
 };
-
-function MemberRemoveForm(props: Member & { slug: string }) {
-  const fetcher = useFetcher();
-
-  const { profile, isPrivileged, organizationId, slug } = props;
-  const initials = getInitials(profile);
-
-  return (
-    <Form
-      method="post"
-      key={`${profile.username}`}
-      action={`/organization/${slug}/settings/team/remove`}
-      schema={deleteSchema}
-      hiddenFields={["profileId", "organizationId"]}
-      values={{ profileId: profile.id, organizationId }}
-      fetcher={fetcher}
-    >
-      {({ Field, Button, Errors }) => {
-        return (
-          <>
-            <p>
-              {initials}, {profile.firstName}, {profile.lastName} {isPrivileged}
-            </p>
-            <Field name="profileId" />
-            <Field name="organizationId" />
-            <Errors />
-            <Button>X</Button>
-          </>
-        );
-      }}
-    </Form>
-  );
-}
 
 function Index() {
   const { slug } = useParams();
