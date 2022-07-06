@@ -23,7 +23,7 @@ type LoaderData = Member[];
 export const loader: LoaderFunction = async (args) => {
   const { organization } = await handleAuthorization(args);
 
-  const profiles = await prismaClient.memberOfOrganization.findMany({
+  const members = await prismaClient.memberOfOrganization.findMany({
     select: {
       isPrivileged: true,
       organizationId: true,
@@ -43,7 +43,7 @@ export const loader: LoaderFunction = async (args) => {
     },
   });
 
-  return profiles;
+  return members;
 };
 
 function MemberRemoveForm(props: Member & { slug: string }) {
@@ -91,11 +91,11 @@ function Index() {
         eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
         voluptua.
       </p>
-      {loaderData.map((data) => {
+      {loaderData.map((member) => {
         return (
           <MemberRemoveForm
-            key={data.profile.username}
-            {...data}
+            key={member.profile.username}
+            {...member}
             slug={slug as string}
           />
         );
