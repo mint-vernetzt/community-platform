@@ -24,7 +24,7 @@ const schema = z.object({
 
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { email, slug } = values;
-
+  // TODO: Duplicate code - see utils.server.ts handleAuthorization()
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
     throw "Organization not found";
@@ -74,7 +74,6 @@ export const action: ActionFunction = async (args) => {
 
   return result;
 };
-
 function Add() {
   const { slug } = useParams();
   const fetcher = useFetcher();
