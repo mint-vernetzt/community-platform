@@ -1,7 +1,5 @@
 import { GravityType } from "imgproxy/dist/types";
 import { Form, Link, LoaderFunction, Outlet, useLoaderData } from "remix";
-import { badRequest, forbidden } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { builder } from "~/imgproxy";
 import { getInitials } from "~/lib/profile/getInitials";
@@ -18,8 +16,6 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async (args) => {
-  const { request, params } = args;
-
   const { currentUser } = await handleAuthorization(args);
   const profile = await getProfileByUserId(currentUser.id);
 
@@ -95,7 +91,7 @@ function Index() {
       <menu>
         <ul>
           <li>
-            <Link to="./edit">Edit</Link>
+            <Link to=".">Edit</Link>
           </li>
           <li>
             <Link to="./team">Team</Link>

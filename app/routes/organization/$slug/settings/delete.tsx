@@ -71,7 +71,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (!userIsPrivileged) {
     throw "Für das löschen einer Organisation werden Adminrechte benötigt.";
   }
-  console.log("SLUG", values.slug);
+
   try {
     await deleteOrganizationBySlug(values.slug);
   } catch {

@@ -398,14 +398,14 @@ export const action: ActionFunction = async (args) => {
   };
 };
 
-function Edit() {
+function Index() {
   const { slug } = useParams();
   const {
     organization: dbOrganization,
     organizationTypes,
     areas,
-    profile,
   } = useLoaderData<LoaderData>();
+
   const transition = useTransition();
   const actionData = useActionData();
 
@@ -413,8 +413,6 @@ function Edit() {
   const isSubmitting = transition.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
-
-  console.log(organization);
 
   const methods = useForm<OrganizationFormType>({
     defaultValues: organization,
@@ -746,4 +744,4 @@ function Edit() {
   );
 }
 
-export default Edit;
+export default Index;
