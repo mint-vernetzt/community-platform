@@ -19,13 +19,11 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { getInitials } from "~/lib/profile/getInitials";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
 import { getAreas, getProfileByUserId } from "~/profile.server";
-import Header from "~/routes/profile/$username/Header";
 
 const organizationSchema = object({
   name: string().required(),
@@ -400,14 +398,14 @@ export const action: ActionFunction = async (args) => {
   };
 };
 
-function Edit() {
+function Index() {
   const { slug } = useParams();
   const {
     organization: dbOrganization,
     organizationTypes,
     areas,
-    profile,
   } = useLoaderData<LoaderData>();
+
   const transition = useTransition();
   const actionData = useActionData();
 
@@ -415,8 +413,6 @@ function Edit() {
   const isSubmitting = transition.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
-
-  console.log(organization);
 
   const methods = useForm<OrganizationFormType>({
     defaultValues: organization,
@@ -473,10 +469,8 @@ function Edit() {
   }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-  const initials = getInitials(profile);
   return (
     <>
-      <Header username={profile.username ?? ""} initials={initials} />
       <FormProvider {...methods}>
         <Form
           ref={formRef}
@@ -750,4 +744,4 @@ function Edit() {
   );
 }
 
-export default Edit;
+export default Index;

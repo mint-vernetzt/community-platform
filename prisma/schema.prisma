@@ -139,6 +139,7 @@ model MemberOfOrganization {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   isPrivileged   Boolean      @default(false)
+  createdAt      DateTime     @default(now()) @map("created_at")
 
   @@id([profileId, organizationId])
   @@map("members_of_organizations")
@@ -149,6 +150,7 @@ model MemberOfNetwork {
   networkId       String
   networkMember   Organization @relation(fields: [networkMemberId], references: [id], name: "network_member", onDelete: Cascade)
   networkMemberId String
+  createdAt       DateTime     @default(now()) @map("created_at")
 
   @@id([networkId, networkMemberId])
   @@map("members_of_networks")

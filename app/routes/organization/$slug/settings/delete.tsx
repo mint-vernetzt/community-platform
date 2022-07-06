@@ -11,13 +11,11 @@ import { badRequest, forbidden, notFound } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { getInitials } from "~/lib/profile/getInitials";
 import {
   deleteOrganizationBySlug,
   getOrganizationBySlug,
 } from "~/organization.server";
 import { getProfileByUserId } from "~/profile.server";
-import Header from "~/routes/profile/$username/Header";
 
 const schema = z.object({
   id: z.string().uuid(),
@@ -73,7 +71,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (!userIsPrivileged) {
     throw "Für das löschen einer Organisation werden Adminrechte benötigt.";
   }
-  console.log("SLUG", values.slug);
+
   try {
     await deleteOrganizationBySlug(values.slug);
   } catch {
@@ -96,7 +94,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (username === null) {
     throw badRequest({ message: "username must be provided" });
   }
-
+  // TODO: turn formAction into performMutation and redirect if success === false
   const formActionResult = formAction({
     request,
     schema,
@@ -109,11 +107,8 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function Delete() {
   const { profile } = useLoaderData<LoaderData>();
   const { slug } = useParams();
-  const initials = getInitials(profile);
   return (
     <>
-      <Header username={profile.username} initials={initials} />
-
       <div className="container mx-auto px-4 relative z-10 pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
           <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
