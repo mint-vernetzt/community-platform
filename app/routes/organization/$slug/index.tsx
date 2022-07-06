@@ -505,7 +505,7 @@ export default function Index() {
 
                   {loaderData.organization.createdAt && (
                     <p className="text-xs mb-4 text-center">
-                      Organisation besteht seit dem{" "}
+                      Profil besteht seit dem{" "}
                       {new Date(
                         loaderData.organization.createdAt
                       ).toLocaleDateString("de-De", {
@@ -544,7 +544,7 @@ export default function Index() {
                 <div className="flex-initial lg:pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary whitespace-nowrap"
-                    to={`/organization/${loaderData.organization.slug}/edit`}
+                    to={`/organization/${loaderData.organization.slug}/settings`}
                   >
                     {/* TODO: nowrap should be default on buttons, right?*/}
                     Organisation bearbeiten
