@@ -1,22 +1,22 @@
 import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
+import { makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
+import { SomeZodObject, z } from "zod";
+import Input from "~/components/FormElements/Input/Input";
+import { updateProfileByUserId } from "~/profile.server";
 import {
   authenticator,
   getUserByAccessToken,
   sessionStorage,
   supabaseStrategy,
 } from "../../auth.server";
-import { updateProfileByUserId } from "~/profile.server";
-import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
-import { z, SomeZodObject } from "zod";
-import { makeDomainFunction } from "remix-domains";
-import Input from "~/components/FormElements/Input/Input";
+import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
+import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
+import PageBackground from "../../components/PageBackground/PageBackground";
 
 const schema = z.object({
   email: z.string().email().min(1),
-  password: z.string().min(1),
+  password: z.string().min(8),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {

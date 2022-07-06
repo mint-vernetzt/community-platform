@@ -1,20 +1,20 @@
 import React from "react";
 import { ActionFunction, LoaderFunction, useActionData } from "remix";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import Input from "~/components/FormElements/Input/Input";
-import SelectField from "../../components/FormElements/SelectField/SelectField";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import { signUp } from "../../auth.server";
-import { generateUsername } from "../../utils";
+import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
   PerformMutation,
   performMutation,
 } from "remix-forms";
 import { Schema, z } from "zod";
-import { InputError, makeDomainFunction } from "remix-domains";
+import Input from "~/components/FormElements/Input/Input";
 import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
+import { signUp } from "../../auth.server";
+import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
+import SelectField from "../../components/FormElements/SelectField/SelectField";
+import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
+import PageBackground from "../../components/PageBackground/PageBackground";
+import { generateUsername } from "../../utils";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
@@ -24,7 +24,7 @@ const schema = z.object({
     .string()
     .email("Ungültige E-Mail.")
     .min(1, "Bitte eine E-Mail eingeben."),
-  password: z.string().min(1, "Bitte ein Passwort eingeben."),
+  password: z.string().min(8, "Bitte ein Passwort eingeben."),
   termsAccepted: z.boolean(),
 });
 
