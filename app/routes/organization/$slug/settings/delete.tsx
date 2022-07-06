@@ -94,7 +94,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (username === null) {
     throw badRequest({ message: "username must be provided" });
   }
-
+  // TODO: turn formAction into performMutation and redirect if success === false
   const formActionResult = formAction({
     request,
     schema,
