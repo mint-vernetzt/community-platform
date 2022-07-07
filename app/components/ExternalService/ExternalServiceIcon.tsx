@@ -3,6 +3,9 @@ import { ExternalService } from "../types";
 export interface ExternalServiceProps {
   service: ExternalService;
   url: string;
+  width?: string;
+  height?: string;
+  scaleFactor?: number;
 }
 
 const defaultPath =
@@ -20,13 +23,25 @@ const serviceIconPaths: Record<ExternalService, string> = {
     "M.4 1.775C.4 1.015 1.03.4 1.81.4h16.38c.779 0 1.41.616 1.41 1.375v16.45c0 .76-.631 1.375-1.41 1.375H1.81C1.03 19.6.4 18.984.4 18.225V1.775ZM6.33 16.473v-8.67h-2.88v8.67h2.88Zm-1.44-9.855c1.005 0 1.63-.664 1.63-1.497-.018-.851-.624-1.498-1.61-1.498-.987 0-1.631.648-1.631 1.498 0 .833.625 1.497 1.592 1.497h.02Zm5.89 9.855V11.63c0-.26.02-.519.096-.703.208-.518.682-1.054 1.478-1.054 1.043 0 1.46.794 1.46 1.96v4.639h2.88V11.5c0-2.664-1.42-3.902-3.316-3.902-1.529 0-2.214.84-2.598 1.431v.03h-.02l.02-.03V7.803h-2.88c.036.813 0 8.67 0 8.67h2.88Z",
 };
 
-function ServiceIcon({ service }: { service: ExternalService }) {
+function ServiceIcon({
+  service,
+  width,
+  height,
+  scaleFactor,
+}: {
+  service: ExternalService;
+  width: string;
+  height: string;
+  scaleFactor: number;
+}) {
   const path = serviceIconPaths[service] ?? defaultPath;
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
+      viewBox={`0 0 ${parseInt(width) * scaleFactor} ${
+        parseInt(height) * scaleFactor
+      }`}
+      width={width}
+      height={height}
       className="fill-current"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -36,15 +51,21 @@ function ServiceIcon({ service }: { service: ExternalService }) {
 }
 
 function ExternalServiceIcon(props: ExternalServiceProps) {
+  const { url, service, width = "20", height = "20", scaleFactor = 1 } = props;
   return (
     <>
       <a
-        href={props.url}
+        href={url}
         className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
         target="_blank"
         rel="noreferrer"
       >
-        <ServiceIcon service={props.service} />
+        <ServiceIcon
+          service={service}
+          width={width}
+          height={height}
+          scaleFactor={scaleFactor}
+        />
       </a>
     </>
   );
