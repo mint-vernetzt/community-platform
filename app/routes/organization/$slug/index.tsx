@@ -365,7 +365,13 @@ export default function Index() {
                       {initialsOfLoggedInUser}
                     </label>
                   ) : (
-                    <img src={avatarOfLoggedInUser} alt="" />
+                    <label tabIndex={0} className="w-10 h-10 rounded-md">
+                      <img
+                        src={avatarOfLoggedInUser}
+                        alt={initialsOfLoggedInUser}
+                        className="w-10 h-10 rounded-md"
+                      />
+                    </label>
                   )}
                   <ul
                     tabIndex={0}
@@ -699,7 +705,10 @@ export default function Index() {
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                   {network.logo !== null &&
                                   network.logo !== "" ? (
-                                    <img src={network.logo} alt={network.name} />
+                                    <img
+                                      src={network.logo}
+                                      alt={network.name}
+                                    />
                                   ) : (
                                     getOrganizationInitials(network.name)
                                   )}
@@ -752,7 +761,10 @@ export default function Index() {
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                   {networkMember.logo !== null &&
                                   networkMember.logo !== "" ? (
-                                    <img src={networkMember.logo} alt={networkMember.name} />
+                                    <img
+                                      src={networkMember.logo}
+                                      alt={networkMember.name}
+                                    />
                                   ) : (
                                     getOrganizationInitials(networkMember.name)
                                   )}
@@ -801,7 +813,10 @@ export default function Index() {
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                 {profile.avatar !== null &&
                                 profile.avatar !== "" ? (
-                                  <img src={profile.avatar} alt={getFullName(profile)} />
+                                  <img
+                                    src={profile.avatar}
+                                    alt={getFullName(profile)}
+                                  />
                                 ) : (
                                   getInitials(profile)
                                 )}
