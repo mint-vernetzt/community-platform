@@ -62,7 +62,6 @@ type ProfileLoaderData = {
     avatar?: string;
     background?: string;
     currentUserAvatar?: string;
-    organizationLogos: string[];
   };
 };
 
@@ -104,10 +103,7 @@ export const loader: LoaderFunction = async (
     avatar?: string;
     background?: string;
     currentUserAvatar?: string;
-    organizationLogos: string[];
-  } = {
-    organizationLogos: [],
-  };
+  } = {};
 
   if (profile.avatar !== null) {
     const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
@@ -158,10 +154,8 @@ export const loader: LoaderFunction = async (
           .gravity(GravityType.center)
           .dpr(2)
           .generateUrl(publicURL);
-        images.organizationLogos.push(logo);
+        organization.logo = logo;
       }
-    } else {
-      images.organizationLogos.push("");
     }
   });
 
@@ -678,12 +672,9 @@ export default function Index() {
                       >
                         <div className="w-full flex items-center flex-row mb-4">
                           <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                            {loaderData.images.organizationLogos[index] !==
-                            "" ? (
-                              <img
-                                src={loaderData.images.organizationLogos[index]}
-                                alt=""
-                              />
+                            {organization.logo !== "" &&
+                            organization.logo !== null ? (
+                              <img src={organization.logo} alt="" />
                             ) : (
                               getOrganizationInitials(organization.name)
                             )}

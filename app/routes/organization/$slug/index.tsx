@@ -61,6 +61,54 @@ export const loader: LoaderFunction = async (args) => {
   let organization: Partial<OrganizationWithRelations> = {};
   let userIsPrivileged;
 
+  unfilteredOrganization.memberOf.map(({ network }) => {
+    if (network.logo !== null) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(network.logo);
+      if (publicURL !== null) {
+        const logo = builder
+          .resize("fill", 64, 64)
+          .gravity(GravityType.center)
+          .dpr(2)
+          .generateUrl(publicURL);
+        network.logo = logo;
+      }
+    }
+  });
+
+  unfilteredOrganization.networkMembers.map(({ networkMember }) => {
+    if (networkMember.logo !== null) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(networkMember.logo);
+      if (publicURL !== null) {
+        const logo = builder
+          .resize("fill", 64, 64)
+          .gravity(GravityType.center)
+          .dpr(2)
+          .generateUrl(publicURL);
+        networkMember.logo = logo;
+      }
+    }
+  });
+
+  unfilteredOrganization.teamMembers.map(({ profile }) => {
+    if (profile.avatar !== null) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(profile.avatar);
+      if (publicURL !== null) {
+        const avatar = builder
+          .resize("fill", 64, 64)
+          .gravity(GravityType.center)
+          .dpr(2)
+          .generateUrl(publicURL);
+        profile.avatar = avatar;
+      }
+    }
+  });
+
   if (loggedInUser === null) {
     let key: keyof Partial<OrganizationWithRelations>;
     for (key in unfilteredOrganization) {
@@ -619,7 +667,8 @@ export default function Index() {
                             >
                               <div className="w-full flex items-center flex-row mb-4">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {network.logo ? (
+                                  {network.logo !== null &&
+                                  network.logo !== "" ? (
                                     <img src={network.logo} alt="" />
                                   ) : (
                                     getOrganizationInitials(network.name)
@@ -669,7 +718,8 @@ export default function Index() {
                             >
                               <div className="w-full flex items-center flex-row mb-4">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {networkMember.logo ? (
+                                  {networkMember.logo !== null &&
+                                  networkMember.logo !== "" ? (
                                     <img src={networkMember.logo} alt="" />
                                   ) : (
                                     getOrganizationInitials(networkMember.name)
@@ -717,7 +767,8 @@ export default function Index() {
                           >
                             <div className="w-full flex items-center flex-row mb-4">
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                {profile.avatar ? (
+                                {profile.avatar !== null &&
+                                profile.avatar !== "" ? (
                                   <img src={profile.avatar} alt="" />
                                 ) : (
                                   getInitials(profile)
