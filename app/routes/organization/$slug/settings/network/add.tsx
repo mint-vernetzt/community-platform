@@ -68,6 +68,8 @@ export const action: ActionFunction = async (args) => {
       message: `Organization with name "${result.data.name}" added as network member`,
     });
   }
+
+  return result;
 };
 
 function Add() {
