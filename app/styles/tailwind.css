@@ -108,7 +108,7 @@
 }
 
 .btn {
-  @apply px-6 h-auto min-h-0 leading-6 py-2 normal-case;
+  @apply px-6 h-auto min-h-0 leading-6 py-2 normal-case whitespace-nowrap;
 }
 
 .btn[disabled]:hover,
