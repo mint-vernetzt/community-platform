@@ -1,6 +1,6 @@
-import type { Offer, OrganizationType } from "@prisma/client";
+import type { Offer, OrganizationType, MintFocus } from "@prisma/client";
 
-export type GenericEntry = Offer | OrganizationType;
+export type GenericEntry = Offer | OrganizationType | MintFocus;
 
 type Lookup = {
   [keyof: string]: GenericEntry;
@@ -10,9 +10,9 @@ export function filterMissingData(
   wantedEntries: GenericEntry[],
   existingEntries: GenericEntry[]
 ) {
-  const existingOfferIds = existingEntries.map((o) => o.id);
+  const existingEntryIds = existingEntries.map((o) => o.id);
   return wantedEntries.filter(
-    (wanted) => !existingOfferIds.includes(wanted.id)
+    (wanted) => !existingEntryIds.includes(wanted.id)
   );
 }
 
@@ -33,9 +33,9 @@ export function dataToBeUpdated(
 }
 
 export function makeLookup(entries: GenericEntry[]) {
-  return entries.reduce((offer, value) => {
-    offer[value.id] = value;
-    return offer;
+  return entries.reduce((entry, value) => {
+    entry[value.id] = value;
+    return entry;
   }, {} as Lookup);
 }
 

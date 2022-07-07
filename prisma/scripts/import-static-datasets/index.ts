@@ -1,6 +1,7 @@
 import { prismaClient } from "../../../app/prisma";
 import organizationTypes from "./data/organizationTypes.json";
 import offers from "./data/offers.json";
+import mintFocuses from "./data/mintFocuses.json";
 import {
   dataToBeUpdated,
   entriesOnlyExistingOnDatabase,
@@ -8,7 +9,7 @@ import {
   GenericEntry,
 } from "./src/utils";
 
-type TableName = "offer" | "organizationType";
+type TableName = "offer" | "organizationType" | "mintFocus";
 
 async function createDataset(datasets: GenericEntry[], tableName: TableName) {
   console.log(`create entries for ${tableName}`);
@@ -39,12 +40,12 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
     console.log("updated: ", entriesToUpdate);
   }
 
-  const unknownOffers = entriesOnlyExistingOnDatabase(
+  const unknownEntries = entriesOnlyExistingOnDatabase(
     datasets,
     existingEntries
   );
-  if (unknownOffers.length > 0) {
-    console.log(`warning, unknown "${tableName}s" in db: `, unknownOffers);
+  if (unknownEntries.length > 0) {
+    console.log(`warning, unknown "${tableName}s" in db: `, unknownEntries);
   }
 
   if (missingData.length === 0 && entriesToUpdate.length === 0) {
@@ -55,6 +56,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
 const datasets = [
   { tableName: "offer", data: offers },
   { tableName: "organizationType", data: organizationTypes },
+  { tableName: "mintFocus", data: mintFocuses },
 ];
 
 Promise.all(
