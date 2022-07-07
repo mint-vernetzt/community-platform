@@ -88,6 +88,22 @@ export async function disconnectProfileFromOrganization(
   return result;
 }
 
+export async function disconnectOrganizationFromNetwork(
+  organizationId: string,
+  networkId: string
+) {
+  const result = await prismaClient.memberOfNetwork.delete({
+    where: {
+      networkId_networkMemberId: {
+        networkId,
+        networkMemberId: organizationId,
+      },
+    },
+  });
+  console.log(result);
+  return result;
+}
+
 export async function allowedToModify(
   profileId: string,
   organizationId: string

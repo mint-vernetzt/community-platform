@@ -1,7 +1,8 @@
-import { LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction, useLoaderData, useParams } from "remix";
 import { prismaClient } from "~/prisma";
 import { handleAuthorization } from "../utils.server";
 import Add from "./add";
+import { NetworkMemberRemoveForm } from "./remove";
 
 export type NetworkMember = {
   networkId: string;
@@ -53,6 +54,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 };
 
 function Index() {
+  const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
 
   return (
@@ -66,7 +68,11 @@ function Index() {
       <ul>
         {loaderData.map((member) => {
           return (
-            <li key={member.networkMember.id}>{member.networkMember.name}</li>
+            <NetworkMemberRemoveForm
+              key={member.networkMember.id}
+              {...member}
+              slug={slug as string}
+            />
           );
         })}
       </ul>
