@@ -68,7 +68,7 @@ export const loader: LoaderFunction = async (args) => {
         .getPublicUrl(network.logo);
       if (publicURL !== null) {
         const logo = builder
-          .resize("fill", 64, 64)
+          .resize("fit", 64, 64)
           .gravity(GravityType.center)
           .dpr(2)
           .generateUrl(publicURL);
@@ -84,7 +84,7 @@ export const loader: LoaderFunction = async (args) => {
         .getPublicUrl(networkMember.logo);
       if (publicURL !== null) {
         const logo = builder
-          .resize("fill", 64, 64)
+          .resize("fit", 64, 64)
           .gravity(GravityType.center)
           .dpr(2)
           .generateUrl(publicURL);
@@ -708,17 +708,20 @@ export default function Index() {
                               className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                             >
                               <div className="w-full flex items-center flex-row">
-                                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {network.logo !== null &&
-                                  network.logo !== "" ? (
+                                {network.logo !== "" &&
+                                network.logo !== null ? (
+                                  <div className="h-16 w-16 flex items-center justify-center relative">
                                     <img
+                                      className="max-w-full w-auto max-h-16 h-auto"
                                       src={network.logo}
                                       alt={network.name}
                                     />
-                                  ) : (
-                                    getOrganizationInitials(network.name)
-                                  )}
-                                </div>
+                                  </div>
+                                ) : (
+                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                                    {getOrganizationInitials(network.name)}
+                                  </div>
+                                )}
                                 <div className="pl-4">
                                   <H3 like="h4" className="text-xl mb-1">
                                     {network.name}
@@ -764,17 +767,22 @@ export default function Index() {
                               className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                             >
                               <div className="w-full flex items-center flex-row">
-                                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                  {networkMember.logo !== null &&
-                                  networkMember.logo !== "" ? (
+                                {networkMember.logo !== "" &&
+                                networkMember.logo !== null ? (
+                                  <div className="h-16 w-16 flex items-center justify-center relative">
                                     <img
+                                      className="max-w-full w-auto max-h-16 h-auto"
                                       src={networkMember.logo}
                                       alt={networkMember.name}
                                     />
-                                  ) : (
-                                    getOrganizationInitials(networkMember.name)
-                                  )}
-                                </div>
+                                  </div>
+                                ) : (
+                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                                    {getOrganizationInitials(
+                                      networkMember.name
+                                    )}
+                                  </div>
+                                )}
                                 <div className="pl-4">
                                   <H3 like="h4" className="text-xl mb-1">
                                     {networkMember.name}
