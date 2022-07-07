@@ -97,6 +97,9 @@ function Index() {
             <Link to="./team">Team</Link>
           </li>
           <li>
+            <Link to="./network">Network</Link>
+          </li>
+          <li>
             <Link to="./delete">Delete</Link>
           </li>
         </ul>
