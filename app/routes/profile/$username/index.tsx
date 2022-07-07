@@ -395,7 +395,7 @@ export default function Index() {
           {background !== undefined && (
             <img
               src={background}
-              alt=""
+              alt={fullName}
               className="object-cover w-full h-full"
             />
           )}
@@ -412,7 +412,7 @@ export default function Index() {
                   maxWidth={1920} // 1920 px
                   maxHeight={1080} // 1080 px
                 />
-                <button className="btn btn-primary">Upload</button>
+                <button className="btn btn-primary btn-small">Upload</button>
               </Form>
             </div>
           )}
@@ -425,7 +425,7 @@ export default function Index() {
               <div className="flex items-center flex-col">
                 <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
                   {avatar !== undefined ? (
-                    <img src={avatar} alt="" />
+                    <img src={avatar} alt={fullName} />
                   ) : (
                     initials
                   )}
@@ -443,7 +443,9 @@ export default function Index() {
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
                     />
-                    <button className="btn btn-primary">Upload</button>
+                    <button className="btn btn-primary btn-small">
+                      Upload
+                    </button>
                   </Form>
                 )}
                 <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>
@@ -659,22 +661,22 @@ export default function Index() {
                     </Link>
                   </div>
                 </div>
-                <div className="flex flex-wrap -mx-4 items-stretch">
+                <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.data.memberOf.map(({ organization }, index) => (
                     <div
                       key={`profile-${index}`}
                       data-testid="gridcell"
-                      className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                      className="flex-100 md:flex-1/2 px-3 mb-8"
                     >
                       <Link
                         to={`/organization/${organization.slug}`}
-                        className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                        className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                       >
-                        <div className="w-full flex items-center flex-row mb-4">
+                        <div className="w-full flex items-center flex-row">
                           <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                             {organization.logo !== "" &&
                             organization.logo !== null ? (
-                              <img src={organization.logo} alt="" />
+                              <img src={organization.logo} alt={organization.name} />
                             ) : (
                               getOrganizationInitials(organization.name)
                             )}

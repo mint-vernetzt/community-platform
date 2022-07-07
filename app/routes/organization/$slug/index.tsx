@@ -433,7 +433,7 @@ export default function Index() {
                   maxWidth={1920} // 1920 px
                   maxHeight={1080} // 1080 px
                 />
-                <button className="btn btn-primary">Upload</button>
+                <button className="btn btn-primary btn-small">Upload</button>
               </Form>
             </div>
           )}
@@ -445,7 +445,11 @@ export default function Index() {
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
                 <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-                  {logo ? <img src={logo} alt="" /> : initialsOfOrganization}
+                  {logo ? (
+                    <img src={logo} alt={loaderData.organization.name || ""} />
+                  ) : (
+                    initialsOfOrganization
+                  )}
                 </div>
                 {loaderData.userIsPrivileged && (
                   <Form method="post" encType="multipart/form-data">
@@ -459,7 +463,9 @@ export default function Index() {
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
                     />
-                    <button className="btn btn-primary">Upload</button>
+                    <button className="btn btn-primary btn-small">
+                      Upload
+                    </button>
                   </Form>
                 )}
                 <h3 className="mt-6 text-5xl mb-1">
@@ -527,7 +533,7 @@ export default function Index() {
                     loaderData.organization,
                     ExternalServices
                   ) && (
-                    <ul className="list-none flex flex-wrap -mx-1">
+                    <ul className="list-none flex flex-wrap -mx-1 mb-2">
                       {ExternalServices.map((service) => {
                         if (
                           typeof loaderData.organization[service] ===
@@ -549,6 +555,32 @@ export default function Index() {
                     </ul>
                   )}
 
+                  {typeof loaderData.organization.street === "string" &&
+                    loaderData.organization.street !== "" && (
+                      <>
+                        <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
+                        <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600">
+                          <span className="icon w-6 mr-4">
+                            <svg
+                              width="22"
+                              height="22"
+                              viewBox="0 0 22 22"
+                              className="fill-current"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M5.134 1.993a.915.915 0 0 0-1.37-.085L2.367 3.305c-.653.654-.893 1.578-.608 2.39a23.717 23.717 0 0 0 5.627 8.92 23.717 23.717 0 0 0 8.92 5.627c.812.285 1.736.045 2.39-.608l1.396-1.395a.916.916 0 0 0-.086-1.37l-3.114-2.422a.916.916 0 0 0-.783-.165l-2.956.738a2.356 2.356 0 0 1-2.237-.62L7.6 11.085a2.355 2.355 0 0 1-.62-2.237l.74-2.956a.915.915 0 0 0-.166-.783L5.134 1.993ZM2.744.89a2.356 2.356 0 0 1 3.526.22l2.422 3.113c.444.571.6 1.315.425 2.017L8.38 9.197a.915.915 0 0 0 .24.868l3.317 3.317a.915.915 0 0 0 .87.24l2.954-.739a2.354 2.354 0 0 1 2.017.426l3.113 2.421a2.355 2.355 0 0 1 .22 3.525l-1.395 1.396c-1 .999-2.493 1.438-3.884.948a25.156 25.156 0 0 1-9.464-5.967A25.156 25.156 0 0 1 .401 6.17c-.49-1.39-.05-2.885.949-3.884L2.745.89Z" />
+                            </svg>
+                          </span>
+                          <span>
+                            {loaderData.organization.street}{" "}
+                            {loaderData.organization.streetNumber}
+                            <br />
+                            {loaderData.organization.zipCode}{" "}
+                            {loaderData.organization.city}
+                          </span>
+                        </p>
+                      </>
+                    )}
                   <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                   {loaderData.organization.createdAt && (
@@ -566,22 +598,21 @@ export default function Index() {
                 </>
               )}
             </div>
+            {/** TODO: Styling of quote section */}
+            {typeof loaderData.organization.quote === "string" &&
+              loaderData.organization.quote !== "" && (
+                <div className="py-8 px-4 pb-15 md:pb-5 relative lg:ml-14">
+                  <div className="mb-0 text-[72px] leading-none">“</div>
+                  <div className="mb-4">"{loaderData.organization.quote}"</div>
+                  <div className="text-primary font-bold">
+                    {loaderData.organization.quoteAuthor || ""}
+                  </div>
+                  <div>
+                    {loaderData.organization.quoteAuthorInformation || ""}
+                  </div>
+                </div>
+              )}
           </div>
-
-          {/** TODO: Styling of quote section */}
-          {typeof loaderData.organization.quote === "string" &&
-            loaderData.organization.quote !== "" && (
-              <div>
-                <h1 className="mb-6">"</h1>
-                <div className="mb-4">"{loaderData.organization.quote}"</div>
-                <div className="mb-2">
-                  {loaderData.organization.quoteAuthor || ""}
-                </div>
-                <div>
-                  {loaderData.organization.quoteAuthorInformation || ""}
-                </div>
-              </div>
-            )}
 
           <div className="md:flex-1/2 lg:flex-7/12 px-4 pt-10 lg:pt-20">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
@@ -591,10 +622,9 @@ export default function Index() {
               {loaderData.userIsPrivileged && loaderData.organization.slug && (
                 <div className="flex-initial lg:pl-4 pt-3 mb-6">
                   <Link
-                    className="btn btn-outline btn-primary whitespace-nowrap"
+                    className="btn btn-outline btn-primary"
                     to={`/organization/${loaderData.organization.slug}/settings`}
                   >
-                    {/* TODO: nowrap should be default on buttons, right?*/}
                     Organisation bearbeiten
                   </Link>
                 </div>
@@ -650,8 +680,8 @@ export default function Index() {
             {loaderData.organization.memberOf &&
               loaderData.organization.memberOf.length > 0 && (
                 <>
-                  <h2 className="mb-6">Teil der Netzwerke</h2>
-                  <div className="flex flex-wrap justify-center -mx-4 items-stretch">
+                  <h3 className="mb-6 mt-14 font-bold">Assoziiert mit</h3>
+                  <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.memberOf &&
                       loaderData.organization.memberOf.length > 0 &&
                       loaderData.organization.memberOf.map(
@@ -659,17 +689,17 @@ export default function Index() {
                           <div
                             key={`profile-${index}`}
                             data-testid="gridcell"
-                            className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                            className="flex-100 md:flex-1/2 px-3 mb-4"
                           >
                             <Link
                               to={`/organization/${network.slug}`}
-                              className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                             >
-                              <div className="w-full flex items-center flex-row mb-4">
+                              <div className="w-full flex items-center flex-row">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                   {network.logo !== null &&
                                   network.logo !== "" ? (
-                                    <img src={network.logo} alt="" />
+                                    <img src={network.logo} alt={network.name} />
                                   ) : (
                                     getOrganizationInitials(network.name)
                                   )}
@@ -701,8 +731,10 @@ export default function Index() {
             {loaderData.organization.networkMembers &&
               loaderData.organization.networkMembers.length > 0 && (
                 <>
-                  <h2 className="mb-6">Mitgliedsorganisationen</h2>
-                  <div className="flex flex-wrap justify-center -mx-4 items-stretch">
+                  <h3 className="mb-6 mt-14 font-bold">
+                    Mitgliedsorganisationen
+                  </h3>
+                  <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.networkMembers &&
                       loaderData.organization.networkMembers.length > 0 &&
                       loaderData.organization.networkMembers.map(
@@ -710,17 +742,17 @@ export default function Index() {
                           <div
                             key={`profile-${index}`}
                             data-testid="gridcell"
-                            className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                            className="flex-100 md:flex-1/2 px-3 mb-4"
                           >
                             <Link
                               to={`/organization/${networkMember.slug}`}
-                              className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                             >
-                              <div className="w-full flex items-center flex-row mb-4">
+                              <div className="w-full flex items-center flex-row">
                                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                   {networkMember.logo !== null &&
                                   networkMember.logo !== "" ? (
-                                    <img src={networkMember.logo} alt="" />
+                                    <img src={networkMember.logo} alt={networkMember.name} />
                                   ) : (
                                     getOrganizationInitials(networkMember.name)
                                   )}
@@ -752,24 +784,24 @@ export default function Index() {
             {loaderData.organization.teamMembers &&
               loaderData.organization.teamMembers.length > 0 && (
                 <>
-                  <h2 className="mb-6">Das Team</h2>
-                  <div className="flex flex-wrap justify-center -mx-4 items-stretch">
+                  <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
+                  <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.teamMembers.map(
                       ({ profile }, index) => (
                         <div
                           key={`profile-${index}`}
                           data-testid="gridcell"
-                          className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                          className="flex-100 md:flex-1/2 px-3 mb-4"
                         >
                           <Link
                             to={`/profile/${profile.username}`}
-                            className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                            className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                           >
-                            <div className="w-full flex items-center flex-row mb-4">
+                            <div className="w-full flex items-center flex-row">
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
                                 {profile.avatar !== null &&
                                 profile.avatar !== "" ? (
-                                  <img src={profile.avatar} alt="" />
+                                  <img src={profile.avatar} alt={getFullName(profile)} />
                                 ) : (
                                   getInitials(profile)
                                 )}
