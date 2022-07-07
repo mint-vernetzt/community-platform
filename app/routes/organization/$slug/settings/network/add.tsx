@@ -34,6 +34,10 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw new InputError("Organization not found", "name");
   }
 
+  if (network.id === organization.id) {
+    throw new InputError("Couldn't set organization as its own member", "name");
+  }
+
   const stillMember = organization.memberOf.some((entry) => {
     return entry.network.slug === slug;
   });
