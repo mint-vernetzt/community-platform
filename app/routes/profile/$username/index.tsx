@@ -150,7 +150,7 @@ export const loader: LoaderFunction = async (
         .getPublicUrl(organization.logo);
       if (publicURL !== null) {
         const logo = builder
-          .resize("fill", 64, 64)
+          .resize("fit", 64, 64)
           .gravity(GravityType.center)
           .dpr(2)
           .generateUrl(publicURL);
@@ -673,14 +673,20 @@ export default function Index() {
                         className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                       >
                         <div className="w-full flex items-center flex-row">
-                          <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                            {organization.logo !== "" &&
-                            organization.logo !== null ? (
-                              <img src={organization.logo} alt={organization.name} />
-                            ) : (
-                              getOrganizationInitials(organization.name)
-                            )}
-                          </div>
+                          {organization.logo !== "" &&
+                          organization.logo !== null ? (
+                            <div className="h-16 w-16 flex items-center justify-center relative">
+                              <img
+                                className="max-w-full w-auto max-h-16 h-auto"
+                                src={organization.logo}
+                                alt={organization.name}
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                              {getOrganizationInitials(organization.name)}
+                            </div>
+                          )}
                           <div className="pl-4">
                             <H3 like="h4" className="text-xl mb-1">
                               {organization.name}
