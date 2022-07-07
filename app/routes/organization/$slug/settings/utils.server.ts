@@ -29,6 +29,24 @@ export async function getOrganizationBySlug(slug: string) {
   return organization;
 }
 
+export async function getOrganizationByName(name: string) {
+  const organization = await prismaClient.organization.findFirst({
+    where: { name },
+    include: {
+      memberOf: {
+        select: {
+          network: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organization;
+}
+
 export async function connectProfileToOrganization(
   profileId: string,
   organizationId: string
@@ -37,6 +55,19 @@ export async function connectProfileToOrganization(
     data: {
       profileId,
       organizationId,
+    },
+  });
+  return result;
+}
+
+export async function connectOrganizationToNetwork(
+  organizationId: string,
+  networkId: string
+) {
+  const result = await prismaClient.memberOfNetwork.create({
+    data: {
+      networkMemberId: organizationId,
+      networkId,
     },
   });
   return result;
