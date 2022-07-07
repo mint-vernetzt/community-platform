@@ -61,6 +61,16 @@ model OrganizationTypesOnOrganizations {
   @@map("organization_types_on_organizations")
 }
 
+model MintFocusesOnOrganizations {
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  mintFocusId    String
+  mintFocus      MintFocus    @relation(fields: [mintFocusId], references: [id])
+
+  @@id([organizationId, mintFocusId])
+  @@map("mint_focuses_on_organizations")
+}
+
 model Profile {
   id              String                 @id @default(uuid())
   username        String                 @unique
@@ -116,6 +126,7 @@ model Organization {
   quote                  String?
   quoteAuthor            String?                            @map("quote_author")
   quoteAuthorInformation String?                            @map("quote_author_information")
+  mintFocuses            MintFocusesOnOrganizations[]
   supportedBy            String[]                           @map("supported_by")
   publicFields           String[]                           @map("public_fields")
   teamMembers            MemberOfOrganization[]
@@ -216,4 +227,12 @@ model OrganizationType {
   organizations OrganizationTypesOnOrganizations[]
 
   @@map("organization_types")
+}
+
+model MintFocus {
+  id            String                       @id @default(uuid())
+  title         String                       @unique
+  organizations MintFocusesOnOrganizations[]
+
+  @@map("mint_focuses")
 }
