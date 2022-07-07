@@ -142,7 +142,7 @@ export const loader: LoaderFunction = async (args) => {
       .getPublicUrl(unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = builder
-        .resize("fill", 144, 144)
+        .resize("fit", 480, 144)
         .dpr(2)
         .generateUrl(publicURL);
     }
@@ -268,7 +268,7 @@ export const action: ActionFunction = async (args) => {
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
     images.logo = builder
-      .resize("fit", 144, 144)
+      .resize("fit", 480, 144)
       .dpr(2)
       .generateUrl(logoPublicURL);
   }
@@ -450,13 +450,19 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-                  {logo ? (
-                    <img src={logo} alt={loaderData.organization.name || ""} />
-                  ) : (
-                    initialsOfOrganization
-                  )}
-                </div>
+                {logo ? (
+                  <div className="h-36 w-100 flex items-center justify-center">
+                    <img
+                      src={logo}
+                      alt={loaderData.organization.name || ""}
+                      className="max-w-full w-auto max-h-36 h-auto"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+                    {initialsOfOrganization}
+                  </div>
+                )}
                 {loaderData.userIsPrivileged && (
                   <Form method="post" encType="multipart/form-data">
                     <label htmlFor="logo">Logo</label>
