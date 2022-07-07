@@ -253,12 +253,24 @@ export default function Register() {
                               );
                             }}
                           </Field>
-                          {/** TODO: Insert links */}
                           <span className="label-text">
-                            Ich erkläre mich mit der Geltung der
-                            Nutzungsbedingungen [LINK] einverstanden. Die
-                            Datenschutzerklärung [LINK] habe ich zur Kenntnis
-                            genommen.
+                            Ich erkläre mich mit der Geltung der{" "}
+                            <a
+                              href="https://mint-vernetzt.de/terms-of-use-community-platform"
+                              target="_blank"
+                              className="text-primary font-bold hover:underline"
+                            >
+                              Nutzungsbedingungen
+                            </a>{" "}
+                            einverstanden. Die{" "}
+                            <a
+                              href="https://mint-vernetzt.de/privacy-policy-community-platform"
+                              target="_blank"
+                              className="text-primary font-bold hover:underline"
+                            >
+                              Datenschutzerklärung
+                            </a>{" "}
+                            habe ich zur Kenntnis genommen.
                           </span>
                         </label>
                       </div>
