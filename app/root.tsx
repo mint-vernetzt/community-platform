@@ -14,6 +14,8 @@ import {
 } from "remix";
 import type { MetaFunction } from "remix";
 import styles from "./styles/styles.css";
+import { createCSRFToken } from "./utils.server";
+import { sessionStorage } from "./auth.server";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform (Preview)" };
@@ -24,13 +26,30 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 type LoaderData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
+  csrf: string | undefined;
 };
 
-export const loader: LoaderFunction = async () => {
-  return json<LoaderData>({
-    matomoUrl: process.env.MATOMO_URL,
-    matomoSiteId: process.env.MATOMO_SITE_ID,
-  });
+export const loader: LoaderFunction = async (args) => {
+  const { request } = args;
+
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
+
+  let csrf;
+  if (session !== null) {
+    csrf = createCSRFToken();
+    session.set("csrf", csrf);
+  }
+
+  return json<LoaderData>(
+    {
+      csrf,
+      matomoUrl: process.env.MATOMO_URL,
+      matomoSiteId: process.env.MATOMO_SITE_ID,
+    },
+    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+  );
 };
 
 export default function App() {

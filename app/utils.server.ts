@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, randomBytes } from "crypto";
 import type { BinaryToTextEncoding } from "crypto";
 
 export async function createHashFromString(
@@ -9,4 +9,8 @@ export async function createHashFromString(
   const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
   hash.update(string);
   return hash.digest(encoding);
+}
+
+export function createCSRFToken() {
+  return randomBytes(100).toString("base64");
 }
