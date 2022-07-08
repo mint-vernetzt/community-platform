@@ -9,7 +9,9 @@ export interface ChipProps {
 }
 
 function getClassNames(isEnabled: boolean, tagHandlerIsCallable: boolean) {
-  let classesList: string[] = [`badge badge-outline gap-2`];
+  let classesList: string[] = [
+    `badge badge-outline gap-2 max-w-[calc(100%)] lg:max-w-[calc(100%-44px)] w-auto`,
+  ];
 
   if (isEnabled) {
     classesList.push("badge-secondary is-enabled");
@@ -46,8 +48,10 @@ export function Chip({
       className={getClassNames(isEnabled, tagHandlerIsCallable)}
       onClick={() => tagHandlerIsCallable && onClick && onClick(slug)}
     >
-      {title}
-      {isRemovable ? " x" : ""}
+      <span className="text-ellipsis overflow-hidden text-left ...">
+        {title}
+      </span>
+      {isRemovable ? <span className="mr-2">x</span> : ""}
     </div>
   );
 }

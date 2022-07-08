@@ -545,7 +545,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="md:flex-1/2 lg:flex-7/12 px-4 pt-10 lg:pt-20">
+          <div className="md:flex-1/2 lg:flex-7/12 px-4 pt-10 lg:pt-20 overflow-hidden">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">Hi, ich bin {fullName}</h1>
@@ -554,10 +554,9 @@ export default function Index() {
                 loaderData.currentUser !== undefined && (
                   <div className="flex-initial lg:pl-4 pt-3 mb-6">
                     <Link
-                      className="btn btn-outline btn-primary whitespace-nowrap"
+                      className="btn btn-outline btn-primary"
                       to={`/profile/${loaderData.currentUser.username}/edit`}
                     >
-                      {/* TODO: nowrap should be default on buttons, right?*/}
                       Profil bearbeiten
                     </Link>
                   </div>
@@ -574,7 +573,7 @@ export default function Index() {
             {loaderData.data.areas !== undefined &&
               loaderData.data.areas.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                     Aktivitätsgebiete
                   </div>
                   <div className="lg:flex-auto">
@@ -587,7 +586,7 @@ export default function Index() {
             {loaderData.data.skills !== undefined &&
               loaderData.data.skills.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                     Kompetenzen
                   </div>
 
@@ -600,7 +599,7 @@ export default function Index() {
             {loaderData.data.interests !== undefined &&
               loaderData.data.interests.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                     Interessen
                   </div>
                   <div className="flex-auto">
@@ -611,7 +610,7 @@ export default function Index() {
             {loaderData.data.offers !== undefined &&
               loaderData.data.offers.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                     Ich biete
                   </div>
                   <div className="flex-auto">
@@ -629,7 +628,7 @@ export default function Index() {
             {loaderData.data.seekings !== undefined &&
               loaderData.data.seekings.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                     Ich suche
                   </div>
                   <div className="flex-auto">
@@ -666,7 +665,7 @@ export default function Index() {
                     <div
                       key={`profile-${index}`}
                       data-testid="gridcell"
-                      className="flex-100 md:flex-1/2 px-3 mb-8"
+                      className="flex-100 lg:flex-1/2 px-3 mb-8"
                     >
                       <Link
                         to={`/organization/${organization.slug}`}
