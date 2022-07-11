@@ -37,8 +37,6 @@ const organizationSchema = object({
     /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
     "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
   ),
-  logo: string(),
-  background: string(),
   facebook: string(),
   linkedin: string(),
   twitter: string(),
@@ -50,9 +48,6 @@ const organizationSchema = object({
   quoteAuthorInformation: string(),
   supportedBy: array(string()),
   publicFields: array(string()),
-  teamMembers: array(string().required()).required(),
-  memberOf: array(string().required()).required(),
-  networkMembers: array(string().required()).required(),
   areas: array(string().required()).required(),
 });
 
@@ -318,6 +313,8 @@ export const action: ActionFunction = async (args) => {
   data["bio"] = removeMoreThan2ConescutiveLinbreaks(organization["bio"] ?? "");
 
   const errors = await validateForm(data);
+
+  console.log(errors);
 
   let updated = false;
 
