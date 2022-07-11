@@ -148,7 +148,7 @@ export default function Index() {
   const transition = useTransition();
   const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
 
-  const csrf = useCSRF();
+  const { hiddenCSRFInput } = useCSRF();
 
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
@@ -232,7 +232,7 @@ export default function Index() {
             value="submit"
             className="hidden"
           />
-          {csrf}
+          {hiddenCSRFInput}
           <fieldset disabled={transition.state === "submitting"}>
             <div className="container relative pb-44">
               <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">

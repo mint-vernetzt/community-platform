@@ -20,7 +20,6 @@ export function createCSRFToken() {
 
 export async function validateCSRFToken(request: Request) {
   const formData = await request.clone().formData();
-  console.log(formData);
   const session = await getSession(request);
 
   const message = "Not allowed";
@@ -31,8 +30,6 @@ export async function validateCSRFToken(request: Request) {
   }
 
   const csrf = formData.get("csrf");
-
-  console.log("session csrf", session.get("csrf"), "form csrf", csrf);
 
   if (session.has("csrf") === false || csrf === null) {
     console.error(new Error("CSRF Token not included"));
