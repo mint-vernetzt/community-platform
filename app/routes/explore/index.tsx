@@ -161,53 +161,52 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   );
   // TODO: Outsource profile sorting to database
 
-  // Explanation of the below sorting code:
-  //
-  // Expected sorting when filtering for country ("Bundesweit"):
-  // 1. All profiles with a country
-  // 2. All remaining profiles with a state
-  // 3. All remaining profiles with a district
-  //
-  // Expected sorting when filtering for state ("Sachsen", "Saarland", etc...):
-  // 1. All profiles with exactly the filtered state
-  // 2. All remaining profiles with districts inside the filtered state
-  // 3. All remaining profiles with a country
-  //
-  // Expected sorting when filtering for district ("Berlin", "Hamburg", etc...):
-  // 1. All profiles with exactly the filtered district
-  // 2. All remaining profiles with a state that includes the district
-  // 3. All remaining profiles with a country
-  //
-  // To achieve this:
-  // 1. Group the filteredProfiles in ProfilesWithCountry, ProfilesWithState, ProfilesWithDistrict
-  // 2. Sort them alphabetical
-  // 3. Append the groups together getting the order described above
-  // 3.1. Profiles can have more than one area, which leads to the possibility that they got fetched from the database
-  //      because they have a country ("Bundesweit") but also have a state or district the user did not filter for.
-  //      Therefore another filter method is applied filtering out all profiles with the exact state or district.
-  // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
-
-  // 1.
-  const profilesWithCountry = filteredProfiles
-    .filter((profile) =>
-      profile.areas.some((area) => area.area.type === "country")
-    )
-    // 2.
-    .sort((a, b) => a.username.localeCompare(b.username));
-  const profilesWithState = filteredProfiles
-    .filter((profile) =>
-      profile.areas.some((area) => area.area.type === "state")
-    )
-    .sort((a, b) => a.username.localeCompare(b.username));
-  const profilesWithDistrict = filteredProfiles
-    .filter((profile) =>
-      profile.areas.some((area) => area.area.type === "district")
-    )
-    .sort((a, b) => a.username.localeCompare(b.username));
-
-  // 3.
   let sortedProfiles;
   if (areaToFilter) {
+    // Explanation of the below sorting code:
+    //
+    // Expected sorting when filtering for country ("Bundesweit"):
+    // 1. All profiles with a country
+    // 2. All remaining profiles with a state
+    // 3. All remaining profiles with a district
+    //
+    // Expected sorting when filtering for state ("Sachsen", "Saarland", etc...):
+    // 1. All profiles with exactly the filtered state
+    // 2. All remaining profiles with districts inside the filtered state
+    // 3. All remaining profiles with a country
+    //
+    // Expected sorting when filtering for district ("Berlin", "Hamburg", etc...):
+    // 1. All profiles with exactly the filtered district
+    // 2. All remaining profiles with a state that includes the district
+    // 3. All remaining profiles with a country
+    //
+    // To achieve this:
+    // 1. Group the filteredProfiles in ProfilesWithCountry, ProfilesWithState, ProfilesWithDistrict
+    // 2. Sort them alphabetical
+    // 3. Append the groups together getting the order described above
+    // 3.1. Profiles can have more than one area, which leads to the possibility that they got fetched from the database
+    //      because they have a country ("Bundesweit") but also have a state or district the user did not filter for.
+    //      Therefore another filter method is applied filtering out all profiles with the exact state or district.
+    // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
+
+    // 1.
+    const profilesWithCountry = filteredProfiles
+      .filter((profile) =>
+        profile.areas.some((area) => area.area.type === "country")
+      )
+      // 2.
+      .sort((a, b) => a.username.localeCompare(b.username));
+    const profilesWithState = filteredProfiles
+      .filter((profile) =>
+        profile.areas.some((area) => area.area.type === "state")
+      )
+      .sort((a, b) => a.username.localeCompare(b.username));
+    const profilesWithDistrict = filteredProfiles
+      .filter((profile) =>
+        profile.areas.some((area) => area.area.type === "district")
+      )
+      .sort((a, b) => a.username.localeCompare(b.username));
+    // 3.
     const stateId = areaToFilter.stateId; // TypeScript reasons...
     if (areaToFilter.type === "country") {
       sortedProfiles = [
@@ -239,10 +238,15 @@ const mutation = makeDomainFunction(schema)(async (values) => {
         ...profilesWithCountry,
       ];
     }
+    // 4.
+    const profilesSet = new Set(sortedProfiles);
+    sortedProfiles = Array.from(profilesSet);
+  } else {
+    // Sorting username alphabetical when no area filter is applied
+    sortedProfiles = filteredProfiles.sort((a, b) =>
+      a.username.localeCompare(b.username)
+    );
   }
-  // 4.
-  const profilesSet = new Set(sortedProfiles);
-  sortedProfiles = Array.from(profilesSet);
 
   return { values, sortedProfiles };
 });
