@@ -1,7 +1,7 @@
 import { prismaClient } from "../../../app/prisma";
 import organizationTypes from "./data/organizationTypes.json";
 import offers from "./data/offers.json";
-import mintFocuses from "./data/mintFocuses.json";
+import focuses from "./data/focuses.json";
 import {
   dataToBeUpdated,
   entriesOnlyExistingOnDatabase,
@@ -9,7 +9,7 @@ import {
   GenericEntry,
 } from "./src/utils";
 
-type TableName = "offer" | "organizationType" | "mintFocus";
+type TableName = "offer" | "organizationType" | "focus";
 
 async function createDataset(datasets: GenericEntry[], tableName: TableName) {
   console.log(`create entries for ${tableName}`);
@@ -56,7 +56,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
 const datasets = [
   { tableName: "offer", data: offers },
   { tableName: "organizationType", data: organizationTypes },
-  { tableName: "mintFocus", data: mintFocuses },
+  { tableName: "focus", data: focuses },
 ];
 
 Promise.all(

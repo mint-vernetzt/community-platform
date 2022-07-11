@@ -61,14 +61,14 @@ model OrganizationTypesOnOrganizations {
   @@map("organization_types_on_organizations")
 }
 
-model MintFocusesOnOrganizations {
+model FocusesOnOrganizations {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
-  mintFocusId    String
-  mintFocus      MintFocus    @relation(fields: [mintFocusId], references: [id])
+  focusId        String
+  focus          Focus        @relation(fields: [focusId], references: [id])
 
-  @@id([organizationId, mintFocusId])
-  @@map("mint_focuses_on_organizations")
+  @@id([organizationId, focusId])
+  @@map("focuses_on_organizations")
 }
 
 model Profile {
@@ -96,10 +96,9 @@ model Profile {
   updatedAt       DateTime               @default(now()) @map("updated_at")
   termsAccepted   Boolean                @map("terms_accepted")
   termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
-
-  areas    AreasOnProfiles[]
-  seekings SeekingsOnProfiles[]
-  offers   OffersOnProfiles[]
+  areas           AreasOnProfiles[]
+  seekings        SeekingsOnProfiles[]
+  offers          OffersOnProfiles[]
 
   @@map("profiles")
 }
@@ -126,7 +125,7 @@ model Organization {
   quote                  String?
   quoteAuthor            String?                            @map("quote_author")
   quoteAuthorInformation String?                            @map("quote_author_information")
-  mintFocuses            MintFocusesOnOrganizations[]
+  focuses                FocusesOnOrganizations[]
   supportedBy            String[]                           @map("supported_by")
   publicFields           String[]                           @map("public_fields")
   teamMembers            MemberOfOrganization[]
@@ -229,10 +228,10 @@ model OrganizationType {
   @@map("organization_types")
 }
 
-model MintFocus {
-  id            String                       @id @default(uuid())
-  title         String                       @unique
-  organizations MintFocusesOnOrganizations[]
+model Focus {
+  id            String                   @id @default(uuid())
+  title         String                   @unique
+  organizations FocusesOnOrganizations[]
 
-  @@map("mint_focuses")
+  @@map("focuses")
 }

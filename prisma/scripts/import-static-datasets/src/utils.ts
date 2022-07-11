@@ -1,6 +1,6 @@
-import type { Offer, OrganizationType, MintFocus } from "@prisma/client";
+import type { Offer, OrganizationType, Focus } from "@prisma/client";
 
-export type GenericEntry = Offer | OrganizationType | MintFocus;
+export type GenericEntry = Offer | OrganizationType | Focus;
 
 type Lookup = {
   [keyof: string]: GenericEntry;

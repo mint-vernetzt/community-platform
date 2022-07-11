@@ -56,14 +56,14 @@
         }
       }
     },
-    "MintFocusesOnOrganizations": {
+    "FocusesOnOrganizations": {
       "type": "object",
       "properties": {
         "organization": {
           "$ref": "#/definitions/Organization"
         },
-        "mintFocus": {
-          "$ref": "#/definitions/MintFocus"
+        "focus": {
+          "$ref": "#/definitions/Focus"
         }
       }
     },
@@ -246,10 +246,10 @@
         "quoteAuthorInformation": {
           "type": ["string", "null"]
         },
-        "mintFocuses": {
+        "focuses": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MintFocusesOnOrganizations"
+            "$ref": "#/definitions/FocusesOnOrganizations"
           }
         },
         "supportedBy": {
@@ -450,7 +450,7 @@
         }
       }
     },
-    "MintFocus": {
+    "Focus": {
       "type": "object",
       "properties": {
         "id": {
@@ -462,7 +462,7 @@
         "organizations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MintFocusesOnOrganizations"
+            "$ref": "#/definitions/FocusesOnOrganizations"
           }
         }
       }
@@ -485,8 +485,8 @@
     "organizationTypesOnOrganizations": {
       "$ref": "#/definitions/OrganizationTypesOnOrganizations"
     },
-    "mintFocusesOnOrganizations": {
-      "$ref": "#/definitions/MintFocusesOnOrganizations"
+    "focusesOnOrganizations": {
+      "$ref": "#/definitions/FocusesOnOrganizations"
     },
     "profile": {
       "$ref": "#/definitions/Profile"
@@ -515,8 +515,8 @@
     "organizationType": {
       "$ref": "#/definitions/OrganizationType"
     },
-    "mintFocus": {
-      "$ref": "#/definitions/MintFocus"
+    "focus": {
+      "$ref": "#/definitions/Focus"
     }
   }
 }
