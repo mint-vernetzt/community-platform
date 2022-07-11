@@ -23,11 +23,13 @@ export const meta: MetaFunction = () => {
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-type LoaderData = {
+export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
   csrf: string | undefined;
 };
+
+type LoaderData = RootRouteData;
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
