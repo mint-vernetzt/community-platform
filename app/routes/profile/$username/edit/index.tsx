@@ -348,7 +348,7 @@ export default function Index() {
                       isPublic={profile.publicFields?.includes("bio")}
                       defaultValue={profile.bio}
                       errorMessage={errors?.bio?.message}
-                      maxCharacters={300}
+                      maxCharacters={500}
                     />
                   </div>
 
