@@ -7,7 +7,10 @@ export const profileSchema = object({
   firstName: string().required(),
   lastName: string().required(),
   email: string().email(),
-  phone: string(),
+  phone: string().matches(
+    /^$|^(\+?[0-9]+\/?[0-9]+)$/,
+    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer."
+  ),
   bio: string(),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
