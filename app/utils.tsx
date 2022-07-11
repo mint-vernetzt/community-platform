@@ -40,19 +40,3 @@ function generateValidSlug(string: string) {
     .replace(/[^\w ]/g, "")
     .replace(/[\s]/g, "");
 }
-
-export async function validateCSRFToken(request: Request, session: Session) {
-  let body = Object.fromEntries(
-    new URLSearchParams(await request.clone().text()).entries()
-  ) as { csrf?: string };
-
-  if (!session.has("csrf")) {
-    throw new Error("CSRF Token not included");
-  }
-  if (!body.csrf) {
-    throw new Error("CSRF Token not included");
-  }
-  if (body.csrf !== session.get("csrf")) {
-    throw new Error("CSRF tokens do not match");
-  }
-}
