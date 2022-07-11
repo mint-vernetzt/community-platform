@@ -4,27 +4,32 @@ type SocialMediaService = {
   id: keyof ProfileFormType;
   label: string;
   placeholder: string;
+  organizationPlaceholder: string;
 };
 
 export const socialMediaServices: SocialMediaService[] = [
   {
     id: "facebook",
     label: "facebook",
-    placeholder: "https://www.facebook.com/<Nutzername>/",
+    placeholder: "facebook.com/<Nutzername>",
+    organizationPlaceholder: "facebook.com/<Organisationsname>",
   },
   {
     id: "linkedin",
     label: "LinkedIn",
-    placeholder: "https://www.linkedin.com/in/<Nutzername>/",
+    placeholder: "linkedin.com/in/<Nutzername>",
+    organizationPlaceholder: "linkedin.com/company/<Organisationsname>",
   },
   {
     id: "twitter",
     label: "Twitter",
-    placeholder: "https://twitter.com/<Nutzername>",
+    placeholder: "twitter.com/<Nutzername>",
+    organizationPlaceholder: "twitter.com/<Organisationsname>",
   },
   {
     id: "xing",
     label: "Xing",
-    placeholder: "https://www.xing.com/profile/<Nutzername>",
+    placeholder: "xing.com/profile/<Nutzername>",
+    organizationPlaceholder: "xing.com/pages/<Organisationsname>",
   },
 ];

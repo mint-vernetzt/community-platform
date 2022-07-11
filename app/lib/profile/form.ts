@@ -1,4 +1,5 @@
 import { ProfileFormType } from "../../routes/profile/$username/edit/yupSchema";
+import { addUrlPrefix } from "../string/addUrlPrefix";
 import { capitalizeFirstLetter } from "../string/transform";
 
 /*
@@ -25,11 +26,11 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     seekings: (formData.getAll("seekings") ?? []) as string[],
     publicFields: (formData.getAll("publicFields") ?? []) as string[],
     areas: (formData.getAll("areas") ?? []) as string[],
-    website: formData.get("website") as string,
-    facebook: formData.get("facebook") as string,
-    linkedin: formData.get("linkedin") as string,
-    twitter: formData.get("twitter") as string,
-    xing: formData.get("xing") as string,
+    website: addUrlPrefix(formData.get("website") as string),
+    facebook: addUrlPrefix(formData.get("facebook") as string),
+    linkedin: addUrlPrefix(formData.get("linkedin") as string),
+    twitter: addUrlPrefix(formData.get("twitter") as string),
+    xing: addUrlPrefix(formData.get("xing") as string),
   };
 }
 

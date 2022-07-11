@@ -20,6 +20,7 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
+import { addUrlPrefix } from "~/lib/string/addUrlPrefix";
 import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
@@ -37,13 +38,25 @@ const organizationSchema = object({
   zipCode: string(),
   city: string(),
   website: string().matches(
-    /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
     "Deine Eingabe entspricht nicht dem Format einer Website URL."
   ),
-  facebook: string(),
-  linkedin: string(),
-  twitter: string(),
-  xing: string(),
+  facebook: string().matches(
+    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
+  ),
+  linkedin: string().matches(
+    /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>)."
+  ),
+  twitter: string().matches(
+    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
+  ),
+  xing: string().matches(
+    /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>)."
+  ),
   bio: string(),
   types: array(string().required()).required(),
   quote: string(),
@@ -211,13 +224,13 @@ export const action: ActionFunction = async (args) => {
       streetNumber: formData.get("streetNumber") as string,
       zipCode: formData.get("zipCode") as string,
       city: formData.get("city") as string,
-      website: formData.get("website") as string,
+      website: addUrlPrefix(formData.get("website") as string),
       logo: formData.get("logo") as string,
       background: formData.get("background") as string,
-      facebook: formData.get("facebook") as string,
-      linkedin: formData.get("linkedin") as string,
-      twitter: formData.get("twitter") as string,
-      xing: formData.get("xing") as string,
+      facebook: addUrlPrefix(formData.get("facebook") as string),
+      linkedin: addUrlPrefix(formData.get("linkedin") as string),
+      twitter: addUrlPrefix(formData.get("twitter") as string),
+      xing: addUrlPrefix(formData.get("xing") as string),
       bio: formData.get("bio") as string,
       types: (formData.getAll("types") ?? []) as string[],
       quote: formData.get("quote") as string,
@@ -641,7 +654,7 @@ function Index() {
               id="website"
               label="Website URL"
               defaultValue={organization.website}
-              placeholder="https://www.domainname.tld/"
+              placeholder="domainname.tld"
               isPublic={organization.publicFields?.includes("website")}
               errorMessage={errors?.website?.message}
               withClearButton
@@ -665,8 +678,8 @@ function Index() {
                 {...register(service.id)}
                 id={service.id}
                 label={service.label}
-                placeholder={service.placeholder}
                 defaultValue={organization[service.id] as string}
+                placeholder={service.organizationPlaceholder}
                 isPublic={organization.publicFields?.includes(service.id)}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton

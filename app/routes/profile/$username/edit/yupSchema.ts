@@ -17,15 +17,27 @@ export const profileSchema = object({
   offers: array(string().required()).required(),
   interests: array(string().required()),
   seekings: array(string().required()).required(),
+  publicFields: array(string().required()),
   website: string().matches(
-    /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
     "Deine Eingabe entspricht nicht dem Format einer Website URL."
   ),
-  publicFields: array(string().required()),
-  facebook: string(),
-  linkedin: string(),
-  twitter: string(),
-  xing: string(),
+  facebook: string().matches(
+    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
+  ),
+  linkedin: string().matches(
+    /(https?:\/\/)?(.*\.)?linkedin.com\/in\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/in/<Nutzername>)."
+  ),
+  twitter: string().matches(
+    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
+  ),
+  xing: string().matches(
+    /(https?:\/\/)?(.*\.)?xing.com\/profile\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername>)."
+  ),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;

@@ -452,7 +452,7 @@ export default function Index() {
                       id="website"
                       label="Website URL"
                       defaultValue={profile.website}
-                      placeholder="https://www.domainname.tld/"
+                      placeholder="domainname.tld"
                       isPublic={profile.publicFields?.includes("website")}
                       errorMessage={errors?.website?.message}
                       withClearButton
