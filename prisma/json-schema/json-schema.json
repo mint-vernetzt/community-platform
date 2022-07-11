@@ -56,6 +56,17 @@
         }
       }
     },
+    "FocusesOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "focus": {
+          "$ref": "#/definitions/Focus"
+        }
+      }
+    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -234,6 +245,12 @@
         },
         "quoteAuthorInformation": {
           "type": ["string", "null"]
+        },
+        "focuses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FocusesOnOrganizations"
+          }
         },
         "supportedBy": {
           "type": "array",
@@ -432,6 +449,23 @@
           }
         }
       }
+    },
+    "Focus": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "organizations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FocusesOnOrganizations"
+          }
+        }
+      }
     }
   },
   "type": "object",
@@ -450,6 +484,9 @@
     },
     "organizationTypesOnOrganizations": {
       "$ref": "#/definitions/OrganizationTypesOnOrganizations"
+    },
+    "focusesOnOrganizations": {
+      "$ref": "#/definitions/FocusesOnOrganizations"
     },
     "profile": {
       "$ref": "#/definitions/Profile"
@@ -477,6 +514,9 @@
     },
     "organizationType": {
       "$ref": "#/definitions/OrganizationType"
+    },
+    "focus": {
+      "$ref": "#/definitions/Focus"
     }
   }
 }

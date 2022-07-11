@@ -61,6 +61,16 @@ model OrganizationTypesOnOrganizations {
   @@map("organization_types_on_organizations")
 }
 
+model FocusesOnOrganizations {
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  focusId        String
+  focus          Focus        @relation(fields: [focusId], references: [id])
+
+  @@id([organizationId, focusId])
+  @@map("focuses_on_organizations")
+}
+
 model Profile {
   id              String                 @id @default(uuid())
   username        String                 @unique
@@ -86,10 +96,9 @@ model Profile {
   updatedAt       DateTime               @default(now()) @map("updated_at")
   termsAccepted   Boolean                @map("terms_accepted")
   termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
-
-  areas    AreasOnProfiles[]
-  seekings SeekingsOnProfiles[]
-  offers   OffersOnProfiles[]
+  areas           AreasOnProfiles[]
+  seekings        SeekingsOnProfiles[]
+  offers          OffersOnProfiles[]
 
   @@map("profiles")
 }
@@ -116,6 +125,7 @@ model Organization {
   quote                  String?
   quoteAuthor            String?                            @map("quote_author")
   quoteAuthorInformation String?                            @map("quote_author_information")
+  focuses                FocusesOnOrganizations[]
   supportedBy            String[]                           @map("supported_by")
   publicFields           String[]                           @map("public_fields")
   teamMembers            MemberOfOrganization[]
@@ -216,4 +226,12 @@ model OrganizationType {
   organizations OrganizationTypesOnOrganizations[]
 
   @@map("organization_types")
+}
+
+model Focus {
+  id            String                   @id @default(uuid())
+  title         String                   @unique
+  organizations FocusesOnOrganizations[]
+
+  @@map("focuses")
 }
