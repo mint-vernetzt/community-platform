@@ -37,8 +37,8 @@ const organizationSchema = object({
   zipCode: string(),
   city: string(),
   website: string().matches(
-    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
+    /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format einer Website URL."
   ),
   facebook: string(),
   linkedin: string(),
