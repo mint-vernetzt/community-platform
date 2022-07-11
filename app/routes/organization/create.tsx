@@ -8,8 +8,11 @@ import { createOrganizationOnProfile } from "~/profile.server";
 import { forbidden } from "remix-utils";
 import { generateOrganizationSlug } from "~/utils";
 import { getUserByRequest } from "~/auth.server";
+import useCSRF from "~/lib/hooks/useCSRF";
+import { validateCSRFToken } from "~/utils.server";
 
 const schema = z.object({
+  csrf: z.string(),
   id: z.string().uuid(),
   organizationName: z
     .string()
@@ -46,6 +49,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await requestClone.formData();
   const formUserId = formData.get("id");
 
+  await validateCSRFToken(request);
+
   if (currentUser === null || formUserId !== currentUser.id) {
     throw forbidden({ message: "not allowed" });
   }
@@ -66,6 +71,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
+  const { hiddenCSRFInput } = useCSRF();
 
   return (
     <>
@@ -108,6 +114,14 @@ export default function Create() {
                         value={loaderData.id}
                         {...register("id")}
                       ></input>
+                      <Errors />
+                    </>
+                  )}
+                </Field>
+                <Field name="csrf">
+                  {({ Errors }) => (
+                    <>
+                      {hiddenCSRFInput}
                       <Errors />
                     </>
                   )}
