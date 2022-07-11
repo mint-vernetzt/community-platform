@@ -574,7 +574,7 @@ function Index() {
               isPublic={organization.publicFields?.includes("bio")}
               defaultValue={organization.bio}
               errorMessage={errors?.bio?.message}
-              maxCharacters={300}
+              maxCharacters={500}
             />
           </div>
           <div className="mb-4">
