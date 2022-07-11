@@ -650,15 +650,17 @@ export default function Index() {
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Mitglied bei</h3>
                   </div>
-
-                  <div className="flex-initial pl-4">
-                    <Link
-                      to="/organization/create"
-                      className="btn btn-outline btn-primary"
-                    >
-                      Organisation anlegen
-                    </Link>
-                  </div>
+                  {loaderData.mode === "owner" &&
+                    loaderData.currentUser !== undefined && (
+                      <div className="flex-initial pl-4">
+                        <Link
+                          to="/organization/create"
+                          className="btn btn-outline btn-primary"
+                        >
+                          Organisation anlegen
+                        </Link>
+                      </div>
+                    )}
                 </div>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.data.memberOf.map(({ organization }, index) => (
