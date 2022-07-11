@@ -61,6 +61,34 @@ export const loader: LoaderFunction = async (args) => {
   let organization: Partial<OrganizationWithRelations> = {};
   let userIsPrivileged;
 
+  let images: {
+    logo?: string;
+    background?: string;
+    avatarOfLoggedInUser?: string;
+  } = {};
+  if (unfilteredOrganization.logo) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(unfilteredOrganization.logo);
+    if (publicURL) {
+      images.logo = builder
+        .resize("fit", 480, 144)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  if (unfilteredOrganization.background) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(unfilteredOrganization.background);
+    if (publicURL) {
+      images.background = builder
+        .resize("fill", 1488, 480)
+        .gravity(GravityType.north_east)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
   unfilteredOrganization.memberOf.map(({ network }) => {
     if (network.logo !== null) {
       const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
@@ -126,50 +154,22 @@ export const loader: LoaderFunction = async (args) => {
       "lastName",
       "avatar",
     ]);
+    if (loggedInUserProfile && loggedInUserProfile.avatar) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(loggedInUserProfile.avatar);
+      if (publicURL) {
+        images.avatarOfLoggedInUser = builder
+          .resize("fit", 64, 64)
+          .dpr(2)
+          .generateUrl(publicURL);
+      }
+    }
     userIsPrivileged = unfilteredOrganization.teamMembers.some(
       (member) => member.profileId === loggedInUser.id && member.isPrivileged
     );
   }
 
-  let images: {
-    logo?: string;
-    background?: string;
-    avatarOfLoggedInUser?: string;
-  } = {};
-  if (unfilteredOrganization.logo) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.logo);
-    if (publicURL) {
-      images.logo = builder
-        .resize("fit", 480, 144)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-  if (unfilteredOrganization.background) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.background);
-    if (publicURL) {
-      images.background = builder
-        .resize("fill", 1488, 480)
-        .gravity(GravityType.north_east)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-  if (loggedInUserProfile && loggedInUserProfile.avatar) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(loggedInUserProfile.avatar);
-    if (publicURL) {
-      images.avatarOfLoggedInUser = builder
-        .resize("fit", 64, 64)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
   return {
     organization,
     loggedInUserProfile,
