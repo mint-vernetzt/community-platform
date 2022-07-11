@@ -93,7 +93,9 @@ export async function signUp(
 }
 
 export const getSession = async (request: Request) => {
-  const session = await supabaseStrategy.checkSession(request);
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
   return session;
 };
 
