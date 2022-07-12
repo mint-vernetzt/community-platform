@@ -67,12 +67,7 @@ export const loader: LoaderFunction = async (args) => {
       "username",
       "firstName",
       "lastName",
-      "academicTitle",
-      "position",
-      "bio",
-      "publicFields",
       "avatar",
-      "areas",
     ]);
 
     currentUser = profile || undefined; // TODO: fix type issue
