@@ -82,60 +82,37 @@ export const loader: LoaderFunction = async (args) => {
 
   const allProfiles = await getAllProfiles();
   if (allProfiles !== null) {
-    if (sessionUser !== null) {
-      profiles = allProfiles.map((profile) => {
-        const { avatar, ...otherFields } = profile;
+    profiles = allProfiles.map((profile) => {
+      const { bio, position, avatar, publicFields, ...otherFields } = profile;
+      let extensions: { bio?: string; position?: string } = {};
 
-        let avatarImage: string | null = null;
-
-        if (avatar !== null) {
-          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-            .from("images")
-            .getPublicUrl(avatar);
-          if (publicURL !== null) {
-            avatarImage = builder
-              .resize("fill", 64, 64)
-              .gravity(GravityType.center)
-              .dpr(2)
-              .generateUrl(publicURL);
-          }
+      if (sessionUser === null && publicFields !== undefined) {
+        if (publicFields.includes("bio") && bio !== null) {
+          extensions.bio = bio;
         }
 
-        return { ...otherFields, avatar: avatarImage };
-      });
-    } else {
-      profiles = allProfiles.map((profile) => {
-        const { bio, position, avatar, publicFields, ...otherFields } = profile;
-
-        let extensions: { bio?: string; position?: string } = {};
-        if (publicFields !== undefined) {
-          if (publicFields.includes("bio") && bio !== null) {
-            extensions.bio = bio;
-          }
-
-          if (publicFields.includes("position") && position !== null) {
-            extensions.position = position;
-          }
+        if (publicFields.includes("position") && position !== null) {
+          extensions.position = position;
         }
+      }
 
-        let avatarImage: string | null = null;
+      let avatarImage: string | null = null;
 
-        if (avatar !== null) {
-          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-            .from("images")
-            .getPublicUrl(avatar);
-          if (publicURL !== null) {
-            avatarImage = builder
-              .resize("fill", 64, 64)
-              .gravity(GravityType.center)
-              .dpr(2)
-              .generateUrl(publicURL);
-          }
+      if (avatar !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(avatar);
+        if (publicURL !== null) {
+          avatarImage = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
         }
+      }
 
-        return { ...otherFields, ...extensions, avatar: avatarImage };
-      });
-    }
+      return { ...otherFields, ...extensions, avatar: avatarImage };
+    });
   }
 
   const areas = await getAreas();
