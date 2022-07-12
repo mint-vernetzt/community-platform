@@ -7,22 +7,37 @@ export const profileSchema = object({
   firstName: string().required(),
   lastName: string().required(),
   email: string().email(),
-  phone: string(),
+  phone: string().matches(
+    /^$|^(\+?[0-9]+\/?[0-9]+)$/,
+    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer."
+  ),
   bio: string(),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
   offers: array(string().required()).required(),
   interests: array(string().required()),
   seekings: array(string().required()).required(),
-  website: string().matches(
-    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
-  ),
   publicFields: array(string().required()),
-  facebook: string(),
-  linkedin: string(),
-  twitter: string(),
-  xing: string(),
+  website: string().matches(
+    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format einer Website URL."
+  ),
+  facebook: string().matches(
+    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
+  ),
+  linkedin: string().matches(
+    /(https?:\/\/)?(.*\.)?linkedin.com\/in\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/in/<Nutzername>)."
+  ),
+  twitter: string().matches(
+    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
+  ),
+  xing: string().matches(
+    /(https?:\/\/)?(.*\.)?xing.com\/profile\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername>)."
+  ),
 });
 
 export type ProfileFormType = InferType<typeof profileSchema>;
