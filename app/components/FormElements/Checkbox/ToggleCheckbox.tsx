@@ -12,7 +12,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
 
   const checkboxId = `visibility_${props.value}`;
   return (
-    <div className="ml-2 mb-2 toggle-checkbox">
+    <div className="ml-2 toggle-checkbox">
       <input type="checkbox" {...registerProp} {...rest} id={checkboxId} />
       <label
         htmlFor={checkboxId}
