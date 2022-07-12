@@ -52,8 +52,19 @@ const InputText = React.forwardRef(
             />
           </div>
           {withClearButton === true && (
-            <button className="p-2" onClick={handleClear}>
-              x
+            <button className="p-2 ml-2 text-neutral-600" onClick={handleClear}>
+              <svg
+                viewBox="0 0 10 10"
+                width="10px"
+                height="10px"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
           )}
           {props.isPublic !== undefined && (

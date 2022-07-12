@@ -469,8 +469,8 @@ export default function Index() {
                     aliquyam erat, sed diam voluptua.
                   </p>
 
-                  <div className="basis-full mb-4">
-                    {socialMediaServices.map((service) => (
+                  {socialMediaServices.map((service) => (
+                    <div className="w-full mb-4">
                       <InputText
                         key={service.id}
                         {...register(service.id)}
@@ -482,8 +482,8 @@ export default function Index() {
                         errorMessage={errors?.[service.id]?.message}
                         withClearButton
                       />
-                    ))}
-                  </div>
+                    </div>
+                  ))}
 
                   <hr className="border-neutral-400 my-10 lg:my-16" />
 

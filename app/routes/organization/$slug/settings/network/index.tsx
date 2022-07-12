@@ -59,13 +59,13 @@ function Index() {
 
   return (
     <>
-      <h1>Das Netzwerk</h1>
-      <p>
+      <h1 className="mb-8">Das Netzwerk</h1>
+      <p className="mb-8">
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
         eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
         voluptua.
       </p>
-      <ul>
+      <div className="mb-8">
         {loaderData.map((member) => {
           return (
             <NetworkMemberRemoveForm
@@ -75,7 +75,7 @@ function Index() {
             />
           );
         })}
-      </ul>
+      </div>
       <Add />
     </>
   );
