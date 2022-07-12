@@ -31,7 +31,7 @@ const TextArea = React.forwardRef(
             <ToggleCheckbox
               name="publicFields"
               value={props.name}
-              defaultChecked={props.isPublic}
+              defaultChecked={isPublic}
             />
           )}
         </div>
@@ -48,7 +48,7 @@ const TextArea = React.forwardRef(
             <ToggleCheckbox
               name="publicFields"
               value={props.name}
-              defaultChecked
+              defaultChecked={isPublic}
             />
           )}
         </div>
