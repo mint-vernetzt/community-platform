@@ -502,6 +502,7 @@ function Index() {
             label="E-Mail"
             defaultValue={organization.email}
             errorMessage={errors?.email?.message}
+            isPublic={organization.publicFields?.includes("email")}
           />
           <InputText
             {...register("phone")}
@@ -509,6 +510,7 @@ function Index() {
             label="Telefon"
             defaultValue={organization.phone}
             errorMessage={errors?.phone?.message}
+            isPublic={organization.publicFields?.includes("phone")}
           />
           <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
           <InputText
