@@ -326,11 +326,9 @@ export const action: ActionFunction = async (args) => {
   }
 
   let data = await createOrganizationDataToUpdate(request);
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(organization["bio"] ?? "");
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
 
   const errors = await validateForm(data);
-
-  console.log(errors);
 
   let updated = false;
 
@@ -520,6 +518,7 @@ function Index() {
             label="E-Mail"
             defaultValue={organization.email}
             errorMessage={errors?.email?.message}
+            isPublic={organization.publicFields?.includes("email")}
           />
           <InputText
             {...register("phone")}
@@ -527,6 +526,7 @@ function Index() {
             label="Telefon"
             defaultValue={organization.phone}
             errorMessage={errors?.phone?.message}
+            isPublic={organization.publicFields?.includes("phone")}
           />
           <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
           <InputText
@@ -560,7 +560,7 @@ function Index() {
 
           <SelectAdd
             name="types"
-            label="Organizationstyp"
+            label="Organisationsform"
             entries={selectedOrganizationTypes.map((type) => ({
               label: type.title,
               value: type.id,
@@ -569,7 +569,6 @@ function Index() {
               return !organization.types.includes(option.value);
             })}
             placeholder=""
-            isPublic={organization.publicFields?.includes("types")}
           />
 
           <div className="flex flex-row items-center mb-4">
