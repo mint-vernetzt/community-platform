@@ -310,11 +310,9 @@ export const action: ActionFunction = async (args) => {
   }
 
   let data = await createOrganizationDataToUpdate(request);
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(organization["bio"] ?? "");
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
 
   const errors = await validateForm(data);
-
-  console.log(errors);
 
   let updated = false;
 
