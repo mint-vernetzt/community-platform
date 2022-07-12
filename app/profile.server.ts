@@ -222,9 +222,6 @@ export async function getAreaById(areaId: string) {
 
 export async function getAllProfiles() {
   const profiles = await prismaClient.profile.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
     select: {
       username: true,
       firstName: true,

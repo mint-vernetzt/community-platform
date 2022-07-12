@@ -148,3 +148,34 @@ export async function getOrganizationMembersBySlug(slug: string) {
 export async function deleteOrganizationBySlug(slug: string) {
   return await prismaClient.organization.delete({ where: { slug: slug } });
 }
+
+export async function getAllOrganizations() {
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      name: true,
+      slug: true,
+      logo: true,
+      bio: true,
+      publicFields: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organizations;
+}

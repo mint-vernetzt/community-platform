@@ -35,6 +35,11 @@ import {
 import { Schema, z } from "zod";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { supabaseAdmin } from "~/supabase";
+import {
+  getAllOrganizations,
+  OrganizationWithRelations,
+} from "~/organization.server";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -49,8 +54,10 @@ type CurrentUser = Pick<
 
 type LoaderData = {
   currentUser?: CurrentUser;
-  profiles?: ProfileWithRelations[];
-
+  profilesAndOrganizations:
+    | ProfileWithRelations[]
+    | OrganizationWithRelations[]
+    | undefined;
   areas: AreasWithState;
   offers: Offer[];
 };
@@ -113,7 +120,52 @@ export const loader: LoaderFunction = async (args) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json({ currentUser, profiles, areas, offers });
+  let organizations;
+
+  const allOrganizations = await getAllOrganizations();
+  if (allOrganizations !== null) {
+    organizations = allOrganizations.map((organization) => {
+      const { bio, publicFields, logo, ...otherFields } = organization;
+      let extensions: { bio?: string } = {};
+
+      if (sessionUser !== null && publicFields !== undefined) {
+        if (publicFields.includes("bio") && bio !== null) {
+          extensions.bio = bio;
+        }
+      }
+
+      let logoImage: string | null = null;
+
+      if (logo !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(logo);
+        if (publicURL !== null) {
+          logoImage = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
+        }
+      }
+
+      return { ...otherFields, ...extensions, logo: logoImage };
+    });
+  }
+
+  let profilesAndOrganizations;
+  if (profiles !== undefined && organizations !== undefined) {
+    profilesAndOrganizations = [...profiles, ...organizations];
+  } else if (profiles !== undefined) {
+    profilesAndOrganizations = [...profiles];
+  } else if (organizations !== undefined) {
+    profilesAndOrganizations = [...organizations];
+  }
+  profilesAndOrganizations = profilesAndOrganizations?.sort(
+    () => Math.random() - 0.5
+  );
+
+  return json({ currentUser, profilesAndOrganizations, areas, offers });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -245,10 +297,10 @@ export default function Index() {
   }
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let profiles = loaderData.profiles;
+  let profilesAndOrganizations = loaderData.profilesAndOrganizations;
 
   if (actionData && actionData.success) {
-    profiles = actionData.data.sortedProfiles; // TODO: Fix type issue
+    profilesAndOrganizations = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
 
   return (
@@ -456,57 +508,74 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profiles !== undefined &&
-            profiles.length > 0 &&
-            profiles.map((profile, index) => (
-              <div
-                key={`profile-${index}`}
-                data-testid="gridcell"
-                className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
-              >
-                <Link
-                  to={`/profile/${profile.username}`}
-                  className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+          {profilesAndOrganizations !== undefined &&
+            profilesAndOrganizations.length > 0 &&
+            profilesAndOrganizations.map((profileOrOrganization, index) => {
+              let slug, image, initials, name, subtitle;
+              if ("username" in profileOrOrganization) {
+                slug = `/profile/${profileOrOrganization.username}`;
+                image = profileOrOrganization.avatar;
+                initials = getInitials(profileOrOrganization);
+                name = getFullName(profileOrOrganization);
+                subtitle = profileOrOrganization.position;
+              } else {
+                slug = `/organization/${profileOrOrganization.slug}`;
+                image = profileOrOrganization.logo;
+                initials = getOrganizationInitials(profileOrOrganization.name);
+                name = profileOrOrganization.name;
+                subtitle = profileOrOrganization.types
+                  .map(({ organizationType }) => organizationType.title)
+                  .join(" / ");
+              }
+              return (
+                <div
+                  key={`profile-${index}`}
+                  data-testid="gridcell"
+                  className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                 >
-                  <div className="w-full flex items-center flex-row mb-4">
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                      {profile.avatar !== null ? (
-                        <img src={profile.avatar} alt="" />
-                      ) : (
-                        getInitials(profile)
-                      )}
-                    </div>
-                    <div className="pl-4">
-                      <H3 like="h4" className="text-xl mb-1">
-                        {getFullName(profile)}
-                      </H3>
-                      {profile.position !== undefined && (
-                        <p className="font-bold text-sm">{profile.position}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {profile.bio !== undefined && (
-                    <p className="mb-3 line-clamp-2">{profile.bio}</p>
-                  )}
-
-                  {profile.areas !== undefined && profile.areas.length > 0 && (
-                    <div className="flex font-semibold flex-col lg:flex-row w-full">
-                      <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                        Aktivitätsgebiete
+                  <Link
+                    to={slug}
+                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                  >
+                    <div className="w-full flex items-center flex-row mb-4">
+                      <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                        {image !== null ? <img src={image} alt="" /> : initials}
                       </div>
-                      <div className="flex-auto">
-                        <span>
-                          {profile.areas
-                            .map((area) => area.area.name)
-                            .join(" / ")}
-                        </span>
+                      <div className="pl-4">
+                        <H3 like="h4" className="text-xl mb-1">
+                          {name}
+                        </H3>
+                        {subtitle !== null && (
+                          <p className="font-bold text-sm">{subtitle}</p>
+                        )}
                       </div>
                     </div>
-                  )}
-                </Link>
-              </div>
-            ))}
+
+                    {profileOrOrganization.bio !== undefined && (
+                      <p className="mb-3 line-clamp-2">
+                        {profileOrOrganization.bio}
+                      </p>
+                    )}
+
+                    {profileOrOrganization.areas !== undefined &&
+                      profileOrOrganization.areas.length > 0 && (
+                        <div className="flex font-semibold flex-col lg:flex-row w-full">
+                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                            Aktivitätsgebiete
+                          </div>
+                          <div className="flex-auto">
+                            <span>
+                              {profileOrOrganization.areas
+                                .map((area) => area.area.name)
+                                .join(" / ")}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                  </Link>
+                </div>
+              );
+            })}
         </div>
       </section>
     </>
