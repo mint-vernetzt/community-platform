@@ -1,5 +1,5 @@
 import { Area, Offer, Profile } from "@prisma/client";
-import React from "react";
+import React, { RefObject, useRef } from "react";
 import {
   ActionFunction,
   Form,
@@ -7,6 +7,7 @@ import {
   Link,
   LoaderFunction,
   useActionData,
+  useFetcher,
   useLoaderData,
 } from "remix";
 import { GravityType } from "imgproxy/dist/types";
@@ -303,6 +304,12 @@ export default function Index() {
     profilesAndOrganizations = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
 
+  const formRef = useRef<HTMLFormElement>();
+  const handleSubmit = () => {
+    console.log("HANDLE SUBMIT", formRef.current);
+    formRef.current?.submit();
+  };
+
   return (
     <>
       <header className="shadow-md mb-8">
@@ -380,7 +387,12 @@ export default function Index() {
 
       {loaderData.currentUser !== undefined ? (
         <section className="container my-8">
-          <RemixForm method="post" schema={schema}>
+          <RemixForm
+            ref={formRef as RefObject<HTMLFormElement>}
+            method="post"
+            schema={schema}
+            onChange={handleSubmit}
+          >
             {({ Field, Button, Errors, register }) => (
               <>
                 <div className="flex flex-wrap -mx-4">
@@ -487,13 +499,16 @@ export default function Index() {
                       )}
                     </Field>
                   </div>
-                </div>
-                <div className="flex justify-end">
-                  <button type="submit" className="btn btn-primary">
-                    Filter anwenden
-                  </button>
                   <Errors />
                 </div>
+                <button type="submit" className="hidden" />
+                <Link
+                  to={"/explore"}
+                  reloadDocument
+                  className="flex justify-end"
+                >
+                  <div className="btn btn-primary">Filter zurücksetzen</div>
+                </Link>
               </>
             )}
           </RemixForm>
