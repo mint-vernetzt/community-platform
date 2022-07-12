@@ -544,7 +544,7 @@ function Index() {
 
           <SelectAdd
             name="types"
-            label="Organizationstyp"
+            label="Organisationsform"
             entries={selectedOrganizationTypes.map((type) => ({
               label: type.title,
               value: type.id,
@@ -553,7 +553,6 @@ function Index() {
               return !organization.types.includes(option.value);
             })}
             placeholder=""
-            isPublic={organization.publicFields?.includes("types")}
           />
 
           <div className="flex flex-row items-center mb-4">
