@@ -89,14 +89,17 @@ export const loader: LoaderFunction = async (args) => {
       const { bio, position, avatar, publicFields, ...otherFields } = profile;
       let extensions: { bio?: string; position?: string } = {};
 
-      if (sessionUser !== null && publicFields !== undefined) {
-        if (publicFields.includes("bio") && bio !== null) {
-          extensions.bio = bio;
-        }
-
-        if (publicFields.includes("position") && position !== null) {
-          extensions.position = position;
-        }
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+      if (
+        (publicFields.includes("position") || sessionUser !== null) &&
+        position !== null
+      ) {
+        extensions.position = position;
       }
 
       let avatarImage: string | null = null;
@@ -129,10 +132,11 @@ export const loader: LoaderFunction = async (args) => {
       const { bio, publicFields, logo, ...otherFields } = organization;
       let extensions: { bio?: string } = {};
 
-      if (sessionUser !== null && publicFields !== undefined) {
-        if (publicFields.includes("bio") && bio !== null) {
-          extensions.bio = bio;
-        }
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
       }
 
       let logoImage: string | null = null;
