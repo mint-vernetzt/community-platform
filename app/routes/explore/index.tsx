@@ -89,7 +89,7 @@ export const loader: LoaderFunction = async (args) => {
       const { bio, position, avatar, publicFields, ...otherFields } = profile;
       let extensions: { bio?: string; position?: string } = {};
 
-      if (sessionUser === null && publicFields !== undefined) {
+      if (sessionUser !== null && publicFields !== undefined) {
         if (publicFields.includes("bio") && bio !== null) {
           extensions.bio = bio;
         }
