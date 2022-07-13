@@ -1,5 +1,6 @@
-import { Area, Offer, Profile } from "@prisma/client";
-import React from "react";
+import { Area, Offer, Organization, Profile } from "@prisma/client";
+import { GravityType } from "imgproxy/dist/types";
+import React, { FormEvent } from "react";
 import {
   ActionFunction,
   Form,
@@ -8,24 +9,8 @@ import {
   LoaderFunction,
   useActionData,
   useLoaderData,
+  useSubmit,
 } from "remix";
-import { GravityType } from "imgproxy/dist/types";
-import { getUserByRequest } from "~/auth.server";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { H1, H3 } from "~/components/Heading/Heading";
-import { builder } from "~/imgproxy";
-import { getFullName } from "~/lib/profile/getFullName";
-import { getInitials } from "~/lib/profile/getInitials";
-import {
-  AreasWithState,
-  getAllOffers,
-  getAllProfiles,
-  getFilteredProfiles,
-  getAreas,
-  getProfileByUserId,
-  getAreaById,
-  ProfileWithRelations,
-} from "~/profile.server";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -33,7 +18,31 @@ import {
   performMutation,
 } from "remix-forms";
 import { Schema, z } from "zod";
+import { getUserByRequest } from "~/auth.server";
+import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import { H1, H3 } from "~/components/Heading/Heading";
+import { getImageURL } from "~/images.server";
+import { builder } from "~/imgproxy";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+import { getFullName } from "~/lib/profile/getFullName";
+import { getInitials } from "~/lib/profile/getInitials";
+import {
+  getAllOrganizations,
+  getFilteredOrganizations,
+  OrganizationWithRelations,
+} from "~/organization.server";
+import {
+  AreasWithState,
+  getAllOffers,
+  getAllProfiles,
+  getAreaById,
+  getAreas,
+  getFilteredProfiles,
+  getProfileByUserId,
+  ProfileWithRelations,
+} from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 
 const schema = z.object({
@@ -49,8 +58,10 @@ type CurrentUser = Pick<
 
 type LoaderData = {
   currentUser?: CurrentUser;
-  profiles?: ProfileWithRelations[];
-
+  profilesAndOrganizations: (
+    | ProfileWithRelations
+    | OrganizationWithRelations
+  )[];
   areas: AreasWithState;
   offers: Offer[];
 };
@@ -67,12 +78,7 @@ export const loader: LoaderFunction = async (args) => {
       "username",
       "firstName",
       "lastName",
-      "academicTitle",
-      "position",
-      "bio",
-      "publicFields",
       "avatar",
-      "areas",
     ]);
 
     currentUser = profile || undefined; // TODO: fix type issue
@@ -82,86 +88,135 @@ export const loader: LoaderFunction = async (args) => {
 
   const allProfiles = await getAllProfiles();
   if (allProfiles !== null) {
-    if (sessionUser !== null) {
-      profiles = allProfiles.map((profile) => {
-        const { avatar, ...otherFields } = profile;
+    profiles = allProfiles.map((profile) => {
+      const { bio, position, avatar, publicFields, ...otherFields } = profile;
+      let extensions: { bio?: string; position?: string } = {};
 
-        let avatarImage: string | null = null;
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+      if (
+        (publicFields.includes("position") || sessionUser !== null) &&
+        position !== null
+      ) {
+        extensions.position = position;
+      }
 
-        if (avatar !== null) {
-          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-            .from("images")
-            .getPublicUrl(avatar);
-          if (publicURL !== null) {
-            avatarImage = builder
-              .resize("fill", 64, 64)
-              .gravity(GravityType.center)
-              .dpr(2)
-              .generateUrl(publicURL);
-          }
+      let avatarImage: string | null = null;
+
+      if (avatar !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(avatar);
+        if (publicURL !== null) {
+          avatarImage = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
         }
+      }
 
-        return { ...otherFields, avatar: avatarImage };
-      });
-    } else {
-      profiles = allProfiles.map((profile) => {
-        const { bio, position, avatar, publicFields, ...otherFields } = profile;
-
-        let extensions: { bio?: string; position?: string } = {};
-        if (publicFields !== undefined) {
-          if (publicFields.includes("bio") && bio !== null) {
-            extensions.bio = bio;
-          }
-
-          if (publicFields.includes("position") && position !== null) {
-            extensions.position = position;
-          }
-        }
-
-        let avatarImage: string | null = null;
-
-        if (avatar !== null) {
-          const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-            .from("images")
-            .getPublicUrl(avatar);
-          if (publicURL !== null) {
-            avatarImage = builder
-              .resize("fill", 64, 64)
-              .gravity(GravityType.center)
-              .dpr(2)
-              .generateUrl(publicURL);
-          }
-        }
-
-        return { ...otherFields, ...extensions, avatar: avatarImage };
-      });
-    }
+      return { ...otherFields, ...extensions, avatar: avatarImage };
+    });
   }
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json({ currentUser, profiles, areas, offers });
+  let organizations;
+
+  const allOrganizations = await getAllOrganizations();
+  if (allOrganizations !== null) {
+    organizations = allOrganizations.map((organization) => {
+      const { bio, publicFields, logo, ...otherFields } = organization;
+      let extensions: { bio?: string } = {};
+
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+
+      let logoImage: string | null = null;
+
+      if (logo !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(logo);
+        if (publicURL !== null) {
+          logoImage = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
+        }
+      }
+
+      return { ...otherFields, ...extensions, logo: logoImage };
+    });
+  }
+
+  const profilesAndOrganizations = [
+    ...(profiles ?? []),
+    ...(organizations ?? []),
+  ].sort(() => Math.random() - 0.5);
+
+  return json({ currentUser, profilesAndOrganizations, areas, offers });
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
+function getCompareValues(
+  a: Profile | Organization,
+  b: Profile | Organization
+) {
+  let compareValues: { a: string; b: string } = { a: "", b: "" };
 
+  if ("firstName" in a) {
+    compareValues.a = a.firstName;
+  } else {
+    compareValues.a = a.name;
+  }
+  if ("firstName" in b) {
+    compareValues.b = b.firstName;
+  } else {
+    compareValues.b = b.name;
+  }
+
+  return compareValues;
+}
+
+const mutation = makeDomainFunction(schema)(async (values) => {
   if (!(values.areaId || values.offerId || values.seekingId)) {
     throw "";
   }
 
-  if (values.areaId) {
+  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
+  if (values.areaId !== undefined) {
     areaToFilter = await getAreaById(values.areaId);
   }
+
+  let filteredOrganizations;
+  if (values.offerId === undefined && values.seekingId === undefined) {
+    filteredOrganizations = await getFilteredOrganizations(areaToFilter);
+  }
+
   let filteredProfiles = await getFilteredProfiles(
     areaToFilter,
     values.offerId,
     values.seekingId
   );
+
+  const filteredProfilesAndOrganizations = [
+    ...(filteredProfiles ?? []),
+    ...(filteredOrganizations ?? []),
+  ];
   // TODO: Outsource profile sorting to database
 
-  let sortedProfiles;
+  let sortedProfilesAndOrganizations;
   if (areaToFilter) {
     // Explanation of the below sorting code:
     //
@@ -190,68 +245,134 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
 
     // 1.
-    const profilesWithCountry = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "country")
+    const profilesAndOrganizationsWithCountry = filteredProfilesAndOrganizations
+      .filter((profileOrOrganization) =>
+        profileOrOrganization.areas.some((area) => area.area.type === "country")
       )
       // 2.
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const profilesWithState = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "state")
+      .sort((a, b) => {
+        let compareValues = getCompareValues(a, b);
+        return compareValues.a.localeCompare(compareValues.b);
+      });
+    const profilesAndOrganizationsWithState = filteredProfilesAndOrganizations
+      .filter((profileOrOrganization) =>
+        profileOrOrganization.areas.some((area) => area.area.type === "state")
       )
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const profilesWithDistrict = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "district")
-      )
-      .sort((a, b) => a.username.localeCompare(b.username));
+      .sort((a, b) => {
+        let compareValues = getCompareValues(a, b);
+        return compareValues.a.localeCompare(compareValues.b);
+      });
+    const profilesAndOrganizationsWithDistrict =
+      filteredProfilesAndOrganizations
+        .filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.type === "district"
+          )
+        )
+        .sort((a, b) => {
+          let compareValues = getCompareValues(a, b);
+          return compareValues.a.localeCompare(compareValues.b);
+        });
     // 3.
     const stateId = areaToFilter.stateId; // TypeScript reasons...
     if (areaToFilter.type === "country") {
-      sortedProfiles = [
-        ...profilesWithCountry,
-        ...profilesWithState,
-        ...profilesWithDistrict,
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithCountry,
+        ...profilesAndOrganizationsWithState,
+        ...profilesAndOrganizationsWithDistrict,
       ];
     }
     // 3.1.
     if (areaToFilter.type === "state") {
-      sortedProfiles = [
-        ...profilesWithState.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.stateId === stateId
+          )
         ),
-        ...profilesWithDistrict.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+        ...profilesAndOrganizationsWithDistrict.filter(
+          (profileOrOrganization) =>
+            profileOrOrganization.areas.some(
+              (area) => area.area.stateId === stateId
+            )
         ),
-        ...profilesWithCountry,
+        ...profilesAndOrganizationsWithCountry,
       ];
     }
     if (areaToFilter.type === "district") {
-      sortedProfiles = [
-        ...profilesWithDistrict.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithDistrict.filter(
+          (profileOrOrganization) =>
+            profileOrOrganization.areas.some(
+              (area) => area.area.stateId === stateId
+            )
         ),
-        ...profilesWithState.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.stateId === stateId
+          )
         ),
-        ...profilesWithCountry,
+        ...profilesAndOrganizationsWithCountry,
       ];
     }
     // 4.
-    const profilesSet = new Set(sortedProfiles);
-    sortedProfiles = Array.from(profilesSet);
+    const profilesAndOrganizationsSet = new Set(sortedProfilesAndOrganizations);
+    sortedProfilesAndOrganizations = Array.from(profilesAndOrganizationsSet);
   } else {
-    // Sorting username alphabetical when no area filter is applied
-    sortedProfiles = filteredProfiles.sort((a, b) =>
-      a.username.localeCompare(b.username)
+    // Sorting firstName alphabetical when no area filter is applied
+    sortedProfilesAndOrganizations = filteredProfiles.sort((a, b) =>
+      a.firstName.localeCompare(b.firstName)
     );
   }
 
-  return { values, sortedProfiles };
+  // Add avatars and logos
+  const profilesAndOrganizationsWithImages = sortedProfilesAndOrganizations.map(
+    (profileOrOrganization) => {
+      if ("username" in profileOrOrganization) {
+        let { avatar, ...rest } = profileOrOrganization;
+
+        if (avatar !== null) {
+          const publicURL = getPublicURL(avatar);
+          if (publicURL !== null) {
+            avatar = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+            });
+          }
+        }
+
+        return { ...rest, avatar };
+      }
+
+      let { logo, ...rest } = profileOrOrganization;
+
+      if (logo !== null) {
+        const publicURL = getPublicURL(logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+          });
+        }
+      }
+
+      return { ...rest, logo };
+    }
+  );
+
+  return {
+    values,
+    profilesAndOrganizations: profilesAndOrganizationsWithImages,
+  };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema> & {
+    profilesAndOrganizations: (
+      | ProfileWithRelations
+      | OrganizationWithRelations
+    )[];
+  }
+>;
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await performMutation({
@@ -266,6 +387,7 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const submit = useSubmit();
 
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
@@ -273,11 +395,15 @@ export default function Index() {
   }
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let profiles = loaderData.profiles;
+  let profilesAndOrganizations = loaderData.profilesAndOrganizations;
 
   if (actionData && actionData.success) {
-    profiles = actionData.data.sortedProfiles; // TODO: Fix type issue
+    profilesAndOrganizations = actionData.data.profilesAndOrganizations;
   }
+
+  const handleChange = (event: FormEvent<HTMLFormElement>) => {
+    submit(event.currentTarget);
+  };
 
   return (
     <>
@@ -356,7 +482,7 @@ export default function Index() {
 
       {loaderData.currentUser !== undefined ? (
         <section className="container my-8">
-          <RemixForm method="post" schema={schema}>
+          <RemixForm method="post" schema={schema} onChange={handleChange}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <div className="flex flex-wrap -mx-4">
@@ -463,12 +589,18 @@ export default function Index() {
                       )}
                     </Field>
                   </div>
+                  <Errors />
                 </div>
                 <div className="flex justify-end">
-                  <button type="submit" className="btn btn-primary">
-                    Filter anwenden
-                  </button>
-                  <Errors />
+                  <noscript>
+                    {/* TODO: selection not shown without javascript */}
+                    <button type="submit" className="btn btn-primary mr-2">
+                      Filter anwenden
+                    </button>
+                  </noscript>
+                  <Link to={"/explore"} reloadDocument>
+                    <div className="btn btn-primary">Filter zurücksetzen</div>
+                  </Link>
                 </div>
               </>
             )}
@@ -484,57 +616,73 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profiles !== undefined &&
-            profiles.length > 0 &&
-            profiles.map((profile, index) => (
-              <div
-                key={`profile-${index}`}
-                data-testid="gridcell"
-                className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
-              >
-                <Link
-                  to={`/profile/${profile.username}`}
-                  className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+          {profilesAndOrganizations.length > 0 &&
+            profilesAndOrganizations.map((profileOrOrganization, index) => {
+              let slug, image, initials, name, subtitle;
+              if ("username" in profileOrOrganization) {
+                slug = `/profile/${profileOrOrganization.username}`;
+                image = profileOrOrganization.avatar;
+                initials = getInitials(profileOrOrganization);
+                name = getFullName(profileOrOrganization);
+                subtitle = profileOrOrganization.position;
+              } else {
+                slug = `/organization/${profileOrOrganization.slug}`;
+                image = profileOrOrganization.logo;
+                initials = getOrganizationInitials(profileOrOrganization.name);
+                name = profileOrOrganization.name;
+                subtitle = profileOrOrganization.types
+                  .map(({ organizationType }) => organizationType.title)
+                  .join(" / ");
+              }
+              return (
+                <div
+                  key={`profile-${index}`}
+                  data-testid="gridcell"
+                  className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                 >
-                  <div className="w-full flex items-center flex-row mb-4">
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                      {profile.avatar !== null ? (
-                        <img src={profile.avatar} alt="" />
-                      ) : (
-                        getInitials(profile)
-                      )}
-                    </div>
-                    <div className="pl-4">
-                      <H3 like="h4" className="text-xl mb-1">
-                        {getFullName(profile)}
-                      </H3>
-                      {profile.position !== undefined && (
-                        <p className="font-bold text-sm">{profile.position}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {profile.bio !== undefined && (
-                    <p className="mb-3 line-clamp-2">{profile.bio}</p>
-                  )}
-
-                  {profile.areas !== undefined && profile.areas.length > 0 && (
-                    <div className="flex font-semibold flex-col lg:flex-row w-full">
-                      <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                        Aktivitätsgebiete
+                  <Link
+                    to={slug}
+                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                  >
+                    <div className="w-full flex items-center flex-row mb-4">
+                      <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                        {image !== null ? <img src={image} alt="" /> : initials}
                       </div>
-                      <div className="flex-auto">
-                        <span>
-                          {profile.areas
-                            .map((area) => area.area.name)
-                            .join(" / ")}
-                        </span>
+                      <div className="pl-4">
+                        <H3 like="h4" className="text-xl mb-1">
+                          {name}
+                        </H3>
+                        {subtitle !== null && (
+                          <p className="font-bold text-sm">{subtitle}</p>
+                        )}
                       </div>
                     </div>
-                  )}
-                </Link>
-              </div>
-            ))}
+
+                    {profileOrOrganization.bio !== undefined && (
+                      <p className="mb-3 line-clamp-2">
+                        {profileOrOrganization.bio}
+                      </p>
+                    )}
+
+                    {profileOrOrganization.areas !== undefined &&
+                      profileOrOrganization.areas.length > 0 && (
+                        <div className="flex font-semibold flex-col lg:flex-row w-full">
+                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                            Aktivitätsgebiete
+                          </div>
+                          <div className="flex-auto">
+                            <span>
+                              {profileOrOrganization.areas
+                                .map((area) => area.area.name)
+                                .join(" / ")}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                  </Link>
+                </div>
+              );
+            })}
         </div>
       </section>
     </>

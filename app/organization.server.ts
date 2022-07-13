@@ -1,4 +1,5 @@
 import { Organization } from ".prisma/client";
+import { AreaType } from "@prisma/client";
 import { prismaClient } from "./prisma";
 
 export type OrganizationWithRelations = Organization & {
@@ -147,4 +148,150 @@ export async function getOrganizationMembersBySlug(slug: string) {
 
 export async function deleteOrganizationBySlug(slug: string) {
   return await prismaClient.organization.delete({ where: { slug: slug } });
+}
+
+export async function getAllOrganizations() {
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      name: true,
+      slug: true,
+      logo: true,
+      bio: true,
+      publicFields: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organizations;
+}
+
+export async function getFilteredOrganizations(
+  areaToFilter:
+    | { id: string; type: AreaType; stateId: string | null }
+    | null
+    | undefined
+) {
+  let areaQuery;
+
+  if (areaToFilter !== null && areaToFilter !== undefined) {
+    if (areaToFilter.type === "country") {
+      areaQuery = {
+        areas: {
+          some: {},
+        },
+      };
+      // TODO: Order by area type: country -> state -> district
+    }
+    if (areaToFilter.type === "state") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: state -> district -> country
+    }
+    if (areaToFilter.type === "district") {
+      areaQuery = {
+        OR: [
+          {
+            areas: {
+              some: {
+                area: {
+                  id: areaToFilter.id,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "state",
+                  stateId: areaToFilter.stateId,
+                },
+              },
+            },
+          },
+          {
+            areas: {
+              some: {
+                area: {
+                  type: "country",
+                },
+              },
+            },
+          },
+        ],
+      };
+      // TODO: Order by area type: district -> state -> country
+    }
+  }
+  if (areaQuery === undefined) {
+    return [];
+  }
+
+  const result = await prismaClient.organization.findMany({
+    where: areaQuery,
+    select: {
+      name: true,
+      slug: true,
+      logo: true,
+      bio: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+              type: true,
+              stateId: true,
+            },
+          },
+        },
+      },
+    },
+    // TODO: Add orderBy
+  });
+  return result;
 }
