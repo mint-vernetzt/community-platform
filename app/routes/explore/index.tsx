@@ -21,6 +21,7 @@ import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
+import { getImageURL } from "~/images.server";
 import { builder } from "~/imgproxy";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
@@ -41,6 +42,7 @@ import {
   getProfileByUserId,
   ProfileWithRelations,
 } from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 
 const schema = z.object({
@@ -324,43 +326,48 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   }
 
   // Add avatars and logos
-  sortedProfilesAndOrganizations.map((profileOrOrganization) => {
-    if ("username" in profileOrOrganization) {
-      if (profileOrOrganization.avatar !== null) {
-        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-          .from("images")
-          .getPublicUrl(profileOrOrganization.avatar);
-        if (publicURL !== null) {
-          profileOrOrganization.avatar = builder
-            .resize("fill", 64, 64)
-            .gravity(GravityType.center)
-            .dpr(2)
-            .generateUrl(publicURL);
-        }
-      }
-    } else {
-      if (profileOrOrganization.logo !== null) {
-        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-          .from("images")
-          .getPublicUrl(profileOrOrganization.logo);
-        if (publicURL !== null) {
-          profileOrOrganization.logo = builder
-            .resize("fill", 64, 64)
-            .gravity(GravityType.center)
-            .dpr(2)
-            .generateUrl(publicURL);
-        }
-      }
-    }
-  });
+  const profilesAndOrganizationsWithImages = sortedProfilesAndOrganizations.map(
+    (profileOrOrganization) => {
+      if ("username" in profileOrOrganization) {
+        let { avatar, ...rest } = profileOrOrganization;
 
-  return { values, sortedProfilesAndOrganizations };
+        if (avatar !== null) {
+          const publicURL = getPublicURL(avatar);
+          if (publicURL !== null) {
+            avatar = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+            });
+          }
+        }
+
+        return { ...rest, avatar };
+      }
+
+      let { logo, ...rest } = profileOrOrganization;
+
+      if (logo !== null) {
+        const publicURL = getPublicURL(logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+          });
+        }
+      }
+
+      return { ...rest, logo };
+    }
+  );
+
+  return {
+    values,
+    profilesAndOrganizations: profilesAndOrganizationsWithImages,
+  };
 });
 
 type ActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema> & {
-    sortedProfilesAndOrganizations: (
+    profilesAndOrganizations: (
       | ProfileWithRelations
       | OrganizationWithRelations
     )[];
@@ -391,7 +398,7 @@ export default function Index() {
   let profilesAndOrganizations = loaderData.profilesAndOrganizations;
 
   if (actionData && actionData.success) {
-    profilesAndOrganizations = actionData.data.sortedProfilesAndOrganizations;
+    profilesAndOrganizations = actionData.data.profilesAndOrganizations;
   }
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
