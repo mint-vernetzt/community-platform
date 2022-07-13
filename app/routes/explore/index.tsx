@@ -60,8 +60,7 @@ type LoaderData = {
   currentUser?: CurrentUser;
   profilesAndOrganizations:
     | ProfileWithRelations[]
-    | OrganizationWithRelations[]
-    | undefined;
+    | OrganizationWithRelations[];
   areas: AreasWithState;
   offers: Offer[];
 };
@@ -329,6 +328,37 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     );
   }
 
+  // Add avatars and logos
+  sortedProfilesAndOrganizations.map((profileOrOrganization) => {
+    if ("username" in profileOrOrganization) {
+      if (profileOrOrganization.avatar !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(profileOrOrganization.avatar);
+        if (publicURL !== null) {
+          profileOrOrganization.avatar = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
+        }
+      }
+    } else {
+      if (profileOrOrganization.logo !== null) {
+        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+          .from("images")
+          .getPublicUrl(profileOrOrganization.logo);
+        if (publicURL !== null) {
+          profileOrOrganization.logo = builder
+            .resize("fill", 64, 64)
+            .gravity(GravityType.center)
+            .dpr(2)
+            .generateUrl(publicURL);
+        }
+      }
+    }
+  });
+
   return { values, sortedProfilesAndOrganizations };
 });
 
@@ -337,8 +367,7 @@ type ActionData = PerformMutation<
   z.infer<typeof schema> & {
     sortedProfilesAndOrganizations:
       | ProfileWithRelations[]
-      | OrganizationWithRelations[]
-      | undefined;
+      | OrganizationWithRelations[];
   }
 >;
 
