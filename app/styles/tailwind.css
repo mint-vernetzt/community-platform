@@ -66,7 +66,10 @@
   }
 
   .form-control .label {
-    @apply font-semibold p-0 pb-2;
+    @apply font-semibold p-0;
+  }
+  .form-control > .label {
+    @apply pb-2;
   }
   .form-control.checkbox-privacy .label {
     @apply font-normal p-0;
@@ -103,7 +106,7 @@
   }
 
   .form-control .textarea {
-    @apply h-24 py-2;
+    @apply h-24 py-2 leading-5;
   }
 }
 

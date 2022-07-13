@@ -61,6 +61,34 @@ export const loader: LoaderFunction = async (args) => {
   let organization: Partial<OrganizationWithRelations> = {};
   let userIsPrivileged;
 
+  let images: {
+    logo?: string;
+    background?: string;
+    avatarOfLoggedInUser?: string;
+  } = {};
+  if (unfilteredOrganization.logo) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(unfilteredOrganization.logo);
+    if (publicURL) {
+      images.logo = builder
+        .resize("fit", 480, 144)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
+  if (unfilteredOrganization.background) {
+    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+      .from("images")
+      .getPublicUrl(unfilteredOrganization.background);
+    if (publicURL) {
+      images.background = builder
+        .resize("fill", 1488, 480)
+        .gravity(GravityType.north_east)
+        .dpr(2)
+        .generateUrl(publicURL);
+    }
+  }
   unfilteredOrganization.memberOf.map(({ network }) => {
     if (network.logo !== null) {
       const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
@@ -111,8 +139,27 @@ export const loader: LoaderFunction = async (args) => {
 
   if (loggedInUser === null) {
     let key: keyof Partial<OrganizationWithRelations>;
+    const publicFields = [
+      "name",
+      "slug",
+      "street",
+      "streetNumber",
+      "zipCode",
+      "city",
+      "logo",
+      "background",
+      "types",
+      "supportedBy",
+      "publicFields",
+      "teamMembers",
+      "memberOf",
+      "networkMembers",
+      "createdAt",
+      "areas",
+      ...unfilteredOrganization.publicFields,
+    ];
     for (key in unfilteredOrganization) {
-      if (unfilteredOrganization.publicFields.includes(key)) {
+      if (publicFields.includes(key)) {
         // @ts-ignore
         organization[key] = unfilteredOrganization[key];
       }
@@ -126,50 +173,22 @@ export const loader: LoaderFunction = async (args) => {
       "lastName",
       "avatar",
     ]);
+    if (loggedInUserProfile && loggedInUserProfile.avatar) {
+      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+        .from("images")
+        .getPublicUrl(loggedInUserProfile.avatar);
+      if (publicURL) {
+        images.avatarOfLoggedInUser = builder
+          .resize("fit", 64, 64)
+          .dpr(2)
+          .generateUrl(publicURL);
+      }
+    }
     userIsPrivileged = unfilteredOrganization.teamMembers.some(
       (member) => member.profileId === loggedInUser.id && member.isPrivileged
     );
   }
 
-  let images: {
-    logo?: string;
-    background?: string;
-    avatarOfLoggedInUser?: string;
-  } = {};
-  if (unfilteredOrganization.logo) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.logo);
-    if (publicURL) {
-      images.logo = builder
-        .resize("fit", 480, 144)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-  if (unfilteredOrganization.background) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.background);
-    if (publicURL) {
-      images.background = builder
-        .resize("fill", 1488, 480)
-        .gravity(GravityType.north_east)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-  if (loggedInUserProfile && loggedInUserProfile.avatar) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(loggedInUserProfile.avatar);
-    if (publicURL) {
-      images.avatarOfLoggedInUser = builder
-        .resize("fit", 64, 64)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
   return {
     organization,
     loggedInUserProfile,
@@ -492,9 +511,13 @@ export default function Index() {
                     </p>
                   )}
               </div>
+              {hasContactInformations(loaderData.organization) ||
+                (hasWebsiteOrSocialService(
+                  loaderData.organization,
+                  ExternalServices
+                ) && <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>)}
               {hasContactInformations(loaderData.organization) && (
                 <>
-                  <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
                   {typeof loaderData.organization.email === "string" &&
                     loaderData.organization.email !== "" && (
                       <p className="text-mb mb-2">
@@ -539,75 +562,74 @@ export default function Index() {
                         </a>
                       </p>
                     )}
-
-                  {/* --- WEBSITE & SOCIAL --- */}
-                  {hasWebsiteOrSocialService(
-                    loaderData.organization,
-                    ExternalServices
-                  ) && (
-                    <ul className="list-none flex flex-wrap -mx-1 mb-2">
-                      {ExternalServices.map((service) => {
-                        if (
-                          typeof loaderData.organization[service] ===
-                            "string" &&
-                          loaderData.organization[service] !== ""
-                        ) {
-                          return (
-                            <li key={service} className="flex-auto px-1">
-                              <ExternalServiceIcon
-                                service={service}
-                                url={loaderData.organization[service] as string}
-                              />
-                            </li>
-                          );
-                        }
-
-                        return false;
-                      })}
-                    </ul>
-                  )}
-
-                  {typeof loaderData.organization.street === "string" &&
-                    loaderData.organization.street !== "" && (
-                      <>
-                        <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
-                        <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600">
-                          <span className="icon w-6 mr-4">
-                            <svg
-                              width="22"
-                              height="22"
-                              viewBox="0 0 22 22"
-                              className="fill-current"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path d="M5.134 1.993a.915.915 0 0 0-1.37-.085L2.367 3.305c-.653.654-.893 1.578-.608 2.39a23.717 23.717 0 0 0 5.627 8.92 23.717 23.717 0 0 0 8.92 5.627c.812.285 1.736.045 2.39-.608l1.396-1.395a.916.916 0 0 0-.086-1.37l-3.114-2.422a.916.916 0 0 0-.783-.165l-2.956.738a2.356 2.356 0 0 1-2.237-.62L7.6 11.085a2.355 2.355 0 0 1-.62-2.237l.74-2.956a.915.915 0 0 0-.166-.783L5.134 1.993ZM2.744.89a2.356 2.356 0 0 1 3.526.22l2.422 3.113c.444.571.6 1.315.425 2.017L8.38 9.197a.915.915 0 0 0 .24.868l3.317 3.317a.915.915 0 0 0 .87.24l2.954-.739a2.354 2.354 0 0 1 2.017.426l3.113 2.421a2.355 2.355 0 0 1 .22 3.525l-1.395 1.396c-1 .999-2.493 1.438-3.884.948a25.156 25.156 0 0 1-9.464-5.967A25.156 25.156 0 0 1 .401 6.17c-.49-1.39-.05-2.885.949-3.884L2.745.89Z" />
-                            </svg>
-                          </span>
-                          <span>
-                            {loaderData.organization.street}{" "}
-                            {loaderData.organization.streetNumber}
-                            <br />
-                            {loaderData.organization.zipCode}{" "}
-                            {loaderData.organization.city}
-                          </span>
-                        </p>
-                      </>
-                    )}
-                  <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
-
-                  {loaderData.organization.createdAt && (
-                    <p className="text-xs mb-4 text-center">
-                      Profil besteht seit dem{" "}
-                      {new Date(
-                        loaderData.organization.createdAt
-                      ).toLocaleDateString("de-De", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
                 </>
+              )}
+
+              {/* --- WEBSITE & SOCIAL --- */}
+              {hasWebsiteOrSocialService(
+                loaderData.organization,
+                ExternalServices
+              ) && (
+                <ul className="list-none flex flex-wrap -mx-1 mb-2">
+                  {ExternalServices.map((service) => {
+                    if (
+                      typeof loaderData.organization[service] === "string" &&
+                      loaderData.organization[service] !== ""
+                    ) {
+                      return (
+                        <li key={service} className="flex-auto px-1">
+                          <ExternalServiceIcon
+                            service={service}
+                            url={loaderData.organization[service] as string}
+                          />
+                        </li>
+                      );
+                    }
+
+                    return false;
+                  })}
+                </ul>
+              )}
+
+              {typeof loaderData.organization.street === "string" &&
+                loaderData.organization.street !== "" && (
+                  <>
+                    <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
+                    <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600">
+                      <span className="icon w-6 mr-4">
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 22 22"
+                          className="fill-current"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M5.134 1.993a.915.915 0 0 0-1.37-.085L2.367 3.305c-.653.654-.893 1.578-.608 2.39a23.717 23.717 0 0 0 5.627 8.92 23.717 23.717 0 0 0 8.92 5.627c.812.285 1.736.045 2.39-.608l1.396-1.395a.916.916 0 0 0-.086-1.37l-3.114-2.422a.916.916 0 0 0-.783-.165l-2.956.738a2.356 2.356 0 0 1-2.237-.62L7.6 11.085a2.355 2.355 0 0 1-.62-2.237l.74-2.956a.915.915 0 0 0-.166-.783L5.134 1.993ZM2.744.89a2.356 2.356 0 0 1 3.526.22l2.422 3.113c.444.571.6 1.315.425 2.017L8.38 9.197a.915.915 0 0 0 .24.868l3.317 3.317a.915.915 0 0 0 .87.24l2.954-.739a2.354 2.354 0 0 1 2.017.426l3.113 2.421a2.355 2.355 0 0 1 .22 3.525l-1.395 1.396c-1 .999-2.493 1.438-3.884.948a25.156 25.156 0 0 1-9.464-5.967A25.156 25.156 0 0 1 .401 6.17c-.49-1.39-.05-2.885.949-3.884L2.745.89Z" />
+                        </svg>
+                      </span>
+                      <span>
+                        {loaderData.organization.street}{" "}
+                        {loaderData.organization.streetNumber}
+                        <br />
+                        {loaderData.organization.zipCode}{" "}
+                        {loaderData.organization.city}
+                      </span>
+                    </p>
+                  </>
+                )}
+              <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
+
+              {loaderData.organization.createdAt && (
+                <p className="text-xs mb-4 text-center">
+                  Profil besteht seit dem{" "}
+                  {new Date(
+                    loaderData.organization.createdAt
+                  ).toLocaleDateString("de-De", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
               )}
             </div>
             {/** TODO: Styling of quote section */}

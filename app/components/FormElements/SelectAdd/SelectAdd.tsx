@@ -21,42 +21,40 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
 
   return (
     <div className="mb-4">
-      <div className="form-control w-full">
-        <div className="flex flex-row items-center">
-          <div className="flex-auto">
-            <SelectField
-              ref={ref}
-              name={`add${uppercaseSingularName}`}
-              visibilityName={name}
-              {...rest}
-              onChange={(e: React.SyntheticEvent<HTMLSelectElement>) => {
-                if (e.currentTarget.value && buttonRef.current) {
-                  buttonRef.current?.click();
-                }
-              }}
-              className={`clear-after-submit`}
-              isPublic={isPublic}
-              publicPosition="top"
-            />
-          </div>
-          <div className="ml-2">
-            <button
-              ref={buttonRef}
-              name="submit"
-              type="submit"
-              className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden"
-              value={`add${uppercaseSingularName}`}
-            >
-              +
-            </button>
-          </div>
+      <div className="flex flex-row items-center w-full">
+        <div className="flex-auto">
+          <SelectField
+            ref={ref}
+            name={`add${uppercaseSingularName}`}
+            visibilityName={name}
+            {...rest}
+            onChange={(e: React.SyntheticEvent<HTMLSelectElement>) => {
+              if (e.currentTarget.value && buttonRef.current) {
+                buttonRef.current?.click();
+              }
+            }}
+            className={`clear-after-submit`}
+            isPublic={isPublic}
+            publicPosition="top"
+          />
+        </div>
+        <div>
+          <button
+            ref={buttonRef}
+            name="submit"
+            type="submit"
+            className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden ml-2"
+            value={`add${uppercaseSingularName}`}
+          >
+            +
+          </button>
         </div>
       </div>
 
-      <ul className="pt-6 pb-12">
+      <ul className="pt-2">
         {entries.map((entry) => (
           <li key={`${name}-${entry.value}`} className="flex">
-            <div className="font-bold  py-2">
+            <div className="font-bold py-2">
               {entry.label}
               <input name={name} type="hidden" value={entry.value} />
             </div>

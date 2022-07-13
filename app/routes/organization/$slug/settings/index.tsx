@@ -20,6 +20,7 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
+import { addUrlPrefix } from "~/lib/string/addUrlPrefix";
 import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
@@ -28,19 +29,34 @@ import { getAreas, getProfileByUserId } from "~/profile.server";
 const organizationSchema = object({
   name: string().required(),
   email: string().email(),
-  phone: string(),
+  phone: string().matches(
+    /^$|^(\+?[0-9]+\/?[0-9]+)$/,
+    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer."
+  ),
   street: string(),
   streetNumber: string(),
   zipCode: string(),
   city: string(),
   website: string().matches(
-    /((https?):\/\/)(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-    "Bitte geben Sie die Website URL im Format https://domainname.tld/ ein"
+    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format einer Website URL."
   ),
-  facebook: string(),
-  linkedin: string(),
-  twitter: string(),
-  xing: string(),
+  facebook: string().matches(
+    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
+  ),
+  linkedin: string().matches(
+    /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>)."
+  ),
+  twitter: string().matches(
+    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
+  ),
+  xing: string().matches(
+    /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
+    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>)."
+  ),
   bio: string(),
   types: array(string().required()).required(),
   quote: string(),
@@ -208,13 +224,13 @@ export const action: ActionFunction = async (args) => {
       streetNumber: formData.get("streetNumber") as string,
       zipCode: formData.get("zipCode") as string,
       city: formData.get("city") as string,
-      website: formData.get("website") as string,
+      website: addUrlPrefix(formData.get("website") as string),
       logo: formData.get("logo") as string,
       background: formData.get("background") as string,
-      facebook: formData.get("facebook") as string,
-      linkedin: formData.get("linkedin") as string,
-      twitter: formData.get("twitter") as string,
-      xing: formData.get("xing") as string,
+      facebook: addUrlPrefix(formData.get("facebook") as string),
+      linkedin: addUrlPrefix(formData.get("linkedin") as string),
+      twitter: addUrlPrefix(formData.get("twitter") as string),
+      xing: addUrlPrefix(formData.get("xing") as string),
       bio: formData.get("bio") as string,
       types: (formData.getAll("types") ?? []) as string[],
       quote: formData.get("quote") as string,
@@ -310,11 +326,9 @@ export const action: ActionFunction = async (args) => {
   }
 
   let data = await createOrganizationDataToUpdate(request);
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(organization["bio"] ?? "");
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
 
   const errors = await validateForm(data);
-
-  console.log(errors);
 
   let updated = false;
 
@@ -491,60 +505,82 @@ function Index() {
             nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
             erat, sed diam voluptua.
           </p>
-          <InputText
-            {...register("name")}
-            id="name"
-            label="Name"
-            defaultValue={organization.name}
-            errorMessage={errors?.name?.message}
-          />
-          <InputText
-            {...register("email")}
-            id="email"
-            label="E-Mail"
-            defaultValue={organization.email}
-            errorMessage={errors?.email?.message}
-          />
-          <InputText
-            {...register("phone")}
-            id="phone"
-            label="Telefon"
-            defaultValue={organization.phone}
-            errorMessage={errors?.phone?.message}
-          />
+          <div className="mb-6">
+            <InputText
+              {...register("name")}
+              id="name"
+              label="Name"
+              defaultValue={organization.name}
+              errorMessage={errors?.name?.message}
+            />
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("email")}
+                id="email"
+                label="E-Mail"
+                defaultValue={organization.email}
+                errorMessage={errors?.email?.message}
+                isPublic={organization.publicFields?.includes("email")}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("phone")}
+                id="phone"
+                label="Telefon"
+                defaultValue={organization.phone}
+                errorMessage={errors?.phone?.message}
+                isPublic={organization.publicFields?.includes("phone")}
+              />
+            </div>
+          </div>
           <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
-          <InputText
-            {...register("street")}
-            id="street"
-            label="Straßenname"
-            defaultValue={organization.street}
-            errorMessage={errors?.street?.message}
-          />
-          <InputText
-            {...register("streetNumber")}
-            id="streetNumber"
-            label="Hausnummer"
-            defaultValue={organization.streetNumber}
-            errorMessage={errors?.streetNumber?.message}
-          />
-          <InputText
-            {...register("zipCode")}
-            id="zipCode"
-            label="PLZ"
-            defaultValue={organization.zipCode}
-            errorMessage={errors?.zipCode?.message}
-          />
-          <InputText
-            {...register("city")}
-            id="city"
-            label="Stadt"
-            defaultValue={organization.city}
-            errorMessage={errors?.city?.message}
-          />
+          <div className="flex flex-col md:flex-row -mx-4">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("street")}
+                id="street"
+                label="Straßenname"
+                defaultValue={organization.street}
+                errorMessage={errors?.street?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("streetNumber")}
+                id="streetNumber"
+                label="Hausnummer"
+                defaultValue={organization.streetNumber}
+                errorMessage={errors?.streetNumber?.message}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("zipCode")}
+                id="zipCode"
+                label="PLZ"
+                defaultValue={organization.zipCode}
+                errorMessage={errors?.zipCode?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("city")}
+                id="city"
+                label="Stadt"
+                defaultValue={organization.city}
+                errorMessage={errors?.city?.message}
+              />
+            </div>
+          </div>
 
           <SelectAdd
             name="types"
-            label="Organizationstyp"
+            label="Organisationsform"
             entries={selectedOrganizationTypes.map((type) => ({
               label: type.title,
               value: type.id,
@@ -553,12 +589,11 @@ function Index() {
               return !organization.types.includes(option.value);
             })}
             placeholder=""
-            isPublic={organization.publicFields?.includes("types")}
           />
 
-          <div className="flex flex-row items-center mb-4">
-            <h4 className="font-semibold">Über uns</h4>
-          </div>
+          <hr className="border-neutral-400 my-10 lg:my-16" />
+
+          <h4 className="font-semibold mb-4">Über uns</h4>
 
           <p className="mb-8">
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
@@ -607,20 +642,28 @@ function Index() {
               maxCharacters={300}
             />
           </div>
-          <InputText
-            {...register("quoteAuthor")}
-            id="quoteAuthor"
-            label="Von"
-            defaultValue={organization.quoteAuthor}
-            errorMessage={errors?.quoteAuthor?.message}
-          />
-          <InputText
-            {...register("quoteAuthorInformation")}
-            id="quoteAuthorInformation"
-            label="Zusatzinformationen (Position/Beruf)"
-            defaultValue={organization.quoteAuthorInformation}
-            errorMessage={errors?.quoteAuthorInformation?.message}
-          />
+          <div className="flex flex-col md:flex-row -mx-4 mb-2 w-full">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("quoteAuthor")}
+                id="quoteAuthor"
+                label="Von"
+                defaultValue={organization.quoteAuthor}
+                errorMessage={errors?.quoteAuthor?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("quoteAuthorInformation")}
+                id="quoteAuthorInformation"
+                label="Zusatzinformationen (Position/Beruf)"
+                defaultValue={organization.quoteAuthorInformation}
+                errorMessage={errors?.quoteAuthorInformation?.message}
+              />
+            </div>
+          </div>
+
+          <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h2 className="mb-8">Website und Soziale Netzwerke</h2>
 
@@ -638,7 +681,7 @@ function Index() {
               id="website"
               label="Website URL"
               defaultValue={organization.website}
-              placeholder="https://www.domainname.tld/"
+              placeholder="domainname.tld"
               isPublic={organization.publicFields?.includes("website")}
               errorMessage={errors?.website?.message}
               withClearButton
@@ -655,21 +698,21 @@ function Index() {
             erat, sed diam voluptua.
           </p>
 
-          <div className="basis-full mb-4">
-            {socialMediaServices.map((service) => (
+          {socialMediaServices.map((service) => (
+            <div className="w-full mb-4">
               <InputText
                 key={service.id}
                 {...register(service.id)}
                 id={service.id}
                 label={service.label}
-                placeholder={service.placeholder}
                 defaultValue={organization[service.id] as string}
+                placeholder={service.organizationPlaceholder}
                 isPublic={organization.publicFields?.includes(service.id)}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
               />
-            ))}
-          </div>
+            </div>
+          ))}
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
