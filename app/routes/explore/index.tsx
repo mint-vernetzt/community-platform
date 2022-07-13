@@ -1,5 +1,5 @@
 import { Area, Offer, Profile } from "@prisma/client";
-import React, { RefObject, useRef } from "react";
+import React, { FormEvent, RefObject, useRef } from "react";
 import {
   ActionFunction,
   Form,
@@ -9,6 +9,7 @@ import {
   useActionData,
   useFetcher,
   useLoaderData,
+  useSubmit,
 } from "remix";
 import { GravityType } from "imgproxy/dist/types";
 import { getUserByRequest } from "~/auth.server";
@@ -288,6 +289,7 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const submit = useSubmit();
 
   let initialsOfCurrentUser = "";
   if (loaderData.currentUser !== undefined) {
@@ -301,10 +303,8 @@ export default function Index() {
     profilesAndOrganizations = actionData.data.sortedProfiles; // TODO: Fix type issue
   }
 
-  const formRef = useRef<HTMLFormElement>();
-  const handleSubmit = () => {
-    console.log("HANDLE SUBMIT", formRef.current);
-    formRef.current?.submit();
+  const handleChange = (event: FormEvent<HTMLFormElement>) => {
+    submit(event.currentTarget);
   };
 
   return (
@@ -384,12 +384,7 @@ export default function Index() {
 
       {loaderData.currentUser !== undefined ? (
         <section className="container my-8">
-          <RemixForm
-            ref={formRef as RefObject<HTMLFormElement>}
-            method="post"
-            schema={schema}
-            onChange={handleSubmit}
-          >
+          <RemixForm method="post" schema={schema} onChange={handleChange}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <div className="flex flex-wrap -mx-4">
