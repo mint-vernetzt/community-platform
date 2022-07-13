@@ -82,13 +82,12 @@ function Add() {
 
   return (
     <>
-      <h1>Netzwerkmitglied hinzufügen</h1>
-      <p>
+      <h4 className="mb-4 font-semibold">Netzwerkmitglied hinzufügen</h4>
+      <p className="mb-8">
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
         eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
         voluptua.
       </p>
-      {fetcher?.data?.message && <strong>{fetcher.data.message}</strong>}
       <Form
         schema={schema}
         fetcher={fetcher}
@@ -103,15 +102,44 @@ function Add() {
       >
         {({ Field, Errors, Button }) => {
           return (
-            <>
-              <Field name="name" />
+            <div className="form-control w-full">
+              <div className="flex flex-row items-center mb-2">
+                <div className="flex-auto">
+                  <label id="label-for-name" htmlFor="name" className="label">
+                    Name der Organisation
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex flex-row">
+                <Field name="name" className="flex-auto">
+                  {({ Errors }) => (
+                    <>
+                      <input
+                        id="name"
+                        name="name"
+                        className="input input-bordered w-full"
+                      />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
+                <div className="ml-2">
+                  <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                    +
+                  </Button>
+                </div>
+              </div>
               <Field name="slug" />
-              <Errors />
-              <Button />
-            </>
+            </div>
           );
         }}
       </Form>
+      {fetcher?.data?.message && (
+        <div className="p-4 bg-green-200 rounded-md mt-4">
+          {fetcher.data.message}
+        </div>
+      )}
     </>
   );
 }

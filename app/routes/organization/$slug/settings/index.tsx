@@ -505,58 +505,78 @@ function Index() {
             nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
             erat, sed diam voluptua.
           </p>
-          <InputText
-            {...register("name")}
-            id="name"
-            label="Name"
-            defaultValue={organization.name}
-            errorMessage={errors?.name?.message}
-          />
-          <InputText
-            {...register("email")}
-            id="email"
-            label="E-Mail"
-            defaultValue={organization.email}
-            errorMessage={errors?.email?.message}
-            isPublic={organization.publicFields?.includes("email")}
-          />
-          <InputText
-            {...register("phone")}
-            id="phone"
-            label="Telefon"
-            defaultValue={organization.phone}
-            errorMessage={errors?.phone?.message}
-            isPublic={organization.publicFields?.includes("phone")}
-          />
+          <div className="mb-6">
+            <InputText
+              {...register("name")}
+              id="name"
+              label="Name"
+              defaultValue={organization.name}
+              errorMessage={errors?.name?.message}
+            />
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("email")}
+                id="email"
+                label="E-Mail"
+                defaultValue={organization.email}
+                errorMessage={errors?.email?.message}
+                isPublic={organization.publicFields?.includes("email")}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("phone")}
+                id="phone"
+                label="Telefon"
+                defaultValue={organization.phone}
+                errorMessage={errors?.phone?.message}
+                isPublic={organization.publicFields?.includes("phone")}
+              />
+            </div>
+          </div>
           <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
-          <InputText
-            {...register("street")}
-            id="street"
-            label="Straßenname"
-            defaultValue={organization.street}
-            errorMessage={errors?.street?.message}
-          />
-          <InputText
-            {...register("streetNumber")}
-            id="streetNumber"
-            label="Hausnummer"
-            defaultValue={organization.streetNumber}
-            errorMessage={errors?.streetNumber?.message}
-          />
-          <InputText
-            {...register("zipCode")}
-            id="zipCode"
-            label="PLZ"
-            defaultValue={organization.zipCode}
-            errorMessage={errors?.zipCode?.message}
-          />
-          <InputText
-            {...register("city")}
-            id="city"
-            label="Stadt"
-            defaultValue={organization.city}
-            errorMessage={errors?.city?.message}
-          />
+          <div className="flex flex-col md:flex-row -mx-4">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("street")}
+                id="street"
+                label="Straßenname"
+                defaultValue={organization.street}
+                errorMessage={errors?.street?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("streetNumber")}
+                id="streetNumber"
+                label="Hausnummer"
+                defaultValue={organization.streetNumber}
+                errorMessage={errors?.streetNumber?.message}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("zipCode")}
+                id="zipCode"
+                label="PLZ"
+                defaultValue={organization.zipCode}
+                errorMessage={errors?.zipCode?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("city")}
+                id="city"
+                label="Stadt"
+                defaultValue={organization.city}
+                errorMessage={errors?.city?.message}
+              />
+            </div>
+          </div>
 
           <SelectAdd
             name="types"
@@ -571,9 +591,9 @@ function Index() {
             placeholder=""
           />
 
-          <div className="flex flex-row items-center mb-4">
-            <h4 className="font-semibold">Über uns</h4>
-          </div>
+          <hr className="border-neutral-400 my-10 lg:my-16" />
+
+          <h4 className="font-semibold mb-4">Über uns</h4>
 
           <p className="mb-8">
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
@@ -622,20 +642,28 @@ function Index() {
               maxCharacters={300}
             />
           </div>
-          <InputText
-            {...register("quoteAuthor")}
-            id="quoteAuthor"
-            label="Von"
-            defaultValue={organization.quoteAuthor}
-            errorMessage={errors?.quoteAuthor?.message}
-          />
-          <InputText
-            {...register("quoteAuthorInformation")}
-            id="quoteAuthorInformation"
-            label="Zusatzinformationen (Position/Beruf)"
-            defaultValue={organization.quoteAuthorInformation}
-            errorMessage={errors?.quoteAuthorInformation?.message}
-          />
+          <div className="flex flex-col md:flex-row -mx-4 mb-2 w-full">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("quoteAuthor")}
+                id="quoteAuthor"
+                label="Von"
+                defaultValue={organization.quoteAuthor}
+                errorMessage={errors?.quoteAuthor?.message}
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("quoteAuthorInformation")}
+                id="quoteAuthorInformation"
+                label="Zusatzinformationen (Position/Beruf)"
+                defaultValue={organization.quoteAuthorInformation}
+                errorMessage={errors?.quoteAuthorInformation?.message}
+              />
+            </div>
+          </div>
+
+          <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h2 className="mb-8">Website und Soziale Netzwerke</h2>
 
@@ -670,8 +698,8 @@ function Index() {
             erat, sed diam voluptua.
           </p>
 
-          <div className="basis-full mb-4">
-            {socialMediaServices.map((service) => (
+          {socialMediaServices.map((service) => (
+            <div className="w-full mb-4">
               <InputText
                 key={service.id}
                 {...register(service.id)}
@@ -683,8 +711,8 @@ function Index() {
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
               />
-            ))}
-          </div>
+            </div>
+          ))}
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 

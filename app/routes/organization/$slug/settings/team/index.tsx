@@ -50,21 +50,23 @@ function Index() {
 
   return (
     <>
-      <h1>Das Team</h1>
-      <p>
+      <h1 className="mb-8">Das Team</h1>
+      <p className="mb-8">
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
         eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        voluptua. BUH!
       </p>
-      {loaderData.map((member) => {
-        return (
-          <MemberRemoveForm
-            key={member.profile.username}
-            {...member}
-            slug={slug as string}
-          />
-        );
-      })}
+      <div className="mb-8">
+        {loaderData.map((member) => {
+          return (
+            <MemberRemoveForm
+              key={member.profile.username}
+              {...member}
+              slug={slug as string}
+            />
+          );
+        })}
+      </div>
       <Add />
     </>
   );
