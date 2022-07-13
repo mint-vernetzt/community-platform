@@ -1,5 +1,6 @@
 import { Area, Offer, Organization, Profile } from "@prisma/client";
-import React, { FormEvent, RefObject, useRef } from "react";
+import { GravityType } from "imgproxy/dist/types";
+import React, { FormEvent } from "react";
 import {
   ActionFunction,
   Form,
@@ -7,27 +8,9 @@ import {
   Link,
   LoaderFunction,
   useActionData,
-  useFetcher,
   useLoaderData,
   useSubmit,
 } from "remix";
-import { GravityType } from "imgproxy/dist/types";
-import { getUserByRequest } from "~/auth.server";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { H1, H3 } from "~/components/Heading/Heading";
-import { builder } from "~/imgproxy";
-import { getFullName } from "~/lib/profile/getFullName";
-import { getInitials } from "~/lib/profile/getInitials";
-import {
-  AreasWithState,
-  getAllOffers,
-  getAllProfiles,
-  getFilteredProfiles,
-  getAreas,
-  getProfileByUserId,
-  getAreaById,
-  ProfileWithRelations,
-} from "~/profile.server";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -35,15 +18,30 @@ import {
   performMutation,
 } from "remix-forms";
 import { Schema, z } from "zod";
+import { getUserByRequest } from "~/auth.server";
+import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import { H1, H3 } from "~/components/Heading/Heading";
+import { builder } from "~/imgproxy";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { supabaseAdmin } from "~/supabase";
+import { getFullName } from "~/lib/profile/getFullName";
+import { getInitials } from "~/lib/profile/getInitials";
 import {
   getAllOrganizations,
   getFilteredOrganizations,
   OrganizationWithRelations,
 } from "~/organization.server";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
-import { string } from "yup";
+import {
+  AreasWithState,
+  getAllOffers,
+  getAllProfiles,
+  getAreaById,
+  getAreas,
+  getFilteredProfiles,
+  getProfileByUserId,
+  ProfileWithRelations,
+} from "~/profile.server";
+import { supabaseAdmin } from "~/supabase";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -314,10 +312,6 @@ const mutation = makeDomainFunction(schema)(async (values) => {
         ...profilesAndOrganizationsWithCountry,
       ];
     }
-    console.log("SORTED", sortedProfilesAndOrganizations);
-    sortedProfilesAndOrganizations?.map((profileOrOrganization) =>
-      console.log("SORTED PROFILE OR ORGANIZATION", profileOrOrganization)
-    );
     // 4.
     const profilesAndOrganizationsSet = new Set(sortedProfilesAndOrganizations);
     sortedProfilesAndOrganizations = Array.from(profilesAndOrganizationsSet);
