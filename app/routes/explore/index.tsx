@@ -158,17 +158,10 @@ export const loader: LoaderFunction = async (args) => {
     });
   }
 
-  let profilesAndOrganizations;
-  if (profiles !== undefined && organizations !== undefined) {
-    profilesAndOrganizations = [...profiles, ...organizations];
-  } else if (profiles !== undefined) {
-    profilesAndOrganizations = [...profiles];
-  } else if (organizations !== undefined) {
-    profilesAndOrganizations = [...organizations];
-  }
-  profilesAndOrganizations = profilesAndOrganizations?.sort(
-    () => Math.random() - 0.5
-  );
+  const profilesAndOrganizations = [
+    ...(profiles ?? []),
+    ...(organizations ?? []),
+  ].sort(() => Math.random() - 0.5);
 
   return json({ currentUser, profilesAndOrganizations, areas, offers });
 };
@@ -527,8 +520,7 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profilesAndOrganizations !== undefined &&
-            profilesAndOrganizations.length > 0 &&
+          {profilesAndOrganizations.length > 0 &&
             profilesAndOrganizations.map((profileOrOrganization, index) => {
               let slug, image, initials, name, subtitle;
               if ("username" in profileOrOrganization) {
