@@ -19,12 +19,15 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import useCSRF from "~/lib/hooks/useCSRF";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getProfileByUserId } from "~/profile.server";
+import { validateCSRFToken } from "~/utils.server";
 import Header from "../Header";
 import ProfileMenu from "../ProfileMenu";
 
 const emailSchema = z.object({
+  csrf: z.string(),
   email: z
     .string()
     .min(1, "Bitte eine E-Mail eingeben.")
@@ -37,6 +40,7 @@ const emailSchema = z.object({
 });
 
 const passwordSchema = z.object({
+  csrf: z.string(),
   password: z.string().min(8, "Bitte ein Passwort eingeben."),
   confirmPassword: z
     .string()
@@ -116,6 +120,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
 
+  await validateCSRFToken(request);
+
   const submittedForm = formData.get("submittedForm");
   const schema = submittedForm === "changeEmail" ? emailSchema : passwordSchema;
   const mutation =
@@ -133,6 +139,8 @@ export default function Index() {
   const { profile } = useLoaderData<LoaderData>();
 
   const initials = getInitials(profile);
+
+  const { hiddenCSRFInput } = useCSRF();
 
   // TODO: Declare type
   const actionData = useActionData();
@@ -215,6 +223,14 @@ export default function Index() {
                           </>
                         )}
                       </Field>
+                      <Field name="csrf">
+                        {({ Errors }) => (
+                          <>
+                            {hiddenCSRFInput}
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
 
                       <button type="submit" className="btn btn-primary mt-8">
                         Passwort ändern
@@ -280,6 +296,14 @@ export default function Index() {
                               value="changeEmail"
                               {...register("submittedForm")}
                             ></input>
+                            <Errors />
+                          </>
+                        )}
+                      </Field>
+                      <Field name="csrf">
+                        {({ Errors }) => (
+                          <>
+                            {hiddenCSRFInput}
                             <Errors />
                           </>
                         )}

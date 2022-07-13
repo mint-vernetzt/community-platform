@@ -92,6 +92,13 @@ export async function signUp(
   return { user, session, error };
 }
 
+export const getSession = async (request: Request) => {
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
+  return session;
+};
+
 export const getUserByRequest = async (
   request: Request
 ): Promise<User | null> => {

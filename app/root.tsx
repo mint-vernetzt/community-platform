@@ -14,6 +14,10 @@ import {
 } from "remix";
 import type { MetaFunction } from "remix";
 import styles from "./styles/styles.css";
+import { createCSRFToken } from "./utils.server";
+import { authenticator, sessionStorage } from "./auth.server";
+import { forbidden } from "remix-utils";
+import { supabaseClient } from "./supabase";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform (Preview)" };
@@ -21,16 +25,48 @@ export const meta: MetaFunction = () => {
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-type LoaderData = {
+export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
+  csrf: string | undefined;
 };
 
-export const loader: LoaderFunction = async () => {
-  return json<LoaderData>({
-    matomoUrl: process.env.MATOMO_URL,
-    matomoSiteId: process.env.MATOMO_SITE_ID,
-  });
+type LoaderData = RootRouteData;
+
+export const loader: LoaderFunction = async (args) => {
+  const { request } = args;
+
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
+
+  let csrf;
+  if (session !== null) {
+    csrf = createCSRFToken();
+    session.set("csrf", csrf);
+  }
+
+  const sessionValue = session.get(authenticator.sessionKey);
+  const hasSession = sessionValue !== undefined;
+
+  if (hasSession) {
+    const accessToken = sessionValue.access_token;
+
+    if (!accessToken) {
+      throw forbidden({ message: "not allowed" }); // TODO: maybe other message
+    }
+
+    supabaseClient.auth.setAuth(accessToken);
+  }
+
+  return json<LoaderData>(
+    {
+      csrf,
+      matomoUrl: process.env.MATOMO_URL,
+      matomoSiteId: process.env.MATOMO_SITE_ID,
+    },
+    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+  );
 };
 
 export default function App() {

@@ -1,14 +1,6 @@
 import React from "react";
-import {
-  Link,
-  LoaderFunction,
-  redirect,
-  useLoaderData,
-  useSubmit,
-} from "remix";
-import { forbidden } from "remix-utils";
+import { Link, LoaderFunction, useLoaderData, useSubmit } from "remix";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { supabaseClient } from "~/supabase";
 import { authenticator, sessionStorage } from "../auth.server";
 
 export const loader: LoaderFunction = async (args) => {
@@ -19,16 +11,6 @@ export const loader: LoaderFunction = async (args) => {
 
   const sessionValue = session.get(authenticator.sessionKey);
   const hasSession = sessionValue !== undefined;
-
-  if (hasSession) {
-    const accessToken = sessionValue.access_token;
-
-    if (!accessToken) {
-      throw forbidden({ message: "not allowed" }); // TODO: maybe other message
-    }
-
-    supabaseClient.auth.setAuth(accessToken);
-  }
 
   return { hasSession };
 };

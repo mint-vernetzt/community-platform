@@ -13,18 +13,18 @@ import {
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 
-import {
-  getProfileByUserId,
-  getAreas,
-  updateProfileByUserId,
-  AreasWithState,
-  getAllOffers,
-} from "~/profile.server";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import {
+  AreasWithState,
+  getAllOffers,
+  getAreas,
+  getProfileByUserId,
+  updateProfileByUserId,
+} from "~/profile.server";
 import {
   ProfileError,
   ProfileFormFields,
@@ -32,19 +32,21 @@ import {
   validateProfile,
 } from "./yupSchema";
 
+import { Offer } from "@prisma/client";
+import { FormProvider, useForm } from "react-hook-form";
+import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
+import useCSRF from "~/lib/hooks/useCSRF";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import {
   createProfileFromFormData,
   profileListOperationResolver,
 } from "~/lib/profile/form";
-import { FormProvider, useForm } from "react-hook-form";
-import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import { getInitials } from "~/lib/profile/getInitials";
-import { Offer } from "@prisma/client";
-import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import ProfileMenu from "../ProfileMenu";
+import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
+import { validateCSRFToken } from "~/utils.server";
 import Header from "../Header";
+import ProfileMenu from "../ProfileMenu";
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -102,9 +104,11 @@ export const action: ActionFunction = async ({
 }): Promise<ActionData> => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
-  const formData = await request.formData();
+  const formData = await request.clone().formData();
   let profile = createProfileFromFormData(formData);
   profile["bio"] = removeMoreThan2ConescutiveLinebreaks(profile["bio"] ?? "");
+
+  await validateCSRFToken(request);
 
   const errors = await validateProfile(profile);
   let updated = false;
@@ -143,6 +147,8 @@ export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
   const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
+
+  const { hiddenCSRFInput } = useCSRF();
 
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
@@ -226,6 +232,7 @@ export default function Index() {
             value="submit"
             className="hidden"
           />
+          {hiddenCSRFInput}
           <fieldset disabled={transition.state === "submitting"}>
             <div className="container relative pb-44">
               <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
