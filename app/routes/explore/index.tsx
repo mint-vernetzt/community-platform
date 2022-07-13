@@ -1,4 +1,4 @@
-import { Area, Offer, Profile } from "@prisma/client";
+import { Area, Offer, Organization, Profile } from "@prisma/client";
 import React, { FormEvent, RefObject, useRef } from "react";
 import {
   ActionFunction,
@@ -39,9 +39,11 @@ import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData
 import { supabaseAdmin } from "~/supabase";
 import {
   getAllOrganizations,
+  getFilteredOrganizations,
   OrganizationWithRelations,
 } from "~/organization.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { string } from "yup";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -167,24 +169,54 @@ export const loader: LoaderFunction = async (args) => {
   return json({ currentUser, profilesAndOrganizations, areas, offers });
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
+function getCompareValues(
+  a: Profile | Organization,
+  b: Profile | Organization
+) {
+  let compareValues: { a: string; b: string } = { a: "", b: "" };
 
+  if ("firstName" in a) {
+    compareValues.a = a.firstName;
+  } else {
+    compareValues.a = a.name;
+  }
+  if ("firstName" in b) {
+    compareValues.b = b.firstName;
+  } else {
+    compareValues.b = b.name;
+  }
+
+  return compareValues;
+}
+
+const mutation = makeDomainFunction(schema)(async (values) => {
   if (!(values.areaId || values.offerId || values.seekingId)) {
     throw "";
   }
 
-  if (values.areaId) {
+  let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
+  if (values.areaId !== undefined) {
     areaToFilter = await getAreaById(values.areaId);
   }
+
+  let filteredOrganizations;
+  if (values.offerId === undefined && values.seekingId === undefined) {
+    filteredOrganizations = await getFilteredOrganizations(areaToFilter);
+  }
+
   let filteredProfiles = await getFilteredProfiles(
     areaToFilter,
     values.offerId,
     values.seekingId
   );
+
+  const filteredProfilesAndOrganizations = [
+    ...(filteredProfiles ?? []),
+    ...(filteredOrganizations ?? []),
+  ];
   // TODO: Outsource profile sorting to database
 
-  let sortedProfiles;
+  let sortedProfilesAndOrganizations;
   if (areaToFilter) {
     // Explanation of the below sorting code:
     //
@@ -213,68 +245,102 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
 
     // 1.
-    const profilesWithCountry = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "country")
+    const profilesAndOrganizationsWithCountry = filteredProfilesAndOrganizations
+      .filter((profileOrOrganization) =>
+        profileOrOrganization.areas.some((area) => area.area.type === "country")
       )
       // 2.
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const profilesWithState = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "state")
+      .sort((a, b) => {
+        let compareValues = getCompareValues(a, b);
+        return compareValues.a.localeCompare(compareValues.b);
+      });
+    const profilesAndOrganizationsWithState = filteredProfilesAndOrganizations
+      .filter((profileOrOrganization) =>
+        profileOrOrganization.areas.some((area) => area.area.type === "state")
       )
-      .sort((a, b) => a.username.localeCompare(b.username));
-    const profilesWithDistrict = filteredProfiles
-      .filter((profile) =>
-        profile.areas.some((area) => area.area.type === "district")
-      )
-      .sort((a, b) => a.username.localeCompare(b.username));
+      .sort((a, b) => {
+        let compareValues = getCompareValues(a, b);
+        return compareValues.a.localeCompare(compareValues.b);
+      });
+    const profilesAndOrganizationsWithDistrict =
+      filteredProfilesAndOrganizations
+        .filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.type === "district"
+          )
+        )
+        .sort((a, b) => {
+          let compareValues = getCompareValues(a, b);
+          return compareValues.a.localeCompare(compareValues.b);
+        });
     // 3.
     const stateId = areaToFilter.stateId; // TypeScript reasons...
     if (areaToFilter.type === "country") {
-      sortedProfiles = [
-        ...profilesWithCountry,
-        ...profilesWithState,
-        ...profilesWithDistrict,
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithCountry,
+        ...profilesAndOrganizationsWithState,
+        ...profilesAndOrganizationsWithDistrict,
       ];
     }
     // 3.1.
     if (areaToFilter.type === "state") {
-      sortedProfiles = [
-        ...profilesWithState.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.stateId === stateId
+          )
         ),
-        ...profilesWithDistrict.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+        ...profilesAndOrganizationsWithDistrict.filter(
+          (profileOrOrganization) =>
+            profileOrOrganization.areas.some(
+              (area) => area.area.stateId === stateId
+            )
         ),
-        ...profilesWithCountry,
+        ...profilesAndOrganizationsWithCountry,
       ];
     }
     if (areaToFilter.type === "district") {
-      sortedProfiles = [
-        ...profilesWithDistrict.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+      sortedProfilesAndOrganizations = [
+        ...profilesAndOrganizationsWithDistrict.filter(
+          (profileOrOrganization) =>
+            profileOrOrganization.areas.some(
+              (area) => area.area.stateId === stateId
+            )
         ),
-        ...profilesWithState.filter((profile) =>
-          profile.areas.some((area) => area.area.stateId === stateId)
+        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
+          profileOrOrganization.areas.some(
+            (area) => area.area.stateId === stateId
+          )
         ),
-        ...profilesWithCountry,
+        ...profilesAndOrganizationsWithCountry,
       ];
     }
+    console.log("SORTED", sortedProfilesAndOrganizations);
+    sortedProfilesAndOrganizations?.map((profileOrOrganization) =>
+      console.log("SORTED PROFILE OR ORGANIZATION", profileOrOrganization)
+    );
     // 4.
-    const profilesSet = new Set(sortedProfiles);
-    sortedProfiles = Array.from(profilesSet);
+    const profilesAndOrganizationsSet = new Set(sortedProfilesAndOrganizations);
+    sortedProfilesAndOrganizations = Array.from(profilesAndOrganizationsSet);
   } else {
-    // Sorting username alphabetical when no area filter is applied
-    sortedProfiles = filteredProfiles.sort((a, b) =>
-      a.username.localeCompare(b.username)
+    // Sorting firstName alphabetical when no area filter is applied
+    sortedProfilesAndOrganizations = filteredProfiles.sort((a, b) =>
+      a.firstName.localeCompare(b.firstName)
     );
   }
 
-  return { values, sortedProfiles };
+  return { values, sortedProfilesAndOrganizations };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema> & {
+    sortedProfilesAndOrganizations:
+      | ProfileWithRelations[]
+      | OrganizationWithRelations[]
+      | undefined;
+  }
+>;
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await performMutation({
@@ -300,7 +366,7 @@ export default function Index() {
   let profilesAndOrganizations = loaderData.profilesAndOrganizations;
 
   if (actionData && actionData.success) {
-    profilesAndOrganizations = actionData.data.sortedProfiles; // TODO: Fix type issue
+    profilesAndOrganizations = actionData.data.sortedProfilesAndOrganizations;
   }
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
