@@ -56,9 +56,10 @@ type CurrentUser = Pick<
 
 type LoaderData = {
   currentUser?: CurrentUser;
-  profilesAndOrganizations:
-    | ProfileWithRelations[]
-    | OrganizationWithRelations[];
+  profilesAndOrganizations: (
+    | ProfileWithRelations
+    | OrganizationWithRelations
+  )[];
   areas: AreasWithState;
   offers: Offer[];
 };
@@ -359,9 +360,10 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 type ActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema> & {
-    sortedProfilesAndOrganizations:
-      | ProfileWithRelations[]
-      | OrganizationWithRelations[];
+    sortedProfilesAndOrganizations: (
+      | ProfileWithRelations
+      | OrganizationWithRelations
+    )[];
   }
 >;
 
