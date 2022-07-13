@@ -77,7 +77,7 @@ export function MemberRemoveForm(props: Member & { slug: string }) {
             </div>
             <div className="pl-4">
               <H3 like="h4" className="text-xl mb-1">
-                {initials} {profile.firstName} {profile.lastName} {isPrivileged}
+                {profile.firstName} {profile.lastName}
               </H3>
               {profile.position && (
                 <p className="font-bold text-sm">{profile.position}</p>
