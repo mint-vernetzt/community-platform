@@ -493,14 +493,17 @@ export default function Index() {
                   </div>
                   <Errors />
                 </div>
-                <button type="submit" className="hidden" />
-                <Link
-                  to={"/explore"}
-                  reloadDocument
-                  className="flex justify-end"
-                >
-                  <div className="btn btn-primary">Filter zurücksetzen</div>
-                </Link>
+                <div className="flex justify-end">
+                  <noscript>
+                    {/* TODO: selection not shown without javascript */}
+                    <button type="submit" className="btn btn-primary mr-2">
+                      Filter anwenden
+                    </button>
+                  </noscript>
+                  <Link to={"/explore"} reloadDocument>
+                    <div className="btn btn-primary">Filter zurücksetzen</div>
+                  </Link>
+                </div>
               </>
             )}
           </RemixForm>
