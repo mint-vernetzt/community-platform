@@ -8,6 +8,11 @@ export type OrganizationWithRelations = Organization & {
       title: string;
     };
   }[];
+  focuses: {
+    focus: {
+      title: string;
+    };
+  }[];
   teamMembers: {
     profileId: string;
     isPrivileged: boolean;
@@ -58,6 +63,15 @@ export async function getOrganizationBySlug(slug: string) {
       types: {
         select: {
           organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
             select: {
               title: true,
             },

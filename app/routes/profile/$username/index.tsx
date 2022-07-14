@@ -648,7 +648,7 @@ export default function Index() {
               <>
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Mitglied bei</h3>
+                    <h3 className="mb-0 font-bold">Organisationen</h3>
                   </div>
                   {loaderData.mode === "owner" &&
                     loaderData.currentUser !== undefined && (

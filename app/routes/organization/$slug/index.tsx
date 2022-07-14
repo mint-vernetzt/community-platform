@@ -687,18 +687,20 @@ export default function Index() {
                 </div>
               )}
             {/* TODO: Add "MINT-Schwerpunkte*/}
-            {/*loaderData.organization.mintFocuses &&
-              loaderData.organization.mintFocuses.length > 0 && (
+            {loaderData.organization.focuses &&
+              loaderData.organization.focuses.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                   <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                    Unterstützt und gefördert von
+                    MINT-Schwerpunkte
                   </div>
 
                   <div className="flex-auto">
-                    {loaderData.organization.mintFocuses.join(" / ")}
+                    {loaderData.organization.focuses
+                      .map(({ focus }) => focus.title)
+                      .join(" / ")}
                   </div>
                 </div>
-              )*/}
+              )}
             {loaderData.organization.supportedBy &&
               loaderData.organization.supportedBy.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
@@ -714,7 +716,7 @@ export default function Index() {
             {loaderData.organization.memberOf &&
               loaderData.organization.memberOf.length > 0 && (
                 <>
-                  <h3 className="mb-6 mt-14 font-bold">Assoziiert mit</h3>
+                  <h3 className="mb-6 mt-14 font-bold">Teil des Netzwerks</h3>
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.memberOf &&
                       loaderData.organization.memberOf.length > 0 &&
