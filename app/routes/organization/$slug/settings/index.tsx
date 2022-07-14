@@ -30,8 +30,8 @@ const organizationSchema = object({
   name: string().required(),
   email: string().email(),
   phone: string().matches(
-    /^$|^(\+?[0-9\s-\(\)]+\/?[0-9\s-\(\)]+)$/,
-    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
+    /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
+    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
   ),
   street: string(),
   streetNumber: string(),
