@@ -1,0 +1,29 @@
+name: Platform Prod
+
+on:
+  # allow trigger manually
+  workflow_dispatch:
+
+jobs:
+  login-and-run-commands:
+    name: Build and start on remote
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_PROD }}
+          username: ${{ secrets.USERNAME_PROD }}
+          passphrase: ${{ secrets.PASSPHRASE_PROD }}
+          key: ${{ secrets.KEY_PROD }}
+          port: ${{ secrets.PORT_PROD }}
+          script_stop: true
+          script: |
+            eval `ssh-agent`
+            ssh-add ~/.ssh/github-dk
+            cd repository/
+            git pull
+            npm install
+            npm run build
+            pm2 restart npm
+
