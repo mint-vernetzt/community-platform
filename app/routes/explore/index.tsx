@@ -616,7 +616,7 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profilesAndOrganizations.length > 0 &&
+          {profilesAndOrganizations.length > 0 ? (
             profilesAndOrganizations.map((profileOrOrganization, index) => {
               let slug, image, initials, name, subtitle;
               if ("username" in profileOrOrganization) {
@@ -682,7 +682,13 @@ export default function Index() {
                   </Link>
                 </div>
               );
-            })}
+            })
+          ) : (
+            <p>
+              Für Deine Filterkriterien konnten leider keine Profile gefunden
+              werden.
+            </p>
+          )}
         </div>
       </section>
     </>
