@@ -716,7 +716,7 @@ export default function Index() {
             {loaderData.organization.memberOf &&
               loaderData.organization.memberOf.length > 0 && (
                 <>
-                  <h3 className="mb-6 mt-14 font-bold">Assoziiert mit</h3>
+                  <h3 className="mb-6 mt-14 font-bold">Teil des Netzwerks</h3>
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.memberOf &&
                       loaderData.organization.memberOf.length > 0 &&
