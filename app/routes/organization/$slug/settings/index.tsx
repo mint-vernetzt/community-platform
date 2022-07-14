@@ -1,4 +1,4 @@
-import { Area, OrganizationType, Profile } from "@prisma/client";
+import { Area, Focus, OrganizationType, Profile } from "@prisma/client";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -65,6 +65,7 @@ const organizationSchema = object({
   supportedBy: array(string()),
   publicFields: array(string()),
   areas: array(string().required()).required(),
+  focuses: array(string().required()).required(),
 });
 
 type Error = {
@@ -114,12 +115,14 @@ async function validateForm(form: OrganizationFormType) {
 }
 
 type LoaderData = {
-  organization: Omit<OrganizationFormType, "types" | "areas"> & {
+  organization: Omit<OrganizationFormType, "types" | "areas" | "focuses"> & {
     types: string[];
     areas: string[];
+    focuses: string[];
   };
   organizationTypes: OrganizationType[];
   areas: Area[];
+  focuses: Focus[];
   profile: Profile;
 };
 
@@ -146,6 +149,11 @@ export const loader: LoaderFunction = async (args) => {
             areaId: true,
           },
         },
+        focuses: {
+          select: {
+            focusId: true,
+          },
+        },
       },
     });
     return organization;
@@ -154,6 +162,11 @@ export const loader: LoaderFunction = async (args) => {
   const getOrganizationTypes = async () => {
     const organizationTypes = await prismaClient.organizationType.findMany();
     return organizationTypes;
+  };
+
+  const getFocuses = async () => {
+    const focuses = await prismaClient.focus.findMany();
+    return focuses;
   };
 
   const { params, request } = args;
@@ -177,6 +190,7 @@ export const loader: LoaderFunction = async (args) => {
   }
 
   const organizationTypes = await getOrganizationTypes();
+  const focuses = await getFocuses();
   const profile = await getProfileByUserId(currentUser.id);
 
   const areas = await getAreas();
@@ -190,9 +204,13 @@ export const loader: LoaderFunction = async (args) => {
       areas: organization.areas.map((area) => {
         return area.areaId;
       }),
+      focuses: organization.focuses.map((focus) => {
+        return focus.focusId;
+      }),
     },
     organizationTypes,
     areas,
+    focuses,
     profile,
   };
 };
@@ -233,6 +251,7 @@ export const action: ActionFunction = async (args) => {
       xing: addUrlPrefix(formData.get("xing") as string),
       bio: formData.get("bio") as string,
       types: (formData.getAll("types") ?? []) as string[],
+      focuses: (formData.getAll("focuses") ?? []) as string[],
       quote: formData.get("quote") as string,
       quoteAuthor: formData.get("quoteAuthor") as string,
       quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
@@ -359,6 +378,22 @@ export const action: ActionFunction = async (args) => {
                 };
               }),
             },
+            focuses: {
+              deleteMany: {},
+              connectOrCreate: data.focuses.map((focusId) => {
+                return {
+                  where: {
+                    organizationId_focusId: {
+                      focusId,
+                      organizationId: organization.id,
+                    },
+                  },
+                  create: {
+                    focusId,
+                  },
+                };
+              }),
+            },
             areas: {
               deleteMany: {},
               connectOrCreate: data.areas.map((areaId) => {
@@ -387,6 +422,7 @@ export const action: ActionFunction = async (args) => {
   } else {
     const listData: (keyof OrganizationFormType)[] = [
       "types",
+      "focuses",
       "supportedBy",
       // "memberOf",
       // "networkMembers",
@@ -415,6 +451,7 @@ function Index() {
     organization: dbOrganization,
     organizationTypes,
     areas,
+    focuses,
   } = useLoaderData<LoaderData>();
 
   const transition = useTransition();
@@ -459,6 +496,22 @@ function Index() {
       : [];
 
   const areaOptions = createAreaOptionFromData(areas);
+
+  const focusOptions = focuses.map((focus) => {
+    return {
+      label: focus.title,
+      value: focus.id,
+    };
+  });
+
+  const selectedFocuses =
+    organization.focuses && focuses
+      ? focuses
+          .filter((focus) => organization.focuses.includes(focus.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  console.log(selectedFocuses);
 
   React.useEffect(() => {
     if (isSubmitting) {
@@ -629,6 +682,19 @@ function Index() {
               name="supportedBy"
               label="Gefördert von"
               entries={organization.supportedBy ?? []}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
+              name="focuses"
+              label={"MINT-Schwerpunkte"}
+              placeholder="MINT-Schwerpunkt hinzufügen"
+              entries={selectedFocuses.map((focus) => ({
+                label: focus.title,
+                value: focus.id,
+              }))}
+              options={focusOptions}
+              isPublic={organization.publicFields?.includes("focuses")}
             />
           </div>
           <div className="mb-4">
