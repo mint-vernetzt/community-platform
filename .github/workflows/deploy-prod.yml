@@ -14,8 +14,8 @@ jobs:
         with:
           host: ${{ secrets.HOST_PROD }}
           username: ${{ secrets.USERNAME_PROD }}
-          passphrase: ${{ secrets.PASSPHRASE_PROD }}
-          key: ${{ secrets.KEY_PROD }}
+          passphrase: ${{ secrets.PASSPHRASE_STAGE }}
+          key: ${{ secrets.KEY_STAGE }}
           port: ${{ secrets.PORT_PROD }}
           script_stop: true
           script: |
