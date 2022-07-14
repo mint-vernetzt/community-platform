@@ -714,35 +714,6 @@ function Index() {
             </div>
           ))}
 
-          <hr className="border-neutral-400 my-10 lg:my-16" />
-
-          <div className="flex flex-row items-center mb-4">
-            <h4 className="font-semibold">
-              Organisation, Netzwerk, Projekt hinzufügen
-            </h4>
-            <Link
-              to="/organization/create"
-              className="btn btn-outline-primary ml-auto btn-small"
-            >
-              Organisation anlegen
-            </Link>
-          </div>
-          <p className="mb-8">
-            Die Organisation, das Netzwerk oder das Projekt, in dem Du tätig
-            bist, hat noch kein Profil? Füge es direkt hinzu, damit auch andere
-            Mitglieder über darüber erfahren können.
-          </p>
-
-          <div className="mb-4">
-            <InputAdd
-              name="organizations"
-              label="Organisation, Netzwerk, Projekt hinzufügen"
-              readOnly
-              placeholder="Noch nicht implementiert"
-              entries={[]}
-            />
-          </div>
-
           <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
             <div className="container">
               <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
