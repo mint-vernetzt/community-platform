@@ -49,6 +49,11 @@ export const loader: LoaderFunction = async (args) => {
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const getClassName = (active: boolean) =>
+    `block text-3xl ${
+      active ? "text-primary" : "text-neutral-500"
+    }  hover:text-primary py-3`;
+
   return (
     <>
       <header className="shadow-md mb-8">
@@ -109,24 +114,24 @@ function Index() {
                 <ul>
                   <li>
                     <NavLink
-                      to="."
-                      className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                      to="general"
+                      className={({ isActive }) => getClassName(isActive)}
                     >
                       Allgemein
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
-                      to="./team"
-                      className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                      to="team"
+                      className={({ isActive }) => getClassName(isActive)}
                     >
                       Das Team
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
-                      to="./network"
-                      className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                      to="network"
+                      className={({ isActive }) => getClassName(isActive)}
                     >
                       Das Netzwerk
                     </NavLink>
@@ -136,7 +141,7 @@ function Index() {
                 <div>
                   <NavLink
                     to="./delete"
-                    className="block text-3xl text-neutral-500 hover:text-primary py-3"
+                    className={({ isActive }) => getClassName(isActive)}
                   >
                     Organisation oder Projekt löschen
                   </NavLink>
