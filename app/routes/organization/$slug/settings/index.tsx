@@ -26,36 +26,66 @@ import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
 import { getAreas, getProfileByUserId } from "~/profile.server";
 
+// TODO: find better place
+
+const phoneValidation = {
+  match: /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
+  error:
+    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, )).",
+};
+
+const websiteValidation = {
+  match:
+    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
+  error: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
+};
+const socialValidation = {
+  facebook: {
+    match: /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
+  },
+  linkedin: {
+    match: /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
+  },
+  twitter: {
+    match: /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
+  },
+  xing: {
+    match: /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
+  },
+};
+
 const organizationSchema = object({
   name: string().required(),
   email: string().email(),
-  phone: string().matches(
-    /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
-    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
-  ),
+  phone: string().matches(phoneValidation.match, phoneValidation.error),
   street: string(),
   streetNumber: string(),
   zipCode: string(),
   city: string(),
-  website: string().matches(
-    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format einer Website URL."
-  ),
+  website: string().matches(websiteValidation.match, websiteValidation.error),
   facebook: string().matches(
-    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
+    socialValidation.facebook.match,
+    socialValidation.facebook.error
   ),
   linkedin: string().matches(
-    /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>)."
+    socialValidation.linkedin.match,
+    socialValidation.linkedin.error
   ),
   twitter: string().matches(
-    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
+    socialValidation.twitter.match,
+    socialValidation.twitter.error
   ),
   xing: string().matches(
-    /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>)."
+    socialValidation.xing.match,
+    socialValidation.xing.error
   ),
   bio: string(),
   types: array(string().required()).required(),
@@ -82,6 +112,7 @@ type FormError = {
 
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
+// TODO: find better place
 async function validateForm(form: OrganizationFormType) {
   let errors: FormError = {};
 
