@@ -1,4 +1,10 @@
-import { Area, Focus, OrganizationType, Profile } from "@prisma/client";
+import {
+  Area,
+  Focus,
+  Organization,
+  OrganizationType,
+  Profile,
+} from "@prisma/client";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -15,6 +21,7 @@ import { badRequest, forbidden, serverError } from "remix-utils";
 import { array, InferType, object, string, ValidationError } from "yup";
 import { OptionalObjectSchema } from "yup/lib/object";
 import { AnyObject } from "yup/lib/types";
+import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -22,11 +29,10 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import { addUrlPrefix } from "~/lib/string/addUrlPrefix";
 import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
-import { getAreas, getProfileByUserId } from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
 
 // TODO: find better place
 
@@ -64,6 +70,18 @@ const socialValidation = {
   },
 };
 
+const addUrlPrefix = (url: string) => {
+  let validUrl = url;
+  if (url !== "" && url.search(/^https?:\/\//) === -1) {
+    validUrl = "https://" + url;
+  }
+  return validUrl;
+};
+
+const removeMoreThan2ConsecutiveLineBreaks = (string: string) => {
+  return string.replace(/(\r\n|\n|\r){3,}/gm, "\n\n");
+};
+
 const organizationSchema = object({
   name: string().required(),
   email: string().email(),
@@ -72,24 +90,22 @@ const organizationSchema = object({
   streetNumber: string(),
   zipCode: string(),
   city: string(),
-  website: string().matches(websiteValidation.match, websiteValidation.error),
-  facebook: string().matches(
-    socialValidation.facebook.match,
-    socialValidation.facebook.error
-  ),
-  linkedin: string().matches(
-    socialValidation.linkedin.match,
-    socialValidation.linkedin.error
-  ),
-  twitter: string().matches(
-    socialValidation.twitter.match,
-    socialValidation.twitter.error
-  ),
-  xing: string().matches(
-    socialValidation.xing.match,
-    socialValidation.xing.error
-  ),
-  bio: string(),
+  website: string()
+    .transform(addUrlPrefix)
+    .matches(websiteValidation.match, websiteValidation.error),
+  facebook: string()
+    .transform(addUrlPrefix)
+    .matches(socialValidation.facebook.match, socialValidation.facebook.error),
+  linkedin: string()
+    .transform(addUrlPrefix)
+    .matches(socialValidation.linkedin.match, socialValidation.linkedin.error),
+  twitter: string()
+    .transform(addUrlPrefix)
+    .matches(socialValidation.twitter.match, socialValidation.twitter.error),
+  xing: string()
+    .transform(addUrlPrefix)
+    .matches(socialValidation.xing.match, socialValidation.xing.error),
+  bio: string().transform(removeMoreThan2ConsecutiveLineBreaks),
   types: array(string().required()).required(),
   quote: string(),
   quoteAuthor: string(),
@@ -98,6 +114,29 @@ const organizationSchema = object({
   publicFields: array(string()),
   areas: array(string().required()).required(),
   focuses: array(string().required()).required(),
+});
+
+const zodSchema = z.object({
+  name: z.string(),
+  // email: z.optional(z.string().email()),
+  phone: z.string().optional(), // TODO: validate phone number
+  street: z.string().optional(),
+  streetNumber: z.string().optional(), // TODO: validate street number
+  zipCode: z.string().optional(), // TODO: validate zipCode
+  city: z.string().optional(),
+  website: z.string().optional(), // TODO: validate social/website
+  facebook: z.string().optional(), // TODO: validate social/website
+  linkedin: z.string().optional(), // TODO: validate social/website
+  twitter: z.string().optional(), // TODO: validate social/website
+  xing: z.string().optional(), // TODO: validate social/website
+  bio: z.string().optional(),
+  quote: z.string().optional(),
+  quoteAuthor: z.string().optional(),
+  quoteAuthorInformation: z.string().optional(),
+  supportedBy: z.string().array().optional(),
+  publicFields: z.string().array().optional(),
+  areas: z.string().array().optional(),
+  // types: z.string().array().optional(),
 });
 
 type Error = {
@@ -151,7 +190,7 @@ async function validateForm(
 }
 
 type LoaderData = {
-  organization: Omit<OrganizationFormType, "types" | "areas" | "focuses"> & {
+  organization: Organization & {
     types: string[];
     areas: string[];
     focuses: string[];
@@ -195,14 +234,25 @@ export const loader: LoaderFunction = async (args) => {
     return organization;
   };
 
+  // TODO: find better place
   const getOrganizationTypes = async () => {
     const organizationTypes = await prismaClient.organizationType.findMany();
     return organizationTypes;
   };
 
+  // TODO: find better place
   const getFocuses = async () => {
     const focuses = await prismaClient.focus.findMany();
     return focuses;
+  };
+
+  // TODO: find better place
+  const getAreas = async () => {
+    return await prismaClient.area.findMany({
+      include: {
+        state: true,
+      },
+    });
   };
 
   const { params, request } = args;
@@ -267,40 +317,59 @@ export const action: ActionFunction = async (args) => {
     return organization;
   };
 
-  const createOrganizationDataToUpdate = async (request: Request) => {
+  const getFormValues = async (
+    request: Request,
+    schema: OptionalObjectSchema<AnyObject>
+  ) => {
     const formData = await request.clone().formData();
-
-    const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      phone: formData.get("phone") as string,
-      street: formData.get("street") as string,
-      streetNumber: formData.get("streetNumber") as string,
-      zipCode: formData.get("zipCode") as string,
-      city: formData.get("city") as string,
-      website: addUrlPrefix(formData.get("website") as string),
-      logo: formData.get("logo") as string,
-      background: formData.get("background") as string,
-      facebook: addUrlPrefix(formData.get("facebook") as string),
-      linkedin: addUrlPrefix(formData.get("linkedin") as string),
-      twitter: addUrlPrefix(formData.get("twitter") as string),
-      xing: addUrlPrefix(formData.get("xing") as string),
-      bio: formData.get("bio") as string,
-      types: (formData.getAll("types") ?? []) as string[],
-      focuses: (formData.getAll("focuses") ?? []) as string[],
-      quote: formData.get("quote") as string,
-      quoteAuthor: formData.get("quoteAuthor") as string,
-      quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
-      supportedBy: (formData.getAll("supportedBy") ?? []) as string[],
-      publicFields: (formData.getAll("publicFields") ?? []) as string[],
-      // teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
-      // memberOf: (formData.getAll("memberOf") ?? []) as string[],
-      // networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
-      areas: (formData.getAll("areas") ?? []) as string[],
-    };
-
-    return data;
+    let values: Record<keyof typeof schema.fields, string | string[]> = {};
+    for (const key in schema.fields) {
+      if (schema.fields[key].type === "array") {
+        values[key] = formData.getAll(key) as string[];
+      } else {
+        values[key] = formData.get(key) as string;
+      }
+    }
+    return values;
   };
+
+  // TODO: remove
+  // const createOrganizationDataToUpdate = async (request: Request) => {
+  //   const formData = await request.clone().formData();
+
+  //   const entries = Object.fromEntries(formData);
+
+  //   const data = {
+  //     name: formData.get("name") as string,
+  //     email: formData.get("email") as string,
+  //     phone: formData.get("phone") as string,
+  //     street: formData.get("street") as string,
+  //     streetNumber: formData.get("streetNumber") as string,
+  //     zipCode: formData.get("zipCode") as string,
+  //     city: formData.get("city") as string,
+  //     website: formData.get("website") as string,
+  //     logo: formData.get("logo") as string,
+  //     background: formData.get("background") as string,
+  //     facebook: formData.get("facebook") as string,
+  //     linkedin: formData.get("linkedin") as string,
+  //     twitter: formData.get("twitter") as string,
+  //     xing: formData.get("xing") as string,
+  //     bio: formData.get("bio") as string,
+  //     types: (formData.getAll("types") ?? []) as string[],
+  //     focuses: (formData.getAll("focuses") ?? []) as string[],
+  //     quote: formData.get("quote") as string,
+  //     quoteAuthor: formData.get("quoteAuthor") as string,
+  //     quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
+  //     supportedBy: (formData.getAll("supportedBy") ?? []) as string[],
+  //     publicFields: (formData.getAll("publicFields") ?? []) as string[],
+  //     // teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
+  //     // memberOf: (formData.getAll("memberOf") ?? []) as string[],
+  //     // networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
+  //     areas: (formData.getAll("areas") ?? []) as string[],
+  //   };
+
+  //   return data;
+  // };
 
   const getListOperationName = (operation: string, name: string) => {
     const ucSingularName = capitalizeFirstLetter(name.slice(0, -1));
@@ -379,11 +448,21 @@ export const action: ActionFunction = async (args) => {
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
+  console.log("getFormValues");
+  // const test = await getFormValues(request, organizationSchema);
 
-  let data = await createOrganizationDataToUpdate(request);
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
+  // console.log("test", test);
 
-  const errors = await validateForm(data);
+  // TODO: transform urls + bio
+  // TODO: outsource add and remove
+
+  let data = await getFormValues(request, organizationSchema);
+  const test = data.bio;
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(
+    (data["bio"] as string) ?? ""
+  );
+  console.log("validateForm");
+  const errors = await validateForm(organizationSchema, data);
 
   let updated = false;
 
@@ -572,6 +651,7 @@ function Index() {
   return (
     <>
       <FormProvider {...methods}>
+        <h1>HEllo</h1>
         <Form
           ref={formRef}
           method="post"
