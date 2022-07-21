@@ -13,6 +13,8 @@ import {
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
 import { array, InferType, object, string, ValidationError } from "yup";
+import { OptionalObjectSchema } from "yup/lib/object";
+import { AnyObject } from "yup/lib/types";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -113,11 +115,14 @@ type FormError = {
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
 // TODO: find better place
-async function validateForm(form: OrganizationFormType) {
+async function validateForm(
+  schema: OptionalObjectSchema<AnyObject>,
+  parsedFormData: InferType<OptionalObjectSchema<AnyObject>>
+) {
   let errors: FormError = {};
 
   try {
-    await organizationSchema.validate(form, { abortEarly: false });
+    await schema.validate(parsedFormData, { abortEarly: false });
   } catch (validationError) {
     if (validationError instanceof ValidationError) {
       validationError.inner.forEach((validationError) => {
