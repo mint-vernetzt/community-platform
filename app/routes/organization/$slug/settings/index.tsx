@@ -26,8 +26,8 @@ import {
   string,
   ValidationError,
 } from "yup";
-import { OptionalObjectSchema } from "yup/lib/object";
-import { AnyObject } from "yup/lib/types";
+import { ObjectShape, OptionalObjectSchema, TypeOfShape } from "yup/lib/object";
+import { AnyObject, Maybe } from "yup/lib/types";
 import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
@@ -117,33 +117,10 @@ const organizationSchema = object({
   quote: string(),
   quoteAuthor: string(),
   quoteAuthorInformation: string(),
-  supportedBy: array(string()),
-  publicFields: array(string()),
+  supportedBy: array(string().required()).required(),
+  publicFields: array(string().required()).required(),
   areas: array(string().required()).required(),
   focuses: array(string().required()).required(),
-});
-
-const zodSchema = z.object({
-  name: z.string(),
-  // email: z.optional(z.string().email()),
-  phone: z.string().optional(), // TODO: validate phone number
-  street: z.string().optional(),
-  streetNumber: z.string().optional(), // TODO: validate street number
-  zipCode: z.string().optional(), // TODO: validate zipCode
-  city: z.string().optional(),
-  website: z.string().optional(), // TODO: validate social/website
-  facebook: z.string().optional(), // TODO: validate social/website
-  linkedin: z.string().optional(), // TODO: validate social/website
-  twitter: z.string().optional(), // TODO: validate social/website
-  xing: z.string().optional(), // TODO: validate social/website
-  bio: z.string().optional(),
-  quote: z.string().optional(),
-  quoteAuthor: z.string().optional(),
-  quoteAuthorInformation: z.string().optional(),
-  supportedBy: z.string().array().optional(),
-  publicFields: z.string().array().optional(),
-  areas: z.string().array().optional(),
-  // types: z.string().array().optional(),
 });
 
 type Error = {
@@ -160,7 +137,7 @@ type FormError = {
 
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
-// TODO: find better place
+// TODO: find better place (outsource)
 async function validateForm(
   schema: OptionalObjectSchema<AnyObject>,
   parsedFormData: InferType<OptionalObjectSchema<AnyObject>>
@@ -324,17 +301,15 @@ export const action: ActionFunction = async (args) => {
     return organization;
   };
 
-  const getFormValues = async <
-    T extends OptionalObjectSchema<AnyObject>,
-    K extends keyof InferType<T>
-  >(
+  // TODO: Find better place (outsource)
+  const getFormValues = async <T extends OptionalObjectSchema<AnyObject>>(
     request: Request,
     schema: T
   ): Promise<InferType<T>> => {
     const formData = await request.clone().formData();
-    let values = {} as InferType<T>;
-    let key: keyof Inter<T>;
-    for (key in schema.fields) {
+    // TODO: Find better solution if this is not the best
+    let values: AnyObject = {};
+    for (const key in schema.fields) {
       if (schema.fields[key].type === "array") {
         values[key] = formData.getAll(key) as string[];
       } else {
@@ -343,44 +318,6 @@ export const action: ActionFunction = async (args) => {
     }
     return values;
   };
-
-  // TODO: remove
-  // const createOrganizationDataToUpdate = async (request: Request) => {
-  //   const formData = await request.clone().formData();
-
-  //   const entries = Object.fromEntries(formData);
-
-  //   const data = {
-  //     name: formData.get("name") as string,
-  //     email: formData.get("email") as string,
-  //     phone: formData.get("phone") as string,
-  //     street: formData.get("street") as string,
-  //     streetNumber: formData.get("streetNumber") as string,
-  //     zipCode: formData.get("zipCode") as string,
-  //     city: formData.get("city") as string,
-  //     website: formData.get("website") as string,
-  //     logo: formData.get("logo") as string,
-  //     background: formData.get("background") as string,
-  //     facebook: formData.get("facebook") as string,
-  //     linkedin: formData.get("linkedin") as string,
-  //     twitter: formData.get("twitter") as string,
-  //     xing: formData.get("xing") as string,
-  //     bio: formData.get("bio") as string,
-  //     types: (formData.getAll("types") ?? []) as string[],
-  //     focuses: (formData.getAll("focuses") ?? []) as string[],
-  //     quote: formData.get("quote") as string,
-  //     quoteAuthor: formData.get("quoteAuthor") as string,
-  //     quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
-  //     supportedBy: (formData.getAll("supportedBy") ?? []) as string[],
-  //     publicFields: (formData.getAll("publicFields") ?? []) as string[],
-  //     // teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
-  //     // memberOf: (formData.getAll("memberOf") ?? []) as string[],
-  //     // networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
-  //     areas: (formData.getAll("areas") ?? []) as string[],
-  //   };
-
-  //   return data;
-  // };
 
   const getListOperationName = (operation: string, name: string) => {
     const ucSingularName = capitalizeFirstLetter(name.slice(0, -1));
@@ -459,23 +396,14 @@ export const action: ActionFunction = async (args) => {
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
-  console.log("getFormValues");
-  // const test = await getFormValues(request, organizationSchema);
-
-  // console.log("test", test);
-
-  // TODO: transform urls + bio
-  // TODO: outsource add and remove
 
   let data = await getFormValues<typeof organizationSchema>(
     request,
     organizationSchema
   );
-  const test = data.bio;
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(
-    (data["bio"] as string) ?? ""
-  );
-  console.log("validateForm");
+
+  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
+  let test = data.supportedBy;
   const errors = await validateForm(organizationSchema, data);
 
   let updated = false;
