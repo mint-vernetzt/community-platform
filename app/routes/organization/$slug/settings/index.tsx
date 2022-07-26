@@ -18,10 +18,17 @@ import {
   useTransition,
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
-import { array, InferType, object, string, ValidationError } from "yup";
+import {
+  array,
+  Asserts,
+  InferType,
+  object,
+  string,
+  ValidationError,
+} from "yup";
 import { OptionalObjectSchema } from "yup/lib/object";
 import { AnyObject } from "yup/lib/types";
-import { z } from "zod";
+import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -317,13 +324,17 @@ export const action: ActionFunction = async (args) => {
     return organization;
   };
 
-  const getFormValues = async (
+  const getFormValues = async <
+    T extends OptionalObjectSchema<AnyObject>,
+    K extends keyof InferType<T>
+  >(
     request: Request,
-    schema: OptionalObjectSchema<AnyObject>
-  ) => {
+    schema: T
+  ): Promise<InferType<T>> => {
     const formData = await request.clone().formData();
-    let values: Record<keyof typeof schema.fields, string | string[]> = {};
-    for (const key in schema.fields) {
+    let values = {} as InferType<T>;
+    let key: keyof Inter<T>;
+    for (key in schema.fields) {
       if (schema.fields[key].type === "array") {
         values[key] = formData.getAll(key) as string[];
       } else {
@@ -456,7 +467,10 @@ export const action: ActionFunction = async (args) => {
   // TODO: transform urls + bio
   // TODO: outsource add and remove
 
-  let data = await getFormValues(request, organizationSchema);
+  let data = await getFormValues<typeof organizationSchema>(
+    request,
+    organizationSchema
+  );
   const test = data.bio;
   data["bio"] = removeMoreThan2ConescutiveLinbreaks(
     (data["bio"] as string) ?? ""
