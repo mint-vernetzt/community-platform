@@ -18,17 +18,8 @@ import {
   useTransition,
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
-import {
-  array,
-  Asserts,
-  InferType,
-  object,
-  string,
-  ValidationError,
-} from "yup";
-import { ObjectShape, OptionalObjectSchema, TypeOfShape } from "yup/lib/object";
-import { AnyObject, Maybe } from "yup/lib/types";
-import { Schema, z } from "zod";
+import { array, InferType, object, string } from "yup";
+import { objectListOperationResolver } from "~/addComponentUtils";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -36,83 +27,32 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
-import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId } from "~/profile.server";
-
-// TODO: find better place
-
-const phoneValidation = {
-  match: /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
-  error:
-    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, )).",
-};
-
-const websiteValidation = {
-  match:
-    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-  error: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
-};
-const socialValidation = {
-  facebook: {
-    match: /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
-  },
-  linkedin: {
-    match: /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
-  },
-  twitter: {
-    match: /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
-  },
-  xing: {
-    match: /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
-  },
-};
-
-const addUrlPrefix = (url: string) => {
-  let validUrl = url;
-  if (url !== "" && url.search(/^https?:\/\//) === -1) {
-    validUrl = "https://" + url;
-  }
-  return validUrl;
-};
-
-const removeMoreThan2ConsecutiveLineBreaks = (string: string) => {
-  return string.replace(/(\r\n|\n|\r){3,}/gm, "\n\n");
-};
+import {
+  bio,
+  FormError,
+  getFormValues,
+  phone,
+  social,
+  validateForm,
+  website,
+} from "~/yupUtils";
 
 const organizationSchema = object({
   name: string().required(),
   email: string().email(),
-  phone: string().matches(phoneValidation.match, phoneValidation.error),
+  phone: phone(),
   street: string(),
   streetNumber: string(),
   zipCode: string(),
   city: string(),
-  website: string()
-    .transform(addUrlPrefix)
-    .matches(websiteValidation.match, websiteValidation.error),
-  facebook: string()
-    .transform(addUrlPrefix)
-    .matches(socialValidation.facebook.match, socialValidation.facebook.error),
-  linkedin: string()
-    .transform(addUrlPrefix)
-    .matches(socialValidation.linkedin.match, socialValidation.linkedin.error),
-  twitter: string()
-    .transform(addUrlPrefix)
-    .matches(socialValidation.twitter.match, socialValidation.twitter.error),
-  xing: string()
-    .transform(addUrlPrefix)
-    .matches(socialValidation.xing.match, socialValidation.xing.error),
-  bio: string().transform(removeMoreThan2ConsecutiveLineBreaks),
+  website: website(),
+  facebook: social("facebook"),
+  linkedin: social("linkedin"),
+  twitter: social("twitter"),
+  xing: social("xing"),
+  bio: bio(),
   types: array(string().required()).required(),
   quote: string(),
   quoteAuthor: string(),
@@ -123,56 +63,8 @@ const organizationSchema = object({
   focuses: array(string().required()).required(),
 });
 
-type Error = {
-  type: string;
-  message: string;
-};
-
-type FormError = {
-  [key: string]: {
-    message: string;
-    errors?: Error[];
-  };
-};
-
 type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
-
-// TODO: find better place (outsource)
-async function validateForm(
-  schema: OptionalObjectSchema<AnyObject>,
-  parsedFormData: InferType<OptionalObjectSchema<AnyObject>>
-) {
-  let errors: FormError = {};
-
-  try {
-    await schema.validate(parsedFormData, { abortEarly: false });
-  } catch (validationError) {
-    if (validationError instanceof ValidationError) {
-      validationError.inner.forEach((validationError) => {
-        if (validationError.path) {
-          if (!errors[validationError.path]) {
-            errors[validationError.path] = {
-              message: validationError.message,
-              errors: [],
-            };
-          } else {
-            errors[
-              validationError.path
-            ].message += `, ${validationError.message}`;
-          }
-
-          errors[validationError.path].errors?.push({
-            type: (validationError.type as string) ?? "",
-            message: validationError.message,
-          });
-        }
-      });
-    }
-  }
-
-  return Object.keys(errors).length === 0 ? false : errors;
-}
 
 type LoaderData = {
   organization: Organization & {
@@ -302,89 +194,6 @@ export const action: ActionFunction = async (args) => {
     return organization;
   };
 
-  // TODO: Find better place (outsource)
-  const getFormValues = async <T extends OptionalObjectSchema<AnyObject>>(
-    request: Request,
-    schema: T
-  ): Promise<InferType<T>> => {
-    const formData = await request.clone().formData();
-    // TODO: Find better solution if this is not the best
-    let values: AnyObject = {};
-    for (const key in schema.fields) {
-      if (schema.fields[key].type === "array") {
-        values[key] = formData.getAll(key) as string[];
-      } else {
-        values[key] = formData.get(key) as string;
-      }
-    }
-    return values;
-  };
-
-  // TODO: Find better place (outsource)
-  const getListOperationName = (operation: string, key: string) => {
-    const ucSingularKey = capitalizeFirstLetter(key.slice(0, -1));
-    return `${operation}${ucSingularKey}`;
-  };
-
-  // TODO: Find better place (outsource) and better name
-  const addListEntry = <T extends InferType<OptionalObjectSchema<AnyObject>>>(
-    key: keyof T,
-    value: string,
-    object: T
-  ) => {
-    return {
-      ...object,
-      [key]: [...(object[key] as string[]), value],
-    };
-  };
-
-  // TODO: Find better place (outsource) and better name
-  const removeListEntry = <
-    T extends InferType<OptionalObjectSchema<AnyObject>>
-  >(
-    key: keyof T,
-    value: string,
-    object: T
-  ) => {
-    return {
-      ...object,
-      [key]: (object[key] as string[]).filter((v) => v !== value) as string[],
-    };
-  };
-
-  // TODO: Find better place (outsource) and better name
-  const objectListOperationResolver = <
-    T extends InferType<OptionalObjectSchema<AnyObject>>
-  >(
-    object: T,
-    key: keyof T,
-    formData: FormData
-  ) => {
-    key = key as string;
-
-    const submit = formData.get("submit");
-    const addOperation = getListOperationName("add", key);
-
-    if (submit === addOperation && formData.get(addOperation) !== "") {
-      return addListEntry<T>(
-        key,
-        (formData.get(addOperation) as string) ?? "",
-        object
-      );
-    }
-
-    const removeOperation = getListOperationName("remove", key);
-    if (formData.get(removeOperation) !== "") {
-      return removeListEntry<T>(
-        key,
-        (formData.get(removeOperation) as string) ?? "",
-        object
-      );
-    }
-
-    return object;
-  };
-
   const { params, request } = args;
 
   const slug = params.slug;
@@ -411,7 +220,6 @@ export const action: ActionFunction = async (args) => {
     organizationSchema
   );
 
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
   const errors = await validateForm(organizationSchema, data);
 
   let updated = false;
