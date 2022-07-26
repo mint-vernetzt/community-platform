@@ -145,10 +145,7 @@ export const action: ActionFunction = async ({
     if (Object.keys(errors).length === 0) {
       delete data.email;
       await updateProfileByUserId(currentUser.id, data);
-
       updated = true;
-    } else {
-      data = parsedFormData;
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
@@ -160,13 +157,8 @@ export const action: ActionFunction = async ({
     ];
 
     listData.forEach((name) => {
-      parsedFormData = objectListOperationResolver<ProfileFormType>(
-        parsedFormData,
-        name,
-        formData
-      );
+      data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
-    data = parsedFormData;
   }
 
   return {

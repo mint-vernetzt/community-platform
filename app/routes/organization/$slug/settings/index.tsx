@@ -294,8 +294,6 @@ export const action: ActionFunction = async (args) => {
         console.error(error);
         throw serverError({ message: "Something went wrong on update." });
       }
-    } else {
-      data = parsedFormData;
     }
   } else {
     const listData: (keyof OrganizationFormType)[] = [
@@ -306,13 +304,12 @@ export const action: ActionFunction = async (args) => {
     ];
 
     listData.forEach((key) => {
-      parsedFormData = objectListOperationResolver<OrganizationFormType>(
-        parsedFormData,
+      data = objectListOperationResolver<OrganizationFormType>(
+        data,
         key,
         formData
       );
     });
-    data = parsedFormData;
   }
 
   return {

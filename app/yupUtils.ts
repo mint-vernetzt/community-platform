@@ -117,7 +117,7 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
   data: InferType<T>;
   errors: FormError;
 }> {
-  let data: InferType<T> = {};
+  let data: InferType<T> = parsedFormData;
   let errors: FormError = {};
 
   try {
