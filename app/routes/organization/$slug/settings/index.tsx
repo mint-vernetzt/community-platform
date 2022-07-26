@@ -135,6 +135,7 @@ type FormError = {
   };
 };
 
+type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
 // TODO: find better place (outsource)
@@ -319,61 +320,69 @@ export const action: ActionFunction = async (args) => {
     return values;
   };
 
-  const getListOperationName = (operation: string, name: string) => {
-    const ucSingularName = capitalizeFirstLetter(name.slice(0, -1));
-    return `${operation}${ucSingularName}`;
+  // TODO: Find better place (outsource)
+  const getListOperationName = (operation: string, key: string) => {
+    const ucSingularKey = capitalizeFirstLetter(key.slice(0, -1));
+    return `${operation}${ucSingularKey}`;
   };
 
-  const addListEntry = (
-    name: keyof OrganizationFormType,
+  // TODO: Find better place (outsource) and better name
+  const addListEntry = <T extends InferType<OptionalObjectSchema<AnyObject>>>(
+    key: keyof T,
     value: string,
-    organization: OrganizationFormType
+    object: T
   ) => {
     return {
-      ...organization,
-      [name]: [...(organization[name] as string[]), value],
+      ...object,
+      [key]: [...(object[key] as string[]), value],
     };
   };
 
-  const removeListEntry = (
-    name: keyof OrganizationFormType,
+  // TODO: Find better place (outsource) and better name
+  const removeListEntry = <
+    T extends InferType<OptionalObjectSchema<AnyObject>>
+  >(
+    key: keyof T,
     value: string,
-    organization: OrganizationFormType
+    object: T
   ) => {
     return {
-      ...organization,
-      [name]: (organization[name] as string[]).filter(
-        (v) => v !== value
-      ) as string[],
+      ...object,
+      [key]: (object[key] as string[]).filter((v) => v !== value) as string[],
     };
   };
 
-  const organizationListOperationResolver = (
-    organization: OrganizationFormType,
-    name: keyof OrganizationFormType,
+  // TODO: Find better place (outsource) and better name
+  const objectListOperationResolver = <
+    T extends InferType<OptionalObjectSchema<AnyObject>>
+  >(
+    object: T,
+    key: keyof T,
     formData: FormData
   ) => {
+    key = key as string;
+
     const submit = formData.get("submit");
-    const addOperation = getListOperationName("add", name);
+    const addOperation = getListOperationName("add", key);
 
     if (submit === addOperation && formData.get(addOperation) !== "") {
-      return addListEntry(
-        name,
+      return addListEntry<T>(
+        key,
         (formData.get(addOperation) as string) ?? "",
-        organization
+        object
       );
     }
 
-    const removeOperation = getListOperationName("remove", name);
+    const removeOperation = getListOperationName("remove", key);
     if (formData.get(removeOperation) !== "") {
-      return removeListEntry(
-        name,
+      return removeListEntry<T>(
+        key,
         (formData.get(removeOperation) as string) ?? "",
-        organization
+        object
       );
     }
 
-    return organization;
+    return object;
   };
 
   const { params, request } = args;
@@ -397,13 +406,12 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  let data = await getFormValues<typeof organizationSchema>(
+  let data = await getFormValues<OrganizationSchemaType>(
     request,
     organizationSchema
   );
 
   data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
-  let test = data.supportedBy;
   const errors = await validateForm(organizationSchema, data);
 
   let updated = false;
@@ -481,16 +489,15 @@ export const action: ActionFunction = async (args) => {
       "types",
       "focuses",
       "supportedBy",
-      // "memberOf",
-      // "networkMembers",
-      // "teamMembers",
       "areas",
     ];
 
-    listData.forEach((name) => {
-      // TODO: fix type issue
-      // @ts-ignore
-      data = organizationListOperationResolver(data, name, formData);
+    listData.forEach((key) => {
+      data = objectListOperationResolver<OrganizationFormType>(
+        data,
+        key,
+        formData
+      );
     });
   }
 
@@ -567,8 +574,6 @@ function Index() {
           .filter((focus) => organization.focuses.includes(focus.id))
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
-
-  console.log(selectedFocuses);
 
   React.useEffect(() => {
     if (isSubmitting) {
