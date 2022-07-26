@@ -32,7 +32,12 @@ const socialValidation = {
     error:
       "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
   },
-  linkedin: {
+  linkedinProfile: {
+    match: /(https?:\/\/)?(.*\.)?linkedin.com\/in\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
+  },
+  linkedinOrganization: {
     match: /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
@@ -42,7 +47,12 @@ const socialValidation = {
     error:
       "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
   },
-  xing: {
+  xingProfile: {
+    match: /(https?:\/\/)?(.*\.)?xing.com\/profile\/.+\/?$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
+  },
+  xingOrganization: {
     match: /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
