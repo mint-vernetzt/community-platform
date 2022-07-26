@@ -88,26 +88,32 @@ export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
 ): Promise<InferType<T>> {
   const formData = await request.clone().formData();
   // TODO: Find better solution if this is not the best
-  let values: AnyObject = {};
+  let parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
     if (schema.fields[key].type === "array") {
-      values[key] = formData.getAll(key) as string[];
+      parsedFormData[key] = formData.getAll(key) as string[];
     } else {
-      values[key] = formData.get(key) as string;
+      parsedFormData[key] = formData.get(key) as string;
     }
   }
-  return values;
+  return parsedFormData;
 }
 
 // TODO: find better place (outsource)
-export async function validateForm(
-  schema: OptionalObjectSchema<AnyObject>,
-  parsedFormData: InferType<OptionalObjectSchema<AnyObject>>
-) {
+export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
+  schema: T,
+  parsedFormData: InferType<T>
+): Promise<{
+  data: InferType<T>;
+  errors: FormError;
+}> {
+  let data: InferType<T> = {};
   let errors: FormError = {};
 
   try {
-    await schema.validate(parsedFormData, { abortEarly: false });
+    data = await schema.validate(parsedFormData, {
+      abortEarly: false,
+    });
   } catch (validationError) {
     if (validationError instanceof ValidationError) {
       validationError.inner.forEach((validationError) => {
@@ -132,5 +138,5 @@ export async function validateForm(
     }
   }
 
-  return Object.keys(errors).length === 0 ? false : errors;
+  return { data, errors };
 }

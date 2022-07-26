@@ -215,19 +215,22 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  let data = await getFormValues<OrganizationSchemaType>(
+  let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
     organizationSchema
   );
 
-  const errors = await validateForm(organizationSchema, data);
+  let { errors, data } = await validateForm<OrganizationSchemaType>(
+    organizationSchema,
+    parsedFormData
+  );
 
   let updated = false;
 
   const formData = await request.clone().formData();
   const submit = formData.get("submit");
   if (submit === "submit") {
-    if (errors === false) {
+    if (Object.keys(errors).length === 0) {
       try {
         await prismaClient.organization.update({
           where: {
@@ -291,6 +294,8 @@ export const action: ActionFunction = async (args) => {
         console.error(error);
         throw serverError({ message: "Something went wrong on update." });
       }
+    } else {
+      data = parsedFormData;
     }
   } else {
     const listData: (keyof OrganizationFormType)[] = [
@@ -301,12 +306,13 @@ export const action: ActionFunction = async (args) => {
     ];
 
     listData.forEach((key) => {
-      data = objectListOperationResolver<OrganizationFormType>(
-        data,
+      parsedFormData = objectListOperationResolver<OrganizationFormType>(
+        parsedFormData,
         key,
         formData
       );
     });
+    data = parsedFormData;
   }
 
   return {
@@ -406,7 +412,6 @@ function Index() {
   return (
     <>
       <FormProvider {...methods}>
-        <h1>HEllo</h1>
         <Form
           ref={formRef}
           method="post"
