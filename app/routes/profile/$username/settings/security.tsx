@@ -156,184 +156,161 @@ export default function Security() {
 
   return (
     <>
-      <Header username={username ?? ""} initials={initials} />
       <fieldset disabled={transition.state === "submitting"}>
-        <div className="container mx-auto px-4 relative z-10 pb-44">
-          <div className="flex flex-col lg:flex-row -mx-4">
-            <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
-              <div className="basis-4/12 px-4">
-                <ProfileMenu username={username as string} />
-              </div>
+        <h1 className="mb-8">Login und Sicherheit</h1>
 
-              <div className="basis-6/12 px-4">
-                <h1 className="mb-8">Login und Sicherheit</h1>
+        <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
-                <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+        <p className="mb-8">
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+          sed diam voluptua.
+        </p>
+        <input type="hidden" name="action" value="changePassword" />
 
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-                <input type="hidden" name="action" value="changePassword" />
+        <RemixForm method="post" schema={passwordSchema}>
+          {({ Field, Button, Errors, register }) => (
+            <>
+              <Field name="password" label="Neues Passwort" className="mb-4">
+                {({ Errors }) => (
+                  <>
+                    <InputPassword
+                      id="password"
+                      label="Neues Passwort"
+                      required
+                      {...register("password")}
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
 
-                <RemixForm method="post" schema={passwordSchema}>
-                  {({ Field, Button, Errors, register }) => (
-                    <>
-                      <Field
-                        name="password"
-                        label="Neues Passwort"
-                        className="mb-4"
-                      >
-                        {({ Errors }) => (
-                          <>
-                            <InputPassword
-                              id="password"
-                              label="Neues Passwort"
-                              required
-                              {...register("password")}
-                            />
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
+              <Field name="confirmPassword" label="Wiederholen">
+                {({ Errors }) => (
+                  <>
+                    <InputPassword
+                      id="confirmPassword"
+                      label="Passwort wiederholen"
+                      required
+                      {...register("confirmPassword")}
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <Field name="submittedForm">
+                {({ Errors }) => (
+                  <>
+                    <input
+                      type="hidden"
+                      value="changePassword"
+                      {...register("submittedForm")}
+                    ></input>
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <Field name="csrf">
+                {({ Errors }) => (
+                  <>
+                    {hiddenCSRFInput}
+                    <Errors />
+                  </>
+                )}
+              </Field>
 
-                      <Field name="confirmPassword" label="Wiederholen">
-                        {({ Errors }) => (
-                          <>
-                            <InputPassword
-                              id="confirmPassword"
-                              label="Passwort wiederholen"
-                              required
-                              {...register("confirmPassword")}
-                            />
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-                      <Field name="submittedForm">
-                        {({ Errors }) => (
-                          <>
-                            <input
-                              type="hidden"
-                              value="changePassword"
-                              {...register("submittedForm")}
-                            ></input>
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-                      <Field name="csrf">
-                        {({ Errors }) => (
-                          <>
-                            {hiddenCSRFInput}
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
+              <button type="submit" className="btn btn-primary mt-8">
+                Passwort ändern
+              </button>
+              {showPasswordFeedback ? (
+                <span
+                  className={
+                    "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                  }
+                >
+                  Passwort wurde geändert.
+                </span>
+              ) : null}
+              <Errors />
+            </>
+          )}
+        </RemixForm>
+        <hr className="border-neutral-400 my-10 lg:my-16" />
 
-                      <button type="submit" className="btn btn-primary mt-8">
-                        Passwort ändern
-                      </button>
-                      {showPasswordFeedback ? (
-                        <span
-                          className={
-                            "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                          }
-                        >
-                          Passwort wurde geändert.
-                        </span>
-                      ) : null}
-                      <Errors />
-                    </>
-                  )}
-                </RemixForm>
-                <hr className="border-neutral-400 my-10 lg:my-16" />
+        <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
 
-                <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
+        <p className="mb-8">
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+          sed diam voluptua.
+        </p>
+        <RemixForm method="post" schema={emailSchema}>
+          {({ Field, Button, Errors, register }) => (
+            <>
+              <Field name="email" label="Neue E-Mail" className="mb-4">
+                {({ Errors }) => (
+                  <>
+                    <Input
+                      id="email"
+                      label="Neue E-Mail"
+                      required
+                      {...register("email")}
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
 
-                <p className="mb-8">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                  aliquyam erat, sed diam voluptua.
-                </p>
-                <RemixForm method="post" schema={emailSchema}>
-                  {({ Field, Button, Errors, register }) => (
-                    <>
-                      <Field name="email" label="Neue E-Mail" className="mb-4">
-                        {({ Errors }) => (
-                          <>
-                            <Input
-                              id="email"
-                              label="Neue E-Mail"
-                              required
-                              {...register("email")}
-                            />
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
+              <Field name="confirmEmail" label="Wiederholen">
+                {({ Errors }) => (
+                  <>
+                    <Input
+                      id="confirmEmail"
+                      label="E-Mail wiederholen"
+                      required
+                      {...register("confirmEmail")}
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
 
-                      <Field name="confirmEmail" label="Wiederholen">
-                        {({ Errors }) => (
-                          <>
-                            <Input
-                              id="confirmEmail"
-                              label="E-Mail wiederholen"
-                              required
-                              {...register("confirmEmail")}
-                            />
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-
-                      <Field name="submittedForm">
-                        {({ Errors }) => (
-                          <>
-                            <input
-                              type="hidden"
-                              value="changeEmail"
-                              {...register("submittedForm")}
-                            ></input>
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-                      <Field name="csrf">
-                        {({ Errors }) => (
-                          <>
-                            {hiddenCSRFInput}
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-                      <button type="submit" className="btn btn-primary mt-8">
-                        E-Mail ändern
-                      </button>
-                      {showEmailFeedback ? (
-                        <span
-                          className={
-                            "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                          }
-                        >
-                          Bestätigungslink gesendet.
-                        </span>
-                      ) : null}
-                      <Errors />
-                    </>
-                  )}
-                </RemixForm>
-              </div>
-            </div>
-          </div>
-
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-            <div className="md:container md:mx-auto ">
-              <div className="px-4 py-8 flex flex-row items-center justify-end"></div>
-            </div>
-          </footer>
-        </div>
+              <Field name="submittedForm">
+                {({ Errors }) => (
+                  <>
+                    <input
+                      type="hidden"
+                      value="changeEmail"
+                      {...register("submittedForm")}
+                    ></input>
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <Field name="csrf">
+                {({ Errors }) => (
+                  <>
+                    {hiddenCSRFInput}
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <button type="submit" className="btn btn-primary mt-8">
+                E-Mail ändern
+              </button>
+              {showEmailFeedback ? (
+                <span
+                  className={
+                    "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                  }
+                >
+                  Bestätigungslink gesendet.
+                </span>
+              ) : null}
+              <Errors />
+            </>
+          )}
+        </RemixForm>
       </fieldset>
     </>
   );
