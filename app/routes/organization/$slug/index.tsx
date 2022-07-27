@@ -321,6 +321,13 @@ export default function Index() {
     background = loaderData.images.background;
   }
 
+  let initialsOfOrganization = "";
+  if (loaderData.organization.name) {
+    initialsOfOrganization = getOrganizationInitials(
+      loaderData.organization.name
+    );
+  }
+
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
