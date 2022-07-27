@@ -79,7 +79,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     request,
     schema,
     mutation,
-    successPath: `/profile/${username}/delete/goodbye`,
+    successPath: `/goodbye`,
   });
   return formActionResult;
 };
@@ -91,67 +91,54 @@ export default function Index() {
 
   return (
     <>
-      <Header username={username ?? ""} initials={initials} />
+      <h1 className="mb-8">Profil löschen</h1>
 
-      <div className="container mx-auto px-4 relative z-10 pb-44">
-        <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="md:flex md:flex-row px-4 pt-10 lg:pt-0">
-            <div className="basis-4/12 px-4">
-              <ProfileMenu username={username ?? ""} />
-            </div>
-            <div className="basis-6/12 px-4">
-              <h1 className="mb-8">Profil löschen</h1>
+      <h4 className="mb-4 font-semibold">Allgemein</h4>
 
-              <h4 className="mb-4 font-semibold">Allgemein</h4>
+      <p className="mb-8">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
+        voluptua.
+      </p>
 
-              <p className="mb-8">
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                diam nonumy eirmod tempor invidunt ut labore et dolore magna
-                aliquyam erat, sed diam voluptua.
-              </p>
-
-              <RemixForm method="post" schema={schema}>
-                {({ Field, Button, Errors, register }) => (
-                  <>
-                    <Field name="confirmedToken" className="mb-4">
-                      {({ Errors }) => (
-                        <>
-                          <Input
-                            id="confirmedToken"
-                            label="Löschung bestätigen"
-                            placeholder="wirklich löschen"
-                            {...register("confirmedToken")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-                    <Field name="id">
-                      {({ Errors }) => (
-                        <>
-                          <input
-                            type="hidden"
-                            value={profile.id}
-                            {...register("id")}
-                          ></input>
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-                    <button
-                      type="submit"
-                      className="btn btn-outline-primary ml-auto btn-small"
-                    >
-                      Profil entgültig löschen
-                    </button>
-                    <Errors />
-                  </>
-                )}
-              </RemixForm>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RemixForm method="post" schema={schema}>
+        {({ Field, Button, Errors, register }) => (
+          <>
+            <Field name="confirmedToken" className="mb-4">
+              {({ Errors }) => (
+                <>
+                  <Input
+                    id="confirmedToken"
+                    label="Löschung bestätigen"
+                    placeholder="wirklich löschen"
+                    {...register("confirmedToken")}
+                  />
+                  <Errors />
+                </>
+              )}
+            </Field>
+            <Field name="id">
+              {({ Errors }) => (
+                <>
+                  <input
+                    type="hidden"
+                    value={profile.id}
+                    {...register("id")}
+                  ></input>
+                  <Errors />
+                </>
+              )}
+            </Field>
+            <button
+              type="submit"
+              className="btn btn-outline-primary ml-auto btn-small"
+            >
+              Profil entgültig löschen
+            </button>
+            <Errors />
+          </>
+        )}
+      </RemixForm>
     </>
   );
 }
