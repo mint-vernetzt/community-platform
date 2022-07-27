@@ -26,6 +26,7 @@ const websiteValidation = {
     /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
   error: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
 };
+
 const socialValidation = {
   facebook: {
     match: /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
@@ -35,7 +36,7 @@ const socialValidation = {
   linkedinProfile: {
     match: /(https?:\/\/)?(.*\.)?linkedin.com\/in\/.+\/?$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/in/<Nutzername>).",
   },
   linkedinOrganization: {
     match: /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
@@ -50,7 +51,7 @@ const socialValidation = {
   xingProfile: {
     match: /(https?:\/\/)?(.*\.)?xing.com\/profile\/.+\/?$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername>).",
   },
   xingOrganization: {
     match: /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
@@ -115,7 +116,7 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
   parsedFormData: InferType<T>
 ): Promise<{
   data: InferType<T>;
-  errors: FormError;
+  errors: FormError | null;
 }> {
   let data: InferType<T> = parsedFormData;
   let errors: FormError = {};
@@ -124,6 +125,7 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
     data = await schema.validate(parsedFormData, {
       abortEarly: false,
     });
+    return { data, errors: null };
   } catch (validationError) {
     if (validationError instanceof ValidationError) {
       validationError.inner.forEach((validationError) => {
@@ -147,6 +149,5 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
       });
     }
   }
-
   return { data, errors };
 }

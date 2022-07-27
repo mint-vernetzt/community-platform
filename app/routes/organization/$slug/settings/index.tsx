@@ -67,11 +67,7 @@ type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
 type LoaderData = {
-  organization: Organization & {
-    types: string[];
-    areas: string[];
-    focuses: string[];
-  };
+  organization: OrganizationFormType;
   organizationTypes: OrganizationType[];
   areas: Area[];
   focuses: Focus[];
@@ -178,6 +174,13 @@ export const loader: LoaderFunction = async (args) => {
   };
 };
 
+type ActionData = {
+  organization: OrganizationFormType;
+  errors: FormError | null;
+  lastSubmit: string;
+  updated: boolean;
+};
+
 export const action: ActionFunction = async (args) => {
   const getOrganization = async (slug: string, userId: string) => {
     const organization = await prismaClient.organization.findFirst({
@@ -230,7 +233,7 @@ export const action: ActionFunction = async (args) => {
   const formData = await request.clone().formData();
   const submit = formData.get("submit");
   if (submit === "submit") {
-    if (Object.keys(errors).length === 0) {
+    if (errors === null) {
       try {
         await prismaClient.organization.update({
           where: {
@@ -330,7 +333,7 @@ function Index() {
   } = useLoaderData<LoaderData>();
 
   const transition = useTransition();
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
@@ -347,7 +350,7 @@ function Index() {
     formState: { isDirty },
   } = methods;
 
-  const errors = actionData?.errors as FormError;
+  const errors = actionData?.errors;
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     return {

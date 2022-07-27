@@ -117,7 +117,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 type ActionData = {
   profile: ProfileFormType;
-  errors: FormError;
+  errors: FormError | null;
   lastSubmit: string;
   updated: boolean;
 };
@@ -142,7 +142,7 @@ export const action: ActionFunction = async ({
 
   const submit = formData.get("submit");
   if (submit === "submit") {
-    if (Object.keys(errors).length === 0) {
+    if (errors === null) {
       delete data.email;
       await updateProfileByUserId(currentUser.id, data);
       updated = true;
@@ -181,7 +181,7 @@ export default function Index() {
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
-  const errors = actionData?.errors as FormError;
+  const errors = actionData?.errors;
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
