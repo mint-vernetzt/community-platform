@@ -75,17 +75,6 @@ export default function Create() {
 
   return (
     <>
-      <header className="shadow-md mb-8">
-        <div className="container relative z-10">
-          <div className="py-3 flex flex-row items-center">
-            <div>
-              <Link to="/explore">
-                <HeaderLogo />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
       <div className="container relative pb-44">
         <h4 className="font-semibold">
           Organisation, Netzwerk, Projekt hinzufügen

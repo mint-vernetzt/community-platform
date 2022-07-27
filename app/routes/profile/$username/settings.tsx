@@ -57,55 +57,6 @@ function Index() {
 
   return (
     <>
-      <header className="shadow-md mb-8">
-        <div className="container relative z-10">
-          <div className="py-3 flex flex-row items-center">
-            <div>
-              <Link to="/explore">
-                <HeaderLogo />
-              </Link>
-            </div>
-            <div className="ml-auto">
-              <div className="dropdown dropdown-end">
-                {loaderData.images.avatar === undefined ? (
-                  <label tabIndex={0} className="btn btn-primary w-10 h-10">
-                    {loaderData.initials}
-                  </label>
-                ) : (
-                  <label tabIndex={0} className="w-10 h-10 rounded">
-                    <img
-                      src={loaderData.images.avatar}
-                      alt={loaderData.username}
-                    />
-                  </label>
-                )}
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-                >
-                  <li>
-                    <Link to={`/profile/${loaderData.username}`}>
-                      Profil anzeigen
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to={`/profile/${loaderData.username}/edit`}>
-                      Profil bearbeiten
-                    </Link>
-                  </li>
-                  <li>
-                    <Form action="/logout?index" method="post">
-                      <button type="submit" className="w-full text-left">
-                        Logout
-                      </button>
-                    </Form>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
       <div className="container relative pb-44">
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">

@@ -407,68 +407,6 @@ export default function Index() {
 
   return (
     <>
-      <header className="shadow-md mb-8">
-        <div className="container relative z-10">
-          <div className="py-3 flex flex-row items-center">
-            <div>
-              <Link to="/explore">
-                <HeaderLogo />
-              </Link>
-            </div>
-            {/* TODO: link to login on anon*/}
-            {loaderData.currentUser !== undefined ? (
-              <div className="ml-auto">
-                <div className="dropdown dropdown-end">
-                  <label tabIndex={0} className="btn btn-primary w-10 h-10">
-                    {initialsOfCurrentUser}
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-                  >
-                    <li>
-                      <Link to={`/profile/${loaderData.currentUser.username}`}>
-                        Profil anzeigen
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to={`/profile/${loaderData.currentUser.username}/edit`}
-                      >
-                        Profil bearbeiten
-                      </Link>
-                    </li>
-                    <li>
-                      <Form action="/logout?index" method="post">
-                        <button type="submit" className="w-full text-left">
-                          Logout
-                        </button>
-                      </Form>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            ) : (
-              <div className="ml-auto">
-                <Link
-                  to="/login"
-                  className="text-primary font-bold hover:underline"
-                >
-                  Anmelden
-                </Link>{" "}
-                /{" "}
-                <Link
-                  to="/register"
-                  className="text-primary font-bold hover:underline"
-                >
-                  Registrieren
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke die Community</H1>
         <p className="">
