@@ -1,10 +1,4 @@
-import {
-  Area,
-  Focus,
-  Organization,
-  OrganizationType,
-  Profile,
-} from "@prisma/client";
+import { Area, Focus, OrganizationType, Profile } from "@prisma/client";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
