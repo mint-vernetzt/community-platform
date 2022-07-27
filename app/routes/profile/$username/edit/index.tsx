@@ -61,9 +61,9 @@ const profileSchema = object({
   publicFields: array(string().required()),
   website: website(),
   facebook: social("facebook"),
-  linkedin: social("linkedinProfile"),
+  linkedin: social("linkedin"),
   twitter: social("twitter"),
-  xing: social("xingProfile"),
+  xing: social("xing"),
 });
 
 type ProfileSchemaType = typeof profileSchema;

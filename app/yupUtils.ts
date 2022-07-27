@@ -33,35 +33,33 @@ const socialValidation = {
     error:
       "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
   },
-  linkedinProfile: {
-    match: /(https?:\/\/)?(.*\.)?linkedin.com\/in\/.+\/?$|^$/,
+  linkedin: {
+    match: /(https?:\/\/)?(.*\.)?linkedin.com\/(in|company)\/.+\/?$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/in/<Nutzername>).",
-  },
-  linkedinOrganization: {
-    match: /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (linkedin.com/in/<Nutzername> oder linkedin.com/company/<Nutzername>).",
   },
   twitter: {
     match: /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
   },
-  xingProfile: {
-    match: /(https?:\/\/)?(.*\.)?xing.com\/profile\/.+\/?$|^$/,
+  xing: {
+    match: /(https?:\/\/)?(.*\.)?xing.com\/(profile|pages)\/.+\/?$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername>).",
-  },
-  xingOrganization: {
-    match: /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
-    error:
-      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
   },
 };
 
 export function phone() {
   return string().matches(phoneValidation.match, phoneValidation.error);
+}
+
+function addUrlPrefix(url: string) {
+  let validUrl = url;
+  if (url !== "" && url.search(/^https?:\/\//) === -1) {
+    validUrl = "https://" + url;
+  }
+  return validUrl;
 }
 
 export function website() {
@@ -76,20 +74,12 @@ export function social(service: keyof typeof socialValidation) {
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
-export function multiline() {
-  return string().transform(removeMoreThan2ConsecutiveLineBreaks);
-}
-
-function addUrlPrefix(url: string) {
-  let validUrl = url;
-  if (url !== "" && url.search(/^https?:\/\//) === -1) {
-    validUrl = "https://" + url;
-  }
-  return validUrl;
-}
-
 function removeMoreThan2ConsecutiveLineBreaks(string: string) {
   return string.replace(/(\r\n|\n|\r){3,}/gm, "\n\n");
+}
+
+export function multiline() {
+  return string().transform(removeMoreThan2ConsecutiveLineBreaks);
 }
 
 // TODO: Find better place (outsource)
