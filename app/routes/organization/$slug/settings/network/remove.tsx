@@ -1,20 +1,14 @@
-import {
-  ActionFunction,
-  LoaderFunction,
-  redirect,
-  useFetcher,
-  useParams,
-} from "remix";
+import { ActionFunction, LoaderFunction, redirect, useFetcher } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
+import { H3 } from "~/components/Heading/Heading";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { NetworkMember } from ".";
 import {
   disconnectOrganizationFromNetwork,
   handleAuthorization,
 } from "../utils.server";
-import { H3 } from "~/components/Heading/Heading";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 
 const schema = z.object({
   organizationId: z.string().uuid(),

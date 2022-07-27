@@ -238,7 +238,6 @@ export default function Index() {
   }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-  const initials = getInitials(profile);
 
   return (
     <>

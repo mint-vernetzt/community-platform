@@ -34,7 +34,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader: LoaderFunction = async () => {
   return redirect(".");
 };
 
@@ -51,7 +51,7 @@ export const action: ActionFunction = async (args) => {
 export function MemberRemoveForm(props: Member & { slug: string }) {
   const fetcher = useFetcher();
 
-  const { profile, isPrivileged, organizationId, slug } = props;
+  const { profile, organizationId, slug } = props;
   const initials = getInitials(profile);
 
   return (
@@ -68,9 +68,8 @@ export function MemberRemoveForm(props: Member & { slug: string }) {
         return (
           <div className="w-full flex items-center flex-row border-b border-neutral-400 p-4">
             <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-              {/* Initialen ausgeben, wenn kein Bild vorhanden */}
               {profile.avatar !== null && profile.avatar !== "" ? (
-                <img src={profile.avatar} />
+                <img src={profile.avatar} alt={initials} />
               ) : (
                 <>{initials}</>
               )}

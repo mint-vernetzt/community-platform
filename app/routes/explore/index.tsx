@@ -3,7 +3,6 @@ import { GravityType } from "imgproxy/dist/types";
 import React, { FormEvent } from "react";
 import {
   ActionFunction,
-  Form,
   json,
   Link,
   LoaderFunction,
@@ -19,10 +18,8 @@ import {
 } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { builder } from "~/imgproxy";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -39,11 +36,9 @@ import {
   getAreaById,
   getAreas,
   getFilteredProfiles,
-  getProfileByUserId,
   ProfileWithRelations,
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -51,13 +46,8 @@ const schema = z.object({
   seekingId: z.string().optional(),
 });
 
-type CurrentUser = Pick<
-  Profile,
-  "username" | "firstName" | "lastName" | "academicTitle"
->;
-
 type LoaderData = {
-  currentUser?: CurrentUser;
+  isLoggedIn: boolean;
   profilesAndOrganizations: (
     | ProfileWithRelations
     | OrganizationWithRelations
@@ -71,18 +61,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const sessionUser = await getUserByRequest(request);
 
-  let currentUser: CurrentUser | undefined;
-
-  if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id, [
-      "username",
-      "firstName",
-      "lastName",
-      "avatar",
-    ]);
-
-    currentUser = profile || undefined; // TODO: fix type issue
-  }
+  const isLoggedIn = sessionUser !== null;
 
   let profiles;
 
@@ -108,15 +87,12 @@ export const loader: LoaderFunction = async (args) => {
       let avatarImage: string | null = null;
 
       if (avatar !== null) {
-        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-          .from("images")
-          .getPublicUrl(avatar);
+        const publicURL = getPublicURL(avatar);
         if (publicURL !== null) {
-          avatarImage = builder
-            .resize("fill", 64, 64)
-            .gravity(GravityType.center)
-            .dpr(2)
-            .generateUrl(publicURL);
+          avatarImage = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
         }
       }
 
@@ -145,15 +121,12 @@ export const loader: LoaderFunction = async (args) => {
       let logoImage: string | null = null;
 
       if (logo !== null) {
-        const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-          .from("images")
-          .getPublicUrl(logo);
+        const publicURL = getPublicURL(logo);
         if (publicURL !== null) {
-          logoImage = builder
-            .resize("fill", 64, 64)
-            .gravity(GravityType.center)
-            .dpr(2)
-            .generateUrl(publicURL);
+          logoImage = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
         }
       }
 
@@ -166,7 +139,7 @@ export const loader: LoaderFunction = async (args) => {
     ...(organizations ?? []),
   ].sort(() => Math.random() - 0.5);
 
-  return json({ currentUser, profilesAndOrganizations, areas, offers });
+  return json({ isLoggedIn, profilesAndOrganizations, areas, offers });
 };
 
 function getCompareValues(
@@ -388,11 +361,6 @@ export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const submit = useSubmit();
-
-  let initialsOfCurrentUser = "";
-  if (loaderData.currentUser !== undefined) {
-    initialsOfCurrentUser = getInitials(loaderData.currentUser);
-  }
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
   let profilesAndOrganizations = loaderData.profilesAndOrganizations;
@@ -418,7 +386,7 @@ export default function Index() {
         </p>
       </section>
 
-      {loaderData.currentUser !== undefined ? (
+      {loaderData.isLoggedIn ? (
         <section className="container my-8">
           <RemixForm method="post" schema={schema} onChange={handleChange}>
             {({ Field, Button, Errors, register }) => (

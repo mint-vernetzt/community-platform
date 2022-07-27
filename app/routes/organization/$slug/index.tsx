@@ -14,10 +14,9 @@ import { badRequest, forbidden, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import InputImage from "~/components/FormElements/InputImage/InputImage";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
-import { builder } from "~/imgproxy";
+import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
@@ -28,21 +27,16 @@ import {
   OrganizationWithRelations,
 } from "~/organization.server";
 import { prismaClient } from "~/prisma";
-import { getProfileByUserId, ProfileWithRelations } from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 
 type LoaderData = {
   organization: Partial<OrganizationWithRelations>;
-  loggedInUserProfile?: Pick<
-    ProfileWithRelations,
-    "firstName" | "lastName" | "avatar" | "username"
-  >;
   userIsPrivileged: boolean;
   images: {
     logo?: string;
     background?: string;
-    avatarOfLoggedInUser?: string;
   };
 };
 
@@ -52,8 +46,8 @@ export const loader: LoaderFunction = async (args) => {
   if (slug === undefined || slug === "") {
     throw badRequest({ message: "organization slug must be provided" });
   }
-  const loggedInUser = await getUserByRequest(request);
-  let loggedInUserProfile;
+  const currentUser = await getUserByRequest(request);
+
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
     throw notFound({ message: "Not found" });
@@ -64,80 +58,74 @@ export const loader: LoaderFunction = async (args) => {
   let images: {
     logo?: string;
     background?: string;
-    avatarOfLoggedInUser?: string;
   } = {};
   if (unfilteredOrganization.logo) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.logo);
+    const publicURL = getPublicURL(unfilteredOrganization.logo);
     if (publicURL) {
-      images.logo = builder
-        .resize("fit", 480, 144)
-        .dpr(2)
-        .generateUrl(publicURL);
+      images.logo = getImageURL(publicURL, {
+        resize: { type: "fit", width: 480, height: 144 },
+      });
     }
   }
   if (unfilteredOrganization.background) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(unfilteredOrganization.background);
+    const publicURL = getPublicURL(unfilteredOrganization.background);
     if (publicURL) {
-      images.background = builder
-        .resize("fill", 1488, 480)
-        .gravity(GravityType.north_east)
-        .dpr(2)
-        .generateUrl(publicURL);
+      images.background = getImageURL(publicURL, {
+        resize: { type: "fill", width: 1488, height: 480 },
+        gravity: GravityType.north_east,
+      });
     }
   }
-  unfilteredOrganization.memberOf.map(({ network }) => {
-    if (network.logo !== null) {
-      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-        .from("images")
-        .getPublicUrl(network.logo);
-      if (publicURL !== null) {
-        const logo = builder
-          .resize("fit", 64, 64)
-          .gravity(GravityType.center)
-          .dpr(2)
-          .generateUrl(publicURL);
-        network.logo = logo;
-      }
-    }
-  });
+  unfilteredOrganization.memberOf = unfilteredOrganization.memberOf.map(
+    (member) => {
+      if (member.network.logo !== null) {
+        const publicURL = getPublicURL(member.network.logo);
 
-  unfilteredOrganization.networkMembers.map(({ networkMember }) => {
-    if (networkMember.logo !== null) {
-      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-        .from("images")
-        .getPublicUrl(networkMember.logo);
-      if (publicURL !== null) {
-        const logo = builder
-          .resize("fit", 64, 64)
-          .gravity(GravityType.center)
-          .dpr(2)
-          .generateUrl(publicURL);
-        networkMember.logo = logo;
+        if (publicURL !== null) {
+          const logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          member.network.logo = logo;
+        }
       }
+      return member;
     }
-  });
+  );
 
-  unfilteredOrganization.teamMembers.map(({ profile }) => {
-    if (profile.avatar !== null) {
-      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-        .from("images")
-        .getPublicUrl(profile.avatar);
-      if (publicURL !== null) {
-        const avatar = builder
-          .resize("fill", 64, 64)
-          .gravity(GravityType.center)
-          .dpr(2)
-          .generateUrl(publicURL);
-        profile.avatar = avatar;
+  unfilteredOrganization.networkMembers =
+    unfilteredOrganization.networkMembers.map((member) => {
+      if (member.networkMember.logo !== null) {
+        const publicURL = getPublicURL(member.networkMember.logo);
+
+        if (publicURL !== null) {
+          const logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          member.networkMember.logo = logo;
+        }
       }
-    }
-  });
+      return member;
+    });
 
-  if (loggedInUser === null) {
+  unfilteredOrganization.teamMembers = unfilteredOrganization.teamMembers.map(
+    (teamMember) => {
+      if (teamMember.profile.avatar !== null) {
+        const publicURL = getPublicURL(teamMember.profile.avatar);
+        if (publicURL !== null) {
+          const avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          teamMember.profile.avatar = avatar;
+        }
+      }
+      return teamMember;
+    }
+  );
+
+  if (currentUser === null) {
     let key: keyof Partial<OrganizationWithRelations>;
     const publicFields = [
       "name",
@@ -167,31 +155,13 @@ export const loader: LoaderFunction = async (args) => {
     userIsPrivileged = false;
   } else {
     organization = unfilteredOrganization;
-    loggedInUserProfile = await getProfileByUserId(loggedInUser.id, [
-      "username",
-      "firstName",
-      "lastName",
-      "avatar",
-    ]);
-    if (loggedInUserProfile && loggedInUserProfile.avatar) {
-      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-        .from("images")
-        .getPublicUrl(loggedInUserProfile.avatar);
-      if (publicURL) {
-        images.avatarOfLoggedInUser = builder
-          .resize("fit", 64, 64)
-          .dpr(2)
-          .generateUrl(publicURL);
-      }
-    }
     userIsPrivileged = unfilteredOrganization.teamMembers.some(
-      (member) => member.profileId === loggedInUser.id && member.isPrivileged
+      (member) => member.profileId === currentUser.id && member.isPrivileged
     );
   }
 
   return {
     organization,
-    loggedInUserProfile,
     userIsPrivileged,
     images,
   };
@@ -266,9 +236,7 @@ export const action: ActionFunction = async (args) => {
       },
     });
 
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(path);
+    const publicURL = getPublicURL(path);
 
     if (publicURL === null) {
       throw serverError({ message: "Can't access public url of image!" });
@@ -286,17 +254,15 @@ export const action: ActionFunction = async (args) => {
 
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
-    images.logo = builder
-      .resize("fit", 480, 144)
-      .dpr(2)
-      .generateUrl(logoPublicURL);
+    images.logo = getImageURL(logoPublicURL, {
+      resize: { type: "fit", width: 480, height: 144 },
+    });
   }
   const backgroundPublicURL = formData.get("background");
   if (backgroundPublicURL && typeof backgroundPublicURL === "string") {
-    images.background = builder
-      .resize("fit", 1488, 480)
-      .dpr(2)
-      .generateUrl(backgroundPublicURL);
+    images.background = getImageURL(backgroundPublicURL, {
+      resize: { type: "fit", width: 1488, height: 480 },
+    });
   }
 
   return json({ images });
@@ -338,17 +304,6 @@ function hasWebsiteOrSocialService(
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
-  let initialsOfLoggedInUser = "";
-  if (loaderData.loggedInUserProfile) {
-    initialsOfLoggedInUser = getInitials(loaderData.loggedInUserProfile);
-  }
-  const avatarOfLoggedInUser = loaderData.images.avatarOfLoggedInUser;
-  let initialsOfOrganization = "";
-  if (loaderData.organization.name) {
-    initialsOfOrganization = getOrganizationInitials(
-      loaderData.organization.name
-    );
-  }
 
   const actionData = useActionData<ActionData>();
 

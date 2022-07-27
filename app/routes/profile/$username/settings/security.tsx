@@ -1,13 +1,4 @@
-import { Profile } from "@prisma/client";
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  useActionData,
-  useLoaderData,
-  useParams,
-  useTransition,
-} from "remix";
+import { ActionFunction, useActionData, useTransition } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, forbidden } from "remix-utils";
@@ -20,11 +11,7 @@ import {
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import useCSRF from "~/lib/hooks/useCSRF";
-import { getInitials } from "~/lib/profile/getInitials";
-import { getProfileByUserId } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
-import Header from "../Header";
-import ProfileMenu from "../ProfileMenu";
 
 const emailSchema = z.object({
   csrf: z.string(),
@@ -61,28 +48,6 @@ export async function handleAuthorization(request: Request, username: string) {
 
   return sessionUser;
 }
-
-type LoaderData = {
-  profile: Pick<Profile, "email" | "firstName" | "lastName">;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const sessionUser = await handleAuthorization(request, username);
-
-  const profile = await getProfileByUserId(sessionUser.id, [
-    "email",
-    "firstName",
-    "lastName",
-  ]);
-  if (profile === null) {
-    throw new Error(
-      `PrismaClient can't find a profile for the user "${username}"`
-    );
-  }
-
-  return json({ profile });
-};
 
 const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
   if (values.confirmPassword !== values.password) {
@@ -134,11 +99,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function Security() {
-  const { username } = useParams();
   const transition = useTransition();
-  const { profile } = useLoaderData<LoaderData>();
-
-  const initials = getInitials(profile);
 
   const { hiddenCSRFInput } = useCSRF();
 

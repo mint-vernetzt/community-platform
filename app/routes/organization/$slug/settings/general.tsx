@@ -1,4 +1,4 @@
-import { Area, Focus, OrganizationType, Profile } from "@prisma/client";
+import { Area, Focus, OrganizationType } from "@prisma/client";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -13,7 +13,6 @@ import {
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
-import { objectListOperationResolver } from "~/lib/utils/components";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -21,17 +20,17 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import { prismaClient } from "~/prisma";
-import { getProfileByUserId } from "~/profile.server";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import {
-  multiline,
   FormError,
   getFormValues,
+  multiline,
   phone,
   social,
   validateForm,
   website,
 } from "~/lib/utils/yup";
+import { prismaClient } from "~/prisma";
 
 const organizationSchema = object({
   name: string().required(),
@@ -65,7 +64,6 @@ type LoaderData = {
   organizationTypes: OrganizationType[];
   areas: Area[];
   focuses: Focus[];
-  profile: Profile;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -144,7 +142,6 @@ export const loader: LoaderFunction = async (args) => {
 
   const organizationTypes = await getOrganizationTypes();
   const focuses = await getFocuses();
-  const profile = await getProfileByUserId(currentUser.id);
 
   const areas = await getAreas();
 
@@ -164,7 +161,6 @@ export const loader: LoaderFunction = async (args) => {
     organizationTypes,
     areas,
     focuses,
-    profile,
   };
 };
 

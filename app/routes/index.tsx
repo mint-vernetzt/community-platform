@@ -1,7 +1,6 @@
 import React from "react";
-import { Link, LoaderFunction, useLoaderData, useSubmit } from "remix";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { authenticator, sessionStorage } from "../auth.server";
+import { LoaderFunction, useLoaderData, useSubmit } from "remix";
+import { authenticator, sessionStorage } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;

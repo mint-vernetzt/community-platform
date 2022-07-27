@@ -22,16 +22,16 @@ import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import InputImage from "~/components/FormElements/InputImage/InputImage";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
-import { builder } from "~/imgproxy";
+import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 
@@ -55,13 +55,11 @@ type ProfileRelations = {
 };
 
 type ProfileLoaderData = {
-  currentUser?: Partial<Profile & ProfileRelations>;
   mode: Mode;
   data: Partial<Profile & ProfileRelations>;
   images: {
     avatar?: string;
     background?: string;
-    currentUserAvatar?: string;
   };
 };
 
@@ -95,68 +93,39 @@ export const loader: LoaderFunction = async (
   const sessionUser = await getUserByRequest(request);
   const mode: Mode = deriveMode(username, sessionUser?.user_metadata?.username);
 
-  const currentUser = sessionUser?.id
-    ? await getProfileByUserId(sessionUser.id)
-    : undefined;
-
   let images: {
     avatar?: string;
     background?: string;
-    currentUserAvatar?: string;
   } = {};
 
   if (profile.avatar !== null) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(profile.avatar);
+    const publicURL = getPublicURL(profile.avatar);
     if (publicURL !== null) {
-      images.avatar = builder
-        .resize("fill", 144, 144)
-        .dpr(2)
-        .generateUrl(publicURL);
+      images.avatar = getImageURL(publicURL, {
+        resize: { type: "fill", width: 144, height: 144 },
+      });
     }
   }
   if (profile.background !== null) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(profile.background);
+    const publicURL = getPublicURL(profile.background);
     if (publicURL !== null) {
-      images.background = builder
-        .resize("fill", 1488, 480)
-        .gravity(GravityType.north_east)
-        .dpr(2)
-        .generateUrl(publicURL);
+      images.background = getImageURL(publicURL, {
+        resize: { type: "fill", width: 1488, height: 480 },
+        gravity: GravityType.north_east,
+      });
     }
   }
-  if (
-    currentUser !== undefined &&
-    currentUser !== null &&
-    currentUser.avatar !== null
-  ) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(currentUser.avatar);
-    if (publicURL !== null) {
-      images.currentUserAvatar = builder
-        .resize("fit", 64, 64)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-  profile.memberOf.map(({ organization }) => {
-    if (organization.logo !== null) {
-      const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-        .from("images")
-        .getPublicUrl(organization.logo);
+  profile.memberOf = profile.memberOf.map((member) => {
+    if (member.organization.logo !== null) {
+      const publicURL = getPublicURL(member.organization.logo);
       if (publicURL !== null) {
-        const logo = builder
-          .resize("fit", 64, 64)
-          .gravity(GravityType.center)
-          .dpr(2)
-          .generateUrl(publicURL);
-        organization.logo = logo;
+        member.organization.logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
       }
     }
+    return member;
   });
 
   const publicFields = [
@@ -180,7 +149,7 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  return json({ mode, data, currentUser, images });
+  return json({ mode, data, images });
 };
 
 export const action: ActionFunction = async (args) => {
@@ -238,9 +207,7 @@ export const action: ActionFunction = async (args) => {
       },
     });
 
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(path);
+    const publicURL = getPublicURL(path);
 
     if (publicURL === null) {
       throw serverError({ message: "Can't access public url of image!" });
@@ -258,17 +225,15 @@ export const action: ActionFunction = async (args) => {
 
   const avatarPublicURL = formData.get("avatar");
   if (avatarPublicURL !== null && typeof avatarPublicURL === "string") {
-    images.avatar = builder
-      .resize("fit", 144, 144)
-      .dpr(2)
-      .generateUrl(avatarPublicURL);
+    images.avatar = getImageURL(avatarPublicURL, {
+      resize: { type: "fit", width: 144, height: 144 },
+    });
   }
   const backgroundPublicURL = formData.get("background");
   if (backgroundPublicURL !== null && typeof backgroundPublicURL === "string") {
-    images.background = builder
-      .resize("fit", 1488, 480)
-      .dpr(2)
-      .generateUrl(backgroundPublicURL);
+    images.background = getImageURL(backgroundPublicURL, {
+      resize: { type: "fit", width: 1488, height: 480 },
+    });
   }
 
   return json({ images });
@@ -303,10 +268,7 @@ function hasWebsiteOrSocialService(
 
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
-  let initialsOfCurrentUser = "";
-  if (loaderData.currentUser !== undefined) {
-    initialsOfCurrentUser = getInitials(loaderData.currentUser); // TODO: fix type error
-  }
+
   const initials = getInitials(loaderData.data); // TODO: fix type error
   const fullName = getFullName(loaderData.data);
 
@@ -488,17 +450,16 @@ export default function Index() {
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">Hi, ich bin {fullName}</h1>
               </div>
-              {loaderData.mode === "owner" &&
-                loaderData.currentUser !== undefined && (
-                  <div className="flex-initial lg:pl-4 pt-3 mb-6">
-                    <Link
-                      className="btn btn-outline btn-primary"
-                      to={`/profile/${loaderData.currentUser.username}/settings`}
-                    >
-                      Profil bearbeiten
-                    </Link>
-                  </div>
-                )}
+              {loaderData.mode === "owner" && (
+                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                  <Link
+                    className="btn btn-outline btn-primary"
+                    to={`/profile/${loaderData.data.username}/settings`}
+                  >
+                    Profil bearbeiten
+                  </Link>
+                </div>
+              )}
             </div>
             {typeof loaderData.data.bio === "string" && (
               <p
@@ -588,17 +549,16 @@ export default function Index() {
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Organisationen</h3>
                   </div>
-                  {loaderData.mode === "owner" &&
-                    loaderData.currentUser !== undefined && (
-                      <div className="flex-initial pl-4">
-                        <Link
-                          to="/organization/create"
-                          className="btn btn-outline btn-primary"
-                        >
-                          Organisation anlegen
-                        </Link>
-                      </div>
-                    )}
+                  {loaderData.mode === "owner" && (
+                    <div className="flex-initial pl-4">
+                      <Link
+                        to="/organization/create"
+                        className="btn btn-outline btn-primary"
+                      >
+                        Organisation anlegen
+                      </Link>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.data.memberOf.map(({ organization }, index) => (

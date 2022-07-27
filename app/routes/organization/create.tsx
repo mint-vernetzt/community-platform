@@ -1,14 +1,13 @@
-import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { z } from "zod";
+import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
-import Input from "~/components/FormElements/Input/Input";
-import { createOrganizationOnProfile } from "~/profile.server";
 import { forbidden } from "remix-utils";
-import { generateOrganizationSlug } from "~/utils";
+import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
 import useCSRF from "~/lib/hooks/useCSRF";
+import { createOrganizationOnProfile } from "~/profile.server";
+import { generateOrganizationSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
 
 const schema = z.object({

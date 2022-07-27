@@ -1,54 +1,6 @@
-import { GravityType } from "imgproxy/dist/types";
-import {
-  Form,
-  NavLink,
-  Link,
-  LoaderFunction,
-  Outlet,
-  useLoaderData,
-} from "remix";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { builder } from "~/imgproxy";
-import { getInitials } from "~/lib/profile/getInitials";
-import { getProfileByUserId } from "~/profile.server";
-import { supabaseAdmin } from "~/supabase";
-import { handleAuthorization } from "./settings/utils.server";
+import { NavLink, Outlet } from "remix";
 
-type LoaderData = {
-  username: string;
-  initials: string;
-  images: {
-    avatar?: string;
-  };
-};
-
-export const loader: LoaderFunction = async (args) => {
-  const { currentUser } = await handleAuthorization(args);
-  const profile = await getProfileByUserId(currentUser.id);
-
-  const images: { avatar?: string } = {};
-
-  if (profile.avatar) {
-    const { publicURL } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .getPublicUrl(profile.avatar);
-    if (publicURL) {
-      images.avatar = builder
-        .resize("fill", 144, 144)
-        .gravity(GravityType.north_east)
-        .dpr(2)
-        .generateUrl(publicURL);
-    }
-  }
-
-  const initials = getInitials(profile);
-
-  return { username: profile.username, images, initials };
-};
-
-function Index() {
-  const loaderData = useLoaderData<LoaderData>();
-
+function Settings() {
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -157,4 +109,4 @@ function Index() {
   );
 }
 
-export default Index;
+export default Settings;

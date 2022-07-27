@@ -1,10 +1,5 @@
 import { Profile } from "@prisma/client";
-import {
-  ActionFunction,
-  LoaderFunction,
-  useLoaderData,
-  useParams,
-} from "remix";
+import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
 import { forbidden } from "remix-utils";
@@ -12,13 +7,10 @@ import { z } from "zod";
 import { deleteUserByUid } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { handleAuthorization } from "~/lib/auth/handleAuth";
-import { getInitials } from "~/lib/profile/getInitials";
 import {
   getOrganisationsOnProfileByUserId,
   getProfileByUserId,
 } from "~/profile.server";
-import Header from "../../Header";
-import ProfileMenu from "../../ProfileMenu";
 
 const schema = z.object({
   id: z.string().uuid(),
@@ -28,18 +20,14 @@ const schema = z.object({
 });
 
 type LoaderData = {
-  profile: Pick<Profile, "firstName" | "lastName" | "id">;
+  profile: Pick<Profile, "id">;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  const profile = await getProfileByUserId(currentUser.id, [
-    "firstName",
-    "lastName",
-    "id",
-  ]);
+  const profile = await getProfileByUserId(currentUser.id, ["id"]);
 
   return { profile };
 };
@@ -86,8 +74,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function Index() {
   const { profile } = useLoaderData<LoaderData>();
-  const { username } = useParams();
-  const initials = getInitials(profile);
 
   return (
     <>
