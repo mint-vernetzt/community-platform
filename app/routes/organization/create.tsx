@@ -1,14 +1,13 @@
-import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
-import { z } from "zod";
+import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
-import Input from "~/components/FormElements/Input/Input";
-import { createOrganizationOnProfile } from "~/profile.server";
 import { forbidden } from "remix-utils";
-import { generateOrganizationSlug } from "~/utils";
+import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
 import useCSRF from "~/lib/hooks/useCSRF";
+import { createOrganizationOnProfile } from "~/profile.server";
+import { generateOrganizationSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
 
 const schema = z.object({
@@ -75,17 +74,6 @@ export default function Create() {
 
   return (
     <>
-      <header className="shadow-md mb-8">
-        <div className="container relative z-10">
-          <div className="py-3 flex flex-row items-center">
-            <div>
-              <Link to="/explore">
-                <HeaderLogo />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
       <div className="container relative pb-44">
         <h4 className="font-semibold">
           Organisation, Netzwerk, Projekt hinzufügen

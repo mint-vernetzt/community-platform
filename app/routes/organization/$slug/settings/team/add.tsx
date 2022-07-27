@@ -55,7 +55,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader: LoaderFunction = async () => {
   return redirect(".");
 };
 

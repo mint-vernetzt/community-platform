@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "remix";
 
-function Settings() {
+function Index() {
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -12,7 +12,7 @@ function Settings() {
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Organisation bearbeiten</h3>
+              <h3 className="font-bold mb-7">Profil bearbeiten</h3>
               <menu>
                 <ul>
                   <li>
@@ -25,28 +25,20 @@ function Settings() {
                   </li>
                   <li>
                     <NavLink
-                      to="team"
+                      to="security"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Das Team
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="network"
-                      className={({ isActive }) => getClassName(isActive)}
-                    >
-                      Das Netzwerk
+                      Login und Sicherheit
                     </NavLink>
                   </li>
                 </ul>
                 <hr className="border-neutral-400 my-4 lg:my-8" />
                 <div>
                   <NavLink
-                    to="./delete"
+                    to="delete"
                     className={({ isActive }) => getClassName(isActive)}
                   >
-                    Organisation oder Projekt löschen
+                    Profil löschen
                   </NavLink>
                 </div>
               </menu>
@@ -109,4 +101,4 @@ function Settings() {
   );
 }
 
-export default Settings;
+export default Index;

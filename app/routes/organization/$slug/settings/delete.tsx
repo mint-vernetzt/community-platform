@@ -27,7 +27,7 @@ const schema = z.object({
 });
 
 type LoaderData = {
-  profile: Pick<Profile, "id" | "firstName" | "lastName" | "username">;
+  profile: Pick<Profile, "id" | "username">;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -50,12 +50,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw forbidden({ message: "not allowed" });
   }
 
-  const profile = await getProfileByUserId(loggedInUser.id, [
-    "id",
-    "firstName",
-    "lastName",
-    "username",
-  ]);
+  const profile = await getProfileByUserId(loggedInUser.id, ["id", "username"]);
 
   return { profile };
 };
