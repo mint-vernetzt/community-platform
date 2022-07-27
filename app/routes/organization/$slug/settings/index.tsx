@@ -24,7 +24,7 @@ import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import { prismaClient } from "~/prisma";
 import { getProfileByUserId } from "~/profile.server";
 import {
-  bio,
+  multiline,
   FormError,
   getFormValues,
   phone,
@@ -46,9 +46,9 @@ const organizationSchema = object({
   linkedin: social("linkedinOrganization"),
   twitter: social("twitter"),
   xing: social("xingOrganization"),
-  bio: bio(),
+  bio: multiline(),
   types: array(string().required()).required(),
-  quote: string(),
+  quote: multiline(),
   quoteAuthor: string(),
   quoteAuthorInformation: string(),
   supportedBy: array(string().required()).required(),

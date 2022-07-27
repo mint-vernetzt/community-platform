@@ -34,7 +34,7 @@ import {
 } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
 import {
-  bio,
+  multiline,
   FormError,
   getFormValues,
   phone,
@@ -52,7 +52,7 @@ const profileSchema = object({
   lastName: string().required(),
   email: string().email(),
   phone: phone(),
-  bio: bio(),
+  bio: multiline(),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
   offers: array(string().required()).required(),

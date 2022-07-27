@@ -76,7 +76,7 @@ export function social(service: keyof typeof socialValidation) {
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
-export function bio() {
+export function multiline() {
   return string().transform(removeMoreThan2ConsecutiveLineBreaks);
 }
 
