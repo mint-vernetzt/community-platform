@@ -1,14 +1,13 @@
 import { InferType } from "yup";
 import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
-import { capitalizeFirstLetter } from "./lib/string/transform";
+import { capitalizeFirstLetter } from "../string/transform";
 
-// TODO: Find better place (outsource)
 function getListOperationName(operation: string, key: string) {
   const ucSingularKey = capitalizeFirstLetter(key.slice(0, -1));
   return `${operation}${ucSingularKey}`;
 }
 
-// TODO: Find better place (outsource) and better name
+// TODO: Find better name
 function addListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
   key: keyof T,
   value: string,
@@ -20,7 +19,7 @@ function addListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
   };
 }
 
-// TODO: Find better place (outsource) and better name
+// TODO: Find better name
 function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
   key: keyof T,
   value: string,
@@ -32,7 +31,7 @@ function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
   };
 }
 
-// TODO: Find better place (outsource) and better name
+// TODO: Find better name
 export function objectListOperationResolver<
   T extends InferType<OptionalObjectSchema<AnyObject>>
 >(object: T, key: keyof T, formData: FormData) {

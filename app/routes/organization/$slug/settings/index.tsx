@@ -13,7 +13,7 @@ import {
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
-import { objectListOperationResolver } from "~/addComponentUtils";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -31,7 +31,7 @@ import {
   social,
   validateForm,
   website,
-} from "~/yupUtils";
+} from "~/lib/utils/yup";
 
 const organizationSchema = object({
   name: string().required(),

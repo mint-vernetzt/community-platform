@@ -13,8 +13,6 @@ export type FormError = {
   };
 };
 
-// TODO: find better place
-
 const phoneValidation = {
   match: /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
   error:
@@ -82,7 +80,6 @@ export function multiline() {
   return string().transform(removeMoreThan2ConsecutiveLineBreaks);
 }
 
-// TODO: Find better place (outsource)
 export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
   request: Request,
   schema: T
@@ -100,7 +97,6 @@ export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
   return parsedFormData;
 }
 
-// TODO: find better place (outsource)
 export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
   schema: T,
   parsedFormData: InferType<T>
