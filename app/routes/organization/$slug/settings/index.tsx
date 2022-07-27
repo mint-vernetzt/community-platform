@@ -12,7 +12,8 @@ import {
   useTransition,
 } from "remix";
 import { badRequest, forbidden, serverError } from "remix-utils";
-import { array, InferType, object, string, ValidationError } from "yup";
+import { array, InferType, object, string } from "yup";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -20,106 +21,47 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import { addUrlPrefix } from "~/lib/string/addUrlPrefix";
-import { removeMoreThan2ConescutiveLinbreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
-import { capitalizeFirstLetter } from "~/lib/string/transform";
 import { prismaClient } from "~/prisma";
-import { getAreas, getProfileByUserId } from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
+import {
+  multiline,
+  FormError,
+  getFormValues,
+  phone,
+  social,
+  validateForm,
+  website,
+} from "~/lib/utils/yup";
 
 const organizationSchema = object({
   name: string().required(),
   email: string().email(),
-  phone: string().matches(
-    /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
-    "Deine Eingabe entspricht nicht dem Format einer Telefonnummer (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
-  ),
+  phone: phone(),
   street: string(),
   streetNumber: string(),
   zipCode: string(),
   city: string(),
-  website: string().matches(
-    /(https?:\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format einer Website URL."
-  ),
-  facebook: string().matches(
-    /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>)."
-  ),
-  linkedin: string().matches(
-    /(https?:\/\/)?(.*\.)?linkedin.com\/company\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (https://www.linkedin.com/company/<Nutzername>)."
-  ),
-  twitter: string().matches(
-    /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>)."
-  ),
-  xing: string().matches(
-    /(https?:\/\/)?(.*\.)?xing.com\/pages\/.+\/?$|^$/,
-    "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/pages/<Nutzername>)."
-  ),
-  bio: string(),
+  website: website(),
+  facebook: social("facebook"),
+  linkedin: social("linkedin"),
+  twitter: social("twitter"),
+  xing: social("xing"),
+  bio: multiline(),
   types: array(string().required()).required(),
-  quote: string(),
+  quote: multiline(),
   quoteAuthor: string(),
   quoteAuthorInformation: string(),
-  supportedBy: array(string()),
-  publicFields: array(string()),
+  supportedBy: array(string().required()).required(),
+  publicFields: array(string().required()).required(),
   areas: array(string().required()).required(),
   focuses: array(string().required()).required(),
 });
 
-type Error = {
-  type: string;
-  message: string;
-};
-
-type FormError = {
-  [key: string]: {
-    message: string;
-    errors?: Error[];
-  };
-};
-
+type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
-async function validateForm(form: OrganizationFormType) {
-  let errors: FormError = {};
-
-  try {
-    await organizationSchema.validate(form, { abortEarly: false });
-  } catch (validationError) {
-    if (validationError instanceof ValidationError) {
-      validationError.inner.forEach((validationError) => {
-        if (validationError.path) {
-          if (!errors[validationError.path]) {
-            errors[validationError.path] = {
-              message: validationError.message,
-              errors: [],
-            };
-          } else {
-            errors[
-              validationError.path
-            ].message += `, ${validationError.message}`;
-          }
-
-          errors[validationError.path].errors?.push({
-            type: (validationError.type as string) ?? "",
-            message: validationError.message,
-          });
-        }
-      });
-    }
-  }
-
-  return Object.keys(errors).length === 0 ? false : errors;
-}
-
 type LoaderData = {
-  organization: Omit<OrganizationFormType, "types" | "areas" | "focuses"> & {
-    types: string[];
-    areas: string[];
-    focuses: string[];
-  };
+  organization: OrganizationFormType;
   organizationTypes: OrganizationType[];
   areas: Area[];
   focuses: Focus[];
@@ -159,14 +101,25 @@ export const loader: LoaderFunction = async (args) => {
     return organization;
   };
 
+  // TODO: find better place
   const getOrganizationTypes = async () => {
     const organizationTypes = await prismaClient.organizationType.findMany();
     return organizationTypes;
   };
 
+  // TODO: find better place
   const getFocuses = async () => {
     const focuses = await prismaClient.focus.findMany();
     return focuses;
+  };
+
+  // TODO: find better place
+  const getAreas = async () => {
+    return await prismaClient.area.findMany({
+      include: {
+        state: true,
+      },
+    });
   };
 
   const { params, request } = args;
@@ -215,6 +168,13 @@ export const loader: LoaderFunction = async (args) => {
   };
 };
 
+type ActionData = {
+  organization: OrganizationFormType;
+  errors: FormError | null;
+  lastSubmit: string;
+  updated: boolean;
+};
+
 export const action: ActionFunction = async (args) => {
   const getOrganization = async (slug: string, userId: string) => {
     const organization = await prismaClient.organization.findFirst({
@@ -228,98 +188,6 @@ export const action: ActionFunction = async (args) => {
         },
       },
     });
-    return organization;
-  };
-
-  const createOrganizationDataToUpdate = async (request: Request) => {
-    const formData = await request.clone().formData();
-
-    const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      phone: formData.get("phone") as string,
-      street: formData.get("street") as string,
-      streetNumber: formData.get("streetNumber") as string,
-      zipCode: formData.get("zipCode") as string,
-      city: formData.get("city") as string,
-      website: addUrlPrefix(formData.get("website") as string),
-      logo: formData.get("logo") as string,
-      background: formData.get("background") as string,
-      facebook: addUrlPrefix(formData.get("facebook") as string),
-      linkedin: addUrlPrefix(formData.get("linkedin") as string),
-      twitter: addUrlPrefix(formData.get("twitter") as string),
-      xing: addUrlPrefix(formData.get("xing") as string),
-      bio: formData.get("bio") as string,
-      types: (formData.getAll("types") ?? []) as string[],
-      focuses: (formData.getAll("focuses") ?? []) as string[],
-      quote: formData.get("quote") as string,
-      quoteAuthor: formData.get("quoteAuthor") as string,
-      quoteAuthorInformation: formData.get("quoteAuthorInformation") as string,
-      supportedBy: (formData.getAll("supportedBy") ?? []) as string[],
-      publicFields: (formData.getAll("publicFields") ?? []) as string[],
-      // teamMembers: (formData.getAll("teamMembers") ?? []) as string[],
-      // memberOf: (formData.getAll("memberOf") ?? []) as string[],
-      // networkMembers: (formData.getAll("networkMembers") ?? []) as string[],
-      areas: (formData.getAll("areas") ?? []) as string[],
-    };
-
-    return data;
-  };
-
-  const getListOperationName = (operation: string, name: string) => {
-    const ucSingularName = capitalizeFirstLetter(name.slice(0, -1));
-    return `${operation}${ucSingularName}`;
-  };
-
-  const addListEntry = (
-    name: keyof OrganizationFormType,
-    value: string,
-    organization: OrganizationFormType
-  ) => {
-    return {
-      ...organization,
-      [name]: [...(organization[name] as string[]), value],
-    };
-  };
-
-  const removeListEntry = (
-    name: keyof OrganizationFormType,
-    value: string,
-    organization: OrganizationFormType
-  ) => {
-    return {
-      ...organization,
-      [name]: (organization[name] as string[]).filter(
-        (v) => v !== value
-      ) as string[],
-    };
-  };
-
-  const organizationListOperationResolver = (
-    organization: OrganizationFormType,
-    name: keyof OrganizationFormType,
-    formData: FormData
-  ) => {
-    const submit = formData.get("submit");
-    const addOperation = getListOperationName("add", name);
-
-    if (submit === addOperation && formData.get(addOperation) !== "") {
-      return addListEntry(
-        name,
-        (formData.get(addOperation) as string) ?? "",
-        organization
-      );
-    }
-
-    const removeOperation = getListOperationName("remove", name);
-    if (formData.get(removeOperation) !== "") {
-      return removeListEntry(
-        name,
-        (formData.get(removeOperation) as string) ?? "",
-        organization
-      );
-    }
-
     return organization;
   };
 
@@ -344,17 +212,22 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  let data = await createOrganizationDataToUpdate(request);
-  data["bio"] = removeMoreThan2ConescutiveLinbreaks(data["bio"] ?? "");
+  let parsedFormData = await getFormValues<OrganizationSchemaType>(
+    request,
+    organizationSchema
+  );
 
-  const errors = await validateForm(data);
+  let { errors, data } = await validateForm<OrganizationSchemaType>(
+    organizationSchema,
+    parsedFormData
+  );
 
   let updated = false;
 
   const formData = await request.clone().formData();
   const submit = formData.get("submit");
   if (submit === "submit") {
-    if (errors === false) {
+    if (errors === null) {
       try {
         await prismaClient.organization.update({
           where: {
@@ -424,16 +297,15 @@ export const action: ActionFunction = async (args) => {
       "types",
       "focuses",
       "supportedBy",
-      // "memberOf",
-      // "networkMembers",
-      // "teamMembers",
       "areas",
     ];
 
-    listData.forEach((name) => {
-      // TODO: fix type issue
-      // @ts-ignore
-      data = organizationListOperationResolver(data, name, formData);
+    listData.forEach((key) => {
+      data = objectListOperationResolver<OrganizationFormType>(
+        data,
+        key,
+        formData
+      );
     });
   }
 
@@ -455,7 +327,7 @@ function Index() {
   } = useLoaderData<LoaderData>();
 
   const transition = useTransition();
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
@@ -472,7 +344,7 @@ function Index() {
     formState: { isDirty },
   } = methods;
 
-  const errors = actionData?.errors as FormError;
+  const errors = actionData?.errors;
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     return {
@@ -510,8 +382,6 @@ function Index() {
           .filter((focus) => organization.focuses.includes(focus.id))
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
-
-  console.log(selectedFocuses);
 
   React.useEffect(() => {
     if (isSubmitting) {

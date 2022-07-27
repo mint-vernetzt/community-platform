@@ -1,5 +1,6 @@
+import { Offer, Profile } from "@prisma/client";
 import * as React from "react";
-
+import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
   Form,
@@ -12,12 +13,18 @@ import {
   useTransition,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
-
+import { array, InferType, object, string } from "yup";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
+import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import useCSRF from "~/lib/hooks/useCSRF";
+import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
+import { getInitials } from "~/lib/profile/getInitials";
+import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import {
   AreasWithState,
   getAllOffers,
@@ -25,28 +32,42 @@ import {
   getProfileByUserId,
   updateProfileByUserId,
 } from "~/profile.server";
-import {
-  ProfileError,
-  ProfileFormFields,
-  ProfileFormType,
-  validateProfile,
-} from "./yupSchema";
-
-import { Offer } from "@prisma/client";
-import { FormProvider, useForm } from "react-hook-form";
-import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import useCSRF from "~/lib/hooks/useCSRF";
-import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import {
-  createProfileFromFormData,
-  profileListOperationResolver,
-} from "~/lib/profile/form";
-import { getInitials } from "~/lib/profile/getInitials";
-import { socialMediaServices } from "~/lib/profile/socialMediaServices";
-import { removeMoreThan2ConescutiveLinbreaks as removeMoreThan2ConescutiveLinebreaks } from "~/lib/string/removeMoreThan2ConescutiveLinbreaks";
 import { validateCSRFToken } from "~/utils.server";
+import {
+  multiline,
+  FormError,
+  getFormValues,
+  phone,
+  social,
+  validateForm,
+  website,
+} from "~/lib/utils/yup";
 import Header from "../Header";
 import ProfileMenu from "../ProfileMenu";
+
+const profileSchema = object({
+  academicTitle: string(),
+  position: string(),
+  firstName: string().required(),
+  lastName: string().required(),
+  email: string().email(),
+  phone: phone(),
+  bio: multiline(),
+  areas: array(string().required()).required(),
+  skills: array(string().required()).required(),
+  offers: array(string().required()).required(),
+  interests: array(string().required()),
+  seekings: array(string().required()).required(),
+  publicFields: array(string().required()),
+  website: website(),
+  facebook: social("facebook"),
+  linkedin: social("linkedin"),
+  twitter: social("twitter"),
+  xing: social("xing"),
+});
+
+type ProfileSchemaType = typeof profileSchema;
+type ProfileFormType = InferType<typeof profileSchema>;
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -82,6 +103,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
+  const ProfileFormFields = Object.keys(
+    profileSchema.fields
+  ) as (keyof Profile)[];
   let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
   let profile = makeFormProfileFromDbProfile(dbProfile);
 
@@ -93,7 +117,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 type ActionData = {
   profile: ProfileFormType;
-  errors: ProfileError | boolean;
+  errors: FormError | null;
   lastSubmit: string;
   updated: boolean;
 };
@@ -102,23 +126,25 @@ export const action: ActionFunction = async ({
   request,
   params,
 }): Promise<ActionData> => {
+  await validateCSRFToken(request);
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.clone().formData();
-  let profile = createProfileFromFormData(formData);
-  profile["bio"] = removeMoreThan2ConescutiveLinebreaks(profile["bio"] ?? "");
-
-  await validateCSRFToken(request);
-
-  const errors = await validateProfile(profile);
+  let parsedFormData = await getFormValues<ProfileSchemaType>(
+    request,
+    profileSchema
+  );
+  let { errors, data } = await validateForm<ProfileSchemaType>(
+    profileSchema,
+    parsedFormData
+  );
   let updated = false;
 
   const submit = formData.get("submit");
   if (submit === "submit") {
-    if (errors === false) {
-      delete profile.email;
-      await updateProfileByUserId(currentUser.id, profile);
-
+    if (errors === null) {
+      delete data.email;
+      await updateProfileByUserId(currentUser.id, data);
       updated = true;
     }
   } else {
@@ -131,12 +157,12 @@ export const action: ActionFunction = async ({
     ];
 
     listData.forEach((name) => {
-      profile = profileListOperationResolver(profile, name, formData);
+      data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
 
   return {
-    profile,
+    profile: data,
     errors,
     lastSubmit: (formData.get("submit") as string) ?? "",
     updated,
@@ -155,7 +181,7 @@ export default function Index() {
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
-  const errors = actionData?.errors as ProfileError;
+  const errors = actionData?.errors;
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
