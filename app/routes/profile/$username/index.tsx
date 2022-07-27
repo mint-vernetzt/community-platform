@@ -355,7 +355,7 @@ export default function Index() {
                     </li>
                     <li>
                       <Link
-                        to={`/profile/${loaderData.currentUser.username}/edit`}
+                        to={`/profile/${loaderData.currentUser.username}/settings`}
                       >
                         Profil bearbeiten
                       </Link>
@@ -555,7 +555,7 @@ export default function Index() {
                   <div className="flex-initial lg:pl-4 pt-3 mb-6">
                     <Link
                       className="btn btn-outline btn-primary"
-                      to={`/profile/${loaderData.currentUser.username}/edit`}
+                      to={`/profile/${loaderData.currentUser.username}/settings`}
                     >
                       Profil bearbeiten
                     </Link>
