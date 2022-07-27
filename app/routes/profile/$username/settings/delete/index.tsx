@@ -17,8 +17,8 @@ import {
   getOrganisationsOnProfileByUserId,
   getProfileByUserId,
 } from "~/profile.server";
-import Header from "../Header";
-import ProfileMenu from "../ProfileMenu";
+import Header from "../../Header";
+import ProfileMenu from "../../ProfileMenu";
 
 const schema = z.object({
   id: z.string().uuid(),

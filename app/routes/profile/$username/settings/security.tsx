@@ -133,7 +133,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 };
 
-export default function Index() {
+export default function Security() {
   const { username } = useParams();
   const transition = useTransition();
   const { profile } = useLoaderData<LoaderData>();
