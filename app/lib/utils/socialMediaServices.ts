@@ -1,14 +1,13 @@
-import { OrganizationFormType } from "~/routes/organization/$slug/settings/general";
-import { ProfileFormType } from "~/routes/profile/$username/settings/general";
+import { Organization, Profile } from "@prisma/client";
 
 type SocialMediaService = {
   id:
     | keyof Pick<
-        OrganizationFormType,
+        Organization,
         "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
       >
     | keyof Pick<
-        ProfileFormType,
+        Profile,
         "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
       >;
   label: string;

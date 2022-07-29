@@ -14,7 +14,6 @@ import {
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { array, InferType, object, string } from "yup";
-import { objectListOperationResolver } from "~/lib/utils/components";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -23,8 +22,17 @@ import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { getInitials } from "~/lib/profile/getInitials";
-import { socialMediaServices } from "~/lib/profile/socialMediaServices";
+import { objectListOperationResolver } from "~/lib/utils/components";
+import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import {
+  FormError,
+  getFormValues,
+  multiline,
+  phone,
+  social,
+  validateForm,
+  website,
+} from "~/lib/utils/yup";
 import {
   AreasWithState,
   getAllOffers,
@@ -33,17 +41,6 @@ import {
   updateProfileByUserId,
 } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
-import {
-  multiline,
-  FormError,
-  getFormValues,
-  phone,
-  social,
-  validateForm,
-  website,
-} from "~/lib/utils/yup";
-import Header from "../Header";
-import ProfileMenu from "../ProfileMenu";
 
 const profileSchema = object({
   academicTitle: string(),
@@ -69,7 +66,7 @@ const profileSchema = object({
 });
 
 type ProfileSchemaType = typeof profileSchema;
-export type ProfileFormType = InferType<typeof profileSchema>;
+type ProfileFormType = InferType<typeof profileSchema>;
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {

@@ -19,8 +19,8 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import { objectListOperationResolver } from "~/lib/utils/components";
+import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import {
   FormError,
   getFormValues,
@@ -59,7 +59,7 @@ const organizationSchema = object({
 });
 
 type OrganizationSchemaType = typeof organizationSchema;
-export type OrganizationFormType = InferType<typeof organizationSchema>;
+type OrganizationFormType = InferType<typeof organizationSchema>;
 
 type LoaderData = {
   organization: OrganizationFormType;
