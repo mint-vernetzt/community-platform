@@ -560,7 +560,7 @@ export default function Index() {
 
                   {isFormChanged && (
                     <Link
-                      to={`/profile/${username}/edit`}
+                      to={`/profile/${username}/settings`}
                       reloadDocument
                       className={`btn btn-link`}
                     >

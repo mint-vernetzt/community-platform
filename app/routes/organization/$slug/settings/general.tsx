@@ -666,7 +666,7 @@ function Index() {
 
                 {isFormChanged && (
                   <Link
-                    to={`/organization/${slug}/edit`}
+                    to={`/organization/${slug}/settings`}
                     reloadDocument
                     className={`btn btn-link`}
                   >
