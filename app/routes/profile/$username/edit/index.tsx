@@ -24,7 +24,7 @@ import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/T
 import useCSRF from "~/lib/hooks/useCSRF";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getInitials } from "~/lib/profile/getInitials";
-import { socialMediaServices } from "~/lib/profile/socialMediaServices";
+import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import {
   AreasWithState,
   getAllOffers,

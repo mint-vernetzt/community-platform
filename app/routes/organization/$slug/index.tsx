@@ -293,6 +293,8 @@ const ExternalServices: ExternalService[] = [
   "linkedin",
   "facebook",
   "twitter",
+  "youtube",
+  "instagram",
   "xing",
 ];
 function hasWebsiteOrSocialService(
@@ -576,7 +578,6 @@ export default function Index() {
                   </div>
                 </div>
               )}
-            {/* TODO: Add "MINT-Schwerpunkte*/}
             {loaderData.organization.focuses &&
               loaderData.organization.focuses.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
