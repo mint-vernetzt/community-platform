@@ -112,6 +112,12 @@
         "twitter": {
           "type": ["string", "null"]
         },
+        "youtube": {
+          "type": ["string", "null"]
+        },
+        "instagram": {
+          "type": ["string", "null"]
+        },
         "xing": {
           "type": ["string", "null"]
         },
@@ -223,6 +229,12 @@
           "type": ["string", "null"]
         },
         "twitter": {
+          "type": ["string", "null"]
+        },
+        "youtube": {
+          "type": ["string", "null"]
+        },
+        "instagram": {
           "type": ["string", "null"]
         },
         "xing": {
