@@ -550,7 +550,9 @@ function Index() {
                 label: focus.title,
                 value: focus.id,
               }))}
-              options={focusOptions}
+              options={focusOptions.filter((option) => {
+                return !organization.focuses.includes(option.value);
+              })}
               isPublic={organization.publicFields?.includes("focuses")}
             />
           </div>
