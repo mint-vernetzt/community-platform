@@ -457,7 +457,7 @@ function Index() {
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
+          <h4 className="mb-4 font-semibold">Anschrift Hauptsitz</h4>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
