@@ -1,7 +1,11 @@
-import { ProfileFormType } from "~/routes/profile/$username/edit/yupSchema";
+import { OrganizationFormType } from "~/routes/organization/$slug/settings/general";
+import { ProfileFormType } from "~/routes/profile/$username/settings/general";
 
 type SocialMediaService = {
-  id: keyof ProfileFormType;
+  id: keyof Pick<
+    OrganizationFormType,
+    "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+  > /*| keyof Pick<ProfileFormType, "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing">*/;
   label: string;
   placeholder: string;
   organizationPlaceholder: string;
@@ -25,6 +29,18 @@ export const socialMediaServices: SocialMediaService[] = [
     label: "Twitter",
     placeholder: "twitter.com/<Nutzername>",
     organizationPlaceholder: "twitter.com/<Organisationsname>",
+  },
+  {
+    id: "youtube",
+    label: "youtube",
+    placeholder: "youtube.com/channel/<Nutzername>",
+    organizationPlaceholder: "youtube.com/channel/<Organisationsname>",
+  },
+  {
+    id: "instagram",
+    label: "instagram",
+    placeholder: "instagram.com/<Nutzername>",
+    organizationPlaceholder: "instagram.com/<Organisationsname>",
   },
   {
     id: "xing",

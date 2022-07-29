@@ -44,6 +44,8 @@ const organizationSchema = object({
   facebook: social("facebook"),
   linkedin: social("linkedin"),
   twitter: social("twitter"),
+  youtube: social("youtube"),
+  instagram: social("instagram"),
   xing: social("xing"),
   bio: multiline(),
   types: array(string().required()).required(),
@@ -57,7 +59,7 @@ const organizationSchema = object({
 });
 
 type OrganizationSchemaType = typeof organizationSchema;
-type OrganizationFormType = InferType<typeof organizationSchema>;
+export type OrganizationFormType = InferType<typeof organizationSchema>;
 
 type LoaderData = {
   organization: OrganizationFormType;

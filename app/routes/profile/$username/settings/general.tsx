@@ -67,7 +67,7 @@ const profileSchema = object({
 });
 
 type ProfileSchemaType = typeof profileSchema;
-type ProfileFormType = InferType<typeof profileSchema>;
+export type ProfileFormType = InferType<typeof profileSchema>;
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
