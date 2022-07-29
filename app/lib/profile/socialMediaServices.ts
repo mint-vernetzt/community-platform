@@ -2,10 +2,15 @@ import { OrganizationFormType } from "~/routes/organization/$slug/settings/gener
 import { ProfileFormType } from "~/routes/profile/$username/settings/general";
 
 type SocialMediaService = {
-  id: keyof Pick<
-    OrganizationFormType,
-    "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
-  > /*| keyof Pick<ProfileFormType, "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing">*/;
+  id:
+    | keyof Pick<
+        OrganizationFormType,
+        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      >
+    | keyof Pick<
+        ProfileFormType,
+        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      >;
   label: string;
   placeholder: string;
   organizationPlaceholder: string;
@@ -32,13 +37,13 @@ export const socialMediaServices: SocialMediaService[] = [
   },
   {
     id: "youtube",
-    label: "youtube",
+    label: "YouTube",
     placeholder: "youtube.com/channel/<Nutzername>",
     organizationPlaceholder: "youtube.com/channel/<Organisationsname>",
   },
   {
     id: "instagram",
-    label: "instagram",
+    label: "Instagram",
     placeholder: "instagram.com/<Nutzername>",
     organizationPlaceholder: "instagram.com/<Organisationsname>",
   },

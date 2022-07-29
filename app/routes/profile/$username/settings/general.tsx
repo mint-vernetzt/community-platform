@@ -63,6 +63,8 @@ const profileSchema = object({
   facebook: social("facebook"),
   linkedin: social("linkedin"),
   twitter: social("twitter"),
+  youtube: social("youtube"),
+  instagram: social("instagram"),
   xing: social("xing"),
 });
 
