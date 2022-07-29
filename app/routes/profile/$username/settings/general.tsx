@@ -117,6 +117,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 type ActionData = {
   profile: ProfileFormType;
+  lastSubmit: string;
   errors: FormError | null;
   updated: boolean;
 };
@@ -162,6 +163,7 @@ export const action: ActionFunction = async ({
 
   return {
     profile: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
     errors,
     updated,
   };
@@ -226,7 +228,22 @@ export default function Index() {
         );
       }
     }
-  }, [isSubmitting, formRef]);
+    if (
+      actionData?.lastSubmit === "submit" &&
+      actionData?.errors !== undefined &&
+      actionData?.errors !== null
+    ) {
+      const errorElement = document.getElementsByName(
+        Object.keys(actionData.errors)[0]
+      );
+      const yPosition =
+        errorElement[0].getBoundingClientRect().top -
+        document.body.getBoundingClientRect().top -
+        screen.height / 2;
+      window.scrollTo(0, yPosition);
+      errorElement[0].focus({ preventScroll: true });
+    }
+  }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
 

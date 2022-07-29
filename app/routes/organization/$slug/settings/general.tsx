@@ -166,6 +166,7 @@ export const loader: LoaderFunction = async (args) => {
 
 type ActionData = {
   organization: OrganizationFormType;
+  lastSubmit: string;
   errors: FormError | null;
   updated: boolean;
 };
@@ -306,6 +307,7 @@ export const action: ActionFunction = async (args) => {
 
   return {
     organization: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
     updated,
     errors,
   };
@@ -387,9 +389,25 @@ function Index() {
         );
       }
     }
-  }, [isSubmitting, formRef]);
+    if (
+      actionData?.lastSubmit === "submit" &&
+      actionData?.errors !== undefined &&
+      actionData?.errors !== null
+    ) {
+      const errorElement = document.getElementsByName(
+        Object.keys(actionData.errors)[0]
+      );
+      const yPosition =
+        errorElement[0].getBoundingClientRect().top -
+        document.body.getBoundingClientRect().top -
+        screen.height / 2;
+      window.scrollTo(0, yPosition);
+      errorElement[0].focus({ preventScroll: true });
+    }
+  }, [isSubmitting, formRef, actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
+
   return (
     <>
       <FormProvider {...methods}>
@@ -400,12 +418,6 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <button
-            name="submit"
-            type="submit"
-            value="submit"
-            className="hidden"
-          />
           <h1 className="mb-8">Institutionelle Daten</h1>
 
           <h4 className="mb-4 font-semibold">Allgemein</h4>
