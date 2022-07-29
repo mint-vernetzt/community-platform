@@ -118,7 +118,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 type ActionData = {
   profile: ProfileFormType;
   errors: FormError | null;
-  lastSubmit: string;
   updated: boolean;
 };
 
@@ -164,7 +163,6 @@ export const action: ActionFunction = async ({
   return {
     profile: data,
     errors,
-    lastSubmit: (formData.get("submit") as string) ?? "",
     updated,
   };
 };
@@ -228,14 +226,7 @@ export default function Index() {
         );
       }
     }
-
-    if (actionData?.lastSubmit && formRef.current) {
-      const lastInput = document.getElementsByName(actionData.lastSubmit);
-      if (lastInput) {
-        lastInput[0].focus();
-      }
-    }
-  }, [isSubmitting, formRef, actionData]);
+  }, [isSubmitting, formRef]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
 

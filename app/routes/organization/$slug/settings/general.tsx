@@ -167,7 +167,6 @@ export const loader: LoaderFunction = async (args) => {
 type ActionData = {
   organization: OrganizationFormType;
   errors: FormError | null;
-  lastSubmit: string;
   updated: boolean;
 };
 
@@ -307,7 +306,6 @@ export const action: ActionFunction = async (args) => {
 
   return {
     organization: data,
-    lastSubmit: (formData.get("submit") as string) ?? "",
     updated,
     errors,
   };
@@ -389,14 +387,7 @@ function Index() {
         );
       }
     }
-
-    if (actionData?.lastSubmit && formRef.current) {
-      const lastInput = document.getElementsByName(actionData.lastSubmit);
-      if (lastInput) {
-        lastInput[0].focus();
-      }
-    }
-  }, [isSubmitting, formRef, actionData]);
+  }, [isSubmitting, formRef]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
   return (
