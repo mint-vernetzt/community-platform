@@ -642,9 +642,8 @@ function Index() {
           </p>
 
           {socialMediaServices.map((service) => (
-            <div className="w-full mb-4">
+            <div className="w-full mb-4" key={service.id}>
               <InputText
-                key={service.id}
                 {...register(service.id)}
                 id={service.id}
                 label={service.label}
