@@ -1,4 +1,4 @@
-import { Area, Offer, Organization, Profile } from "@prisma/client";
+import { Area } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
 import React, { FormEvent } from "react";
 import {
@@ -27,16 +27,13 @@ import { getInitials } from "~/lib/profile/getInitials";
 import {
   getAllOrganizations,
   getFilteredOrganizations,
-  OrganizationWithRelations,
 } from "~/organization.server";
 import {
-  AreasWithState,
   getAllOffers,
   getAllProfiles,
   getAreaById,
   getAreas,
   getFilteredProfiles,
-  ProfileWithRelations,
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -46,14 +43,23 @@ const schema = z.object({
   seekingId: z.string().optional(),
 });
 
+type TypeFromArray<T> = T extends (infer U)[] ? U : T;
+
+type Profiles = TypeFromArray<Awaited<ReturnType<typeof getAllProfiles>>>;
+type Organizations = TypeFromArray<
+  Awaited<ReturnType<typeof getAllOrganizations>>
+>;
+
+type ProfilesAndOrganizations = (
+  | TypeFromArray<Profiles>
+  | TypeFromArray<Organizations>
+)[];
+
 type LoaderData = {
   isLoggedIn: boolean;
-  profilesAndOrganizations: (
-    | ProfileWithRelations
-    | OrganizationWithRelations
-  )[];
-  areas: AreasWithState;
-  offers: Offer[];
+  profilesAndOrganizations: ProfilesAndOrganizations;
+  areas: Awaited<ReturnType<typeof getAreas>>;
+  offers: Awaited<ReturnType<typeof getAllOffers>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -143,8 +149,8 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function getCompareValues(
-  a: Profile | Organization,
-  b: Profile | Organization
+  a: { firstName: string } | { name: string },
+  b: { firstName: string } | { name: string }
 ) {
   let compareValues: { a: string; b: string } = { a: "", b: "" };
 
@@ -340,10 +346,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 type ActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema> & {
-    profilesAndOrganizations: (
-      | ProfileWithRelations
-      | OrganizationWithRelations
-    )[];
+    profilesAndOrganizations: ProfilesAndOrganizations;
   }
 >;
 
