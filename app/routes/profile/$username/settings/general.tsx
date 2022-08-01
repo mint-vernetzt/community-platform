@@ -116,8 +116,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 type ActionData = {
   profile: ProfileFormType;
-  errors: FormError | null;
   lastSubmit: string;
+  errors: FormError | null;
   updated: boolean;
 };
 
@@ -162,8 +162,8 @@ export const action: ActionFunction = async ({
 
   return {
     profile: data,
-    errors,
     lastSubmit: (formData.get("submit") as string) ?? "",
+    errors,
     updated,
   };
 };
@@ -227,12 +227,20 @@ export default function Index() {
         );
       }
     }
-
-    if (actionData?.lastSubmit && formRef.current) {
-      const lastInput = document.getElementsByName(actionData.lastSubmit);
-      if (lastInput) {
-        lastInput[0].focus();
-      }
+    if (
+      actionData?.lastSubmit === "submit" &&
+      actionData?.errors !== undefined &&
+      actionData?.errors !== null
+    ) {
+      const errorElement = document.getElementsByName(
+        Object.keys(actionData.errors)[0]
+      );
+      const yPosition =
+        errorElement[0].getBoundingClientRect().top -
+        document.body.getBoundingClientRect().top -
+        screen.height / 2;
+      window.scrollTo(0, yPosition);
+      errorElement[0].focus({ preventScroll: true });
     }
   }, [isSubmitting, formRef, actionData]);
 
@@ -551,7 +559,7 @@ export default function Index() {
 
                   {isFormChanged && (
                     <Link
-                      to={`/profile/${username}/edit`}
+                      to={`/profile/${username}/settings`}
                       reloadDocument
                       className={`btn btn-link`}
                     >

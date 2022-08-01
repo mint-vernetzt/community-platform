@@ -168,8 +168,8 @@ export const loader: LoaderFunction = async (args) => {
 
 type ActionData = {
   organization: OrganizationFormType;
-  errors: FormError | null;
   lastSubmit: string;
+  errors: FormError | null;
   updated: boolean;
 };
 
@@ -391,16 +391,29 @@ function Index() {
         );
       }
     }
+  }, [isSubmitting, formRef]);
 
-    if (actionData?.lastSubmit && formRef.current) {
-      const lastInput = document.getElementsByName(actionData.lastSubmit);
-      if (lastInput) {
-        lastInput[0].focus();
-      }
+  React.useEffect(() => {
+    if (
+      actionData?.lastSubmit === "submit" &&
+      actionData?.errors !== undefined &&
+      actionData?.errors !== null
+    ) {
+      const errorElement = document.getElementsByName(
+        Object.keys(actionData.errors)[0]
+      );
+      const yPosition =
+        errorElement[0].getBoundingClientRect().top -
+        document.body.getBoundingClientRect().top -
+        window.innerHeight / 2;
+      window.scrollTo(0, yPosition);
+
+      errorElement[0].focus({ preventScroll: true });
     }
-  }, [isSubmitting, formRef, actionData]);
+  }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
+
   return (
     <>
       <FormProvider {...methods}>
@@ -411,12 +424,6 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <button
-            name="submit"
-            type="submit"
-            value="submit"
-            className="hidden"
-          />
           <h1 className="mb-8">Institutionelle Daten</h1>
 
           <h4 className="mb-4 font-semibold">Allgemein</h4>
@@ -561,7 +568,9 @@ function Index() {
                 label: focus.title,
                 value: focus.id,
               }))}
-              options={focusOptions}
+              options={focusOptions.filter((option) => {
+                return !organization.focuses.includes(option.value);
+              })}
               isPublic={organization.publicFields?.includes("focuses")}
             />
           </div>
@@ -663,7 +672,7 @@ function Index() {
 
                 {isFormChanged && (
                   <Link
-                    to={`/organization/${slug}/edit`}
+                    to={`/organization/${slug}/settings`}
                     reloadDocument
                     className={`btn btn-link`}
                   >
