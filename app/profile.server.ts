@@ -254,10 +254,10 @@ export async function getFilteredProfiles(
   offerId: string | undefined,
   seekingId: string | undefined
 ) {
-  let queries = [],
-    areaQuery,
-    offerQuery,
-    seekingQuery;
+  let queries = [];
+  let areaQuery = {};
+  let offerQuery = {};
+  let seekingQuery = {};
 
   if (areaToFilter) {
     if (areaToFilter.type === "country") {
@@ -267,8 +267,7 @@ export async function getFilteredProfiles(
         },
       };
       // TODO: Order by area type: country -> state -> district
-    }
-    if (areaToFilter.type === "state") {
+    } else if (areaToFilter.type === "state") {
       areaQuery = {
         OR: [
           {
@@ -292,8 +291,7 @@ export async function getFilteredProfiles(
         ],
       };
       // TODO: Order by area type: state -> district -> country
-    }
-    if (areaToFilter.type === "district") {
+    } else if (areaToFilter.type === "district") {
       areaQuery = {
         OR: [
           {
@@ -358,7 +356,7 @@ export async function getFilteredProfiles(
   }
   const result = await prismaClient.profile.findMany({
     where: {
-      AND: queries, // TODO: Solve type issue
+      AND: queries,
     },
     select: {
       firstName: true,
