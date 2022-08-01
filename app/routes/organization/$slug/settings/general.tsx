@@ -389,6 +389,9 @@ function Index() {
         );
       }
     }
+  }, [isSubmitting, formRef]);
+
+  React.useEffect(() => {
     if (
       actionData?.lastSubmit === "submit" &&
       actionData?.errors !== undefined &&
@@ -398,12 +401,14 @@ function Index() {
         Object.keys(actionData.errors)[0]
       );
       const yPosition =
-        errorElement[0].getBoundingClientRect().top - window.innerHeight / 2;
+        errorElement[0].getBoundingClientRect().top -
+        document.body.getBoundingClientRect().top -
+        window.innerHeight / 2;
       window.scrollTo(0, yPosition);
 
       errorElement[0].focus({ preventScroll: true });
     }
-  }, [isSubmitting, formRef, actionData]);
+  }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
 
