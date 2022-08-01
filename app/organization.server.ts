@@ -201,7 +201,7 @@ export async function getFilteredOrganizations(
     | null
     | undefined
 ) {
-  let areaQuery;
+  let areaQuery = {};
 
   if (areaToFilter !== null && areaToFilter !== undefined) {
     if (areaToFilter.type === "country") {
