@@ -27,22 +27,32 @@ const websiteValidation = {
 
 const socialValidation = {
   facebook: {
-    match: /(https?:\/\/)?(.*\.)?facebook.com\/.+\/?$|^$/,
+    match: /(https?:\/\/)?(.*\.)?facebook.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
   },
   linkedin: {
-    match: /(https?:\/\/)?(.*\.)?linkedin.com\/(in|company)\/.+\/?$|^$/,
+    match: /(https?:\/\/)?(.*\.)?linkedin.com\/(in|company)\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (linkedin.com/in/<Nutzername> oder linkedin.com/company/<Nutzername>).",
   },
   twitter: {
-    match: /(https?:\/\/)?(.*\.)?twitter.com\/.+\/?$|^$/,
+    match: /(https?:\/\/)?(.*\.)?twitter.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
   },
+  youtube: {
+    match: /(https?:\/\/)?(.*\.)?youtube.com\/channel\/.+$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines Youtube Kanals (youtube.com/channel/<Nutzername>).",
+  },
+  instagram: {
+    match: /(https?:\/\/)?(.*\.)?instagram.com\/.+$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format eines Instagram Profils (instagram.com/<Nutzername>).",
+  },
   xing: {
-    match: /(https?:\/\/)?(.*\.)?xing.com\/(profile|pages)\/.+\/?$|^$/,
+    match: /(https?:\/\/)?(.*\.)?xing.com\/(profile|pages)\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
   },

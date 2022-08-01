@@ -19,8 +19,8 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { socialMediaServices } from "~/lib/profile/socialMediaServices";
 import { objectListOperationResolver } from "~/lib/utils/components";
+import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import {
   FormError,
   getFormValues,
@@ -44,6 +44,8 @@ const organizationSchema = object({
   facebook: social("facebook"),
   linkedin: social("linkedin"),
   twitter: social("twitter"),
+  youtube: social("youtube"),
+  instagram: social("instagram"),
   xing: social("xing"),
   bio: multiline(),
   types: array(string().required()).required(),
@@ -455,7 +457,7 @@ function Index() {
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Ich Anschrift Hauptsitz</h4>
+          <h4 className="mb-4 font-semibold">Anschrift Hauptsitz</h4>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText

@@ -30,7 +30,7 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { prismaClient } from "~/prisma";
-import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
@@ -257,6 +257,8 @@ const ExternalServices: ExternalService[] = [
   "linkedin",
   "facebook",
   "twitter",
+  "youtube",
+  "instagram",
   "xing",
 ];
 function hasWebsiteOrSocialService(
@@ -329,7 +331,6 @@ export default function Index() {
                   ) : (
                     initials
                   )}
-                  {/* {initials} */}
                 </div>
                 {loaderData.mode === "owner" && (
                   <Form method="post" encType="multipart/form-data">
@@ -414,6 +415,7 @@ export default function Index() {
                           typeof loaderData.data[service] === "string" &&
                           loaderData.data[service] !== ""
                         ) {
+                          console.log(service, loaderData.data[service]);
                           return (
                             <li key={service} className="flex-auto px-1">
                               <ExternalServiceIcon

@@ -86,6 +86,8 @@ model Profile {
   facebook        String?
   linkedin        String?
   twitter         String?
+  youtube         String?
+  instagram       String?
   xing            String?
   bio             String?
   skills          String[]
@@ -119,6 +121,8 @@ model Organization {
   facebook               String?
   linkedin               String?
   twitter                String?
+  youtube                String?
+  instagram              String?
   xing                   String?
   bio                    String?
   types                  OrganizationTypesOnOrganizations[]
@@ -138,7 +142,6 @@ model Organization {
   createdAt              DateTime                           @default(now()) @map("created_at")
   updatedAt              DateTime                           @default(now()) @map("updated_at")
   areas                  AreasOnOrganizations[]
-
 
   @@map("organizations")
 }
@@ -207,6 +210,7 @@ model Area {
 
   AreasOnProfiles      AreasOnProfiles[]
   AreasOnOrganizations AreasOnOrganizations[]
+
   @@map("areas")
 }
 

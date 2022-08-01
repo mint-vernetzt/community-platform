@@ -1,7 +1,15 @@
-import { ProfileFormType } from "~/routes/profile/$username/edit/yupSchema";
+import { Organization, Profile } from "@prisma/client";
 
 type SocialMediaService = {
-  id: keyof ProfileFormType;
+  id:
+    | keyof Pick<
+        Organization,
+        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      >
+    | keyof Pick<
+        Profile,
+        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      >;
   label: string;
   placeholder: string;
   organizationPlaceholder: string;
@@ -25,6 +33,18 @@ export const socialMediaServices: SocialMediaService[] = [
     label: "Twitter",
     placeholder: "twitter.com/<Nutzername>",
     organizationPlaceholder: "twitter.com/<Organisationsname>",
+  },
+  {
+    id: "youtube",
+    label: "YouTube",
+    placeholder: "youtube.com/channel/<Nutzername>",
+    organizationPlaceholder: "youtube.com/channel/<Organisationsname>",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    placeholder: "instagram.com/<Nutzername>",
+    organizationPlaceholder: "instagram.com/<Organisationsname>",
   },
   {
     id: "xing",
