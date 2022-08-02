@@ -1,14 +1,9 @@
 import { Profile } from "@prisma/client";
-import { DataFunctionArgs } from "@remix-run/server-runtime";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { prismaClient } from "~/prisma";
 
-export async function handleAuthorization(args: DataFunctionArgs) {
-  const { params, request } = args;
-
-  const { username } = params;
-
+export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
@@ -18,7 +13,7 @@ export async function handleAuthorization(args: DataFunctionArgs) {
     throw forbidden({ message: "not allowed" });
   }
 
-  return { currentUser };
+  return currentUser;
 }
 
 export async function getWholeProfileFromId(id: string) {
