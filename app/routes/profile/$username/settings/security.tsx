@@ -1,4 +1,9 @@
-import { ActionFunction, useActionData, useTransition } from "remix";
+import {
+  ActionFunction,
+  LoaderFunction,
+  useActionData,
+  useTransition,
+} from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
@@ -10,6 +15,7 @@ import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { validateCSRFToken } from "~/utils.server";
+import { handleAuthorization } from "./utils.server";
 
 const emailSchema = z.object({
   csrf: z.string(),
@@ -64,6 +70,16 @@ const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
 
   return values;
 });
+
+export const loader: LoaderFunction = async (args) => {
+  const { request, params } = args;
+
+  const { username = "" } = params;
+
+  await handleAuthorization(request, username);
+
+  return null;
+};
 
 export const action: ActionFunction = async ({ request, params }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once

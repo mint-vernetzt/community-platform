@@ -6,11 +6,11 @@ import { forbidden } from "remix-utils";
 import { z } from "zod";
 import { deleteUserByUid } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { handleAuthorization } from "~/lib/auth/handleAuth";
 import {
   getOrganisationsOnProfileByUserId,
   getProfileByUserId,
 } from "~/profile.server";
+import { handleAuthorization } from "./utils.server";
 
 const schema = z.object({
   id: z.string().uuid(),

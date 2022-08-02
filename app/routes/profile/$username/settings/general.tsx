@@ -10,9 +10,8 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { badRequest, forbidden, notFound } from "remix-utils";
+import { notFound } from "remix-utils";
 import { array, InferType, object, string } from "yup";
-import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -35,7 +34,11 @@ import {
 
 import { getAllOffers, getAreas } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
-import { getWholeProfileFromId, updateProfileById } from "./utils.server";
+import {
+  getWholeProfileFromId,
+  handleAuthorization,
+  updateProfileById,
+} from "./utils.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -62,19 +65,6 @@ const profileSchema = object({
 
 type ProfileSchemaType = typeof profileSchema;
 type ProfileFormType = InferType<typeof profileSchema>;
-
-export async function handleAuthorization(request: Request, username: string) {
-  if (typeof username !== "string" || username === "") {
-    throw badRequest({ message: "username must be provided" });
-  }
-  const currentUser = await getUserByRequest(request);
-
-  if (currentUser?.user_metadata.username !== username) {
-    throw forbidden({ message: "not allowed" });
-  }
-
-  return currentUser;
-}
 
 type LoaderData = {
   profile: ReturnType<typeof makeFormProfileFromDbProfile>;
