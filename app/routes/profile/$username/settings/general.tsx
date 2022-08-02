@@ -3,7 +3,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
   Form,
-  json,
   Link,
   LoaderFunction,
   useActionData,
@@ -33,25 +32,25 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import { prismaClient } from "~/prisma";
+
 import { getAllOffers, getAreas } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
-import { getWholeProfileFromId } from "./utils.server";
+import { getWholeProfileFromId, updateProfileById } from "./utils.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
   position: nullOrString(string()),
   firstName: string().required(),
   lastName: string().required(),
-  email: nullOrString(string().email()),
+  email: string().email().required(),
   phone: nullOrString(phone()),
   bio: nullOrString(multiline()),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
   offers: array(string().required()).required(),
-  interests: array(string().required()),
+  interests: array(string().required()).required(),
   seekings: array(string().required()).required(),
-  publicFields: array(string().required()),
+  publicFields: array(string().required()).required(),
   website: nullOrString(website()),
   facebook: nullOrString(social("facebook")),
   linkedin: nullOrString(social("linkedin")),
@@ -94,7 +93,10 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<LoaderData> => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
@@ -109,7 +111,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json({ profile, areas, offers });
+  return { profile, areas, offers };
 };
 
 type ActionData = {
@@ -140,64 +142,7 @@ export const action: ActionFunction = async ({
   const submit = formData.get("submit");
   if (submit === "submit") {
     if (errors === null) {
-      // TODO: Outsource this
-      let areasQuery, offersQuery, seekingsQuery;
-
-      if (data.areas !== undefined) {
-        areasQuery = {
-          deleteMany: {},
-          connectOrCreate: data.areas.map((areaId) => ({
-            where: {
-              profileId_areaId: { areaId, profileId: currentUser.id },
-            },
-            create: {
-              areaId,
-            },
-          })),
-        };
-      }
-      if (data.offers !== undefined) {
-        offersQuery = {
-          deleteMany: {},
-          connectOrCreate: data.offers.map((offerId) => ({
-            where: {
-              profileId_offerId: { offerId, profileId: currentUser.id },
-            },
-            create: {
-              offerId,
-            },
-          })),
-        };
-      }
-      if (data.seekings !== undefined) {
-        seekingsQuery = {
-          deleteMany: {},
-          connectOrCreate: data.seekings.map((offerId) => ({
-            where: {
-              profileId_offerId: { offerId, profileId: currentUser.id },
-            },
-            create: {
-              offerId,
-            },
-          })),
-        };
-      }
-
-      const { email: _email, ...rest } = data;
-
-      await prismaClient.profile.update({
-        where: {
-          id: currentUser.id,
-        },
-        data: {
-          ...rest,
-          areas: areasQuery,
-          offers: offersQuery,
-          seekings: seekingsQuery,
-        },
-      });
-
-      //await updateProfileByUserId(currentUser.id, data);
+      await updateProfileById(currentUser.id, data);
       updated = true;
     }
   } else {
