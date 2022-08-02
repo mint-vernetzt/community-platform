@@ -10,8 +10,8 @@ export interface InputTextProps {
 }
 
 const InputText = React.forwardRef(
-  (props: React.HTMLProps<HTMLInputElement> & InputTextProps, ref) => {
-    const inputRef = React.createRef<HTMLInputElement>();
+  (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
+    const inputRef = React.useRef<HTMLInputElement | null>(null);
     const id = props.id ?? props.label;
     const { isPublic, errorMessage, withClearButton, ...rest } = props;
     const formContext = useFormContext();
@@ -19,6 +19,7 @@ const InputText = React.forwardRef(
 
     const handleClear = (e: React.SyntheticEvent<HTMLButtonElement>) => {
       e.preventDefault();
+      console.log({ inputRef });
       if (inputRef.current) {
         if (setValue !== null) {
           setValue(id, "", { shouldDirty: true });
@@ -28,6 +29,7 @@ const InputText = React.forwardRef(
         inputRef.current.focus();
       }
     };
+
     return (
       <div className="form-control w-full">
         {props.label && (
@@ -43,8 +45,15 @@ const InputText = React.forwardRef(
         <div className="flex flex-row items-center">
           <div className="flex-auto">
             <input
-              ref={inputRef}
               {...rest}
+              ref={(node) => {
+                inputRef.current = node;
+                if (typeof forwardRef === "function") {
+                  forwardRef(node);
+                } else if (forwardRef) {
+                  forwardRef.current = node;
+                }
+              }}
               type={props.type ?? "text"}
               className={`input input-bordered w-full ${props.className}`}
               id={id}

@@ -58,8 +58,16 @@ const socialValidation = {
   },
 };
 
+export const nullOrString = (schema: AnyObject) =>
+  schema
+    .transform((value: string) => (value === "" ? null : value))
+    .nullable()
+    .defined();
+
 export function phone() {
-  return string().matches(phoneValidation.match, phoneValidation.error);
+  return nullOrString(
+    string().matches(phoneValidation.match, phoneValidation.error)
+  );
 }
 
 function addUrlPrefix(url: string) {
