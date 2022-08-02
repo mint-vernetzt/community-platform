@@ -1,4 +1,4 @@
-import { InferType, string, ValidationError } from "yup";
+import { InferType, string, StringSchema, ValidationError } from "yup";
 import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 
 type Error = {
@@ -58,16 +58,14 @@ const socialValidation = {
   },
 };
 
-export const nullOrString = (schema: AnyObject) =>
+export const nullOrString = (schema: StringSchema) =>
   schema
     .transform((value: string) => (value === "" ? null : value))
     .nullable()
     .defined();
 
 export function phone() {
-  return nullOrString(
-    string().matches(phoneValidation.match, phoneValidation.error)
-  );
+  return string().matches(phoneValidation.match, phoneValidation.error);
 }
 
 function addUrlPrefix(url: string) {

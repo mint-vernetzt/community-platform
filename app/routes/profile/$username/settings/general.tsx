@@ -1,4 +1,3 @@
-import { Offer, Profile } from "@prisma/client";
 import * as React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -35,43 +34,31 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma";
-import {
-  AreasWithState,
-  getAllOffers,
-  getAreas,
-  getProfileByUserId,
-  updateProfileByUserId,
-} from "~/profile.server";
+import { getAllOffers, getAreas } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
 import { getWholeProfileFromId } from "./utils.server";
 
-// const nullOrString = () =>
-//   string()
-//     .transform((value: string) => (value === "" ? null : value))
-//     .nullable()
-//     .defined();
-
 const profileSchema = object({
   academicTitle: nullOrString(string()),
-  position: nullOrString(),
+  position: nullOrString(string()),
   firstName: string().required(),
   lastName: string().required(),
-  email: string().email(),
-  phone: phone(),
-  bio: multiline(),
+  email: nullOrString(string().email()),
+  phone: nullOrString(phone()),
+  bio: nullOrString(multiline()),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
   offers: array(string().required()).required(),
   interests: array(string().required()),
   seekings: array(string().required()).required(),
   publicFields: array(string().required()),
-  website: website().nullable(),
-  facebook: social("facebook").nullable(),
-  linkedin: social("linkedin").nullable(),
-  twitter: social("twitter").nullable(),
-  youtube: social("youtube").nullable(),
-  instagram: social("instagram").nullable(),
-  xing: social("xing").nullable(),
+  website: nullOrString(website()),
+  facebook: nullOrString(social("facebook")),
+  linkedin: nullOrString(social("linkedin")),
+  twitter: nullOrString(social("twitter")),
+  youtube: nullOrString(social("youtube")),
+  instagram: nullOrString(social("instagram")),
+  xing: nullOrString(social("xing")),
 });
 
 type ProfileSchemaType = typeof profileSchema;
@@ -92,21 +79,13 @@ export async function handleAuthorization(request: Request, username: string) {
 
 type LoaderData = {
   profile: ReturnType<typeof makeFormProfileFromDbProfile>;
-  areas: AreasWithState;
-  offers: Offer[];
+  areas: Awaited<ReturnType<typeof getAreas>>;
+  offers: Awaited<ReturnType<typeof getAllOffers>>;
 };
 
 function makeFormProfileFromDbProfile(
   dbProfile: NonNullable<Awaited<ReturnType<typeof getWholeProfileFromId>>>
 ) {
-  // let nullToUndefined = dbProfile;
-  // let key: keyof typeof dbProfile;
-  // for (key in dbProfile) {
-  //   if (dbProfile[key] === null) {
-  //     nullToUndefined[key] = undefined;
-  //   }
-  // }
-
   return {
     ...dbProfile,
     areas: dbProfile.areas.map((area) => area.area.id) ?? [],
@@ -161,6 +140,7 @@ export const action: ActionFunction = async ({
   const submit = formData.get("submit");
   if (submit === "submit") {
     if (errors === null) {
+      // TODO: Outsource this
       let areasQuery, offersQuery, seekingsQuery;
 
       if (data.areas !== undefined) {
@@ -217,9 +197,7 @@ export const action: ActionFunction = async ({
         },
       });
 
-      // await prismaClient.profile.update();
-
-      // await updateProfileByUserId(currentUser.id, data);
+      //await updateProfileByUserId(currentUser.id, data);
       updated = true;
     }
   } else {
@@ -261,7 +239,6 @@ export default function Index() {
     defaultValues: profile,
   });
 
-  console.log({ profile });
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((o) => ({
     label: o.title,

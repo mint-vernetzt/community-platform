@@ -181,7 +181,7 @@ export type AreasWithState = (Area & {
 
 // TODO:
 
-export async function getAreas(): Promise<AreasWithState> {
+export async function getAreas() {
   return await prismaClient.area.findMany({
     include: {
       state: true,
