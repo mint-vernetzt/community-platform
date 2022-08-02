@@ -1,10 +1,8 @@
 import { ActionFunction, useActionData, useTransition } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest, forbidden } from "remix-utils";
 import { z } from "zod";
 import {
-  getUserByRequest,
   updateEmailOfLoggedInUser,
   updatePasswordOfLoggedInUser,
 } from "~/auth.server";
@@ -34,20 +32,6 @@ const passwordSchema = z.object({
     .min(8, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
   submittedForm: z.enum(["changePassword"]),
 });
-
-// TODO: Higher order function
-export async function handleAuthorization(request: Request, username: string) {
-  if (typeof username !== "string" || username === "") {
-    throw badRequest({ message: "username must be provided" });
-  }
-  const sessionUser = await getUserByRequest(request);
-
-  if (sessionUser === null || sessionUser.user_metadata.username !== username) {
-    throw forbidden({ message: "not allowed" });
-  }
-
-  return sessionUser;
-}
 
 const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
   if (values.confirmPassword !== values.password) {
@@ -88,14 +72,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   await validateCSRFToken(request);
 
   const submittedForm = formData.get("submittedForm");
-  const schema = submittedForm === "changeEmail" ? emailSchema : passwordSchema;
-  const mutation =
-    submittedForm === "changeEmail" ? emailMutation : passwordMutation;
-  return performMutation({
-    request,
-    schema,
-    mutation, // TODO: Fix later
-  });
+
+  let result = null;
+  if (submittedForm === "changeEmail") {
+    result = await performMutation({
+      request,
+      schema: emailSchema,
+      mutation: emailMutation,
+    });
+  } else if (submittedForm === "changePassword") {
+    result = await performMutation({
+      request,
+      schema: passwordSchema,
+      mutation: passwordMutation,
+    });
+  }
+  return result;
 };
 
 export default function Security() {

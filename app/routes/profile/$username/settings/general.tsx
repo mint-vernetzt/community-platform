@@ -1,10 +1,8 @@
-import { Offer, Profile } from "@prisma/client";
 import * as React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
   Form,
-  json,
   Link,
   LoaderFunction,
   useActionData,
@@ -12,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { badRequest, forbidden } from "remix-utils";
+import { badRequest, forbidden, notFound } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
@@ -28,41 +26,38 @@ import {
   FormError,
   getFormValues,
   multiline,
+  nullOrString,
   phone,
   social,
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import {
-  AreasWithState,
-  getAllOffers,
-  getAreas,
-  getProfileByUserId,
-  updateProfileByUserId,
-} from "~/profile.server";
+
+import { getAllOffers, getAreas } from "~/profile.server";
 import { validateCSRFToken } from "~/utils.server";
+import { getWholeProfileFromId, updateProfileById } from "./utils.server";
 
 const profileSchema = object({
-  academicTitle: string(),
-  position: string(),
+  academicTitle: nullOrString(string()),
+  position: nullOrString(string()),
   firstName: string().required(),
   lastName: string().required(),
-  email: string().email(),
-  phone: phone(),
-  bio: multiline(),
+  email: string().email().required(),
+  phone: nullOrString(phone()),
+  bio: nullOrString(multiline()),
   areas: array(string().required()).required(),
   skills: array(string().required()).required(),
   offers: array(string().required()).required(),
-  interests: array(string().required()),
+  interests: array(string().required()).required(),
   seekings: array(string().required()).required(),
-  publicFields: array(string().required()),
-  website: website(),
-  facebook: social("facebook"),
-  linkedin: social("linkedin"),
-  twitter: social("twitter"),
-  youtube: social("youtube"),
-  instagram: social("instagram"),
-  xing: social("xing"),
+  publicFields: array(string().required()).required(),
+  website: nullOrString(website()),
+  facebook: nullOrString(social("facebook")),
+  linkedin: nullOrString(social("linkedin")),
+  twitter: nullOrString(social("twitter")),
+  youtube: nullOrString(social("youtube")),
+  instagram: nullOrString(social("instagram")),
+  xing: nullOrString(social("xing")),
 });
 
 type ProfileSchemaType = typeof profileSchema;
@@ -82,36 +77,41 @@ export async function handleAuthorization(request: Request, username: string) {
 }
 
 type LoaderData = {
-  profile: ProfileFormType;
-  areas: AreasWithState;
-  offers: Offer[];
+  profile: ReturnType<typeof makeFormProfileFromDbProfile>;
+  areas: Awaited<ReturnType<typeof getAreas>>;
+  offers: Awaited<ReturnType<typeof getAllOffers>>;
 };
 
 function makeFormProfileFromDbProfile(
-  dbProfile: Awaited<ReturnType<typeof getProfileByUserId>>
+  dbProfile: NonNullable<Awaited<ReturnType<typeof getWholeProfileFromId>>>
 ) {
   return {
     ...dbProfile,
-    areas: dbProfile?.areas.map((area) => area.areaId) ?? [],
-    offers: dbProfile?.offers.map((offer) => offer.offerId) ?? [],
-    seekings: dbProfile?.seekings.map((seeking) => seeking.offerId) ?? [],
+    areas: dbProfile.areas.map((area) => area.area.id) ?? [],
+    offers: dbProfile.offers.map((offer) => offer.offer.id) ?? [],
+    seekings: dbProfile.seekings.map((seeking) => seeking.offer.id) ?? [],
   };
 }
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<LoaderData> => {
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  const ProfileFormFields = Object.keys(
-    profileSchema.fields
-  ) as (keyof Profile)[];
-  let dbProfile = await getProfileByUserId(currentUser.id, ProfileFormFields);
+  let dbProfile = await getWholeProfileFromId(currentUser.id);
+
+  if (dbProfile === null) {
+    throw notFound("Profile not found");
+  }
+
   let profile = makeFormProfileFromDbProfile(dbProfile);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json({ profile, areas, offers });
+  return { profile, areas, offers };
 };
 
 type ActionData = {
@@ -142,8 +142,7 @@ export const action: ActionFunction = async ({
   const submit = formData.get("submit");
   if (submit === "submit") {
     if (errors === null) {
-      delete data.email;
-      await updateProfileByUserId(currentUser.id, data);
+      await updateProfileById(currentUser.id, data);
       updated = true;
     }
   } else {
@@ -184,6 +183,7 @@ export default function Index() {
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
+
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((o) => ({
     label: o.title,
@@ -227,6 +227,9 @@ export default function Index() {
         );
       }
     }
+  }, [isSubmitting, formRef]);
+
+  React.useEffect(() => {
     if (
       actionData?.lastSubmit === "submit" &&
       actionData?.errors !== undefined &&
@@ -238,11 +241,12 @@ export default function Index() {
       const yPosition =
         errorElement[0].getBoundingClientRect().top -
         document.body.getBoundingClientRect().top -
-        screen.height / 2;
+        window.innerHeight / 2;
       window.scrollTo(0, yPosition);
+
       errorElement[0].focus({ preventScroll: true });
     }
-  }, [isSubmitting, formRef, actionData]);
+  }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
 
@@ -295,7 +299,7 @@ export default function Index() {
                       value: "Prof. Dr.",
                     },
                   ]}
-                  defaultValue={profile.academicTitle}
+                  defaultValue={profile.academicTitle || ""}
                 />
               </div>
               <div className="basis-full md:basis-6/12 px-4 mb-4">
@@ -303,7 +307,6 @@ export default function Index() {
                   {...register("position")}
                   id="position"
                   label="Position"
-                  defaultValue={profile.position}
                   isPublic={profile.publicFields?.includes("position")}
                   errorMessage={errors?.position?.message}
                 />
@@ -316,7 +319,6 @@ export default function Index() {
                   {...register("firstName")}
                   id="firstName"
                   label="Vorname"
-                  defaultValue={profile.firstName}
                   required
                   errorMessage={errors?.firstName?.message}
                 />
@@ -327,7 +329,6 @@ export default function Index() {
                   id="lastName"
                   label="Nachname"
                   required
-                  defaultValue={profile.lastName}
                   errorMessage={errors?.lastName?.message}
                 />
               </div>
@@ -342,7 +343,6 @@ export default function Index() {
                   label="E-Mail"
                   readOnly
                   isPublic={profile.publicFields?.includes("email")}
-                  defaultValue={profile.email}
                   errorMessage={errors?.email?.message}
                 />
               </div>
@@ -352,7 +352,6 @@ export default function Index() {
                   id="phone"
                   label="Telefon"
                   isPublic={profile.publicFields?.includes("phone")}
-                  defaultValue={profile.phone}
                   errorMessage={errors?.phone?.message}
                 />
               </div>
@@ -377,7 +376,6 @@ export default function Index() {
                 id="bio"
                 label="Kurzbeschreibung"
                 isPublic={profile.publicFields?.includes("bio")}
-                defaultValue={profile.bio}
                 errorMessage={errors?.bio?.message}
                 maxCharacters={500}
               />
@@ -481,7 +479,6 @@ export default function Index() {
                 {...register("website")}
                 id="website"
                 label="Website URL"
-                defaultValue={profile.website}
                 placeholder="domainname.tld"
                 isPublic={profile.publicFields?.includes("website")}
                 errorMessage={errors?.website?.message}
@@ -506,7 +503,6 @@ export default function Index() {
                   id={service.id}
                   label={service.label}
                   placeholder={service.placeholder}
-                  defaultValue={profile[service.id] as string}
                   isPublic={profile.publicFields?.includes(service.id)}
                   errorMessage={errors?.[service.id]?.message}
                   withClearButton

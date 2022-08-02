@@ -1,4 +1,4 @@
-import { InferType, string, ValidationError } from "yup";
+import { InferType, string, StringSchema, ValidationError } from "yup";
 import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 
 type Error = {
@@ -57,6 +57,12 @@ const socialValidation = {
       "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
   },
 };
+
+export const nullOrString = (schema: StringSchema) =>
+  schema
+    .transform((value: string) => (value === "" ? null : value))
+    .nullable()
+    .defined();
 
 export function phone() {
   return string().matches(phoneValidation.match, phoneValidation.error);
