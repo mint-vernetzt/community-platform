@@ -227,6 +227,9 @@ export default function Index() {
         );
       }
     }
+  }, [isSubmitting, formRef]);
+
+  React.useEffect(() => {
     if (
       actionData?.lastSubmit === "submit" &&
       actionData?.errors !== undefined &&
@@ -238,11 +241,12 @@ export default function Index() {
       const yPosition =
         errorElement[0].getBoundingClientRect().top -
         document.body.getBoundingClientRect().top -
-        screen.height / 2;
+        window.innerHeight / 2;
       window.scrollTo(0, yPosition);
+
       errorElement[0].focus({ preventScroll: true });
     }
-  }, [isSubmitting, formRef, actionData]);
+  }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
 
