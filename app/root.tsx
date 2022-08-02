@@ -25,6 +25,7 @@ import { getPublicURL } from "./storage.server";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { props } from "cypress/types/bluebird";
+import Footer from "./components/Footer/Footer";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform (Preview)" };
@@ -269,37 +270,19 @@ export default function App() {
           />
         )}
       </head>
-      <body>
-        {isNonAppBaseRoute ? null : (
-          <NavBar currentUserInfo={currentUserInfo} />
-        )}
 
-        <Outlet />
-        <section className="text-right mb-4 mr-4">
-          <Link
-            to="imprint"
-            target="_blank"
-            className="mr-2 text-xs hover:underline"
-          >
-            Impressum
-          </Link>
-          -
-          <a
-            href="https://mint-vernetzt.de/privacy-policy-community-platform"
-            target="_blank"
-            className="mx-2 text-xs hover:underline"
-          >
-            Datenschutzerklärung
-          </a>
-          -
-          <a
-            href="https://mint-vernetzt.de/terms-of-use-community-platform"
-            target="_blank"
-            className="ml-2 text-xs hover:underline"
-          >
-            Nutzungsbedingungen
-          </a>
-        </section>
+      <body>
+        <div className="flex flex-col min-h-screen">
+          {isNonAppBaseRoute ? null : (
+            <NavBar currentUserInfo={currentUserInfo} />
+          )}
+
+          <main className="flex-auto">
+            <Outlet />
+          </main>
+
+          <Footer />
+        </div>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
