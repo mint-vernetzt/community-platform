@@ -12,7 +12,7 @@ import { z } from "zod";
 
 import {
   connectProfileToOrganization,
-  getOrganizationBySlug,
+  getOrganizationIdBySlug,
   getProfileByEmail,
   handleAuthorization,
 } from "./../utils.server";
@@ -25,7 +25,7 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { email, slug } = values;
   // TODO: Duplicate code - see utils.server.ts handleAuthorization()
-  const organization = await getOrganizationBySlug(slug);
+  const organization = await getOrganizationIdBySlug(slug);
   if (organization === null) {
     throw "Organization not found";
   }

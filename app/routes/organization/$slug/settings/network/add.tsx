@@ -12,7 +12,7 @@ import { z } from "zod";
 import {
   connectOrganizationToNetwork,
   getOrganizationByName,
-  getOrganizationBySlug,
+  getOrganizationIdBySlug,
   handleAuthorization,
 } from "../utils.server";
 
@@ -24,7 +24,7 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { name, slug } = values;
 
-  const network = await getOrganizationBySlug(slug);
+  const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
     throw "Network not found";
   }
