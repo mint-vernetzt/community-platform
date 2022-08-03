@@ -1,7 +1,5 @@
 import { evaluateJsonObject, getAreas, prepareQueries } from "./index";
 
-jest.mock("~/prisma", () => {});
-
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
