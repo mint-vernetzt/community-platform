@@ -1,6 +1,5 @@
-import { Profile } from "@prisma/client";
 import { LoaderFunction, useLoaderData, useParams } from "remix";
-import { prismaClient } from "~/prisma";
+import { ArrayElement } from "~/lib/utils/typeHelper";
 import {
   getMembersOfOrganization,
   handleAuthorization,
@@ -8,23 +7,20 @@ import {
 import Add from "./add";
 import { MemberRemoveForm } from "./remove";
 
-type ProfileData = Pick<
-  Profile,
-  "id" | "username" | "firstName" | "lastName" | "avatar" | "position"
+export type Member = ArrayElement<
+  Awaited<ReturnType<typeof getMembersOfOrganization>>
 >;
 
-export type Member = {
-  isPrivileged: boolean;
-  organizationId: string;
-  profile: ProfileData;
+type LoaderData = {
+  members: Member[];
 };
-
-type LoaderData = Member[];
 
 export const loader: LoaderFunction = async (args) => {
   const { organization } = await handleAuthorization(args);
 
   const members = await getMembersOfOrganization(organization.id);
+
+  return { members };
 };
 
 function Index() {
@@ -40,12 +36,12 @@ function Index() {
         voluptua. BUH!
       </p>
       <div className="mb-8">
-        {loaderData.map((member) => {
+        {loaderData.members.map((member) => {
           return (
             <MemberRemoveForm
               key={member.profile.username}
               {...member}
-              slug={slug as string}
+              slug={slug || ""}
             />
           );
         })}
