@@ -267,6 +267,36 @@ export async function getMembersOfOrganization(organizationId: string) {
   return members;
 }
 
+export async function getNetworkMembersOfOrganization(organizationId: string) {
+  const networkMembers = await prismaClient.memberOfNetwork.findMany({
+    select: {
+      networkId: true,
+      networkMember: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logo: true,
+          types: {
+            select: {
+              organizationType: {
+                select: {
+                  title: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    where: {
+      networkId: organizationId,
+    },
+  });
+
+  return networkMembers;
+}
+
 export async function handleAuthorization(args: DataFunctionArgs) {
   const { params, request } = args;
 

@@ -1,56 +1,24 @@
 import { LoaderFunction, useLoaderData, useParams } from "remix";
-import { prismaClient } from "~/prisma";
-import { handleAuthorization } from "../utils.server";
+import { ArrayElement } from "~/lib/utils/typeHelper";
+import {
+  getNetworkMembersOfOrganization,
+  handleAuthorization,
+} from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
 
-export type NetworkMember = {
-  networkId: string;
-  networkMember: {
-    id: string;
-    slug: string;
-    name: string;
-    logo: string | null;
-    types: {
-      organizationType: {
-        title: string;
-      };
-    }[];
-  };
-};
+export type NetworkMember = ArrayElement<
+  Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
+>;
 
-type LoaderData = NetworkMember[];
+type LoaderData = { networkMembers: NetworkMember[] };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { organization } = await handleAuthorization(args);
 
-  const networkMembers = await prismaClient.memberOfNetwork.findMany({
-    select: {
-      networkId: true,
-      networkMember: {
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          logo: true,
-          types: {
-            select: {
-              organizationType: {
-                select: {
-                  title: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    where: {
-      networkId: organization.id,
-    },
-  });
+  const networkMembers = await getNetworkMembersOfOrganization(organization.id);
 
-  return networkMembers;
+  return { networkMembers };
 };
 
 function Index() {
@@ -66,12 +34,12 @@ function Index() {
         voluptua.
       </p>
       <div className="mb-8">
-        {loaderData.map((member) => {
+        {loaderData.networkMembers.map((member) => {
           return (
             <NetworkMemberRemoveForm
               key={member.networkMember.id}
               {...member}
-              slug={slug as string}
+              slug={slug || ""}
             />
           );
         })}

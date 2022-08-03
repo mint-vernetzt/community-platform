@@ -1,7 +1,7 @@
 import { ActionFunction, LoaderFunction, redirect, useFetcher } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
-import { z } from "zod";
+import { Form, PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
 import { H3 } from "~/components/Heading/Heading";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { NetworkMember } from ".";
@@ -27,6 +27,8 @@ export const loader: LoaderFunction = async () => {
   return redirect(".");
 };
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
@@ -40,7 +42,7 @@ export const action: ActionFunction = async (args) => {
 export function NetworkMemberRemoveForm(
   props: NetworkMember & { slug: string }
 ) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<ActionData>();
 
   const { networkMember, networkId, slug } = props;
 
