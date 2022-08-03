@@ -6,6 +6,7 @@ export type InputImageProps = {
   minHeight?: number;
   maxWidth?: number;
   maxHeight?: number;
+  classes?: string;
 } & Pick<React.HTMLProps<HTMLInputElement>, "id" | "name" | "accept">;
 
 function InputImage(props: InputImageProps) {
@@ -15,6 +16,7 @@ function InputImage(props: InputImageProps) {
     minHeight,
     maxWidth,
     maxHeight,
+    classes,
     accept = "image/*",
     ...otherProps
   } = props;
@@ -69,6 +71,7 @@ function InputImage(props: InputImageProps) {
         onChange={handleChange}
         accept={accept}
         {...otherProps}
+        className={classes}
       />
       {error !== null && <p>{error.message}</p>}
     </>
