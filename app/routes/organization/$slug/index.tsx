@@ -1,4 +1,5 @@
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import {
   ActionFunction,
   Form,
@@ -63,7 +64,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 480, height: 144 },
+        resize: { type: "fill", width: 144, height: 144 },
       });
     }
   }
@@ -71,8 +72,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(unfilteredOrganization.background);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480 },
-        gravity: GravityType.north_east,
+        resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
@@ -84,7 +84,6 @@ export const loader: LoaderFunction = async (args) => {
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
           });
           member.network.logo = logo;
         }
@@ -101,7 +100,6 @@ export const loader: LoaderFunction = async (args) => {
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
           });
           member.networkMember.logo = logo;
         }
@@ -255,7 +253,7 @@ export const action: ActionFunction = async (args) => {
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
     images.logo = getImageURL(logoPublicURL, {
-      resize: { type: "fit", width: 480, height: 144 },
+      resize: { type: "fill", width: 144, height: 144 },
     });
   }
   const backgroundPublicURL = formData.get("background");
@@ -309,6 +307,9 @@ export default function Index() {
 
   const actionData = useActionData<ActionData>();
 
+  const backgroundContainer = React.useRef(null);
+  const logoContainer = React.useRef(null);
+
   let logo;
   if (actionData && actionData.images.logo) {
     logo = actionData.images.logo;
@@ -334,31 +335,23 @@ export default function Index() {
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
-          {background && (
-            <img src={background} alt="" className="object-cover h-full" />
-          )}
+          <div ref={backgroundContainer} className="w-full h-full">
+            {background && (
+              <img
+                src={background}
+                alt=""
+                className="object-cover w-full h-full"
+              />
+            )}
+          </div>
           {loaderData.userIsPrivileged && (
             <div className="absolute bottom-6 right-6">
               <Form
                 method="post"
                 encType="multipart/form-data"
                 className="flex items-center"
+                reloadDocument
               >
-                <label
-                  htmlFor="background"
-                  className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
-                >
-                  <svg
-                    width="17"
-                    height="16"
-                    viewBox="0 0 17 16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="fill-neutral-600"
-                  >
-                    <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                  </svg>
-                  <span className="ml-2 mr-4">Hintergrund ändern</span>
-                </label>
                 <InputImage
                   id="background"
                   name="background"
@@ -368,8 +361,8 @@ export default function Index() {
                   maxWidth={1920} // 1920 px
                   maxHeight={1080} // 1080 px
                   classes="opacity-0 w-0 h-0"
+                  containerRef={backgroundContainer}
                 />
-                <button className="btn btn-primary btn-small">Upload</button>
               </Form>
             </div>
           )}
@@ -380,40 +373,23 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                {logo ? (
-                  <div className="h-36 w-100 flex items-center justify-center">
-                    <img
-                      src={logo}
-                      alt={loaderData.organization.name || ""}
-                      className="max-w-full w-auto max-h-36 h-auto"
-                    />
-                  </div>
-                ) : (
-                  <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-                    {initialsOfOrganization}
-                  </div>
-                )}
+                <div
+                  ref={logoContainer}
+                  className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                >
+                  {logo !== undefined ? (
+                    <img src={logo} alt={loaderData.organization.name || ""} />
+                  ) : (
+                    initialsOfOrganization
+                  )}
+                </div>
                 {loaderData.userIsPrivileged && (
                   <Form
                     method="post"
                     encType="multipart/form-data"
                     className="flex items-center mt-4"
+                    reloadDocument
                   >
-                    <label
-                      htmlFor="logo"
-                      className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
-                    >
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="fill-neutral-600"
-                      >
-                        <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                      </svg>
-                      <span className="ml-2 mr-4">Logo ändern</span>
-                    </label>
                     <InputImage
                       id="logo"
                       name="logo"
@@ -423,10 +399,8 @@ export default function Index() {
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
                       classes="opacity-0 w-0 h-0"
+                      containerRef={logoContainer}
                     />
-                    <button className="btn btn-primary btn-small">
-                      Upload
-                    </button>
                   </Form>
                 )}
                 <h3 className="mt-6 text-5xl mb-1">

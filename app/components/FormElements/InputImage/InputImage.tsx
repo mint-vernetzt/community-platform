@@ -104,7 +104,7 @@ function InputImage(props: InputImageProps) {
         className={classes}
       />
 
-      {selectedImage !== null && (
+      {selectedImage !== null && error === null && (
         <button className="btn btn-primary btn-small">Bild hochladen</button>
       )}
       {error !== null && <p>{error.message}</p>}
