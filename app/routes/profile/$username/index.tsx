@@ -380,9 +380,13 @@ export default function Index() {
                   </p>
                 )}
               </div>
+              {hasContactInformations(loaderData.data) ||
+                (hasWebsiteOrSocialService(
+                  loaderData.data,
+                  ExternalServices
+                ) && <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>)}
               {hasContactInformations(loaderData.data) && (
                 <>
-                  <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
                   {typeof loaderData.data.email === "string" &&
                     loaderData.data.email !== "" && (
                       <p className="text-mb mb-2">
@@ -427,46 +431,43 @@ export default function Index() {
                         </a>
                       </p>
                     )}
-
-                  {/* --- WEBSITE & SOCIAL --- */}
-                  {hasWebsiteOrSocialService(
-                    loaderData.data,
-                    ExternalServices
-                  ) && (
-                    <ul className="list-none flex flex-wrap -mx-1">
-                      {ExternalServices.map((service) => {
-                        if (
-                          typeof loaderData.data[service] === "string" &&
-                          loaderData.data[service] !== ""
-                        ) {
-                          console.log(service, loaderData.data[service]);
-                          return (
-                            <li key={service} className="flex-auto px-1">
-                              <ExternalServiceIcon
-                                service={service}
-                                url={loaderData.data[service] as string}
-                              />
-                            </li>
-                          );
-                        }
-
-                        return false;
-                      })}
-                    </ul>
-                  )}
-
-                  <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
-
-                  {loaderData.data.createdAt !== undefined && (
-                    <p className="text-xs mb-4 text-center">
-                      Profil besteht seit dem{" "}
-                      {new Date(loaderData.data.createdAt).toLocaleDateString(
-                        "de-De",
-                        { day: "numeric", month: "long", year: "numeric" }
-                      )}
-                    </p>
-                  )}
                 </>
+              )}
+
+              {/* --- WEBSITE & SOCIAL --- */}
+              {hasWebsiteOrSocialService(loaderData.data, ExternalServices) && (
+                <ul className="list-none flex flex-wrap -mx-1 mb-2">
+                  {ExternalServices.map((service) => {
+                    if (
+                      typeof loaderData.data[service] === "string" &&
+                      loaderData.data[service] !== ""
+                    ) {
+                      console.log(service, loaderData.data[service]);
+                      return (
+                        <li key={service} className="flex-auto px-1 mb-2">
+                          <ExternalServiceIcon
+                            service={service}
+                            url={loaderData.data[service] as string}
+                          />
+                        </li>
+                      );
+                    }
+
+                    return false;
+                  })}
+                </ul>
+              )}
+
+              <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
+
+              {loaderData.data.createdAt !== undefined && (
+                <p className="text-xs mb-4 text-center">
+                  Profil besteht seit dem{" "}
+                  {new Date(loaderData.data.createdAt).toLocaleDateString(
+                    "de-De",
+                    { day: "numeric", month: "long", year: "numeric" }
+                  )}
+                </p>
               )}
             </div>
           </div>
