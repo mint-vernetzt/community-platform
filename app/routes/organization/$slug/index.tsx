@@ -469,7 +469,7 @@ export default function Index() {
                       loaderData.organization[service] !== ""
                     ) {
                       return (
-                        <li key={service} className="flex-auto px-1">
+                        <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
                             url={loaderData.organization[service] as string}
