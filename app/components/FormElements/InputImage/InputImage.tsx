@@ -8,6 +8,8 @@ export type InputImageProps = {
   maxHeight?: number;
   classes?: string;
   containerRef: React.RefObject<HTMLDivElement>;
+  containerClassName: string;
+  imageClassName: string;
 } & Pick<React.HTMLProps<HTMLInputElement>, "id" | "name" | "accept">;
 
 function InputImage(props: InputImageProps) {
@@ -20,6 +22,8 @@ function InputImage(props: InputImageProps) {
     classes,
     accept = "image/*",
     containerRef,
+    containerClassName,
+    imageClassName,
     ...otherProps
   } = props;
 
@@ -69,7 +73,16 @@ function InputImage(props: InputImageProps) {
       }
       if (containerRef !== null && containerRef.current !== null) {
         containerRef.current.innerHTML = "";
-        image.classList.add("object-cover", "w-full", "h-full");
+        if (imageClassName !== "") {
+          imageClassName.split(" ").map((className) => {
+            return image.classList.add(className);
+          });
+        }
+        if (containerClassName !== "") {
+          containerClassName.split(" ").map((className) => {
+            return containerRef.current?.classList.add(className);
+          });
+        }
         containerRef.current.appendChild(image);
       }
       setSelectedImage(image);

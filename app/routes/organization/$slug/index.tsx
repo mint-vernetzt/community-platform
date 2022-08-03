@@ -362,6 +362,8 @@ export default function Index() {
                   maxHeight={1080} // 1080 px
                   classes="opacity-0 w-0 h-0"
                   containerRef={backgroundContainer}
+                  containerClassName="w-full h-full"
+                  imageClassName="object-cover w-full h-full"
                 />
               </Form>
             </div>
@@ -375,12 +377,18 @@ export default function Index() {
               <div className="flex items-center flex-col">
                 <div
                   ref={logoContainer}
-                  className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                  className={`h-36 flex items-center justify-center rounded-md overflow-hidden ${
+                    logo ? "w-full" : "w-36 bg-primary text-white text-6xl"
+                  }`}
                 >
-                  {logo !== undefined ? (
-                    <img src={logo} alt={loaderData.organization.name || ""} />
+                  {logo ? (
+                    <img
+                      src={logo}
+                      alt={loaderData.organization.name || ""}
+                      className="max-w-full w-auto max-h-36 h-auto"
+                    />
                   ) : (
-                    initialsOfOrganization
+                    { initialsOfOrganization }
                   )}
                 </div>
                 {loaderData.userIsPrivileged && (
@@ -400,6 +408,8 @@ export default function Index() {
                       maxHeight={500} // 500 px
                       classes="opacity-0 w-0 h-0"
                       containerRef={logoContainer}
+                      containerClassName="h-36 w-full flex items-center justify-center"
+                      imageClassName="max-w-full w-auto max-h-36 h-auto"
                     />
                   </Form>
                 )}

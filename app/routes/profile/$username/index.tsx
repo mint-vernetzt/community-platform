@@ -327,6 +327,8 @@ export default function Index() {
                   maxHeight={1080} // 1080 px
                   classes="opacity-0 w-0 h-0"
                   containerRef={backgroundContainer}
+                  containerClassName="w-full h-full"
+                  imageClassName="object-cover w-full h-full"
                 />
               </Form>
             </div>
@@ -365,6 +367,8 @@ export default function Index() {
                       maxHeight={500} // 500 px
                       classes="opacity-0 w-0 h-0"
                       containerRef={avatarContainer}
+                      containerClassName="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                      imageClassName=""
                     />
                   </Form>
                 )}
