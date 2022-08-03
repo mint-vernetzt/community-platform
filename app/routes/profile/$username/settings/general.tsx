@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { notFound } from "remix-utils";
+import { notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -90,13 +90,13 @@ export const loader: LoaderFunction = async ({
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  let dbProfile = await getWholeProfileFromId(currentUser.id);
+  const dbProfile = await getWholeProfileFromId(currentUser.id);
 
   if (dbProfile === null) {
     throw notFound("Profile not found");
   }
 
-  let profile = makeFormProfileFromDbProfile(dbProfile);
+  const profile = makeFormProfileFromDbProfile(dbProfile);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
@@ -132,8 +132,13 @@ export const action: ActionFunction = async ({
   const submit = formData.get("submit");
   if (submit === "submit") {
     if (errors === null) {
-      await updateProfileById(currentUser.id, data);
-      updated = true;
+      try {
+        await updateProfileById(currentUser.id, data);
+        updated = true;
+      } catch (error) {
+        console.error(error);
+        throw serverError({ message: "Something went wrong on update." });
+      }
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
@@ -251,12 +256,6 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <button
-            name="submit"
-            type="submit"
-            value="submit"
-            className="hidden"
-          />
           {hiddenCSRFInput}
           <fieldset disabled={transition.state === "submitting"}>
             <h1 className="mb-8">Persönliche Daten</h1>
