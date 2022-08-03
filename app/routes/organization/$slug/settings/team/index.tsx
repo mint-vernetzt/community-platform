@@ -1,7 +1,10 @@
 import { Profile } from "@prisma/client";
 import { LoaderFunction, useLoaderData, useParams } from "remix";
 import { prismaClient } from "~/prisma";
-import { handleAuthorization } from "./../utils.server";
+import {
+  getMembersOfOrganization,
+  handleAuthorization,
+} from "./../utils.server";
 import Add from "./add";
 import { MemberRemoveForm } from "./remove";
 
@@ -21,27 +24,7 @@ type LoaderData = Member[];
 export const loader: LoaderFunction = async (args) => {
   const { organization } = await handleAuthorization(args);
 
-  const members = await prismaClient.memberOfOrganization.findMany({
-    select: {
-      isPrivileged: true,
-      organizationId: true,
-      profile: {
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          position: true,
-        },
-      },
-    },
-    where: {
-      organizationId: organization.id,
-    },
-  });
-
-  return members;
+  const members = await getMembersOfOrganization(organization.id);
 };
 
 function Index() {

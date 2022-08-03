@@ -243,6 +243,30 @@ export async function getMembers(organizationId: string) {
   return result;
 }
 
+export async function getMembersOfOrganization(organizationId: string) {
+  const members = await prismaClient.memberOfOrganization.findMany({
+    select: {
+      isPrivileged: true,
+      organizationId: true,
+      profile: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          position: true,
+        },
+      },
+    },
+    where: {
+      organizationId: organizationId,
+    },
+  });
+
+  return members;
+}
+
 export async function handleAuthorization(args: DataFunctionArgs) {
   const { params, request } = args;
 
