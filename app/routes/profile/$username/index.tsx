@@ -6,6 +6,7 @@ import {
   Profile,
 } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import {
   ActionFunction,
   Form,
@@ -110,8 +111,7 @@ export const loader: LoaderFunction = async (
     const publicURL = getPublicURL(profile.background);
     if (publicURL !== null) {
       images.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480 },
-        gravity: GravityType.north_east,
+        resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
@@ -226,7 +226,7 @@ export const action: ActionFunction = async (args) => {
   const avatarPublicURL = formData.get("avatar");
   if (avatarPublicURL !== null && typeof avatarPublicURL === "string") {
     images.avatar = getImageURL(avatarPublicURL, {
-      resize: { type: "fit", width: 144, height: 144 },
+      resize: { type: "fill", width: 144, height: 144 },
     });
   }
   const backgroundPublicURL = formData.get("background");
@@ -276,6 +276,9 @@ export default function Index() {
 
   const actionData = useActionData();
 
+  const backgroundContainer = React.useRef(null);
+  const avatarContainer = React.useRef(null);
+
   let avatar;
   if (actionData !== undefined && actionData.images.avatar !== undefined) {
     avatar = actionData.images.avatar;
@@ -290,21 +293,30 @@ export default function Index() {
     background = loaderData.images.background;
   }
 
+  console.log(background);
+
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
-          {background !== undefined && (
-            <img
-              src={background}
-              alt={fullName}
-              className="object-cover w-full h-full"
-            />
-          )}
+          <div ref={backgroundContainer} className="w-full h-full">
+            {background !== undefined && (
+              <img
+                src={background}
+                alt={fullName}
+                className="object-cover w-full h-full"
+              />
+            )}
+          </div>
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">
-              <Form method="post" encType="multipart/form-data">
-                <label htmlFor="background">Hintergrund</label>
+              {/** TODO: Transition on upload */}
+              <Form
+                method="post"
+                encType="multipart/form-data"
+                className="flex items-center"
+                reloadDocument
+              >
                 <InputImage
                   id="background"
                   name="background"
@@ -313,8 +325,11 @@ export default function Index() {
                   minHeight={480} // 480 px
                   maxWidth={1920} // 1920 px
                   maxHeight={1080} // 1080 px
+                  classes="opacity-0 w-0 h-0"
+                  containerRef={backgroundContainer}
+                  containerClassName="w-full h-full"
+                  imageClassName="object-cover w-full h-full"
                 />
-                <button className="btn btn-primary btn-small">Upload</button>
               </Form>
             </div>
           )}
@@ -325,7 +340,10 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+                <div
+                  ref={avatarContainer}
+                  className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                >
                   {avatar !== undefined ? (
                     <img src={avatar} alt={fullName} />
                   ) : (
@@ -333,8 +351,12 @@ export default function Index() {
                   )}
                 </div>
                 {loaderData.mode === "owner" && (
-                  <Form method="post" encType="multipart/form-data">
-                    <label htmlFor="avatar">Avatar</label>
+                  <Form
+                    method="post"
+                    encType="multipart/form-data"
+                    className="flex items-center mt-4"
+                    reloadDocument
+                  >
                     <InputImage
                       id="avatar"
                       name="avatar"
@@ -343,12 +365,14 @@ export default function Index() {
                       minHeight={144} // 144 px
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
+                      classes="opacity-0 w-0 h-0"
+                      containerRef={avatarContainer}
+                      containerClassName="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                      imageClassName=""
                     />
-                    <button className="btn btn-primary btn-small">
-                      Upload
-                    </button>
                   </Form>
                 )}
+
                 <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>
                 {typeof loaderData.data.position === "string" && (
                   <p className="font-bold text-sm">
