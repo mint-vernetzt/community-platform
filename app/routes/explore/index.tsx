@@ -24,7 +24,7 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
-import { ArrayElement } from "~/lib/utils/typeHelper";
+import { ArrayElement } from "~/lib/utils/types";
 import {
   getAllOrganizations,
   getFilteredOrganizations,

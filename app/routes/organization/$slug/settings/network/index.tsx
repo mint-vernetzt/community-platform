@@ -1,5 +1,5 @@
 import { LoaderFunction, useLoaderData, useParams } from "remix";
-import { ArrayElement } from "~/lib/utils/typeHelper";
+import { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
   handleAuthorization,
