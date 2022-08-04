@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { MetaFunction } from "remix";
 import {
   Form,
   json,
@@ -14,18 +15,16 @@ import {
   useLoaderData,
   useLocation,
 } from "remix";
-import type { MetaFunction } from "remix";
-import styles from "./styles/styles.css";
-import { createCSRFToken } from "./utils.server";
-import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
 import { forbidden } from "remix-utils";
-import { supabaseClient } from "./supabase";
-import { getProfileByUserId } from "./profile.server";
-import { getPublicURL } from "./storage.server";
+import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
+import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
-import { props } from "cypress/types/bluebird";
-import Footer from "./components/Footer/Footer";
+import { getProfileByUserId } from "./profile.server";
+import { getPublicURL } from "./storage.server";
+import styles from "./styles/styles.css";
+import { supabaseClient } from "./supabase";
+import { createCSRFToken } from "./utils.server";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform (Preview)" };

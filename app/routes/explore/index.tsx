@@ -378,11 +378,12 @@ export default function Index() {
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke die Community</H1>
         <p className="">
-          Hier siehst Du persönliche Profile sowie Organisationen, Netzwerke und
-          Projekte aus der MINT-Community. Über die Filterfunktion kannst Du
-          herausfinden, welche Organisationen, Netzwerke und Projekte es gibt.
-          Wer ist in Deiner Region aktiv? Mit wem möchtest Du Dich vernetzen? Wo
-          bieten sich Kooperationen an?
+          Auf der Startseite findest Du eine Auswahl an persönlichen Profilen
+          sowie Organisationen, Netzwerke und Projekte aus der MINT-Community.
+          Über die Filterfunktion kannst Du herausfinden, welche weiteren
+          Organisationen, Netzwerke und Projekte es gibt. Wer ist in Deinem
+          Aktivitätsgebiet aktiv? Mit wem möchtest Du Dich vernetzen? Wo bieten
+          sich Kooperationen an?
         </p>
       </section>
 
@@ -401,7 +402,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Aktivitätsgebiet:
+                            Aktivitätsgebiet
                           </label>
                           <select
                             {...register("areaId")}
@@ -452,7 +453,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Angebot:
+                            Ich suche
                           </label>
                           <select
                             {...register("offerId")}
@@ -478,7 +479,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Gesuch:
+                            Ich möchte unterstützen mit
                           </label>
                           <select
                             {...register("seekingId")}

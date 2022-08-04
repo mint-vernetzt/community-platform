@@ -35,7 +35,7 @@ function InputImage(props: InputImageProps) {
     const fileList = event.target.files;
 
     if (fileList === null || fileList[0] == undefined) {
-      setError(new Error("No files received"));
+      setError(new Error("Das Bild wurde nicht empfangen."));
       return;
     }
 
@@ -43,7 +43,9 @@ function InputImage(props: InputImageProps) {
 
     if (maxSize !== undefined && file.size > maxSize) {
       setError(
-        new Error(`Bild zu groß (max. ${Math.round(maxSize / 100000) / 10} MB)`)
+        new Error(
+          `Bild zu groß (max. ${Math.round(maxSize / 100000) / 10} MB).`
+        )
       );
       return;
     }
@@ -57,7 +59,7 @@ function InputImage(props: InputImageProps) {
         (image.width < minWidth || image.height < minHeight)
       ) {
         setError(
-          new Error(`Bild zu klein (min. ${minWidth} x ${minHeight} px)`)
+          new Error(`Bild zu klein (min. ${minWidth} x ${minHeight} px).`)
         );
         return;
       }
@@ -67,7 +69,7 @@ function InputImage(props: InputImageProps) {
         (image.width > maxWidth || image.height > maxHeight)
       ) {
         setError(
-          new Error(`Bild zu groß (max. ${maxWidth} x ${maxHeight} px)`)
+          new Error(`Bild zu groß (max. ${maxWidth} x ${maxHeight} px).`)
         );
         return;
       }

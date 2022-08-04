@@ -194,8 +194,7 @@ export const action: ActionFunction = async (args) => {
       });
 
     if (error || data === null) {
-      console.error(error);
-      throw serverError({ message: "Upload failed!" });
+      throw serverError({ message: "Hochladen fehlgeschlagen." });
     }
 
     await prismaClient.profile.update({
@@ -210,7 +209,9 @@ export const action: ActionFunction = async (args) => {
     const publicURL = getPublicURL(path);
 
     if (publicURL === null) {
-      throw serverError({ message: "Can't access public url of image!" });
+      throw serverError({
+        message: "Die angefragte URL konnte nicht gefunden werden.",
+      });
     }
 
     return publicURL;
@@ -292,8 +293,6 @@ export default function Index() {
   } else if (loaderData.images.background !== undefined) {
     background = loaderData.images.background;
   }
-
-  console.log(background);
 
   return (
     <>
@@ -442,7 +441,6 @@ export default function Index() {
                       typeof loaderData.data[service] === "string" &&
                       loaderData.data[service] !== ""
                     ) {
-                      console.log(service, loaderData.data[service]);
                       return (
                         <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon

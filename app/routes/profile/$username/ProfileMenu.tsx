@@ -1,4 +1,3 @@
-import * as React from "react";
 import { NavLink } from "remix";
 
 interface ProfileMenuProps {

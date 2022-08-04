@@ -79,12 +79,12 @@ export default function Index() {
     <>
       <h1 className="mb-8">Profil löschen</h1>
 
-      <h4 className="mb-4 font-semibold">Allgemein</h4>
+      <h4 className="mb-4 font-semibold">Schade, dass Du gehst.</h4>
 
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Bitte gib "wirklich löschen" ein, um das Löschen zu bestätigen. Wenn Du
+        danach auf “Profil endgültig löschen” klickst, wird Dein Profil ohne
+        erneute Abfrage gelöscht.
       </p>
 
       <RemixForm method="post" schema={schema}>
@@ -119,7 +119,7 @@ export default function Index() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Profil entgültig löschen
+              Profil endgültig löschen
             </button>
             <Errors />
           </>

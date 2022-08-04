@@ -14,15 +14,17 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
 const schema = z.object({
-  password: z.string().min(1, "Bitte ein Passwort eingeben."),
+  password: z
+    .string()
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
   confirmPassword: z
     .string()
-    .min(8, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
   accessToken: z
     .string()
     .min(
       1,
-      "Bitte über den Bestätigungslink in der E-Mail das Passwort ändern."
+      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
     ),
 });
 
@@ -43,7 +45,7 @@ export const loader: LoaderFunction = async (args) => {
 const mutation = makeDomainFunction(schema)(async (values) => {
   if (values.password !== values.confirmPassword) {
     throw new InputError(
-      "Die eingegebenen Passwörter stimmen nicht überein.",
+      "Deine Passwörter stimmen nicht überein.",
       "confirmPassword"
     ); // -- Field error
   }
@@ -161,11 +163,6 @@ export default function SetPassword() {
             </div>
           )}
         </RemixForm>
-        {/* <div className="flex flex-row -mx-4">
-          <div className="basis-6/12 px-4"> </div>
-          <div className="basis-5/12 px-4">
-          </div>
-        </div> */}
       </div>
     </>
   );

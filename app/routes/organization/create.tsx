@@ -15,7 +15,7 @@ const schema = z.object({
   id: z.string().uuid(),
   organizationName: z
     .string()
-    .min(1, "Bitte den Namen der Organisation angeben."),
+    .min(1, "Bitte gib den Namen Deiner Organisation ein."),
 });
 
 type LoaderData = {
@@ -76,7 +76,7 @@ export default function Create() {
     <>
       <div className="container relative pb-44">
         <h4 className="font-semibold">
-          Organisation, Netzwerk, Projekt hinzufügen
+          Organisation, Netzwerk oder Projekt hinzufügen
         </h4>
         <div className="flex flex-col lg:flex-row pt-10 lg:pt-0">
           <RemixForm method="post" schema={schema}>
@@ -118,7 +118,7 @@ export default function Create() {
                   type="submit"
                   className="btn btn-outline-primary ml-auto btn-small"
                 >
-                  Organisation anlegen
+                  Anlegen
                 </button>
                 <Errors />
               </>

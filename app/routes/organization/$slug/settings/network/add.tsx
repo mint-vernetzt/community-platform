@@ -25,16 +25,22 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
   const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
-    throw "Network not found";
+    throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
   const organization = await getOrganizationByName(name);
   if (organization === null) {
-    throw new InputError("Organization not found", "name");
+    throw new InputError(
+      "Es existiert noch keine Organisation unter diesem Namen.",
+      "name"
+    );
   }
 
   if (network.id === organization.id) {
-    throw new InputError("Couldn't set organization as its own member", "name");
+    throw new InputError(
+      "Eure Organisation ist bereits Teil Eures Netzwerks.",
+      "name"
+    );
   }
 
   const stillMember = organization.memberOf.some((entry) => {
@@ -42,7 +48,10 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
 
   if (stillMember) {
-    throw new InputError("Organization already member", "name");
+    throw new InputError(
+      "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
+      "name"
+    );
   }
 
   const result = await connectOrganizationToNetwork(
@@ -50,7 +59,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     network.id
   );
   if (result === null) {
-    throw "Couldn't add organization to network";
+    throw "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.";
   }
 
   return values;
@@ -73,7 +82,7 @@ export const action: ActionFunction = async (args) => {
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {
     return {
-      message: `Organization with name "${result.data.name}" added as network member`,
+      message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
     };
   }
 
@@ -88,9 +97,7 @@ function Add() {
     <>
       <h4 className="mb-4 font-semibold">Netzwerkmitglied hinzufügen</h4>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.
       </p>
       <Form
         schema={schema}

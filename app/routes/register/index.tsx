@@ -18,13 +18,18 @@ import { generateUsername } from "../../utils";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
-  firstName: z.string().min(1, "Bitte einen Vornamen eingeben."),
-  lastName: z.string().min(1, "Bitte einen Nachnamen eingeben."),
+  firstName: z.string().min(1, "Bitte gib Deinen Vornamen ein."),
+  lastName: z.string().min(1, "Bitte gib Deinen Nachnamen ein."),
   email: z
     .string()
-    .email("Ungültige E-Mail.")
-    .min(1, "Bitte eine E-Mail eingeben."),
-  password: z.string().min(8, "Bitte ein Passwort eingeben."),
+    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
+  password: z
+    .string()
+    .min(
+      8,
+      "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
+    ),
   termsAccepted: z.boolean(),
 });
 
@@ -37,7 +42,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   const { firstName, lastName, academicTitle, termsAccepted } = values;
 
   if (!termsAccepted) {
-    throw "Fehlende Einverständnis.";
+    throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
   }
 
   // TODO: Check if username exists because profiles can be deleted.
@@ -108,8 +113,10 @@ export default function Register() {
                   Das Profil für <b>{actionData.data.email}</b> wurde erstellt.
                   Um die Registrierung abzuschließen, bestätige bitte innerhalb
                   von 24 Stunden den Registrierungslink in Deinen E-Mails, den
-                  wir Dir über <b>noreply@mail.app.supabase.io</b> zusenden.
-                  Bitte prüfe auch den Spam-Ordner.
+                  wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte
+                  sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits
+                  vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
+                  vergessen, dann setze hier Dein Passwort (Link) zurück.
                 </p>
               </>
             ) : (
@@ -117,9 +124,10 @@ export default function Register() {
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
-                      Hier kannst Du Dein persönliches Profil anlegen. Das
-                      Unternehmen, in dem Du tätig bist, sowie Projekte und
-                      Netzwerke können im nächsten Schritt angelegt werden.
+                      Hier kannst Du Dein persönliches Profil anlegen. Die
+                      Organisation oder das Unternehmen, in dem Du tätig bist,
+                      sowie Projekte und Netzwerke können im nächsten Schritt
+                      angelegt werden.
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
@@ -258,6 +266,7 @@ export default function Register() {
                             <a
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
+                              rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
                               Nutzungsbedingungen
@@ -266,6 +275,7 @@ export default function Register() {
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
+                              rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
                               Datenschutzerklärung
