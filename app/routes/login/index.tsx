@@ -15,8 +15,13 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
 const schema = z.object({
-  email: z.string().email().min(1),
-  password: z.string().min(8),
+  email: z
+    .string()
+    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
+  password: z
+    .string()
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
@@ -114,7 +119,8 @@ export default function Index() {
                 <h1 className="mb-8">Anmelden</h1>
                 {loaderData.error && (
                   <div className="alert-error p-3 mb-3 text-white">
-                    {loaderData.error.message}
+                    Deine Anmeldedaten (E-Mail oder Passwort) sind nicht
+                    korrekt. Bitte überprüfe Deine Eingaben.
                   </div>
                 )}
                 <div className="mb-4">
