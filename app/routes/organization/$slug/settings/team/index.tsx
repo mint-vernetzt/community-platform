@@ -31,9 +31,8 @@ function Index() {
     <>
       <h1 className="mb-8">Das Team</h1>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua. BUH!
+        Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
+        oder entferne sie.
       </p>
       <div className="mb-8">
         {loaderData.members.map((member) => {
