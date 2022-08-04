@@ -500,7 +500,7 @@ export default function Index() {
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">
-                Organisation, Netzwerk, Projekt hinzufügen
+                Organisation, Netzwerk oder Projekt hinzufügen
               </h4>
               <Link
                 to="/organization/create"
