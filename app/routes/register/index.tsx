@@ -26,7 +26,10 @@ const schema = z.object({
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
   password: z
     .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
+    .min(
+      8,
+      "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
+    ),
   termsAccepted: z.boolean(),
 });
 
