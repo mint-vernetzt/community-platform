@@ -14,7 +14,7 @@ export type FormError = {
 };
 
 const phoneValidation = {
-  match: /^$|^(\+?[0-9\s-\(\)]{3,}\/?[0-9\s-\(\)]{4,})$/,
+  match: /^$|^(\+?[0-9\s-()]{3,}\/?[0-9\s-()]{4,})$/,
   error:
     "Bitte gib eine gültige Telefonnummer ein (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, )).",
 };

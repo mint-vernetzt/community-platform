@@ -1,5 +1,4 @@
-import * as React from "react";
-import { Link, Form } from "remix";
+import { Form, Link } from "remix";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 
 export interface HeaderProps {

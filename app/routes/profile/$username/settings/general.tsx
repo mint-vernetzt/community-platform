@@ -64,7 +64,7 @@ const profileSchema = object({
 });
 
 type ProfileSchemaType = typeof profileSchema;
-type ProfileFormType = InferType<typeof profileSchema>;
+export type ProfileFormType = InferType<typeof profileSchema>;
 
 type LoaderData = {
   profile: ReturnType<typeof makeFormProfileFromDbProfile>;
