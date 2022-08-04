@@ -1,6 +1,6 @@
 export default function Imprint() {
   return (
-    <section className="container mt-8 md:mt-10 lg:mt-20">
+    <section className="container my-8 md:my-10 lg:my-20">
       <h1>Impressum</h1>
       <p className="mb-2">MINTvernetzt ist ein Verbundprojekt des / der:</p>
       <ul className="mb-4">
