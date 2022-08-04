@@ -149,6 +149,8 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
           });
         }
       });
+    } else {
+      throw validationError;
     }
   }
   return { data, errors };
