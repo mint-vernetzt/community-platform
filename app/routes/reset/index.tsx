@@ -14,8 +14,8 @@ import { makeDomainFunction } from "remix-domains";
 const schema = z.object({
   email: z
     .string()
-    .email("Ungültige E-Mail.")
-    .min(1, "Bitte eine E-Mail eingeben."),
+    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
 });
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -63,6 +63,11 @@ export default function Index() {
                 <p className="mb-4">
                   Eine E-Mail zum Zurücksetzen des Passworts wurde an{" "}
                   <b>{actionData.data.email}</b> geschickt.
+                </p>
+                <p className="mb-4">
+                  Solltest Du Dich noch nicht unter dieser E-Mail-Adresse
+                  registriert haben, erhältst Du keine E-Mail zum Zurücksetzen
+                  des Passworts.
                 </p>
               </>
             ) : (
