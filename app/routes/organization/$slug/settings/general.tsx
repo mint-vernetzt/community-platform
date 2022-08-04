@@ -39,7 +39,7 @@ import {
 } from "./utils.server";
 
 const organizationSchema = object({
-  name: string().required(),
+  name: string().required("Bitte gib Euren Namen ein."),
   email: nullOrString(string().email()),
   phone: nullOrString(phone()),
   street: nullOrString(string()),
@@ -280,15 +280,11 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">Institutionelle Daten</h1>
+          <h1 className="mb-8">Deine Organisation</h1>
 
           <h4 className="mb-4 font-semibold">Allgemein</h4>
 
-          <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
-          </p>
+          <p className="mb-8">Wie kann die Community Euch erreichen?</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
@@ -318,7 +314,7 @@ function Index() {
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Anschrift Hauptsitz</h4>
+          <h4 className="mb-4 font-semibold">Anschrift</h4>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -356,27 +352,13 @@ function Index() {
             </div>
           </div>
 
-          <SelectAdd
-            name="types"
-            label="Organisationsform"
-            entries={selectedOrganizationTypes.map((type) => ({
-              label: type.title,
-              value: type.id,
-            }))}
-            options={organizationTypesOptions.filter((option) => {
-              return !organization.types.includes(option.value);
-            })}
-            placeholder=""
-          />
-
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h4 className="font-semibold mb-4">Über uns</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            Teile der Community mehr über Deine Organisation oder Dein Projekt
+            mit.
           </p>
 
           <div className="mb-4">
@@ -391,9 +373,23 @@ function Index() {
           </div>
           <div className="mb-4">
             <SelectAdd
+              name="types"
+              label="Organisationsform"
+              entries={selectedOrganizationTypes.map((type) => ({
+                label: type.title,
+                value: type.id,
+              }))}
+              options={organizationTypesOptions.filter((option) => {
+                return !organization.types.includes(option.value);
+              })}
+              placeholder="Füge Eure Organisationsformen hinzu."
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
               name="areas"
               label={"Aktivitätsgebiete"}
-              placeholder="Aktivitätsgebiete hinzufügen"
+              placeholder="Füge Eure Aktivitätsgebiete hinzu."
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -412,7 +408,7 @@ function Index() {
             <SelectAdd
               name="focuses"
               label={"MINT-Schwerpunkte"}
-              placeholder="MINT-Schwerpunkt hinzufügen"
+              placeholder="Füge Eure MINT-Schwerpunkte hinzu."
               entries={selectedFocuses.map((focus) => ({
                 label: focus.title,
                 value: focus.id,
@@ -438,7 +434,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthor")}
                 id="quoteAuthor"
-                label="Von"
+                label="Von wem stammt das Zitat?"
                 errorMessage={errors?.quoteAuthor?.message}
               />
             </div>
@@ -446,7 +442,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
-                label="Zusatzinformationen (Position/Beruf)"
+                label="Zusatzinformationen des Zitatauthors (Position/Beruf)"
                 errorMessage={errors?.quoteAuthorInformation?.message}
               />
             </div>
@@ -459,16 +455,14 @@ function Index() {
           <h4 className="mb-4 font-semibold">Website</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            Wo kann die Community mehr über Euer Angebot erfahren?
           </p>
 
           <div className="basis-full mb-4">
             <InputText
               {...register("website")}
               id="website"
-              label="Website URL"
+              label="Website"
               placeholder="domainname.tld"
               isPublic={organization.publicFields?.includes("website")}
               errorMessage={errors?.website?.message}
@@ -481,9 +475,8 @@ function Index() {
           <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            In welchen Netzwerken ist Deine Organisation oder Dein Projekt
+            vertreten?
           </p>
 
           {socialMediaServices.map((service) => (
@@ -510,7 +503,7 @@ function Index() {
                       : "hidden"
                   }`}
                 >
-                  Profil wurde aktualisiert.
+                  Deine Informationen wurden aktualisiert.
                 </div>
 
                 {isFormChanged && (
