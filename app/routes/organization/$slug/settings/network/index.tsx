@@ -27,11 +27,10 @@ function Index() {
 
   return (
     <>
-      <h1 className="mb-8">Das Netzwerk</h1>
+      <h1 className="mb-8">Euer Netzwerk</h1>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Wer ist Teil Eures Netzwerks? Füge hier weitere Organisationen hinzu
+        oder entferne sie.
       </p>
       <div className="mb-8">
         {loaderData.networkMembers.map((member) => {
