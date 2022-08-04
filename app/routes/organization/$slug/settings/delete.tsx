@@ -51,12 +51,14 @@ export default function Delete() {
     <>
       <h1 className="mb-8">Organisation löschen</h1>
 
-      <h4 className="mb-4 font-semibold">Allgemein</h4>
+      <p className="mb-4 font-semibold">
+        Schade, dass Du Eure Organisation löschen willst.
+      </p>
 
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Bitte gib "wirklich löschen" ein, um das Löschen zu bestätigen. Wenn Du
+        danach auf Organisation endgültig löschen” klickst, wird Eure
+        Organisation ohne erneute Abfrage gelöscht.
       </p>
 
       <RemixForm method="post" schema={schema}>
