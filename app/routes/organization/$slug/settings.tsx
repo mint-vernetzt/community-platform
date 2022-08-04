@@ -36,7 +36,7 @@ function Settings() {
                       to="network"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Das Netzwerk
+                      Euer Netzwerk
                     </NavLink>
                   </li>
                 </ul>
@@ -46,7 +46,7 @@ function Settings() {
                     to="./delete"
                     className={({ isActive }) => getClassName(isActive)}
                   >
-                    Organisation oder Projekt löschen
+                    Organisation löschen
                   </NavLink>
                 </div>
               </menu>
