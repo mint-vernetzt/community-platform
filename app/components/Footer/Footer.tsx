@@ -1,10 +1,17 @@
 import { Link } from "remix";
 
-export interface FooterProps {}
+export interface FooterProps {
+  isDifferentFooterRoute: boolean;
+}
 
 function Footer(props: FooterProps) {
+  const { isDifferentFooterRoute } = props;
   return (
-    <div className="footer-section py-4 lg:py-4 border-t border-neutral-400 overflow-hidden">
+    <div
+      className={`footer-section py-4 lg:py-4 border-t border-neutral-400 overflow-hidden ${
+        isDifferentFooterRoute && "mb-16 md:mb-28"
+      }`.trimEnd()}
+    >
       <div className="container">
         <div className="flex">
           <ul className="flex-100 md:flex-auto md:justify-end meta_nav md:flex text-neutral-600 text-sm leading-4 font-semibold">
@@ -21,6 +28,7 @@ function Footer(props: FooterProps) {
               <a
                 href="https://mint-vernetzt.de/privacy-policy-community-platform"
                 target="_blank"
+                rel="noreferrer"
                 className="block hover:underline hover:text-primary"
               >
                 Datenschutzerklärung
@@ -30,6 +38,7 @@ function Footer(props: FooterProps) {
               <a
                 href="https://mint-vernetzt.de/terms-of-use-community-platform"
                 target="_blank"
+                rel="noreferrer"
                 className="block hover:underline hover:text-primary"
               >
                 Nutzungsbedingungen

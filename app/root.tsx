@@ -239,9 +239,13 @@ export default function App() {
   }, [location, matomoSiteId]);
 
   const nonAppBaseRoutes = ["/login", "/register", "/reset"];
-
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
+  );
+
+  const differentFooterRoutes = "/settings/general";
+  const isDifferentFooterRoute = location.pathname.includes(
+    differentFooterRoutes
   );
 
   return (
@@ -281,7 +285,7 @@ export default function App() {
             <Outlet />
           </main>
 
-          <Footer />
+          <Footer isDifferentFooterRoute={isDifferentFooterRoute} />
         </div>
         <ScrollRestoration />
         <Scripts />
