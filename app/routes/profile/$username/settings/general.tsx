@@ -43,8 +43,8 @@ import {
 const profileSchema = object({
   academicTitle: nullOrString(string()),
   position: nullOrString(string()),
-  firstName: string().required("Bitte gibt Deinen Vornamen ein."),
-  lastName: string().required("Bitte gibt Deinen Nachnamen ein."),
+  firstName: string().required("Bitte gib Deinen Vornamen ein."),
+  lastName: string().required("Bitte gib Deinen Nachnamen ein."),
   email: string().email().required(),
   phone: nullOrString(phone()),
   bio: nullOrString(multiline()),
