@@ -1,72 +1,25 @@
-import { Profile } from "@prisma/client";
-import {
-  ActionFunction,
-  LoaderFunction,
-  useLoaderData,
-  useParams,
-} from "remix";
+import { ActionFunction, LoaderFunction, redirect, useParams } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction } from "remix-forms";
-import { badRequest, forbidden, notFound } from "remix-utils";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
-import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import {
-  deleteOrganizationBySlug,
-  getOrganizationBySlug,
-} from "~/organization.server";
-import { getProfileByUserId } from "~/profile.server";
+import { deleteOrganizationBySlug } from "~/organization.server";
+import { handleAuthorization } from "./utils.server";
 
 const schema = z.object({
-  id: z.string().uuid(),
-  username: z.string(),
   slug: z.string(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
-type LoaderData = {
-  profile: Pick<Profile, "id" | "username">;
-};
+export const loader: LoaderFunction = async (args) => {
+  await handleAuthorization(args);
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const loggedInUser = await getUserByRequest(request);
-  if (loggedInUser === null) {
-    throw forbidden({ message: "not allowed" });
-  }
-  const { slug } = params;
-  if (slug === undefined || slug === "") {
-    throw badRequest({ message: "organization slug must be provided" });
-  }
-  const organization = await getOrganizationBySlug(slug);
-  if (organization === null) {
-    throw notFound({ message: "not found" });
-  }
-  const userIsPrivileged = organization.teamMembers.some(
-    (member) => member.profileId === loggedInUser.id && member.isPrivileged
-  );
-  if (!userIsPrivileged) {
-    throw forbidden({ message: "not allowed" });
-  }
-
-  const profile = await getProfileByUserId(loggedInUser.id, ["id", "username"]);
-
-  return { profile };
+  return null;
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationBySlug(values.slug);
-  if (organization === null) {
-    throw "Die zu löschende Organisation konnte nicht gefunden werden.";
-  }
-  const userIsPrivileged = organization.teamMembers.some(
-    (member) => member.profileId === values.id && member.isPrivileged
-  );
-  if (!userIsPrivileged) {
-    throw "Für das löschen einer Organisation werden Adminrechte benötigt.";
-  }
-
   try {
     await deleteOrganizationBySlug(values.slug);
   } catch {
@@ -75,32 +28,24 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const loggedInUser = await getUserByRequest(request);
-  const requestClone = request.clone();
-  const formData = await requestClone.formData();
+export const action: ActionFunction = async (args) => {
+  const { currentUser } = await handleAuthorization(args);
+  const { request } = args;
 
-  const formUserId = formData.get("id");
-  if (loggedInUser === null || formUserId !== loggedInUser.id) {
-    throw forbidden({ message: "not allowed" });
-  }
-
-  const username = formData.get("username");
-  if (username === null) {
-    throw badRequest({ message: "username must be provided" });
-  }
-  // TODO: turn formAction into performMutation and redirect if success === false
-  const formActionResult = formAction({
+  const result = await performMutation({
     request,
     schema,
     mutation,
-    successPath: `/profile/${username}`,
   });
-  return formActionResult;
+
+  if (result.success) {
+    return redirect(`/profile/${currentUser.user_metadata.username}`);
+  }
+
+  return result;
 };
 
 export default function Delete() {
-  const { profile } = useLoaderData<LoaderData>();
   const { slug } = useParams();
   return (
     <>
@@ -126,30 +71,6 @@ export default function Delete() {
                     placeholder="wirklich löschen"
                     {...register("confirmedToken")}
                   />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="id">
-              {({ Errors }) => (
-                <>
-                  <input
-                    type="hidden"
-                    value={profile.id}
-                    {...register("id")}
-                  ></input>
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="username">
-              {({ Errors }) => (
-                <>
-                  <input
-                    type="hidden"
-                    value={profile.username}
-                    {...register("username")}
-                  ></input>
                   <Errors />
                 </>
               )}

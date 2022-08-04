@@ -24,6 +24,7 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { ArrayElement } from "~/lib/utils/types";
 import {
   getAllOrganizations,
   getFilteredOrganizations,
@@ -43,16 +44,12 @@ const schema = z.object({
   seekingId: z.string().optional(),
 });
 
-type TypeFromArray<T> = T extends (infer U)[] ? U : T;
-
-type Profiles = TypeFromArray<Awaited<ReturnType<typeof getAllProfiles>>>;
-type Organizations = TypeFromArray<
-  Awaited<ReturnType<typeof getAllOrganizations>>
->;
+type Profiles = Awaited<ReturnType<typeof getAllProfiles>>;
+type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
 
 type ProfilesAndOrganizations = (
-  | TypeFromArray<Profiles>
-  | TypeFromArray<Organizations>
+  | ArrayElement<Profiles>
+  | ArrayElement<Organizations>
 )[];
 
 type LoaderData = {

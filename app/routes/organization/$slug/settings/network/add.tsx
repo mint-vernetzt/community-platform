@@ -1,18 +1,17 @@
 import {
   ActionFunction,
-  json,
   LoaderFunction,
   redirect,
   useFetcher,
   useParams,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
-import { z } from "zod";
+import { Form, PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
 import {
   connectOrganizationToNetwork,
   getOrganizationByName,
-  getOrganizationBySlug,
+  getOrganizationIdBySlug,
   handleAuthorization,
 } from "../utils.server";
 
@@ -24,7 +23,7 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { name, slug } = values;
 
-  const network = await getOrganizationBySlug(slug);
+  const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
     throw "Network not found";
   }
@@ -43,7 +42,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
 
   if (stillMember) {
-    throw new InputError("Organization still member", "name");
+    throw new InputError("Organization already member", "name");
   }
 
   const result = await connectOrganizationToNetwork(
@@ -61,6 +60,11 @@ export const loader: LoaderFunction = async () => {
   return redirect(".");
 };
 
+type ActionData = {
+  result?: PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+  message?: string;
+};
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
@@ -68,9 +72,9 @@ export const action: ActionFunction = async (args) => {
 
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {
-    return json({
+    return {
       message: `Organization with name "${result.data.name}" added as network member`,
-    });
+    };
   }
 
   return result;
@@ -78,7 +82,7 @@ export const action: ActionFunction = async (args) => {
 
 function Add() {
   const { slug } = useParams();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<ActionData>();
 
   return (
     <>
