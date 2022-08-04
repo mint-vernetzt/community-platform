@@ -228,6 +228,31 @@ describe("action", () => {
   });
 
   describe("submit", () => {
+    test("add list item", async () => {
+      const email = "hello@songsforthe.dev";
+      const firstName = "First Name";
+      const lastName = "Last Name";
+      const listAction = "addArea";
+      const listActionItemId = "2";
+
+      const request = createRequestWithFormData({
+        ...formDefaults,
+        submit: listAction,
+        email,
+        firstName,
+        lastName,
+        [listAction]: listActionItemId,
+      });
+      const response = await action({
+        request,
+        context: {},
+        params: { username },
+      });
+
+      expect(response.errors).toBeNull();
+      expect(response.profile.areas).toEqual([listActionItemId]);
+    });
+
     test("update profile", async () => {
       const email = "hello@songsforthe.dev";
       const firstName = "First Name";
