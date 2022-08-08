@@ -1,18 +1,24 @@
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { action, loader } from "./general";
-import { getWholeOrganizationBySlug } from "./utils.server";
+import {
+  getWholeOrganizationBySlug,
+  updateOrganizationById,
+} from "./utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
 const id = "1";
+const organization = {
+  id: "1",
+};
 const slug = "mintvernetzt";
 
 jest.mock("./utils.server", () => {
   return {
     getWholeOrganizationBySlug: jest.fn(),
-    handleAuthorization: jest.fn().mockResolvedValue({ id }),
+    handleAuthorization: jest.fn().mockResolvedValue({ organization, slug }),
     updateOrganizationById: jest.fn(),
     getAreas: jest.fn(),
     getFocuses: jest.fn(),
@@ -30,7 +36,7 @@ describe("loader", () => {
 
     try {
       const request = new Request("");
-      await loader({ request, context: {}, params: { username: slug } });
+      await loader({ request, context: {}, params: { slug: slug } });
     } catch (error) {
       const response = error as Response;
       expect(response.status).toBe(404);
@@ -84,21 +90,22 @@ describe("loader", () => {
   });
 });
 
-jest.mock("~/utils.server", () => {
-  return {
-    validateCSRFToken: jest.fn(),
-  };
-});
+// Insert mock when csrf token is implemented on organization settings
+// jest.mock("~/utils.server", () => {
+//   return {
+//     validateCSRFToken: jest.fn(),
+//   };
+// });
 
 describe("action", () => {
   const formDefaults = {
-    academicTitle: "",
-    position: "",
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
-    bio: "",
+    street: "",
+    streetNumber: "",
+    zipCode: "",
+    city: "",
     website: "",
     facebook: "",
     linkedin: "",
@@ -106,12 +113,15 @@ describe("action", () => {
     youtube: "",
     instagram: "",
     xing: "",
-    areas: [],
-    skills: [],
-    offers: [],
-    interests: [],
-    seekings: [],
+    bio: "",
+    types: [],
+    quote: "",
+    quoteAuthor: "",
+    quoteAuthorInformation: "",
+    supportedBy: [],
     publicFields: [],
+    areas: [],
+    focuses: [],
   };
 
   const parsedDataDefaults = Object.entries(formDefaults).reduce(
@@ -128,7 +138,7 @@ describe("action", () => {
   );
 
   test("all fields required", async () => {
-    const request = createRequestWithFormData({ firstName: "First Name" });
+    const request = createRequestWithFormData({ name: "MINTvernetzt" });
 
     expect.assertions(2);
 
@@ -136,7 +146,7 @@ describe("action", () => {
       await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
     } catch (error) {
       const response = error as Response;
@@ -147,9 +157,9 @@ describe("action", () => {
     }
   });
 
-  describe("validate email", () => {
-    test('email is "undefined"', async () => {
-      const { email: _email, ...otherDefaults } = formDefaults;
+  describe("validate name", () => {
+    test('name is "undefined"', async () => {
+      const { name: _name, ...otherDefaults } = formDefaults;
       const request = createRequestWithFormData({
         ...otherDefaults,
       });
@@ -157,14 +167,14 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email must be a `string` type")
+      expect(response.errors.name).not.toBeUndefined();
+      expect(response.errors.name.message).toEqual(
+        expect.stringContaining("name must be a `string` type")
       );
     });
-    test("email is empty", async () => {
+    test("name is empty", async () => {
       const request = createRequestWithFormData({
         ...formDefaults,
       });
@@ -172,11 +182,11 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email is a required field")
+      expect(response.errors.name).not.toBeUndefined();
+      expect(response.errors.name.message).toEqual(
+        expect.stringContaining("Bitte gib Euren Namen ein.")
       );
     });
 
@@ -189,11 +199,13 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
       expect(response.errors.email).not.toBeUndefined();
       expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email must be a valid email")
+        expect.stringContaining(
+          "Deine Eingabe entspricht nicht dem Format einer E-Mail."
+        )
       );
     });
 
@@ -208,79 +220,52 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
       expect(response.errors.email).toBeUndefined();
-      expect(response.profile.email).toBe(email);
-    });
-
-    test("email is valid", async () => {
-      const email = "hello@songsforthe.dev";
-
-      const request = createRequestWithFormData({
-        ...formDefaults,
-        email,
-      });
-
-      const response = await action({
-        request,
-        context: {},
-        params: { username: slug },
-      });
-      expect(response.errors.email).toBeUndefined();
-      expect(response.profile.email).toBe(email);
+      expect(response.organization.email).toBe(email);
     });
   });
 
   describe("submit", () => {
     test("add list item", async () => {
-      const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
+      const name = "MINTvernetzt";
       const listAction = "addArea";
       const listActionItemId = "2";
 
       const request = createRequestWithFormData({
         ...formDefaults,
         submit: listAction,
-        email,
-        firstName,
-        lastName,
+        name,
         [listAction]: listActionItemId,
       });
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
 
       expect(response.errors).toBeNull();
-      expect(response.profile.areas).toEqual([listActionItemId]);
+      expect(response.organization.areas).toEqual([listActionItemId]);
     });
 
-    test("update profile", async () => {
-      const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
+    test("update organization", async () => {
+      const name = "MINTvernetzt";
 
       const request = createRequestWithFormData({
         ...formDefaults,
         submit: "submit",
-        email,
-        firstName,
-        lastName,
+        name,
       });
       const response = await action({
         request,
         context: {},
-        params: { username: slug },
+        params: { slug: slug },
       });
       expect(response.errors).toBeNull();
-      expect(updateProfileById).toHaveBeenCalledWith(id, {
+      expect(updateOrganizationById).toHaveBeenCalledWith(id, {
         ...parsedDataDefaults,
-        email,
-        firstName,
-        lastName,
+        name,
       });
     });
   });
