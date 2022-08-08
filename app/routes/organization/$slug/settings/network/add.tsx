@@ -1,18 +1,17 @@
 import {
   ActionFunction,
-  json,
   LoaderFunction,
   redirect,
   useFetcher,
   useParams,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
-import { z } from "zod";
+import { Form, PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
 import {
   connectOrganizationToNetwork,
   getOrganizationByName,
-  getOrganizationBySlug,
+  getOrganizationIdBySlug,
   handleAuthorization,
 } from "../utils.server";
 
@@ -24,18 +23,24 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { name, slug } = values;
 
-  const network = await getOrganizationBySlug(slug);
+  const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
-    throw "Network not found";
+    throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
   const organization = await getOrganizationByName(name);
   if (organization === null) {
-    throw new InputError("Organization not found", "name");
+    throw new InputError(
+      "Es existiert noch keine Organisation unter diesem Namen.",
+      "name"
+    );
   }
 
   if (network.id === organization.id) {
-    throw new InputError("Couldn't set organization as its own member", "name");
+    throw new InputError(
+      "Eure Organisation ist bereits Teil Eures Netzwerks.",
+      "name"
+    );
   }
 
   const stillMember = organization.memberOf.some((entry) => {
@@ -43,7 +48,10 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
 
   if (stillMember) {
-    throw new InputError("Organization still member", "name");
+    throw new InputError(
+      "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
+      "name"
+    );
   }
 
   const result = await connectOrganizationToNetwork(
@@ -51,7 +59,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     network.id
   );
   if (result === null) {
-    throw "Couldn't add organization to network";
+    throw "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.";
   }
 
   return values;
@@ -61,6 +69,11 @@ export const loader: LoaderFunction = async () => {
   return redirect(".");
 };
 
+type ActionData = {
+  result?: PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+  message?: string;
+};
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
@@ -68,9 +81,9 @@ export const action: ActionFunction = async (args) => {
 
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {
-    return json({
-      message: `Organization with name "${result.data.name}" added as network member`,
-    });
+    return {
+      message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
+    };
   }
 
   return result;
@@ -78,15 +91,13 @@ export const action: ActionFunction = async (args) => {
 
 function Add() {
   const { slug } = useParams();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<ActionData>();
 
   return (
     <>
       <h4 className="mb-4 font-semibold">Netzwerkmitglied hinzufügen</h4>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.
       </p>
       <Form
         schema={schema}

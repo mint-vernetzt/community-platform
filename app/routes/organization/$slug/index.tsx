@@ -1,4 +1,5 @@
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import {
   ActionFunction,
   Form,
@@ -63,7 +64,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 480, height: 144 },
+        resize: { type: "fill", width: 144, height: 144 },
       });
     }
   }
@@ -71,8 +72,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(unfilteredOrganization.background);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480 },
-        gravity: GravityType.north_east,
+        resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
@@ -84,7 +84,6 @@ export const loader: LoaderFunction = async (args) => {
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
           });
           member.network.logo = logo;
         }
@@ -101,7 +100,6 @@ export const loader: LoaderFunction = async (args) => {
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
           });
           member.networkMember.logo = logo;
         }
@@ -255,7 +253,7 @@ export const action: ActionFunction = async (args) => {
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
     images.logo = getImageURL(logoPublicURL, {
-      resize: { type: "fit", width: 480, height: 144 },
+      resize: { type: "fill", width: 144, height: 144 },
     });
   }
   const backgroundPublicURL = formData.get("background");
@@ -309,6 +307,9 @@ export default function Index() {
 
   const actionData = useActionData<ActionData>();
 
+  const backgroundContainer = React.useRef(null);
+  const logoContainer = React.useRef(null);
+
   let logo;
   if (actionData && actionData.images.logo) {
     logo = actionData.images.logo;
@@ -334,13 +335,23 @@ export default function Index() {
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
-          {background && (
-            <img src={background} alt="" className="object-cover h-full" />
-          )}
+          <div ref={backgroundContainer} className="w-full h-full">
+            {background && (
+              <img
+                src={background}
+                alt=""
+                className="object-cover w-full h-full"
+              />
+            )}
+          </div>
           {loaderData.userIsPrivileged && (
             <div className="absolute bottom-6 right-6">
-              <Form method="post" encType="multipart/form-data">
-                <label htmlFor="background">Hintergrund</label>
+              <Form
+                method="post"
+                encType="multipart/form-data"
+                className="flex items-center"
+                reloadDocument
+              >
                 <InputImage
                   id="background"
                   name="background"
@@ -349,8 +360,11 @@ export default function Index() {
                   minHeight={480} // 480 px
                   maxWidth={1920} // 1920 px
                   maxHeight={1080} // 1080 px
+                  classes="opacity-0 w-0 h-0"
+                  containerRef={backgroundContainer}
+                  containerClassName="w-full h-full"
+                  imageClassName="object-cover w-full h-full"
                 />
-                <button className="btn btn-primary btn-small">Upload</button>
               </Form>
             </div>
           )}
@@ -361,22 +375,29 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                {logo ? (
-                  <div className="h-36 w-100 flex items-center justify-center">
+                <div
+                  ref={logoContainer}
+                  className={`h-36 flex items-center justify-center rounded-md overflow-hidden ${
+                    logo ? "w-full" : "w-36 bg-primary text-white text-6xl"
+                  }`}
+                >
+                  {logo ? (
                     <img
                       src={logo}
                       alt={loaderData.organization.name || ""}
                       className="max-w-full w-auto max-h-36 h-auto"
                     />
-                  </div>
-                ) : (
-                  <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-                    {initialsOfOrganization}
-                  </div>
-                )}
+                  ) : (
+                    { initialsOfOrganization }
+                  )}
+                </div>
                 {loaderData.userIsPrivileged && (
-                  <Form method="post" encType="multipart/form-data">
-                    <label htmlFor="logo">Logo</label>
+                  <Form
+                    method="post"
+                    encType="multipart/form-data"
+                    className="flex items-center mt-4"
+                    reloadDocument
+                  >
                     <InputImage
                       id="logo"
                       name="logo"
@@ -385,10 +406,11 @@ export default function Index() {
                       minHeight={144} // 144 px
                       maxWidth={500} // 500 px
                       maxHeight={500} // 500 px
+                      classes="opacity-0 w-0 h-0"
+                      containerRef={logoContainer}
+                      containerClassName="h-36 w-full flex items-center justify-center"
+                      imageClassName="max-w-full w-auto max-h-36 h-auto"
                     />
-                    <button className="btn btn-primary btn-small">
-                      Upload
-                    </button>
                   </Form>
                 )}
                 <h3 className="mt-6 text-5xl mb-1">
@@ -469,7 +491,7 @@ export default function Index() {
                       loaderData.organization[service] !== ""
                     ) {
                       return (
-                        <li key={service} className="flex-auto px-1">
+                        <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
                             url={loaderData.organization[service] as string}

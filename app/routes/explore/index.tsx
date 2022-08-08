@@ -24,6 +24,7 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { ArrayElement } from "~/lib/utils/types";
 import {
   getAllOrganizations,
   getFilteredOrganizations,
@@ -43,16 +44,12 @@ const schema = z.object({
   seekingId: z.string().optional(),
 });
 
-type TypeFromArray<T> = T extends (infer U)[] ? U : T;
-
-type Profiles = TypeFromArray<Awaited<ReturnType<typeof getAllProfiles>>>;
-type Organizations = TypeFromArray<
-  Awaited<ReturnType<typeof getAllOrganizations>>
->;
+type Profiles = Awaited<ReturnType<typeof getAllProfiles>>;
+type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
 
 type ProfilesAndOrganizations = (
-  | TypeFromArray<Profiles>
-  | TypeFromArray<Organizations>
+  | ArrayElement<Profiles>
+  | ArrayElement<Organizations>
 )[];
 
 type LoaderData = {
@@ -381,11 +378,12 @@ export default function Index() {
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke die Community</H1>
         <p className="">
-          Hier siehst Du persönliche Profile sowie Organisationen, Netzwerke und
-          Projekte aus der MINT-Community. Über die Filterfunktion kannst Du
-          herausfinden, welche Organisationen, Netzwerke und Projekte es gibt.
-          Wer ist in Deiner Region aktiv? Mit wem möchtest Du Dich vernetzen? Wo
-          bieten sich Kooperationen an?
+          Auf der Startseite findest Du eine Auswahl an persönlichen Profilen
+          sowie Organisationen, Netzwerke und Projekte aus der MINT-Community.
+          Über die Filterfunktion kannst Du herausfinden, welche weiteren
+          Organisationen, Netzwerke und Projekte es gibt. Wer ist in Deinem
+          Aktivitätsgebiet aktiv? Mit wem möchtest Du Dich vernetzen? Wo bieten
+          sich Kooperationen an?
         </p>
       </section>
 
@@ -404,7 +402,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Aktivitätsgebiet:
+                            Aktivitätsgebiet
                           </label>
                           <select
                             {...register("areaId")}
@@ -455,7 +453,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Angebot:
+                            Ich suche
                           </label>
                           <select
                             {...register("offerId")}
@@ -481,7 +479,7 @@ export default function Index() {
                       {({ Errors }) => (
                         <>
                           <label className="block font-semibold mb-2">
-                            Gesuch:
+                            Ich möchte unterstützen mit
                           </label>
                           <select
                             {...register("seekingId")}

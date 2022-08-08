@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { MetaFunction } from "remix";
 import {
   Form,
   json,
@@ -14,17 +15,16 @@ import {
   useLoaderData,
   useLocation,
 } from "remix";
-import type { MetaFunction } from "remix";
-import styles from "./styles/styles.css";
-import { createCSRFToken } from "./utils.server";
-import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
 import { forbidden } from "remix-utils";
-import { supabaseClient } from "./supabase";
-import { getProfileByUserId } from "./profile.server";
-import { getPublicURL } from "./storage.server";
+import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
+import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
-import { props } from "cypress/types/bluebird";
+import { getProfileByUserId } from "./profile.server";
+import { getPublicURL } from "./storage.server";
+import styles from "./styles/styles.css";
+import { supabaseClient } from "./supabase";
+import { createCSRFToken } from "./utils.server";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform (Preview)" };
@@ -238,9 +238,13 @@ export default function App() {
   }, [location, matomoSiteId]);
 
   const nonAppBaseRoutes = ["/login", "/register", "/reset"];
-
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
+  );
+
+  const differentFooterRoutes = "/settings/general";
+  const isDifferentFooterRoute = location.pathname.includes(
+    differentFooterRoutes
   );
 
   return (
@@ -269,37 +273,19 @@ export default function App() {
           />
         )}
       </head>
-      <body>
-        {isNonAppBaseRoute ? null : (
-          <NavBar currentUserInfo={currentUserInfo} />
-        )}
 
-        <Outlet />
-        <section className="text-right mb-4 mr-4">
-          <Link
-            to="imprint"
-            target="_blank"
-            className="mr-2 text-xs hover:underline"
-          >
-            Impressum
-          </Link>
-          -
-          <a
-            href="https://mint-vernetzt.de/privacy-policy-community-platform"
-            target="_blank"
-            className="mx-2 text-xs hover:underline"
-          >
-            Datenschutzerklärung
-          </a>
-          -
-          <a
-            href="https://mint-vernetzt.de/terms-of-use-community-platform"
-            target="_blank"
-            className="ml-2 text-xs hover:underline"
-          >
-            Nutzungsbedingungen
-          </a>
-        </section>
+      <body>
+        <div className="flex flex-col min-h-screen">
+          {isNonAppBaseRoute ? null : (
+            <NavBar currentUserInfo={currentUserInfo} />
+          )}
+
+          <main className="flex-auto">
+            <Outlet />
+          </main>
+
+          <Footer isDifferentFooterRoute={isDifferentFooterRoute} />
+        </div>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

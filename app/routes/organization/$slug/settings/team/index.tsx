@@ -1,47 +1,26 @@
-import { Profile } from "@prisma/client";
 import { LoaderFunction, useLoaderData, useParams } from "remix";
-import { prismaClient } from "~/prisma";
-import { handleAuthorization } from "./../utils.server";
+import { ArrayElement } from "~/lib/utils/types";
+import {
+  getMembersOfOrganization,
+  handleAuthorization,
+} from "./../utils.server";
 import Add from "./add";
 import { MemberRemoveForm } from "./remove";
 
-type ProfileData = Pick<
-  Profile,
-  "id" | "username" | "firstName" | "lastName" | "avatar" | "position"
+export type Member = ArrayElement<
+  Awaited<ReturnType<typeof getMembersOfOrganization>>
 >;
 
-export type Member = {
-  isPrivileged: boolean;
-  organizationId: string;
-  profile: ProfileData;
+type LoaderData = {
+  members: Member[];
 };
-
-type LoaderData = Member[];
 
 export const loader: LoaderFunction = async (args) => {
   const { organization } = await handleAuthorization(args);
 
-  const members = await prismaClient.memberOfOrganization.findMany({
-    select: {
-      isPrivileged: true,
-      organizationId: true,
-      profile: {
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          position: true,
-        },
-      },
-    },
-    where: {
-      organizationId: organization.id,
-    },
-  });
+  const members = await getMembersOfOrganization(organization.id);
 
-  return members;
+  return { members };
 };
 
 function Index() {
@@ -52,17 +31,16 @@ function Index() {
     <>
       <h1 className="mb-8">Das Team</h1>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua. BUH!
+        Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
+        oder entferne sie.
       </p>
       <div className="mb-8">
-        {loaderData.map((member) => {
+        {loaderData.members.map((member) => {
           return (
             <MemberRemoveForm
               key={member.profile.username}
               {...member}
-              slug={slug as string}
+              slug={slug || ""}
             />
           );
         })}

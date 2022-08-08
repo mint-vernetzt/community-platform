@@ -1,18 +1,16 @@
 import {
   ActionFunction,
-  json,
   LoaderFunction,
   redirect,
   useFetcher,
   useParams,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
-import { z } from "zod";
-
+import { Form, PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
 import {
   connectProfileToOrganization,
-  getOrganizationBySlug,
+  getOrganizationIdBySlug,
   getProfileByEmail,
   handleAuthorization,
 } from "./../utils.server";
@@ -25,15 +23,21 @@ const schema = z.object({
 const mutation = makeDomainFunction(schema)(async (values) => {
   const { email, slug } = values;
   // TODO: Duplicate code - see utils.server.ts handleAuthorization()
-  const organization = await getOrganizationBySlug(slug);
+  // Problem:
+  // - organization.id is required inside the mutation scope
+  // - handleAuthorization returns the organization.id but needs to be called inside the action scope as it needs the action args (params, request)
+  const organization = await getOrganizationIdBySlug(slug);
   if (organization === null) {
-    throw "Organization not found";
+    throw "Die Organisation konnte nicht gefunden werden.";
   }
 
   const profile = await getProfileByEmail(email);
 
   if (profile === null) {
-    throw new InputError("Profile not found", "email");
+    throw new InputError(
+      "Es existiert noch kein Profil unter dieser E-Mail.",
+      "email"
+    );
   }
 
   const stillMember = profile.memberOf.some((entry) => {
@@ -41,7 +45,10 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
 
   if (stillMember) {
-    throw new InputError("User still member", "email");
+    throw new InputError(
+      "Das Profil unter dieser E-Mail ist bereits Mitglied Eurer Organisation.",
+      "email"
+    );
   }
 
   const result = await connectProfileToOrganization(
@@ -49,7 +56,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     organization.id
   );
   if (result === null) {
-    throw "Couldn't add user as member";
+    throw "Das profil unter dieser E-Mail konnte leider nicht hinzugefügt werden.";
   }
 
   return values;
@@ -57,6 +64,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const loader: LoaderFunction = async () => {
   return redirect(".");
+};
+
+type ActionData = {
+  result?: PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+  message?: string;
 };
 
 export const action: ActionFunction = async (args) => {
@@ -67,24 +79,22 @@ export const action: ActionFunction = async (args) => {
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success) {
-    return json({
-      message: `User with email "${result.data.email}" added as team member`,
-    });
+    return {
+      message: `Ein neues Teammitglied mit der E-Mail "${result.data.email}" wurde hinzugefügt.`,
+    };
   }
 
   return result;
 };
 function Add() {
   const { slug } = useParams();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<ActionData>();
 
   return (
     <>
       <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
       <p className="mb-8">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-        voluptua.
+        Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.
       </p>
       <Form
         schema={schema}
@@ -126,6 +136,7 @@ function Add() {
                   <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
                     +
                   </Button>
+                  <Errors />
                 </div>
               </div>
               <Field name="slug" />
@@ -133,7 +144,7 @@ function Add() {
           );
         }}
       </Form>
-      {fetcher?.data?.message && (
+      {fetcher.data?.message && (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {fetcher.data.message}
         </div>

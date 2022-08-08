@@ -1,4 +1,3 @@
-import { Area, Focus, OrganizationType } from "@prisma/client";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -11,9 +10,8 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { badRequest, forbidden, serverError } from "remix-utils";
+import { forbidden, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
-import { getUserByRequest } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -25,33 +23,41 @@ import {
   FormError,
   getFormValues,
   multiline,
+  nullOrString,
   phone,
   social,
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import { prismaClient } from "~/prisma";
+import {
+  getAreas,
+  getFocuses,
+  getOrganizationTypes,
+  getWholeOrganizationBySlug,
+  handleAuthorization,
+  updateOrganizationById,
+} from "./utils.server";
 
 const organizationSchema = object({
-  name: string().required(),
-  email: string().email(),
-  phone: phone(),
-  street: string(),
-  streetNumber: string(),
-  zipCode: string(),
-  city: string(),
-  website: website(),
-  facebook: social("facebook"),
-  linkedin: social("linkedin"),
-  twitter: social("twitter"),
-  youtube: social("youtube"),
-  instagram: social("instagram"),
-  xing: social("xing"),
-  bio: multiline(),
+  name: string().required("Bitte gib Euren Namen ein."),
+  email: nullOrString(string().email()),
+  phone: nullOrString(phone()),
+  street: nullOrString(string()),
+  streetNumber: nullOrString(string()),
+  zipCode: nullOrString(string()),
+  city: nullOrString(string()),
+  website: nullOrString(website()),
+  facebook: nullOrString(social("facebook")),
+  linkedin: nullOrString(social("linkedin")),
+  twitter: nullOrString(social("twitter")),
+  youtube: nullOrString(social("youtube")),
+  instagram: nullOrString(social("instagram")),
+  xing: nullOrString(social("xing")),
+  bio: nullOrString(multiline()),
   types: array(string().required()).required(),
-  quote: multiline(),
-  quoteAuthor: string(),
-  quoteAuthorInformation: string(),
+  quote: nullOrString(multiline()),
+  quoteAuthor: nullOrString(string()),
+  quoteAuthorInformation: nullOrString(string()),
   supportedBy: array(string().required()).required(),
   publicFields: array(string().required()).required(),
   areas: array(string().required()).required(),
@@ -62,104 +68,43 @@ type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
 type LoaderData = {
-  organization: OrganizationFormType;
-  organizationTypes: OrganizationType[];
-  areas: Area[];
-  focuses: Focus[];
+  organization: ReturnType<typeof makeFormOrganizationFromDbOrganization>;
+  organizationTypes: Awaited<ReturnType<typeof getOrganizationTypes>>;
+  areas: Awaited<ReturnType<typeof getAreas>>;
+  focuses: Awaited<ReturnType<typeof getFocuses>>;
 };
 
+function makeFormOrganizationFromDbOrganization(
+  dbOrganization: NonNullable<
+    Awaited<ReturnType<typeof getWholeOrganizationBySlug>>
+  >
+) {
+  return {
+    ...dbOrganization,
+    areas: dbOrganization.areas.map((area) => area.areaId) ?? [],
+    types: dbOrganization.types.map((type) => type.organizationTypeId) ?? [],
+    focuses: dbOrganization.focuses.map((focus) => focus.focusId) ?? [],
+  };
+}
+
 export const loader: LoaderFunction = async (args) => {
-  const getOrganization = async (slug: string, userId: string) => {
-    const organization = await prismaClient.organization.findFirst({
-      where: {
-        slug,
-        teamMembers: {
-          some: {
-            profileId: userId,
-            isPrivileged: true,
-          },
-        },
-      },
-      include: {
-        types: {
-          select: {
-            organizationTypeId: true,
-          },
-        },
-        areas: {
-          select: {
-            areaId: true,
-          },
-        },
-        focuses: {
-          select: {
-            focusId: true,
-          },
-        },
-      },
-    });
-    return organization;
-  };
+  const { slug } = await handleAuthorization(args);
 
-  // TODO: find better place
-  const getOrganizationTypes = async () => {
-    const organizationTypes = await prismaClient.organizationType.findMany();
-    return organizationTypes;
-  };
-
-  // TODO: find better place
-  const getFocuses = async () => {
-    const focuses = await prismaClient.focus.findMany();
-    return focuses;
-  };
-
-  // TODO: find better place
-  const getAreas = async () => {
-    return await prismaClient.area.findMany({
-      include: {
-        state: true,
-      },
-    });
-  };
-
-  const { params, request } = args;
-  const slug = params.slug;
-
-  if (slug === undefined) {
-    throw badRequest({ message: "$slug must be provided." });
-  }
-
-  const currentUser = await getUserByRequest(request.clone());
-  if (currentUser == null) {
-    throw forbidden({ message: "Not logged in." });
-  }
-
-  const organization = await getOrganization(slug, currentUser.id);
-
-  if (organization === null) {
+  const dbOrganization = await getWholeOrganizationBySlug(slug);
+  if (dbOrganization === null) {
     throw forbidden({
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
 
+  const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
+
   const organizationTypes = await getOrganizationTypes();
   const focuses = await getFocuses();
-
   const areas = await getAreas();
 
   return {
-    organization: {
-      ...organization,
-      types: organization.types.map((type) => {
-        return type.organizationTypeId;
-      }),
-      areas: organization.areas.map((area) => {
-        return area.areaId;
-      }),
-      focuses: organization.focuses.map((focus) => {
-        return focus.focusId;
-      }),
-    },
+    organization,
     organizationTypes,
     areas,
     focuses,
@@ -174,41 +119,8 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async (args) => {
-  const getOrganization = async (slug: string, userId: string) => {
-    const organization = await prismaClient.organization.findFirst({
-      where: {
-        slug,
-        teamMembers: {
-          some: {
-            profileId: userId,
-            isPrivileged: true,
-          },
-        },
-      },
-    });
-    return organization;
-  };
-
-  const { params, request } = args;
-
-  const slug = params.slug;
-
-  if (slug === undefined) {
-    throw badRequest({ message: "$slug must be provided." });
-  }
-
-  const currentUser = await getUserByRequest(request.clone());
-  if (currentUser == null) {
-    throw forbidden({ message: "Not logged in." });
-  }
-
-  const organization = await getOrganization(slug, currentUser.id);
-
-  if (organization === null) {
-    throw forbidden({
-      message: `Organization with slug "${slug}" not found or not permitted to edit.`,
-    });
-  }
+  const { organization } = await handleAuthorization(args);
+  const { request } = args;
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
@@ -227,63 +139,7 @@ export const action: ActionFunction = async (args) => {
   if (submit === "submit") {
     if (errors === null) {
       try {
-        await prismaClient.organization.update({
-          where: {
-            slug,
-          },
-          data: {
-            ...data,
-            types: {
-              deleteMany: {},
-              connectOrCreate: data.types.map((typeId) => {
-                return {
-                  where: {
-                    organizationId_organizationTypeId: {
-                      organizationTypeId: typeId,
-                      organizationId: organization.id,
-                    },
-                  },
-                  create: {
-                    organizationTypeId: typeId,
-                  },
-                };
-              }),
-            },
-            focuses: {
-              deleteMany: {},
-              connectOrCreate: data.focuses.map((focusId) => {
-                return {
-                  where: {
-                    organizationId_focusId: {
-                      focusId,
-                      organizationId: organization.id,
-                    },
-                  },
-                  create: {
-                    focusId,
-                  },
-                };
-              }),
-            },
-            areas: {
-              deleteMany: {},
-              connectOrCreate: data.areas.map((areaId) => {
-                return {
-                  where: {
-                    organizationId_areaId: {
-                      areaId,
-                      organizationId: organization.id,
-                    },
-                  },
-                  create: {
-                    areaId,
-                  },
-                };
-              }),
-            },
-          },
-        });
-
+        await updateOrganizationById(organization.id, data);
         updated = true;
       } catch (error) {
         console.error(error);
@@ -424,15 +280,11 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">Institutionelle Daten</h1>
+          <h1 className="mb-8">Deine Organisation</h1>
 
           <h4 className="mb-4 font-semibold">Allgemein</h4>
 
-          <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
-          </p>
+          <p className="mb-8">Wie kann die Community Euch erreichen?</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
@@ -448,7 +300,6 @@ function Index() {
                 {...register("email")}
                 id="email"
                 label="E-Mail"
-                defaultValue={organization.email}
                 errorMessage={errors?.email?.message}
                 isPublic={organization.publicFields?.includes("email")}
               />
@@ -458,20 +309,18 @@ function Index() {
                 {...register("phone")}
                 id="phone"
                 label="Telefon"
-                defaultValue={organization.phone}
                 errorMessage={errors?.phone?.message}
                 isPublic={organization.publicFields?.includes("phone")}
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Anschrift Hauptsitz</h4>
+          <h4 className="mb-4 font-semibold">Anschrift</h4>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("street")}
                 id="street"
                 label="Straßenname"
-                defaultValue={organization.street}
                 errorMessage={errors?.street?.message}
               />
             </div>
@@ -480,7 +329,6 @@ function Index() {
                 {...register("streetNumber")}
                 id="streetNumber"
                 label="Hausnummer"
-                defaultValue={organization.streetNumber}
                 errorMessage={errors?.streetNumber?.message}
               />
             </div>
@@ -491,7 +339,6 @@ function Index() {
                 {...register("zipCode")}
                 id="zipCode"
                 label="PLZ"
-                defaultValue={organization.zipCode}
                 errorMessage={errors?.zipCode?.message}
               />
             </div>
@@ -500,33 +347,18 @@ function Index() {
                 {...register("city")}
                 id="city"
                 label="Stadt"
-                defaultValue={organization.city}
                 errorMessage={errors?.city?.message}
               />
             </div>
           </div>
-
-          <SelectAdd
-            name="types"
-            label="Organisationsform"
-            entries={selectedOrganizationTypes.map((type) => ({
-              label: type.title,
-              value: type.id,
-            }))}
-            options={organizationTypesOptions.filter((option) => {
-              return !organization.types.includes(option.value);
-            })}
-            placeholder=""
-          />
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h4 className="font-semibold mb-4">Über uns</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            Teile der Community mehr über Deine Organisation oder Dein Projekt
+            mit.
           </p>
 
           <div className="mb-4">
@@ -535,16 +367,29 @@ function Index() {
               id="bio"
               label="Kurzbeschreibung"
               isPublic={organization.publicFields?.includes("bio")}
-              defaultValue={organization.bio}
               errorMessage={errors?.bio?.message}
               maxCharacters={500}
             />
           </div>
           <div className="mb-4">
             <SelectAdd
+              name="types"
+              label="Organisationsform"
+              entries={selectedOrganizationTypes.map((type) => ({
+                label: type.title,
+                value: type.id,
+              }))}
+              options={organizationTypesOptions.filter((option) => {
+                return !organization.types.includes(option.value);
+              })}
+              placeholder="Füge Eure Organisationsformen hinzu."
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
               name="areas"
               label={"Aktivitätsgebiete"}
-              placeholder="Aktivitätsgebiete hinzufügen"
+              placeholder="Füge Eure Aktivitätsgebiete hinzu."
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -563,7 +408,7 @@ function Index() {
             <SelectAdd
               name="focuses"
               label={"MINT-Schwerpunkte"}
-              placeholder="MINT-Schwerpunkt hinzufügen"
+              placeholder="Füge Eure MINT-Schwerpunkte hinzu."
               entries={selectedFocuses.map((focus) => ({
                 label: focus.title,
                 value: focus.id,
@@ -580,7 +425,6 @@ function Index() {
               id="quote"
               label="Zitat"
               isPublic={organization.publicFields?.includes("quote")}
-              defaultValue={organization.quote}
               errorMessage={errors?.quote?.message}
               maxCharacters={300}
             />
@@ -590,8 +434,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthor")}
                 id="quoteAuthor"
-                label="Von"
-                defaultValue={organization.quoteAuthor}
+                label="Von wem stammt das Zitat?"
                 errorMessage={errors?.quoteAuthor?.message}
               />
             </div>
@@ -599,8 +442,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
-                label="Zusatzinformationen (Position/Beruf)"
-                defaultValue={organization.quoteAuthorInformation}
+                label="Zusatzinformationen des Zitatauthors (Position/Beruf)"
                 errorMessage={errors?.quoteAuthorInformation?.message}
               />
             </div>
@@ -613,17 +455,14 @@ function Index() {
           <h4 className="mb-4 font-semibold">Website</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            Wo kann die Community mehr über Euer Angebot erfahren?
           </p>
 
           <div className="basis-full mb-4">
             <InputText
               {...register("website")}
               id="website"
-              label="Website URL"
-              defaultValue={organization.website}
+              label="Website"
               placeholder="domainname.tld"
               isPublic={organization.publicFields?.includes("website")}
               errorMessage={errors?.website?.message}
@@ -636,9 +475,8 @@ function Index() {
           <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
 
           <p className="mb-8">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua.
+            In welchen Netzwerken ist Deine Organisation oder Dein Projekt
+            vertreten?
           </p>
 
           {socialMediaServices.map((service) => (
@@ -647,7 +485,6 @@ function Index() {
                 {...register(service.id)}
                 id={service.id}
                 label={service.label}
-                defaultValue={organization[service.id] as string}
                 placeholder={service.organizationPlaceholder}
                 isPublic={organization.publicFields?.includes(service.id)}
                 errorMessage={errors?.[service.id]?.message}
@@ -666,7 +503,7 @@ function Index() {
                       : "hidden"
                   }`}
                 >
-                  Profil wurde aktualisiert.
+                  Deine Informationen wurden aktualisiert.
                 </div>
 
                 {isFormChanged && (

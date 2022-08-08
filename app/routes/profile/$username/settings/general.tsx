@@ -43,8 +43,8 @@ import {
 const profileSchema = object({
   academicTitle: nullOrString(string()),
   position: nullOrString(string()),
-  firstName: string().required(),
-  lastName: string().required(),
+  firstName: string().required("Bitte gib Deinen Vornamen ein."),
+  lastName: string().required("Bitte gib Deinen Nachnamen ein."),
   email: string().email().required(),
   phone: nullOrString(phone()),
   bio: nullOrString(multiline()),
@@ -64,7 +64,7 @@ const profileSchema = object({
 });
 
 type ProfileSchemaType = typeof profileSchema;
-type ProfileFormType = InferType<typeof profileSchema>;
+export type ProfileFormType = InferType<typeof profileSchema>;
 
 type LoaderData = {
   profile: ReturnType<typeof makeFormProfileFromDbProfile>;
@@ -90,13 +90,13 @@ export const loader: LoaderFunction = async ({
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
 
-  let dbProfile = await getWholeProfileFromId(currentUser.id);
+  const dbProfile = await getWholeProfileFromId(currentUser.id);
 
   if (dbProfile === null) {
     throw notFound({ message: "Profile not found" });
   }
 
-  let profile = makeFormProfileFromDbProfile(dbProfile);
+  const profile = makeFormProfileFromDbProfile(dbProfile);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
@@ -145,8 +145,13 @@ export const action: ActionFunction = async ({
   const submit = formData.get("submit");
   if (submit === "submit") {
     if (errors === null) {
-      await updateProfileById(currentUser.id, data);
-      updated = true;
+      try {
+        await updateProfileById(currentUser.id, data);
+        updated = true;
+      } catch (error) {
+        console.error(error);
+        throw serverError({ message: "Something went wrong on update." });
+      }
     }
   } else {
     const listData: (keyof ProfileFormType)[] = [
@@ -264,12 +269,6 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <button
-            name="submit"
-            type="submit"
-            value="submit"
-            className="hidden"
-          />
           {hiddenCSRFInput}
           <fieldset disabled={transition.state === "submitting"}>
             <h1 className="mb-8">Persönliche Daten</h1>
@@ -368,7 +367,7 @@ export default function Index() {
 
             <p className="mb-8">
               Erzähl der Community etwas über Dich: Wer bist Du und was machst
-              du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist
+              Du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist
               Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche
               Themen interessieren Dich im MINT-Kontext besonders?
             </p>
@@ -378,6 +377,7 @@ export default function Index() {
                 {...register("bio")}
                 id="bio"
                 label="Kurzbeschreibung"
+                placeholder="Beschreibe Dich und Dein Tätigkeitsfeld näher."
                 isPublic={profile.publicFields?.includes("bio")}
                 errorMessage={errors?.bio?.message}
                 maxCharacters={500}
@@ -388,7 +388,7 @@ export default function Index() {
               <SelectAdd
                 name="areas"
                 label={"Aktivitätsgebiete"}
-                placeholder="Aktivitätsgebiete hinzufügen"
+                placeholder="Füge Regionen hinzu, in denen Du aktiv bist."
                 entries={selectedAreas.map((area) => ({
                   label: area.name,
                   value: area.id,
@@ -401,7 +401,7 @@ export default function Index() {
               <InputAdd
                 name="skills"
                 label="Kompetenzen"
-                placeholder="Kompetenz hinzufügen"
+                placeholder="Füge Deine Kompetenzen hinzu."
                 entries={profile.skills ?? []}
                 isPublic={profile.publicFields?.includes("skills")}
               />
@@ -411,7 +411,7 @@ export default function Index() {
               <InputAdd
                 name="interests"
                 label="Interessen"
-                placeholder="Interesse hinzufügen"
+                placeholder="Füge Deine Interessen hinzu."
                 entries={profile.interests ?? []}
                 isPublic={profile.publicFields?.includes("interests")}
               />
@@ -436,7 +436,7 @@ export default function Index() {
                 options={offerOptions.filter(
                   (o) => !profile.offers.includes(o.value)
                 )}
-                placeholder=""
+                placeholder="Füge Deine Angebote hinzu."
                 isPublic={profile.publicFields?.includes("offers")}
               />
             </div>
@@ -460,7 +460,7 @@ export default function Index() {
                 options={offerOptions.filter(
                   (o) => !profile.seekings.includes(o.value)
                 )}
-                placeholder=""
+                placeholder="Füge hinzu wonach Du suchst."
                 isPublic={profile.publicFields?.includes("seekings")}
               />
             </div>
@@ -472,16 +472,14 @@ export default function Index() {
             <h4 className="mb-4 font-semibold">Website</h4>
 
             <p className="mb-8">
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-              nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-              erat, sed diam voluptua.
+              Wo kann die Community mehr über Dich und Dein Angebot erfahren?
             </p>
 
             <div className="basis-full mb-4">
               <InputText
                 {...register("website")}
                 id="website"
-                label="Website URL"
+                label="Website"
                 placeholder="domainname.tld"
                 isPublic={profile.publicFields?.includes("website")}
                 errorMessage={errors?.website?.message}
@@ -494,9 +492,7 @@ export default function Index() {
             <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
 
             <p className="mb-8">
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-              nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-              erat, sed diam voluptua.
+              Wo kann die Community in Kontakt mit Dir treten?
             </p>
 
             {socialMediaServices.map((service) => (
@@ -517,7 +513,7 @@ export default function Index() {
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">
-                Organisation, Netzwerk, Projekt hinzufügen
+                Organisation, Netzwerk oder Projekt hinzufügen
               </h4>
               <Link
                 to="/organization/create"
@@ -552,7 +548,7 @@ export default function Index() {
                         : "hidden"
                     }`}
                   >
-                    Profil wurde aktualisiert.
+                    Dein Profil wurde aktualisiert.
                   </div>
 
                   {isFormChanged && (

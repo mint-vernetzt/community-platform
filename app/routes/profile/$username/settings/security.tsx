@@ -21,28 +21,30 @@ const emailSchema = z.object({
   csrf: z.string(),
   email: z
     .string()
-    .min(1, "Bitte eine E-Mail eingeben.")
-    .email("Ungültige E-Mail"),
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
+    .email("Bitte gib eine gültige E-Mail-Adresse ein."),
   confirmEmail: z
     .string()
-    .min(1, "E-Mail wiederholen um Rechtschreibfehler zu vermeiden.")
-    .email("Ungültige E-Mail"),
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
+    .email("Bitte gib eine gültige E-Mail-Adresse ein. "),
   submittedForm: z.enum(["changeEmail"]), // TODO: Can be exactly one of changeEmail || changePassword
 });
 
 const passwordSchema = z.object({
   csrf: z.string(),
-  password: z.string().min(8, "Bitte ein Passwort eingeben."),
+  password: z
+    .string()
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
   confirmPassword: z
     .string()
-    .min(8, "Passwort wiederholen um Rechtschreibfehler zu vermeiden."),
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
   submittedForm: z.enum(["changePassword"]),
 });
 
 const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
   if (values.confirmPassword !== values.password) {
     throw new InputError(
-      "Die eingegebenen Passwörter stimmen nicht überein",
+      "Deine Passwörter stimmen nicht überein.",
       "confirmPassword"
     ); // -- Field error
   }
@@ -58,7 +60,7 @@ const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
 const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
   if (values.confirmEmail !== values.email) {
     throw new InputError(
-      "Die eingegebenen E-Mails stimmen nicht überein",
+      "Deine E-Mails stimmen nicht überein.",
       "confirmEmail"
     ); // -- Field error
   }
@@ -131,9 +133,8 @@ export default function Security() {
         <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
         <p className="mb-8">
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-          sed diam voluptua.
+          Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang
+          sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.
         </p>
         <input type="hidden" name="action" value="changePassword" />
 
@@ -146,7 +147,6 @@ export default function Security() {
                     <InputPassword
                       id="password"
                       label="Neues Passwort"
-                      required
                       {...register("password")}
                     />
                     <Errors />
@@ -160,7 +160,6 @@ export default function Security() {
                     <InputPassword
                       id="confirmPassword"
                       label="Passwort wiederholen"
-                      required
                       {...register("confirmPassword")}
                     />
                     <Errors />
@@ -197,7 +196,7 @@ export default function Security() {
                     "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                   }
                 >
-                  Passwort wurde geändert.
+                  Dein Passwort wurde geändert.
                 </span>
               ) : null}
               <Errors />
@@ -209,9 +208,8 @@ export default function Security() {
         <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
 
         <p className="mb-8">
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-          sed diam voluptua.
+          Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der
+          Community-Plattform ändern.
         </p>
         <RemixForm method="post" schema={emailSchema}>
           {({ Field, Button, Errors, register }) => (
@@ -222,7 +220,6 @@ export default function Security() {
                     <Input
                       id="email"
                       label="Neue E-Mail"
-                      required
                       {...register("email")}
                     />
                     <Errors />
@@ -236,7 +233,6 @@ export default function Security() {
                     <Input
                       id="confirmEmail"
                       label="E-Mail wiederholen"
-                      required
                       {...register("confirmEmail")}
                     />
                     <Errors />
@@ -273,7 +269,7 @@ export default function Security() {
                     "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                   }
                 >
-                  Bestätigungslink gesendet.
+                  Ein Bestätigungslink wurde Dir zugesendet.
                 </span>
               ) : null}
               <Errors />

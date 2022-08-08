@@ -1,6 +1,6 @@
 import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
 import { prismaClient } from "./prisma";
-import { ProfileFormType } from "./routes/profile/$username/edit/yupSchema";
+import { ProfileFormType } from "./routes/profile/$username/settings/general";
 
 export type ProfileWithRelations = Profile & {
   areas?: Area[];
