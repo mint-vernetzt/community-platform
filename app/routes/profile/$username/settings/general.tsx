@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { notFound, serverError } from "remix-utils";
+import { badRequest, notFound } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -77,9 +77,9 @@ function makeFormProfileFromDbProfile(
 ) {
   return {
     ...dbProfile,
-    areas: dbProfile.areas.map((area) => area.area.id) ?? [],
-    offers: dbProfile.offers.map((offer) => offer.offer.id) ?? [],
-    seekings: dbProfile.seekings.map((seeking) => seeking.offer.id) ?? [],
+    areas: dbProfile.areas.map((area) => area.area.id),
+    offers: dbProfile.offers.map((offer) => offer.offer.id),
+    seekings: dbProfile.seekings.map((seeking) => seeking.offer.id),
   };
 }
 
@@ -93,7 +93,7 @@ export const loader: LoaderFunction = async ({
   const dbProfile = await getWholeProfileFromId(currentUser.id);
 
   if (dbProfile === null) {
-    throw notFound("Profile not found");
+    throw notFound({ message: "Profile not found" });
   }
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
@@ -123,10 +123,23 @@ export const action: ActionFunction = async ({
     request,
     profileSchema
   );
-  let { errors, data } = await validateForm<ProfileSchemaType>(
-    profileSchema,
-    parsedFormData
-  );
+
+  let errors: FormError | null;
+  let data: ProfileFormType;
+
+  try {
+    const result = await validateForm<ProfileSchemaType>(
+      profileSchema,
+      parsedFormData
+    );
+
+    errors = result.errors;
+    data = result.data;
+  } catch (error) {
+    console.error(error);
+    throw badRequest({ message: "Validation failed" });
+  }
+
   let updated = false;
 
   const submit = formData.get("submit");
