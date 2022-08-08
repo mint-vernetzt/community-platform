@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { badRequest, notFound } from "remix-utils";
+import { badRequest, notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
