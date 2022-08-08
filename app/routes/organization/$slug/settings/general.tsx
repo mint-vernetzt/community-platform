@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { forbidden, serverError } from "remix-utils";
+import { forbidden, notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -92,7 +92,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw forbidden({
+    throw notFound({
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
