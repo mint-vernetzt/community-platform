@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { forbidden, notFound, serverError } from "remix-utils";
+import { notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -40,7 +40,9 @@ import {
 
 const organizationSchema = object({
   name: string().required("Bitte gib Euren Namen ein."),
-  email: nullOrString(string().email()),
+  email: nullOrString(
+    string().email("Deine Eingabe entspricht nicht dem Format einer E-Mail.")
+  ),
   phone: nullOrString(phone()),
   street: nullOrString(string()),
   streetNumber: nullOrString(string()),
