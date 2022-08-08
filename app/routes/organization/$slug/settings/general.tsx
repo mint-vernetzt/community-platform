@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { notFound, serverError } from "remix-utils";
+import { badRequest, notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -129,10 +129,20 @@ export const action: ActionFunction = async (args) => {
     organizationSchema
   );
 
-  let { errors, data } = await validateForm<OrganizationSchemaType>(
-    organizationSchema,
-    parsedFormData
-  );
+  let errors: FormError | null;
+  let data: OrganizationFormType;
+
+  try {
+    let result = await validateForm<OrganizationSchemaType>(
+      organizationSchema,
+      parsedFormData
+    );
+    errors = result.errors;
+    data = result.data;
+  } catch (error) {
+    console.error(error);
+    throw badRequest({ message: "Validation failed" });
+  }
 
   let updated = false;
 
