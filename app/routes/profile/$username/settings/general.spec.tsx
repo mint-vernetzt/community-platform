@@ -208,23 +208,6 @@ describe("action", () => {
       expect(response.errors.email).toBeUndefined();
       expect(response.profile.email).toBe(email);
     });
-
-    test("email is valid", async () => {
-      const email = "hello@songsforthe.dev";
-
-      const request = createRequestWithFormData({
-        ...formDefaults,
-        email,
-      });
-
-      const response = await action({
-        request,
-        context: {},
-        params: { username },
-      });
-      expect(response.errors.email).toBeUndefined();
-      expect(response.profile.email).toBe(email);
-    });
   });
 
   describe("submit", () => {
