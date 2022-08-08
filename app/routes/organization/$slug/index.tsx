@@ -388,7 +388,7 @@ export default function Index() {
                       className="max-w-full w-auto max-h-36 h-auto"
                     />
                   ) : (
-                    { initialsOfOrganization }
+                    initialsOfOrganization
                   )}
                 </div>
                 {loaderData.userIsPrivileged && (
