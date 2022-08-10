@@ -13,8 +13,11 @@ describe("validateFeatureAccess()", () => {
     delete process.env.FEATURES;
     delete process.env.FEATURE_USER_IDS;
   });
+
   test("feature flags not set", async () => {
-    expect.assertions(2);
+    expect.assertions(4);
+
+    // throw
     try {
       await validateFeatureAccess(new Request(""), "a feature");
     } catch (error) {
@@ -22,13 +25,26 @@ describe("validateFeatureAccess()", () => {
       expect(response.status).toBe(500);
 
       const json = await response.json();
-      expect(json.message).toBe(`No feature flags found`);
+      expect(json.message).toBe("No feature flags found");
     }
+
+    // self handled
+    const { error, hasAccess } = await validateFeatureAccess(
+      new Request(""),
+      "a feature",
+      { throw: false }
+    );
+    if (error !== undefined) {
+      expect(error.message).toBe("No feature flags found");
+    }
+    expect(hasAccess).toBe(false);
   });
 
   test("feature not found", async () => {
     process.env.FEATURES = "a feature";
-    expect.assertions(2);
+    expect.assertions(4);
+
+    // throw
     try {
       await validateFeatureAccess(new Request(""), "another feature");
     } catch (error) {
@@ -38,17 +54,30 @@ describe("validateFeatureAccess()", () => {
       const json = await response.json();
       expect(json.message).toBe(`Feature flag for "another feature" not found`);
     }
+
+    // self handled
+    const { error, hasAccess, featureName } = await validateFeatureAccess(
+      new Request(""),
+      "another feature",
+      { throw: false }
+    );
+    if (error !== undefined) {
+      expect(error.message).toBe(`Feature flag for "${featureName}" not found`);
+    }
+    expect(hasAccess).toBe(false);
   });
 
   test("user has no access", async () => {
     process.env.FEATURES = "a feature, another feature";
     process.env.FEATURE_USER_IDS = "some-user-id";
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    expect.assertions(4);
+
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
       return { id: "some-other-user-id" };
     });
 
-    expect.assertions(2);
+    // throw
     try {
       await validateFeatureAccess(new Request(""), "another feature");
     } catch (error) {
@@ -60,6 +89,19 @@ describe("validateFeatureAccess()", () => {
         `User hasn't access to feature "another feature"`
       );
     }
+
+    // self handled
+    const { error, hasAccess, featureName } = await validateFeatureAccess(
+      new Request(""),
+      "another feature",
+      { throw: false }
+    );
+    if (error !== undefined) {
+      expect(error.message).toBe(
+        `User hasn't access to feature "${featureName}"`
+      );
+    }
+    expect(hasAccess).toBe(false);
   });
 
   test("feature set for specific access", async () => {
@@ -71,14 +113,21 @@ describe("validateFeatureAccess()", () => {
     });
 
     let error;
+    let hasAccess = false;
+    let featureName: string | undefined;
 
     try {
-      await validateFeatureAccess(new Request(""), "a feature");
+      const result = await validateFeatureAccess(new Request(""), "a feature");
+      error = result.error;
+      hasAccess = result.hasAccess;
+      featureName = result.featureName;
     } catch (err) {
       error = err;
     }
 
     expect(error).toBeUndefined();
+    expect(hasAccess).toBe(true);
+    expect(featureName).toBe("a feature");
   });
 
   test("feature set for public access", async () => {
@@ -89,14 +138,24 @@ describe("validateFeatureAccess()", () => {
     });
 
     let error;
+    let hasAccess = false;
+    let featureName: string | undefined;
 
     try {
-      await validateFeatureAccess(new Request(""), "another feature");
+      const result = await validateFeatureAccess(
+        new Request(""),
+        "another feature"
+      );
+      error = result.error;
+      hasAccess = result.hasAccess;
+      featureName = result.featureName;
     } catch (err) {
       error = err;
     }
 
     expect(error).toBeUndefined();
+    expect(hasAccess).toBe(true);
+    expect(featureName).toBe("another feature");
   });
 
   afterAll(() => {
