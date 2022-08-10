@@ -298,8 +298,33 @@ describe("validateFeatureAccess()", () => {
     });
 
     test("feature set for specific access", async () => {
-      process.env.FEATURES = "feature1, feature2";
+      process.env.FEATURES = "feature1, feature2, feature3";
       process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
+
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-other-user-id" };
+      });
+
+      expect.assertions(4);
+
+      const { abilities } = await validateFeatureAccess(new Request(""), [
+        "feature1",
+        "feature2",
+      ]);
+
+      if (abilities["feature1"] !== undefined) {
+        expect(abilities["feature1"].hasAccess).toBe(true);
+        expect(abilities["feature1"].error).toBeUndefined();
+      }
+
+      if (abilities["feature2"] !== undefined) {
+        expect(abilities["feature2"].hasAccess).toBe(true);
+        expect(abilities["feature2"].error).toBeUndefined();
+      }
+    });
+
+    test("feature set for public access", async () => {
+      process.env.FEATURES = "feature1,feature2,feature3";
 
       (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-other-user-id" };
