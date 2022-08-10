@@ -1,72 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "AreasOnProfiles": {
-      "type": "object",
-      "properties": {
-        "profile": {
-          "$ref": "#/definitions/Profile"
-        },
-        "area": {
-          "$ref": "#/definitions/Area"
-        }
-      }
-    },
-    "AreasOnOrganizations": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "$ref": "#/definitions/Organization"
-        },
-        "area": {
-          "$ref": "#/definitions/Area"
-        }
-      }
-    },
-    "SeekingsOnProfiles": {
-      "type": "object",
-      "properties": {
-        "profile": {
-          "$ref": "#/definitions/Profile"
-        },
-        "offer": {
-          "$ref": "#/definitions/Offer"
-        }
-      }
-    },
-    "OffersOnProfiles": {
-      "type": "object",
-      "properties": {
-        "profile": {
-          "$ref": "#/definitions/Profile"
-        },
-        "offer": {
-          "$ref": "#/definitions/Offer"
-        }
-      }
-    },
-    "OrganizationTypesOnOrganizations": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "$ref": "#/definitions/Organization"
-        },
-        "organizationType": {
-          "$ref": "#/definitions/OrganizationType"
-        }
-      }
-    },
-    "FocusesOnOrganizations": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "$ref": "#/definitions/Organization"
-        },
-        "focus": {
-          "$ref": "#/definitions/Focus"
-        }
-      }
-    },
     "Profile": {
       "type": "object",
       "properties": {
@@ -180,6 +114,69 @@
           "items": {
             "$ref": "#/definitions/OffersOnProfiles"
           }
+        },
+        "authoredEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Event"
+          }
+        },
+        "participatedEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParticipantOfEvent"
+          }
+        },
+        "contributedEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SpeakerOfEvent"
+          }
+        },
+        "waitingForEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WaitingParticipantOfEvent"
+          }
+        },
+        "organizedEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrganizingProfileOfEvent"
+          }
+        }
+      }
+    },
+    "AreasOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "area": {
+          "$ref": "#/definitions/Area"
+        }
+      }
+    },
+    "SeekingsOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
+    "OffersOnProfiles": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "offer": {
+          "$ref": "#/definitions/Offer"
         }
       }
     },
@@ -307,6 +304,34 @@
           "items": {
             "$ref": "#/definitions/AreasOnOrganizations"
           }
+        },
+        "organizedEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+          }
+        }
+      }
+    },
+    "OrganizationTypesOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "organizationType": {
+          "$ref": "#/definitions/OrganizationType"
+        }
+      }
+    },
+    "FocusesOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "focus": {
+          "$ref": "#/definitions/Focus"
         }
       }
     },
@@ -337,6 +362,325 @@
         },
         "networkMember": {
           "$ref": "#/definitions/Organization"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AreasOnOrganizations": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        },
+        "area": {
+          "$ref": "#/definitions/Area"
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "$ref": "#/definitions/Profile"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParticipantOfEvent"
+          }
+        },
+        "speakers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SpeakerOfEvent"
+          }
+        },
+        "parentEvent": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Event"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "childEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Event"
+          }
+        },
+        "description": {
+          "type": ["string", "null"]
+        },
+        "published": {
+          "type": "boolean",
+          "default": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "focuses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FocusOfEvent"
+          }
+        },
+        "targetGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TargetGroupOfEvent"
+          }
+        },
+        "experienceLevel": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ExperienceLevel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TypeOfEvent"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TagOfEvent"
+          }
+        },
+        "organizingOrganizations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+          }
+        },
+        "organizingProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrganizingProfileOfEvent"
+          }
+        },
+        "background": {
+          "type": ["string", "null"]
+        },
+        "conferenceLink": {
+          "type": ["string", "null"]
+        },
+        "conferenceCode": {
+          "type": ["string", "null"]
+        },
+        "participantLimit": {
+          "type": ["integer", "null"]
+        },
+        "participationUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "waitingList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WaitingParticipantOfEvent"
+          }
+        },
+        "areas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AreaOfEvent"
+          }
+        },
+        "venueName": {
+          "type": ["string", "null"]
+        },
+        "venueStreet": {
+          "type": ["string", "null"]
+        },
+        "venueStreetNumber": {
+          "type": ["string", "null"]
+        },
+        "venueCity": {
+          "type": ["string", "null"]
+        },
+        "venueZipCode": {
+          "type": ["string", "null"]
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentOfEvent"
+          }
+        }
+      }
+    },
+    "OrganizingProfileOfEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        }
+      }
+    },
+    "OrganizingOrganizationOfEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "organization": {
+          "$ref": "#/definitions/Organization"
+        }
+      }
+    },
+    "DocumentOfEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "document": {
+          "$ref": "#/definitions/Document"
+        }
+      }
+    },
+    "AreaOfEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "area": {
+          "$ref": "#/definitions/Area"
+        }
+      }
+    },
+    "WaitingParticipantOfEvent": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TagOfEvent": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "$ref": "#/definitions/Tag"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TypeOfEvent": {
+      "type": "object",
+      "properties": {
+        "eventType": {
+          "$ref": "#/definitions/EventType"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "FocusOfEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "focus": {
+          "$ref": "#/definitions/Focus"
+        }
+      }
+    },
+    "TargetGroupOfEvent": {
+      "type": "object",
+      "properties": {
+        "targetGroup": {
+          "$ref": "#/definitions/TargetGroup"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ParticipantOfEvent": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "SpeakerOfEvent": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/Profile"
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
         },
         "createdAt": {
           "type": "string",
@@ -419,6 +763,12 @@
           "items": {
             "$ref": "#/definitions/AreasOnOrganizations"
           }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AreaOfEvent"
+          }
         }
       }
     },
@@ -476,17 +826,127 @@
           "items": {
             "$ref": "#/definitions/FocusesOnOrganizations"
           }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FocusOfEvent"
+          }
+        }
+      }
+    },
+    "TargetGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TargetGroupOfEvent"
+          }
+        }
+      }
+    },
+    "ExperienceLevel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Event"
+          }
+        }
+      }
+    },
+    "EventType": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TypeOfEvent"
+          }
+        }
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TagOfEvent"
+          }
+        }
+      }
+    },
+    "Document": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "title": {
+          "type": ["string", "null"]
+        },
+        "description": {
+          "type": ["string", "null"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentOfEvent"
+          }
         }
       }
     }
   },
   "type": "object",
   "properties": {
+    "profile": {
+      "$ref": "#/definitions/Profile"
+    },
     "areasOnProfiles": {
       "$ref": "#/definitions/AreasOnProfiles"
-    },
-    "areasOnOrganizations": {
-      "$ref": "#/definitions/AreasOnOrganizations"
     },
     "seekingsOnProfiles": {
       "$ref": "#/definitions/SeekingsOnProfiles"
@@ -494,23 +954,59 @@
     "offersOnProfiles": {
       "$ref": "#/definitions/OffersOnProfiles"
     },
+    "organization": {
+      "$ref": "#/definitions/Organization"
+    },
     "organizationTypesOnOrganizations": {
       "$ref": "#/definitions/OrganizationTypesOnOrganizations"
     },
     "focusesOnOrganizations": {
       "$ref": "#/definitions/FocusesOnOrganizations"
     },
-    "profile": {
-      "$ref": "#/definitions/Profile"
-    },
-    "organization": {
-      "$ref": "#/definitions/Organization"
-    },
     "memberOfOrganization": {
       "$ref": "#/definitions/MemberOfOrganization"
     },
     "memberOfNetwork": {
       "$ref": "#/definitions/MemberOfNetwork"
+    },
+    "areasOnOrganizations": {
+      "$ref": "#/definitions/AreasOnOrganizations"
+    },
+    "event": {
+      "$ref": "#/definitions/Event"
+    },
+    "organizingProfileOfEvent": {
+      "$ref": "#/definitions/OrganizingProfileOfEvent"
+    },
+    "organizingOrganizationOfEvent": {
+      "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+    },
+    "documentOfEvent": {
+      "$ref": "#/definitions/DocumentOfEvent"
+    },
+    "areaOfEvent": {
+      "$ref": "#/definitions/AreaOfEvent"
+    },
+    "waitingParticipantOfEvent": {
+      "$ref": "#/definitions/WaitingParticipantOfEvent"
+    },
+    "tagOfEvent": {
+      "$ref": "#/definitions/TagOfEvent"
+    },
+    "typeOfEvent": {
+      "$ref": "#/definitions/TypeOfEvent"
+    },
+    "focusOfEvent": {
+      "$ref": "#/definitions/FocusOfEvent"
+    },
+    "targetGroupOfEvent": {
+      "$ref": "#/definitions/TargetGroupOfEvent"
+    },
+    "participantOfEvent": {
+      "$ref": "#/definitions/ParticipantOfEvent"
+    },
+    "speakerOfEvent": {
+      "$ref": "#/definitions/SpeakerOfEvent"
     },
     "state": {
       "$ref": "#/definitions/State"
@@ -529,6 +1025,21 @@
     },
     "focus": {
       "$ref": "#/definitions/Focus"
+    },
+    "targetGroup": {
+      "$ref": "#/definitions/TargetGroup"
+    },
+    "experienceLevel": {
+      "$ref": "#/definitions/ExperienceLevel"
+    },
+    "eventType": {
+      "$ref": "#/definitions/EventType"
+    },
+    "tag": {
+      "$ref": "#/definitions/Tag"
+    },
+    "document": {
+      "$ref": "#/definitions/Document"
     }
   }
 }
