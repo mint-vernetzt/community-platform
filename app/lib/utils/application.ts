@@ -12,15 +12,6 @@ export async function validateFeatureAccess(
 
   let error: Error | undefined;
 
-  if (features === undefined) {
-    const message = "No feature flags found";
-    console.error(message);
-    if (options.throw) {
-      throw serverError({ message });
-    }
-    error = new Error(message);
-  }
-
   let featureNames: string[] = [];
   if (typeof featureNameOrNames === "string") {
     featureNames.push(featureNameOrNames);
@@ -28,13 +19,30 @@ export async function validateFeatureAccess(
     featureNames = featureNameOrNames;
   }
 
-  let featureList = [];
   let abilities: {
     [key: string]: {
       error?: Error;
       hasAccess: boolean;
     };
   } = {};
+
+  if (features === undefined) {
+    const message = "No feature flags found";
+    console.error(message);
+    if (options.throw) {
+      throw serverError({ message });
+    }
+    error = new Error(message);
+
+    for (const featureName of featureNames) {
+      abilities[featureName] = {
+        error,
+        hasAccess: false,
+      };
+    }
+  }
+
+  let featureList = [];
 
   if (features !== undefined) {
     featureList = features

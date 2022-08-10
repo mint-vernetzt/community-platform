@@ -15,7 +15,7 @@ describe("validateFeatureAccess()", () => {
   });
 
   test("feature flags not set", async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     // throw
     try {
@@ -29,7 +29,7 @@ describe("validateFeatureAccess()", () => {
     }
 
     // self handled
-    const { error, hasAccess } = await validateFeatureAccess(
+    const { error, hasAccess, abilities } = await validateFeatureAccess(
       new Request(""),
       "a feature",
       { throw: false }
@@ -38,6 +38,15 @@ describe("validateFeatureAccess()", () => {
       expect(error.message).toBe("No feature flags found");
     }
     expect(hasAccess).toBe(false);
+
+    if (abilities["a feature"] !== undefined) {
+      if (abilities["a feature"].error !== undefined) {
+        expect(abilities["a feature"].error.message).toBe(
+          "No feature flags found"
+        );
+      }
+      expect(abilities["a feature"].hasAccess).toBe(false);
+    }
   });
 
   test("feature not found", async () => {
@@ -159,6 +168,47 @@ describe("validateFeatureAccess()", () => {
   });
 
   describe("list of features", () => {
+    beforeAll(() => {
+      delete process.env.FEATURES;
+      delete process.env.FEATURE_USER_IDS;
+    });
+
+    test("feature flags not set", async () => {
+      expect.assertions(6);
+
+      // throw
+      try {
+        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(500);
+
+        const json = await response.json();
+        expect(json.message).toBe("No feature flags found");
+      }
+
+      // self handled
+      const { abilities } = await validateFeatureAccess(
+        new Request(""),
+        ["feature1", "feature2"],
+        { throw: false }
+      );
+
+      if (abilities["feature1"].error !== undefined) {
+        expect(abilities["feature1"].error.message).toBe(
+          "No feature flags found"
+        );
+      }
+      expect(abilities["feature1"].hasAccess).toBe(false);
+
+      if (abilities["feature2"].error !== undefined) {
+        expect(abilities["feature2"].error.message).toBe(
+          "No feature flags found"
+        );
+      }
+      expect(abilities["feature2"].hasAccess).toBe(false);
+    });
+
     test("feature not found", async () => {
       process.env.FEATURES = "feature1, feature3";
 
@@ -257,6 +307,11 @@ describe("validateFeatureAccess()", () => {
         expect(abilities["feature2"].hasAccess).toBe(true);
         expect(abilities["feature2"].error).toBeUndefined();
       }
+    });
+
+    afterAll(() => {
+      delete process.env.FEATURES;
+      delete process.env.FEATURE_USER_IDS;
     });
   });
 
