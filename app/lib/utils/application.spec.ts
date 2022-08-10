@@ -9,6 +9,10 @@ jest.mock("~/auth.server", () => {
 });
 
 describe("validateFeatureAccess()", () => {
+  beforeAll(() => {
+    delete process.env.FEATURES;
+    delete process.env.FEATURE_USER_IDS;
+  });
   test("feature flags not set", async () => {
     expect.assertions(2);
     try {
@@ -96,7 +100,7 @@ describe("validateFeatureAccess()", () => {
   });
 
   afterAll(() => {
-    process.env.FEATURES = undefined;
-    process.env.FEATURE_USER_IDS = undefined;
+    delete process.env.FEATURES;
+    delete process.env.FEATURE_USER_IDS;
   });
 });
