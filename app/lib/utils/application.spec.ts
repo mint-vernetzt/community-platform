@@ -9,162 +9,176 @@ jest.mock("~/auth.server", () => {
 });
 
 describe("validateFeatureAccess()", () => {
-  beforeAll(() => {
-    delete process.env.FEATURES;
-    delete process.env.FEATURE_USER_IDS;
-  });
+  describe("single feature", () => {
+    beforeAll(() => {
+      delete process.env.FEATURES;
+      delete process.env.FEATURE_USER_IDS;
+    });
 
-  test("feature flags not set", async () => {
-    expect.assertions(6);
+    test("feature flags not set", async () => {
+      expect.assertions(6);
 
-    // throw
-    try {
-      await validateFeatureAccess(new Request(""), "a feature");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(500);
+      // throw
+      try {
+        await validateFeatureAccess(new Request(""), "a feature");
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(500);
 
-      const json = await response.json();
-      expect(json.message).toBe("No feature flags found");
-    }
+        const json = await response.json();
+        expect(json.message).toBe("No feature flags found");
+      }
 
-    // self handled
-    const { error, hasAccess, abilities } = await validateFeatureAccess(
-      new Request(""),
-      "a feature",
-      { throw: false }
-    );
-    if (error !== undefined) {
-      expect(error.message).toBe("No feature flags found");
-    }
-    expect(hasAccess).toBe(false);
+      // self handled
+      const { error, hasAccess, abilities } = await validateFeatureAccess(
+        new Request(""),
+        "a feature",
+        { throw: false }
+      );
+      if (error !== undefined) {
+        expect(error.message).toBe("No feature flags found");
+      }
+      expect(hasAccess).toBe(false);
 
-    if (abilities["a feature"] !== undefined) {
-      if (abilities["a feature"].error !== undefined) {
-        expect(abilities["a feature"].error.message).toBe(
-          "No feature flags found"
+      if (abilities["a feature"] !== undefined) {
+        if (abilities["a feature"].error !== undefined) {
+          expect(abilities["a feature"].error.message).toBe(
+            "No feature flags found"
+          );
+        }
+        expect(abilities["a feature"].hasAccess).toBe(false);
+      }
+    });
+
+    test("feature not found", async () => {
+      process.env.FEATURES = "a feature";
+      expect.assertions(4);
+
+      // throw
+      try {
+        await validateFeatureAccess(new Request(""), "another feature");
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(500);
+
+        const json = await response.json();
+        expect(json.message).toBe(
+          `Feature flag for "another feature" not found`
         );
       }
-      expect(abilities["a feature"].hasAccess).toBe(false);
-    }
-  });
 
-  test("feature not found", async () => {
-    process.env.FEATURES = "a feature";
-    expect.assertions(4);
-
-    // throw
-    try {
-      await validateFeatureAccess(new Request(""), "another feature");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(500);
-
-      const json = await response.json();
-      expect(json.message).toBe(`Feature flag for "another feature" not found`);
-    }
-
-    // self handled
-    const { error, hasAccess, featureName } = await validateFeatureAccess(
-      new Request(""),
-      "another feature",
-      { throw: false }
-    );
-    if (error !== undefined) {
-      expect(error.message).toBe(`Feature flag for "${featureName}" not found`);
-    }
-    expect(hasAccess).toBe(false);
-  });
-
-  test("user has no access", async () => {
-    process.env.FEATURES = "a feature, another feature";
-    process.env.FEATURE_USER_IDS = "some-user-id";
-
-    expect.assertions(4);
-
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
-      return { id: "some-other-user-id" };
-    });
-
-    // throw
-    try {
-      await validateFeatureAccess(new Request(""), "another feature");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(500);
-
-      const json = await response.json();
-      expect(json.message).toBe(
-        `User hasn't access to feature "another feature"`
-      );
-    }
-
-    // self handled
-    const { error, hasAccess, featureName } = await validateFeatureAccess(
-      new Request(""),
-      "another feature",
-      { throw: false }
-    );
-    if (error !== undefined) {
-      expect(error.message).toBe(
-        `User hasn't access to feature "${featureName}"`
-      );
-    }
-    expect(hasAccess).toBe(false);
-  });
-
-  test("feature set for specific access", async () => {
-    process.env.FEATURES = "a feature, another feature";
-    process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
-
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-other-user-id" };
-    });
-
-    let error;
-    let hasAccess: boolean | undefined = false;
-    let featureName: string | undefined;
-
-    try {
-      const result = await validateFeatureAccess(new Request(""), "a feature");
-      error = result.error;
-      hasAccess = result.hasAccess;
-      featureName = result.featureName;
-    } catch (err) {
-      error = err;
-    }
-
-    expect(error).toBeUndefined();
-    expect(hasAccess).toBe(true);
-    expect(featureName).toBe("a feature");
-  });
-
-  test("feature set for public access", async () => {
-    process.env.FEATURES = "a feature, another feature";
-
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
-
-    let error;
-    let hasAccess: boolean | undefined = false;
-    let featureName: string | undefined;
-
-    try {
-      const result = await validateFeatureAccess(
+      // self handled
+      const { error, hasAccess, featureName } = await validateFeatureAccess(
         new Request(""),
-        "another feature"
+        "another feature",
+        { throw: false }
       );
-      error = result.error;
-      hasAccess = result.hasAccess;
-      featureName = result.featureName;
-    } catch (err) {
-      error = err;
-    }
+      if (error !== undefined) {
+        expect(error.message).toBe(
+          `Feature flag for "${featureName}" not found`
+        );
+      }
+      expect(hasAccess).toBe(false);
+    });
 
-    expect(error).toBeUndefined();
-    expect(hasAccess).toBe(true);
-    expect(featureName).toBe("another feature");
+    test("user has no access", async () => {
+      process.env.FEATURES = "a feature, another feature";
+      process.env.FEATURE_USER_IDS = "some-user-id";
+
+      expect.assertions(4);
+
+      (getUserByRequest as jest.Mock).mockImplementation(() => {
+        return { id: "some-other-user-id" };
+      });
+
+      // throw
+      try {
+        await validateFeatureAccess(new Request(""), "another feature");
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(500);
+
+        const json = await response.json();
+        expect(json.message).toBe(
+          `User hasn't access to feature "another feature"`
+        );
+      }
+
+      // self handled
+      const { error, hasAccess, featureName } = await validateFeatureAccess(
+        new Request(""),
+        "another feature",
+        { throw: false }
+      );
+      if (error !== undefined) {
+        expect(error.message).toBe(
+          `User hasn't access to feature "${featureName}"`
+        );
+      }
+      expect(hasAccess).toBe(false);
+    });
+
+    test("feature set for specific access", async () => {
+      process.env.FEATURES = "a feature, another feature";
+      process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
+
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-other-user-id" };
+      });
+
+      let error;
+      let hasAccess: boolean | undefined = false;
+      let featureName: string | undefined;
+
+      try {
+        const result = await validateFeatureAccess(
+          new Request(""),
+          "a feature"
+        );
+        error = result.error;
+        hasAccess = result.hasAccess;
+        featureName = result.featureName;
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).toBeUndefined();
+      expect(hasAccess).toBe(true);
+      expect(featureName).toBe("a feature");
+    });
+
+    test("feature set for public access", async () => {
+      process.env.FEATURES = "a feature, another feature";
+
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
+
+      let error;
+      let hasAccess: boolean | undefined = false;
+      let featureName: string | undefined;
+
+      try {
+        const result = await validateFeatureAccess(
+          new Request(""),
+          "another feature"
+        );
+        error = result.error;
+        hasAccess = result.hasAccess;
+        featureName = result.featureName;
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).toBeUndefined();
+      expect(hasAccess).toBe(true);
+      expect(featureName).toBe("another feature");
+    });
+
+    afterAll(() => {
+      delete process.env.FEATURES;
+      delete process.env.FEATURE_USER_IDS;
+    });
   });
 
   describe("list of features", () => {
@@ -313,10 +327,5 @@ describe("validateFeatureAccess()", () => {
       delete process.env.FEATURES;
       delete process.env.FEATURE_USER_IDS;
     });
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
-    delete process.env.FEATURE_USER_IDS;
   });
 });
