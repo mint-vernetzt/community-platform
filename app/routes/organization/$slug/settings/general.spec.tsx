@@ -1,29 +1,34 @@
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { action, loader } from "./general";
-import { getWholeProfileFromId, updateProfileById } from "./utils.server";
+import {
+  getWholeOrganizationBySlug,
+  updateOrganizationById,
+} from "./utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
 const id = "1";
-const username = "sookie";
+const organization = {
+  id: "1",
+};
+const slug = "mintvernetzt";
 
 jest.mock("./utils.server", () => {
   return {
-    getWholeProfileFromId: jest.fn(),
-    handleAuthorization: jest.fn().mockResolvedValue({ id }),
-    updateProfileById: jest.fn(),
+    getWholeOrganizationBySlug: jest.fn(),
+    handleAuthorization: jest.fn().mockResolvedValue({ organization, slug }),
+    updateOrganizationById: jest.fn(),
+    getAreas: jest.fn(),
+    getFocuses: jest.fn(),
+    getOrganizationTypes: jest.fn(),
   };
 });
 
-jest.mock("~/profile.server", () => {
-  return { getAllOffers: jest.fn(), getAreas: jest.fn() };
-});
-
 describe("loader", () => {
-  test("no profile found in db", async () => {
-    (getWholeProfileFromId as jest.Mock).mockImplementationOnce(() => {
+  test("no organization found in db", async () => {
+    (getWholeOrganizationBySlug as jest.Mock).mockImplementationOnce(() => {
       return null;
     });
 
@@ -31,38 +36,40 @@ describe("loader", () => {
 
     try {
       const request = new Request("");
-      await loader({ request, context: {}, params: { username } });
+      await loader({ request, context: {}, params: { slug: slug } });
     } catch (error) {
       const response = error as Response;
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("Profile not found");
+      expect(json.message).toBe(
+        `Organization with slug "${slug}" not found or not permitted to edit.`
+      );
     }
   });
-  test("profile found", async () => {
-    const profile = { id, areas: [], offers: [], seekings: [] };
+  test("organization found", async () => {
+    const organization = { id, areas: [], focuses: [], types: [] };
 
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce(profile);
+    (getWholeOrganizationBySlug as jest.Mock).mockReturnValueOnce(organization);
 
     const request = new Request("");
     const response = await loader({
       request,
       context: {},
-      params: { username },
+      params: { slug: slug },
     });
 
-    expect(response.profile).toEqual(profile);
+    expect(response.organization).toEqual(organization);
   });
-  test("flatten areas, offers and seekings", async () => {
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce({
+  test("flatten areas, focuses and types", async () => {
+    (getWholeOrganizationBySlug as jest.Mock).mockReturnValueOnce({
       id,
-      areas: [{ area: { id: "area1" } }, { area: { id: "area2" } }],
-      offers: [{ offer: { id: "offer1" } }],
-      seekings: [
-        { offer: { id: "offer1" } },
-        { offer: { id: "offer2" } },
-        { offer: { id: "offer3" } },
+      areas: [{ areaId: "area1" }, { areaId: "area2" }],
+      types: [{ organizationTypeId: "type1" }],
+      focuses: [
+        { focusId: "focus1" },
+        { focusId: "focus2" },
+        { focusId: "focus3" },
       ],
     });
 
@@ -70,30 +77,35 @@ describe("loader", () => {
     const response = await loader({
       request,
       context: {},
-      params: { username },
+      params: { slug: slug },
     });
 
-    expect(response.profile.areas).toEqual(["area1", "area2"]);
-    expect(response.profile.offers).toEqual(["offer1"]);
-    expect(response.profile.seekings).toEqual(["offer1", "offer2", "offer3"]);
+    expect(response.organization.areas).toEqual(["area1", "area2"]);
+    expect(response.organization.types).toEqual(["type1"]);
+    expect(response.organization.focuses).toEqual([
+      "focus1",
+      "focus2",
+      "focus3",
+    ]);
   });
 });
 
-jest.mock("~/utils.server", () => {
-  return {
-    validateCSRFToken: jest.fn(),
-  };
-});
+// Insert mock when csrf token is implemented on organization settings
+// jest.mock("~/utils.server", () => {
+//   return {
+//     validateCSRFToken: jest.fn(),
+//   };
+// });
 
 describe("action", () => {
   const formDefaults = {
-    academicTitle: "",
-    position: "",
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
-    bio: "",
+    street: "",
+    streetNumber: "",
+    zipCode: "",
+    city: "",
     website: "",
     facebook: "",
     linkedin: "",
@@ -101,12 +113,15 @@ describe("action", () => {
     youtube: "",
     instagram: "",
     xing: "",
-    areas: [],
-    skills: [],
-    offers: [],
-    interests: [],
-    seekings: [],
+    bio: "",
+    types: [],
+    quote: "",
+    quoteAuthor: "",
+    quoteAuthorInformation: "",
+    supportedBy: [],
     publicFields: [],
+    areas: [],
+    focuses: [],
   };
 
   const parsedDataDefaults = Object.entries(formDefaults).reduce(
@@ -123,7 +138,7 @@ describe("action", () => {
   );
 
   test("all fields required", async () => {
-    const request = createRequestWithFormData({ firstName: "First Name" });
+    const request = createRequestWithFormData({ name: "MINTvernetzt" });
 
     expect.assertions(2);
 
@@ -131,7 +146,7 @@ describe("action", () => {
       await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
     } catch (error) {
       const response = error as Response;
@@ -142,9 +157,9 @@ describe("action", () => {
     }
   });
 
-  describe("validate email", () => {
-    test('email is "undefined"', async () => {
-      const { email: _email, ...otherDefaults } = formDefaults;
+  describe("validate name", () => {
+    test('name is "undefined"', async () => {
+      const { name: _name, ...otherDefaults } = formDefaults;
       const request = createRequestWithFormData({
         ...otherDefaults,
       });
@@ -152,14 +167,14 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email must be a `string` type")
+      expect(response.errors.name).not.toBeUndefined();
+      expect(response.errors.name.message).toEqual(
+        expect.stringContaining("name must be a `string` type")
       );
     });
-    test("email is empty", async () => {
+    test("name is empty", async () => {
       const request = createRequestWithFormData({
         ...formDefaults,
       });
@@ -167,11 +182,11 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email is a required field")
+      expect(response.errors.name).not.toBeUndefined();
+      expect(response.errors.name.message).toEqual(
+        expect.stringContaining("Bitte gib Euren Namen ein.")
       );
     });
 
@@ -184,11 +199,13 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
       expect(response.errors.email).not.toBeUndefined();
       expect(response.errors.email.message).toEqual(
-        expect.stringContaining("email must be a valid email")
+        expect.stringContaining(
+          "Deine Eingabe entspricht nicht dem Format einer E-Mail."
+        )
       );
     });
 
@@ -203,62 +220,52 @@ describe("action", () => {
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
       expect(response.errors.email).toBeUndefined();
-      expect(response.profile.email).toBe(email);
+      expect(response.organization.email).toBe(email);
     });
   });
 
   describe("submit", () => {
     test("add list item", async () => {
-      const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
+      const name = "MINTvernetzt";
       const listAction = "addArea";
       const listActionItemId = "2";
 
       const request = createRequestWithFormData({
         ...formDefaults,
         submit: listAction,
-        email,
-        firstName,
-        lastName,
+        name,
         [listAction]: listActionItemId,
       });
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
 
       expect(response.errors).toBeNull();
-      expect(response.profile.areas).toEqual([listActionItemId]);
+      expect(response.organization.areas).toEqual([listActionItemId]);
     });
 
-    test("update profile", async () => {
-      const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
+    test("update organization", async () => {
+      const name = "MINTvernetzt";
 
       const request = createRequestWithFormData({
         ...formDefaults,
         submit: "submit",
-        email,
-        firstName,
-        lastName,
+        name,
       });
       const response = await action({
         request,
         context: {},
-        params: { username },
+        params: { slug: slug },
       });
       expect(response.errors).toBeNull();
-      expect(updateProfileById).toHaveBeenCalledWith(id, {
+      expect(updateOrganizationById).toHaveBeenCalledWith(id, {
         ...parsedDataDefaults,
-        email,
-        firstName,
-        lastName,
+        name,
       });
     });
   });

@@ -10,7 +10,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { forbidden, serverError } from "remix-utils";
+import { badRequest, notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -40,7 +40,9 @@ import {
 
 const organizationSchema = object({
   name: string().required("Bitte gib Euren Namen ein."),
-  email: nullOrString(string().email()),
+  email: nullOrString(
+    string().email("Deine Eingabe entspricht nicht dem Format einer E-Mail.")
+  ),
   phone: nullOrString(phone()),
   street: nullOrString(string()),
   streetNumber: nullOrString(string()),
@@ -92,7 +94,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw forbidden({
+    throw notFound({
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
@@ -127,10 +129,20 @@ export const action: ActionFunction = async (args) => {
     organizationSchema
   );
 
-  let { errors, data } = await validateForm<OrganizationSchemaType>(
-    organizationSchema,
-    parsedFormData
-  );
+  let errors: FormError | null;
+  let data: OrganizationFormType;
+
+  try {
+    let result = await validateForm<OrganizationSchemaType>(
+      organizationSchema,
+      parsedFormData
+    );
+    errors = result.errors;
+    data = result.data;
+  } catch (error) {
+    console.error(error);
+    throw badRequest({ message: "Validation failed" });
+  }
 
   let updated = false;
 
