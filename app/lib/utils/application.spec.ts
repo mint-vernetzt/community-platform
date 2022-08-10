@@ -1,65 +1,102 @@
+import { getUserByRequest } from "~/auth.server";
 import { validateFeatureAccess } from "./application";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
+jest.mock("~/auth.server", () => {
+  return { getUserByRequest: jest.fn() };
+});
+
 describe("validateFeatureAccess()", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "feature1,feature2";
-  });
-  test("feature not set", () => {
-    expect.assertions(1);
-    try {
-      validateFeatureAccess("a feature");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-    }
-  });
-  test("user id not set", () => {
-    expect.assertions(1);
-    try {
-      validateFeatureAccess("a feature");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-    }
-  });
-  test("user id not set", () => {
+  test("feature flags not set", async () => {
     expect.assertions(2);
     try {
-      validateFeatureAccess("a feature");
+      await validateFeatureAccess(new Request(""), "a feature");
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(500);
+
+      const json = await response.json();
+      expect(json.message).toBe(`No feature flags found`);
+    }
+  });
+
+  test("feature not found", async () => {
+    process.env.FEATURES = "a feature";
+    expect.assertions(2);
+    try {
+      await validateFeatureAccess(new Request(""), "another feature");
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(500);
+
+      const json = await response.json();
+      expect(json.message).toBe(`Feature flag for "another feature" not found`);
+    }
+  });
+
+  test("user has no access", async () => {
+    process.env.FEATURES = "a feature, another feature";
+    process.env.FEATURE_USER_IDS = "some-user-id";
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-other-user-id" };
+    });
+
+    expect.assertions(2);
+    try {
+      await validateFeatureAccess(new Request(""), "another feature");
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(500);
+
+      const json = await response.json();
+      expect(json.message).toBe(
+        `User hasn't access to feature "another feature"`
+      );
+    }
+  });
+
+  test("feature set for specific access", async () => {
+    process.env.FEATURES = "a feature, another feature";
+    process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-other-user-id" };
+    });
+
+    let error;
+
+    try {
+      await validateFeatureAccess(new Request(""), "a feature");
+    } catch (err) {
+      error = err;
     }
 
-    process.env.FEATURE_USER_IDS = "some-user-id";
+    expect(error).toBeUndefined();
+  });
+
+  test("feature set for public access", async () => {
+    process.env.FEATURES = "a feature, another feature";
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-user-id" };
+    });
+
+    let error;
+
     try {
-      validateFeatureAccess("feature1");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
+      await validateFeatureAccess(new Request(""), "another feature");
+    } catch (err) {
+      error = err;
     }
+
+    expect(error).toBeUndefined();
   });
-  test("user id not set", () => {
-    process.env.FEATURE_USER_IDS = "some-user-id";
-    try {
-      validateFeatureAccess("feature1");
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-    }
-  });
-  test("feature set for specific access", () => {
-    process.env.FEATURE_USER_IDS = "some-user-id";
-    expect(validateFeatureAccess("feature1")).toBe(true);
-    process.env.FEATURE_USER_IDS = undefined;
-  });
-  test("feature set for public access", () => {
-    expect(validateFeatureAccess("feature2")).toBe(true);
-  });
+
   afterAll(() => {
     process.env.FEATURES = undefined;
+    process.env.FEATURE_USER_IDS = undefined;
   });
 });
