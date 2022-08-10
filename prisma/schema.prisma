@@ -54,7 +54,7 @@ model AreasOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   areaId    String
-  area      Area    @relation(fields: [areaId], references: [id])
+  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
 
   @@id([profileId, areaId])
   @@map("areas_on_profiles")
@@ -64,7 +64,7 @@ model SeekingsOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
-  offer     Offer   @relation(fields: [offerId], references: [id])
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@id([profileId, offerId])
   @@map("seekings_on_profiles")
@@ -74,7 +74,7 @@ model OffersOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
-  offer     Offer   @relation(fields: [offerId], references: [id])
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@id([profileId, offerId])
   @@map("offers_on_profiles")
@@ -126,7 +126,7 @@ model OrganizationTypesOnOrganizations {
   organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId     String
   organizationTypeId String
-  organizationType   OrganizationType @relation(fields: [organizationTypeId], references: [id])
+  organizationType   OrganizationType @relation(fields: [organizationTypeId], references: [id], onDelete: Cascade)
 
   @@id([organizationId, organizationTypeId])
   @@map("organization_types_on_organizations")
@@ -136,7 +136,7 @@ model FocusesOnOrganizations {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   focusId        String
-  focus          Focus        @relation(fields: [focusId], references: [id])
+  focus          Focus        @relation(fields: [focusId], references: [id], onDelete: Cascade)
 
   @@id([organizationId, focusId])
   @@map("focuses_on_organizations")
@@ -169,7 +169,7 @@ model AreasOnOrganizations {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
   areaId         String
-  area           Area         @relation(fields: [areaId], references: [id])
+  area           Area         @relation(fields: [areaId], references: [id], onDelete: Cascade)
 
   @@id([organizationId, areaId])
   @@map("areas_on_organizations")
