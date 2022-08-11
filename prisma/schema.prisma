@@ -11,31 +11,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Profile {
+  id                 String                      @id @default(uuid())
+  username           String                      @unique
+  firstName          String                      @map("first_name")
+  lastName           String                      @map("last_name")
+  academicTitle      String?                     @map("academic_title")
+  position           String?
+  email              String
+  phone              String?
+  website            String?
+  avatar             String?
+  background         String?
+  facebook           String?
+  linkedin           String?
+  twitter            String?
+  youtube            String?
+  instagram          String?
+  xing               String?
+  bio                String?
+  skills             String[]
+  interests          String[]
+  publicFields       String[]                    @map("public_fields")
+  memberOf           MemberOfOrganization[]
+  createdAt          DateTime                    @default(now()) @map("created_at")
+  updatedAt          DateTime                    @default(now()) @map("updated_at")
+  termsAccepted      Boolean                     @map("terms_accepted")
+  termsAcceptedAt    DateTime                    @default(now()) @map("terms_accepted_at")
+  areas              AreasOnProfiles[]
+  seekings           SeekingsOnProfiles[]
+  offers             OffersOnProfiles[]
+  participatedEvents ParticipantOfEvent[]
+  contributedEvents  SpeakerOfEvent[]
+  waitingForEvents   WaitingParticipantOfEvent[]
+  teamMemberOfEvents TeamMemberOfEvent[]
+
+  @@map("profiles")
+}
+
 model AreasOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   areaId    String
-  area      Area    @relation(fields: [areaId], references: [id])
+  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
 
   @@id([profileId, areaId])
   @@map("areas_on_profiles")
-}
-
-model AreasOnOrganizations {
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  areaId         String
-  area           Area         @relation(fields: [areaId], references: [id])
-
-  @@id([organizationId, areaId])
-  @@map("areas_on_organizations")
 }
 
 model SeekingsOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
-  offer     Offer   @relation(fields: [offerId], references: [id])
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@id([profileId, offerId])
   @@map("seekings_on_profiles")
@@ -45,64 +73,10 @@ model OffersOnProfiles {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String
   offerId   String
-  offer     Offer   @relation(fields: [offerId], references: [id])
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@id([profileId, offerId])
   @@map("offers_on_profiles")
-}
-
-model OrganizationTypesOnOrganizations {
-  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId     String
-  organizationTypeId String
-  organizationType   OrganizationType @relation(fields: [organizationTypeId], references: [id])
-
-  @@id([organizationId, organizationTypeId])
-  @@map("organization_types_on_organizations")
-}
-
-model FocusesOnOrganizations {
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  focusId        String
-  focus          Focus        @relation(fields: [focusId], references: [id])
-
-  @@id([organizationId, focusId])
-  @@map("focuses_on_organizations")
-}
-
-model Profile {
-  id              String                 @id @default(uuid())
-  username        String                 @unique
-  firstName       String                 @map("first_name")
-  lastName        String                 @map("last_name")
-  academicTitle   String?                @map("academic_title")
-  position        String?
-  email           String
-  phone           String?
-  website         String?
-  avatar          String?
-  background      String?
-  facebook        String?
-  linkedin        String?
-  twitter         String?
-  youtube         String?
-  instagram       String?
-  xing            String?
-  bio             String?
-  skills          String[]
-  interests       String[]
-  publicFields    String[]               @map("public_fields")
-  memberOf        MemberOfOrganization[]
-  createdAt       DateTime               @default(now()) @map("created_at")
-  updatedAt       DateTime               @default(now()) @map("updated_at")
-  termsAccepted   Boolean                @map("terms_accepted")
-  termsAcceptedAt DateTime               @default(now()) @map("terms_accepted_at")
-  areas           AreasOnProfiles[]
-  seekings        SeekingsOnProfiles[]
-  offers          OffersOnProfiles[]
-
-  @@map("profiles")
 }
 
 model Organization {
@@ -142,8 +116,29 @@ model Organization {
   createdAt              DateTime                           @default(now()) @map("created_at")
   updatedAt              DateTime                           @default(now()) @map("updated_at")
   areas                  AreasOnOrganizations[]
+  responsibleForEvents   ResponsibleOrganizationOfEvent[]
 
   @@map("organizations")
+}
+
+model OrganizationTypesOnOrganizations {
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  organizationTypeId String
+  organizationType   OrganizationType @relation(fields: [organizationTypeId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, organizationTypeId])
+  @@map("organization_types_on_organizations")
+}
+
+model FocusesOnOrganizations {
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  focusId        String
+  focus          Focus        @relation(fields: [focusId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, focusId])
+  @@map("focuses_on_organizations")
 }
 
 model MemberOfOrganization {
@@ -167,6 +162,174 @@ model MemberOfNetwork {
 
   @@id([networkId, networkMemberId])
   @@map("members_of_networks")
+}
+
+model AreasOnOrganizations {
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  areaId         String
+  area           Area         @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, areaId])
+  @@map("areas_on_organizations")
+}
+
+model Event {
+  id                       String                           @id @default(uuid())
+  name                     String
+  slug                     String                           @unique
+  startTime                DateTime                         @map("start_time") // Z or UTC on Date() creation
+  endTime                  DateTime                         @map("end_time") // default: startTime
+  participants             ParticipantOfEvent[]
+  speakers                 SpeakerOfEvent[]
+  parentEvent              Event?                           @relation(name: "parent_of_event", fields: [parentEventId], references: [id], onDelete: Cascade)
+  parentEventId            String                           @map("parent_event_id")
+  childEvents              Event[]                          @relation(name: "parent_of_event")
+  description              String?
+  published                Boolean                          @default(false)
+  createdAt                DateTime                         @default(now()) @map("created_at")
+  updatedAt                DateTime                         @default(now()) @map("updated_at")
+  focuses                  FocusOfEvent[]
+  targetGroups             TargetGroupOfEvent[]
+  experienceLevel          ExperienceLevel?                 @relation(name: "experience_level_of_event", fields: [experienceLevelId], references: [id])
+  experienceLevelId        String                           @map("experience_level_id")
+  types                    TypeOfEvent[]
+  tags                     TagOfEvent[]
+  responsibleOrganizations ResponsibleOrganizationOfEvent[]
+  teamMembers              TeamMemberOfEvent[]
+  background               String? // default: use image from cms on supabase (see github issue)
+  conferenceLink           String?                          @map("conference_link")
+  conferenceCode           String?                          @map("conference_code")
+  participantLimit         Int?                             @map("participant_limit")
+  participationUntil       DateTime                         @map("participation_until") // default: startTime
+  waitingList              WaitingParticipantOfEvent[]
+  areas                    AreaOfEvent[]
+  venueName                String?                          @map("venue_name")
+  venueStreet              String?                          @map("venue_street")
+  venueStreetNumber        String?                          @map("venue_street_number")
+  venueCity                String?                          @map("venue_city")
+  venueZipCode             String?                          @map("venue_zip_code")
+  documents                DocumentOfEvent[]
+
+  @@map("events")
+}
+
+model TeamMemberOfEvent {
+  event           Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String  @map("event_id")
+  profileId       String  @map("profile_id")
+  profile         Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  isPrivileged    Boolean @default(false)
+  responsibileFor String?
+
+  @@id([eventId, profileId])
+  @@map("team_members_of_events")
+}
+
+model ResponsibleOrganizationOfEvent {
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String       @map("event_id")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, organizationId])
+  @@map("responsible_organizations_of_events")
+}
+
+model DocumentOfEvent {
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    String   @map("event_id")
+  documentId String   @map("document_id")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, documentId])
+  @@map("documents_of_events")
+}
+
+model AreaOfEvent {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @map("event_id")
+  areaId  String @map("area_id")
+  area    Area   @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, areaId])
+  @@map("areas_of_events")
+}
+
+model WaitingParticipantOfEvent {
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String   @map("profile_id")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([profileId, eventId])
+  @@map("waiting_participants_of_events")
+}
+
+model TagOfEvent {
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String   @map("tag_id")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([tagId, eventId])
+  @@map("tags_of_events")
+}
+
+model TypeOfEvent {
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  eventTypeId String    @map("event_type_id")
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     String    @map("event_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@id([eventTypeId, eventId])
+  @@map("event_types_of_events")
+}
+
+model FocusOfEvent {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @map("event_id")
+  focusId String @map("focus_id")
+  focus   Focus  @relation(fields: [focusId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, focusId])
+  @@map("focuses_on_events")
+}
+
+model TargetGroupOfEvent {
+  targetGroup   TargetGroup @relation(fields: [targetGroupId], references: [id], onDelete: Cascade)
+  targetGroupId String      @map("target_group_id")
+  event         Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId       String      @map("event_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@id([targetGroupId, eventId])
+  @@map("target_groups_of_events")
+}
+
+model ParticipantOfEvent {
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String   @map("profile_id")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([profileId, eventId])
+  @@map("participants_of_events")
+}
+
+model SpeakerOfEvent {
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String   @map("profile_id")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([profileId, eventId])
+  @@map("speakers_of_events")
 }
 
 model State {
@@ -210,6 +373,7 @@ model Area {
 
   AreasOnProfiles      AreasOnProfiles[]
   AreasOnOrganizations AreasOnOrganizations[]
+  events               AreaOfEvent[]
 
   @@map("areas")
 }
@@ -236,6 +400,53 @@ model Focus {
   id            String                   @id @default(uuid())
   title         String                   @unique
   organizations FocusesOnOrganizations[]
+  events        FocusOfEvent[]
 
   @@map("focuses")
+}
+
+model TargetGroup {
+  id     String               @id @default(uuid())
+  title  String               @unique
+  events TargetGroupOfEvent[]
+
+  @@map("target_groups")
+}
+
+model ExperienceLevel {
+  id     String  @id @default(uuid())
+  title  String  @unique
+  events Event[] @relation(name: "experience_level_of_event")
+
+  @@map("experience_levels")
+}
+
+model EventType {
+  id     String        @id @default(uuid())
+  title  String        @unique
+  events TypeOfEvent[]
+
+  @@map("event_types")
+}
+
+model Tag {
+  id     String       @id @default(uuid())
+  title  String       @unique
+  events TagOfEvent[]
+
+  @@map("tags")
+}
+
+model Document {
+  id          String            @id @default(uuid())
+  fileName    String            @unique @map("file_name")
+  path        String
+  size        Int
+  mimeType    String            @map("mime_type")
+  title       String?
+  description String?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  events      DocumentOfEvent[]
+
+  @@map("documents")
 }
