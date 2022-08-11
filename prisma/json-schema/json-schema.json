@@ -115,12 +115,6 @@
             "$ref": "#/definitions/OffersOnProfiles"
           }
         },
-        "authoredEvents": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Event"
-          }
-        },
         "participatedEvents": {
           "type": "array",
           "items": {
@@ -139,10 +133,10 @@
             "$ref": "#/definitions/WaitingParticipantOfEvent"
           }
         },
-        "organizedEvents": {
+        "teamMemberOfEvents": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OrganizingProfileOfEvent"
+            "$ref": "#/definitions/TeamMemberOfEvent"
           }
         }
       }
@@ -305,10 +299,10 @@
             "$ref": "#/definitions/AreasOnOrganizations"
           }
         },
-        "organizedEvents": {
+        "responsibleForEvents": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+            "$ref": "#/definitions/ResponsibleOrganizationOfEvent"
           }
         }
       }
@@ -400,9 +394,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "author": {
-          "$ref": "#/definitions/Profile"
-        },
         "participants": {
           "type": "array",
           "items": {
@@ -480,16 +471,16 @@
             "$ref": "#/definitions/TagOfEvent"
           }
         },
-        "organizingOrganizations": {
+        "responsibleOrganizations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+            "$ref": "#/definitions/ResponsibleOrganizationOfEvent"
           }
         },
-        "organizingProfiles": {
+        "teamMembers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OrganizingProfileOfEvent"
+            "$ref": "#/definitions/TeamMemberOfEvent"
           }
         },
         "background": {
@@ -543,7 +534,7 @@
         }
       }
     },
-    "OrganizingProfileOfEvent": {
+    "TeamMemberOfEvent": {
       "type": "object",
       "properties": {
         "event": {
@@ -551,10 +542,17 @@
         },
         "profile": {
           "$ref": "#/definitions/Profile"
+        },
+        "isPrivileged": {
+          "type": "boolean",
+          "default": false
+        },
+        "responsibileFor": {
+          "type": ["string", "null"]
         }
       }
     },
-    "OrganizingOrganizationOfEvent": {
+    "ResponsibleOrganizationOfEvent": {
       "type": "object",
       "properties": {
         "event": {
@@ -975,11 +973,11 @@
     "event": {
       "$ref": "#/definitions/Event"
     },
-    "organizingProfileOfEvent": {
-      "$ref": "#/definitions/OrganizingProfileOfEvent"
+    "teamMemberOfEvent": {
+      "$ref": "#/definitions/TeamMemberOfEvent"
     },
-    "organizingOrganizationOfEvent": {
-      "$ref": "#/definitions/OrganizingOrganizationOfEvent"
+    "responsibleOrganizationOfEvent": {
+      "$ref": "#/definitions/ResponsibleOrganizationOfEvent"
     },
     "documentOfEvent": {
       "$ref": "#/definitions/DocumentOfEvent"
