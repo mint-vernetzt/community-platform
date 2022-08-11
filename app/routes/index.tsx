@@ -1,5 +1,5 @@
 import React from "react";
-import { LoaderFunction, useLoaderData, useSubmit } from "remix";
+import { LoaderFunction, redirect, useLoaderData, useSubmit } from "remix";
 import { authenticator, sessionStorage } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {
@@ -37,6 +37,10 @@ export default function Index() {
       }
     }
     if (loaderData.hasSession) {
+      submit(null, { action: "/explore" });
+    }
+    // TODO: Remove submit in else case when the landing page is designed and implemented
+    else {
       submit(null, { action: "/explore" });
     }
   }, [loaderData]);
