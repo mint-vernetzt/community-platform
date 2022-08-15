@@ -16,7 +16,12 @@ jest.mock("~/auth.server", () => {
 });
 
 jest.mock("~/utils.server", () => {
-  return { validateCSRFToken: jest.fn() };
+  return {
+    validateCSRFToken: jest.fn(),
+    addCsrfTokenToSession: jest
+      .fn()
+      .mockImplementation(() => "some-csrf-token"),
+  };
 });
 
 jest.mock("~/utils", () => {
@@ -144,7 +149,7 @@ describe("action", () => {
     });
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
-      return `some-slug`;
+      return "some-slug";
     });
 
     const request = createRequestWithFormData({
@@ -154,15 +159,53 @@ describe("action", () => {
       startDate: "2022-09-19",
     });
 
-    const response = await action({ request, context: {}, params: {} });
+    const startTime = new Date("2022-09-19 00:00");
 
-    const date = new Date("2022-09-19 00:00");
+    const response = await action({ request, context: {}, params: {} });
 
     expect(createEventOnProfile).toHaveBeenLastCalledWith(uuid, {
       slug: "some-slug",
       name: "Some Event",
-      startTime: date,
-      endTime: date,
+      startTime,
+      endTime: startTime,
+      participationUntil: startTime,
+    });
+
+    expect(response).toEqual(redirect("/event/some-slug"));
+  });
+
+  test("all fields", async () => {
+    const uuid = crypto.randomUUID();
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: uuid };
+    });
+
+    (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
+      return "some-slug";
+    });
+
+    const request = createRequestWithFormData({
+      id: uuid,
+      csrf: "some-csrf-token",
+      name: "Some Event",
+      startDate: "2022-09-19",
+      startTime: "09:00",
+      endDate: "2022-09-20",
+      endTime: "18:00",
+    });
+
+    const startTime = new Date("2022-09-19 09:00");
+    const endTime = new Date("2022-09-20 18:00");
+
+    const response = await action({ request, context: {}, params: {} });
+
+    expect(createEventOnProfile).toHaveBeenLastCalledWith(uuid, {
+      slug: "some-slug",
+      name: "Some Event",
+      startTime,
+      endTime,
+      participationUntil: startTime,
     });
 
     expect(response).toEqual(redirect("/event/some-slug"));

@@ -35,7 +35,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
-  csrf: string | undefined;
+  // csrf: string | undefined;
   currentUserInfo?: CurrentUserInfo;
 };
 
@@ -53,6 +53,8 @@ export const loader: LoaderFunction = async (args) => {
     csrf = createCSRFToken();
     session.set("csrf", csrf);
   }
+
+  console.log("csrf created", csrf);
 
   const sessionValue = session.get(authenticator.sessionKey);
   const hasSession = sessionValue !== undefined;
@@ -98,7 +100,7 @@ export const loader: LoaderFunction = async (args) => {
 
   return json<LoaderData>(
     {
-      csrf,
+      // csrf,
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       currentUserInfo,
