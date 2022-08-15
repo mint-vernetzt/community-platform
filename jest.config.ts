@@ -9,4 +9,5 @@ export default {
   moduleNameMapper: {
     "^~/(.*)": "<rootDir>/app/$1",
   },
+  transformIgnorePatterns: ["node_modules/?!@web-std"],
 };
