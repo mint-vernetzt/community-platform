@@ -1,8 +1,7 @@
 import { createHmac, randomBytes } from "crypto";
 import type { BinaryToTextEncoding } from "crypto";
-import { getSession } from "./auth.server";
+import { getSession, sessionStorage } from "./auth.server";
 import { forbidden } from "remix-utils";
-import { json } from "body-parser";
 
 export async function createHashFromString(
   string: string,
@@ -38,6 +37,26 @@ export async function validateCSRFToken(request: Request) {
 
   if (csrf !== session.get("csrf")) {
     console.error(new Error("CSRF tokens do not match"));
+    console.log("formData:", csrf, "session:", session.get("csrf"));
     throw forbidden({ message });
   }
+}
+
+export async function addCsrfTokenToSession(request: Request) {
+  const session = await getSession(request);
+
+  console.log(session.get("csrf"));
+
+  if (session !== null) {
+    const csrf = createCSRFToken();
+
+    console.log("\n", "----add csrf to session----\n", csrf, "\n");
+
+    session.set("csrf", csrf);
+
+    console.log(session.get("csrf"));
+    return csrf;
+  }
+
+  return null;
 }

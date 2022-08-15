@@ -1,4 +1,8 @@
-import { generateOrganizationSlug, generateUsername } from "./utils";
+import {
+  generateEventSlug,
+  generateOrganizationSlug,
+  generateUsername,
+} from "./utils";
 
 // TODO: add more names to test
 test("generate username", () => {
@@ -61,7 +65,28 @@ test("generate organization slug", () => {
   expect.assertions(testData.length);
   testData.forEach((item) => {
     const { given, expected } = item;
-    const username = generateOrganizationSlug(given.organizationName);
-    expect(username).toBe(expected);
+    const organizationName = generateOrganizationSlug(given.organizationName);
+    expect(organizationName).toBe(expected);
+  });
+});
+
+test("generate event slug", () => {
+  const timestamp = Date.now();
+
+  const testData: {
+    given: { eventName: string; timestamp: number };
+    expected: string;
+  }[] = [
+    {
+      given: { eventName: "My Event", timestamp },
+      expected: `myevent-${timestamp.toString(36)}`,
+    },
+  ];
+
+  expect.assertions(testData.length);
+  testData.forEach((item) => {
+    const { given, expected } = item;
+    const eventName = generateEventSlug(given.eventName, given.timestamp);
+    expect(eventName).toBe(expected);
   });
 });

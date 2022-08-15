@@ -183,7 +183,7 @@ model Event {
   participants             ParticipantOfEvent[]
   speakers                 SpeakerOfEvent[]
   parentEvent              Event?                           @relation(name: "parent_of_event", fields: [parentEventId], references: [id], onDelete: Cascade)
-  parentEventId            String                           @map("parent_event_id")
+  parentEventId            String?                          @map("parent_event_id")
   childEvents              Event[]                          @relation(name: "parent_of_event")
   description              String?
   published                Boolean                          @default(false)
@@ -192,7 +192,7 @@ model Event {
   focuses                  FocusOfEvent[]
   targetGroups             TargetGroupOfEvent[]
   experienceLevel          ExperienceLevel?                 @relation(name: "experience_level_of_event", fields: [experienceLevelId], references: [id])
-  experienceLevelId        String                           @map("experience_level_id")
+  experienceLevelId        String?                          @map("experience_level_id")
   types                    TypeOfEvent[]
   tags                     TagOfEvent[]
   responsibleOrganizations ResponsibleOrganizationOfEvent[]
