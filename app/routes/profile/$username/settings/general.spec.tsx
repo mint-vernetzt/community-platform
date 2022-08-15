@@ -254,7 +254,7 @@ describe("action", () => {
         params: { username },
       });
       expect(response.errors).toBeNull();
-      expect(updateProfileById).toHaveBeenCalledWith(id, {
+      expect(updateProfileById).toHaveBeenLastCalledWith(id, {
         ...parsedDataDefaults,
         email,
         firstName,

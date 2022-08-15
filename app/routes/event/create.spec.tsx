@@ -1,6 +1,10 @@
+import { redirect } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
+import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
+import * as crypto from "crypto";
+import { createEventOnProfile } from "./utils.server";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -13,6 +17,14 @@ jest.mock("~/auth.server", () => {
 
 jest.mock("~/utils.server", () => {
   return { validateCSRFToken: jest.fn() };
+});
+
+jest.mock("~/utils", () => {
+  return { generateEventSlug: jest.fn() };
+});
+
+jest.mock("./utils.server", () => {
+  return { createEventOnProfile: jest.fn() };
 });
 
 describe("loader", () => {
@@ -122,6 +134,38 @@ describe("action", () => {
     expect(response.errors).not.toBeNull();
     expect(response.errors.name.message).toBe("Please add event name");
     expect(response.errors.startDate.message).toBe("Please add a start date");
+  });
+
+  test("required fields", async () => {
+    const uuid = crypto.randomUUID();
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: uuid };
+    });
+
+    (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
+      return `some-slug`;
+    });
+
+    const request = createRequestWithFormData({
+      id: uuid,
+      csrf: "some-csrf-token",
+      name: "Some Event",
+      startDate: "2022-09-19",
+    });
+
+    const response = await action({ request, context: {}, params: {} });
+
+    const date = new Date("2022-09-19 00:00");
+
+    expect(createEventOnProfile).toHaveBeenLastCalledWith(uuid, {
+      slug: "some-slug",
+      name: "Some Event",
+      startTime: date,
+      endTime: date,
+    });
+
+    expect(response).toEqual(redirect("/event/some-slug"));
   });
 
   afterAll(() => {

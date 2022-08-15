@@ -23,6 +23,12 @@ export function generateOrganizationSlug(name: string) {
   return generateValidSlug(name);
 }
 
+export function generateEventSlug(name: string, timestamp: number) {
+  const nameSlug = generateValidSlug(name);
+  const stringFromTimestamp = timestamp.toString(36);
+  return `${nameSlug}-${stringFromTimestamp}`;
+}
+
 function generateValidSlug(string: string) {
   return string
     .toLowerCase()

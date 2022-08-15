@@ -1,5 +1,10 @@
-import { Loader } from "@storybook/addons";
-import { ActionFunction, Form, LoaderFunction, useLoaderData } from "remix";
+import {
+  ActionFunction,
+  Form,
+  LoaderFunction,
+  redirect,
+  useLoaderData,
+} from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
 import { getUserByRequest } from "~/auth.server";
@@ -11,7 +16,9 @@ import {
   nullOrString,
   validateForm,
 } from "~/lib/utils/yup";
+import { generateEventSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
+import { createEventOnProfile } from "./utils.server";
 
 const schema = object({
   id: string().uuid().required(),
@@ -33,8 +40,9 @@ const schema = object({
         return null;
       }
       return current;
-    }),
-  endTime: string(),
+    })
+    .defined(),
+  endTime: nullOrString(string()),
   csrf: string(),
 });
 
@@ -44,6 +52,22 @@ type FormType = InferType<typeof schema>;
 type LoaderData = {
   id: string;
 };
+
+function getDateTime(date: Date, time: string | null) {
+  if (time === null) {
+    const copy = new Date(date.getTime());
+    copy.setHours(0);
+    copy.setMinutes(0);
+    copy.setSeconds(0);
+    copy.setMilliseconds(0);
+    return copy;
+  }
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDay();
+  const hoursAndMinutes = time.split(":").map(Number);
+  return new Date(year, month, day, hoursAndMinutes[0], hoursAndMinutes[1]);
+}
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request } = args;
@@ -79,6 +103,26 @@ export const action: ActionFunction = async (args) => {
     data = result.data;
   } catch (error) {
     throw badRequest({ message: "Validation failed" });
+  }
+
+  if (errors === null) {
+    const slug = generateEventSlug(data.name, Date.now());
+    const startTime = getDateTime(data.startDate, data.startTime);
+
+    let endTime;
+    if (data.endDate !== null) {
+      endTime = getDateTime(data.endDate, data.endTime);
+    } else {
+      endTime = startTime;
+    }
+
+    await createEventOnProfile(currentUser.id, {
+      slug,
+      name: data.name,
+      startTime,
+      endTime,
+    });
+    return redirect(`/event/${slug}`);
   }
 
   return { data, errors };
