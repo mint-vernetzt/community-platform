@@ -17,7 +17,6 @@ import {
   validateForm,
 } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
-import { addCsrfTokenToSession, validateCSRFToken } from "~/utils.server";
 import { createEventOnProfile } from "./utils.server";
 
 const schema = object({
@@ -43,7 +42,6 @@ const schema = object({
     })
     .defined(),
   endTime: nullOrString(string()),
-  csrf: string(),
 });
 
 type SchemaType = typeof schema;
@@ -51,7 +49,6 @@ type FormType = InferType<typeof schema>;
 
 type LoaderData = {
   id: string;
-  csrf: string | null;
 };
 
 function getDateTime(date: Date, time: string | null) {
@@ -79,16 +76,14 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   await validateFeatureAccess(request, "events");
 
-  const csrf = await addCsrfTokenToSession(request);
-
-  return { id: currentUser.id, csrf };
+  return { id: currentUser.id };
 };
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
   // TODO: Do we need user id in combination with csrf?
-  await validateCSRFToken(request);
+  // await validateCSRFToken(request);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
 
@@ -134,13 +129,11 @@ export const action: ActionFunction = async (args) => {
 
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
-  // const { hiddenCSRFInput } = useCSRF();
 
   return (
     <Form method="post">
       <h1>create event</h1>
       <input name="id" defaultValue={loaderData.id} hidden />
-      <input name="csrf" defaultValue={loaderData.csrf || ""} hidden />
       <div className="m-2">
         <label htmlFor="name">Name*</label>
         <input

@@ -15,15 +15,6 @@ jest.mock("~/auth.server", () => {
   return { getUserByRequest: jest.fn() };
 });
 
-jest.mock("~/utils.server", () => {
-  return {
-    validateCSRFToken: jest.fn(),
-    addCsrfTokenToSession: jest
-      .fn()
-      .mockImplementation(() => "some-csrf-token"),
-  };
-});
-
 jest.mock("~/utils", () => {
   return { generateEventSlug: jest.fn() };
 });
@@ -154,7 +145,6 @@ describe("action", () => {
 
     const request = createRequestWithFormData({
       id: uuid,
-      csrf: "some-csrf-token",
       name: "Some Event",
       startDate: "2022-09-19",
     });
@@ -187,7 +177,6 @@ describe("action", () => {
 
     const request = createRequestWithFormData({
       id: uuid,
-      csrf: "some-csrf-token",
       name: "Some Event",
       startDate: "2022-09-19",
       startTime: "09:00",
