@@ -2,7 +2,6 @@ import { createHmac, randomBytes } from "crypto";
 import type { BinaryToTextEncoding } from "crypto";
 import { getSession } from "./auth.server";
 import { forbidden } from "remix-utils";
-import { json } from "body-parser";
 
 export async function createHashFromString(
   string: string,
