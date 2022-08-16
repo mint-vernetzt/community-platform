@@ -11,7 +11,7 @@ export async function getFeatureAbilities(
   return result.abilities;
 }
 
-export async function getFeatureAbilitiesOrThrow(
+export async function checkFeatureAbilitiesOrThrow(
   request: Request,
   featureName: string
 ) {

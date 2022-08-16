@@ -10,7 +10,7 @@ type LoaderData = {
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
-export const loader: LoaderFunction = async (args) => {
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
   const { slug } = params;
 
