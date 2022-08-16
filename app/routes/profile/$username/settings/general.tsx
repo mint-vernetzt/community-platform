@@ -377,6 +377,7 @@ export default function Index() {
                 {...register("bio")}
                 id="bio"
                 label="Kurzbeschreibung"
+                defaultValue={profile.bio || ""}
                 placeholder="Beschreibe Dich und Dein Tätigkeitsfeld näher."
                 isPublic={profile.publicFields?.includes("bio")}
                 errorMessage={errors?.bio?.message}
