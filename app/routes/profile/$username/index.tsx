@@ -1,5 +1,6 @@
 import {
   Area,
+  Event,
   Offer,
   Organization,
   OrganizationType,
@@ -30,6 +31,7 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
@@ -49,6 +51,8 @@ type ProfileRelations = {
 } & {
   seekings: { offer: Offer }[];
 } & {
+  teamMemberOfEvents: { event: Event }[];
+} & {
   memberOf: {
     organization: Pick<Organization, "logo" | "name" | "slug"> &
       OrganizationRelations;
@@ -62,6 +66,7 @@ type ProfileLoaderData = {
     avatar?: string;
     background?: string;
   };
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 type Mode = "anon" | "authenticated" | "owner";
@@ -93,6 +98,8 @@ export const loader: LoaderFunction = async (
 
   const sessionUser = await getUserByRequest(request);
   const mode: Mode = deriveMode(username, sessionUser?.user_metadata?.username);
+
+  const abilities = await getFeatureAbilities(request, "events");
 
   let images: {
     avatar?: string;
@@ -138,6 +145,7 @@ export const loader: LoaderFunction = async (
     "avatar",
     "background",
     "memberOf",
+    "teamMemberOfEvents",
     ...profile.publicFields,
   ];
 
@@ -149,7 +157,7 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  return json({ mode, data, images });
+  return json({ mode, data, images, abilities });
 };
 
 export const action: ActionFunction = async (args) => {
@@ -632,6 +640,52 @@ export default function Index() {
                     </div>
                   ))}
                 </div>
+                {loaderData.abilities.events.hasAccess === true && (
+                  <>
+                    <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                      <div className="flex-auto pr-4">
+                        <h3 className="mb-0 font-bold">Veranstaltungen</h3>
+                      </div>
+                      {loaderData.mode === "owner" && (
+                        <div className="flex-initial pl-4">
+                          <Link
+                            to="/event/create"
+                            className="btn btn-outline btn-primary"
+                          >
+                            Veranstaltung anlegen
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                    {loaderData.data.teamMemberOfEvents &&
+                      loaderData.data.memberOf.length > 0 && (
+                        <div className="flex flex-wrap -mx-3 items-stretch">
+                          {loaderData.data.teamMemberOfEvents.map(
+                            ({ event }, index) => (
+                              <div
+                                key={`profile-${index}`}
+                                data-testid="gridcell"
+                                className="flex-100 lg:flex-1/2 px-3 mb-8"
+                              >
+                                <Link
+                                  to={`/event/${event.slug}`}
+                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                                >
+                                  <div className="w-full flex items-center flex-row">
+                                    <div className="pl-4">
+                                      <H3 like="h4" className="text-xl mb-1">
+                                        {event.name}
+                                      </H3>
+                                    </div>
+                                  </div>
+                                </Link>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+                  </>
+                )}
               </>
             )}
           </div>

@@ -16,6 +16,9 @@ export async function getProfileByUsername(username: string) {
     areas: { select: { area: { select: { name: true } } } },
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
+    teamMemberOfEvents: {
+      select: { event: { select: { name: true, slug: true } } },
+    },
     memberOf: {
       select: {
         organization: {
