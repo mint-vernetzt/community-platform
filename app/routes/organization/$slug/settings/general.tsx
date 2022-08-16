@@ -377,6 +377,7 @@ function Index() {
             <TextAreaWithCounter
               {...register("bio")}
               id="bio"
+              defaultValue={organization.bio || ""}
               label="Kurzbeschreibung"
               isPublic={organization.publicFields?.includes("bio")}
               errorMessage={errors?.bio?.message}
