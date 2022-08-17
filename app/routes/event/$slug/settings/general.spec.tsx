@@ -25,6 +25,34 @@ jest.mock("~/prisma", () => {
 const slug = "slug-test";
 
 describe("/event/$slug/settings/general", () => {
+  const formDefaults = {
+    id: "",
+    name: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    description: "",
+    published: "",
+    updatedAt: "",
+    focuses: "",
+    targetGroups: "",
+    experienceLevel: "",
+    types: "",
+    tags: "",
+    conferenceLink: "",
+    conferenceCode: "",
+    participantLimit: "",
+    participationUntilDate: "",
+    participationUntilTime: "",
+    areas: [],
+    venueName: "",
+    venueStreet: "",
+    venueStreetNumber: "",
+    venueCity: "",
+    venueZipCode: "",
+  };
+
   describe("loader", () => {
     beforeAll(() => {
       process.env.FEATURES = "events";
