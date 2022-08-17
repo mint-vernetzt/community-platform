@@ -5,6 +5,12 @@ import { SupabaseStrategy } from "remix-auth-supabase";
 import { supabaseAdmin, supabaseClient } from "./supabase";
 import type { Session } from "./supabase";
 import { prismaClient } from "./prisma";
+import { unauthorized } from "remix-utils";
+
+// important for testing nested calls (https://stackoverflow.com/a/55193363)
+// maybe move helper functions like getUserByRequest to other module
+// then we can just mock external modules
+import * as self from "./auth.server";
 
 export const SESSION_NAME = "sb";
 
@@ -107,6 +113,16 @@ export const getUserByRequest = async (
     return session.user;
   }
   return null;
+};
+
+export const getUserByRequestOrThrow = async (request: Request) => {
+  const result = await self.getUserByRequest(request);
+  if (result === null) {
+    throw unauthorized({
+      message: "No session or session user found",
+    });
+  }
+  return result;
 };
 
 export const getUserByAccessToken = async (

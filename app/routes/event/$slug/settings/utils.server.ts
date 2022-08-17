@@ -25,7 +25,7 @@ export async function checkOwnership(
   }
 
   if (isOwner === false && options.throw) {
-    throw unauthorized({ message: "Not authorized" });
+    throw unauthorized({ message: "Not privileged" });
   }
 
   return { isOwner };
@@ -36,4 +36,16 @@ export async function checkOwnershipOrThrow(
   currentUser: User | null
 ) {
   return await checkOwnership(event, currentUser, { throw: true });
+}
+
+export async function checkIdentityOrThrow(
+  request: Request,
+  currentUser: User
+) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const id = formData.get("id") as string | null;
+  if (id === null || id !== currentUser.id) {
+    throw unauthorized({ message: "Identity check failed" });
+  }
 }

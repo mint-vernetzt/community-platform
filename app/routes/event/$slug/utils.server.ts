@@ -26,17 +26,15 @@ export async function deriveMode(
   return "owner";
 }
 
-export async function getEventBySlug(
-  slug: string,
-  options: { throw: boolean } = { throw: false }
-) {
+export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findFirst({ where: { slug } });
-  if (event === null && options.throw === true) {
-    throw notFound({ message: "Event not found" });
-  }
   return event;
 }
 
 export async function getEventBySlugOrThrow(slug: string) {
-  return (await getEventBySlug(slug, { throw: true })) as Event;
+  const result = await getEventBySlug(slug);
+  if (result === null) {
+    throw notFound({ message: "Event not found" });
+  }
+  return result as Event;
 }
