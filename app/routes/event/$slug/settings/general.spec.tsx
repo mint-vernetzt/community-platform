@@ -342,6 +342,38 @@ describe("/event/$slug/settings/general", () => {
       }
     });
 
+    test("all fields required", async () => {
+      const request = createRequestWithFormData({
+        id: "some-user-id",
+        name: "Event title",
+      });
+      expect.assertions(2);
+
+      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { slug };
+      });
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { slug };
+      });
+
+      try {
+        await action({ request, context: {}, params: { slug } });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(400);
+
+        const json = await response.json();
+
+        console.log(json.message);
+
+        expect(json.message).toBe("Validation failed");
+      }
+    });
+
     afterAll(() => {
       delete process.env.FEATURES;
     });

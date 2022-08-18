@@ -3,7 +3,12 @@ import { array, boolean, date, number, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { multiline, nullOrString, website } from "~/lib/utils/yup";
+import {
+  getFormDataValidationResultOrThrow,
+  multiline,
+  nullOrString,
+  website,
+} from "~/lib/utils/yup";
 import { getEventBySlugOrThrow } from "../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
 
@@ -59,6 +64,8 @@ const schema = object({
   venueZipCode: nullOrString(string()),
 });
 
+type SchemaType = typeof schema;
+
 type LoaderData = {
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 };
@@ -90,6 +97,11 @@ export const action: ActionFunction = async (args) => {
   const event = await getEventBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(event, currentUser);
+
+  const result = await getFormDataValidationResultOrThrow<SchemaType>(
+    request,
+    schema
+  );
 
   return null;
 };

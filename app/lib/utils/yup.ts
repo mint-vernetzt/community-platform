@@ -1,4 +1,5 @@
-import { InferType, string, StringSchema, ValidationError } from "yup";
+import { badRequest } from "remix-utils";
+import { Asserts, InferType, string, StringSchema, ValidationError } from "yup";
 import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 
 type Error = {
@@ -154,4 +155,24 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
     }
   }
   return { data, errors };
+}
+
+export async function getFormDataValidationResultOrThrow<
+  T extends OptionalObjectSchema<AnyObject>
+>(request: Request, schema: T) {
+  let parsedFormData = await getFormValues<T>(request, schema);
+
+  let errors: FormError | null;
+  let data: Asserts<T>;
+
+  try {
+    const result = await validateForm<T>(schema, parsedFormData);
+
+    errors = result.errors;
+    data = result.data;
+  } catch (error) {
+    console.error(error);
+    throw badRequest({ message: "Validation failed" });
+  }
+  return { errors, data };
 }
