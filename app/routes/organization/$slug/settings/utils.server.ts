@@ -1,8 +1,11 @@
 import { Organization } from "@prisma/client";
 import { DataFunctionArgs } from "@remix-run/server-runtime";
+import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
+import { getPublicURL } from "~/storage.server";
 
 export async function getProfileByEmail(email: string) {
   const profile = await prismaClient.profile.findFirst({
@@ -264,7 +267,24 @@ export async function getMembersOfOrganization(organizationId: string) {
     },
   });
 
-  return members;
+  const enhancedMembers = members.map((item) => {
+    if (item.profile.avatar !== null) {
+      const publicURL = getPublicURL(item.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        return {
+          ...item,
+          profile: { ...item.profile, avatar },
+        };
+      }
+    }
+    return item;
+  });
+
+  return enhancedMembers;
 }
 
 export async function getNetworkMembersOfOrganization(organizationId: string) {
@@ -294,7 +314,24 @@ export async function getNetworkMembersOfOrganization(organizationId: string) {
     },
   });
 
-  return networkMembers;
+  const enhancedNetworkMembers = networkMembers.map((item) => {
+    if (item.networkMember.logo !== null) {
+      const publicURL = getPublicURL(item.networkMember.logo);
+      if (publicURL !== null) {
+        const logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        return {
+          ...item,
+          networkMember: { ...item.networkMember, logo },
+        };
+      }
+    }
+    return item;
+  });
+
+  return enhancedNetworkMembers;
 }
 
 export async function handleAuthorization(args: DataFunctionArgs) {
