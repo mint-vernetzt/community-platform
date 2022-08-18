@@ -34,6 +34,7 @@
     "@supabase/supabase-js": "^1.33.2",
     "commander": "^9.1.0",
     "cross-env": "^7.0.3",
+    "date-fns": "^2.29.2",
     "dotenv": "^16.0.0",
     "imgproxy": "^1.0.0",
     "jsonschema": "^1.4.0",

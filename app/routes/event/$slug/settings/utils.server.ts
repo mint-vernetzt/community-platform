@@ -2,6 +2,7 @@ import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
+import { format } from "date-fns";
 
 export async function checkOwnership(
   event: Event,
@@ -45,7 +46,30 @@ export async function checkIdentityOrThrow(
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
   const id = formData.get("id") as string | null;
+
   if (id === null || id !== currentUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
+}
+
+export function enhanceEventWithRelations(event: Event) {
+  const dateFormat = "yyyy-MM-dd";
+  const timeFormat = "HH:mm";
+
+  const startDate = format(event.startTime, dateFormat);
+  const startTime = format(event.startTime, timeFormat);
+  const endDate = format(event.endTime, dateFormat);
+  const endTime = format(event.endTime, timeFormat);
+  const participationUntilDate = format(event.participationUntil, dateFormat);
+  const participationUntilTime = format(event.participationUntil, timeFormat);
+
+  return {
+    ...event,
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+    participationUntilDate,
+    participationUntilTime,
+  };
 }
