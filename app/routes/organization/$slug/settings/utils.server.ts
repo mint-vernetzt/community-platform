@@ -267,7 +267,24 @@ export async function getMembersOfOrganization(organizationId: string) {
     },
   });
 
-  return members;
+  const enhancedMembers = members.map((item) => {
+    if (item.profile.avatar !== null) {
+      const publicURL = getPublicURL(item.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        return {
+          ...item,
+          profile: { ...item.profile, avatar },
+        };
+      }
+    }
+    return item;
+  });
+
+  return enhancedMembers;
 }
 
 export async function getNetworkMembersOfOrganization(organizationId: string) {
