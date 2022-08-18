@@ -1,9 +1,19 @@
 import { ActionFunction, LoaderFunction } from "remix";
-import { array, boolean, date, number, object, string } from "yup";
+import {
+  array,
+  boolean,
+  date,
+  InferType,
+  mixed,
+  number,
+  object,
+  string,
+} from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
+  FormError,
   getFormDataValidationResultOrThrow,
   multiline,
   nullOrString,
@@ -23,8 +33,19 @@ const schema = object({
       return current;
     })
     .nullable()
-    .required("Please add a start date"),
-  startTime: nullOrString(string()),
+    .required("Bitte gib den Beginn der Veranstaltung an"),
+  startTime: mixed()
+    .test((value) => {
+      return (
+        value === null ||
+        value === "" ||
+        /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)
+      );
+    })
+    .transform((value) => {
+      return value === null || value === "" ? null : value;
+    })
+    .nullable(),
   endDate: date()
     .nullable()
     .transform((current, original) => {
@@ -34,18 +55,40 @@ const schema = object({
       return current;
     })
     .defined(),
-  endTime: nullOrString(string()),
+  endTime: mixed()
+    .test((value) => {
+      return (
+        value === null ||
+        value === "" ||
+        /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)
+      );
+    })
+    .transform((value) => {
+      return value === null || value === "" ? null : value;
+    })
+    .nullable(),
   description: nullOrString(multiline()),
   published: boolean().required(),
-  updatedAt: date().transform(() => new Date()),
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
-  experienceLevel: string().nullable(),
+  experienceLevel: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
   conferenceLink: website(),
   conferenceCode: string(),
-  participantLimit: number(),
+  participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
+    .test((value) => {
+      return (
+        value === null ||
+        value === "" ||
+        value === 0 ||
+        number().isValidSync(value)
+      );
+    })
+    .transform((value) =>
+      value === null || value === "" || value === 0 ? null : Number(value)
+    )
+    .nullable(),
   participationUntilDate: date()
     .transform((current, original) => {
       if (original === "") {
@@ -53,18 +96,30 @@ const schema = object({
       }
       return current;
     })
-    .nullable()
-    .required("Please add a start date"),
-  participationUntilTime: nullOrString(string()),
+    .nullable(),
+  participationUntilTime: mixed()
+    .test((value) => {
+      return (
+        value === null ||
+        value === "" ||
+        /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)
+      );
+    })
+    .transform((value) => {
+      return value === null || value === "" ? null : value;
+    })
+    .nullable(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
   venueStreetNumber: nullOrString(string()),
   venueCity: nullOrString(string()),
   venueZipCode: nullOrString(string()),
+  submit: string().required(),
 });
 
 type SchemaType = typeof schema;
+type FormType = InferType<typeof schema>;
 
 type LoaderData = {
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
@@ -84,7 +139,13 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   return { event };
 };
 
-export const action: ActionFunction = async (args) => {
+type ActionData = {
+  data: FormType;
+  errors: FormError | null;
+  updated: boolean;
+};
+
+export const action: ActionFunction = async (args): Promise<ActionData> => {
   const { request, params } = args;
 
   await checkFeatureAbilitiesOrThrow(request, "events");
@@ -103,7 +164,15 @@ export const action: ActionFunction = async (args) => {
     schema
   );
 
-  return null;
+  let updated = false;
+
+  if (result.data.submit === "submit") {
+    if (result.errors === null) {
+      updated = true;
+    }
+  }
+
+  return { ...result, updated };
 };
 
 function General() {
