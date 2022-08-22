@@ -1,5 +1,5 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
-import { badRequest } from "remix-utils";
+import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
@@ -24,6 +24,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const mode = await deriveMode(event, currentUser);
   const abilities = await getFeatureAbilities(request, "events");
 
+  if (mode !== "owner" && event.published === false) {
+    throw forbidden({ message: "Event not published" });
+  }
+
   return { mode, event, abilities };
 };
 
@@ -31,7 +35,9 @@ function Index() {
   const loaderData = useLoaderData<LoaderData>();
   return (
     <>
-      <h1>Slug: {loaderData.event.slug}</h1>
+      <h1>Name: {loaderData.event.name}</h1>
+      <h1>Start time: {loaderData.event.startTime}</h1>
+      <h1>End time: {loaderData.event.endTime}</h1>
       {loaderData.mode === "owner" &&
         loaderData.abilities.events.hasAccess === true && (
           <Link

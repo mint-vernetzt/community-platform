@@ -83,6 +83,29 @@ describe("/event/$slug", () => {
       expect(response.event.slug).toBe(slug);
     });
 
+    test("anon user (not published)", async () => {
+      expect.assertions(2);
+
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { slug, published: false };
+      });
+
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return null;
+      });
+
+      const request = new Request("");
+      try {
+        await loader({ request, context: {}, params: { slug } });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(403);
+
+        const json = await response.json();
+        expect(json.message).toBe("Event not published");
+      }
+    });
+
     test("authenticated user", async () => {
       (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
@@ -104,6 +127,33 @@ describe("/event/$slug", () => {
 
       expect(response.mode).toBe("authenticated");
       expect(response.event.slug).toBe(slug);
+    });
+
+    test("authenticated user (not published)", async () => {
+      expect.assertions(2);
+
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { slug, published: false };
+      });
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { isPrivileged: false };
+      });
+
+      const request = new Request("");
+      try {
+        await loader({ request, context: {}, params: { slug } });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(403);
+
+        const json = await response.json();
+        expect(json.message).toBe("Event not published");
+      }
     });
 
     test("not privileged user ", async () => {
@@ -135,6 +185,29 @@ describe("/event/$slug", () => {
       });
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
+      });
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { isPrivileged: true };
+      });
+
+      const response = await loader({
+        request: new Request(""),
+        context: {},
+        params: { slug },
+      });
+
+      expect(response.mode).toBe("owner");
+      expect(response.event.slug).toBe(slug);
+    });
+
+    test("privileged user (not published) ", async () => {
+      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { slug, published: false };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
