@@ -208,7 +208,7 @@ describe("/event/$slug/settings/general", () => {
     });
 
     test("event not found", async () => {
-      const request = createRequestWithFormData({ id: "some-user-id" });
+      const request = createRequestWithFormData({ userId: "some-user-id" });
 
       expect.assertions(2);
 
@@ -250,7 +250,7 @@ describe("/event/$slug/settings/general", () => {
     });
 
     test("authenticated user", async () => {
-      const request = createRequestWithFormData({ id: "some-user-id" });
+      const request = createRequestWithFormData({ userId: "some-user-id" });
 
       expect.assertions(2);
 
@@ -281,7 +281,7 @@ describe("/event/$slug/settings/general", () => {
     });
 
     test("not privileged user", async () => {
-      const request = createRequestWithFormData({ id: "some-user-id" });
+      const request = createRequestWithFormData({ userId: "some-user-id" });
 
       expect.assertions(2);
 
@@ -334,10 +334,10 @@ describe("/event/$slug/settings/general", () => {
     });
 
     describe("privileged user", () => {
-      const id = "some-user-id";
+      const userId = "some-user-id";
 
       const formDefaults = {
-        id,
+        userId,
         name: "",
         startDate: "",
         startTime: "",
@@ -365,7 +365,7 @@ describe("/event/$slug/settings/general", () => {
       };
 
       beforeAll(() => {
-        getUserByRequest.mockResolvedValue({ id } as User);
+        getUserByRequest.mockResolvedValue({ id: userId } as User);
 
         (prismaClient.event.findFirst as jest.Mock).mockImplementation(() => {
           return { slug };
@@ -379,7 +379,7 @@ describe("/event/$slug/settings/general", () => {
 
       test("all fields required", async () => {
         const request = createRequestWithFormData({
-          id: "some-user-id",
+          userId: "some-user-id",
           name: "Event title",
         });
         expect.assertions(2);

@@ -46,9 +46,9 @@ export async function checkIdentityOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-  const id = formData.get("id") as string | null;
+  const userId = formData.get("userId") as string | null;
 
-  if (id === null || id !== currentUser.id) {
+  if (userId === null || userId !== currentUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
 }
@@ -81,6 +81,7 @@ export function transformEventToForm(
 // TODO: any type
 export function transformFormToEvent(form: any) {
   const {
+    userId: _userId,
     submit: _submit,
     tags: _tags,
     types: _types,

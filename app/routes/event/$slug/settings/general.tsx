@@ -40,7 +40,7 @@ import {
 } from "./utils.server";
 
 const schema = object({
-  id: string().required(),
+  userId: string().required(),
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
@@ -346,7 +346,7 @@ function General() {
         >
           {errors?.published?.message}
         </p>
-        <input name="id" defaultValue={userId} hidden />
+        <input name="userId" defaultValue={userId} hidden />
         <div className="mb-6">
           <InputText
             {...register("name")}
