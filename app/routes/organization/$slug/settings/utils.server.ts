@@ -56,19 +56,6 @@ export async function getOrganizationTypes() {
   return organizationTypes;
 }
 
-export async function getFocuses() {
-  const focuses = await prismaClient.focus.findMany();
-  return focuses;
-}
-
-export async function getAreas() {
-  return await prismaClient.area.findMany({
-    include: {
-      state: true,
-    },
-  });
-}
-
 export async function getOrganizationIdBySlug(slug: string) {
   const organization = await prismaClient.organization.findFirst({
     select: { id: true },

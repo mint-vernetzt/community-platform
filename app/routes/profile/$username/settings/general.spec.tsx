@@ -18,7 +18,14 @@ jest.mock("./utils.server", () => {
 });
 
 jest.mock("~/profile.server", () => {
-  return { getAllOffers: jest.fn(), getAreas: jest.fn() };
+  return { getAllOffers: jest.fn() };
+});
+
+jest.mock("~/utils.server", () => {
+  return {
+    getAreas: jest.fn(),
+    validateCSRFToken: jest.fn(),
+  };
 });
 
 describe("loader", () => {
@@ -77,12 +84,6 @@ describe("loader", () => {
     expect(response.profile.offers).toEqual(["offer1"]);
     expect(response.profile.seekings).toEqual(["offer1", "offer2", "offer3"]);
   });
-});
-
-jest.mock("~/utils.server", () => {
-  return {
-    validateCSRFToken: jest.fn(),
-  };
 });
 
 describe("action", () => {

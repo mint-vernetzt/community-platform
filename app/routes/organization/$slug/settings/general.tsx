@@ -16,8 +16,10 @@ import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { objectListOperationResolver } from "~/lib/utils/components";
+import {
+  createAreaOptionFromData,
+  objectListOperationResolver,
+} from "~/lib/utils/components";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import {
   FormError,
@@ -29,9 +31,8 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
+import { getAreas, getFocuses } from "~/utils.server";
 import {
-  getAreas,
-  getFocuses,
   getOrganizationTypes,
   getWholeOrganizationBySlug,
   handleAuthorization,

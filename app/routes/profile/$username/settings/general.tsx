@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
@@ -18,8 +18,10 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import useCSRF from "~/lib/hooks/useCSRF";
-import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
-import { objectListOperationResolver } from "~/lib/utils/components";
+import {
+  createAreaOptionFromData,
+  objectListOperationResolver,
+} from "~/lib/utils/components";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import {
   FormError,
@@ -32,8 +34,8 @@ import {
   website,
 } from "~/lib/utils/yup";
 
-import { getAllOffers, getAreas } from "~/profile.server";
-import { validateCSRFToken } from "~/utils.server";
+import { getAllOffers } from "~/profile.server";
+import { getAreas, validateCSRFToken } from "~/utils.server";
 import {
   getWholeProfileFromId,
   handleAuthorization,

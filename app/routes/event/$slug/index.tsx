@@ -1,12 +1,104 @@
-import { LoaderFunction, useParams } from "remix";
+import { Link, LoaderFunction, useLoaderData } from "remix";
+import { badRequest, forbidden } from "remix-utils";
+import { getUserByRequest } from "~/auth.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
-export const loader: LoaderFunction = async () => {
-  return null;
+type LoaderData = {
+  mode: Awaited<ReturnType<typeof deriveMode>>;
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+  const { request, params } = args;
+  const { slug } = params;
+
+  if (slug === undefined || typeof slug !== "string") {
+    throw badRequest({ message: '"slug" missing' });
+  }
+
+  const currentUser = await getUserByRequest(request);
+  const event = await getEventBySlugOrThrow(slug);
+
+  const mode = await deriveMode(event, currentUser);
+  const abilities = await getFeatureAbilities(request, "events");
+
+  if (mode !== "owner" && event.published === false) {
+    throw forbidden({ message: "Event not published" });
+  }
+
+  return { mode, event, abilities };
 };
 
 function Index() {
-  const params = useParams();
-  return <h1>Slug: {params.slug}</h1>;
+  const loaderData = useLoaderData<LoaderData>();
+  return (
+    <>
+      <div className="mb-4">
+        <h1>{loaderData.event.name}</h1>
+        <h3>Published: {String(loaderData.event.published)}</h3>
+        <h3>Start: {loaderData.event.startTime}</h3>
+        <h3>End: {loaderData.event.endTime}</h3>
+        <h3>Venue</h3>
+        {loaderData.event.venueName !== null && (
+          <h5>
+            {loaderData.event.venueName}, {loaderData.event.venueStreet}{" "}
+            {loaderData.event.venueStreetNumber},{" "}
+            {loaderData.event.venueZipCode} {loaderData.event.venueCity}
+          </h5>
+        )}
+        <h3>Participation until: {loaderData.event.participationUntil}</h3>
+        <h3>Participant limit: {loaderData.event.participantLimit}</h3>
+        <h3>Description</h3>
+        <p>{loaderData.event.description}</p>
+        <h3>Focuses</h3>
+        <ul>
+          <ul>
+            {loaderData.event.focuses
+              .map((item) => item.focus.title)
+              .join(" / ")}
+          </ul>
+        </ul>
+        <h3>Target Groups</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`target-groups-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Experience Level: {loaderData.event.experienceLevelId}</h3>
+        <h3>Types</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`types-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Tags</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`tags-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Areas</h3>
+        <ul>
+          <div className="lg:flex-auto">
+            {loaderData.event.areas.map((item) => item.area.name).join(" / ")}
+          </div>
+        </ul>
+        <h3>Conference Link: {loaderData.event.conferenceLink}</h3>
+        <h3>Conference Code: {loaderData.event.conferenceCode}</h3>
+      </div>
+      {loaderData.mode === "owner" &&
+        loaderData.abilities.events.hasAccess === true && (
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/event/${loaderData.event.slug}/settings`}
+          >
+            Veranstaltung bearbeiten
+          </Link>
+        )}
+    </>
+  );
 }
 
 export default Index;

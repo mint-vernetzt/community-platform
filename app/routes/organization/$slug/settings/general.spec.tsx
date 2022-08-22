@@ -20,9 +20,14 @@ jest.mock("./utils.server", () => {
     getWholeOrganizationBySlug: jest.fn(),
     handleAuthorization: jest.fn().mockResolvedValue({ organization, slug }),
     updateOrganizationById: jest.fn(),
+    getOrganizationTypes: jest.fn(),
+  };
+});
+
+jest.mock("~/utils.server", () => {
+  return {
     getAreas: jest.fn(),
     getFocuses: jest.fn(),
-    getOrganizationTypes: jest.fn(),
   };
 });
 

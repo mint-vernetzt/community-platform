@@ -1,7 +1,8 @@
-import { createHmac, randomBytes } from "crypto";
 import type { BinaryToTextEncoding } from "crypto";
-import { getSession, sessionStorage } from "./auth.server";
+import { createHmac, randomBytes } from "crypto";
 import { forbidden } from "remix-utils";
+import { getSession } from "./auth.server";
+import { prismaClient } from "./prisma";
 
 export async function createHashFromString(
   string: string,
@@ -59,4 +60,17 @@ export async function addCsrfTokenToSession(request: Request) {
   }
 
   return null;
+}
+
+export async function getFocuses() {
+  const focuses = await prismaClient.focus.findMany();
+  return focuses;
+}
+
+export async function getAreas() {
+  return await prismaClient.area.findMany({
+    include: {
+      state: true,
+    },
+  });
 }

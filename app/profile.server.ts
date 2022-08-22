@@ -16,6 +16,9 @@ export async function getProfileByUsername(username: string) {
     areas: { select: { area: { select: { name: true } } } },
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
+    teamMemberOfEvents: {
+      select: { event: { select: { name: true, slug: true } } },
+    },
     memberOf: {
       select: {
         organization: {
@@ -178,16 +181,6 @@ export async function getAllDistricts() {
 export type AreasWithState = (Area & {
   state: State | null;
 })[];
-
-// TODO:
-
-export async function getAreas() {
-  return await prismaClient.area.findMany({
-    include: {
-      state: true,
-    },
-  });
-}
 
 export async function getAreaById(areaId: string) {
   return await prismaClient.area.findUnique({

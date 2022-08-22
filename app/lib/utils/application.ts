@@ -1,6 +1,24 @@
 import { serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 
+export async function getFeatureAbilities(
+  request: Request,
+  featureName: string
+) {
+  const result = await validateFeatureAccess(request, featureName, {
+    throw: false,
+  });
+  return result.abilities;
+}
+
+export async function checkFeatureAbilitiesOrThrow(
+  request: Request,
+  featureName: string
+) {
+  const result = await validateFeatureAccess(request, featureName);
+  return result.abilities;
+}
+
 export async function validateFeatureAccess(
   request: Request,
   featureNameOrNames: string | string[],
