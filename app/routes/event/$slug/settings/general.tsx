@@ -11,9 +11,12 @@ import {
   useParams,
   useTransition,
 } from "remix";
-import { array, boolean, InferType, mixed, number, object, string } from "yup";
+import { array, InferType, mixed, number, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
+import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
+import SelectField from "~/components/FormElements/SelectField/SelectField";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -91,7 +94,21 @@ const schema = object({
     .required("Bitte gib den Beginn für die Registrierung an"),
 
   description: nullOrString(multiline()),
-  published: boolean().required(),
+  published: mixed()
+    .test((value) => {
+      return (
+        value === "on" ||
+        value === "off" ||
+        value === null ||
+        value === true ||
+        value === false
+      );
+    })
+    .transform((value) => {
+      return value === "on" || value === true;
+    })
+    .nullable()
+    .required(),
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
@@ -208,6 +225,8 @@ function General() {
     errors = actionData.errors;
   }
 
+  console.log("Errors", errors);
+
   React.useEffect(() => {
     if (isSubmitting && formRef.current !== null) {
       const $inputsToClear =
@@ -252,31 +271,240 @@ function General() {
         <h1 className="mb-8">Deine Veranstaltung</h1>
         <h4 className="mb-4 font-semibold">Allgemein</h4>
         <p className="mb-8">Lorem ipsum</p>
-        <input name="id" defaultValue={userId} hidden />
-        <InputText
-          {...register("name")}
-          id="name"
-          label="Name"
-          defaultValue={event.name}
-          errorMessage={errors?.name?.message}
+        <label htmlFor="published">Veröffentlicht?</label>
+        <input
+          {...register("published")}
+          id="published"
+          name="published"
+          type="checkbox"
+          defaultChecked={event.published}
         />
-
-        <div className="m-2">
-          <label htmlFor="startDate">Start Date*</label>
-          <input
-            id="startDate"
-            name="startDate"
-            type="date"
-            className="mx-2 border"
-            defaultValue={event.startDate as string}
-            required
+        <p
+          className="text-red-600"
+          hidden={errors === null || errors.published === undefined}
+        >
+          {errors?.published?.message}
+        </p>
+        <input name="id" defaultValue={userId} hidden />
+        <div className="mb-6">
+          <InputText
+            {...register("name")}
+            id="name"
+            label="Name"
+            defaultValue={event.name}
+            errorMessage={errors?.name?.message}
           />
-          <label htmlFor="startTime">Start Time</label>
-          <input
-            id="startTime"
-            name="startTime"
-            type="time"
-            className="mx-2 border"
+        </div>
+        <div className="flex flex-col md:flex-row -mx-4 mb-2">
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("startDate")}
+              id="startDate"
+              label="Startet am"
+              defaultValue={event.startDate}
+              errorMessage={errors?.startDate?.message}
+              type="date"
+            />
+          </div>
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("startTime")}
+              id="startTime"
+              label="Startet um"
+              defaultValue={event.startTime}
+              errorMessage={errors?.startTime?.message}
+              type="time"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row -mx-4 mb-2">
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("endDate")}
+              id="endDate"
+              label="Endet am"
+              defaultValue={event.endDate}
+              errorMessage={errors?.endDate?.message}
+              type="date"
+            />
+          </div>
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("endTime")}
+              id="endTime"
+              label="Endet um"
+              defaultValue={event.endTime}
+              errorMessage={errors?.endTime?.message}
+              type="time"
+            />
+          </div>
+        </div>
+        <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
+
+        <div className="mb-6">
+          <InputText
+            {...register("venueName")}
+            id="venueName"
+            label="Name des Veranstaltungsorts"
+            defaultValue={event.venueName || ""}
+            errorMessage={errors?.venueName?.message}
+          />
+        </div>
+        <div className="flex flex-col md:flex-row -mx-4">
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("venueStreet")}
+              id="venueStreet"
+              label="Straßenname"
+              errorMessage={errors?.venueStreet?.message}
+            />
+          </div>
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("venueStreetNumber")}
+              id="venueStreetNumber"
+              label="Hausnummer"
+              errorMessage={errors?.venueStreetNumber?.message}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row -mx-4 mb-2">
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("venueZipCode")}
+              id="venueZipCode"
+              label="PLZ"
+              errorMessage={errors?.venueZipCode?.message}
+            />
+          </div>
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("venueCity")}
+              id="venueCity"
+              label="Stadt"
+              errorMessage={errors?.venueCity?.message}
+            />
+          </div>
+        </div>
+        <h4 className="mb-4 font-semibold">Registrierung</h4>
+
+        <p className="mb-8">Lorem Ipsum</p>
+        <div className="flex flex-col md:flex-row -mx-4 mb-2">
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("participationUntilDate")}
+              id="participationUntilDate"
+              label="Registrierung endet am"
+              defaultValue={event.participationUntilDate}
+              errorMessage={errors?.participationUntilDate?.message}
+              type="date"
+            />
+          </div>
+          <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <InputText
+              {...register("participationUntilTime")}
+              id="participationUntilTime"
+              label="Registrierung endet um"
+              defaultValue={event.participationUntilTime}
+              errorMessage={errors?.participationUntilTime?.message}
+              type="time"
+            />
+          </div>
+        </div>
+        <div className="mb-6">
+          <InputText
+            {...register("participantLimit")}
+            id="participantLimit"
+            label="Begrenzung der Teilnehmenden"
+            defaultValue={event.participantLimit}
+            errorMessage={errors?.participantLimit?.message}
+            type="number"
+          />
+        </div>
+        <div className="mb-4">
+          <TextAreaWithCounter
+            {...register("description")}
+            id="description"
+            defaultValue={event.description || ""}
+            label="Beschreibung"
+            errorMessage={errors?.description?.message}
+            maxCharacters={500}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectAdd
+            name="focuses"
+            label={"MINT-Schwerpunkte"}
+            placeholder="Füge die MINT-Schwerpunkte hinzu."
+            entries={[]}
+            options={[]}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectAdd
+            name="targetGroups"
+            label={"Zielgruppen"}
+            placeholder="Füge die Zielgruppen hinzu."
+            entries={[]}
+            options={[]}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectField
+            name="experienceLevel"
+            label={"Erfahrungsstufe"}
+            placeholder="Wähle die Erfahrungsstufe aus."
+            options={[]}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectAdd
+            name="types"
+            label={"Veranstaltungstypen"}
+            placeholder="Füge die veranstaltungstypen hinzu."
+            entries={[]}
+            options={[]}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectAdd
+            name="tags"
+            label={"Schlagworte"}
+            placeholder="Füge die Schlagworte hinzu."
+            entries={[]}
+            options={[]}
+          />
+        </div>
+        <div className="mb-4">
+          <SelectAdd
+            name="areas"
+            label={"Aktivitätsgebiete"}
+            placeholder="Füge die Aktivitätsgebiete hinzu."
+            entries={[]}
+            options={[]}
+          />
+        </div>
+        <h4 className="mb-4 font-semibold">Konferenz</h4>
+
+        <p className="mb-8">Lorem Ipsum</p>
+        <div className="basis-full mb-4">
+          <InputText
+            {...register("conferenceLink")}
+            id="conferenceLink"
+            label="Konferenzlink"
+            placeholder=""
+            errorMessage={errors?.conferenceLink?.message}
+            withClearButton
+          />
+        </div>
+        <div className="mb-6">
+          <InputText
+            {...register("conferenceCode")}
+            id="conferenceCode"
+            label="Zugangscode zur Konferenz"
+            defaultValue={event.conferenceCode || ""}
+            errorMessage={errors?.conferenceCode?.message}
+            withClearButton
           />
         </div>
         <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">

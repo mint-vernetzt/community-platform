@@ -336,7 +336,7 @@ describe("/event/$slug/settings/general", () => {
         endDate: "",
         endTime: "",
         description: "",
-        published: "false",
+        published: "off",
         updatedAt: "",
         focuses: [],
         targetGroups: [],
