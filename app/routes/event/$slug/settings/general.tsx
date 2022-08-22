@@ -29,7 +29,9 @@ import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
-  enhanceEventWithRelations as transformEventToForm,
+  transformEventToForm,
+  transformFormToEvent,
+  updateEventById,
 } from "./utils.server";
 
 const schema = object({
@@ -189,6 +191,8 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
 
   if (result.data.submit === "submit") {
     if (result.errors === null) {
+      const data = transformFormToEvent(result.data);
+      await updateEventById(event.id, data);
       updated = true;
     }
   }

@@ -1,8 +1,8 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
+import { format } from "date-fns";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
-import { format } from "date-fns";
 
 export async function checkOwnership(
   event: Event,
@@ -52,7 +52,7 @@ export async function checkIdentityOrThrow(
   }
 }
 
-export function enhanceEventWithRelations(event: Event) {
+export function transformEventToForm(event: Event) {
   const dateFormat = "yyyy-MM-dd";
   const timeFormat = "HH:mm";
 
@@ -72,4 +72,41 @@ export function enhanceEventWithRelations(event: Event) {
     participationUntilDate,
     participationUntilTime,
   };
+}
+
+export function transformFormToEvent(form: any) {
+  const {
+    submit: _submit,
+    areas: _areas,
+    tags: _tags,
+    types: _types,
+    focuses: _focuses,
+    targetGroups: _targetGroups,
+    experienceLevel: _experienceLevel,
+    startDate,
+    endDate,
+    participationUntilDate,
+    participationUntilTime,
+    ...event
+  } = form;
+
+  const startTime = new Date(`${startDate} ${event.startTime}`);
+  const endTime = new Date(`${endDate} ${event.endTime}`);
+  const participationUntil = new Date(
+    `${participationUntilDate} ${participationUntilTime}`
+  );
+
+  return {
+    ...event,
+    startTime,
+    endTime,
+    participationUntil,
+  };
+}
+
+export async function updateEventById(id: string, data: any) {
+  await prismaClient.event.update({
+    where: { id },
+    data: { ...data, updatedAt: new Date() },
+  });
 }
