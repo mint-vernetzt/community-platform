@@ -18,6 +18,9 @@ jest.mock("~/prisma", () => {
       teamMemberOfEvent: {
         findFirst: jest.fn(),
       },
+      focus: {
+        findMany: jest.fn(),
+      },
     },
   };
 });
@@ -154,6 +157,7 @@ describe("/event/$slug/settings/general", () => {
           startTime: date,
           endTime: date,
           participationUntil: date,
+          focuses: [],
         };
       });
       (
@@ -468,6 +472,32 @@ describe("/event/$slug/settings/general", () => {
 
         expect(responseValidDateTimeValues.errors.submit).toBeDefined();
         expect(Object.keys(responseValidDateTimeValues.errors).length).toBe(1);
+      });
+
+      test("add list item", async () => {
+        const listAction = "addFocuse"; // TODO: improve singular name thing
+        const listActionItemId = "2";
+
+        const request = createRequestWithFormData({
+          ...formDefaults,
+          submit: listAction,
+          name: "Some Event",
+          startDate: "2022-09-19",
+          startTime: "09:00",
+          endDate: "2022-09-20",
+          endTime: "18:00",
+          participationUntilDate: "2022-09-12",
+          participationUntilTime: "23:59",
+          [listAction]: listActionItemId,
+        });
+        const response = await action({
+          request,
+          context: {},
+          params: { slug: slug },
+        });
+
+        expect(response.errors).toBeNull();
+        expect(response.data.focuses).toEqual([listActionItemId]);
       });
 
       afterAll(() => {

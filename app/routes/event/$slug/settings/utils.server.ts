@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
+import { getEventBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
   event: Event,
@@ -52,7 +53,9 @@ export async function checkIdentityOrThrow(
   }
 }
 
-export function transformEventToForm(event: Event) {
+export function transformEventToForm(
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlugOrThrow>>>
+) {
   const dateFormat = "yyyy-MM-dd";
   const timeFormat = "HH:mm";
 
@@ -71,16 +74,17 @@ export function transformEventToForm(event: Event) {
     endTime,
     participationUntilDate,
     participationUntilTime,
+    focuses: event.focuses.map((item) => item.focusId) ?? [],
   };
 }
 
+// TODO: any type
 export function transformFormToEvent(form: any) {
   const {
     submit: _submit,
     areas: _areas,
     tags: _tags,
     types: _types,
-    focuses: _focuses,
     targetGroups: _targetGroups,
     experienceLevel: _experienceLevel,
     startDate,
@@ -104,9 +108,29 @@ export function transformFormToEvent(form: any) {
   };
 }
 
+// TODO: any type
 export async function updateEventById(id: string, data: any) {
   await prismaClient.event.update({
     where: { id },
-    data: { ...data, updatedAt: new Date() },
+    data: {
+      ...data,
+      updatedAt: new Date(),
+      focuses: {
+        deleteMany: {},
+        connectOrCreate: data.focuses.map((focusId: string) => {
+          return {
+            where: {
+              eventId_focusId: {
+                focusId,
+                eventId: id,
+              },
+            },
+            create: {
+              focusId,
+            },
+          };
+        }),
+      },
+    },
   });
 }

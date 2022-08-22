@@ -54,9 +54,11 @@ function Index() {
         <p>{loaderData.event.description}</p>
         <h3>Focuses</h3>
         <ul>
-          {[].map((item, index) => {
-            <li key={`focus-${index}`}>{item}</li>;
-          })}
+          <ul>
+            {loaderData.event.focuses
+              .map((item) => item.focus.title)
+              .join(" / ")}
+          </ul>
         </ul>
         <h3>Target Groups</h3>
         <ul>

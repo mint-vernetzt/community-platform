@@ -27,7 +27,21 @@ export async function deriveMode(
 }
 
 export async function getEventBySlug(slug: string) {
-  const event = await prismaClient.event.findFirst({ where: { slug } });
+  const event = await prismaClient.event.findFirst({
+    where: { slug },
+    include: {
+      focuses: {
+        select: {
+          focusId: true,
+          focus: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+    },
+  });
   return event;
 }
 
@@ -36,5 +50,5 @@ export async function getEventBySlugOrThrow(slug: string) {
   if (result === null) {
     throw notFound({ message: "Event not found" });
   }
-  return result as Event;
+  return result;
 }

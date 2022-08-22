@@ -18,6 +18,7 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   FormError,
@@ -25,6 +26,7 @@ import {
   multiline,
   nullOrString,
 } from "~/lib/utils/yup";
+import { getFocuses } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
@@ -146,6 +148,7 @@ type FormType = InferType<typeof schema>;
 type LoaderData = {
   event: ReturnType<typeof transformEventToForm>;
   userId: string;
+  focuses: Awaited<ReturnType<typeof getFocuses>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -159,13 +162,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   await checkOwnershipOrThrow(event, currentUser);
 
-  return { event: transformEventToForm(event), userId: currentUser.id };
+  const focuses = await getFocuses();
+
+  return {
+    event: transformEventToForm(event),
+    userId: currentUser.id,
+    focuses,
+  };
 };
 
 type ActionData = {
   data: FormType;
   errors: FormError | null;
   updated: boolean;
+  lastSubmit: string;
 };
 
 export const action: ActionFunction = async (args): Promise<ActionData> => {
@@ -189,20 +199,35 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
 
   let updated = false;
 
+  let errors = result.errors;
+  let data = result.data;
+
+  const formData = await request.clone().formData();
+
   if (result.data.submit === "submit") {
     if (result.errors === null) {
       const data = transformFormToEvent(result.data);
       await updateEventById(event.id, data);
       updated = true;
     }
+  } else {
+    const listData: (keyof FormType)[] = ["focuses"];
+    listData.forEach((key) => {
+      data = objectListOperationResolver<FormType>(data, key, formData);
+    });
   }
 
-  return { ...result, updated };
+  return {
+    data,
+    errors,
+    updated,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+  };
 };
 
 function General() {
   const { slug } = useParams();
-  const { event: originalEvent, userId } = useLoaderData<LoaderData>();
+  const { event: originalEvent, userId, focuses } = useLoaderData<LoaderData>();
 
   const transition = useTransition();
   const actionData = useActionData<ActionData>();
@@ -210,7 +235,7 @@ function General() {
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event;
+  let event: any;
   if (actionData !== undefined) {
     event = actionData.data;
   } else {
@@ -229,7 +254,19 @@ function General() {
     errors = actionData.errors;
   }
 
-  console.log("Errors", errors);
+  const focusOptions = focuses.map((focus) => {
+    return {
+      label: focus.title,
+      value: focus.id,
+    };
+  });
+
+  const selectedFocuses =
+    event.focuses && focuses
+      ? focuses
+          .filter((focus) => event.focuses.includes(focus.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
 
   React.useEffect(() => {
     if (isSubmitting && formRef.current !== null) {
@@ -440,8 +477,11 @@ function General() {
             name="focuses"
             label={"MINT-Schwerpunkte"}
             placeholder="Füge die MINT-Schwerpunkte hinzu."
-            entries={[]}
-            options={[]}
+            entries={selectedFocuses.map((focus) => ({
+              label: focus.title,
+              value: focus.id,
+            }))}
+            options={focusOptions}
           />
         </div>
         <div className="mb-4">
