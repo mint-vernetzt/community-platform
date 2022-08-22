@@ -18,7 +18,10 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { objectListOperationResolver } from "~/lib/utils/components";
+import {
+  createAreaOptionFromData,
+  objectListOperationResolver,
+} from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   FormError,
@@ -26,7 +29,7 @@ import {
   multiline,
   nullOrString,
 } from "~/lib/utils/yup";
-import { getFocuses } from "~/utils.server";
+import { getAreas, getFocuses } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
@@ -149,6 +152,7 @@ type LoaderData = {
   event: ReturnType<typeof transformEventToForm>;
   userId: string;
   focuses: Awaited<ReturnType<typeof getFocuses>>;
+  areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -163,11 +167,13 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   await checkOwnershipOrThrow(event, currentUser);
 
   const focuses = await getFocuses();
+  const areas = await getAreas();
 
   return {
     event: transformEventToForm(event),
     userId: currentUser.id,
     focuses,
+    areas,
   };
 };
 
@@ -211,7 +217,7 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
       updated = true;
     }
   } else {
-    const listData: (keyof FormType)[] = ["focuses"];
+    const listData: (keyof FormType)[] = ["focuses", "areas"];
     listData.forEach((key) => {
       data = objectListOperationResolver<FormType>(data, key, formData);
     });
@@ -227,7 +233,12 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
 
 function General() {
   const { slug } = useParams();
-  const { event: originalEvent, userId, focuses } = useLoaderData<LoaderData>();
+  const {
+    event: originalEvent,
+    userId,
+    focuses,
+    areas,
+  } = useLoaderData<LoaderData>();
 
   const transition = useTransition();
   const actionData = useActionData<ActionData>();
@@ -266,6 +277,15 @@ function General() {
       ? focuses
           .filter((focus) => event.focuses.includes(focus.id))
           .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const areaOptions = createAreaOptionFromData(areas);
+
+  const selectedAreas =
+    event.areas && areas
+      ? areas
+          .filter((area) => event.areas.includes(area.id))
+          .sort((a, b) => a.name.localeCompare(b.name))
       : [];
 
   React.useEffect(() => {
@@ -524,8 +544,11 @@ function General() {
             name="areas"
             label={"Aktivitätsgebiete"}
             placeholder="Füge die Aktivitätsgebiete hinzu."
-            entries={[]}
-            options={[]}
+            entries={selectedAreas.map((area) => ({
+              label: area.name,
+              value: area.id,
+            }))}
+            options={areaOptions}
           />
         </div>
         <h4 className="mb-4 font-semibold">Konferenz</h4>

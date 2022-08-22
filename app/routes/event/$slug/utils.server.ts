@@ -30,6 +30,16 @@ export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findFirst({
     where: { slug },
     include: {
+      areas: {
+        select: {
+          areaId: true,
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
       focuses: {
         select: {
           focusId: true,

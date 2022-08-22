@@ -21,9 +21,9 @@ import { getUserByRequest } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
-import { createAreaOptionFromData } from "~/lib/profile/createAreaOptionFromData";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { createAreaOptionFromData } from "~/lib/utils/components";
 import { ArrayElement } from "~/lib/utils/types";
 import {
   getAllOrganizations,

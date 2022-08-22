@@ -81,9 +81,9 @@ function Index() {
         </ul>
         <h3>Areas</h3>
         <ul>
-          {[].map((item, index) => {
-            <li key={`areas-${index}`}>{item}</li>;
-          })}
+          <div className="lg:flex-auto">
+            {loaderData.event.areas.map((item) => item.area.name).join(" / ")}
+          </div>
         </ul>
         <h3>Conference Link: {loaderData.event.conferenceLink}</h3>
         <h3>Conference Code: {loaderData.event.conferenceCode}</h3>

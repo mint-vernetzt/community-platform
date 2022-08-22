@@ -82,7 +82,6 @@ export function transformEventToForm(
 export function transformFormToEvent(form: any) {
   const {
     submit: _submit,
-    areas: _areas,
     tags: _tags,
     types: _types,
     targetGroups: _targetGroups,
@@ -127,6 +126,22 @@ export async function updateEventById(id: string, data: any) {
             },
             create: {
               focusId,
+            },
+          };
+        }),
+      },
+      areas: {
+        deleteMany: {},
+        connectOrCreate: data.areas.map((areaId: string) => {
+          return {
+            where: {
+              eventId_areaId: {
+                areaId,
+                eventId: id,
+              },
+            },
+            create: {
+              areaId,
             },
           };
         }),
