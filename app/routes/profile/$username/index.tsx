@@ -25,6 +25,7 @@ import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
+import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
@@ -286,6 +287,7 @@ export default function Index() {
   const actionData = useActionData();
 
   const backgroundContainer = React.useRef(null);
+  const uploadPreviewContainer = React.useRef(null);
   const avatarContainer = React.useRef(null);
 
   let avatar;
@@ -324,19 +326,40 @@ export default function Index() {
                 className="flex items-center"
                 reloadDocument
               >
-                <InputImage
-                  id="background"
-                  name="background"
-                  maxSize={5 * 1024 * 1024} // 5 MB
-                  minWidth={1488} // 1488 px
-                  minHeight={480} // 480 px
-                  maxWidth={1920} // 1920 px
-                  maxHeight={1080} // 1080 px
-                  classes="opacity-0 w-0 h-0"
-                  containerRef={backgroundContainer}
-                  containerClassName="w-full h-full"
-                  imageClassName="object-cover w-full h-full"
-                />
+                <label
+                  htmlFor="modal-background-upload"
+                  className="btn btn-primary modal-button"
+                >
+                  Bild ändern
+                </label>
+
+                <Modal id="modal-background-upload">
+                  <div
+                    className="preview w-full h-[200px] bg-slate-600"
+                    ref={uploadPreviewContainer}
+                  >
+                    {background && (
+                      <img
+                        src={background}
+                        alt="Profilhintergrundbild"
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                  </div>
+                  <InputImage
+                    id="background"
+                    name="background"
+                    maxSize={5 * 1024 * 1024} // 5 MB
+                    minWidth={1488} // 1488 px
+                    minHeight={480} // 480 px
+                    maxWidth={1920} // 1920 px
+                    maxHeight={1080} // 1080 px
+                    classes="opacity-0 w-0 h-0"
+                    containerRef={uploadPreviewContainer}
+                    containerClassName="w-full h-full"
+                    imageClassName="object-cover w-full h-full"
+                  />
+                </Modal>
               </Form>
             </div>
           )}
@@ -347,10 +370,7 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div
-                  ref={avatarContainer}
-                  className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
-                >
+                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
                   {avatar !== undefined ? (
                     <img src={avatar} alt={fullName} />
                   ) : (
@@ -364,19 +384,50 @@ export default function Index() {
                     className="flex items-center mt-4"
                     reloadDocument
                   >
-                    <InputImage
-                      id="avatar"
-                      name="avatar"
-                      maxSize={2 * 1024 * 1024} // 2 MB
-                      minWidth={144} // 144 px
-                      minHeight={144} // 144 px
-                      maxWidth={500} // 500 px
-                      maxHeight={500} // 500 px
-                      classes="opacity-0 w-0 h-0"
-                      containerRef={avatarContainer}
-                      containerClassName="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
-                      imageClassName=""
-                    />
+                    <label
+                      htmlFor="modal-avatar"
+                      className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                    >
+                      <svg
+                        width="17"
+                        height="16"
+                        viewBox="0 0 17 16"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="fill-neutral-600"
+                      >
+                        <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                      </svg>
+                      <span className="ml-2 mr-4">Bild ändern</span>
+                    </label>
+
+                    <Modal id="modal-avatar">
+                      <div className="w-full flex items-center justify-center flex-col">
+                        <div
+                          ref={avatarContainer}
+                          className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                        >
+                          {avatar !== undefined ? (
+                            <img src={avatar} alt={fullName} />
+                          ) : (
+                            initials
+                          )}
+                        </div>
+
+                        <InputImage
+                          id="avatar"
+                          name="avatar"
+                          maxSize={2 * 1024 * 1024} // 2 MB
+                          minWidth={144} // 144 px
+                          minHeight={144} // 144 px
+                          maxWidth={500} // 500 px
+                          maxHeight={500} // 500 px
+                          classes="opacity-0 w-0 h-0"
+                          containerRef={avatarContainer}
+                          containerClassName="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
+                          imageClassName=""
+                        />
+                      </div>
+                    </Modal>
                   </Form>
                 )}
 
