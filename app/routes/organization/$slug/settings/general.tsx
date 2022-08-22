@@ -29,9 +29,8 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
+import { getAreas, getFocuses } from "~/utils.server";
 import {
-  getAreas,
-  getFocuses,
   getOrganizationTypes,
   getWholeOrganizationBySlug,
   handleAuthorization,

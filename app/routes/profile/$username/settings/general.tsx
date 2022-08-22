@@ -32,8 +32,8 @@ import {
   website,
 } from "~/lib/utils/yup";
 
-import { getAllOffers, getAreas } from "~/profile.server";
-import { validateCSRFToken } from "~/utils.server";
+import { getAllOffers } from "~/profile.server";
+import { getAreas, validateCSRFToken } from "~/utils.server";
 import {
   getWholeProfileFromId,
   handleAuthorization,

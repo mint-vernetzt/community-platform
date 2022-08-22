@@ -33,10 +33,10 @@ import {
   getAllOffers,
   getAllProfiles,
   getAreaById,
-  getAreas,
   getFilteredProfiles,
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
+import { getAreas } from "~/utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
