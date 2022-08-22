@@ -35,9 +35,57 @@ function Index() {
   const loaderData = useLoaderData<LoaderData>();
   return (
     <>
-      <h1>Name: {loaderData.event.name}</h1>
-      <h1>Start time: {loaderData.event.startTime}</h1>
-      <h1>End time: {loaderData.event.endTime}</h1>
+      <div className="mb-4">
+        <h1>{loaderData.event.name}</h1>
+        <h3>Published: {String(loaderData.event.published)}</h3>
+        <h3>Start: {loaderData.event.startTime}</h3>
+        <h3>End: {loaderData.event.endTime}</h3>
+        <h3>Venue</h3>
+        {loaderData.event.venueName !== null && (
+          <h5>
+            {loaderData.event.venueName}, {loaderData.event.venueStreet}{" "}
+            {loaderData.event.venueStreetNumber},{" "}
+            {loaderData.event.venueZipCode} {loaderData.event.venueCity}
+          </h5>
+        )}
+        <h3>Participation until: {loaderData.event.participationUntil}</h3>
+        <h3>Participant limit: {loaderData.event.participantLimit}</h3>
+        <h3>Description</h3>
+        <p>{loaderData.event.description}</p>
+        <h3>Focuses</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`focus-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Target Groups</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`target-groups-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Experience Level: {loaderData.event.experienceLevelId}</h3>
+        <h3>Types</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`types-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Tags</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`tags-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Areas</h3>
+        <ul>
+          {[].map((item, index) => {
+            <li key={`areas-${index}`}>{item}</li>;
+          })}
+        </ul>
+        <h3>Conference Link: {loaderData.event.conferenceLink}</h3>
+        <h3>Conference Code: {loaderData.event.conferenceCode}</h3>
+      </div>
       {loaderData.mode === "owner" &&
         loaderData.abilities.events.hasAccess === true && (
           <Link
