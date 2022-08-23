@@ -41,8 +41,8 @@ export default function Imprint() {
       <p>Amtsgericht Düsseldorf – HRA 15120</p>
       <p className="mb-2">berufen.</p>
       <p>
-        Inhaltlich verantwortlich nach § 18 MStVist Arne Klauke, erreichbar über
-        die Dienstanbieter.
+        Inhaltlich verantwortlich nach § 18 MStV ist Arne Klauke, erreichbar
+        über die Dienstanbieter.
       </p>
     </section>
   );

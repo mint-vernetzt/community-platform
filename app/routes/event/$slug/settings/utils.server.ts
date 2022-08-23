@@ -150,3 +150,7 @@ export async function updateEventById(id: string, data: any) {
     },
   });
 }
+
+export async function deleteEventById(id: string) {
+  return await prismaClient.event.delete({ where: { id } });
+}

@@ -18,6 +18,13 @@ function Settings() {
               >
                 Allgemein
               </NavLink>
+              <hr className="border-neutral-400 my-4 lg:my-8" />
+              <NavLink
+                to="delete"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Veranstaltung löschen
+              </NavLink>
             </menu>
           </div>
         </div>
