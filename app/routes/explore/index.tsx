@@ -525,18 +525,18 @@ export default function Index() {
         >
           {profilesAndOrganizations.length > 0 ? (
             profilesAndOrganizations.map((profileOrOrganization, index) => {
-              let slug, image, imagetype, initials, name, subtitle;
+              let slug, image, imageType, initials, name, subtitle;
               if ("username" in profileOrOrganization) {
                 slug = `/profile/${profileOrOrganization.username}`;
                 image = profileOrOrganization.avatar;
-                imagetype = "avatar";
+                imageType = "avatar";
                 initials = getInitials(profileOrOrganization);
                 name = getFullName(profileOrOrganization);
                 subtitle = profileOrOrganization.position;
               } else {
                 slug = `/organization/${profileOrOrganization.slug}`;
                 image = profileOrOrganization.logo;
-                imagetype = "logo";
+                imageType = "logo";
                 initials = getOrganizationInitials(profileOrOrganization.name);
                 name = profileOrOrganization.name;
                 subtitle = profileOrOrganization.types
@@ -554,7 +554,7 @@ export default function Index() {
                     className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
                     <div className="w-full flex flex-row">
-                      {imagetype == "avatar" && (
+                      {imageType === "avatar" && (
                         <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
                           {image !== null ? (
                             <img src={image} alt="" />
@@ -563,7 +563,7 @@ export default function Index() {
                           )}
                         </div>
                       )}
-                      {imagetype == "logo" && (
+                      {imageType === "logo" && (
                         <>
                           {image !== null ? (
                             <div className="w-16 shrink-0">
