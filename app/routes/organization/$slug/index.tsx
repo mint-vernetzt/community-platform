@@ -64,7 +64,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
-        resize: { type: "fill", width: 144, height: 144 },
+        resize: { type: "fit", width: 144, height: 144 },
       });
     }
   }
@@ -253,7 +253,7 @@ export const action: ActionFunction = async (args) => {
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
     images.logo = getImageURL(logoPublicURL, {
-      resize: { type: "fill", width: 144, height: 144 },
+      resize: { type: "fit", width: 144, height: 144 },
     });
   }
   const backgroundPublicURL = formData.get("background");
