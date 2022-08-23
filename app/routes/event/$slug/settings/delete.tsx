@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, LoaderFunction, redirect } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
@@ -7,7 +7,11 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
+import {
+  checkIdentityOrThrow,
+  checkOwnershipOrThrow,
+  getNumberOfPrivilegedMembers,
+} from "./utils.server";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -45,6 +49,12 @@ const mutation = makeDomainFunction(
       "eventName"
     );
   }
+  const numberOfPrivilegedMembers = await getNumberOfPrivilegedMembers(
+    environment.id
+  );
+  if (numberOfPrivilegedMembers < 2) {
+    throw "Letzter priviligierter Nutzer";
+  }
   try {
     //
   } catch (error) {
@@ -81,6 +91,8 @@ export const action: ActionFunction = async (args) => {
     ) {
       throw badRequest({ message: "Id nicht korrekt" });
     }
+  } else {
+    return redirect(`/profile/${currentUser.user_metadata.username}`);
   }
 
   return result;

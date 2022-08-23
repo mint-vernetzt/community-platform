@@ -40,6 +40,13 @@ export async function checkOwnershipOrThrow(
   return await checkOwnership(event, currentUser, { throw: true });
 }
 
+export async function getNumberOfPrivilegedMembers(eventId: string) {
+  const numberOfPrivilegedMembers = await prismaClient.teamMemberOfEvent.count({
+    where: { isPrivileged: true },
+  });
+  return numberOfPrivilegedMembers;
+}
+
 export async function checkIdentityOrThrow(
   request: Request,
   currentUser: User
@@ -149,4 +156,8 @@ export async function updateEventById(id: string, data: any) {
       },
     },
   });
+}
+
+export async function deleteEventById(id: string) {
+  return await prismaClient.event.delete({ where: { id } });
 }

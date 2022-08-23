@@ -1,4 +1,5 @@
 import { User } from "@supabase/supabase-js";
+import { redirect } from "remix";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
@@ -17,6 +18,7 @@ jest.mock("~/prisma", () => {
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
+        count: jest.fn(),
       },
       focus: {
         findMany: jest.fn(),
@@ -385,6 +387,72 @@ describe("/event/$slug/settings/delete", () => {
       expect(response.errors.eventName[0]).toBe(
         "Der Name der Veranstaltung ist nicht korrekt"
       );
+    });
+
+    test("last privileged user", async () => {
+      const request = createRequestWithFormData({
+        userId: "some-user-id",
+        eventId: "some-event-id",
+        eventName: "Some event name",
+      });
+
+      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-event-id", name: "Some event name", slug };
+      });
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { isPrivileged: true };
+      });
+      (
+        prismaClient.teamMemberOfEvent.count as jest.Mock
+      ).mockImplementationOnce(() => {
+        return 1;
+      });
+
+      const response = await action({
+        request,
+        context: {},
+        params: { slug },
+      });
+
+      expect(response.errors._global).toBeDefined();
+      expect(response.errors._global[0]).toBe("Letzter priviligierter Nutzer");
+    });
+
+    test("delete", async () => {
+      const request = createRequestWithFormData({
+        userId: "some-user-id",
+        eventId: "some-event-id",
+        eventName: "Some event name",
+      });
+
+      getUserByRequest.mockResolvedValue({
+        id: "some-user-id",
+        user_metadata: { username: "someuser" },
+      } as unknown as User);
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-event-id", name: "Some event name", slug };
+      });
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { isPrivileged: true };
+      });
+      (
+        prismaClient.teamMemberOfEvent.count as jest.Mock
+      ).mockImplementationOnce(() => {
+        return 2;
+      });
+
+      const response = await action({
+        request,
+        context: {},
+        params: { slug },
+      });
+
+      expect(response).toEqual(redirect("/profile/someuser"));
     });
 
     afterAll(() => {
