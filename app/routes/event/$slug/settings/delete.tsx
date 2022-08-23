@@ -1,16 +1,17 @@
-import { ActionFunction, LoaderFunction, redirect } from "remix";
+import { ActionFunction, LoaderFunction, redirect, useLoaderData } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
-  getNumberOfPrivilegedMembers,
+  deleteEventById,
 } from "./utils.server";
 
 const schema = z.object({
@@ -21,7 +22,13 @@ const schema = z.object({
 
 const environmentSchema = z.object({ id: z.string(), name: z.string() });
 
-export const loader: LoaderFunction = async (args) => {
+type LoaderData = {
+  userId: string;
+  eventId: string;
+  eventName: string;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
 
   await checkFeatureAbilitiesOrThrow(request, "events");
@@ -33,7 +40,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await checkOwnershipOrThrow(event, currentUser);
 
-  return { userId: currentUser.id, eventId: event.id };
+  return { userId: currentUser.id, eventId: event.id, eventName: event.name };
 };
 
 const mutation = makeDomainFunction(
@@ -49,14 +56,8 @@ const mutation = makeDomainFunction(
       "eventName"
     );
   }
-  const numberOfPrivilegedMembers = await getNumberOfPrivilegedMembers(
-    environment.id
-  );
-  if (numberOfPrivilegedMembers < 2) {
-    throw "Letzter priviligierter Nutzer";
-  }
   try {
-    //
+    await deleteEventById(values.eventId);
   } catch (error) {
     throw "Die Veranstaltung konnte nicht gelöscht werden.";
   }
@@ -98,6 +99,48 @@ export const action: ActionFunction = async (args) => {
   return result;
 };
 
-function Delete() {}
+function Delete() {
+  const loaderData = useLoaderData<LoaderData>();
+
+  return (
+    <>
+      <h1 className="mb-8">Veranstaltung löschen</h1>
+
+      <p className="mb-8">
+        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" an ein,
+        um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig
+        löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht.
+      </p>
+
+      <RemixForm method="post" schema={schema}>
+        {({ Field, Errors, register }) => (
+          <>
+            <Field name="userId" hidden value={loaderData.userId} />
+            <Field name="eventId" hidden value={loaderData.eventId} />
+            <Field name="eventName" className="mb-4">
+              {({ Errors }) => (
+                <>
+                  <Input
+                    id="eventName"
+                    label="Löschung bestätigen"
+                    {...register("eventName")}
+                  />
+                  <Errors />
+                </>
+              )}
+            </Field>
+            <button
+              type="submit"
+              className="btn btn-outline-primary ml-auto btn-small"
+            >
+              Veranstaltung löschen
+            </button>
+            <Errors />
+          </>
+        )}
+      </RemixForm>
+    </>
+  );
+}
 
 export default Delete;

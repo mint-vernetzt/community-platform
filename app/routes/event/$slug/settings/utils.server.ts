@@ -40,13 +40,6 @@ export async function checkOwnershipOrThrow(
   return await checkOwnership(event, currentUser, { throw: true });
 }
 
-export async function getNumberOfPrivilegedMembers(eventId: string) {
-  const numberOfPrivilegedMembers = await prismaClient.teamMemberOfEvent.count({
-    where: { isPrivileged: true },
-  });
-  return numberOfPrivilegedMembers;
-}
-
 export async function checkIdentityOrThrow(
   request: Request,
   currentUser: User
