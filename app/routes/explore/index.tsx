@@ -549,7 +549,7 @@ export default function Index() {
                 >
                   <Link
                     to={slug}
-                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                    className="flex flex-wrap content-start items-start p-4 lg:p-6 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
                     <div className="w-full flex items-center flex-row mb-4">
                       <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
@@ -573,11 +573,11 @@ export default function Index() {
 
                     {profileOrOrganization.areas !== undefined &&
                       profileOrOrganization.areas.length > 0 && (
-                        <div className="flex font-semibold flex-col lg:flex-row w-full">
-                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                        <div className="flex font-semibold flex-col xl:flex-row w-full">
+                          <div className="xl:flex-label text-xs lg:text-sm leading-4 xl:leading-6 mb-2 xl:mb-0">
                             Aktivitätsgebiete
                           </div>
-                          <div className="flex-auto">
+                          <div className="flex-auto line-clamp-3">
                             <span>
                               {profileOrOrganization.areas
                                 .map((area) => area.area.name)
