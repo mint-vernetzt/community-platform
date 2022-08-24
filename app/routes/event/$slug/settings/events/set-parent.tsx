@@ -1,13 +1,12 @@
 import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
-import { serverError } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { prismaClient } from "~/prisma";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import { updateParentEventRelationOrThrow } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -34,27 +33,7 @@ export const action: ActionFunction = async (args) => {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkOwnershipOrThrow(event, currentUser);
     await checkSameEventOrThrow(request, event.id);
-
-    try {
-      console.log("data to update parent event", result.data);
-      if (result.data.parentEventId === undefined) {
-        await prismaClient.event.update({
-          where: { id: event.id },
-          data: { updatedAt: new Date(), parentEvent: { disconnect: true } },
-        });
-      } else {
-        await prismaClient.event.update({
-          where: { id: event.id },
-          data: {
-            updatedAt: new Date(),
-            parentEvent: { connect: { id: result.data.parentEventId } },
-          },
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      throw serverError({ message: "Couldn't set parent event" });
-    }
+    await updateParentEventRelationOrThrow(event.id, result.data.parentEventId);
   }
   return result;
 };
