@@ -54,6 +54,14 @@ export async function getEventByField(field: string, value: string) {
         select: {
           id: true,
           name: true,
+          slug: true,
+        },
+      },
+      childEvents: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
         },
       },
     },

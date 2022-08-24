@@ -87,6 +87,37 @@ function Index() {
         </ul>
         <h3>Conference Link: {loaderData.event.conferenceLink}</h3>
         <h3>Conference Code: {loaderData.event.conferenceCode}</h3>
+        {loaderData.event.parentEvent !== null && (
+          <h3>
+            Parent Event:{" "}
+            <Link
+              className="underline hover:no-underline"
+              to={`/event/${loaderData.event.parentEvent.slug}`}
+            >
+              {loaderData.event.parentEvent.name}
+            </Link>
+          </h3>
+        )}
+        {loaderData.event.childEvents.length > 0 && (
+          <>
+            <h3>Child Events:</h3>
+            <ul>
+              {loaderData.event.childEvents.map((childEvent, index) => {
+                return (
+                  <li key={`child-event-${index}`}>
+                    -{" "}
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/event/${childEvent.slug}`}
+                    >
+                      {childEvent.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </div>
       {loaderData.mode === "owner" &&
         loaderData.abilities.events.hasAccess === true && (
