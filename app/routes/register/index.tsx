@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionFunction, LoaderFunction, useActionData } from "remix";
+import { ActionFunction, Link, LoaderFunction, useActionData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -116,7 +116,14 @@ export default function Register() {
                   wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte
                   sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits
                   vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
-                  vergessen, dann setze hier Dein Passwort (Link) zurück.
+                  vergessen, dann setze hier Dein Passwort zurück:{" "}
+                  <Link
+                    to="/reset"
+                    className="text-primary font-bold hover:underline"
+                  >
+                    Passwort zurücksetzen
+                  </Link>
+                  .
                 </p>
               </>
             ) : (

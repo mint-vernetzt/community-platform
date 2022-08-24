@@ -127,7 +127,7 @@ export const loader: LoaderFunction = async (args) => {
         const publicURL = getPublicURL(logo);
         if (publicURL !== null) {
           logoImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
+            resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
@@ -525,16 +525,18 @@ export default function Index() {
         >
           {profilesAndOrganizations.length > 0 ? (
             profilesAndOrganizations.map((profileOrOrganization, index) => {
-              let slug, image, initials, name, subtitle;
+              let slug, image, imageType, initials, name, subtitle;
               if ("username" in profileOrOrganization) {
                 slug = `/profile/${profileOrOrganization.username}`;
                 image = profileOrOrganization.avatar;
+                imageType = "avatar";
                 initials = getInitials(profileOrOrganization);
                 name = getFullName(profileOrOrganization);
                 subtitle = profileOrOrganization.position;
               } else {
                 slug = `/organization/${profileOrOrganization.slug}`;
                 image = profileOrOrganization.logo;
+                imageType = "logo";
                 initials = getOrganizationInitials(profileOrOrganization.name);
                 name = profileOrOrganization.name;
                 subtitle = profileOrOrganization.types
@@ -549,12 +551,35 @@ export default function Index() {
                 >
                   <Link
                     to={slug}
-                    className="flex flex-wrap content-start items-start p-4 lg:p-6 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
-                    <div className="w-full flex items-center flex-row mb-4">
-                      <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                        {image !== null ? <img src={image} alt="" /> : initials}
-                      </div>
+                    <div className="w-full flex flex-row">
+                      {imageType === "avatar" && (
+                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
+                          {image !== null ? (
+                            <img src={image} alt="" />
+                          ) : (
+                            initials
+                          )}
+                        </div>
+                      )}
+                      {imageType === "logo" && (
+                        <>
+                          {image !== null ? (
+                            <div className="w-16 shrink-0">
+                              <img
+                                className="max-w-full w-auto max-h-16 h-auto"
+                                src={image}
+                                alt={name}
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
+                              {initials}
+                            </div>
+                          )}
+                        </>
+                      )}
                       <div className="pl-4">
                         <H3 like="h4" className="text-xl mb-1">
                           {name}
@@ -566,18 +591,18 @@ export default function Index() {
                     </div>
 
                     {profileOrOrganization.bio !== undefined && (
-                      <p className="mb-3 line-clamp-2">
+                      <p className="mt-3 line-clamp-2">
                         {profileOrOrganization.bio}
                       </p>
                     )}
 
                     {profileOrOrganization.areas !== undefined &&
                       profileOrOrganization.areas.length > 0 && (
-                        <div className="flex font-semibold flex-col xl:flex-row w-full">
-                          <div className="xl:flex-label text-xs lg:text-sm leading-4 xl:leading-6 mb-2 xl:mb-0">
+                        <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
+                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                             Aktivitätsgebiete
                           </div>
-                          <div className="flex-auto line-clamp-3">
+                          <div className="flex-auto">
                             <span>
                               {profileOrOrganization.areas
                                 .map((area) => area.area.name)
