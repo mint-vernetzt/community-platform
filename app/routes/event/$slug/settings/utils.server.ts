@@ -172,6 +172,7 @@ export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
         select: {
           id: true,
           name: true,
+          parentEventId: true,
         },
       },
     },

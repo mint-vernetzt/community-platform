@@ -25,3 +25,24 @@ export async function updateParentEventRelationOrThrow(
     throw serverError({ message: "Couldn't set parent event" });
   }
 }
+
+export async function addChildEventRelationOrThrow(
+  eventId: string,
+  childEventId: string
+) {
+  try {
+    await prismaClient.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        childEvents: {
+          connect: { id: childEventId },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw serverError({ message: "Couldn't add child event" });
+  }
+}
