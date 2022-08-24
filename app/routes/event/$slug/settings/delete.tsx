@@ -1,4 +1,10 @@
-import { ActionFunction, LoaderFunction, redirect, useLoaderData } from "remix";
+import {
+  ActionFunction,
+  Link,
+  LoaderFunction,
+  redirect,
+  useLoaderData,
+} from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
@@ -26,6 +32,7 @@ type LoaderData = {
   userId: string;
   eventId: string;
   eventName: string;
+  childEvents: { id: string; name: string; slug: string }[];
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -40,7 +47,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   await checkOwnershipOrThrow(event, currentUser);
 
-  return { userId: currentUser.id, eventId: event.id, eventName: event.name };
+  return {
+    userId: currentUser.id,
+    eventId: event.id,
+    eventName: event.name,
+    childEvents: event.childEvents,
+  };
 };
 
 const mutation = makeDomainFunction(
@@ -111,6 +123,30 @@ function Delete() {
         um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig
         löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht.
       </p>
+
+      {loaderData.childEvents.length > 0 && (
+        <>
+          <p className="mb-2">
+            Folgende Veranstaltung und deren Subveranstalungen werden auch
+            gelöscht:
+          </p>{" "}
+          <ul className="mb-8">
+            {loaderData.childEvents.map((childEvent, index) => {
+              return (
+                <li key={`child-event-${index}`}>
+                  -{" "}
+                  <Link
+                    className="underline hover:no-underline"
+                    to={`/event/${childEvent.slug}`}
+                  >
+                    {childEvent.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
 
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (

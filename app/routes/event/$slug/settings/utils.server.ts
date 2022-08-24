@@ -154,3 +154,41 @@ export async function updateEventById(id: string, data: any) {
 export async function deleteEventById(id: string) {
   return await prismaClient.event.delete({ where: { id } });
 }
+
+export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
+  privilegedMemberId: string,
+  currentEventId: string
+) {
+  const result = await prismaClient.teamMemberOfEvent.findMany({
+    where: {
+      profileId: privilegedMemberId,
+      eventId: {
+        not: currentEventId,
+      },
+      isPrivileged: true,
+    },
+    include: {
+      event: {
+        select: {
+          id: true,
+          name: true,
+          parentEventId: true,
+        },
+      },
+    },
+  });
+  return result;
+}
+
+export function getOptionsFromEvents(
+  events: Awaited<
+    ReturnType<typeof getEventsOfPrivilegedMemberExceptOfGivenEvent>
+  >
+) {
+  const options = events.map((item) => {
+    const label = item.event.name;
+    const value = item.event.id;
+    return { label, value, hasParent: item.event.parentEventId !== null };
+  });
+  return options;
+}

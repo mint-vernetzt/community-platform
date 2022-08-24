@@ -63,20 +63,20 @@ function Index() {
         <h3>Target Groups</h3>
         <ul>
           {[].map((item, index) => {
-            <li key={`target-groups-${index}`}>{item}</li>;
+            return <li key={`target-groups-${index}`}>{item}</li>;
           })}
         </ul>
         <h3>Experience Level: {loaderData.event.experienceLevelId}</h3>
         <h3>Types</h3>
         <ul>
           {[].map((item, index) => {
-            <li key={`types-${index}`}>{item}</li>;
+            return <li key={`types-${index}`}>{item}</li>;
           })}
         </ul>
         <h3>Tags</h3>
         <ul>
           {[].map((item, index) => {
-            <li key={`tags-${index}`}>{item}</li>;
+            return <li key={`tags-${index}`}>{item}</li>;
           })}
         </ul>
         <h3>Areas</h3>
@@ -87,15 +87,60 @@ function Index() {
         </ul>
         <h3>Conference Link: {loaderData.event.conferenceLink}</h3>
         <h3>Conference Code: {loaderData.event.conferenceCode}</h3>
+        {loaderData.event.parentEvent !== null && (
+          <h3>
+            Parent Event:{" "}
+            <Link
+              className="underline hover:no-underline"
+              to={`/event/${loaderData.event.parentEvent.slug}`}
+            >
+              {loaderData.event.parentEvent.name}
+            </Link>
+          </h3>
+        )}
+        {loaderData.event.childEvents.length > 0 && (
+          <>
+            <h3>Child Events:</h3>
+            <ul>
+              {loaderData.event.childEvents.map((childEvent, index) => {
+                return (
+                  <li key={`child-event-${index}`}>
+                    -{" "}
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/event/${childEvent.slug}`}
+                    >
+                      {childEvent.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </div>
       {loaderData.mode === "owner" &&
         loaderData.abilities.events.hasAccess === true && (
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/event/${loaderData.event.slug}/settings`}
-          >
-            Veranstaltung bearbeiten
-          </Link>
+          <>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/${loaderData.event.slug}/settings`}
+            >
+              Veranstaltung bearbeiten
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/create/?child=${loaderData.event.id}`}
+            >
+              Rahmenveranstaltung anlegen
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/create/?parent=${loaderData.event.id}`}
+            >
+              Subveranstaltung anlegen
+            </Link>
+          </>
         )}
     </>
   );
