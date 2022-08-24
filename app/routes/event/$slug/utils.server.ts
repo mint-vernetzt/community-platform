@@ -1,6 +1,6 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
-import { notFound } from "remix-utils";
+import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
 
 type Mode = "anon" | "authenticated" | "owner";
@@ -26,9 +26,9 @@ export async function deriveMode(
   return "owner";
 }
 
-export async function getEventBySlug(slug: string) {
+export async function getEventByField(field: string, value: string) {
   const event = await prismaClient.event.findFirst({
-    where: { slug },
+    where: { [field]: value },
     include: {
       areas: {
         select: {
@@ -50,9 +50,19 @@ export async function getEventBySlug(slug: string) {
           },
         },
       },
+      parentEvent: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
   return event;
+}
+
+export async function getEventBySlug(slug: string) {
+  return await getEventByField("slug", slug);
 }
 
 export async function getEventBySlugOrThrow(slug: string) {
@@ -61,4 +71,26 @@ export async function getEventBySlugOrThrow(slug: string) {
     throw notFound({ message: "Event not found" });
   }
   return result;
+}
+
+export async function getEventById(id: string) {
+  return await getEventByField("id", id);
+}
+
+export async function getEventByIdOrThrow(id: string) {
+  const result = await getEventById(id);
+  if (result === null) {
+    throw notFound({ message: "Event not found" });
+  }
+  return result;
+}
+
+export async function checkSameEventOrThrow(request: Request, eventId: string) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const value = formData.get("eventId") as string | null;
+
+  if (value === null || value !== eventId) {
+    throw badRequest({ message: "Event IDs differ" });
+  }
 }
