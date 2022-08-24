@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./add-child";
+import { action } from "./remove-child";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -23,7 +23,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/add-child", () => {
+describe("/event/$slug/settings/events/remove-child", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -187,7 +187,7 @@ describe("/event/$slug/settings/events/add-child", () => {
     }
   });
 
-  test("add child event", async () => {
+  test("remove child event", async () => {
     expect.assertions(3);
 
     const request = createRequestWithFormData({
@@ -219,7 +219,7 @@ describe("/event/$slug/settings/events/add-child", () => {
         expect.objectContaining({
           data: expect.objectContaining({
             childEvents: expect.objectContaining({
-              connect: { id: "child-event-id" },
+              disconnect: { id: "child-event-id" },
             }),
           }),
         })

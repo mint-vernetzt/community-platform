@@ -46,3 +46,24 @@ export async function addChildEventRelationOrThrow(
     throw serverError({ message: "Couldn't add child event" });
   }
 }
+
+export async function removeChildEventRelationOrThrow(
+  eventId: string,
+  childEventId: string
+) {
+  try {
+    await prismaClient.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        childEvents: {
+          disconnect: { id: childEventId },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw serverError({ message: "Couldn't add child event" });
+  }
+}
