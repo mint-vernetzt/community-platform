@@ -121,12 +121,26 @@ function Index() {
       </div>
       {loaderData.mode === "owner" &&
         loaderData.abilities.events.hasAccess === true && (
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/event/${loaderData.event.slug}/settings`}
-          >
-            Veranstaltung bearbeiten
-          </Link>
+          <>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/${loaderData.event.slug}/settings`}
+            >
+              Veranstaltung bearbeiten
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/create/?child=${loaderData.event.id}`}
+            >
+              Rahmenveranstaltung anlegen
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/event/create/?parent=${loaderData.event.id}`}
+            >
+              Subveranstaltung anlegen
+            </Link>
+          </>
         )}
     </>
   );

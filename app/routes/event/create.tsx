@@ -4,6 +4,7 @@ import {
   LoaderFunction,
   redirect,
   useLoaderData,
+  useParams,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
@@ -42,6 +43,8 @@ const schema = object({
     })
     .defined(),
   endTime: nullOrString(string()),
+  child: nullOrString(string()),
+  parent: nullOrString(string()),
 });
 
 type SchemaType = typeof schema;
@@ -49,6 +52,8 @@ type FormType = InferType<typeof schema>;
 
 type LoaderData = {
   id: string;
+  child: string;
+  parent: string;
 };
 
 function getDateTime(date: Date, time: string | null) {
@@ -74,9 +79,13 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Not allowed" });
   }
 
+  const url = new URL(request.url);
+  const child = url.searchParams.get("child") || "";
+  const parent = url.searchParams.get("parent") || "";
+
   await validateFeatureAccess(request, "events");
 
-  return { id: currentUser.id };
+  return { id: currentUser.id, child, parent };
 };
 
 export const action: ActionFunction = async (args) => {
@@ -114,13 +123,17 @@ export const action: ActionFunction = async (args) => {
       endTime = startTime;
     }
 
-    await createEventOnProfile(currentUser.id, {
-      slug,
-      name: data.name,
-      startTime,
-      endTime,
-      participationUntil: startTime,
-    });
+    await createEventOnProfile(
+      currentUser.id,
+      {
+        slug,
+        name: data.name,
+        startTime,
+        endTime,
+        participationUntil: startTime,
+      },
+      { child: data.child, parent: data.parent }
+    );
     return redirect(`/event/${slug}`);
   }
 
@@ -130,10 +143,15 @@ export const action: ActionFunction = async (args) => {
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const params = useParams();
+  console.log(params);
+
   return (
     <Form method="post">
       <h1>create event</h1>
       <input name="id" defaultValue={loaderData.id} hidden />
+      <input name="child" defaultValue={loaderData.child} hidden />
+      <input name="parent" defaultValue={loaderData.parent} hidden />
       <div className="m-2">
         <label htmlFor="name">Name*</label>
         <input

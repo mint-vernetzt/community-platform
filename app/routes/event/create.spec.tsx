@@ -59,6 +59,32 @@ describe("loader", () => {
     expect(result.id).toBe("some-user-id");
   });
 
+  test("search parameters", async () => {
+    (getUserByRequest as jest.Mock).mockImplementation(() => {
+      return { id: "some-user-id" };
+    });
+
+    const url = `https://someurl.io${path}`;
+
+    const resultWithoutParameters = await loader({
+      request: new Request(url),
+      params: {},
+      context: {},
+    });
+    expect(resultWithoutParameters.child).toBe("");
+    expect(resultWithoutParameters.parent).toBe("");
+
+    const resultWithParameters = await loader({
+      request: new Request(
+        `${url}?child=child-event-id&parent=parent-event-id`
+      ),
+      params: {},
+      context: {},
+    });
+    expect(resultWithParameters.child).toBe("child-event-id");
+    expect(resultWithParameters.parent).toBe("parent-event-id");
+  });
+
   afterAll(() => {
     delete process.env.FEATURES;
   });
@@ -153,13 +179,17 @@ describe("action", () => {
 
     const response = await action({ request, context: {}, params: {} });
 
-    expect(createEventOnProfile).toHaveBeenLastCalledWith(uuid, {
-      slug: "some-slug",
-      name: "Some Event",
-      startTime,
-      endTime: startTime,
-      participationUntil: startTime,
-    });
+    expect(createEventOnProfile).toHaveBeenLastCalledWith(
+      uuid,
+      {
+        slug: "some-slug",
+        name: "Some Event",
+        startTime,
+        endTime: startTime,
+        participationUntil: startTime,
+      },
+      { parent: null, child: null }
+    );
 
     expect(response).toEqual(redirect("/event/some-slug"));
   });
@@ -189,13 +219,59 @@ describe("action", () => {
 
     const response = await action({ request, context: {}, params: {} });
 
-    expect(createEventOnProfile).toHaveBeenLastCalledWith(uuid, {
-      slug: "some-slug",
-      name: "Some Event",
-      startTime,
-      endTime,
-      participationUntil: startTime,
+    expect(createEventOnProfile).toHaveBeenLastCalledWith(
+      uuid,
+      {
+        slug: "some-slug",
+        name: "Some Event",
+        startTime,
+        endTime,
+        participationUntil: startTime,
+      },
+      { parent: null, child: null }
+    );
+
+    expect(response).toEqual(redirect("/event/some-slug"));
+  });
+
+  test("all fields with relations", async () => {
+    const uuid = crypto.randomUUID();
+
+    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      return { id: uuid };
     });
+
+    (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
+      return "some-slug";
+    });
+
+    const request = createRequestWithFormData({
+      id: uuid,
+      name: "Some Event",
+      startDate: "2022-09-19",
+      startTime: "09:00",
+      endDate: "2022-09-20",
+      endTime: "18:00",
+      child: "child-event-id",
+      parent: "parent-event-id",
+    });
+
+    const startTime = new Date("2022-09-19 09:00");
+    const endTime = new Date("2022-09-20 18:00");
+
+    const response = await action({ request, context: {}, params: {} });
+
+    expect(createEventOnProfile).toHaveBeenLastCalledWith(
+      uuid,
+      {
+        slug: "some-slug",
+        name: "Some Event",
+        startTime,
+        endTime,
+        participationUntil: startTime,
+      },
+      { parent: "parent-event-id", child: "child-event-id" }
+    );
 
     expect(response).toEqual(redirect("/event/some-slug"));
   });

@@ -8,8 +8,22 @@ export async function createEventOnProfile(
     startTime: Date;
     endTime: Date;
     participationUntil: Date;
+  },
+  relationOptions?: {
+    child: string | null;
+    parent: string | null;
   }
 ) {
+  let relations: { parentEvent?: any; childEvents?: any } = {};
+  if (relationOptions !== undefined) {
+    if (relationOptions.parent !== null) {
+      relations.parentEvent = { connect: { id: relationOptions.parent } };
+    }
+    if (relationOptions.child !== null) {
+      relations.childEvents = { connect: { id: relationOptions.child } };
+    }
+  }
+
   const profile = prismaClient.profile.update({
     where: {
       id: profileId,
@@ -21,6 +35,7 @@ export async function createEventOnProfile(
           event: {
             create: {
               ...eventOptions,
+              ...relations,
             },
           },
         },
