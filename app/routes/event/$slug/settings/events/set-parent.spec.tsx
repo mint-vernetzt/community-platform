@@ -48,6 +48,28 @@ describe("/event/$slug/settings/events/set-parent", () => {
     }
   });
 
+  test("anon user", async () => {
+    const request = createRequestWithFormData({});
+
+    expect.assertions(2);
+
+    getUserByRequest.mockResolvedValue(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: {},
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(401);
+
+      const json = await response.json();
+      expect(json.message).toBe("No session or session user found");
+    }
+  });
+
   test("authenticated user", async () => {
     const request = createRequestWithFormData({ userId: "some-user-id" });
 
