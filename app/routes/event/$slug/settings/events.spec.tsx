@@ -79,8 +79,20 @@ describe("/event/$slug/settings/events/parent", () => {
         prismaClient.teamMemberOfEvent.findMany as jest.Mock
       ).mockImplementationOnce(() => {
         return [
-          { event: { id: "another-event-id", name: "Another Event" } },
-          { event: { id: "yet-another-event-id", name: "Yet Another Event" } },
+          {
+            event: {
+              id: "another-event-id",
+              name: "Another Event",
+              parentEventId: "a-parent-event-id",
+            },
+          },
+          {
+            event: {
+              id: "yet-another-event-id",
+              name: "Yet Another Event",
+              parentEventId: null,
+            },
+          },
         ];
       });
 
@@ -91,8 +103,16 @@ describe("/event/$slug/settings/events/parent", () => {
           params: { slug },
         });
         expect(response.options).toEqual([
-          { value: "another-event-id", label: "Another Event" },
-          { value: "yet-another-event-id", label: "Yet Another Event" },
+          {
+            label: "Another Event",
+            value: "another-event-id",
+            hasParent: true,
+          },
+          {
+            label: "Yet Another Event",
+            value: "yet-another-event-id",
+            hasParent: false,
+          },
         ]);
       } catch (error) {
         const response = error as Response;
