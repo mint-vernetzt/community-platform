@@ -51,8 +51,10 @@ describe("loader", () => {
       return { id: "some-user-id" };
     });
 
+    const url = `https://someurl.io${path}`;
+
     const result = await loader({
-      request: new Request(path),
+      request: new Request(url),
       params: {},
       context: {},
     });
