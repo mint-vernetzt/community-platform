@@ -196,15 +196,6 @@ function Events() {
                     );
                   }}
                 </Form>
-                // <li key={`child-event-${index}`}>
-                //   -{" "}
-                //   <Link
-                //     className="underline hover:no-underline"
-                //     to={`/event/${childEvent.slug}`}
-                //   >
-                //     {childEvent.name}
-                //   </Link>
-                // </li>
               );
             })}
           </ul>
@@ -261,7 +252,11 @@ function Events() {
                               );
                               isNotChild = index === -1;
                             }
-                            return isNotParent && isNotChild;
+                            return (
+                              isNotParent &&
+                              isNotChild &&
+                              option.hasParent === false
+                            );
                           })
                           .map((option, index) => {
                             return (

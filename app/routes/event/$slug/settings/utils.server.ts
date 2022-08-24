@@ -188,7 +188,7 @@ export function getOptionsFromEvents(
   const options = events.map((item) => {
     const label = item.event.name;
     const value = item.event.id;
-    return { label, value };
+    return { label, value, hasParent: item.event.parentEventId !== null };
   });
   return options;
 }
