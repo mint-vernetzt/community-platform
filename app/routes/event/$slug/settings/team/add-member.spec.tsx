@@ -26,7 +26,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/add-child", () => {
+describe("/event/$slug/settings/team/add-member", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
