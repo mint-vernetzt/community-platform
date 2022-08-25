@@ -11,7 +11,7 @@ import { addChildEventRelationOrThrow } from "./utils.server";
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  childEventId: z.string(),
+  childEventId: z.string().min(1),
 });
 
 export const addChildSchema = schema;
