@@ -51,7 +51,10 @@ describe("/event/$slug/settings/events/add-child", () => {
   });
 
   test("event not found", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      childEventId: "another-user-id",
+    });
 
     expect.assertions(2);
 
@@ -71,7 +74,10 @@ describe("/event/$slug/settings/events/add-child", () => {
   });
 
   test("authenticated user", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      childEventId: "another-user-id",
+    });
 
     expect.assertions(2);
 
@@ -102,7 +108,10 @@ describe("/event/$slug/settings/events/add-child", () => {
   });
 
   test("not privileged user", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      childEventId: "another-user-id",
+    });
 
     expect.assertions(2);
 
@@ -160,6 +169,7 @@ describe("/event/$slug/settings/events/add-child", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
+      childEventId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
