@@ -4,17 +4,18 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { addChildEventRelationOrThrow } from "./utils.server";
+import { connectProfileToEvent } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  childEventId: z.string().min(1),
+  email: z.string().email(),
 });
 
-export const addChildSchema = schema;
+export const addMemberSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
@@ -32,7 +33,10 @@ export const action: ActionFunction = async (args) => {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkOwnershipOrThrow(event, currentUser);
     await checkSameEventOrThrow(request, event.id);
-    await addChildEventRelationOrThrow(event.id, result.data.childEventId);
+    const teamMemberProfile = await getProfileByEmail(result.data.email);
+    if (teamMemberProfile !== null) {
+      await connectProfileToEvent(event.id, teamMemberProfile.id);
+    }
   }
   return result;
 };

@@ -24,6 +24,12 @@ function Settings() {
               >
                 Veranstaltungen
               </NavLink>
+              <NavLink
+                to="team"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Team
+              </NavLink>
               <hr className="border-neutral-400 my-4 lg:my-8" />
               <NavLink
                 to="delete"

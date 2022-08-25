@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./add-child";
+import { action } from "./remove-member";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -14,16 +14,19 @@ jest.mock("~/prisma", () => {
     prismaClient: {
       event: {
         findFirst: jest.fn(),
-        update: jest.fn(),
       },
       teamMemberOfEvent: {
+        findFirst: jest.fn(),
+        delete: jest.fn(),
+      },
+      profile: {
         findFirst: jest.fn(),
       },
     },
   };
 });
 
-describe("/event/$slug/settings/events/add-child", () => {
+describe("/event/$slug/settings/team/add-member", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -53,7 +56,6 @@ describe("/event/$slug/settings/events/add-child", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      childEventId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -76,7 +78,6 @@ describe("/event/$slug/settings/events/add-child", () => {
   test("authenticated user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      childEventId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -110,7 +111,6 @@ describe("/event/$slug/settings/events/add-child", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      childEventId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -169,7 +169,6 @@ describe("/event/$slug/settings/events/add-child", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      childEventId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -197,13 +196,13 @@ describe("/event/$slug/settings/events/add-child", () => {
     }
   });
 
-  test("add child event", async () => {
-    expect.assertions(3);
+  test("remove event team member", async () => {
+    expect.assertions(2);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      childEventId: "child-event-id",
+      teamMemberId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -224,17 +223,15 @@ describe("/event/$slug/settings/events/add-child", () => {
         context: {},
         params: {},
       });
-      expect(prismaClient.event.update).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            childEvents: expect.objectContaining({
-              connect: { id: "child-event-id" },
-            }),
-          }),
-        })
-      );
+      expect(prismaClient.teamMemberOfEvent.delete).toHaveBeenLastCalledWith({
+        where: {
+          eventId_profileId: {
+            eventId: "some-event-id",
+            profileId: "another-user-id",
+          },
+        },
+      });
       expect(result.success).toBe(true);
-      expect(result.data.childEventId).toBe("child-event-id");
     } catch (error) {
       const response = error as Response;
       console.log(response);
