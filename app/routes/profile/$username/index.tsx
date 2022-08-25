@@ -382,7 +382,7 @@ export default function Index() {
 
                 <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>
                 {typeof loaderData.data.position === "string" && (
-                  <p className="font-bold text-sm">
+                  <p className="font-bold text-sm mb-4">
                     {loaderData.data.position}
                   </p>
                 )}
@@ -505,7 +505,7 @@ export default function Index() {
             {loaderData.data.areas !== undefined &&
               loaderData.data.areas.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
                     Aktivitätsgebiete
                   </div>
                   <div className="lg:flex-auto">
@@ -518,7 +518,7 @@ export default function Index() {
             {loaderData.data.skills !== undefined &&
               loaderData.data.skills.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                     Kompetenzen
                   </div>
 
@@ -531,7 +531,7 @@ export default function Index() {
             {loaderData.data.interests !== undefined &&
               loaderData.data.interests.length > 0 && (
                 <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
+                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                     Interessen
                   </div>
                   <div className="flex-auto">

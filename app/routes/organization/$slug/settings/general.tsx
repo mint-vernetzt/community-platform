@@ -456,7 +456,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
-                label="Zusatzinformationen des Zitatauthors (Position/Beruf)"
+                label="Zusatzinformationen des Zitatautors (Position/Beruf)"
                 errorMessage={errors?.quoteAuthorInformation?.message}
               />
             </div>
