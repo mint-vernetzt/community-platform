@@ -164,7 +164,7 @@ describe("/event/$slug/settings/events/add-child", () => {
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "another-event-id", userId: "some-user-id" };
+      return { id: "another-event-id" };
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -200,7 +200,6 @@ describe("/event/$slug/settings/events/add-child", () => {
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
-        userId: "some-user-id",
       };
     });
     (
