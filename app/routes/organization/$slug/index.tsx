@@ -647,7 +647,7 @@ export default function Index() {
                               <div className="w-full flex items-center flex-row">
                                 {network.logo !== "" &&
                                 network.logo !== null ? (
-                                  <div className="h-16 w-16 flex items-center justify-center relative">
+                                  <div className="h-16 w-16 flex items-center justify-center relative shrink-0">
                                     <img
                                       className="max-w-full w-auto max-h-16 h-auto"
                                       src={network.logo}
@@ -655,7 +655,7 @@ export default function Index() {
                                     />
                                   </div>
                                 ) : (
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
                                     {getOrganizationInitials(network.name)}
                                   </div>
                                 )}
@@ -748,20 +748,20 @@ export default function Index() {
               loaderData.organization.teamMembers.length > 0 && (
                 <>
                   <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
-                  <div className="flex flex-wrap -mx-3 items-stretch">
+                  <div className="flex flex-wrap -mx-3 lg:items-stretch">
                     {loaderData.organization.teamMembers.map(
                       ({ profile }, index) => (
                         <div
                           key={`profile-${index}`}
                           data-testid="gridcell"
-                          className="flex-100 md:flex-1/2 px-3 mb-4"
+                          className="flex-100 lg:flex-1/2 px-3 mb-4"
                         >
                           <Link
                             to={`/profile/${profile.username}`}
                             className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                           >
                             <div className="w-full flex items-center flex-row">
-                              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+                              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
                                 {profile.avatar !== null &&
                                 profile.avatar !== "" ? (
                                   <img
