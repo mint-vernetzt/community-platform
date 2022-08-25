@@ -64,6 +64,19 @@ export async function getEventByField(field: string, value: string) {
           slug: true,
         },
       },
+      teamMembers: {
+        select: {
+          isPrivileged: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;
