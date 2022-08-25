@@ -78,7 +78,7 @@ export async function publishEventAndItsChildren(
   eventId: string,
   publish = true
 ) {
-  const ids = await getAllIdsOfChildEvens(eventId);
+  const ids = await getAllIdsOfChildEvents(eventId);
 
   await prismaClient.event.updateMany({
     where: { id: { in: [eventId, ...ids] } },
@@ -86,7 +86,7 @@ export async function publishEventAndItsChildren(
   });
 }
 
-export async function getAllIdsOfChildEvens(eventId: string) {
+export async function getAllIdsOfChildEvents(eventId: string) {
   const result = await prismaClient.event.findFirst({
     where: { id: eventId },
     select: {
@@ -106,7 +106,7 @@ export async function getAllIdsOfChildEvens(eventId: string) {
 
   let childEventChildrenIds: string[] = [];
   for (let id of ids) {
-    const childrenIds = await self.getAllIdsOfChildEvens(id);
+    const childrenIds = await self.getAllIdsOfChildEvents(id);
     childEventChildrenIds = childEventChildrenIds.concat(childrenIds);
   }
 

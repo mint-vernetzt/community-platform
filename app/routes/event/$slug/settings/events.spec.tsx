@@ -24,7 +24,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/parent", () => {
+describe("/event/$slug/settings/events", () => {
   describe("loader (privileged user)", () => {
     beforeAll(() => {
       process.env.FEATURES = "events";
