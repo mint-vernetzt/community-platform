@@ -11,3 +11,17 @@ export async function connectProfileToEvent(
     },
   });
 }
+
+export async function disconnectProfileFromEvent(
+  eventId: string,
+  profileId: string
+) {
+  await prismaClient.teamMemberOfEvent.delete({
+    where: {
+      eventId_profileId: {
+        eventId,
+        profileId,
+      },
+    },
+  });
+}
