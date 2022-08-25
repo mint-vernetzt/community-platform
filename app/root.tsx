@@ -85,7 +85,7 @@ export const loader: LoaderFunction = async (args) => {
       const publicURL = getPublicURL(profile.avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
+          resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
@@ -164,7 +164,10 @@ function NavBar(props: NavBarProps) {
             <div className="ml-auto">
               <div className="dropdown dropdown-end">
                 {props.currentUserInfo.avatar === undefined ? (
-                  <label tabIndex={0} className="btn btn-primary w-10 h-10">
+                  <label
+                    tabIndex={0}
+                    className="text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-md overflow-hidden"
+                  >
                     {props.currentUserInfo.initials}
                   </label>
                 ) : (
