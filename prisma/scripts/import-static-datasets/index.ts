@@ -1,5 +1,6 @@
 import { prismaClient } from "../../../app/prisma";
 import organizationTypes from "./data/organizationTypes.json";
+import targetGroups from "./data/targetGroups.json";
 import offers from "./data/offers.json";
 import focuses from "./data/focuses.json";
 import {
@@ -9,7 +10,7 @@ import {
   GenericEntry,
 } from "./src/utils";
 
-type TableName = "offer" | "organizationType" | "focus";
+type TableName = "offer" | "organizationType" | "focus" | "targetGroup";
 
 async function createDataset(datasets: GenericEntry[], tableName: TableName) {
   console.log(`create entries for ${tableName}`);
@@ -20,7 +21,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
 
   if (missingData.length > 0) {
     await prismaClient[tableName].createMany({ data: missingData });
-    console.log("added: ", missingData);
+    console.log(`added entry to ${tableName}: `, missingData);
   }
 
   const entriesToUpdate = dataToBeUpdated(datasets, existingEntries);
@@ -37,7 +38,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
       });
     });
 
-    console.log("updated: ", entriesToUpdate);
+    console.log(`updated entries in ${tableName}: `, entriesToUpdate);
   }
 
   const unknownEntries = entriesOnlyExistingOnDatabase(
@@ -57,6 +58,7 @@ const datasets = [
   { tableName: "offer", data: offers },
   { tableName: "organizationType", data: organizationTypes },
   { tableName: "focus", data: focuses },
+  { tableName: "targetGroup", data: targetGroups },
 ];
 
 Promise.all(
