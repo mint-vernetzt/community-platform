@@ -1,6 +1,11 @@
-import type { Offer, OrganizationType, Focus } from "@prisma/client";
+import type {
+  Offer,
+  OrganizationType,
+  Focus,
+  TargetGroup,
+} from "@prisma/client";
 
-export type GenericEntry = Offer | OrganizationType | Focus;
+export type GenericEntry = Offer | OrganizationType | Focus | TargetGroup;
 
 type Lookup = {
   [keyof: string]: GenericEntry;
