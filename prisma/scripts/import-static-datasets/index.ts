@@ -21,7 +21,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
 
   if (missingData.length > 0) {
     await prismaClient[tableName].createMany({ data: missingData });
-    console.log("added: ", missingData);
+    console.log(`added entry to ${tableName}: `, missingData);
   }
 
   const entriesToUpdate = dataToBeUpdated(datasets, existingEntries);
@@ -38,7 +38,7 @@ async function createDataset(datasets: GenericEntry[], tableName: TableName) {
       });
     });
 
-    console.log("updated: ", entriesToUpdate);
+    console.log(`updated entries in ${tableName}: `, entriesToUpdate);
   }
 
   const unknownEntries = entriesOnlyExistingOnDatabase(
