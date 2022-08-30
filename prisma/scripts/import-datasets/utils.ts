@@ -1,9 +1,20 @@
-import type { Focus, Offer, OrganizationType, Tag } from "@prisma/client";
+import type {
+  Focus,
+  Offer,
+  OrganizationType,
+  Tag,
+  TargetGroup,
+} from "@prisma/client";
 import { prismaClient } from "../../../app/prisma";
 
-export type GenericEntry = Offer | OrganizationType | Focus | Tag;
+export type GenericEntry = Offer | OrganizationType | Focus | Tag | TargetGroup;
 
-export type TableName = "offer" | "organizationType" | "focus" | "tag";
+export type TableName =
+  | "offer"
+  | "organizationType"
+  | "focus"
+  | "tag"
+  | "targetGroup";
 
 type Lookup = {
   [keyof: string]: GenericEntry;
