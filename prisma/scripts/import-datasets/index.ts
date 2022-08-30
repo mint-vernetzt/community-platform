@@ -1,7 +1,7 @@
-import organizationTypes from "./data/organizationTypes.json";
-import offers from "./data/offers.json";
+import { importDataset, GenericEntry, TableName } from "./utils";
 import focuses from "./data/focuses.json";
-import { createDataset, GenericEntry, TableName } from "../utils";
+import offers from "./data/offers.json";
+import organizationTypes from "./data/organizationTypes.json";
 
 const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "offer", data: offers },
@@ -13,7 +13,7 @@ Promise.all(
   staticDatasets.map(
     (dataset) =>
       new Promise((resolve) => {
-        createDataset(dataset.data, dataset.tableName).then(resolve);
+        importDataset(dataset.data, dataset.tableName).then(resolve);
       })
   )
 )
