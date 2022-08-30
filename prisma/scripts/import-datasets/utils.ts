@@ -1,5 +1,5 @@
 import type { Focus, Offer, OrganizationType, Tag } from "@prisma/client";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "../../../app/prisma";
 
 export type GenericEntry = Offer | OrganizationType | Focus | Tag;
 
@@ -78,7 +78,7 @@ export async function importDataset(
   if (missingData.length > 0) {
     // @ts-ignore
     await prismaClient[tableName].createMany({ data: missingData });
-    console.log("added: ", missingData);
+    console.log(`added "${tableName}s": `, missingData);
   }
 
   const entriesToUpdate = dataToBeUpdated(datasets, existingEntries);
@@ -95,7 +95,7 @@ export async function importDataset(
       });
     });
 
-    console.log("updated: ", entriesToUpdate);
+    console.log(`updated: "${tableName}s"`, entriesToUpdate);
   }
 
   const unknownEntries = entriesOnlyExistingOnDatabase(
