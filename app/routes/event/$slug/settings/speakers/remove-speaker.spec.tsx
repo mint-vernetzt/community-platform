@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./remove-member";
+import { action } from "./remove-speaker";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -15,9 +15,11 @@ jest.mock("~/prisma", () => {
       event: {
         findFirst: jest.fn(),
       },
+      speakerOfEvent: {
+        delete: jest.fn(),
+      },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
-        delete: jest.fn(),
       },
       profile: {
         findFirst: jest.fn(),
@@ -26,7 +28,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/remove-member", () => {
+describe("/event/$slug/settings/speakers/remove-speaker", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -202,7 +204,7 @@ describe("/event/$slug/settings/team/remove-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      teamMemberId: "another-user-id",
+      speakerId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -223,9 +225,9 @@ describe("/event/$slug/settings/team/remove-member", () => {
         context: {},
         params: {},
       });
-      expect(prismaClient.teamMemberOfEvent.delete).toHaveBeenLastCalledWith({
+      expect(prismaClient.speakerOfEvent.delete).toHaveBeenLastCalledWith({
         where: {
-          eventId_profileId: {
+          profileId_eventId: {
             eventId: "some-event-id",
             profileId: "another-user-id",
           },

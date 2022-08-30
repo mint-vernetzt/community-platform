@@ -11,3 +11,17 @@ export async function connectSpeakerProfileToEvent(
     },
   });
 }
+
+export async function disconnectSpeakerProfileFromEvent(
+  eventId: string,
+  profileId: string
+) {
+  await prismaClient.speakerOfEvent.delete({
+    where: {
+      profileId_eventId: {
+        eventId,
+        profileId,
+      },
+    },
+  });
+}

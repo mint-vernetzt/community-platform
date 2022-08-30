@@ -1,10 +1,18 @@
-import { LoaderFunction, useFetcher, useLoaderData, useParams } from "remix";
+import {
+  Link,
+  LoaderFunction,
+  useFetcher,
+  useLoaderData,
+  useParams,
+} from "remix";
 import { Form } from "remix-forms";
 import { getUserByRequestOrThrow } from "~/auth.server";
+import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
 import { addSpeakerSchema } from "./speakers/add-speaker";
+import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
   getSpeakerProfileDataFromEvent,
@@ -34,12 +42,77 @@ function Speakers() {
   const loaderData = useLoaderData<LoaderData>();
 
   const addSpeakerFetcher = useFetcher();
+  const removeSpeakerFetcher = useFetcher();
 
   return (
     <>
       <div className="mb-8">
         <h3>Vortragende</h3>
+        <ul>
+          {loaderData.speakers.map((profile, index) => {
+            return (
+              <div
+                key={`team-member-${index}`}
+                className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+              >
+                <div className="pl-4">
+                  <H3 like="h4" className="text-xl mb-1">
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${profile.username}`}
+                    >
+                      {profile.firstName} {profile.lastName}
+                    </Link>
+                  </H3>
+                </div>
+
+                <Form
+                  key={`remove-child-${index}`}
+                  schema={removeSpeakerSchema}
+                  fetcher={removeSpeakerFetcher}
+                  action={`/event/${slug}/settings/speakers/remove-speaker`}
+                  hiddenFields={["userId", "eventId", "speakerId"]}
+                  values={{
+                    userId: loaderData.userId,
+                    eventId: loaderData.eventId,
+                    speakerId: profile.id,
+                  }}
+                >
+                  {(props) => {
+                    const { Field, Button } = props;
+                    return (
+                      <>
+                        <Field name="userId" />
+                        <Field name="eventId" />
+                        <Field name="speakerId" />
+                        <Button className="ml-auto btn-none" title="entfernen">
+                          <svg
+                            viewBox="0 0 10 10"
+                            width="10px"
+                            height="10px"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </Button>
+                      </>
+                    );
+                  }}
+                </Form>
+              </div>
+            );
+          })}
+        </ul>
       </div>
+      {removeSpeakerFetcher.data?.message && (
+        <div className="p-4 bg-green-200 rounded-md mt-4">
+          {removeSpeakerFetcher.data.message}
+        </div>
+      )}
       <h4 className="mb-4 font-semibold">Vortragende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
