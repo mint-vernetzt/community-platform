@@ -104,9 +104,10 @@ function Organizations() {
           })}
         </ul>
       </div>
-      <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
+      <h4 className="mb-4 font-semibold">Organisation hinzufügen</h4>
       <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
+        Füge hier Deiner Veranstaltung eine bereits bestehende Organisation
+        hinzu.
       </p>
       <Form
         schema={addOrganizationSchema}
