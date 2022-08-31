@@ -11,3 +11,17 @@ export async function connectOrganizationToEvent(
     },
   });
 }
+
+export async function disconnectOrganizationFromEvent(
+  eventId: string,
+  organizationId: string
+) {
+  await prismaClient.responsibleOrganizationOfEvent.delete({
+    where: {
+      eventId_organizationId: {
+        eventId,
+        organizationId,
+      },
+    },
+  });
+}
