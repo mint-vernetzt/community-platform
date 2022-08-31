@@ -36,6 +36,12 @@ function Settings() {
               >
                 Vortragende
               </NavLink>
+              <NavLink
+                to="organizations"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Verantwortliche Organisationen
+              </NavLink>
               <hr className="border-neutral-400 my-4 lg:my-8" />
               <NavLink
                 to="delete"

@@ -214,3 +214,12 @@ export function getSpeakerProfileDataFromEvent(
   });
   return profileData;
 }
+
+export function getResponsibleOrganizationDataFromEvent(
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
+) {
+  const organizationData = event.responsibleOrganizations.map((item) => {
+    return item.organization;
+  });
+  return organizationData;
+}
