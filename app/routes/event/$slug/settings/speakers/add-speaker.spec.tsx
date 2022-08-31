@@ -78,40 +78,6 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     }
   });
 
-  test("authenticated user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      email: "anotheruser@mail.com",
-    });
-
-    expect.assertions(2);
-
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
-    }
-  });
-
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",

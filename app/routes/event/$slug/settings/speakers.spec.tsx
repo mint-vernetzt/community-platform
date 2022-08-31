@@ -83,35 +83,6 @@ describe("/event/$slug/settings/speakers", () => {
       }
     });
 
-    test("authenticated user", async () => {
-      expect.assertions(2);
-
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      try {
-        await loader({
-          request: new Request(""),
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
     test("not privileged user", async () => {
       expect.assertions(2);
 
