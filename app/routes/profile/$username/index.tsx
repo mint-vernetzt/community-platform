@@ -23,7 +23,7 @@ import { badRequest, forbidden, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import InputImage from "~/components/FormElements/InputImage/InputImage";
+
 import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
@@ -39,6 +39,8 @@ import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
+
+import styles from "react-image-crop/dist/ReactCrop.css";
 
 type OrganizationRelations = {
   types: {
@@ -81,6 +83,10 @@ export function deriveMode(
   }
 
   return profileUsername === sessionUsername ? "owner" : "authenticated";
+}
+
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
 }
 
 export const loader: LoaderFunction = async (
@@ -288,8 +294,6 @@ export default function Index() {
   const actionData = useActionData();
 
   const backgroundContainer = React.useRef(null);
-  const uploadPreviewContainer = React.useRef(null);
-  const avatarContainer = React.useRef(null);
 
   let avatar;
   if (actionData !== undefined && actionData.images.avatar !== undefined) {
@@ -335,30 +339,19 @@ export default function Index() {
                 </label>
 
                 <Modal id="modal-background-upload">
-                  <div
-                    className="preview w-full h-[200px] bg-slate-600"
-                    ref={uploadPreviewContainer}
-                  >
-                    {background && (
-                      <img
-                        src={background}
-                        alt="Profilhintergrundbild"
-                        className="object-cover w-full h-full"
-                      />
-                    )}
-                  </div>
-                  <InputImage
-                    id="background"
-                    name="background"
-                    maxSize={5 * 1024 * 1024} // 5 MB
-                    minWidth={1488} // 1488 px
-                    minHeight={480} // 480 px
-                    maxWidth={1920} // 1920 px
-                    maxHeight={1080} // 1080 px
-                    classes="opacity-0 w-0 h-0"
-                    containerRef={uploadPreviewContainer}
-                    containerClassName="w-full h-full"
-                    imageClassName="object-cover w-full h-full"
+                  <ImageCropper
+                    headline="Hintergrundbild"
+                    id="modal-background-upload"
+                    deleteUrl={`/profile/${loaderData.data.username}/image/delete`}
+                    uploadUrl={`/profile/${loaderData.data.username}/image/upload`}
+                    uploadKey="background"
+                    image={background}
+                    aspect={31 / 10}
+                    minWidth={620}
+                    minHeight={62}
+                    username={loaderData.data.username ?? ""}
+                    csrfToken={"034u9nsq0unun"}
+                    initials={initials}
                   />
                 </Modal>
               </Form>
@@ -404,17 +397,17 @@ export default function Index() {
                     <Modal id="modal-avatar">
                       <ImageCropper
                         headline="Profilfoto"
-                        id="testcrop"
-                        deleteUrl="/profile/manuelportela/image/delete"
-                        uploadUrl="/profile/manuelportela/image/upload"
+                        id="modal-avatar"
+                        deleteUrl={`/profile/${loaderData.data.username}/image/delete`}
+                        uploadUrl={`/profile/${loaderData.data.username}/image/upload`}
                         uploadKey="avatar"
                         image={avatar}
                         aspect={1}
                         minWidth={100}
                         minHeight={100}
-                        handleCancel={() => document.location.reload()}
-                        username={"manuelportela"}
-                        csrfToken={loaderData.csrfToken}
+                        username={loaderData.data.username}
+                        csrfToken={"034u9nsq0unun"}
+                        initials={initials}
                       />
                     </Modal>
                   </Form>

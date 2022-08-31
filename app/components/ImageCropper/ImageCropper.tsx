@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, FormEvent } from "react";
 
 import ReactCrop, {
   centerCrop,
@@ -12,6 +12,7 @@ import { canvasPreview } from "./canvasPreview";
 import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { schema as deleteSchema } from "~/routes/profile/$username/image/delete";
+import { useSubmit } from "remix";
 
 export interface ImageCropperProps {
   csrfToken: string;
@@ -25,6 +26,7 @@ export interface ImageCropperProps {
   image?: string;
   minHeight: number;
   minWidth: number;
+  initials: string;
   handleCancel?: () => void;
 }
 
@@ -55,6 +57,8 @@ function centerAspectCrop(
   );
 }
 
+const IMAGE_QUALITY = 1.0;
+const IMAGE_MIME = "image/jpeg";
 const DEFAULT_ASPECT = 16 / 9;
 
 function ImageCropper(props: ImageCropperProps) {
@@ -64,7 +68,7 @@ function ImageCropper(props: ImageCropperProps) {
   const [crop, setCrop] = useState<Crop>();
   const [isSaving, setIsSaving] = useState(false);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1.0);
   const aspect = props.aspect ?? DEFAULT_ASPECT;
 
   const { id, headline, uploadUrl, image, minWidth, minHeight, handleCancel } =
@@ -115,6 +119,7 @@ function ImageCropper(props: ImageCropperProps) {
     const canvas = previewCanvasRef.current;
     if (canvas) {
       setIsSaving(true);
+
       canvas.toBlob(
         (blob) => {
           const formData = new FormData();
@@ -131,50 +136,71 @@ function ImageCropper(props: ImageCropperProps) {
             .then((response) => {
               setIsSaving(false);
               document.location.reload();
-              //console.log(response.text());
             })
             .catch((err) => {
               alert(err);
             });
         },
-        "image/jpeg",
-        1.0 // Quality
+        IMAGE_MIME,
+        IMAGE_QUALITY
       );
     }
   }
 
-  return (
-    <div className="flex flex-col items-center w-[400px] p-5">
-      <h2 className="text-center font-boldr">{headline}</h2>
+  function handleScaleClick(e: React.SyntheticEvent<HTMLButtonElement>) {
+    e.preventDefault();
 
+    const buttonId = e.currentTarget.id;
+    if (buttonId === "scaleDown") {
+      setScale(scale - 0.1);
+    }
+    if (buttonId === "scaleUp") {
+      setScale(scale + 0.1);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <h2 className="text-center font-bolder">{headline}</h2>
       <div>
-        {image && !imgSrc && (
+        {!imgSrc && props.uploadKey === "avatar" && (
           <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-            <img src={image} alt={`Aktuelles ${headline}`} />
+            {image ? (
+              <img src={image} alt={`Aktuelles ${headline}`} />
+            ) : (
+              props.initials
+            )}
           </div>
         )}
-        {true && (
-          <>
-            {Boolean(imgSrc) && (
-              <ReactCrop
-                crop={crop}
-                onChange={(_, percentCrop) => setCrop(percentCrop)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={aspect}
-                minWidth={minWidth}
-                minHeight={minHeight}
-                style={{ maxHeight: "288px" }}
-              >
-                <img
-                  ref={imgRef}
-                  alt="Crop me"
-                  src={imgSrc}
-                  style={{ transform: `scale(${scale})` }}
-                  onLoad={onImageLoad}
-                />
-              </ReactCrop>
+
+        {!imgSrc && props.uploadKey === "background" && (
+          <div className="h-36 bg-yellow-500 text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+            {image ? (
+              <img src={image} alt={`Aktuelles ${headline}`} />
+            ) : (
+              <div className="w-[400px]" />
             )}
-          </>
+          </div>
+        )}
+
+        {Boolean(imgSrc) && (
+          <ReactCrop
+            crop={crop}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+            minWidth={minWidth}
+            minHeight={minHeight}
+            style={{ maxHeight: "288px" }}
+          >
+            <img
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              style={{ transform: `scale(${scale})` }}
+              onLoad={onImageLoad}
+            />
+          </ReactCrop>
         )}
       </div>
       <div>
@@ -192,21 +218,23 @@ function ImageCropper(props: ImageCropperProps) {
       </div>
       <div className="Crop-Controls flex flex-col items-center">
         <InputFile
-          id={id}
+          id={`${id}-file`}
           onSelectFile={onSelectFile}
           hasImage={image !== undefined}
         />
         {imgSrc && (
           <div>
             <button
+              id="scaleUp"
               className="btn btn-outline btn-primary"
-              onClick={() => setScale(scale + 0.1)}
+              onClick={handleScaleClick}
             >
               +
             </button>
             <button
+              id="scaleDown"
               className="btn btn-outline btn-primary"
-              onClick={() => setScale(scale - 0.1)}
+              onClick={handleScaleClick}
             >
               -
             </button>
@@ -217,7 +245,7 @@ function ImageCropper(props: ImageCropperProps) {
           <Form
             action={props.deleteUrl}
             method="post"
-            //reloadDocument
+            reloadDocument
             schema={deleteSchema}
             hiddenFields={["username", "uploadKey", "csrf"]}
             values={{
@@ -226,7 +254,7 @@ function ImageCropper(props: ImageCropperProps) {
               csrf: props.csrfToken,
             }}
           >
-            {({ Field, register }) => (
+            {({ Field }) => (
               <>
                 <Field name="username" />
                 <Field name="csrf" />
@@ -235,8 +263,13 @@ function ImageCropper(props: ImageCropperProps) {
                   className="btn btn-link"
                   type="submit"
                   disabled={isSaving}
+                  onClick={(e) => {
+                    if (!confirm("Bild wirklich entfernen?")) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
-                  Bild löschen
+                  Bild entfernen
                 </button>
               </>
             )}
@@ -244,13 +277,22 @@ function ImageCropper(props: ImageCropperProps) {
         )}
       </div>
       <div className="flex justify-between w-full items-stretch ">
-        <button
-          onClick={handleCancel}
+        <label
+          htmlFor={id}
           className="btn btn-link p-5"
-          disabled={isSaving}
+          onClick={() => {
+            const inputFile = document.getElementById(`${id}-file`);
+            if (inputFile) {
+              setCrop(undefined); // Makes crop preview update between images.
+              setImgSrc("");
+            }
+
+            handleCancel && handleCancel();
+          }}
         >
           Abbrechen
-        </button>
+        </label>
+
         <button
           onClick={handleSave}
           className="btn btn-primary"

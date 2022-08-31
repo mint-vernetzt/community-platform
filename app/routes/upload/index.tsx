@@ -64,6 +64,7 @@ export default function Index() {
       handleCancel={() => document.location.reload()}
       username={"manuelportela"}
       csrfToken={loaderData.csrfToken}
+      initials="MP"
     />
   );
 }
