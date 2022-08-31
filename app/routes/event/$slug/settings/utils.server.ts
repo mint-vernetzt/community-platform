@@ -204,3 +204,13 @@ export function getTeamMemberProfileDataFromEvent(
   });
   return profileData;
 }
+
+export function getSpeakerProfileDataFromEvent(
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
+) {
+  const profileData = event.speakers.map((speaker) => {
+    const { profile } = speaker;
+    return profile;
+  });
+  return profileData;
+}
