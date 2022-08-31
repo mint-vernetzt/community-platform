@@ -602,7 +602,7 @@ export default function Index() {
                           <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                             Aktivitätsgebiete
                           </div>
-                          <div className="flex-auto">
+                          <div className="flex-auto line-clamp-3">
                             <span>
                               {profileOrOrganization.areas
                                 .map((area) => area.area.name)
