@@ -1,10 +1,18 @@
 [
-  { "id": "dGVybTo3MjY=", "name": "frühkindliche Bildung" },
-  { "id": "dGVybTo3Mjk=", "name": "Grundschule" },
-  { "id": "dGVybTo3NzY=", "name": "Lehrkräfte" },
-  { "id": "dGVybTo3MzE=", "name": "Qualifizierung" },
-  { "id": "dGVybTo3MzY=", "name": "Sek 1" },
-  { "id": "dGVybTo3MzM=", "name": "Sek 2" },
-  { "id": "dGVybTo3Nzk=", "name": "Studierende" },
-  { "id": "dGVybTo3NzM=", "name": "Studierende des Lehramts" }
+  {
+    "referenceId": 726,
+    "title": "frühkindliche Bildung",
+    "slug": "early_childhood_education"
+  },
+  { "referenceId": 729, "title": "Grundschule", "slug": "elementary_school" },
+  { "referenceId": 776, "title": "Lehrkräfte", "slug": "teachers" },
+  { "referenceId": 731, "title": "Qualifizierung", "slug": "qualification" },
+  { "referenceId": 736, "title": "Sek 1", "slug": "secondary_education_1" },
+  { "referenceId": 733, "title": "Sek 2", "slug": "secondary_education_2" },
+  { "referenceId": 779, "title": "Studierende", "slug": "students" },
+  {
+    "referenceId": 773,
+    "title": "Studierende des Lehramts",
+    "slug": "students_of_the_teaching_profession"
+  }
 ]
