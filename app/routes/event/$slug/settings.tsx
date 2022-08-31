@@ -34,7 +34,7 @@ function Settings() {
                 to="organizations"
                 className={({ isActive }) => getClassName(isActive)}
               >
-                Verantwortliche Organisation
+                Verantwortliche Organisationen
               </NavLink>
               <hr className="border-neutral-400 my-4 lg:my-8" />
               <NavLink
