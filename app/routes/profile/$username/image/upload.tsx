@@ -7,7 +7,7 @@ import { upload } from "./uploadHandler.server";
 export const loader: LoaderFunction = ({ request }) => {
   if (request.method !== "POST") {
     throw badRequest({
-      message: `I'm a teapot. This endpoint is only for POST uploads`,
+      message: `I'm a teapot. This endpoint is only for method POST uploads`,
     });
   }
 

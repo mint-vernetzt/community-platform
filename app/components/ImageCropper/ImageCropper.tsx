@@ -6,14 +6,26 @@ import ReactCrop, {
   Crop,
   PixelCrop,
 } from "react-image-crop";
+import { Form } from "remix-forms";
+
 import { canvasPreview } from "./canvasPreview";
+import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
+import { schema as deleteSchema } from "~/routes/profile/$username/image/delete";
 
 export interface ImageCropperProps {
+  csrfToken: string;
+  username: string;
+  id: string;
+  headline: string;
   uploadUrl: string;
+  deleteUrl: string;
   uploadKey: "avatar" | "background";
   aspect?: number;
   image?: string;
+  minHeight: number;
+  minWidth: number;
+  handleCancel?: () => void;
 }
 
 /**
@@ -50,15 +62,13 @@ function ImageCropper(props: ImageCropperProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
+  const [isSaving, setIsSaving] = useState(false);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1);
-  const [rotate, setRotate] = useState(0);
-  const currentAspect = props.aspect ?? DEFAULT_ASPECT;
-  const [aspect, setAspect] = useState<number | undefined>(() => {
-    return currentAspect;
-  });
+  const aspect = props.aspect ?? DEFAULT_ASPECT;
 
-  const { uploadUrl, image } = props;
+  const { id, headline, uploadUrl, image, minWidth, minHeight, handleCancel } =
+    props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -92,115 +102,162 @@ function ImageCropper(props: ImageCropperProps) {
           previewCanvasRef.current,
           completedCrop,
           scale,
-          rotate
+          0
         );
       }
     },
     100,
-    [completedCrop, scale, rotate]
+    [completedCrop, scale]
   );
-
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined);
-    } else if (imgRef.current) {
-      const { width, height } = imgRef.current;
-      setAspect(currentAspect);
-      setCrop(centerAspectCrop(width, height, currentAspect));
-    }
-  }
 
   function handleSave(e: React.SyntheticEvent<HTMLButtonElement>) {
     e.preventDefault();
     const canvas = previewCanvasRef.current;
     if (canvas) {
+      setIsSaving(true);
       canvas.toBlob(
         (blob) => {
           const formData = new FormData();
           formData.append(props.uploadKey, blob ?? "");
           fetch(uploadUrl, { method: "POST", body: formData })
             .then((response) => {
-              console.table(response);
-              if (response.ok) return response;
-              else
+              if (response.ok) {
+                return response;
+              } else
                 throw Error(
                   `Server returned ${response.status}: ${response.statusText}`
                 );
             })
-            .then((response) => console.log(response.text()))
+            .then((response) => {
+              setIsSaving(false);
+              document.location.reload();
+              //console.log(response.text());
+            })
             .catch((err) => {
               alert(err);
             });
         },
         "image/jpeg",
-        1
+        1.0 // Quality
       );
     }
   }
 
   return (
-    <div className="ImageCropper">
-      <h2>Profilfoto</h2>
-      {Boolean(imgSrc) && (
-        <ReactCrop
-          crop={crop}
-          onChange={(_, percentCrop) => setCrop(percentCrop)}
-          onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
-        >
-          <img
-            ref={imgRef}
-            alt="Crop me"
-            src={imgSrc}
-            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-            onLoad={onImageLoad}
-          />
-        </ReactCrop>
-      )}
+    <div className="flex flex-col items-center w-[400px] p-5">
+      <h2 className="text-center font-boldr">{headline}</h2>
+
+      <div>
+        {image && !imgSrc && (
+          <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+            <img src={image} alt={`Aktuelles ${headline}`} />
+          </div>
+        )}
+        {true && (
+          <>
+            {Boolean(imgSrc) && (
+              <ReactCrop
+                crop={crop}
+                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={aspect}
+                minWidth={minWidth}
+                minHeight={minHeight}
+                style={{ maxHeight: "288px" }}
+              >
+                <img
+                  ref={imgRef}
+                  alt="Crop me"
+                  src={imgSrc}
+                  style={{ transform: `scale(${scale})` }}
+                  onLoad={onImageLoad}
+                />
+              </ReactCrop>
+            )}
+          </>
+        )}
+      </div>
       <div>
         {Boolean(completedCrop) && (
           <canvas
             ref={previewCanvasRef}
             style={{
-              border: "1px solid black",
               objectFit: "contain",
               width: completedCrop?.width ?? 0,
               height: completedCrop?.height ?? 0,
+              display: "none",
             }}
           />
         )}
       </div>
-      <div className="Crop-Controls">
-        <input type="file" accept="image/*" onChange={onSelectFile} />
-        <div>
-          <label htmlFor="scale-input">Scale: </label>
-          <input
-            id="scale-input"
-            type="number"
-            step="0.1"
-            value={scale}
-            disabled={!imgSrc}
-            onChange={(e) => setScale(Number(e.target.value))}
-          />
-        </div>
-        <div>
-          <label htmlFor="rotate-input">Rotate: </label>
-          <input
-            id="rotate-input"
-            type="number"
-            value={rotate}
-            disabled={!imgSrc}
-            onChange={(e) =>
-              setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
-            }
-          />
-        </div>
-        <div>
-          <button onClick={handleToggleAspectClick}>
-            Toggle aspect {aspect ? "off" : "on"}
-          </button>
-        </div>
-        <button onClick={handleSave}>Save</button>
+      <div className="Crop-Controls flex flex-col items-center">
+        <InputFile
+          id={id}
+          onSelectFile={onSelectFile}
+          hasImage={image !== undefined}
+        />
+        {imgSrc && (
+          <div>
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => setScale(scale + 0.1)}
+            >
+              +
+            </button>
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => setScale(scale - 0.1)}
+            >
+              -
+            </button>
+          </div>
+        )}
+
+        {image && !completedCrop && (
+          <Form
+            action={props.deleteUrl}
+            method="post"
+            //reloadDocument
+            schema={deleteSchema}
+            hiddenFields={["username", "uploadKey", "csrf"]}
+            values={{
+              username: props.username,
+              uploadKey: props.uploadKey,
+              csrf: props.csrfToken,
+            }}
+          >
+            {({ Field, register }) => (
+              <>
+                <Field name="username" />
+                <Field name="csrf" />
+                <Field name="uploadKey" />
+                <button
+                  className="btn btn-link"
+                  type="submit"
+                  disabled={isSaving}
+                >
+                  Bild löschen
+                </button>
+              </>
+            )}
+          </Form>
+        )}
+      </div>
+      <div className="flex justify-between w-full items-stretch ">
+        <button
+          onClick={handleCancel}
+          className="btn btn-link p-5"
+          disabled={isSaving}
+        >
+          Abbrechen
+        </button>
+        <button
+          onClick={handleSave}
+          className="btn btn-primary"
+          disabled={isSaving || !imgSrc}
+        >
+          Speichern{isSaving && "..."}
+        </button>
       </div>
     </div>
   );

@@ -25,6 +25,7 @@ import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
@@ -401,32 +402,20 @@ export default function Index() {
                     </label>
 
                     <Modal id="modal-avatar">
-                      <div className="w-full flex items-center justify-center flex-col">
-                        <div
-                          ref={avatarContainer}
-                          className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
-                        >
-                          {avatar !== undefined ? (
-                            <img src={avatar} alt={fullName} />
-                          ) : (
-                            initials
-                          )}
-                        </div>
-
-                        <InputImage
-                          id="avatar"
-                          name="avatar"
-                          maxSize={2 * 1024 * 1024} // 2 MB
-                          minWidth={144} // 144 px
-                          minHeight={144} // 144 px
-                          maxWidth={500} // 500 px
-                          maxHeight={500} // 500 px
-                          classes="opacity-0 w-0 h-0"
-                          containerRef={avatarContainer}
-                          containerClassName="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden"
-                          imageClassName=""
-                        />
-                      </div>
+                      <ImageCropper
+                        headline="Profilfoto"
+                        id="testcrop"
+                        deleteUrl="/profile/manuelportela/image/delete"
+                        uploadUrl="/profile/manuelportela/image/upload"
+                        uploadKey="avatar"
+                        image={avatar}
+                        aspect={1}
+                        minWidth={100}
+                        minHeight={100}
+                        handleCancel={() => document.location.reload()}
+                        username={"manuelportela"}
+                        csrfToken={loaderData.csrfToken}
+                      />
                     </Modal>
                   </Form>
                 )}
