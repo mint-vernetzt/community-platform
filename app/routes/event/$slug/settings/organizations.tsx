@@ -3,9 +3,16 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { checkOwnershipOrThrow } from "./utils.server";
+import {
+  checkOwnershipOrThrow,
+  getResponsibleOrganizationDataFromEvent,
+} from "./utils.server";
 
-type LoaderData = null;
+type LoaderData = {
+  userId: string;
+  eventId: string;
+  organizations: ReturnType<typeof getResponsibleOrganizationDataFromEvent>;
+};
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
@@ -14,7 +21,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const currentUser = await getUserByRequestOrThrow(request);
   const event = await getEventBySlugOrThrow(slug);
   await checkOwnershipOrThrow(event, currentUser);
-  return null;
+
+  const organizations = getResponsibleOrganizationDataFromEvent(event);
+  return { userId: currentUser.id, eventId: event.id, organizations };
 };
 
 function Organizations() {

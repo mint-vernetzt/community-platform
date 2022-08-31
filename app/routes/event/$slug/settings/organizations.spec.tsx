@@ -82,7 +82,7 @@ describe("/event/$slug/settings/organizations", () => {
     }
   });
 
-  test("authenticated user", async () => {
+  test("not privileged user", async () => {
     expect.assertions(2);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -109,6 +109,69 @@ describe("/event/$slug/settings/organizations", () => {
       const json = await response.json();
       expect(json.message).toBe("Not privileged");
     }
+  });
+
+  test("privileged user", async () => {
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        slug,
+        responsibleOrganizations: [
+          {
+            organization: {
+              id: "some-organization-id",
+              name: "Some Organization",
+              slug: "someorganization",
+            },
+          },
+          {
+            organization: {
+              id: "another-organization-id",
+              name: "Another Organization",
+              slug: "anotherorganization",
+            },
+          },
+          {
+            organization: {
+              id: "yet-another-organization-id",
+              name: "Yet Another Organization",
+              slug: "yetanotherorganization",
+            },
+          },
+        ],
+      };
+    });
+
+    const response = await loader({
+      request: new Request(""),
+      context: {},
+      params: { slug },
+    });
+
+    expect(response.organizations.length).toBe(3);
+    expect(response.organizations).toEqual(
+      expect.arrayContaining([
+        {
+          id: "some-organization-id",
+          name: "Some Organization",
+          slug: "someorganization",
+        },
+        expect.objectContaining({
+          id: "another-organization-id",
+          name: "Another Organization",
+        }),
+        expect.objectContaining({
+          id: "yet-another-organization-id",
+          slug: "yetanotherorganization",
+        }),
+      ])
+    );
   });
 
   afterAll(() => {

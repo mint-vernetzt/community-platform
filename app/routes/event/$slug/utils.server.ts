@@ -77,6 +77,17 @@ export async function getEventByField(field: string, value: string) {
           },
         },
       },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;
