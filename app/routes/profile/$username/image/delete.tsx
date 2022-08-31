@@ -5,10 +5,7 @@ import { notFound } from "remix-utils";
 import { z } from "zod";
 import { handleAuthorization } from "~/lib/auth/handleAuth";
 import { getProfileByUsername } from "~/profile.server";
-import {
-  removeImageFromProfile,
-  removeImageFromStorage,
-} from "./delete.server";
+import { removeImageFromProfile } from "./delete.server";
 
 // import { validateCSRFToken } from "~/utils.server";
 
@@ -25,17 +22,14 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw notFound({ message: "Profile Not found" });
   }
 
-  const imagePathToDelete = profile[values.uploadKey];
-  if (imagePathToDelete) {
-    const success = await removeImageFromStorage(imagePathToDelete);
-    if (success) {
-      removeImageFromProfile(profile.id, values.uploadKey);
-    }
-
-    return { success };
+  let success = true;
+  try {
+    await removeImageFromProfile(profile.id, values.uploadKey);
+  } catch (e) {
+    success = false;
   }
 
-  return { success: true, message: "nothing to do." };
+  return { success, message: "nothing to do." };
 });
 
 export const action: ActionFunction = async ({ request, params }) => {
