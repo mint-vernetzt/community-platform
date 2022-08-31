@@ -407,7 +407,7 @@ model Focus {
 
 model TargetGroup {
   id     String               @id @default(uuid())
-  title  String               @unique
+  name   String               @unique
   events TargetGroupOfEvent[]
 
   @@map("target_groups")
@@ -431,7 +431,9 @@ model EventType {
 
 model Tag {
   id     String       @id @default(uuid())
-  title  String       @unique
+  tagId  Int
+  name   String       @unique
+  slug   String       @unique
   events TagOfEvent[]
 
   @@map("tags")

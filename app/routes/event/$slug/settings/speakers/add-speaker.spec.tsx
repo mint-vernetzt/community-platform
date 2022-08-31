@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./remove-member";
+import { action } from "./add-speaker";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -17,7 +17,9 @@ jest.mock("~/prisma", () => {
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
-        delete: jest.fn(),
+      },
+      speakerOfEvent: {
+        create: jest.fn(),
       },
       profile: {
         findFirst: jest.fn(),
@@ -26,7 +28,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/remove-member", () => {
+describe("/event/$slug/settings/speakers/add-speaker", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -56,6 +58,7 @@ describe("/event/$slug/settings/team/remove-member", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      email: "anotheruser@mail.com",
     });
 
     expect.assertions(2);
@@ -75,42 +78,10 @@ describe("/event/$slug/settings/team/remove-member", () => {
     }
   });
 
-  test("authenticated user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-    });
-
-    expect.assertions(2);
-
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
-    }
-  });
-
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      email: "anotheruser@mail.com",
     });
 
     expect.assertions(2);
@@ -169,6 +140,7 @@ describe("/event/$slug/settings/team/remove-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
+      email: "anotheruser@mail.com",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -196,13 +168,13 @@ describe("/event/$slug/settings/team/remove-member", () => {
     }
   });
 
-  test("remove event team member", async () => {
+  test("add event team member", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      teamMemberId: "another-user-id",
+      email: "anotheruser@mail.com",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -217,18 +189,22 @@ describe("/event/$slug/settings/team/remove-member", () => {
       return { isPrivileged: true };
     });
 
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        id: "another-user-id",
+      };
+    });
+
     try {
       const result = await action({
         request,
         context: {},
         params: {},
       });
-      expect(prismaClient.teamMemberOfEvent.delete).toHaveBeenLastCalledWith({
-        where: {
-          eventId_profileId: {
-            eventId: "some-event-id",
-            profileId: "another-user-id",
-          },
+      expect(prismaClient.speakerOfEvent.create).toHaveBeenLastCalledWith({
+        data: {
+          eventId: "some-event-id",
+          profileId: "another-user-id",
         },
       });
       expect(result.success).toBe(true);

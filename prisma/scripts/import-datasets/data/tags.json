@@ -1,0 +1,52 @@
+[
+  {
+    "id": "dGVybTo0NjE=",
+    "name": "Didaktik",
+    "slug": "didactics",
+    "tagId": 461
+  },
+  { "id": "dGVybTo0NTM=", "name": "Gender", "slug": "gender", "tagId": 453 },
+  {
+    "id": "dGVybTo0NTY=",
+    "name": "Gute Praxis",
+    "slug": "best-practice",
+    "tagId": 456
+  },
+  {
+    "id": "dGVybTo0NTk=",
+    "name": "Innovation",
+    "slug": "innovation",
+    "tagId": 459
+  },
+  {
+    "id": "dGVybTo3ODk=",
+    "name": "Lexikon",
+    "slug": "encyclopedia",
+    "tagId": 789
+  },
+  { "id": "dGVybTo3ODY=", "name": "MINT+", "slug": "steam", "tagId": 786 },
+  {
+    "id": "dGVybToxNzk=",
+    "name": "MINTrakete",
+    "slug": "mintrakete",
+    "tagId": 179
+  },
+  {
+    "id": "dGVybTo1Mg==",
+    "name": "MINTvernetzt",
+    "slug": "mintvernetzt",
+    "tagId": 52
+  },
+  {
+    "id": "dGVybTo0NjY=",
+    "name": "Transfer",
+    "slug": "transfer",
+    "tagId": 466
+  },
+  {
+    "id": "dGVybTo0NjQ=",
+    "name": "Vernetzung",
+    "slug": "networking",
+    "tagId": 464
+  }
+]

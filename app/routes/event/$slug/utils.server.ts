@@ -88,6 +88,18 @@ export async function getEventByField(field: string, value: string) {
           },
         },
       },
+      speakers: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;

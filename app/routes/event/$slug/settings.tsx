@@ -31,6 +31,12 @@ function Settings() {
                 Team
               </NavLink>
               <NavLink
+                to="speakers"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Vortragende
+              </NavLink>
+              <NavLink
                 to="organizations"
                 className={({ isActive }) => getClassName(isActive)}
               >
