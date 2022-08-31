@@ -1,18 +1,50 @@
 [
   {
     "referenceId": 726,
-    "title": "frühkindliche Bildung",
-    "slug": "early_childhood_education"
+    "title": "Frühkindliche Bildung",
+    "slug": "early_childhood_education",
+    "id": "41d1a58f-8028-4723-91bf-2f00e903f988"
   },
-  { "referenceId": 729, "title": "Grundschule", "slug": "elementary_school" },
-  { "referenceId": 776, "title": "Lehrkräfte", "slug": "teachers" },
-  { "referenceId": 731, "title": "Qualifizierung", "slug": "qualification" },
-  { "referenceId": 736, "title": "Sek 1", "slug": "secondary_education_1" },
-  { "referenceId": 733, "title": "Sek 2", "slug": "secondary_education_2" },
-  { "referenceId": 779, "title": "Studierende", "slug": "students" },
+  {
+    "referenceId": 729,
+    "title": "Grundschule",
+    "slug": "elementary_school",
+    "id": "dd27e215-db36-49fe-bfaf-5929eed4aa09"
+  },
+  {
+    "referenceId": 776,
+    "title": "Lehrkräfte",
+    "slug": "teachers",
+    "id": "46866da6-e4b5-4b42-a33b-6cbfc08e4d26"
+  },
+  {
+    "referenceId": 731,
+    "title": "Qualifizierung",
+    "slug": "qualification",
+    "id": "cd940119-2cd1-43d7-acd3-d0169dc6c410"
+  },
+  {
+    "referenceId": 736,
+    "title": "Sek 1",
+    "slug": "secondary_education_1",
+    "id": "ce7d3fc0-7e77-423f-9d8d-6c4944689b09"
+  },
+  {
+    "referenceId": 733,
+    "title": "Sek 2",
+    "slug": "secondary_education_2",
+    "id": "2e11e681-4904-4a47-940f-51f25cc655a6"
+  },
+  {
+    "referenceId": 779,
+    "title": "Studierende",
+    "slug": "students",
+    "id": "bb09b9d7-03c0-46e9-b912-0da7d385cba5"
+  },
   {
     "referenceId": 773,
     "title": "Studierende des Lehramts",
-    "slug": "students_of_the_teaching_profession"
+    "slug": "students_of_the_teaching_profession",
+    "id": "cc3d92c4-d387-4b12-9bd2-032dc9fbd36c"
   }
 ]

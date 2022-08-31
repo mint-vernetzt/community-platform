@@ -1,12 +1,62 @@
 [
-  { "referenceId": 461, "title": "Didaktik", "slug": "didactics" },
-  { "referenceId": 453, "title": "Gender", "slug": "gender" },
-  { "referenceId": 456, "title": "Gute Praxis", "slug": "best-practice" },
-  { "referenceId": 459, "title": "Innovation", "slug": "innovation" },
-  { "referenceId": 789, "title": "Lexikon", "slug": "encyclopedia" },
-  { "referenceId": 786, "title": "MINT+", "slug": "steam" },
-  { "referenceId": 179, "title": "MINTrakete", "slug": "mintrakete" },
-  { "referenceId": 52, "title": "MINTvernetzt", "slug": "mintvernetzt" },
-  { "referenceId": 466, "title": "Transfer", "slug": "transfer" },
-  { "referenceId": 464, "title": "Vernetzung", "slug": "networking" }
+  {
+    "referenceId": 461,
+    "title": "Didaktik",
+    "slug": "didactics",
+    "id": "cf4ae4cf-62aa-4d54-b47b-96397007ae1b"
+  },
+  {
+    "referenceId": 453,
+    "title": "Gender",
+    "slug": "gender",
+    "id": "9eedb754-3794-4792-88df-fa944b0b1815"
+  },
+  {
+    "referenceId": 456,
+    "title": "Gute Praxis",
+    "slug": "best-practice",
+    "id": "39da0002-133f-4ce5-ab49-f81904bb3d34"
+  },
+  {
+    "referenceId": 459,
+    "title": "Innovation",
+    "slug": "innovation",
+    "id": "0bf96e64-e9b4-4c85-8e33-df603067249c"
+  },
+  {
+    "referenceId": 789,
+    "title": "Lexikon",
+    "slug": "encyclopedia",
+    "id": "51e08860-ccf3-428d-b400-60c423118159"
+  },
+  {
+    "referenceId": 786,
+    "title": "MINT+",
+    "slug": "steam",
+    "id": "5118c87f-44b2-4f07-abb9-70266d739907"
+  },
+  {
+    "referenceId": 179,
+    "title": "MINTrakete",
+    "slug": "mintrakete",
+    "id": "6a0077ae-8935-458a-b9e9-a59d369a7176"
+  },
+  {
+    "referenceId": 52,
+    "title": "MINTvernetzt",
+    "slug": "mintvernetzt",
+    "id": "09c3d826-b046-4475-9ec7-7332d45ae731"
+  },
+  {
+    "referenceId": 466,
+    "title": "Transfer",
+    "slug": "transfer",
+    "id": "757f7ab9-ecb3-431e-8865-df3cfe21191e"
+  },
+  {
+    "referenceId": 464,
+    "title": "Vernetzung",
+    "slug": "networking",
+    "id": "1e79b778-20d7-47a4-bbf9-07ef45665e17"
+  }
 ]
