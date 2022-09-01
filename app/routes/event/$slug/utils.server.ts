@@ -100,6 +100,32 @@ export async function getEventByField(field: string, value: string) {
           },
         },
       },
+      participants: {
+        select: {
+          createdAt: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+      },
+      waitingList: {
+        select: {
+          createdAt: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;
