@@ -288,3 +288,15 @@ export function getResponsibleOrganizationDataFromEvent(
   });
   return organizationData;
 }
+
+export function getParticipantsDataFromEvent(
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
+) {
+  const participantsData = event.participants.map((item) => {
+    return { ...item.profile, createdAt: item.createdAt };
+  });
+  const waitingListData = event.waitingList.map((item) => {
+    return { ...item.profile, createdAt: item.createdAt };
+  });
+  return { participants: participantsData, waitingList: waitingListData };
+}

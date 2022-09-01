@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./set-privilege";
+import { action } from "./remove-participant";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -14,20 +14,21 @@ jest.mock("~/prisma", () => {
     prismaClient: {
       event: {
         findFirst: jest.fn(),
-        update: jest.fn(),
+      },
+      participantOfEvent: {
+        delete: jest.fn(),
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
-        update: jest.fn(),
       },
       profile: {
-        findUnique: jest.fn(),
+        findFirst: jest.fn(),
       },
     },
   };
 });
 
-describe("/event/$slug/settings/team/set-privileged", () => {
+describe("/event/$slug/settings/participants/remove-participant", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -57,7 +58,6 @@ describe("/event/$slug/settings/team/set-privileged", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      teamMemberId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -77,44 +77,9 @@ describe("/event/$slug/settings/team/set-privileged", () => {
     }
   });
 
-  test("authenticated user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      teamMemberId: "another-user-id",
-    });
-
-    expect.assertions(2);
-
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
-    }
-  });
-
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      teamMemberId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -173,7 +138,6 @@ describe("/event/$slug/settings/team/set-privileged", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      teamMemberId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -201,14 +165,13 @@ describe("/event/$slug/settings/team/set-privileged", () => {
     }
   });
 
-  test("set privilege", async () => {
+  test("remove participant", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      teamMemberId: "another-user-id",
-      isPrivileged: "on",
+      profileId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
@@ -222,11 +185,6 @@ describe("/event/$slug/settings/team/set-privileged", () => {
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
     });
-    (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(
-      () => {
-        return { id: "another-user-id" };
-      }
-    );
 
     try {
       const result = await action({
@@ -234,15 +192,12 @@ describe("/event/$slug/settings/team/set-privileged", () => {
         context: {},
         params: {},
       });
-      expect(prismaClient.teamMemberOfEvent.update).toHaveBeenLastCalledWith({
+      expect(prismaClient.participantOfEvent.delete).toHaveBeenLastCalledWith({
         where: {
-          eventId_profileId: {
+          profileId_eventId: {
             eventId: "some-event-id",
             profileId: "another-user-id",
           },
-        },
-        data: {
-          isPrivileged: true,
         },
       });
       expect(result.success).toBe(true);
