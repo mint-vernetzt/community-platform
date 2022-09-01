@@ -260,6 +260,9 @@ function General() {
     event: originalEvent,
     userId,
     focuses,
+    types,
+    targetGroups,
+    tags,
     experienceLevels,
     areas,
   } = useLoaderData<LoaderData>();
@@ -312,6 +315,48 @@ function General() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
+  const typeOptions = types.map((type) => {
+    return {
+      label: type.title,
+      value: type.id,
+    };
+  });
+
+  const selectedTypes =
+    event.types && types
+      ? types
+          .filter((type) => event.types.includes(type.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const targetGroupOptions = targetGroups.map((targetGroup) => {
+    return {
+      label: targetGroup.title,
+      value: targetGroup.id,
+    };
+  });
+
+  const selectedTargetGroups =
+    event.targetGroups && targetGroups
+      ? targetGroups
+          .filter((targetGroup) => event.targetGroups.includes(targetGroup.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const tagOptions = tags.map((tag) => {
+    return {
+      label: tag.title,
+      value: tag.id,
+    };
+  });
+
+  const selectedTags =
+    event.tags && tags
+      ? tags
+          .filter((tag) => event.tags.includes(tag.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
   const areaOptions = createAreaOptionFromData(areas);
 
   const selectedAreas =
@@ -352,8 +397,6 @@ function General() {
 
   const isFormChanged =
     isDirty || (actionData !== undefined && actionData.updated === false);
-
-  console.log(event.experienceLevel);
 
   return (
     <>
@@ -584,8 +627,11 @@ function General() {
               name="targetGroups"
               label={"Zielgruppen"}
               placeholder="Füge die Zielgruppen hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTargetGroups.map((targetGroup) => ({
+                label: targetGroup.title,
+                value: targetGroup.id,
+              }))}
+              options={targetGroupOptions}
             />
           </div>
           <div className="mb-4">
@@ -603,8 +649,11 @@ function General() {
               name="types"
               label={"Veranstaltungstypen"}
               placeholder="Füge die veranstaltungstypen hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTypes.map((type) => ({
+                label: type.title,
+                value: type.id,
+              }))}
+              options={typeOptions}
             />
           </div>
           <div className="mb-4">
@@ -612,8 +661,11 @@ function General() {
               name="tags"
               label={"Schlagworte"}
               placeholder="Füge die Schlagworte hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTags.map((tag) => ({
+                label: tag.title,
+                value: tag.id,
+              }))}
+              options={tagOptions}
             />
           </div>
           <div className="mb-4">
