@@ -32,7 +32,14 @@ import {
   nullOrString,
   website,
 } from "~/lib/utils/yup";
-import { getAreas, getFocuses } from "~/utils.server";
+import {
+  getAreas,
+  getExperienceLevels,
+  getFocuses,
+  getTags,
+  getTargetGroups,
+  getTypes,
+} from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
@@ -156,6 +163,10 @@ type LoaderData = {
   event: ReturnType<typeof transformEventToForm>;
   userId: string;
   focuses: Awaited<ReturnType<typeof getFocuses>>;
+  types: Awaited<ReturnType<typeof getTypes>>;
+  targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
+  tags: Awaited<ReturnType<typeof getTags>>;
+  experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
   areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
@@ -171,12 +182,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   await checkOwnershipOrThrow(event, currentUser);
 
   const focuses = await getFocuses();
+  const types = await getTypes();
+  const tags = await getTags();
+  const targetGroups = await getTargetGroups();
+  const experienceLevels = await getExperienceLevels();
   const areas = await getAreas();
 
   return {
     event: transformEventToForm(event),
     userId: currentUser.id,
     focuses,
+    types,
+    tags,
+    targetGroups,
+    experienceLevels,
     areas,
   };
 };

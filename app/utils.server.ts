@@ -67,6 +67,26 @@ export async function getFocuses() {
   return focuses;
 }
 
+export async function getTypes() {
+  const types = await prismaClient.eventType.findMany();
+  return types;
+}
+
+export async function getTags() {
+  const tags = await prismaClient.tag.findMany();
+  return tags;
+}
+
+export async function getTargetGroups() {
+  const targetGroups = await prismaClient.targetGroup.findMany();
+  return targetGroups;
+}
+
+export async function getExperienceLevels() {
+  const experienceLevel = await prismaClient.experienceLevel.findMany();
+  return experienceLevel;
+}
+
 export async function getAreas() {
   return await prismaClient.area.findMany({
     include: {
