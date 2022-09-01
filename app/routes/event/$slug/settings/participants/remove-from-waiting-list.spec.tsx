@@ -2,7 +2,7 @@ import { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./remove-participant";
+import { action } from "./remove-from-waiting-list";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -193,7 +193,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
         params: {},
       });
       expect(
-        prismaClient.waitingParticipantOfEvent.delete
+        prismaClient.waitingParticipantOfEvent.delete as jest.Mock
       ).toHaveBeenLastCalledWith({
         where: {
           profileId_eventId: {
