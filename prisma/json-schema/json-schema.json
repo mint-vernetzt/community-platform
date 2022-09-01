@@ -839,7 +839,13 @@
         "id": {
           "type": "string"
         },
+        "referenceId": {
+          "type": "integer"
+        },
         "title": {
+          "type": "string"
+        },
+        "slug": {
           "type": "string"
         },
         "events": {
@@ -856,7 +862,13 @@
         "id": {
           "type": "string"
         },
+        "referenceId": {
+          "type": "integer"
+        },
         "title": {
+          "type": "string"
+        },
+        "slug": {
           "type": "string"
         },
         "events": {
@@ -873,7 +885,13 @@
         "id": {
           "type": "string"
         },
+        "referenceId": {
+          "type": "integer"
+        },
         "title": {
+          "type": "string"
+        },
+        "slug": {
           "type": "string"
         },
         "events": {
@@ -890,7 +908,13 @@
         "id": {
           "type": "string"
         },
+        "referenceId": {
+          "type": "integer"
+        },
         "title": {
+          "type": "string"
+        },
+        "slug": {
           "type": "string"
         },
         "events": {
