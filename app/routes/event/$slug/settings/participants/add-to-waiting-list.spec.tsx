@@ -168,7 +168,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     }
   });
 
-  test("add event team member", async () => {
+  test("add to waiting list", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({

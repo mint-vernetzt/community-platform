@@ -165,7 +165,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
     }
   });
 
-  test("remove event team member", async () => {
+  test("remove from waiting list", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({

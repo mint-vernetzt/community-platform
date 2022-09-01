@@ -168,7 +168,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     }
   });
 
-  test("add event team member", async () => {
+  test("add participant", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
