@@ -1,5 +1,6 @@
 import type {
   EventType,
+  ExperienceLevel,
   Focus,
   Offer,
   OrganizationType,
@@ -14,7 +15,8 @@ export type GenericEntry =
   | Focus
   | Tag
   | TargetGroup
-  | EventType;
+  | EventType
+  | ExperienceLevel;
 
 export type TableName =
   | "offer"
@@ -22,7 +24,8 @@ export type TableName =
   | "focus"
   | "tag"
   | "targetGroup"
-  | "eventType";
+  | "eventType"
+  | "experienceLevel";
 
 type Lookup = {
   [keyof: string]: GenericEntry;
