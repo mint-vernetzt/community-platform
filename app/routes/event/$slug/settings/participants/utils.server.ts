@@ -51,3 +51,22 @@ export async function disconnectFromWaitingListOfEvent(
     },
   });
 }
+
+export async function getNumberOfParticipants(eventId: string) {
+  const number = await prismaClient.participantOfEvent.count({
+    where: {
+      eventId,
+    },
+  });
+  return number;
+}
+
+export async function updateParticipantLimit(
+  eventId: string,
+  participantLimit: number | undefined
+) {
+  await prismaClient.event.update({
+    where: { id: eventId },
+    data: { updatedAt: new Date(), participantLimit },
+  });
+}
