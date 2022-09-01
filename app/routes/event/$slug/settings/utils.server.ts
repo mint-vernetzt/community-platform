@@ -74,7 +74,8 @@ export function transformEventToForm(
     endTime,
     participationUntilDate,
     participationUntilTime,
-    focuses: event.focuses.map((item) => item.focusId) ?? [],
+    focuses: event.focuses.map((focus) => focus.focusId) ?? [],
+    areas: event.areas.map((area) => area.areaId) ?? [],
   };
 }
 
