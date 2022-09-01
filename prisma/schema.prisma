@@ -424,9 +424,11 @@ model ExperienceLevel {
 }
 
 model EventType {
-  id     String        @id @default(uuid())
-  title  String        @unique
-  events TypeOfEvent[]
+  id          String        @id @default(uuid())
+  referenceId Int           @unique
+  title       String        @unique
+  slug        String        @unique
+  events      TypeOfEvent[]
 
   @@map("event_types")
 }
