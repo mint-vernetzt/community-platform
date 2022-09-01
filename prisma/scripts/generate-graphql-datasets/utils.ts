@@ -1,7 +1,12 @@
-import type { EventType, Tag, TargetGroup } from "@prisma/client";
+import type {
+  EventType,
+  ExperienceLevel,
+  Tag,
+  TargetGroup,
+} from "@prisma/client";
 import { randomUUID } from "node:crypto";
 
-export type GenericEntry = Tag | TargetGroup | EventType;
+export type GenericEntry = Tag | TargetGroup | EventType | ExperienceLevel;
 
 export function addUuids(
   wantedEntries: Omit<GenericEntry, "id">[],
