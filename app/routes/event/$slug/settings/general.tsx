@@ -240,7 +240,13 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
       updated = true;
     }
   } else {
-    const listData: (keyof FormType)[] = ["focuses", "areas"];
+    const listData: (keyof FormType)[] = [
+      "focuses",
+      "types",
+      "targetGroups",
+      "tags",
+      "areas",
+    ];
     listData.forEach((key) => {
       data = objectListOperationResolver<FormType>(data, key, formData);
     });
