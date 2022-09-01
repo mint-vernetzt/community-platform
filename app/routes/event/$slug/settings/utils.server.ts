@@ -161,7 +161,7 @@ export async function updateEventById(id: string, data: any) {
               },
             },
             create: {
-              typeId: eventTypeId,
+              eventTypeId,
             },
           };
         }),
