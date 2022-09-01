@@ -451,6 +451,7 @@ function General() {
                 {...register("venueStreet")}
                 id="venueStreet"
                 label="Straßenname"
+                defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
               />
             </div>
@@ -459,6 +460,7 @@ function General() {
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
                 label="Hausnummer"
+                defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
               />
             </div>
@@ -469,6 +471,7 @@ function General() {
                 {...register("venueZipCode")}
                 id="venueZipCode"
                 label="PLZ"
+                defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
               />
             </div>
@@ -477,6 +480,7 @@ function General() {
                 {...register("venueCity")}
                 id="venueCity"
                 label="Stadt"
+                defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
               />
             </div>
@@ -593,6 +597,7 @@ function General() {
               {...register("conferenceLink")}
               id="conferenceLink"
               label="Konferenzlink"
+              defaultValue={event.conferenceLink || ""}
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
               withClearButton
