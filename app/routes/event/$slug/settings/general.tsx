@@ -30,6 +30,7 @@ import {
   getFormDataValidationResultOrThrow,
   multiline,
   nullOrString,
+  website,
 } from "~/lib/utils/yup";
 import { getAreas, getFocuses } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
@@ -124,7 +125,7 @@ const schema = object({
   experienceLevel: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
-  conferenceLink: string().url(),
+  conferenceLink: website(),
   conferenceCode: string(),
   participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
     .test((value) => {
