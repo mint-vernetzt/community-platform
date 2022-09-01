@@ -1,6 +1,5 @@
 import type { Tag, TargetGroup } from "@prisma/client";
-// @ts-ignore
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 
 export type GenericEntry = Tag | TargetGroup;
 
@@ -21,7 +20,7 @@ export function addUuids(
     if (uuid !== undefined) {
       entryWithUuid["id"] = uuid;
     } else {
-      entryWithUuid["id"] = uuidv4();
+      entryWithUuid["id"] = randomUUID();
     }
     return entryWithUuid;
   });

@@ -1,13 +1,13 @@
 import { addUuids } from "./utils";
 // @ts-ignore
-import { v4 } from "uuid";
+import { randomUUID } from "node:crypto";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-jest.mock("uuid", () => {
-  return { v4: jest.fn() };
+jest.mock("node:crypto", () => {
+  return { randomUUID: jest.fn() };
 });
 
 test("add existing uuids to wanted data by referenceId", () => {
@@ -53,7 +53,7 @@ test("generate new uuids for unknown entries", () => {
     { id: "1", referenceId: 4, title: "title 4", slug: "slug 4" },
   ];
 
-  (v4 as jest.Mock).mockImplementationOnce(() => {
+  (randomUUID as jest.Mock).mockImplementationOnce(() => {
     return "5";
   });
 
