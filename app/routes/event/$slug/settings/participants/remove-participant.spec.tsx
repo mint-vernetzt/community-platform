@@ -28,7 +28,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/remove-member", () => {
+describe("/event/$slug/settings/participants/remove-participant", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
