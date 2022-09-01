@@ -260,6 +260,7 @@ function General() {
     event: originalEvent,
     userId,
     focuses,
+    experienceLevels,
     areas,
   } = useLoaderData<LoaderData>();
 
@@ -289,6 +290,13 @@ function General() {
   if (actionData !== undefined) {
     errors = actionData.errors;
   }
+
+  const experienceLevelOptions = experienceLevels.map((experienceLevel) => {
+    return {
+      label: experienceLevel.title,
+      value: experienceLevel.id,
+    };
+  });
 
   const focusOptions = focuses.map((focus) => {
     return {
@@ -572,10 +580,12 @@ function General() {
           </div>
           <div className="mb-4">
             <SelectField
+              {...register("experienceLevel")}
               name="experienceLevel"
               label={"Erfahrungsstufe"}
               placeholder="Wähle die Erfahrungsstufe aus."
-              options={[]}
+              options={experienceLevelOptions}
+              defaultValue={event.experienceLevel || ""}
             />
           </div>
           <div className="mb-4">
