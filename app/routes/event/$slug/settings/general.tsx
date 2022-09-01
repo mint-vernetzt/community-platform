@@ -272,7 +272,7 @@ function General() {
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event: any;
+  let event: LoaderData["event"] | ActionData["data"];
   if (actionData !== undefined) {
     event = actionData.data;
   } else {
@@ -353,6 +353,8 @@ function General() {
   const isFormChanged =
     isDirty || (actionData !== undefined && actionData.updated === false);
 
+  console.log(event.experienceLevel);
+
   return (
     <>
       <RemixForm
@@ -361,8 +363,12 @@ function General() {
         action={`/event/${slug}/settings/events/publish`}
         hiddenFields={["eventId", "userId", "publish"]}
         values={{
+          // TODO: Fix type issue
+          // @ts-ignore
           eventId: event.id,
           userId: userId,
+          // TODO: Fix type issue
+          // @ts-ignore
           publish: !event.published,
         }}
       >
@@ -375,7 +381,11 @@ function General() {
               <Field name="publish"></Field>
               <div className="mt-2">
                 <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {event.published ? "Verstecken" : "Veröffentlichen"}
+                  {
+                    // TODO: Fix type issue
+                    // @ts-ignore
+                    event.published ? "Verstecken" : "Veröffentlichen"
+                  }
                 </Button>
               </div>
             </>
@@ -585,7 +595,7 @@ function General() {
               label={"Erfahrungsstufe"}
               placeholder="Wähle die Erfahrungsstufe aus."
               options={experienceLevelOptions}
-              defaultValue={event.experienceLevel?.id || ""}
+              defaultValue={event.experienceLevel || ""}
             />
           </div>
           <div className="mb-4">

@@ -80,6 +80,7 @@ export function transformEventToForm(
       event.targetGroups.map((targetGroup) => targetGroup.targetGroupId) ?? [],
     types: event.types.map((type) => type.eventTypeId) ?? [],
     areas: event.areas.map((area) => area.areaId) ?? [],
+    experienceLevel: event.experienceLevel?.id || "",
   };
 }
 
