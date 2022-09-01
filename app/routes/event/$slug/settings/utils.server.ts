@@ -75,7 +75,12 @@ export function transformEventToForm(
     participationUntilDate,
     participationUntilTime,
     focuses: event.focuses.map((focus) => focus.focusId) ?? [],
+    tags: event.tags.map((tag) => tag.tagId) ?? [],
+    targetGroups:
+      event.targetGroups.map((targetGroup) => targetGroup.targetGroupId) ?? [],
+    types: event.types.map((type) => type.eventTypeId) ?? [],
     areas: event.areas.map((area) => area.areaId) ?? [],
+    experienceLevel: event.experienceLevel?.title,
   };
 }
 
