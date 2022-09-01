@@ -62,21 +62,25 @@ function Index() {
         </ul>
         <h3>Target Groups</h3>
         <ul>
-          {[].map((item, index) => {
-            return <li key={`target-groups-${index}`}>{item}</li>;
+          {loaderData.event.targetGroups.map((item, index) => {
+            return (
+              <li key={`target-groups-${index}`}>{item.targetGroup.title}</li>
+            );
           })}
         </ul>
-        <h3>Experience Level: {loaderData.event.experienceLevelId}</h3>
+        <h3>
+          Experience Level: {loaderData.event.experienceLevel?.title || ""}
+        </h3>
         <h3>Types</h3>
         <ul>
-          {[].map((item, index) => {
-            return <li key={`types-${index}`}>{item}</li>;
+          {loaderData.event.types.map((item, index) => {
+            return <li key={`types-${index}`}>{item.eventType.title}</li>;
           })}
         </ul>
         <h3>Tags</h3>
         <ul>
-          {[].map((item, index) => {
-            return <li key={`tags-${index}`}>{item}</li>;
+          {loaderData.event.tags.map((item, index) => {
+            return <li key={`tags-${index}`}>{item.tag.title}</li>;
           })}
         </ul>
         <h3>Areas</h3>

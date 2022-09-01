@@ -21,6 +21,18 @@ jest.mock("~/prisma", () => {
       focus: {
         findMany: jest.fn(),
       },
+      tag: {
+        findMany: jest.fn(),
+      },
+      experienceLevel: {
+        findMany: jest.fn(),
+      },
+      targetGroup: {
+        findMany: jest.fn(),
+      },
+      eventType: {
+        findMany: jest.fn(),
+      },
       area: {
         findMany: jest.fn(),
       },
@@ -161,6 +173,10 @@ describe("/event/$slug/settings/general", () => {
           endTime: date,
           participationUntil: date,
           focuses: [],
+          targetGroups: [],
+          types: [],
+          tags: [],
+          experienceLevels: [],
           areas: [],
         };
       });

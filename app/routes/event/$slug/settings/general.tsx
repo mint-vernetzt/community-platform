@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import React from "react";
-import { Form as RemixForm } from "remix-forms";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
@@ -13,6 +12,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
+import { Form as RemixForm } from "remix-forms";
 import { array, InferType, mixed, number, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -30,9 +30,18 @@ import {
   getFormDataValidationResultOrThrow,
   multiline,
   nullOrString,
+  website,
 } from "~/lib/utils/yup";
-import { getAreas, getFocuses } from "~/utils.server";
+import {
+  getAreas,
+  getExperienceLevels,
+  getFocuses,
+  getTags,
+  getTargetGroups,
+  getTypes,
+} from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
+import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
@@ -40,7 +49,6 @@ import {
   transformFormToEvent,
   updateEventById,
 } from "./utils.server";
-import { publishSchema } from "./events/publish";
 
 const schema = object({
   userId: string().required(),
@@ -124,7 +132,7 @@ const schema = object({
   experienceLevel: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
-  conferenceLink: string().url(),
+  conferenceLink: website(),
   conferenceCode: string(),
   participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
     .test((value) => {
@@ -155,6 +163,10 @@ type LoaderData = {
   event: ReturnType<typeof transformEventToForm>;
   userId: string;
   focuses: Awaited<ReturnType<typeof getFocuses>>;
+  types: Awaited<ReturnType<typeof getTypes>>;
+  targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
+  tags: Awaited<ReturnType<typeof getTags>>;
+  experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
   areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
@@ -170,12 +182,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   await checkOwnershipOrThrow(event, currentUser);
 
   const focuses = await getFocuses();
+  const types = await getTypes();
+  const tags = await getTags();
+  const targetGroups = await getTargetGroups();
+  const experienceLevels = await getExperienceLevels();
   const areas = await getAreas();
 
   return {
     event: transformEventToForm(event),
     userId: currentUser.id,
     focuses,
+    types,
+    tags,
+    targetGroups,
+    experienceLevels,
     areas,
   };
 };
@@ -220,7 +240,13 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
       updated = true;
     }
   } else {
-    const listData: (keyof FormType)[] = ["focuses", "areas"];
+    const listData: (keyof FormType)[] = [
+      "focuses",
+      "types",
+      "targetGroups",
+      "tags",
+      "areas",
+    ];
     listData.forEach((key) => {
       data = objectListOperationResolver<FormType>(data, key, formData);
     });
@@ -240,6 +266,10 @@ function General() {
     event: originalEvent,
     userId,
     focuses,
+    types,
+    targetGroups,
+    tags,
+    experienceLevels,
     areas,
   } = useLoaderData<LoaderData>();
 
@@ -251,7 +281,7 @@ function General() {
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event: any;
+  let event: LoaderData["event"] | ActionData["data"];
   if (actionData !== undefined) {
     event = actionData.data;
   } else {
@@ -270,6 +300,13 @@ function General() {
     errors = actionData.errors;
   }
 
+  const experienceLevelOptions = experienceLevels.map((experienceLevel) => {
+    return {
+      label: experienceLevel.title,
+      value: experienceLevel.id,
+    };
+  });
+
   const focusOptions = focuses.map((focus) => {
     return {
       label: focus.title,
@@ -281,6 +318,48 @@ function General() {
     event.focuses && focuses
       ? focuses
           .filter((focus) => event.focuses.includes(focus.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const typeOptions = types.map((type) => {
+    return {
+      label: type.title,
+      value: type.id,
+    };
+  });
+
+  const selectedTypes =
+    event.types && types
+      ? types
+          .filter((type) => event.types.includes(type.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const targetGroupOptions = targetGroups.map((targetGroup) => {
+    return {
+      label: targetGroup.title,
+      value: targetGroup.id,
+    };
+  });
+
+  const selectedTargetGroups =
+    event.targetGroups && targetGroups
+      ? targetGroups
+          .filter((targetGroup) => event.targetGroups.includes(targetGroup.id))
+          .sort((a, b) => a.title.localeCompare(b.title))
+      : [];
+
+  const tagOptions = tags.map((tag) => {
+    return {
+      label: tag.title,
+      value: tag.id,
+    };
+  });
+
+  const selectedTags =
+    event.tags && tags
+      ? tags
+          .filter((tag) => event.tags.includes(tag.id))
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
@@ -333,8 +412,12 @@ function General() {
         action={`/event/${slug}/settings/events/publish`}
         hiddenFields={["eventId", "userId", "publish"]}
         values={{
+          // TODO: Fix type issue
+          // @ts-ignore
           eventId: event.id,
           userId: userId,
+          // TODO: Fix type issue
+          // @ts-ignore
           publish: !event.published,
         }}
       >
@@ -347,7 +430,11 @@ function General() {
               <Field name="publish"></Field>
               <div className="mt-2">
                 <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {event.published ? "Verstecken" : "Veröffentlichen"}
+                  {
+                    // TODO: Fix type issue
+                    // @ts-ignore
+                    event.published ? "Verstecken" : "Veröffentlichen"
+                  }
                 </Button>
               </div>
             </>
@@ -450,6 +537,7 @@ function General() {
                 {...register("venueStreet")}
                 id="venueStreet"
                 label="Straßenname"
+                defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
               />
             </div>
@@ -458,6 +546,7 @@ function General() {
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
                 label="Hausnummer"
+                defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
               />
             </div>
@@ -468,6 +557,7 @@ function General() {
                 {...register("venueZipCode")}
                 id="venueZipCode"
                 label="PLZ"
+                defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
               />
             </div>
@@ -476,6 +566,7 @@ function General() {
                 {...register("venueCity")}
                 id="venueCity"
                 label="Stadt"
+                defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
               />
             </div>
@@ -542,16 +633,21 @@ function General() {
               name="targetGroups"
               label={"Zielgruppen"}
               placeholder="Füge die Zielgruppen hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTargetGroups.map((targetGroup) => ({
+                label: targetGroup.title,
+                value: targetGroup.id,
+              }))}
+              options={targetGroupOptions}
             />
           </div>
           <div className="mb-4">
             <SelectField
+              {...register("experienceLevel")}
               name="experienceLevel"
               label={"Erfahrungsstufe"}
               placeholder="Wähle die Erfahrungsstufe aus."
-              options={[]}
+              options={experienceLevelOptions}
+              defaultValue={event.experienceLevel || ""}
             />
           </div>
           <div className="mb-4">
@@ -559,8 +655,11 @@ function General() {
               name="types"
               label={"Veranstaltungstypen"}
               placeholder="Füge die veranstaltungstypen hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTypes.map((type) => ({
+                label: type.title,
+                value: type.id,
+              }))}
+              options={typeOptions}
             />
           </div>
           <div className="mb-4">
@@ -568,8 +667,11 @@ function General() {
               name="tags"
               label={"Schlagworte"}
               placeholder="Füge die Schlagworte hinzu."
-              entries={[]}
-              options={[]}
+              entries={selectedTags.map((tag) => ({
+                label: tag.title,
+                value: tag.id,
+              }))}
+              options={tagOptions}
             />
           </div>
           <div className="mb-4">
@@ -592,6 +694,7 @@ function General() {
               {...register("conferenceLink")}
               id="conferenceLink"
               label="Konferenzlink"
+              defaultValue={event.conferenceLink || ""}
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
               withClearButton

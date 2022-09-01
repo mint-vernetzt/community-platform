@@ -74,7 +74,13 @@ export function transformEventToForm(
     endTime,
     participationUntilDate,
     participationUntilTime,
-    focuses: event.focuses.map((item) => item.focusId) ?? [],
+    focuses: event.focuses.map((focus) => focus.focusId) ?? [],
+    tags: event.tags.map((tag) => tag.tagId) ?? [],
+    targetGroups:
+      event.targetGroups.map((targetGroup) => targetGroup.targetGroupId) ?? [],
+    types: event.types.map((type) => type.eventTypeId) ?? [],
+    areas: event.areas.map((area) => area.areaId) ?? [],
+    experienceLevel: event.experienceLevel?.id || "",
   };
 }
 
@@ -83,10 +89,7 @@ export function transformFormToEvent(form: any) {
   const {
     userId: _userId,
     submit: _submit,
-    tags: _tags,
-    types: _types,
-    targetGroups: _targetGroups,
-    experienceLevel: _experienceLevel,
+    // experienceLevel: _experienceLevel,
     startDate,
     endDate,
     participationUntilDate,
@@ -131,6 +134,54 @@ export async function updateEventById(id: string, data: any) {
           };
         }),
       },
+      tags: {
+        deleteMany: {},
+        connectOrCreate: data.tags.map((tagId: string) => {
+          return {
+            where: {
+              tagId_eventId: {
+                tagId,
+                eventId: id,
+              },
+            },
+            create: {
+              tagId,
+            },
+          };
+        }),
+      },
+      types: {
+        deleteMany: {},
+        connectOrCreate: data.types.map((eventTypeId: string) => {
+          return {
+            where: {
+              eventTypeId_eventId: {
+                eventTypeId,
+                eventId: id,
+              },
+            },
+            create: {
+              eventTypeId,
+            },
+          };
+        }),
+      },
+      targetGroups: {
+        deleteMany: {},
+        connectOrCreate: data.targetGroups.map((targetGroupId: string) => {
+          return {
+            where: {
+              targetGroupId_eventId: {
+                targetGroupId,
+                eventId: id,
+              },
+            },
+            create: {
+              targetGroupId,
+            },
+          };
+        }),
+      },
       areas: {
         deleteMany: {},
         connectOrCreate: data.areas.map((areaId: string) => {
@@ -147,8 +198,22 @@ export async function updateEventById(id: string, data: any) {
           };
         }),
       },
+      experienceLevel:
+        data.experienceLevel !== null
+          ? { connect: { id: data.experienceLevel } }
+          : { disconnect: true },
     },
   });
+}
+
+export async function connectExperienceLevelToEvent() {
+  // await prismaClient.event.update({
+  //   where: { id: eventId },
+  //   data: {
+  //     updatedAt: new Date(),
+  //     experienceLevel: { connect: { id: parentEventId } },
+  //   },
+  // });
 }
 
 export async function deleteEventById(id: string) {

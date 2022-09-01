@@ -30,6 +30,42 @@ export async function getEventByField(field: string, value: string) {
   const event = await prismaClient.event.findFirst({
     where: { [field]: value },
     include: {
+      targetGroups: {
+        select: {
+          targetGroupId: true,
+          targetGroup: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      types: {
+        select: {
+          eventTypeId: true,
+          eventType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      tags: {
+        select: {
+          tagId: true,
+          tag: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      experienceLevel: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
       areas: {
         select: {
           areaId: true,
