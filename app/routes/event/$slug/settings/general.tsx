@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import React from "react";
-import { Form as RemixForm } from "remix-forms";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
@@ -13,6 +12,7 @@ import {
   useParams,
   useTransition,
 } from "remix";
+import { Form as RemixForm } from "remix-forms";
 import { array, InferType, mixed, number, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -41,6 +41,7 @@ import {
   getTypes,
 } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
+import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
@@ -48,7 +49,6 @@ import {
   transformFormToEvent,
   updateEventById,
 } from "./utils.server";
-import { publishSchema } from "./events/publish";
 
 const schema = object({
   userId: string().required(),
@@ -585,7 +585,7 @@ function General() {
               label={"Erfahrungsstufe"}
               placeholder="Wähle die Erfahrungsstufe aus."
               options={experienceLevelOptions}
-              defaultValue={event.experienceLevel || ""}
+              defaultValue={event.experienceLevel?.id || ""}
             />
           </div>
           <div className="mb-4">
