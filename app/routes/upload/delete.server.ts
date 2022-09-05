@@ -1,10 +1,28 @@
 import { prismaClient } from "~/prisma";
 import { supabaseAdmin } from "~/supabase";
+import { UploadKey } from "./schema";
 
-export async function removeImageFromProfile(profileId: string, name: string) {
+export async function removeImageFromProfile(
+  profileId: string,
+  name: UploadKey
+) {
   return await prismaClient.profile.update({
     where: {
       id: profileId,
+    },
+    data: {
+      [name]: null,
+    },
+  });
+}
+
+export async function removeImageFromOrganitaion(
+  slug: string,
+  name: UploadKey
+) {
+  return await prismaClient.organization.update({
+    where: {
+      slug,
     },
     data: {
       [name]: null,

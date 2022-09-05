@@ -8,22 +8,11 @@ import {
 } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
-import {
-  ActionFunction,
-  Form,
-  json,
-  Link,
-  LoaderFunction,
-  unstable_parseMultipartFormData,
-  UploadHandler,
-  useActionData,
-  useLoaderData,
-} from "remix";
-import { badRequest, forbidden, notFound, serverError } from "remix-utils";
+import { json, Link, LoaderFunction, useLoaderData } from "remix";
+import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-
 import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
@@ -37,8 +26,6 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
-import { createHashFromString } from "~/utils.server";
 
 import styles from "react-image-crop/dist/ReactCrop.css";
 
@@ -165,95 +152,7 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  return json({ mode, data, images, abilities });
-};
-
-export const action: ActionFunction = async (args) => {
-  const { request, params } = args;
-
-  const { username } = params;
-  const sessionUser = await getUserByRequest(request);
-
-  if (
-    sessionUser === null ||
-    username !== sessionUser?.user_metadata?.username
-  ) {
-    throw forbidden({ message: "Not allowed" });
-  }
-
-  const uploadHandler: UploadHandler = async (params) => {
-    const { name, stream, filename } = params;
-
-    // Don't process stream
-    if (name !== "avatar" && name !== "background") {
-      stream.resume();
-      return;
-    }
-
-    // Buffer stuff
-    const chunks = [];
-    for await (let chunk of stream) {
-      chunks.push(chunk);
-    }
-    const buffer = Buffer.concat(chunks);
-
-    const hash = await createHashFromString(buffer.toString());
-    const extension = filename.split(".")[filename.split(".").length - 1];
-    const path = `${hash.substring(0, 2)}/${hash.substring(
-      2
-    )}/${name}.${extension}`;
-
-    const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .upload(path, buffer, {
-        upsert: true,
-      });
-
-    if (error || data === null) {
-      throw serverError({ message: "Hochladen fehlgeschlagen." });
-    }
-
-    await prismaClient.profile.update({
-      where: {
-        id: sessionUser.id,
-      },
-      data: {
-        [name]: path,
-      },
-    });
-
-    const publicURL = getPublicURL(path);
-
-    if (publicURL === null) {
-      throw serverError({
-        message: "Die angefragte URL konnte nicht gefunden werden.",
-      });
-    }
-
-    return publicURL;
-  };
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
-
-  let images: { avatar?: string; background?: string } = {};
-
-  const avatarPublicURL = formData.get("avatar");
-  if (avatarPublicURL !== null && typeof avatarPublicURL === "string") {
-    images.avatar = getImageURL(avatarPublicURL, {
-      resize: { type: "fill", width: 144, height: 144 },
-    });
-  }
-  const backgroundPublicURL = formData.get("background");
-  if (backgroundPublicURL !== null && typeof backgroundPublicURL === "string") {
-    images.background = getImageURL(backgroundPublicURL, {
-      resize: { type: "fit", width: 1488, height: 480 },
-    });
-  }
-
-  return json({ images });
+  return json({ mode, data, images });
 };
 
 function hasContactInformations(data: Partial<Profile>) {
@@ -288,32 +187,39 @@ function hasWebsiteOrSocialService(
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
 
-  const initials = getInitials(loaderData.data); // TODO: fix type error
+  const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
 
-  const actionData = useActionData();
+  const avatar = loaderData.images.avatar;
+  const Avatar = React.useCallback(
+    () => (
+      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+        {avatar !== undefined ? <img src={avatar} alt={fullName} /> : initials}
+      </div>
+    ),
+    [avatar, fullName, initials]
+  );
 
-  const backgroundContainer = React.useRef(null);
+  const background = loaderData.images.background;
+  const Background = React.useCallback(
+    () => (
+      <div className="h-36 bg-yellow-500 text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+        {background ? (
+          <img src={background} alt={`Aktuelles Hintergrundbild}`} />
+        ) : (
+          <div className="w-[400px]" />
+        )}
+      </div>
+    ),
+    [background]
+  );
 
-  let avatar;
-  if (actionData !== undefined && actionData.images.avatar !== undefined) {
-    avatar = actionData.images.avatar;
-  } else if (loaderData.images.avatar !== undefined) {
-    avatar = loaderData.images.avatar;
-  }
-
-  let background;
-  if (actionData !== undefined && actionData.images.background !== undefined) {
-    background = actionData.images.background;
-  } else if (loaderData.images.background !== undefined) {
-    background = loaderData.images.background;
-  }
-
+  const uploadRedirect = `/profile/${loaderData.data.username}`;
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
-          <div ref={backgroundContainer} className="w-full h-full">
+          <div className="w-full h-full">
             {background !== undefined && (
               <img
                 src={background}
@@ -324,37 +230,30 @@ export default function Index() {
           </div>
           {loaderData.mode === "owner" && (
             <div className="absolute bottom-6 right-6">
-              {/** TODO: Transition on upload */}
-              <Form
-                method="post"
-                encType="multipart/form-data"
-                className="flex items-center"
-                reloadDocument
+              <label
+                htmlFor="modal-background-upload"
+                className="btn btn-primary modal-button"
               >
-                <label
-                  htmlFor="modal-background-upload"
-                  className="btn btn-primary modal-button"
-                >
-                  Bild ändern
-                </label>
+                Bild ändern
+              </label>
 
-                <Modal id="modal-background-upload">
-                  <ImageCropper
-                    headline="Hintergrundbild"
-                    id="modal-background-upload"
-                    deleteUrl={`/profile/${loaderData.data.username}/image/delete`}
-                    uploadUrl={`/profile/${loaderData.data.username}/image/upload`}
-                    uploadKey="background"
-                    image={background}
-                    aspect={31 / 10}
-                    minWidth={620}
-                    minHeight={62}
-                    username={loaderData.data.username ?? ""}
-                    csrfToken={"034u9nsq0unun"}
-                    initials={initials}
-                  />
-                </Modal>
-              </Form>
+              <Modal id="modal-background-upload">
+                <ImageCropper
+                  headline="Hintergrundbild"
+                  id="modal-background-upload"
+                  subject={"user"}
+                  slug={loaderData.data.username}
+                  uploadKey="background"
+                  image={background}
+                  aspect={31 / 10}
+                  minWidth={620}
+                  minHeight={62}
+                  csrfToken={"034u9nsq0unun"}
+                  redirect={uploadRedirect}
+                >
+                  <Background />
+                </ImageCropper>
+              </Modal>
             </div>
           )}
         </div>
@@ -364,20 +263,9 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-                  {avatar !== undefined ? (
-                    <img src={avatar} alt={fullName} />
-                  ) : (
-                    initials
-                  )}
-                </div>
+                <Avatar />
                 {loaderData.mode === "owner" && (
-                  <Form
-                    method="post"
-                    encType="multipart/form-data"
-                    className="flex items-center mt-4"
-                    reloadDocument
-                  >
+                  <>
                     <label
                       htmlFor="modal-avatar"
                       className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
@@ -396,21 +284,22 @@ export default function Index() {
 
                     <Modal id="modal-avatar">
                       <ImageCropper
-                        headline="Profilfoto"
                         id="modal-avatar"
-                        deleteUrl={`/profile/${loaderData.data.username}/image/delete`}
-                        uploadUrl={`/profile/${loaderData.data.username}/image/upload`}
+                        subject="user"
+                        slug={loaderData.data.username}
                         uploadKey="avatar"
+                        headline="Profilfoto"
                         image={avatar}
                         aspect={1}
                         minWidth={100}
                         minHeight={100}
-                        username={loaderData.data.username}
                         csrfToken={"034u9nsq0unun"}
-                        initials={initials}
-                      />
+                        redirect={uploadRedirect}
+                      >
+                        <Avatar />
+                      </ImageCropper>
                     </Modal>
-                  </Form>
+                  </>
                 )}
 
                 <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>

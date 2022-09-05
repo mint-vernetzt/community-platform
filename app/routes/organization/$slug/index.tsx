@@ -1,21 +1,12 @@
+import * as React from "react";
 import { GravityType } from "imgproxy/dist/types";
-import React from "react";
-import {
-  ActionFunction,
-  Form,
-  json,
-  Link,
-  LoaderFunction,
-  unstable_parseMultipartFormData,
-  UploadHandler,
-  useActionData,
-  useLoaderData,
-} from "remix";
-import { badRequest, forbidden, notFound, serverError } from "remix-utils";
+import { Link, LoaderFunction, useLoaderData } from "remix";
+import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
@@ -24,13 +15,13 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import {
   getOrganizationBySlug,
-  getOrganizationMembersBySlug,
   OrganizationWithRelations,
 } from "~/organization.server";
-import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
-import { createHashFromString } from "~/utils.server";
+import styles from "react-image-crop/dist/ReactCrop.css";
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
+}
 
 type LoaderData = {
   organization: Partial<OrganizationWithRelations>;
@@ -253,7 +244,7 @@ export const action: ActionFunction = async (args) => {
   const logoPublicURL = formData.get("logo");
   if (logoPublicURL && typeof logoPublicURL === "string") {
     images.logo = getImageURL(logoPublicURL, {
-      resize: { type: "fit", width: 144, height: 144 },
+      resize: { type: "fill", width: 144, height: 144 },
     });
   }
   const backgroundPublicURL = formData.get("background");
@@ -304,38 +295,56 @@ function hasWebsiteOrSocialService(
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+  const initialsOfOrganization = loaderData.organization.name
+    ? getOrganizationInitials(loaderData.organization.name)
+    : "";
+  const organisationName = loaderData.organization.name ?? "";
 
-  const actionData = useActionData<ActionData>();
+  const logo = loaderData.images.logo;
+  const Avatar = React.useCallback(
+    () => (
+      <>
+        <div
+          className={`h-36 flex items-center justify-center rounded-md overflow-hidden ${
+            logo ? "w-full" : "w-36 bg-primary text-white text-6xl"
+          }`}
+        >
+          {logo ? (
+            <img
+              src={logo}
+              alt={organisationName}
+              className="max-w-full w-auto max-h-36 h-auto"
+            />
+          ) : (
+            initialsOfOrganization
+          )}
+        </div>
+      </>
+    ),
+    [logo, organisationName, initialsOfOrganization]
+  );
 
-  const backgroundContainer = React.useRef(null);
-  const logoContainer = React.useRef(null);
+  const background = loaderData.images.background;
+  const Background = React.useCallback(
+    () => (
+      <div className="h-36 bg-yellow-500 text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+        {background ? (
+          <img src={background} alt={`Aktuelles Hintergrundbild}`} />
+        ) : (
+          <div className="w-[400px]" />
+        )}
+      </div>
+    ),
+    [background]
+  );
 
-  let logo;
-  if (actionData && actionData.images.logo) {
-    logo = actionData.images.logo;
-  } else if (loaderData.images.logo) {
-    logo = loaderData.images.logo;
-  }
-
-  let background;
-  if (actionData && actionData.images.background) {
-    background = actionData.images.background;
-  } else if (loaderData.images.background) {
-    background = loaderData.images.background;
-  }
-
-  let initialsOfOrganization = "";
-  if (loaderData.organization.name) {
-    initialsOfOrganization = getOrganizationInitials(
-      loaderData.organization.name
-    );
-  }
+  const uploadRedirect = `/organization/${loaderData.organization.slug}`;
 
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
-          <div ref={backgroundContainer} className="w-full h-full">
+          <div className="w-full h-full">
             {background && (
               <img
                 src={background}
@@ -346,26 +355,30 @@ export default function Index() {
           </div>
           {loaderData.userIsPrivileged && (
             <div className="absolute bottom-6 right-6">
-              <Form
-                method="post"
-                encType="multipart/form-data"
-                className="flex items-center"
-                reloadDocument
+              <label
+                htmlFor="modal-background-upload"
+                className="btn btn-primary modal-button"
               >
-                <InputImage
-                  id="background"
-                  name="background"
-                  maxSize={5 * 1024 * 1024} // 5 MB
-                  minWidth={1488} // 1488 px
-                  minHeight={480} // 480 px
-                  maxWidth={1920} // 1920 px
-                  maxHeight={1080} // 1080 px
-                  classes="opacity-0 w-0 h-0"
-                  containerRef={backgroundContainer}
-                  containerClassName="w-full h-full"
-                  imageClassName="object-cover w-full h-full"
-                />
-              </Form>
+                Bild ändern
+              </label>
+
+              <Modal id="modal-background-upload">
+                <ImageCropper
+                  headline="Hintergrundbild"
+                  subject="organisation"
+                  id="modal-background-upload"
+                  uploadKey="background"
+                  image={background}
+                  aspect={31 / 10}
+                  minWidth={620}
+                  minHeight={62}
+                  slug={loaderData.organization.slug}
+                  csrfToken={"034u9nsq0unun"}
+                  redirect={uploadRedirect}
+                >
+                  <Background />
+                </ImageCropper>
+              </Modal>
             </div>
           )}
         </div>
@@ -375,44 +388,45 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
-                <div
-                  ref={logoContainer}
-                  className={`h-36 flex items-center justify-center rounded-md overflow-hidden ${
-                    logo ? "w-full" : "w-36 bg-primary text-white text-6xl"
-                  }`}
-                >
-                  {logo ? (
-                    <img
-                      src={logo}
-                      alt={loaderData.organization.name || ""}
-                      className="max-w-full w-auto max-h-36 h-auto"
-                    />
-                  ) : (
-                    initialsOfOrganization
-                  )}
-                </div>
                 {loaderData.userIsPrivileged && (
-                  <Form
-                    method="post"
-                    encType="multipart/form-data"
-                    className="flex items-center mt-4"
-                    reloadDocument
-                  >
-                    <InputImage
-                      id="logo"
-                      name="logo"
-                      maxSize={2 * 1024 * 1024} // 2 MB
-                      minWidth={144} // 144 px
-                      minHeight={144} // 144 px
-                      maxWidth={500} // 500 px
-                      maxHeight={500} // 500 px
-                      classes="opacity-0 w-0 h-0"
-                      containerRef={logoContainer}
-                      containerClassName="h-36 w-full flex items-center justify-center"
-                      imageClassName="max-w-full w-auto max-h-36 h-auto"
-                    />
-                  </Form>
+                  <>
+                    <Avatar />
+                    <label
+                      htmlFor="modal-avatar"
+                      className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                    >
+                      <svg
+                        width="17"
+                        height="16"
+                        viewBox="0 0 17 16"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="fill-neutral-600"
+                      >
+                        <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                      </svg>
+                      <span className="ml-2 mr-4">Logo ändern</span>
+                    </label>
+
+                    <Modal id="modal-avatar">
+                      <ImageCropper
+                        id="modal-avatar"
+                        subject="organisation"
+                        slug={loaderData.organization.slug}
+                        uploadKey="logo"
+                        headline="Logo"
+                        image={logo}
+                        aspect={1}
+                        minWidth={100}
+                        minHeight={100}
+                        csrfToken={"034u9nsq0unun"}
+                        redirect={uploadRedirect}
+                      >
+                        <Avatar />
+                      </ImageCropper>
+                    </Modal>
+                  </>
                 )}
+
                 <h3 className="mt-6 text-5xl mb-1">
                   {loaderData.organization.name || ""}
                 </h3>
@@ -509,8 +523,8 @@ export default function Index() {
                 loaderData.organization.street !== "" && (
                   <>
                     <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
-                    <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600">
-                      <span className="icon w-6 mr-4 mt-0.5 flex justify-center">
+                    <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
+                      <span className="icon w-6 mr-4">
                         <svg
                           width="12"
                           height="20"

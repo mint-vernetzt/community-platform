@@ -1,12 +1,12 @@
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { getOrganizationBySlug } from "~/organization.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString, stream2buffer } from "~/utils.server";
-
-const UPLOAD_TYPES: Readonly<String[]> = ["avatar", "background"];
+import { UploadKey, Subject, uploadKeys } from "./schema";
 
 const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
 function getExtensionFromFilename(filename: string) {
@@ -20,8 +20,7 @@ function generatePathName(filename: string, hash: string, name: string) {
 }
 
 const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
-  // Don't process stream
-  if (!UPLOAD_TYPES.includes(name)) {
+  if (!uploadKeys.includes(name)) {
     stream.resume();
     return;
   }
@@ -30,33 +29,56 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
   const { data, error } = await persistUpload(path, buffer);
+
   validatePersistence(error, data, path);
 
   return path;
 };
 
-export const upload = async (request: Request) => {
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
-
-  const name = ["avatar", "background"].filter((name) => formData.has(name))[0];
-  const path = formData.get(name);
-
-  const sessionUser = await getUserByRequest(request);
-  if (name !== undefined && path !== null && sessionUser !== null) {
-    await prismaClient.profile.update({
-      where: {
-        id: sessionUser.id,
-      },
-      data: {
-        [name]: path,
-      },
+async function persistUpload(path: string, buffer: Buffer) {
+  return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+    .from("images")
+    .upload(path, buffer, {
+      upsert: true,
     });
-  }
+}
 
-  return formData;
+export async function updateUserProfileImage(
+  id: string,
+  name: string,
+  path: string
+) {
+  return await prismaClient.profile.update({
+    where: {
+      id,
+    },
+    data: {
+      [name]: path,
+    },
+  });
+}
+
+export async function updateOrganizationProfileImage(
+  slug: string,
+  name: string,
+  path: string
+) {
+  return await prismaClient.organization.update({
+    where: {
+      slug: slug,
+    },
+    data: {
+      [name]: path,
+    },
+  });
+}
+
+export const upload = async (request: Request) => {
+  try {
+    return await unstable_parseMultipartFormData(request, uploadHandler);
+  } catch (exception) {
+    throw serverError({ message: "Something went wrong on upload." });
+  }
 };
 
 function validatePersistence(error: any, data: any, path: string) {
@@ -69,12 +91,4 @@ function validatePersistence(error: any, data: any, path: string) {
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });
   }
-}
-
-async function persistUpload(path: string, buffer: Buffer) {
-  return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from("images")
-    .upload(path, buffer, {
-      upsert: true,
-    });
 }

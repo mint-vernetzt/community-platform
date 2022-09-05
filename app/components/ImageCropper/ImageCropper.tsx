@@ -1,4 +1,4 @@
-import React, { useState, useRef, FormEvent } from "react";
+import React, { useState, useRef } from "react";
 
 import ReactCrop, {
   centerCrop,
@@ -11,23 +11,22 @@ import { Form } from "remix-forms";
 import { canvasPreview } from "./canvasPreview";
 import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
-import { schema as deleteSchema } from "~/routes/profile/$username/image/delete";
-import { useSubmit } from "remix";
+import { schema, UploadKey, Subject } from "~/routes/upload/schema";
 
 export interface ImageCropperProps {
-  csrfToken: string;
-  username: string;
   id: string;
   headline: string;
-  uploadUrl: string;
-  deleteUrl: string;
-  uploadKey: "avatar" | "background";
+  subject: Subject;
+  slug?: string;
+  uploadKey: UploadKey;
   aspect?: number;
   image?: string;
   minHeight: number;
   minWidth: number;
-  initials: string;
+  redirect?: string;
   handleCancel?: () => void;
+  children: React.ReactNode;
+  csrfToken: string;
 }
 
 /**
@@ -60,6 +59,8 @@ function centerAspectCrop(
 const IMAGE_QUALITY = 1.0;
 const IMAGE_MIME = "image/jpeg";
 const DEFAULT_ASPECT = 16 / 9;
+const UPLOAD_URL = "/upload/image";
+const DELETE_URL = "/upload/delete";
 
 function ImageCropper(props: ImageCropperProps) {
   const [imgSrc, setImgSrc] = useState("");
@@ -71,8 +72,7 @@ function ImageCropper(props: ImageCropperProps) {
   const [scale, setScale] = useState(1.0);
   const aspect = props.aspect ?? DEFAULT_ASPECT;
 
-  const { id, headline, uploadUrl, image, minWidth, minHeight, handleCancel } =
-    props;
+  const { id, headline, image, minWidth, minHeight, handleCancel } = props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -100,7 +100,6 @@ function ImageCropper(props: ImageCropperProps) {
         imgRef.current &&
         previewCanvasRef.current
       ) {
-        // We use canvasPreview as it's much faster than imgPreview.
         canvasPreview(
           imgRef.current,
           previewCanvasRef.current,
@@ -124,7 +123,19 @@ function ImageCropper(props: ImageCropperProps) {
         (blob) => {
           const formData = new FormData();
           formData.append(props.uploadKey, blob ?? "");
-          fetch(uploadUrl, { method: "POST", body: formData })
+          formData.append("subject", props.subject);
+          formData.append("uploadKey", props.uploadKey);
+          formData.append("csrf", props.csrfToken);
+
+          if (props.redirect) {
+            formData.append("redirect", props.redirect);
+          }
+
+          if (props.slug) {
+            formData.append("slug", props.slug);
+          }
+
+          fetch(UPLOAD_URL, { method: "POST", body: formData })
             .then((response) => {
               if (response.ok) {
                 return response;
@@ -163,25 +174,7 @@ function ImageCropper(props: ImageCropperProps) {
     <div className="flex flex-col items-center">
       <h2 className="text-center font-bolder">{headline}</h2>
       <div>
-        {!imgSrc && props.uploadKey === "avatar" && (
-          <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-            {image ? (
-              <img src={image} alt={`Aktuelles ${headline}`} />
-            ) : (
-              props.initials
-            )}
-          </div>
-        )}
-
-        {!imgSrc && props.uploadKey === "background" && (
-          <div className="h-36 bg-yellow-500 text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
-            {image ? (
-              <img src={image} alt={`Aktuelles ${headline}`} />
-            ) : (
-              <div className="w-[400px]" />
-            )}
-          </div>
-        )}
+        {!imgSrc && props.children}
 
         {Boolean(imgSrc) && (
           <ReactCrop
@@ -195,7 +188,7 @@ function ImageCropper(props: ImageCropperProps) {
           >
             <img
               ref={imgRef}
-              alt="Crop me"
+              alt="Crop Preview"
               src={imgSrc}
               style={{ transform: `scale(${scale})` }}
               onLoad={onImageLoad}
@@ -243,22 +236,26 @@ function ImageCropper(props: ImageCropperProps) {
 
         {image && !completedCrop && (
           <Form
-            action={props.deleteUrl}
+            action={DELETE_URL}
             method="post"
             reloadDocument
-            schema={deleteSchema}
-            hiddenFields={["username", "uploadKey", "csrf"]}
+            schema={schema}
+            hiddenFields={["subject", "slug", "uploadKey", "csrf", "redirect"]}
             values={{
-              username: props.username,
+              subject: props.subject,
+              slug: props.slug,
               uploadKey: props.uploadKey,
               csrf: props.csrfToken,
+              redirect: props.redirect,
             }}
           >
             {({ Field }) => (
               <>
-                <Field name="username" />
+                <Field name="subject" />
+                <Field name="slug" />
                 <Field name="csrf" />
                 <Field name="uploadKey" />
+                <Field name="redirect" />
                 <button
                   className="btn btn-link"
                   type="submit"
