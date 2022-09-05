@@ -19,6 +19,15 @@ export async function getProfileByUsername(username: string) {
     teamMemberOfEvents: {
       select: { event: { select: { name: true, slug: true } } },
     },
+    participatedEvents: {
+      select: { event: { select: { name: true, slug: true } } },
+    },
+    contributedEvents: {
+      select: { event: { select: { name: true, slug: true } } },
+    },
+    waitingForEvents: {
+      select: { event: { select: { name: true, slug: true } } },
+    },
     memberOf: {
       select: {
         organization: {
