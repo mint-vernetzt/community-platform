@@ -30,6 +30,7 @@ import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
+import { getEventById } from "../utils.server";
 
 type ProfileLoaderData = {
   mode: Mode;
@@ -137,12 +138,66 @@ export const loader: LoaderFunction = async (
       // @ts-ignore <-- Partials allow undefined, Profile not
       data[key] = profile[key];
     }
-    // Only show published events
     if (eventRelationKeys.includes(key)) {
-      // @ts-ignore
-      data[key] = profile[key].filter((item) => {
-        return item.event.published;
-      });
+      if (key === "waitingForEvents" || key === "teamMemberOfEvents") {
+        // Only show published events
+        // @ts-ignore
+        data[key] = profile[key]
+          .filter((item) => {
+            return item.event.published;
+          })
+          .sort((a, b) => {
+            if (a.event !== null && b.event !== null) {
+              return a.event?.name.localeCompare(b.event?.name);
+            } else {
+              return 0;
+            }
+          });
+      } else {
+        let rootEvents: { event: Awaited<ReturnType<typeof getEventById>> }[] =
+          [];
+        // Only show root events
+        await Promise.all(
+          // @ts-ignore
+          profile[key].map(async (item) => {
+            let rootItem: { event: Awaited<ReturnType<typeof getEventById>> } =
+              {
+                event: item.event,
+              };
+
+            while (
+              rootItem.event !== null &&
+              rootItem.event.parentEventId !== null
+            ) {
+              rootItem.event = await getEventById(rootItem.event.parentEventId);
+            }
+            if (
+              !rootEvents.some((item) => {
+                if (item.event !== null && rootItem.event !== null) {
+                  return item.event.slug === rootItem.event.slug;
+                } else {
+                  return false;
+                }
+              })
+            ) {
+              rootEvents.push(rootItem);
+            }
+          })
+        );
+        // Only show published events
+        // @ts-ignore
+        data[key] = rootEvents
+          .filter((item) => {
+            return item.event !== null && item.event.published;
+          })
+          .sort((a, b) => {
+            if (a.event !== null && b.event !== null) {
+              return a.event?.name.localeCompare(b.event?.name);
+            } else {
+              return 0;
+            }
+          });
+      }
     }
   }
 
@@ -649,36 +704,6 @@ export default function Index() {
                       </div>
                     )}
                   </div>
-                  {loaderData.data.teamMemberOfEvents &&
-                    loaderData.data.teamMemberOfEvents.length > 0 && (
-                      <>
-                        <h6 className="mb-2 font-bold">Teammitglied bei:</h6>
-                        <div className="flex flex-wrap -mx-3 items-stretch">
-                          {loaderData.data.teamMemberOfEvents.map(
-                            ({ event }, index) => (
-                              <div
-                                key={`profile-${index}`}
-                                data-testid="gridcell"
-                                className="flex-100 lg:flex-1/2 px-3 mb-8"
-                              >
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                                >
-                                  <div className="w-full flex items-center flex-row">
-                                    <div className="pl-4">
-                                      <H3 like="h4" className="text-xl mb-1">
-                                        {event.name}
-                                      </H3>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
                   {loaderData.data.participatedEvents &&
                     loaderData.data.participatedEvents.length > 0 && (
                       <>
@@ -747,6 +772,36 @@ export default function Index() {
                         </h6>
                         <div className="flex flex-wrap -mx-3 items-stretch">
                           {loaderData.data.waitingForEvents.map(
+                            ({ event }, index) => (
+                              <div
+                                key={`profile-${index}`}
+                                data-testid="gridcell"
+                                className="flex-100 lg:flex-1/2 px-3 mb-8"
+                              >
+                                <Link
+                                  to={`/event/${event.slug}`}
+                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                                >
+                                  <div className="w-full flex items-center flex-row">
+                                    <div className="pl-4">
+                                      <H3 like="h4" className="text-xl mb-1">
+                                        {event.name}
+                                      </H3>
+                                    </div>
+                                  </div>
+                                </Link>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </>
+                    )}
+                  {loaderData.data.teamMemberOfEvents &&
+                    loaderData.data.teamMemberOfEvents.length > 0 && (
+                      <>
+                        <h6 className="mb-2 font-bold">Teammitglied bei:</h6>
+                        <div className="flex flex-wrap -mx-3 items-stretch">
+                          {loaderData.data.teamMemberOfEvents.map(
                             ({ event }, index) => (
                               <div
                                 key={`profile-${index}`}
