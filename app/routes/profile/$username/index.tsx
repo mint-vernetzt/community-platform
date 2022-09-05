@@ -30,7 +30,7 @@ import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
-import { getEventById } from "../utils.server";
+import { getEventById } from "./utils.server";
 
 type ProfileLoaderData = {
   mode: Mode;
