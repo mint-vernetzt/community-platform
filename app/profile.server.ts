@@ -17,16 +17,32 @@ export async function getProfileByUsername(username: string) {
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
     teamMemberOfEvents: {
-      select: { event: { select: { name: true, slug: true } } },
+      select: {
+        event: {
+          select: { name: true, slug: true, published: true },
+        },
+      },
     },
     participatedEvents: {
-      select: { event: { select: { name: true, slug: true } } },
+      select: {
+        event: {
+          select: { name: true, slug: true, published: true },
+        },
+      },
     },
     contributedEvents: {
-      select: { event: { select: { name: true, slug: true } } },
+      select: {
+        event: {
+          select: { name: true, slug: true, published: true },
+        },
+      },
     },
     waitingForEvents: {
-      select: { event: { select: { name: true, slug: true } } },
+      select: {
+        event: {
+          select: { name: true, slug: true, published: true },
+        },
+      },
     },
     memberOf: {
       select: {

@@ -120,13 +120,29 @@ export const loader: LoaderFunction = async (
     ...profile.publicFields,
   ];
 
+  const eventRelationKeys = [
+    "teamMemberOfEvents",
+    "participatedEvents",
+    "contributedEvents",
+    "waitingForEvents",
+  ];
+
+  // TODO: Type issues, rework public fields
   let data: Partial<
     NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>
   > = {};
   for (const key in profile) {
+    // Only show public fields if user is anon
     if (mode !== "anon" || publicFields.includes(key)) {
       // @ts-ignore <-- Partials allow undefined, Profile not
       data[key] = profile[key];
+    }
+    // Only show published events
+    if (eventRelationKeys.includes(key)) {
+      // @ts-ignore
+      data[key] = profile[key].filter((item) => {
+        return item.event.published;
+      });
     }
   }
 
