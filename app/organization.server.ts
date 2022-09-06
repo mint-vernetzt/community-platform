@@ -143,6 +143,18 @@ export async function getOrganizationBySlug(slug: string) {
           },
         },
       },
+      responsibleForEvents: {
+        select: {
+          event: {
+            select: {
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+            },
+          },
+        },
+      },
     },
   });
 

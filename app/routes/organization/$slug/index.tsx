@@ -17,6 +17,7 @@ import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIco
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
+import { getEventById } from "~/event.server";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -148,6 +149,7 @@ export const loader: LoaderFunction = async (args) => {
       "networkMembers",
       "createdAt",
       "areas",
+      "responsibleForEvents",
       ...unfilteredOrganization.publicFields,
     ];
     for (key in unfilteredOrganization) {
@@ -162,6 +164,48 @@ export const loader: LoaderFunction = async (args) => {
     userIsPrivileged = unfilteredOrganization.teamMembers.some(
       (member) => member.profileId === currentUser.id && member.isPrivileged
     );
+  }
+  // Only show root events
+  if (organization.responsibleForEvents !== undefined) {
+    let rootEvents: { event: Awaited<ReturnType<typeof getEventById>> }[] = [];
+    await Promise.all(
+      organization.responsibleForEvents.map(async (item) => {
+        let rootItem: { event: Awaited<ReturnType<typeof getEventById>> } = {
+          event: item.event,
+        };
+
+        while (
+          rootItem.event !== null &&
+          rootItem.event.parentEventId !== null
+        ) {
+          rootItem.event = await getEventById(rootItem.event.parentEventId);
+        }
+        if (
+          !rootEvents.some((item) => {
+            if (item.event !== null && rootItem.event !== null) {
+              return item.event.slug === rootItem.event.slug;
+            } else {
+              return false;
+            }
+          })
+        ) {
+          rootEvents.push(rootItem);
+        }
+      })
+    );
+    // Only show published events
+    //@ts-ignore
+    organization.responsibleForEvents = rootEvents
+      .filter((item) => {
+        return item.event !== null && item.event.published;
+      })
+      .sort((a, b) => {
+        if (a.event !== null && b.event !== null) {
+          return a.event.name.localeCompare(b.event.name);
+        } else {
+          return 0;
+        }
+      });
   }
 
   return {
