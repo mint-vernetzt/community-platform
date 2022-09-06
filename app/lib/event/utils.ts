@@ -37,22 +37,26 @@ export async function getRootEvents(
   return rootEvents;
 }
 
-export function getPublishedAndSortedEvents(
+export function filterPublishedEvents(
   events: {
     event: Pick<Event, "parentEventId" | "name" | "slug" | "published">;
   }[]
 ) {
-  let publishedAndSortedEvents = events
-    .filter((item) => {
-      return item.event !== null && item.event.published;
-    })
-    .sort((a, b) => {
-      if (a.event !== null && b.event !== null) {
-        return a.event.name.localeCompare(b.event.name);
-      } else {
-        return 0;
-      }
-    });
+  let publishedEvents = events.filter((item) => {
+    return item.event.published;
+  });
 
-  return publishedAndSortedEvents;
+  return publishedEvents;
+}
+
+export function sortEventsAlphabetically(
+  events: {
+    event: Pick<Event, "parentEventId" | "name" | "slug" | "published">;
+  }[]
+) {
+  let sortedEvents = events.sort((a, b) => {
+    return a.event.name.localeCompare(b.event.name);
+  });
+
+  return sortedEvents;
 }
