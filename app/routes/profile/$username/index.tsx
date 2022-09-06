@@ -148,7 +148,7 @@ export const loader: LoaderFunction = async (
           })
           .sort((a, b) => {
             if (a.event !== null && b.event !== null) {
-              return a.event?.name.localeCompare(b.event?.name);
+              return a.event.name.localeCompare(b.event.name);
             } else {
               return 0;
             }
