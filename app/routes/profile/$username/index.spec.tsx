@@ -1,7 +1,8 @@
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
-import { deriveMode, loader } from "./index";
+import { loader } from "./index";
+import { deriveMode } from "./utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore

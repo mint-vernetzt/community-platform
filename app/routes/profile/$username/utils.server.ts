@@ -1,7 +1,26 @@
 import { Profile } from "@prisma/client";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import {
+  filterPublishedEvents,
+  getRootEvents,
+  sortEventsAlphabetically,
+} from "~/lib/event/utils";
 import { prismaClient } from "~/prisma";
+import { getProfileByUsername } from "~/profile.server";
+
+export type Mode = "anon" | "authenticated" | "owner";
+
+export function deriveMode(
+  profileUsername: string,
+  sessionUsername: string
+): Mode {
+  if (sessionUsername === "" || sessionUsername === undefined) {
+    return "anon";
+  }
+
+  return profileUsername === sessionUsername ? "owner" : "authenticated";
+}
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
@@ -91,4 +110,70 @@ export async function updateProfileById(
       },
     },
   });
+}
+
+async function transformEventData(
+  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
+  key: keyof Pick<
+    NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
+    | "teamMemberOfEvents"
+    | "participatedEvents"
+    | "contributedEvents"
+    | "waitingForEvents"
+  >
+) {
+  let transformedEventData;
+  let rootEvents = profile[key];
+
+  if (key !== "waitingForEvents" && key !== "teamMemberOfEvents") {
+    rootEvents = await getRootEvents(profile[key]);
+  }
+  const publishedEvents = filterPublishedEvents(rootEvents);
+  transformedEventData = sortEventsAlphabetically(publishedEvents);
+
+  return transformedEventData;
+}
+
+// TODO: Type issues, rework public fields
+export async function filterProfileByMode(
+  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
+  mode: Mode
+) {
+  let data: Partial<typeof profile> = {};
+
+  const publicFields = [
+    "id",
+    "username",
+    "firstName",
+    "lastName",
+    "academicTitle",
+    "areas",
+    "avatar",
+    "background",
+    "memberOf",
+    ...profile.publicFields,
+  ];
+
+  const eventRelationKeys = [
+    "teamMemberOfEvents",
+    "participatedEvents",
+    "contributedEvents",
+    "waitingForEvents",
+  ];
+
+  for (const key in profile) {
+    // Only show public fields if user is anon, show all fields if user is not anon
+    if (mode !== "anon" || publicFields.includes(key)) {
+      // Event relations must be transformed
+      if (eventRelationKeys.includes(key)) {
+        // TODO: Type issue
+        // @ts-ignore
+        data[key] = await transformEventData(profile, key);
+      } else {
+        // @ts-ignore <-- Partials allow undefined, Profile not
+        data[key] = profile[key];
+      }
+    }
+  }
+  return data;
 }

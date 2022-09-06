@@ -40,7 +40,7 @@ import {
   getWholeProfileFromId,
   handleAuthorization,
   updateProfileById,
-} from "./utils.server";
+} from "../utils.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
