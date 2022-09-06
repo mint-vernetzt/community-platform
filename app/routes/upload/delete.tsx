@@ -2,7 +2,6 @@ import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { serverError } from "remix-utils";
-import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import {
