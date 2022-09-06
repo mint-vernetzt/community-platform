@@ -20,7 +20,11 @@ import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
-import { getPublishedAndSortedEvents, getRootEvents } from "~/lib/event/utils";
+import {
+  filterPublishedEvents,
+  getRootEvents,
+  sortEventsAlphabetically,
+} from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
@@ -138,17 +142,16 @@ export const loader: LoaderFunction = async (
       // Event relations must be transformed
       if (eventRelationKeys.includes(key)) {
         if (key === "waitingForEvents" || key === "teamMemberOfEvents") {
-          // Only show published events
-          data[key] = getPublishedAndSortedEvents(profile[key]);
+          const publishedEvents = filterPublishedEvents(profile[key]);
+          data[key] = sortEventsAlphabetically(publishedEvents);
         } else {
-          // Only show root events
           // TODO: Type issue
           // @ts-ignore
           const rootEvents = await getRootEvents(profile[key]);
-          // Only show published events
+          const publishedEvents = filterPublishedEvents(rootEvents);
           // TODO: Type issue
           // @ts-ignore
-          data[key] = getPublishedAndSortedEvents(rootEvents);
+          data[key] = sortEventsAlphabetically(publishedEvents);
         }
       } else {
         // @ts-ignore <-- Partials allow undefined, Profile not
