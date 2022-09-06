@@ -53,10 +53,10 @@ export const action: ActionFunction = async ({ request }) => {
 
   handleAuth(profileId, subject, slug);
 
-  const formDataUploadKey = formData.get("uploadKey") as string;
+  const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
   const path = formData.get(name) as string;
-  console.table({ name, path, profileId, subject });
+
   if (name !== undefined && path !== null && profileId !== null) {
     if (subject === "user") {
       await updateUserProfileImage(profileId, name, path);
