@@ -19,6 +19,7 @@ import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIco
 import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
+import { getEventById } from "~/event.server";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -30,7 +31,6 @@ import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
-import { getEventById } from "./utils.server";
 
 type ProfileLoaderData = {
   mode: Mode;
