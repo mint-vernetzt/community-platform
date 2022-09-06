@@ -33,7 +33,9 @@ import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 
 type LoaderData = {
-  organization: Partial<OrganizationWithRelations>;
+  organization: Partial<
+    NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
+  >;
   userIsPrivileged: boolean;
   images: {
     logo?: string;
@@ -53,7 +55,9 @@ export const loader: LoaderFunction = async (args) => {
   if (unfilteredOrganization === null) {
     throw notFound({ message: "Not found" });
   }
-  let organization: Partial<OrganizationWithRelations> = {};
+  let organization: Partial<
+    NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
+  > = {};
   let userIsPrivileged;
 
   let images: {
@@ -124,7 +128,9 @@ export const loader: LoaderFunction = async (args) => {
   );
 
   if (currentUser === null) {
-    let key: keyof Partial<OrganizationWithRelations>;
+    let key: keyof Partial<
+      NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
+    >;
     const publicFields = [
       "name",
       "slug",

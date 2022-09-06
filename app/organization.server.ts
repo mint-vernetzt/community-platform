@@ -146,7 +146,7 @@ export async function getOrganizationBySlug(slug: string) {
     },
   });
 
-  return organization as OrganizationWithRelations | null;
+  return organization;
 }
 
 export async function getOrganizationMembersBySlug(slug: string) {
