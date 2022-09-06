@@ -1,12 +1,10 @@
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
-import { getOrganizationBySlug } from "~/organization.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 import { supabaseAdmin } from "~/supabase";
 import { createHashFromString, stream2buffer } from "~/utils.server";
-import { UploadKey, Subject, uploadKeys } from "./schema";
+import { uploadKeys } from "./schema";
 
 const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
 function getExtensionFromFilename(filename: string) {
