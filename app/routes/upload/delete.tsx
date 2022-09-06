@@ -9,11 +9,7 @@ import {
   removeImageFromOrganitaion,
   removeImageFromProfile,
 } from "./delete.server";
-import { schema } from "./schema";
-
-const environment = z.object({
-  profileId: z.string().min(1),
-});
+import { environment, schema } from "./schema";
 
 const mutation = makeDomainFunction(
   schema,
