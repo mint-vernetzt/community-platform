@@ -23,7 +23,6 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -140,7 +139,6 @@ export const loader: LoaderFunction = async (
     "avatar",
     "background",
     "memberOf",
-    "teamMemberOfEvents",
     ...profile.publicFields,
   ];
 
@@ -152,7 +150,7 @@ export const loader: LoaderFunction = async (
     }
   }
 
-  return json({ mode, data, images });
+  return json({ mode, data, images, abilities });
 };
 
 function hasContactInformations(data: Partial<Profile>) {
