@@ -388,9 +388,9 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
               <div className="flex items-center flex-col">
+                <Avatar />
                 {loaderData.userIsPrivileged && (
                   <>
-                    <Avatar />
                     <label
                       htmlFor="modal-avatar"
                       className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
@@ -406,7 +406,6 @@ export default function Index() {
                       </svg>
                       <span className="ml-2 mr-4">Logo ändern</span>
                     </label>
-
                     <Modal id="modal-avatar">
                       <ImageCropper
                         id="modal-avatar"
