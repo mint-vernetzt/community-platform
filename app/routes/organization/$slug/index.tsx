@@ -415,7 +415,7 @@ export default function Index() {
                         uploadKey="logo"
                         headline="Logo"
                         image={logo}
-                        aspect={1}
+                        aspect={null}
                         minWidth={100}
                         minHeight={100}
                         csrfToken={"034u9nsq0unun"}
