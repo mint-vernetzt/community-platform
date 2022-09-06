@@ -147,6 +147,12 @@ function ImageCropper(props: ImageCropperProps) {
             })
             .then((response) => {
               setIsSaving(false);
+              const $modalToggle = document.getElementById(
+                props.id
+              ) as HTMLInputElement | null;
+              if ($modalToggle) {
+                $modalToggle.checked = false;
+              }
               document.location.reload();
             })
             .catch((err) => {
@@ -182,7 +188,7 @@ function ImageCropper(props: ImageCropperProps) {
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
             onComplete={(c) => setCompletedCrop(c)}
-            aspect={aspect}
+            aspect={aspect ?? undefined}
             minWidth={minWidth}
             minHeight={minHeight}
             style={{ maxHeight: "288px" }}
