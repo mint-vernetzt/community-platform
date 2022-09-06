@@ -1,6 +1,7 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
+import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 
 type Mode = "anon" | "authenticated" | "owner";
@@ -198,5 +199,62 @@ export async function checkSameEventOrThrow(request: Request, eventId: string) {
 
   if (value === null || value !== eventId) {
     throw badRequest({ message: "Event IDs differ" });
+  }
+}
+
+async function getEventWithChildEventsById(id: string) {
+  const result = prismaClient.event.findFirst({
+    where: { id },
+    include: {
+      childEvents: {
+        include: {
+          participants: true,
+          speakers: true,
+          responsibleOrganizations: true,
+        },
+      },
+    },
+  });
+  return result;
+}
+
+export async function getFullDepthRelations(
+  event: Pick<
+    Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+    "speakers" | "participants" | "responsibleOrganizations" | "id"
+  >,
+  fullDepthRelationKeys: Array<
+    keyof Pick<
+      typeof event,
+      "speakers" | "participants" | "responsibleOrganizations"
+    >
+  >
+) {
+  let fullDepthRelations = {};
+  fullDepthRelationKeys.map((key) => {
+    // TODO: Fix type issue
+    // @ts-ignore
+    fullDepthRelations[key] = event[key];
+    return null;
+  });
+
+  // TODO: recursive function
+
+  const eventWithChilds = await getEventWithChildEventsById(event.id);
+
+  while (eventWithChilds !== null && eventWithChilds.childEvents.length !== 0) {
+    for (let childEvent of eventWithChilds.childEvents) {
+      fullDepthRelationKeys.map((key) => {
+        // TODO: Fix type issue
+        // @ts-ignore
+        fullDepthRelations[key] = [
+          // TODO: Fix type issue
+          // @ts-ignore
+          ...fullDepthRelations[key],
+          ...childEvent[key],
+        ];
+        return null;
+      });
+    }
   }
 }
