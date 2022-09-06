@@ -19,7 +19,7 @@ export interface ImageCropperProps {
   subject: Subject;
   slug?: string;
   uploadKey: UploadKey;
-  aspect?: number;
+  aspect?: number | null;
   image?: string;
   minHeight: number;
   minWidth: number;
@@ -70,18 +70,20 @@ function ImageCropper(props: ImageCropperProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1.0);
-  const aspect = props.aspect ?? DEFAULT_ASPECT;
+  const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
   const { id, headline, image, minWidth, minHeight, handleCancel } = props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      console.log(file.size);
       setCrop(undefined); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener("load", () =>
         setImgSrc(reader.result?.toString() || "")
       );
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   }
 
