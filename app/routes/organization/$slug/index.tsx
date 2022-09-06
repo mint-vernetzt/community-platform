@@ -23,6 +23,7 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import {
   getOrganizationBySlug,
   getOrganizationMembersBySlug,
@@ -42,6 +43,7 @@ type LoaderData = {
     logo?: string;
     background?: string;
   };
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -51,6 +53,8 @@ export const loader: LoaderFunction = async (args) => {
     throw badRequest({ message: "organization slug must be provided" });
   }
   const currentUser = await getUserByRequest(request);
+
+  const abilities = await getFeatureAbilities(request, "events");
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -212,6 +216,7 @@ export const loader: LoaderFunction = async (args) => {
     organization,
     userIsPrivileged,
     images,
+    abilities,
   };
 };
 
@@ -840,6 +845,44 @@ export default function Index() {
                   </div>
                 </>
               )}
+            {loaderData.abilities.events.hasAccess === true && (
+              <>
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
+                      Organisierte Veranstaltungen
+                    </h3>
+                  </div>
+                </div>
+                {loaderData.organization.responsibleForEvents &&
+                  loaderData.organization.responsibleForEvents.length > 0 && (
+                    <div className="flex flex-wrap -mx-3 items-stretch">
+                      {loaderData.organization.responsibleForEvents.map(
+                        ({ event }, index) => (
+                          <div
+                            key={`profile-${index}`}
+                            data-testid="gridcell"
+                            className="flex-100 lg:flex-1/2 px-3 mb-8"
+                          >
+                            <Link
+                              to={`/event/${event.slug}`}
+                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                            >
+                              <div className="w-full flex items-center flex-row">
+                                <div className="pl-4">
+                                  <H3 like="h4" className="text-xl mb-1">
+                                    {event.name}
+                                  </H3>
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+              </>
+            )}
           </div>
         </div>
       </div>
