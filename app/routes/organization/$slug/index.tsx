@@ -61,6 +61,7 @@ export const loader: LoaderFunction = async (args) => {
   }
   if (unfilteredOrganization.background) {
     const publicURL = getPublicURL(unfilteredOrganization.background);
+    console.log(publicURL);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -154,107 +155,6 @@ export const loader: LoaderFunction = async (args) => {
     userIsPrivileged,
     images,
   };
-};
-
-type ActionData = {
-  images: { logo?: string; background?: string };
-};
-
-export const action: ActionFunction = async (args) => {
-  const { request, params } = args;
-
-  const { slug } = params;
-  if (slug === undefined || slug === "") {
-    throw badRequest({ message: "organization slug must be provided" });
-  }
-  const loggedInUser = await getUserByRequest(request);
-  if (loggedInUser === null) {
-    throw forbidden({ message: "Not allowed" });
-  }
-  const organization = await getOrganizationMembersBySlug(slug);
-  if (organization === null) {
-    throw notFound({ message: "Not found" });
-  }
-  if (
-    !organization.teamMembers.some(
-      (member) => member.profileId === loggedInUser.id && member.isPrivileged
-    )
-  ) {
-    throw forbidden({ message: "Not allowed" });
-  }
-
-  const uploadHandler: UploadHandler = async (params) => {
-    const { name, stream, filename } = params;
-
-    // Don't process stream
-    if (name !== "logo" && name !== "background") {
-      stream.resume();
-      return;
-    }
-
-    // Buffer stuff
-    const chunks = [];
-    for await (let chunk of stream) {
-      chunks.push(chunk);
-    }
-    const buffer = Buffer.concat(chunks);
-
-    const hash = await createHashFromString(buffer.toString());
-    const extension = filename.split(".")[filename.split(".").length - 1];
-    const path = `${hash.substring(0, 2)}/${hash.substring(
-      2
-    )}/${name}.${extension}`;
-
-    const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-      .from("images")
-      .upload(path, buffer, {
-        upsert: true,
-      });
-
-    if (error || data === null) {
-      console.error(error);
-      throw serverError({ message: "Upload failed!" });
-    }
-
-    await prismaClient.organization.update({
-      where: {
-        slug: slug,
-      },
-      data: {
-        [name]: path,
-      },
-    });
-
-    const publicURL = getPublicURL(path);
-
-    if (publicURL === null) {
-      throw serverError({ message: "Can't access public url of image!" });
-    }
-
-    return publicURL;
-  };
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
-
-  let images: { logo?: string; background?: string } = {};
-
-  const logoPublicURL = formData.get("logo");
-  if (logoPublicURL && typeof logoPublicURL === "string") {
-    images.logo = getImageURL(logoPublicURL, {
-      resize: { type: "fill", width: 144, height: 144 },
-    });
-  }
-  const backgroundPublicURL = formData.get("background");
-  if (backgroundPublicURL && typeof backgroundPublicURL === "string") {
-    images.background = getImageURL(backgroundPublicURL, {
-      resize: { type: "fit", width: 1488, height: 480 },
-    });
-  }
-
-  return json({ images });
 };
 
 function hasContactInformations(
@@ -415,8 +315,8 @@ export default function Index() {
                         headline="Logo"
                         image={logo}
                         aspect={null}
-                        minWidth={100}
-                        minHeight={100}
+                        minWidth={50}
+                        minHeight={50}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                       >
