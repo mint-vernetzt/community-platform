@@ -18,11 +18,7 @@ import InputImage from "~/components/FormElements/InputImage/InputImage";
 import { H3 } from "~/components/Heading/Heading";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
-import {
-  filterPublishedEvents,
-  sortEventsAlphabetically,
-  getRootEvents,
-} from "~/lib/event/utils";
+import { getRootEvents } from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
@@ -173,11 +169,11 @@ export const loader: LoaderFunction = async (args) => {
       (member) => member.profileId === currentUser.id && member.isPrivileged
     );
   }
+
   if (organization.responsibleForEvents !== undefined) {
-    const rootEvents = await getRootEvents(organization.responsibleForEvents);
-    const publishedEvents = filterPublishedEvents(rootEvents);
-    organization.responsibleForEvents =
-      sortEventsAlphabetically(publishedEvents);
+    organization.responsibleForEvents = await getRootEvents(
+      organization.responsibleForEvents
+    );
   }
 
   return {

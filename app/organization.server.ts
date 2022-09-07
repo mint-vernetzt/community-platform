@@ -147,10 +147,11 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           event: {
             select: {
+              id: true,
               name: true,
               slug: true,
-              published: true,
               parentEventId: true,
+              published: true,
             },
           },
         },
