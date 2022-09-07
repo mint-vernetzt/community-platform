@@ -20,6 +20,7 @@ export async function getProfileByUsername(username: string) {
       select: {
         event: {
           select: {
+            id: true,
             name: true,
             slug: true,
             published: true,
@@ -32,6 +33,7 @@ export async function getProfileByUsername(username: string) {
       select: {
         event: {
           select: {
+            id: true,
             name: true,
             slug: true,
             published: true,
@@ -44,6 +46,7 @@ export async function getProfileByUsername(username: string) {
       select: {
         event: {
           select: {
+            id: true,
             name: true,
             slug: true,
             published: true,
@@ -56,6 +59,7 @@ export async function getProfileByUsername(username: string) {
       select: {
         event: {
           select: {
+            id: true,
             name: true,
             slug: true,
             published: true,

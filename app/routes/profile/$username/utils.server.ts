@@ -122,14 +122,17 @@ async function transformEventData(
     | "waitingForEvents"
   >
 ) {
-  let transformedEventData;
-  let rootEvents = profile[key];
+  let transformedEventData:
+    | Awaited<ReturnType<typeof getRootEvents>>
+    | ReturnType<typeof sortEventsAlphabetically>;
 
-  if (key !== "waitingForEvents" && key !== "teamMemberOfEvents") {
-    rootEvents = await getRootEvents(profile[key]);
+  if (key === "participatedEvents" || key === "contributedEvents") {
+    // Raw query in getRootEvents already filters published events and sorts them alphabetically
+    transformedEventData = await getRootEvents(profile[key]);
+  } else {
+    const publishedEvents = filterPublishedEvents(profile[key]);
+    transformedEventData = sortEventsAlphabetically(publishedEvents);
   }
-  const publishedEvents = filterPublishedEvents(rootEvents);
-  transformedEventData = sortEventsAlphabetically(publishedEvents);
 
   return transformedEventData;
 }
