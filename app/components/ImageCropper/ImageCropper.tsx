@@ -12,6 +12,7 @@ import { canvasPreview } from "./canvasPreview";
 import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { schema, UploadKey, Subject } from "~/routes/upload/schema";
+import Slider from "rc-slider";
 
 export interface ImageCropperProps {
   id: string;
@@ -57,6 +58,7 @@ function centerAspectCrop(
 }
 
 const IMAGE_QUALITY = 1.0;
+const DEFAULT_SCALE = 1.0;
 const IMAGE_MIME = "image/jpeg";
 const DEFAULT_ASPECT = 16 / 9;
 const UPLOAD_URL = "/upload/image";
@@ -69,7 +71,7 @@ function ImageCropper(props: ImageCropperProps) {
   const [crop, setCrop] = useState<Crop>();
   const [isSaving, setIsSaving] = useState(false);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [scale, setScale] = useState(1.0);
+  const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
   const { id, headline, image, minWidth, minHeight, handleCancel } = props;
@@ -222,17 +224,26 @@ function ImageCropper(props: ImageCropperProps) {
           hasImage={image !== undefined}
         />
         {imgSrc && (
-          <div>
+          <div className="flex mb-5">
             <button
               id="scaleUp"
-              className="btn btn-outline btn-primary"
+              className="btn btn-outline btn-primary mr-1"
               onClick={handleScaleClick}
             >
               +
             </button>
+            <div className="w-[250px] p-5">
+              <Slider
+                min={0.1}
+                max={DEFAULT_SCALE * 2}
+                step={0.05}
+                defaultValue={DEFAULT_SCALE}
+                onChange={(v) => setScale(v as number)}
+              />
+            </div>
             <button
               id="scaleDown"
-              className="btn btn-outline btn-primary"
+              className="btn btn-outline btn-primary ml-1"
               onClick={handleScaleClick}
             >
               -

@@ -26,7 +26,14 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 
-import styles from "react-image-crop/dist/ReactCrop.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import rcSliderStyles from "rc-slider/assets/index.css";
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 type OrganizationRelations = {
   types: {
@@ -69,10 +76,6 @@ export function deriveMode(
   }
 
   return profileUsername === sessionUsername ? "owner" : "authenticated";
-}
-
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
 }
 
 export const loader: LoaderFunction = async (
