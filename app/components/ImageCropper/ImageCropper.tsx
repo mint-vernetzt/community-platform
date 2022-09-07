@@ -87,10 +87,9 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    if (aspect) {
-      const { width, height } = e.currentTarget;
-      setCrop(centerAspectCrop(width, height, aspect));
-    }
+    const { width, height } = e.currentTarget;
+    const givenAspectOrFull = aspect ? aspect : width / height;
+    setCrop(centerAspectCrop(width, height, givenAspectOrFull));
   }
 
   useDebounceEffect(
