@@ -22,19 +22,23 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
+  successRedirect: z.string().optional(),
+  failureRedirect: z.string().optional(),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
 
-export const Routes = {
-  SuccessRedirect: "/",
-  FailureRedirect: "/login",
+const defaultRedirect = {
+  successRedirect: "/",
+  failureRedirect: "/login",
 };
 
 type LoaderData = {
   error: Error | null;
+  successRedirect?: string;
+  failureRedirect?: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -57,6 +61,13 @@ export const loader: LoaderFunction = async (args) => {
       });
     }
   }
+  let successRedirect;
+  let failureRedirect;
+  const eventSlug = url.searchParams.get("event_slug");
+  if (eventSlug !== null) {
+    successRedirect = `/event/${eventSlug}`;
+    failureRedirect = `/login?event_slug=${eventSlug}`;
+  }
 
   await supabaseStrategy.checkSession(request, {
     successRedirect: "/explore",
@@ -68,7 +79,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const error = session.get(authenticator.sessionErrorKey);
 
-  return json<LoaderData>({ error });
+  return json<LoaderData>({ error, successRedirect, failureRedirect });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => values);
@@ -84,8 +95,10 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success) {
     await authenticator.authenticate("sb", request, {
-      successRedirect: Routes.SuccessRedirect,
-      failureRedirect: Routes.FailureRedirect,
+      successRedirect:
+        result.data.successRedirect || defaultRedirect.successRedirect,
+      failureRedirect:
+        result.data.failureRedirect || defaultRedirect.failureRedirect,
     });
   }
 
@@ -95,7 +108,15 @@ export const action: ActionFunction = async (args) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   return (
-    <LoginForm method="post" schema={schema}>
+    <LoginForm
+      method="post"
+      schema={schema}
+      hiddenFields={["successRedirect", "failureRedirect"]}
+      values={{
+        successRedirect: loaderData.successRedirect,
+        failureRedirect: loaderData.failureRedirect,
+      }}
+    >
       {({ Field, Button, Errors, register }) => (
         <>
           <PageBackground imagePath="/images/login_background_image.jpg" />
@@ -151,6 +172,8 @@ export default function Index() {
                     )}
                   </Field>
                 </div>
+                <Field name="successRedirect" />
+                <Field name="failureRedirect" />
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
