@@ -36,6 +36,16 @@ function Index() {
     <>
       <div className="mb-4">
         <h1>{loaderData.event.name}</h1>
+        {loaderData.mode === "anon" && (
+          <>
+            <Link
+              className="btn btn-outline btn-primary"
+              to={`/login?event_slug=${loaderData.event.slug}`}
+            >
+              Anmelden um teilzunehmen
+            </Link>
+          </>
+        )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
         <h3>End: {loaderData.event.endTime}</h3>
