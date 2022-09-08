@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import Pica from "pica";
 
 import ReactCrop, {
   centerCrop,
@@ -13,6 +14,7 @@ import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { schema, UploadKey, Subject } from "~/routes/upload/schema";
 import Slider from "rc-slider";
+import { number } from "yup";
 
 export interface ImageCropperProps {
   id: string;
@@ -24,6 +26,8 @@ export interface ImageCropperProps {
   image?: string;
   minHeight: number;
   minWidth: number;
+  targetWidth: number;
+  targetHeight: number;
   redirect?: string;
   handleCancel?: () => void;
   children: React.ReactNode;
@@ -74,7 +78,16 @@ function ImageCropper(props: ImageCropperProps) {
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
-  const { id, headline, image, minWidth, minHeight, handleCancel } = props;
+  const {
+    id,
+    headline,
+    image,
+    minWidth,
+    minHeight,
+    targetWidth,
+    targetHeight,
+    handleCancel,
+  } = props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -93,6 +106,8 @@ function ImageCropper(props: ImageCropperProps) {
     const givenAspectOrFull = aspect ? aspect : width / height;
     setCrop(centerAspectCrop(width, height, givenAspectOrFull));
   }
+
+  // https://stackoverflow.com/questions/18761404/how-to-scale-images-on-a-html5-canvas-with-better-interpolation
 
   useDebounceEffect(
     async () => {
@@ -115,54 +130,77 @@ function ImageCropper(props: ImageCropperProps) {
     [completedCrop, scale]
   );
 
-  function handleSave(e: React.SyntheticEvent<HTMLButtonElement>) {
+  async function scaleDown(canvas: HTMLCanvasElement, width: number) {
+    const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
+    const canvasAspect = canvas.width / canvas.height;
+    const isLandScape = canvas.width > canvas.height;
+    targetCanvas.width = Math.ceil(width * (isLandScape ? 1 : canvasAspect));
+    targetCanvas.height = Math.ceil(width / (!isLandScape ? 1 : canvasAspect));
+
+    const pica = new Pica();
+    return await pica.resize(canvas, targetCanvas);
+  }
+
+  async function handleSave(e: React.SyntheticEvent<HTMLButtonElement>) {
     e.preventDefault();
-    const canvas = previewCanvasRef.current;
-    if (canvas) {
-      setIsSaving(true);
+    let canvas = previewCanvasRef.current;
 
-      canvas.toBlob(
-        (blob) => {
-          const formData = new FormData();
-          formData.append(props.uploadKey, blob ?? "");
-          formData.append("subject", props.subject);
-          formData.append("uploadKey", props.uploadKey);
-          formData.append("csrf", props.csrfToken);
+    try {
+      if (canvas) {
+        setIsSaving(true);
 
-          if (props.redirect) {
-            formData.append("redirect", props.redirect);
-          }
+        if (canvas.width > targetWidth || canvas.height > targetHeight) {
+          canvas = await scaleDown(canvas, targetWidth);
+        }
 
-          if (props.slug) {
-            formData.append("slug", props.slug);
-          }
+        document.body.append(canvas);
 
-          fetch(UPLOAD_URL, { method: "POST", body: formData })
-            .then((response) => {
-              if (response.ok) {
-                return response;
-              } else
-                throw Error(
-                  `Server returned ${response.status}: ${response.statusText}`
-                );
-            })
-            .then((response) => {
-              setIsSaving(false);
-              const $modalToggle = document.getElementById(
-                props.id
-              ) as HTMLInputElement | null;
-              if ($modalToggle) {
-                $modalToggle.checked = false;
-              }
-              document.location.reload();
-            })
-            .catch((err) => {
-              alert(err);
-            });
-        },
-        IMAGE_MIME,
-        IMAGE_QUALITY
-      );
+        canvas.toBlob(
+          (blob) => {
+            const formData = new FormData();
+            formData.append(props.uploadKey, blob ?? "");
+            formData.append("subject", props.subject);
+            formData.append("uploadKey", props.uploadKey);
+            formData.append("csrf", props.csrfToken);
+
+            if (props.redirect) {
+              formData.append("redirect", props.redirect);
+            }
+
+            if (props.slug) {
+              formData.append("slug", props.slug);
+            }
+
+            fetch(UPLOAD_URL, { method: "POST", body: formData })
+              .then((response) => {
+                if (response.ok) {
+                  return response;
+                } else
+                  throw Error(
+                    `Server returned ${response.status}: ${response.statusText}`
+                  );
+              })
+              .then((response) => {
+                setIsSaving(false);
+                const $modalToggle = document.getElementById(
+                  props.id
+                ) as HTMLInputElement | null;
+                if ($modalToggle) {
+                  $modalToggle.checked = false;
+                }
+                document.location.reload();
+              })
+              .catch((err) => {
+                alert(err);
+              });
+          },
+          IMAGE_MIME,
+          IMAGE_QUALITY
+        );
+      }
+    } catch (exception) {
+      alert("Es ist leider ein Fehler aufgetreten.");
+      setIsSaving(false);
     }
   }
 

@@ -66,7 +66,6 @@ export const loader: LoaderFunction = async (args) => {
   }
   if (unfilteredOrganization.background) {
     const publicURL = getPublicURL(unfilteredOrganization.background);
-    console.log(publicURL);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -277,6 +276,8 @@ export default function Index() {
                   aspect={31 / 10}
                   minWidth={620}
                   minHeight={62}
+                  targetWidth={1488}
+                  targetHeight={480}
                   slug={loaderData.organization.slug}
                   csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
@@ -322,6 +323,8 @@ export default function Index() {
                         aspect={null}
                         minWidth={50}
                         minHeight={50}
+                        targetHeight={1488}
+                        targetWidth={1488}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                       >

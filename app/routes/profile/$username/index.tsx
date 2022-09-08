@@ -247,8 +247,10 @@ export default function Index() {
                   uploadKey="background"
                   image={background}
                   aspect={31 / 10}
-                  minWidth={620}
-                  minHeight={62}
+                  minWidth={50}
+                  minHeight={50}
+                  targetWidth={1488}
+                  targetHeight={480}
                   csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
                 >
@@ -294,6 +296,8 @@ export default function Index() {
                         aspect={1}
                         minWidth={100}
                         minHeight={100}
+                        targetWidth={288}
+                        targetHeight={288}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                       >
