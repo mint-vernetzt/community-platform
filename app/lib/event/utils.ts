@@ -30,3 +30,27 @@ export async function getRootEvents(
   );
   return publishedRootEvents;
 }
+
+export function filterPublishedEvents(
+  events: {
+    event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
+  }[]
+) {
+  let publishedEvents = events.filter((item) => {
+    return item.event.published;
+  });
+
+  return publishedEvents;
+}
+
+export function sortEventsAlphabetically(
+  events: {
+    event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
+  }[]
+) {
+  let sortedEvents = events.sort((a, b) => {
+    return a.event.name.localeCompare(b.event.name);
+  });
+
+  return sortedEvents;
+}

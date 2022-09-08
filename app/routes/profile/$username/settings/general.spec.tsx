@@ -1,6 +1,6 @@
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { action, loader } from "./general";
-import { getWholeProfileFromId, updateProfileById } from "./utils.server";
+import { getWholeProfileFromId, updateProfileById } from "../utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
@@ -9,7 +9,7 @@ const expect = global.expect;
 const id = "1";
 const username = "sookie";
 
-jest.mock("./utils.server", () => {
+jest.mock("../utils.server", () => {
   return {
     getWholeProfileFromId: jest.fn(),
     handleAuthorization: jest.fn().mockResolvedValue({ id }),
