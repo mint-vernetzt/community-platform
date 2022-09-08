@@ -1,18 +1,18 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
   const { slug } = params;
+  await checkFeatureAbilitiesOrThrow(request, "events");
 
   if (slug === undefined || typeof slug !== "string") {
     throw badRequest({ message: '"slug" missing' });
@@ -22,13 +22,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const event = await getEventBySlugOrThrow(slug);
 
   const mode = await deriveMode(event, currentUser);
-  const abilities = await getFeatureAbilities(request, "events");
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
-  return { mode, event, abilities };
+  return { mode, event };
 };
 
 function Index() {
@@ -123,29 +122,28 @@ function Index() {
           </>
         )}
       </div>
-      {loaderData.mode === "owner" &&
-        loaderData.abilities.events.hasAccess === true && (
-          <>
-            <Link
-              className="btn btn-outline btn-primary"
-              to={`/event/${loaderData.event.slug}/settings`}
-            >
-              Veranstaltung bearbeiten
-            </Link>
-            <Link
-              className="btn btn-outline btn-primary"
-              to={`/event/create/?child=${loaderData.event.id}`}
-            >
-              Rahmenveranstaltung anlegen
-            </Link>
-            <Link
-              className="btn btn-outline btn-primary"
-              to={`/event/create/?parent=${loaderData.event.id}`}
-            >
-              Subveranstaltung anlegen
-            </Link>
-          </>
-        )}
+      {loaderData.mode === "owner" && (
+        <>
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/event/${loaderData.event.slug}/settings`}
+          >
+            Veranstaltung bearbeiten
+          </Link>
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/event/create/?child=${loaderData.event.id}`}
+          >
+            Rahmenveranstaltung anlegen
+          </Link>
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/event/create/?parent=${loaderData.event.id}`}
+          >
+            Subveranstaltung anlegen
+          </Link>
+        </>
+      )}
     </>
   );
 }
