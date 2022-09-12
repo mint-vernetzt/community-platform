@@ -18,8 +18,6 @@ import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
-import { createHashFromString } from "~/utils.server";
 import { deriveMode, filterProfileByMode, Mode } from "./utils.server";
 
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
@@ -132,10 +130,10 @@ function hasWebsiteOrSocialService(
 
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
-  
+
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
-  
+
   const avatar = loaderData.images.avatar;
   const Avatar = React.useCallback(
     () => (
