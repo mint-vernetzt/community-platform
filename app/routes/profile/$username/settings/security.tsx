@@ -15,7 +15,7 @@ import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { validateCSRFToken } from "~/utils.server";
-import { handleAuthorization } from "./utils.server";
+import { handleAuthorization } from "../utils.server";
 
 const emailSchema = z.object({
   csrf: z.string(),

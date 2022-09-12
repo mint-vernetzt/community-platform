@@ -143,10 +143,23 @@ export async function getOrganizationBySlug(slug: string) {
           },
         },
       },
+      responsibleForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              parentEventId: true,
+              published: true,
+            },
+          },
+        },
+      },
     },
   });
 
-  return organization as OrganizationWithRelations | null;
+  return organization;
 }
 
 export async function getOrganizationMembersBySlug(slug: string) {
