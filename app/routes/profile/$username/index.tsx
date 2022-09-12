@@ -190,10 +190,10 @@ export default function Index() {
                   uploadKey="background"
                   image={background}
                   aspect={31 / 10}
-                  minWidth={50}
-                  minHeight={50}
-                  targetWidth={1488}
-                  targetHeight={480}
+                  minCropWidth={50}
+                  minCropHeight={50}
+                  maxTargetWidth={1488}
+                  maxTargetHeight={480}
                   csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
                 >
@@ -237,10 +237,10 @@ export default function Index() {
                         headline="Profilfoto"
                         image={avatar}
                         aspect={1}
-                        minWidth={100}
-                        minHeight={100}
-                        targetWidth={288}
-                        targetHeight={288}
+                        minCropWidth={100}
+                        minCropHeight={100}
+                        maxTargetWidth={288}
+                        maxTargetHeight={288}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                       >

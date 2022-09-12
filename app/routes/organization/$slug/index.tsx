@@ -293,10 +293,10 @@ export default function Index() {
                   uploadKey="background"
                   image={background}
                   aspect={31 / 10}
-                  minWidth={620}
-                  minHeight={62}
-                  targetWidth={1488}
-                  targetHeight={480}
+                  minCropWidth={620}
+                  minCropHeight={62}
+                  maxTargetWidth={1488}
+                  maxTargetHeight={480}
                   slug={loaderData.organization.slug}
                   csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
@@ -340,10 +340,10 @@ export default function Index() {
                         headline="Logo"
                         image={logo}
                         aspect={null}
-                        minWidth={50}
-                        minHeight={50}
-                        targetHeight={1488}
-                        targetWidth={1488}
+                        minCropWidth={50}
+                        minCropHeight={50}
+                        maxTargetHeight={1488}
+                        maxTargetWidth={1488}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                       >

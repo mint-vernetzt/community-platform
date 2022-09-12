@@ -14,7 +14,6 @@ import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { schema, UploadKey, Subject } from "~/routes/upload/schema";
 import Slider from "rc-slider";
-import { number } from "yup";
 
 export interface ImageCropperProps {
   id: string;
@@ -24,10 +23,10 @@ export interface ImageCropperProps {
   uploadKey: UploadKey;
   aspect?: number | null;
   image?: string;
-  minHeight: number;
-  minWidth: number;
-  targetWidth: number;
-  targetHeight: number;
+  minCropHeight: number;
+  minCropWidth: number;
+  maxTargetWidth: number;
+  maxTargetHeight: number;
   redirect?: string;
   handleCancel?: () => void;
   children: React.ReactNode;
@@ -82,10 +81,10 @@ function ImageCropper(props: ImageCropperProps) {
     id,
     headline,
     image,
-    minWidth,
-    minHeight,
-    targetWidth,
-    targetHeight,
+    minCropWidth,
+    minCropHeight,
+    maxTargetWidth,
+    maxTargetHeight,
     handleCancel,
   } = props;
 
@@ -130,6 +129,23 @@ function ImageCropper(props: ImageCropperProps) {
     [completedCrop, scale]
   );
 
+  function reset() {
+    const inputFile = document.getElementById(`${id}-file`);
+    if (inputFile) {
+      setCrop(undefined); // Makes crop preview update between images.
+      setImgSrc("");
+    }
+  }
+
+  function closeModal() {
+    const $modalToggle = document.getElementById(
+      props.id
+    ) as HTMLInputElement | null;
+    if ($modalToggle) {
+      $modalToggle.checked = false;
+    }
+  }
+
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
     const canvasAspect = canvas.width / canvas.height;
@@ -149,8 +165,8 @@ function ImageCropper(props: ImageCropperProps) {
       if (canvas) {
         setIsSaving(true);
 
-        if (canvas.width > targetWidth || canvas.height > targetHeight) {
-          canvas = await scaleDown(canvas, targetWidth);
+        if (canvas.width > maxTargetWidth || canvas.height > maxTargetHeight) {
+          canvas = await scaleDown(canvas, maxTargetWidth);
         }
 
         document.body.append(canvas);
@@ -175,23 +191,23 @@ function ImageCropper(props: ImageCropperProps) {
               .then((response) => {
                 if (response.ok) {
                   return response;
-                } else
+                } else {
                   throw Error(
                     `Server returned ${response.status}: ${response.statusText}`
                   );
+                }
               })
               .then((response) => {
                 setIsSaving(false);
-                const $modalToggle = document.getElementById(
-                  props.id
-                ) as HTMLInputElement | null;
-                if ($modalToggle) {
-                  $modalToggle.checked = false;
-                }
+                closeModal();
                 document.location.reload();
               })
               .catch((err) => {
-                alert(err);
+                reset();
+                setIsSaving(false);
+                closeModal();
+
+                alert("Es ist leider ein Fehler aufgetreten.");
               });
           },
           IMAGE_MIME,
@@ -228,8 +244,8 @@ function ImageCropper(props: ImageCropperProps) {
             onChange={(_, percentCrop) => setCrop(percentCrop)}
             onComplete={(c) => setCompletedCrop(c)}
             aspect={aspect ?? undefined}
-            minWidth={minWidth}
-            minHeight={minHeight}
+            minWidth={minCropWidth}
+            minHeight={minCropHeight}
             style={{ maxHeight: "288px" }}
           >
             <img
@@ -333,11 +349,7 @@ function ImageCropper(props: ImageCropperProps) {
           htmlFor={id}
           className="btn btn-link p-5"
           onClick={() => {
-            const inputFile = document.getElementById(`${id}-file`);
-            if (inputFile) {
-              setCrop(undefined); // Makes crop preview update between images.
-              setImgSrc("");
-            }
+            reset();
 
             handleCancel && handleCancel();
           }}
