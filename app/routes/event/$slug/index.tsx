@@ -1,12 +1,35 @@
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
+import { makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, forbidden } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { z } from "zod";
+import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  connectParticipantToEvent,
+  connectToWaitingListOfEvent,
+  disconnectFromWaitingListOfEvent,
+  disconnectParticipantFromEvent,
+} from "./settings/participants/utils.server";
+import { checkIdentityOrThrow } from "./settings/utils.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+
+const schema = z.object({
+  userId: z.string(),
+  eventId: z.string(),
+  submit: z.string(),
+});
+
+const environmentSchema = z.object({
+  id: z.string(),
+  reachedParticipantLimit: z.boolean(),
+});
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
+  userId?: string;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -27,24 +50,181 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  return { mode, event };
+  return { mode, event, userId: currentUser?.id || undefined };
 };
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  if (values.eventId !== environment.id) {
+    throw "Id nicht korrekt";
+  }
+  if (values.submit === "participate") {
+    if (environment.reachedParticipantLimit) {
+      throw "Maximale Teilnehmerzahl erreicht.";
+    } else {
+      try {
+        await connectParticipantToEvent(values.eventId, values.userId);
+      } catch (error) {
+        throw "An der Veranstaltung konnte nicht teilgenommen werden.";
+      }
+    }
+  } else if (values.submit === "addToWaitingList") {
+    try {
+      await connectToWaitingListOfEvent(values.eventId, values.userId);
+    } catch (error) {
+      throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
+    }
+  } else if (values.submit === "revokeParticipation") {
+    try {
+      await disconnectParticipantFromEvent(values.eventId, values.userId);
+    } catch (error) {
+      throw "Das Entfernen von der Teilnehmerliste ist leider gescheitert.";
+    }
+  } else if (values.submit === "removeFromWaitingList") {
+    try {
+      await disconnectFromWaitingListOfEvent(values.eventId, values.userId);
+    } catch (error) {
+      throw "Das Entfernen von der Warteliste ist leider gescheitert.";
+    }
+  } else {
+    throw "Unzulässige Operation";
+  }
+  return values;
+});
+
+type ActionData = any;
+
+export const action: ActionFunction = async (args): Promise<ActionData> => {
+  const { request, params } = args;
+
+  await checkFeatureAbilitiesOrThrow(request, "events");
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const currentUser = await getUserByRequestOrThrow(request);
+
+  await checkIdentityOrThrow(request, currentUser);
+
+  const event = await getEventBySlugOrThrow(slug);
+
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: {
+      id: event.id,
+      reachedParticipantLimit: reachedParticipantLimit(event),
+    },
+  });
+
+  console.log(result);
+
+  return null;
+};
+
+function isUserParticipating(
+  event: Pick<LoaderData["event"], "participants">,
+  userId: LoaderData["userId"]
+) {
+  return event.participants.some((participant) => {
+    return participant.profile.id === userId;
+  });
+}
+
+function isUserOnWaitingList(
+  event: Pick<LoaderData["event"], "waitingList">,
+  userId: LoaderData["userId"]
+) {
+  return event.waitingList.some((waitingUser) => {
+    return waitingUser.profile.id === userId;
+  });
+}
+
+function reachedParticipantLimit(
+  event: Pick<LoaderData["event"], "participants" | "participantLimit">
+) {
+  if (event.participantLimit === null) {
+    return false;
+  }
+  return event.participants.length >= event.participantLimit;
+}
+
+function createParticipationOption(
+  isParticipating: boolean,
+  isOnWaitingList: boolean,
+  participantLimitReached: boolean
+) {
+  let participationOption = {
+    value: "",
+    buttonLabel: "",
+  };
+
+  if (isParticipating) {
+    participationOption.value = "revokeParticipation";
+    participationOption.buttonLabel = "Nicht mehr teilnehmen";
+  } else if (isOnWaitingList) {
+    participationOption.value = "removeFromWaitingList";
+    participationOption.buttonLabel = "Von der Warteliste entfernen";
+  } else {
+    if (participantLimitReached) {
+      participationOption.value = "addToWaitingList";
+      participationOption.buttonLabel = "Auf die Warteliste";
+    } else {
+      participationOption.value = "participate";
+      participationOption.buttonLabel = "Teilnehmen";
+    }
+  }
+
+  return participationOption;
+}
 
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
+  // Should functions like these be called inside the loader?
+  const isParticipating = isUserParticipating(
+    loaderData.event,
+    loaderData.userId
+  );
+  const isOnWaitingList = isUserOnWaitingList(
+    loaderData.event,
+    loaderData.userId
+  );
+  const participantLimitReached = reachedParticipantLimit(loaderData.event);
+  const participationOption = createParticipationOption(
+    isParticipating,
+    isOnWaitingList,
+    participantLimitReached
+  );
+
   return (
     <>
       <div className="mb-4">
         <h1>{loaderData.event.name}</h1>
         {loaderData.mode === "anon" && (
-          <>
-            <Link
-              className="btn btn-outline btn-primary"
-              to={`/login?event_slug=${loaderData.event.slug}`}
-            >
-              Anmelden um teilzunehmen
-            </Link>
-          </>
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/login?event_slug=${loaderData.event.slug}`}
+          >
+            Anmelden um teilzunehmen
+          </Link>
+        )}
+        {loaderData.mode !== "anon" && (
+          <RemixForm method="post" schema={schema}>
+            {({ Field, Errors }) => (
+              <>
+                <Field name="userId" hidden value={loaderData.userId || ""} />
+                <Field name="eventId" hidden value={loaderData.event.id} />
+                <Field name="submit" hidden value={participationOption.value} />
+                <button className="btn btn-primary" type="submit">
+                  {participationOption.buttonLabel}
+                </button>
+                <Errors />
+              </>
+            )}
+          </RemixForm>
         )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
