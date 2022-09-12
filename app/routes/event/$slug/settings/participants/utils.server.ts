@@ -1,5 +1,7 @@
 import { prismaClient } from "~/prisma";
 
+// QUESTION: Moving utils to event/$slug as it's used inside the detail page?
+
 export async function connectParticipantToEvent(
   eventId: string,
   profileId: string

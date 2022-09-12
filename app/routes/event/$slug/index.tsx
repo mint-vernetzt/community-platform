@@ -6,11 +6,17 @@ import { z } from "zod";
 import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  connectParticipantToEvent,
+  connectToWaitingListOfEvent,
+  disconnectFromWaitingListOfEvent,
+  disconnectParticipantFromEvent,
+} from "./settings/participants/utils.server";
 import { checkIdentityOrThrow } from "./settings/utils.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string().optional(),
+  userId: z.string(),
   eventId: z.string(),
   submit: z.string(),
 });
@@ -59,20 +65,33 @@ const mutation = makeDomainFunction(
       throw "Maximale Teilnehmerzahl erreicht.";
     } else {
       try {
-        // prisma call connect participant
+        await connectParticipantToEvent(values.eventId, values.userId);
       } catch (error) {
         throw "An der Veranstaltung konnte nicht teilgenommen werden.";
       }
     }
   } else if (values.submit === "addToWaitingList") {
     try {
-      // prisma call connect waitinglist
+      await connectToWaitingListOfEvent(values.eventId, values.userId);
     } catch (error) {
       throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
+    }
+  } else if (values.submit === "revokeParticipation") {
+    try {
+      await disconnectParticipantFromEvent(values.eventId, values.userId);
+    } catch (error) {
+      throw "Das Entfernen von der Teilnehmerliste ist leider gescheitert.";
+    }
+  } else if (values.submit === "removeFromWaitingList") {
+    try {
+      await disconnectFromWaitingListOfEvent(values.eventId, values.userId);
+    } catch (error) {
+      throw "Das Entfernen von der Warteliste ist leider gescheitert.";
     }
   } else {
     throw "Unzulässige Operation";
   }
+  return values;
 });
 
 type ActionData = any;
@@ -105,6 +124,24 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
   return null;
 };
 
+function isUserParticipating(
+  event: Pick<LoaderData["event"], "participants">,
+  userId: LoaderData["userId"]
+) {
+  return event.participants.some((participant) => {
+    return participant.profile.id === userId;
+  });
+}
+
+function isUserOnWaitingList(
+  event: Pick<LoaderData["event"], "waitingList">,
+  userId: LoaderData["userId"]
+) {
+  return event.waitingList.some((waitingUser) => {
+    return waitingUser.profile.id === userId;
+  });
+}
+
 function reachedParticipantLimit(
   event: Pick<LoaderData["event"], "participants" | "participantLimit">
 ) {
@@ -114,8 +151,53 @@ function reachedParticipantLimit(
   return event.participants.length >= event.participantLimit;
 }
 
+function createParticipationOption(
+  isParticipating: boolean,
+  isOnWaitingList: boolean,
+  participantLimitReached: boolean
+) {
+  let participationOption = {
+    value: "",
+    buttonLabel: "",
+  };
+
+  if (isParticipating) {
+    participationOption.value = "revokeParticipation";
+    participationOption.buttonLabel = "Nicht mehr teilnehmen";
+  } else if (isOnWaitingList) {
+    participationOption.value = "removeFromWaitingList";
+    participationOption.buttonLabel = "Von der Warteliste entfernen";
+  } else {
+    if (participantLimitReached) {
+      participationOption.value = "addToWaitingList";
+      participationOption.buttonLabel = "Auf die Warteliste";
+    } else {
+      participationOption.value = "participate";
+      participationOption.buttonLabel = "Teilnehmen";
+    }
+  }
+
+  return participationOption;
+}
+
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
+  // Should functions like these be called inside the loader?
+  const isParticipating = isUserParticipating(
+    loaderData.event,
+    loaderData.userId
+  );
+  const isOnWaitingList = isUserOnWaitingList(
+    loaderData.event,
+    loaderData.userId
+  );
+  const participantLimitReached = reachedParticipantLimit(loaderData.event);
+  const participationOption = createParticipationOption(
+    isParticipating,
+    isOnWaitingList,
+    participantLimitReached
+  );
 
   return (
     <>
@@ -133,21 +215,11 @@ function Index() {
           <RemixForm method="post" schema={schema}>
             {({ Field, Errors }) => (
               <>
-                <Field name="userId" hidden value={loaderData.userId} />
+                <Field name="userId" hidden value={loaderData.userId || ""} />
                 <Field name="eventId" hidden value={loaderData.event.id} />
-                <Field
-                  name="submit"
-                  hidden
-                  value={
-                    reachedParticipantLimit(loaderData.event)
-                      ? "addToWaitingList"
-                      : "participate"
-                  }
-                />
+                <Field name="submit" hidden value={participationOption.value} />
                 <button className="btn btn-primary" type="submit">
-                  {reachedParticipantLimit(loaderData.event)
-                    ? "Auf die Warteliste"
-                    : "Teilnehmen"}
+                  {participationOption.buttonLabel}
                 </button>
                 <Errors />
               </>
