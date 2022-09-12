@@ -220,7 +220,7 @@ function ImageCropper(props: ImageCropperProps) {
     }
   }
 
-  function handleScaleClick(e: React.SyntheticEvent<HTMLButtonElement>) {
+  function handleZoomClick(e: React.SyntheticEvent<HTMLButtonElement>) {
     e.preventDefault();
 
     const buttonId = e.currentTarget.id;
@@ -282,7 +282,7 @@ function ImageCropper(props: ImageCropperProps) {
             <button
               id="scaleUp"
               className="btn btn-outline btn-primary mr-1"
-              onClick={handleScaleClick}
+              onClick={handleZoomClick}
             >
               +
             </button>
@@ -298,7 +298,7 @@ function ImageCropper(props: ImageCropperProps) {
             <button
               id="scaleDown"
               className="btn btn-outline btn-primary ml-1"
-              onClick={handleScaleClick}
+              onClick={handleZoomClick}
             >
               -
             </button>
