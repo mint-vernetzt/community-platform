@@ -1,5 +1,5 @@
 import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
-import { InputError, makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, forbidden } from "remix-utils";
 import { z } from "zod";
@@ -15,7 +15,10 @@ const schema = z.object({
   submit: z.string(),
 });
 
-const environmentSchema = z.object({ id: z.string() });
+const environmentSchema = z.object({
+  id: z.string(),
+  reachedParticipantLimit: z.boolean(),
+});
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
@@ -48,16 +51,27 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  console.log("MUTATION");
-  console.log("SUBMIT VALUE", values.submit);
   if (values.eventId !== environment.id) {
-    throw new Error("Id nicht korrekt");
+    throw "Id nicht korrekt";
   }
-  // if else addOperation
-  try {
-    // prisma call
-  } catch (error) {
-    throw "An der Veranstaltung konnte nicht teilgenommen werden.";
+  if (values.submit === "participate") {
+    if (environment.reachedParticipantLimit) {
+      throw "Maximale Teilnehmerzahl erreicht.";
+    } else {
+      try {
+        // prisma call connect participant
+      } catch (error) {
+        throw "An der Veranstaltung konnte nicht teilgenommen werden.";
+      }
+    }
+  } else if (values.submit === "addToWaitingList") {
+    try {
+      // prisma call connect waitinglist
+    } catch (error) {
+      throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
+    }
+  } else {
+    throw "Unzulässige Operation";
   }
 });
 
@@ -65,8 +79,6 @@ type ActionData = any;
 
 export const action: ActionFunction = async (args): Promise<ActionData> => {
   const { request, params } = args;
-
-  console.log("ACTIOOON");
 
   await checkFeatureAbilitiesOrThrow(request, "events");
 
@@ -78,13 +90,14 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
 
   const event = await getEventBySlugOrThrow(slug);
 
-  console.log("BEFORE MUTATION");
-
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { id: event.id },
+    environment: {
+      id: event.id,
+      reachedParticipantLimit: reachedParticipantLimit(event),
+    },
   });
 
   console.log(result);
@@ -103,10 +116,6 @@ function reachedParticipantLimit(
 
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
-
-  console.log("REACHED LIMIT", reachedParticipantLimit(loaderData.event));
-  console.log("PARTICIPANT COUNT", loaderData.event.participants.length);
-  console.log("PARTICIPANT LIMIT", loaderData.event.participantLimit);
 
   return (
     <>
