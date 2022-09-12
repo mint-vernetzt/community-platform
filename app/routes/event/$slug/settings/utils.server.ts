@@ -40,6 +40,7 @@ export async function checkOwnershipOrThrow(
   return await checkOwnership(event, currentUser, { throw: true });
 }
 
+// Could be a top level function, as it's used in almost all actions
 export async function checkIdentityOrThrow(
   request: Request,
   currentUser: User

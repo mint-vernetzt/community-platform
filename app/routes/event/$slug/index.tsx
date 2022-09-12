@@ -1,12 +1,26 @@
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, forbidden } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { z } from "zod";
+import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { checkIdentityOrThrow } from "./settings/utils.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+
+const schema = z.object({
+  userId: z.string().optional(),
+  eventId: z.string(),
+  submit: z.string(),
+});
+
+const environmentSchema = z.object({ id: z.string() });
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
+  userId?: string;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -27,24 +41,109 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  return { mode, event };
+  return { mode, event, userId: currentUser?.id || undefined };
 };
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  console.log("MUTATION");
+  console.log("SUBMIT VALUE", values.submit);
+  if (values.eventId !== environment.id) {
+    throw new Error("Id nicht korrekt");
+  }
+  // if else addOperation
+  try {
+    // prisma call
+  } catch (error) {
+    throw "An der Veranstaltung konnte nicht teilgenommen werden.";
+  }
+});
+
+type ActionData = any;
+
+export const action: ActionFunction = async (args): Promise<ActionData> => {
+  const { request, params } = args;
+
+  console.log("ACTIOOON");
+
+  await checkFeatureAbilitiesOrThrow(request, "events");
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const currentUser = await getUserByRequestOrThrow(request);
+
+  await checkIdentityOrThrow(request, currentUser);
+
+  const event = await getEventBySlugOrThrow(slug);
+
+  console.log("BEFORE MUTATION");
+
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { id: event.id },
+  });
+
+  console.log(result);
+
+  return null;
+};
+
+function reachedParticipantLimit(
+  event: Pick<LoaderData["event"], "participants" | "participantLimit">
+) {
+  if (event.participantLimit === null) {
+    return false;
+  }
+  return event.participants.length >= event.participantLimit;
+}
 
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
+  console.log("REACHED LIMIT", reachedParticipantLimit(loaderData.event));
+  console.log("PARTICIPANT COUNT", loaderData.event.participants.length);
+  console.log("PARTICIPANT LIMIT", loaderData.event.participantLimit);
+
   return (
     <>
       <div className="mb-4">
         <h1>{loaderData.event.name}</h1>
         {loaderData.mode === "anon" && (
-          <>
-            <Link
-              className="btn btn-outline btn-primary"
-              to={`/login?event_slug=${loaderData.event.slug}`}
-            >
-              Anmelden um teilzunehmen
-            </Link>
-          </>
+          <Link
+            className="btn btn-outline btn-primary"
+            to={`/login?event_slug=${loaderData.event.slug}`}
+          >
+            Anmelden um teilzunehmen
+          </Link>
+        )}
+        {loaderData.mode !== "anon" && (
+          <RemixForm method="post" schema={schema}>
+            {({ Field, Errors }) => (
+              <>
+                <Field name="userId" hidden value={loaderData.userId} />
+                <Field name="eventId" hidden value={loaderData.event.id} />
+                <Field
+                  name="submit"
+                  hidden
+                  value={
+                    reachedParticipantLimit(loaderData.event)
+                      ? "addToWaitingList"
+                      : "participate"
+                  }
+                />
+                <button className="btn btn-primary" type="submit">
+                  {reachedParticipantLimit(loaderData.event)
+                    ? "Auf die Warteliste"
+                    : "Teilnehmen"}
+                </button>
+                <Errors />
+              </>
+            )}
+          </RemixForm>
         )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
