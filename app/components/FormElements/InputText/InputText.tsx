@@ -19,7 +19,6 @@ const InputText = React.forwardRef(
 
     const handleClear = (e: React.SyntheticEvent<HTMLButtonElement>) => {
       e.preventDefault();
-      console.log({ inputRef });
       if (inputRef.current) {
         if (setValue !== null) {
           setValue(id, "", { shouldDirty: true });

@@ -8,5 +8,6 @@ export default {
   setupFilesAfterEnv: ["<rootDir>/jest-setup.ts"],
   moduleNameMapper: {
     "^~/(.*)": "<rootDir>/app/$1",
+    "\\.css$": "<rootDir>/__mocks__/styleMock.js",
   },
 };
