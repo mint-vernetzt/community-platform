@@ -725,7 +725,7 @@ function General() {
 
                 {isFormChanged && (
                   <Link
-                    to={`/organization/${slug}/settings`}
+                    to={`/event/${slug}/settings`}
                     reloadDocument
                     className={`btn btn-link`}
                   >
