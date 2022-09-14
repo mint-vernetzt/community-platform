@@ -404,8 +404,6 @@ function General() {
   const isFormChanged =
     isDirty || (actionData !== undefined && actionData.updated === false);
 
-  console.log("LIMIT", event.participantLimit);
-
   return (
     <>
       <RemixForm
