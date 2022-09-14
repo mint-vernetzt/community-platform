@@ -124,6 +124,13 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
   return null;
 };
 
+function canUserParticipate(
+  event: Pick<LoaderData["event"], "participationUntil">
+) {
+  const participationUntil = new Date(event.participationUntil).getTime();
+  return Date.now() <= participationUntil;
+}
+
 function isUserParticipating(
   event: Pick<LoaderData["event"], "participants">,
   userId: LoaderData["userId"]
@@ -184,6 +191,7 @@ function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
   // Should functions like these be called inside the loader?
+  const canParticipate = canUserParticipate(loaderData.event);
   const isParticipating = isUserParticipating(
     loaderData.event,
     loaderData.userId
@@ -201,30 +209,44 @@ function Index() {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 ml-4">
         <h1>{loaderData.event.name}</h1>
-        {loaderData.mode === "anon" && (
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/login?event_slug=${loaderData.event.slug}`}
-          >
-            Anmelden um teilzunehmen
-          </Link>
-        )}
-        {loaderData.mode !== "anon" && (
-          <RemixForm method="post" schema={schema}>
-            {({ Field, Errors }) => (
-              <>
-                <Field name="userId" hidden value={loaderData.userId || ""} />
-                <Field name="eventId" hidden value={loaderData.event.id} />
-                <Field name="submit" hidden value={participationOption.value} />
-                <button className="btn btn-primary" type="submit">
-                  {participationOption.buttonLabel}
-                </button>
-                <Errors />
-              </>
+        {!canParticipate ? (
+          <h3>Teilnahmefrist bereits abgelaufen.</h3>
+        ) : (
+          <>
+            {loaderData.mode === "anon" && (
+              <Link
+                className="btn btn-outline btn-primary"
+                to={`/login?event_slug=${loaderData.event.slug}`}
+              >
+                Anmelden um teilzunehmen
+              </Link>
             )}
-          </RemixForm>
+            {loaderData.mode !== "anon" && (
+              <RemixForm method="post" schema={schema}>
+                {({ Field, Errors }) => (
+                  <>
+                    <Field
+                      name="userId"
+                      hidden
+                      value={loaderData.userId || ""}
+                    />
+                    <Field name="eventId" hidden value={loaderData.event.id} />
+                    <Field
+                      name="submit"
+                      hidden
+                      value={participationOption.value}
+                    />
+                    <button className="btn btn-primary" type="submit">
+                      {participationOption.buttonLabel}
+                    </button>
+                    <Errors />
+                  </>
+                )}
+              </RemixForm>
+            )}
+          </>
         )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
