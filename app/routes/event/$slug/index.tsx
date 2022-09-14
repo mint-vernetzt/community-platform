@@ -24,6 +24,7 @@ const schema = z.object({
 const environmentSchema = z.object({
   id: z.string(),
   reachedParticipantLimit: z.boolean(),
+  reachedParticipationDeadline: z.boolean(),
 });
 
 type LoaderData = {
@@ -58,7 +59,10 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   if (values.eventId !== environment.id) {
-    throw "Id nicht korrekt";
+    throw "Id nicht korrekt.";
+  }
+  if (environment.reachedParticipationDeadline) {
+    throw "Teilnahmefrist bereits abgelaufen.";
   }
   if (values.submit === "participate") {
     if (environment.reachedParticipantLimit) {
@@ -116,19 +120,18 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
     environment: {
       id: event.id,
       reachedParticipantLimit: reachedParticipantLimit(event),
+      reachedParticipationDeadline: reachedParticipateDeadline(event),
     },
   });
 
-  console.log(result);
-
-  return null;
+  return result;
 };
 
-function canUserParticipate(
+function reachedParticipateDeadline(
   event: Pick<LoaderData["event"], "participationUntil">
 ) {
   const participationUntil = new Date(event.participationUntil).getTime();
-  return Date.now() <= participationUntil;
+  return Date.now() > participationUntil;
 }
 
 function isUserParticipating(
@@ -191,7 +194,9 @@ function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
   // Should functions like these be called inside the loader?
-  const canParticipate = canUserParticipate(loaderData.event);
+  const reachedParticipationDeadline = reachedParticipateDeadline(
+    loaderData.event
+  );
   const isParticipating = isUserParticipating(
     loaderData.event,
     loaderData.userId
@@ -211,7 +216,7 @@ function Index() {
     <>
       <div className="mb-4 ml-4">
         <h1>{loaderData.event.name}</h1>
-        {!canParticipate ? (
+        {reachedParticipationDeadline ? (
           <h3>Teilnahmefrist bereits abgelaufen.</h3>
         ) : (
           <>
