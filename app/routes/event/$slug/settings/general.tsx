@@ -404,6 +404,8 @@ function General() {
   const isFormChanged =
     isDirty || (actionData !== undefined && actionData.updated === false);
 
+  console.log("LIMIT", event.participantLimit);
+
   return (
     <>
       <RemixForm
@@ -601,7 +603,7 @@ function General() {
               {...register("participantLimit")}
               id="participantLimit"
               label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit}
+              defaultValue={event.participantLimit || ""}
               errorMessage={errors?.participantLimit?.message}
               type="number"
             />
