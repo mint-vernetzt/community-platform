@@ -120,7 +120,8 @@ async function transformEventData(
     | "participatedEvents"
     | "contributedEvents"
     | "waitingForEvents"
-  >
+  >,
+  mode: Mode
 ) {
   let transformedEventData:
     | Awaited<ReturnType<typeof getRootEvents>>
@@ -129,6 +130,9 @@ async function transformEventData(
   if (key === "participatedEvents" || key === "contributedEvents") {
     // Raw query in getRootEvents already filters published events and sorts them alphabetically
     transformedEventData = await getRootEvents(profile[key]);
+  } else if (key === "teamMemberOfEvents" && mode === "owner") {
+    // Profile owner who is team member of an event should also see unpublished events
+    transformedEventData = sortEventsAlphabetically(profile[key]);
   } else {
     const publishedEvents = filterPublishedEvents(profile[key]);
     transformedEventData = sortEventsAlphabetically(publishedEvents);
@@ -171,7 +175,7 @@ export async function filterProfileByMode(
       if (eventRelationKeys.includes(key)) {
         // TODO: Type issue
         // @ts-ignore
-        data[key] = await transformEventData(profile, key);
+        data[key] = await transformEventData(profile, key, mode);
       } else {
         // @ts-ignore <-- Partials allow undefined, Profile not
         data[key] = profile[key];
