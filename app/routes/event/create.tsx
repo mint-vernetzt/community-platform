@@ -177,9 +177,6 @@ export const action: ActionFunction = async (args) => {
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
 
-  const params = useParams();
-  console.log(params);
-
   return (
     <Form method="post">
       <h1>create event</h1>
