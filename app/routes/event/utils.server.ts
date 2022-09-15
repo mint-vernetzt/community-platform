@@ -13,6 +13,7 @@ export async function createEventOnProfile(
     startTime: Date;
     endTime: Date;
     participationUntil: Date;
+    ics: string | null;
   },
   relationOptions?: {
     child: string | null;
