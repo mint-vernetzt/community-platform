@@ -25,6 +25,7 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { transformAbsoluteURL } from "~/lib/utils/string";
 import {
   FormError,
   getFormDataValidationResultOrThrow,
@@ -40,12 +41,14 @@ import {
   getTargetGroups,
   getTypes,
 } from "~/utils.server";
+import { createIcsString } from "../../utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
   transformEventToForm,
+  transformEventToIcsEvent,
   transformFormToEvent,
   updateEventById,
 } from "./utils.server";
@@ -236,6 +239,18 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
   if (result.data.submit === "submit") {
     if (result.errors === null) {
       const data = transformFormToEvent(result.data);
+
+      const icsEvent = await transformEventToIcsEvent(data);
+      const urlEndingToRemove = "/settings/general";
+      const urlEndingToAppend = "";
+      const absoluteEventURL = transformAbsoluteURL(
+        request.url,
+        urlEndingToRemove,
+        urlEndingToAppend
+      );
+      // Typescript cannot resolve this type because of require instead of ES6 import. Details see inside the function.
+      const ics: string | null = createIcsString(icsEvent, absoluteEventURL);
+
       await updateEventById(event.id, data);
       updated = true;
     }

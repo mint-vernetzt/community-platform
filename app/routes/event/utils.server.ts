@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Event, Prisma, Tag } from "@prisma/client";
 import { MakeOptional } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import type { DateArray } from "ics";
@@ -51,24 +51,9 @@ export async function createEventOnProfile(
   return profile;
 }
 
-const eventWithIcsRelevantRelations = Prisma.validator<Prisma.EventArgs>()({
-  include: {
-    tags: {
-      select: {
-        tag: {
-          select: {
-            title: true,
-          },
-        },
-      },
-    },
-  },
-});
-
-// TODO: Extend this type with Awaited<ReturnType<typeof getFullDepthParticipants>> to add them as attendees in the ics file
-type EventWithIcsRelevantRelations = Prisma.EventGetPayload<
-  typeof eventWithIcsRelevantRelations
->;
+type EventWithIcsRelevantRelations = Event & {
+  tags: Pick<Tag, "title">[];
+};
 
 // TODO: Add status (CONFIRMED/CANCELLED) to the ics file (see #437)
 // TODO: Add attendees to the ics file (see #433)
@@ -107,6 +92,8 @@ export function createIcsString(
   >,
   absoluteEventUrl: string
 ) {
+  console.log("CREATE ICS STRING -----------\n\n");
+
   const location: string[] = [];
   if (event.conferenceLink) {
     location.push(`Konferenzlink: ${event.conferenceLink}`);
@@ -127,13 +114,14 @@ export function createIcsString(
   if (event.venueCity) {
     location.push(event.venueCity);
   }
-  let tagsArray: string[] = [];
+  let tagTitles: string[] = [];
   if (event.tags) {
-    tagsArray = event.tags?.map((item) => {
-      return item.tag.title;
+    tagTitles = event.tags.map((tag) => {
+      return tag.title;
     });
   }
 
+  console.log("BEFORE ICS EVENT -----------\n\n");
   const icsEvent = {
     start: [
       event.startTime.getFullYear(),
@@ -166,7 +154,7 @@ export function createIcsString(
     // role: "REQ_PARTICPANT"<-Do we need this?
     // }
     // ]
-    categories: tagsArray,
+    categories: tagTitles,
     // TODO: Ensure globally uniqueness of uid (see #436)
     uid: event.id + event.slug,
     created: [
@@ -184,6 +172,8 @@ export function createIcsString(
       event.updatedAt.getMinutes(),
     ] as DateArray,
   };
+
+  console.log("ICS EVENT\n", icsEvent);
 
   // @ts-ignore Type issue caused by require. How can i change it to an ES6 import without getting undefined?
   return ics.createEvent(icsEvent, (error, icsString) => {

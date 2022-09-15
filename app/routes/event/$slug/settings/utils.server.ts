@@ -112,6 +112,34 @@ export function transformFormToEvent(form: any) {
   };
 }
 
+async function getTagsByIds(ids: string[]) {
+  const tags = await prismaClient.tag.findMany({
+    where: {
+      id: { in: ids },
+    },
+    select: {
+      title: true,
+    },
+  });
+  return tags;
+}
+
+export async function transformEventToIcsEvent(
+  event: ReturnType<typeof transformFormToEvent>
+) {
+  const icsEvent = {
+    ...event,
+    updatedAt: new Date(Date.now()),
+    tags: await getTagsByIds(event.tags),
+    // WIP
+    // createdAt: await get createdAt from Event
+  };
+
+  console.log("TRANSFORMED EVENT TO ICS\n\n", icsEvent);
+
+  return icsEvent;
+}
+
 // TODO: any type
 export async function updateEventById(id: string, data: any) {
   await prismaClient.event.update({
