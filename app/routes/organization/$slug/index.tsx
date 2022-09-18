@@ -250,11 +250,11 @@ export default function Index() {
   const background = loaderData.images.background;
   const Background = React.useCallback(
     () => (
-      <div className="h-36 bg-yellow-500 text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+      <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild}`} />
+          <img src={background} alt={`Aktuelles Hintergrundbild`} />
         ) : (
-          <div className="w-[400px]" />
+          <div className="w-[336px] min-h-[108px]" />
         )}
       </div>
     ),

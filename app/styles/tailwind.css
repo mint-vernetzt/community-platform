@@ -162,9 +162,14 @@
   @apply block h-6 w-6;
 }
 
+.modal {
+  align-items: center;
+  padding: 8px;
+}
+
 .modal-box {
+  @apply rounded-md p-8;
   max-width: 25rem !important;
-  padding: 2rem;
 }
 
 .rc-slider-track {
