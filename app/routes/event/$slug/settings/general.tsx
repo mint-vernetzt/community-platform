@@ -601,7 +601,7 @@ function General() {
               {...register("participantLimit")}
               id="participantLimit"
               label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit}
+              defaultValue={event.participantLimit || ""}
               errorMessage={errors?.participantLimit?.message}
               type="number"
             />
@@ -725,7 +725,7 @@ function General() {
 
                 {isFormChanged && (
                   <Link
-                    to={`/organization/${slug}/settings`}
+                    to={`/event/${slug}/settings`}
                     reloadDocument
                     className={`btn btn-link`}
                   >

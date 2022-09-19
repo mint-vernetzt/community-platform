@@ -24,6 +24,7 @@ const schema = z.object({
 const environmentSchema = z.object({
   id: z.string(),
   reachedParticipantLimit: z.boolean(),
+  reachedParticipationDeadline: z.boolean(),
 });
 
 type LoaderData = {
@@ -58,7 +59,10 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   if (values.eventId !== environment.id) {
-    throw "Id nicht korrekt";
+    throw "Id nicht korrekt.";
+  }
+  if (environment.reachedParticipationDeadline) {
+    throw "Teilnahmefrist bereits abgelaufen.";
   }
   if (values.submit === "participate") {
     if (environment.reachedParticipantLimit) {
@@ -116,13 +120,19 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
     environment: {
       id: event.id,
       reachedParticipantLimit: reachedParticipantLimit(event),
+      reachedParticipationDeadline: reachedParticipateDeadline(event),
     },
   });
 
-  console.log(result);
-
-  return null;
+  return result;
 };
+
+function reachedParticipateDeadline(
+  event: Pick<LoaderData["event"], "participationUntil">
+) {
+  const participationUntil = new Date(event.participationUntil).getTime();
+  return Date.now() > participationUntil;
+}
 
 function isUserParticipating(
   event: Pick<LoaderData["event"], "participants">,
@@ -184,6 +194,9 @@ function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
   // Should functions like these be called inside the loader?
+  const reachedParticipationDeadline = reachedParticipateDeadline(
+    loaderData.event
+  );
   const isParticipating = isUserParticipating(
     loaderData.event,
     loaderData.userId
@@ -201,30 +214,44 @@ function Index() {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 ml-4">
         <h1>{loaderData.event.name}</h1>
-        {loaderData.mode === "anon" && (
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/login?event_slug=${loaderData.event.slug}`}
-          >
-            Anmelden um teilzunehmen
-          </Link>
-        )}
-        {loaderData.mode !== "anon" && (
-          <RemixForm method="post" schema={schema}>
-            {({ Field, Errors }) => (
-              <>
-                <Field name="userId" hidden value={loaderData.userId || ""} />
-                <Field name="eventId" hidden value={loaderData.event.id} />
-                <Field name="submit" hidden value={participationOption.value} />
-                <button className="btn btn-primary" type="submit">
-                  {participationOption.buttonLabel}
-                </button>
-                <Errors />
-              </>
+        {reachedParticipationDeadline ? (
+          <h3>Teilnahmefrist bereits abgelaufen.</h3>
+        ) : (
+          <>
+            {loaderData.mode === "anon" && (
+              <Link
+                className="btn btn-outline btn-primary"
+                to={`/login?event_slug=${loaderData.event.slug}`}
+              >
+                Anmelden um teilzunehmen
+              </Link>
             )}
-          </RemixForm>
+            {loaderData.mode !== "anon" && (
+              <RemixForm method="post" schema={schema}>
+                {({ Field, Errors }) => (
+                  <>
+                    <Field
+                      name="userId"
+                      hidden
+                      value={loaderData.userId || ""}
+                    />
+                    <Field name="eventId" hidden value={loaderData.event.id} />
+                    <Field
+                      name="submit"
+                      hidden
+                      value={participationOption.value}
+                    />
+                    <button className="btn btn-primary" type="submit">
+                      {participationOption.buttonLabel}
+                    </button>
+                    <Errors />
+                  </>
+                )}
+              </RemixForm>
+            )}
+          </>
         )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
