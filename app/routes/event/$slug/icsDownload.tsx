@@ -9,6 +9,7 @@ import { getEventBySlugOrThrow } from "./utils.server";
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
 // TODO: Add status (CONFIRMED/CANCELLED) to the ics file (see #437)
+// TODO: Maybe add attendees to the ics file (see #433)
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
 export function createIcsString(
@@ -137,12 +138,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   );
   const ics = createIcsString(event, absoluteEventURL);
 
-  console.log("ICS IN CREATE\n\n", ics);
-
   return new Response(ics, {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
+      "Content-Disposition": `filename="${event.name}.ics"`,
     },
   });
 };
