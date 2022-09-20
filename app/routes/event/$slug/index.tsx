@@ -17,6 +17,7 @@ import {
   deriveMode,
   getEventBySlugOrThrow,
   getFullDepthParticipants,
+  getFullDepthSpeaker,
 } from "./utils.server";
 
 const schema = z.object({
@@ -36,6 +37,7 @@ type LoaderData = {
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
   userId?: string;
   fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
+  fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -57,18 +59,13 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   }
 
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
-
-  // const fullDepthRelationKeys: Array<keyof Pick<typeof event, "speakers" | "participants" | "responsibleOrganizations">> = [
-  //   "speakers",
-  //   "participants",
-  //   "responsibleOrganizations",
-  // ]
-  // const fullDepthRelations = getFullDepthRelations(event, fullDepthRelationKeys);
+  const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
 
   return {
     mode,
     event,
     fullDepthParticipants,
+    fullDepthSpeaker,
     userId: currentUser?.id || undefined,
   };
 };
@@ -360,9 +357,30 @@ function Index() {
         {loaderData.fullDepthParticipants !== null &&
           loaderData.fullDepthParticipants.length > 0 && (
             <>
-              <h3 className="mt-4">Teilnehmer:</h3>
+              <h3 className="mt-4">Teilnehmer*innen:</h3>
               <ul>
                 {loaderData.fullDepthParticipants.map((profile, index) => {
+                  return (
+                    <li key={`participant-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/profile/${profile.username}`}
+                      >
+                        {profile.firstName + " " + profile.lastName}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        {loaderData.fullDepthSpeaker !== null &&
+          loaderData.fullDepthSpeaker.length > 0 && (
+            <>
+              <h3 className="mt-4">Speaker*innen:</h3>
+              <ul>
+                {loaderData.fullDepthSpeaker.map((profile, index) => {
                   return (
                     <li key={`participant-${index}`}>
                       -{" "}

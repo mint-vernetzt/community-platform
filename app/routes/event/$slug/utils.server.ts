@@ -208,11 +208,11 @@ export async function getFullDepthParticipants(id: string) {
     // Join the result with relevant relation tables
     const result = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id, name
+          SELECT id, parent_event_id
           FROM "events"
           WHERE id = ${id}
         UNION
-          SELECT "events".id, "events".parent_event_id, "events".name
+          SELECT "events".id, "events".parent_event_id
           FROM "events"
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
@@ -225,7 +225,35 @@ export async function getFullDepthParticipants(id: string) {
           ON "participants_of_events".event_id = get_full_depth.id
       ;`;
 
-    console.log(result);
+    return result as Pick<Profile, "firstName" | "lastName" | "username">[];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export async function getFullDepthSpeaker(id: string) {
+  try {
+    // Get event and all child events of arbitrary depth with raw query
+    // Join the result with relevant relation tables
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_full_depth AS (
+          SELECT id, parent_event_id
+          FROM "events"
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id
+          FROM "events"
+            JOIN get_full_depth
+            ON "events".parent_event_id = get_full_depth.id
+      )
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username
+        FROM "profiles"
+          JOIN "speakers_of_events"
+          ON "profiles".id = "speakers_of_events".profile_id
+          JOIN get_full_depth
+          ON "speakers_of_events".event_id = get_full_depth.id
+      ;`;
 
     return result as Pick<Profile, "firstName" | "lastName" | "username">[];
   } catch (e) {
