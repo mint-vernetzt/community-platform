@@ -16,6 +16,7 @@ import { checkIdentityOrThrow } from "./settings/utils.server";
 import {
   deriveMode,
   getEventBySlugOrThrow,
+  getFullDepthOrganizers,
   getFullDepthParticipants,
   getFullDepthSpeaker,
 } from "./utils.server";
@@ -38,6 +39,7 @@ type LoaderData = {
   userId?: string;
   fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
+  fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -60,6 +62,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
   const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
+  const fullDepthOrganizers = await getFullDepthOrganizers(event.id);
 
   return {
     mode,
@@ -67,6 +70,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     fullDepthParticipants,
     fullDepthSpeaker,
     userId: currentUser?.id || undefined,
+    fullDepthOrganizers,
   };
 };
 
@@ -382,13 +386,34 @@ function Index() {
               <ul>
                 {loaderData.fullDepthSpeaker.map((profile, index) => {
                   return (
-                    <li key={`participant-${index}`}>
+                    <li key={`speaker-${index}`}>
                       -{" "}
                       <Link
                         className="underline hover:no-underline"
                         to={`/profile/${profile.username}`}
                       >
                         {profile.firstName + " " + profile.lastName}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        {loaderData.fullDepthOrganizers !== null &&
+          loaderData.fullDepthOrganizers.length > 0 && (
+            <>
+              <h3 className="mt-4">Organisator*innen:</h3>
+              <ul>
+                {loaderData.fullDepthOrganizers.map((organization, index) => {
+                  return (
+                    <li key={`organizer-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/organization/${organization.slug}`}
+                      >
+                        {organization.name}
                       </Link>
                     </li>
                   );
