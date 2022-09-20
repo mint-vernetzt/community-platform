@@ -1,4 +1,4 @@
-import { Event } from "@prisma/client";
+import { Event, Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { ArrayElement } from "~/lib/utils/types";
@@ -217,7 +217,7 @@ export async function getFullDepthParticipants(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT username, first_name, last_name, avatar, academic_title, position
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username
         FROM "profiles"
           JOIN "participants_of_events"
           ON "profiles".id = "participants_of_events".profile_id
@@ -227,10 +227,7 @@ export async function getFullDepthParticipants(id: string) {
 
     console.log(result);
 
-    return result as Pick<
-      Event,
-      "id" | "parentEventId" | "name" | "slug" | "published"
-    >[];
+    return result as Pick<Profile, "firstName" | "lastName" | "username">[];
   } catch (e) {
     console.error(e);
     return null;

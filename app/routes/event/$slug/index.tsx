@@ -13,7 +13,11 @@ import {
   disconnectParticipantFromEvent,
 } from "./settings/participants/utils.server";
 import { checkIdentityOrThrow } from "./settings/utils.server";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import {
+  deriveMode,
+  getEventBySlugOrThrow,
+  getFullDepthParticipants,
+} from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -31,6 +35,7 @@ type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
   userId?: string;
+  fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -51,7 +56,21 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  return { mode, event, userId: currentUser?.id || undefined };
+  const fullDepthParticipants = await getFullDepthParticipants(event.id);
+
+  // const fullDepthRelationKeys: Array<keyof Pick<typeof event, "speakers" | "participants" | "responsibleOrganizations">> = [
+  //   "speakers",
+  //   "participants",
+  //   "responsibleOrganizations",
+  // ]
+  // const fullDepthRelations = getFullDepthRelations(event, fullDepthRelationKeys);
+
+  return {
+    mode,
+    event,
+    fullDepthParticipants,
+    userId: currentUser?.id || undefined,
+  };
 };
 
 const mutation = makeDomainFunction(
@@ -338,6 +357,27 @@ function Index() {
             </ul>
           </>
         )}
+        {loaderData.fullDepthParticipants !== null &&
+          loaderData.fullDepthParticipants.length > 0 && (
+            <>
+              <h3 className="mt-4">Teilnehmer:</h3>
+              <ul>
+                {loaderData.fullDepthParticipants.map((profile, index) => {
+                  return (
+                    <li key={`participant-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/profile/${profile.username}`}
+                      >
+                        {profile.firstName + " " + profile.lastName}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
       </div>
       {loaderData.mode === "owner" && (
         <>
