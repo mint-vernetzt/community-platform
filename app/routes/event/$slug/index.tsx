@@ -379,6 +379,31 @@ function Index() {
               </ul>
             </>
           )}
+        {loaderData.mode === "owner" &&
+          loaderData.event.waitingList.length > 0 && (
+            <>
+              <h3 className="mt-4">Warteliste:</h3>
+              <ul>
+                {loaderData.event.waitingList.map(
+                  (waitingParticipant, index) => {
+                    return (
+                      <li key={`waiting-participant-${index}`}>
+                        -{" "}
+                        <Link
+                          className="underline hover:no-underline"
+                          to={`/profile/${waitingParticipant.profile.username}`}
+                        >
+                          {waitingParticipant.profile.firstName +
+                            " " +
+                            waitingParticipant.profile.lastName}
+                        </Link>
+                      </li>
+                    );
+                  }
+                )}
+              </ul>
+            </>
+          )}
         {loaderData.fullDepthSpeaker !== null &&
           loaderData.fullDepthSpeaker.length > 0 && (
             <>
@@ -421,6 +446,26 @@ function Index() {
               </ul>
             </>
           )}
+        {loaderData.event.teamMembers.length > 0 && (
+          <>
+            <h3 className="mt-4">Das Team:</h3>
+            <ul>
+              {loaderData.event.teamMembers.map((member, index) => {
+                return (
+                  <li key={`team-member-${index}`}>
+                    -{" "}
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${member.profile.username}`}
+                    >
+                      {member.profile.firstName + " " + member.profile.lastName}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </div>
       {loaderData.mode === "owner" && (
         <>

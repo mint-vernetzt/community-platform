@@ -1,7 +1,6 @@
 import { Event, Organization, Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
-import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 
 type Mode = "anon" | "authenticated" | "owner";
