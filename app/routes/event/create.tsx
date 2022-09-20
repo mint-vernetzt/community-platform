@@ -151,10 +151,9 @@ export const action: ActionFunction = async (args) => {
       urlEndingToRemove,
       urlEndingToAppend
     );
-    // Typescript cannot resolve this type because of require instead of ES6 import. Details see inside the function.
-    const ics: string | null = createIcsString(icsEvent, absoluteEventURL);
+    const ics = createIcsString(icsEvent, absoluteEventURL);
 
-    console.log(ics);
+    console.log("ICS IN CREATE\n\n", ics);
 
     await createEventOnProfile(
       currentUser.id,

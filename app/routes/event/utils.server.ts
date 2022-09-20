@@ -1,9 +1,8 @@
-import { Event, Prisma, Tag } from "@prisma/client";
+import { Event, Tag } from "@prisma/client";
+import type { DateArray } from "ics";
+import * as ics from "ics"; // ics is undefined
 import { MakeOptional } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
-import type { DateArray } from "ics";
-const ics = require("ics"); // ics has no type support
-//import ics from "ics" // ics is undefined
 
 export async function createEventOnProfile(
   profileId: string,
@@ -173,14 +172,12 @@ export function createIcsString(
     ] as DateArray,
   };
 
-  console.log("ICS EVENT\n", icsEvent);
-
-  // @ts-ignore Type issue caused by require. How can i change it to an ES6 import without getting undefined?
-  return ics.createEvent(icsEvent, (error, icsString) => {
+  const result: unknown = ics.createEvent(icsEvent, (error, icsString) => {
     if (error) {
       console.log(error);
       return null;
     }
     return icsString;
   });
+  return result as string | null;
 }
