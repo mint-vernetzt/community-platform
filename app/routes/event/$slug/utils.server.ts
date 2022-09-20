@@ -1,4 +1,4 @@
-import { Event } from "@prisma/client";
+import { Event, Organization, Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -198,5 +198,95 @@ export async function checkSameEventOrThrow(request: Request, eventId: string) {
 
   if (value === null || value !== eventId) {
     throw badRequest({ message: "Event IDs differ" });
+  }
+}
+
+export async function getFullDepthParticipants(id: string) {
+  try {
+    // Get event and all child events of arbitrary depth with raw query
+    // Join the result with relevant relation tables
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_full_depth AS (
+          SELECT id, parent_event_id
+          FROM "events"
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id
+          FROM "events"
+            JOIN get_full_depth
+            ON "events".parent_event_id = get_full_depth.id
+      )
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username
+        FROM "profiles"
+          JOIN "participants_of_events"
+          ON "profiles".id = "participants_of_events".profile_id
+          JOIN get_full_depth
+          ON "participants_of_events".event_id = get_full_depth.id
+      ;`;
+
+    return result as Pick<Profile, "firstName" | "lastName" | "username">[];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export async function getFullDepthSpeaker(id: string) {
+  try {
+    // Get event and all child events of arbitrary depth with raw query
+    // Join the result with relevant relation tables
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_full_depth AS (
+          SELECT id, parent_event_id
+          FROM "events"
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id
+          FROM "events"
+            JOIN get_full_depth
+            ON "events".parent_event_id = get_full_depth.id
+      )
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username
+        FROM "profiles"
+          JOIN "speakers_of_events"
+          ON "profiles".id = "speakers_of_events".profile_id
+          JOIN get_full_depth
+          ON "speakers_of_events".event_id = get_full_depth.id
+      ;`;
+
+    return result as Pick<Profile, "firstName" | "lastName" | "username">[];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export async function getFullDepthOrganizers(id: string) {
+  try {
+    // Get event and all child events of arbitrary depth with raw query
+    // Join the result with relevant relation tables
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_full_depth AS (
+          SELECT id, parent_event_id
+          FROM "events"
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id
+          FROM "events"
+            JOIN get_full_depth
+            ON "events".parent_event_id = get_full_depth.id
+      )
+        SELECT DISTINCT name, slug
+        FROM "organizations"
+          JOIN "responsible_organizations_of_events"
+          ON "organizations".id = "responsible_organizations_of_events".organization_id
+          JOIN get_full_depth
+          ON "responsible_organizations_of_events".event_id = get_full_depth.id
+      ;`;
+
+    return result as Pick<Organization, "slug" | "name">[];
+  } catch (e) {
+    console.error(e);
+    return null;
   }
 }

@@ -13,7 +13,13 @@ import {
   disconnectParticipantFromEvent,
 } from "./settings/participants/utils.server";
 import { checkIdentityOrThrow } from "./settings/utils.server";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import {
+  deriveMode,
+  getEventBySlugOrThrow,
+  getFullDepthOrganizers,
+  getFullDepthParticipants,
+  getFullDepthSpeaker,
+} from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -31,6 +37,9 @@ type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
   userId?: string;
+  fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
+  fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
+  fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -51,7 +60,18 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  return { mode, event, userId: currentUser?.id || undefined };
+  const fullDepthParticipants = await getFullDepthParticipants(event.id);
+  const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
+  const fullDepthOrganizers = await getFullDepthOrganizers(event.id);
+
+  return {
+    mode,
+    event,
+    fullDepthParticipants,
+    fullDepthSpeaker,
+    userId: currentUser?.id || undefined,
+    fullDepthOrganizers,
+  };
 };
 
 const mutation = makeDomainFunction(
@@ -331,6 +351,114 @@ function Index() {
                       to={`/event/${childEvent.slug}`}
                     >
                       {childEvent.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        {loaderData.fullDepthParticipants !== null &&
+          loaderData.fullDepthParticipants.length > 0 && (
+            <>
+              <h3 className="mt-4">Teilnehmer*innen:</h3>
+              <ul>
+                {loaderData.fullDepthParticipants.map((profile, index) => {
+                  return (
+                    <li key={`participant-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/profile/${profile.username}`}
+                      >
+                        {profile.firstName + " " + profile.lastName}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        {loaderData.mode === "owner" &&
+          loaderData.event.waitingList.length > 0 && (
+            <>
+              <h3 className="mt-4">Warteliste:</h3>
+              <ul>
+                {loaderData.event.waitingList.map(
+                  (waitingParticipant, index) => {
+                    return (
+                      <li key={`waiting-participant-${index}`}>
+                        -{" "}
+                        <Link
+                          className="underline hover:no-underline"
+                          to={`/profile/${waitingParticipant.profile.username}`}
+                        >
+                          {waitingParticipant.profile.firstName +
+                            " " +
+                            waitingParticipant.profile.lastName}
+                        </Link>
+                      </li>
+                    );
+                  }
+                )}
+              </ul>
+            </>
+          )}
+        {loaderData.fullDepthSpeaker !== null &&
+          loaderData.fullDepthSpeaker.length > 0 && (
+            <>
+              <h3 className="mt-4">Speaker*innen:</h3>
+              <ul>
+                {loaderData.fullDepthSpeaker.map((profile, index) => {
+                  return (
+                    <li key={`speaker-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/profile/${profile.username}`}
+                      >
+                        {profile.firstName + " " + profile.lastName}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        {loaderData.fullDepthOrganizers !== null &&
+          loaderData.fullDepthOrganizers.length > 0 && (
+            <>
+              <h3 className="mt-4">Organisator*innen:</h3>
+              <ul>
+                {loaderData.fullDepthOrganizers.map((organization, index) => {
+                  return (
+                    <li key={`organizer-${index}`}>
+                      -{" "}
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/organization/${organization.slug}`}
+                      >
+                        {organization.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        {loaderData.event.teamMembers.length > 0 && (
+          <>
+            <h3 className="mt-4">Das Team:</h3>
+            <ul>
+              {loaderData.event.teamMembers.map((member, index) => {
+                return (
+                  <li key={`team-member-${index}`}>
+                    -{" "}
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${member.profile.username}`}
+                    >
+                      {member.profile.firstName + " " + member.profile.lastName}
                     </Link>
                   </li>
                 );
