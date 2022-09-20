@@ -266,7 +266,7 @@ export default function Index() {
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
-        <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
+        <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background && (
               <img
@@ -311,7 +311,7 @@ export default function Index() {
       <div className="container relative pb-44">
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
-            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
+            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44">
               <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.userIsPrivileged && (
