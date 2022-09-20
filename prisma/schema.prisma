@@ -210,7 +210,6 @@ model Event {
   venueCity                String?                          @map("venue_city")
   venueZipCode             String?                          @map("venue_zip_code")
   documents                DocumentOfEvent[]
-  ics                      String?
 
   @@map("events")
 }

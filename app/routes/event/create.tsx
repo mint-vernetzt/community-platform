@@ -4,14 +4,12 @@ import {
   LoaderFunction,
   redirect,
   useLoaderData,
-  useParams,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
 import { getUserByRequest } from "~/auth.server";
 // import useCSRF from "~/lib/hooks/useCSRF";
 import { validateFeatureAccess } from "~/lib/utils/application";
-import { transformAbsoluteURL } from "~/lib/utils/string";
 import {
   FormError,
   getFormValues,
@@ -19,7 +17,7 @@ import {
   validateForm,
 } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
-import { createEventOnProfile, createIcsString } from "./utils.server";
+import { createEventOnProfile } from "./utils.server";
 
 const schema = object({
   id: string().uuid().required(),
@@ -89,25 +87,6 @@ function getDateTime(date: Date, time: string | null) {
   return new Date(year, month, day, hoursAndMinutes[0], hoursAndMinutes[1]);
 }
 
-function transformFormToIcsEvent(
-  formEvent: FormType,
-  startTime: Date,
-  endTime: Date,
-  slug: string
-) {
-  const currentDate = new Date(Date.now());
-  const icsEvent = {
-    id: formEvent.id,
-    startTime,
-    endTime,
-    name: formEvent.name,
-    slug,
-    createdAt: currentDate,
-    updatedAt: currentDate,
-  };
-  return icsEvent;
-}
-
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
@@ -143,18 +122,6 @@ export const action: ActionFunction = async (args) => {
       endTime = startTime;
     }
 
-    const icsEvent = transformFormToIcsEvent(data, startTime, endTime, slug);
-    const urlEndingToRemove = "create";
-    const urlEndingToAppend = slug;
-    const absoluteEventURL = transformAbsoluteURL(
-      request.url,
-      urlEndingToRemove,
-      urlEndingToAppend
-    );
-    const ics = createIcsString(icsEvent, absoluteEventURL);
-
-    console.log("ICS IN CREATE\n\n", ics);
-
     await createEventOnProfile(
       currentUser.id,
       {
@@ -163,7 +130,6 @@ export const action: ActionFunction = async (args) => {
         startTime,
         endTime,
         participationUntil: startTime,
-        ics,
       },
       { child: data.child, parent: data.parent }
     );
