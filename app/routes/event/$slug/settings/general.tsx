@@ -418,7 +418,7 @@ function General() {
           userId: userId,
           // TODO: Fix type issue
           // @ts-ignore
-          publish: !event.published,
+          publish: !originalEvent.published,
         }}
       >
         {(props) => {
@@ -433,7 +433,7 @@ function General() {
                   {
                     // TODO: Fix type issue
                     // @ts-ignore
-                    event.published ? "Verstecken" : "Veröffentlichen"
+                    originalEvent.published ? "Verstecken" : "Veröffentlichen"
                   }
                 </Button>
               </div>
