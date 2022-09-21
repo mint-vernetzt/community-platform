@@ -26,7 +26,8 @@ async function getProfilesBySearchParams(
       });
     } else {
       throw badRequest({
-        message: 'search parameter "depth = full || single" must be provided.',
+        message:
+          "search parameter - depth = full || single - must be provided.",
       });
     }
   } else if (type === "waitingList") {
@@ -38,13 +39,14 @@ async function getProfilesBySearchParams(
       });
     } else {
       throw badRequest({
-        message: 'search parameter "depth = full || single" must be provided.',
+        message:
+          "search parameter - depth = full || single - must be provided.",
       });
     }
   } else {
     throw badRequest({
       message:
-        'search parameter "type = participants || waitingList" must be provided.',
+        "search parameter - type = participants || waitingList - must be provided.",
     });
   }
 
@@ -55,7 +57,38 @@ async function getProfilesBySearchParams(
   return profiles;
 }
 
-export function createCsvString() {}
+function getFilenameBySearchParams(
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+  depth: string | null,
+  type: string | null
+) {
+  let filename = event.name;
+
+  if (type === "participants") {
+    filename += "_Teilnehmende";
+  }
+  if (type === "waitingList") {
+    filename += "_Warteliste";
+  }
+  if (depth === "full") {
+    filename += "_inklusive_Subveranstaltungen";
+  }
+  filename += ".csv";
+
+  return filename;
+}
+
+function createCsvString(
+  profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
+) {
+  let csv = "";
+
+  for (const profile of profiles) {
+    csv += `${profile.firstName},${profile.lastName},${profile.email}\n`;
+  }
+
+  return csv;
+}
 
 type LoaderData = Response;
 
@@ -71,13 +104,15 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");
   const type = url.searchParams.get("type");
-  const profiles = getProfilesBySearchParams(event, depth, type);
+  const profiles = await getProfilesBySearchParams(event, depth, type);
+  const filename = getFilenameBySearchParams(event, depth, type);
+  const csv = createCsvString(profiles);
 
-  return new Response("TODO", {
+  return new Response(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `filename="${"TODO"}.csv"`,
+      "Content-Disposition": `filename="${filename}"`,
     },
   });
 };
