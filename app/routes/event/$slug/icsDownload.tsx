@@ -14,7 +14,7 @@ type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 // TODO: Maybe add attendees to the ics file (see #433)
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
-export function createIcsString(
+function createIcsString(
   event: Pick<
     EventWithRelations,
     | "id"
