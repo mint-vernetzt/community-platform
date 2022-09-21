@@ -52,6 +52,7 @@ export async function updateUserProfileImage(
     },
     data: {
       [name]: path,
+      updatedAt: new Date(),
     },
   });
 }

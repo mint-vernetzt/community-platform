@@ -12,11 +12,12 @@ export async function removeImageFromProfile(
     },
     data: {
       [name]: null,
+      updatedAt: new Date(),
     },
   });
 }
 
-export async function removeImageFromOrganitaion(
+export async function removeImageFromOrganizaion(
   slug: string,
   name: UploadKey
 ) {
@@ -26,6 +27,7 @@ export async function removeImageFromOrganitaion(
     },
     data: {
       [name]: null,
+      updatedAt: new Date(),
     },
   });
 }

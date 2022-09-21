@@ -108,6 +108,7 @@ export async function updateProfileById(
           },
         })),
       },
+      updatedAt: new Date(),
     },
   });
 }
