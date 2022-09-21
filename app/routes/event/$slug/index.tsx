@@ -273,6 +273,13 @@ function Index() {
             )}
           </>
         )}
+        <Link
+          className="btn btn-outline btn-primary mt-4"
+          to="ics-download"
+          reloadDocument
+        >
+          Kalendereintrag herunterladen
+        </Link>
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
         <h3>End: {loaderData.event.endTime}</h3>
