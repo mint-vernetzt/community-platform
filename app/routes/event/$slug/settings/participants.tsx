@@ -193,14 +193,14 @@ function Participants() {
           <>
             <Link
               className="btn btn-outline btn-primary mt-4"
-              to="csvDownload?type=participants&amp;depth=single"
+              to="csv-download?type=participants&amp;depth=single"
               reloadDocument
             >
               Teilnehmerliste als .csv herunterladen
             </Link>
             <Link
               className="btn btn-outline btn-primary mt-4"
-              to="csvDownload?type=participants&amp;depth=full"
+              to="csv-download?type=participants&amp;depth=full"
               reloadDocument
             >
               Teilnehmerliste inklusive Subveranstaltungen als .csv
@@ -366,14 +366,14 @@ function Participants() {
           <>
             <Link
               className="btn btn-outline btn-primary mt-4"
-              to="csvDownload?type=waitingList&amp;depth=single"
+              to="csv-download?type=waitingList&amp;depth=single"
               reloadDocument
             >
               Warteliste als .csv herunterladen
             </Link>
             <Link
               className="btn btn-outline btn-primary mt-4"
-              to="csvDownload?type=waitingList&amp;depth=full"
+              to="csv-download?type=waitingList&amp;depth=full"
               reloadDocument
             >
               Warteliste inklusive Subveranstaltungen als .csv herunterladen
