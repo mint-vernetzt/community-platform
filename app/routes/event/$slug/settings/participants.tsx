@@ -189,6 +189,25 @@ function Participants() {
             {removeParticipantFetcher.data.message}
           </div>
         )}
+        {loaderData.participants.length > 0 && (
+          <>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to="csvDownload?type=participants&amp;depth=single"
+              reloadDocument
+            >
+              Teilnehmerliste als .csv herunterladen
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to="csvDownload?type=participants&amp;depth=full"
+              reloadDocument
+            >
+              Teilnehmerliste inklusive Subveranstaltungen als .csv
+              herunterladen
+            </Link>
+          </>
+        )}
       </div>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">Lorem Ipsum</p>
@@ -342,6 +361,24 @@ function Participants() {
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {removeFromWaitingListFetcher.data.message}
           </div>
+        )}
+        {loaderData.waitingList.length > 0 && (
+          <>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to="csvDownload?type=waitingList&amp;depth=single"
+              reloadDocument
+            >
+              Warteliste als .csv herunterladen
+            </Link>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to="csvDownload?type=waitingList&amp;depth=full"
+              reloadDocument
+            >
+              Warteliste inklusive Subveranstaltungen als .csv herunterladen
+            </Link>
+          </>
         )}
       </div>
       <h4 className="mb-4 font-semibold">Zur Warteliste hinzufügen</h4>
