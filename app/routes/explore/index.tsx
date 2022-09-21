@@ -25,18 +25,19 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { ArrayElement } from "~/lib/utils/types";
-import {
-  getAllOrganizations,
-  getFilteredOrganizations,
-} from "~/organization.server";
+import { getFilteredOrganizations } from "~/organization.server";
 import {
   getAllOffers,
-  getAllProfiles,
   getAreaById,
   getFilteredProfiles,
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
+import {
+  getScoreOfEntity,
+  getAllProfiles,
+  getAllOrganizations,
+} from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -140,9 +141,17 @@ export const loader: LoaderFunction = async (args) => {
   const profilesAndOrganizations = [
     ...(profiles ?? []),
     ...(organizations ?? []),
-  ].sort(() => Math.random() - 0.5);
+  ].sort((a, b) => {
+    const scoreA = getScoreOfEntity(a);
+    const scoreB = getScoreOfEntity(b);
 
-  return json({ isLoggedIn, profilesAndOrganizations, areas, offers });
+    if (scoreA === scoreB) {
+      return b.updatedAt.getTime() - a.updatedAt.getTime();
+    }
+    return scoreB - scoreA;
+  });
+
+  return { isLoggedIn, profilesAndOrganizations, areas, offers };
 };
 
 function getCompareValues(

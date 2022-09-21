@@ -17,7 +17,7 @@ export async function removeImageFromProfile(
   });
 }
 
-export async function removeImageFromOrganizaion(
+export async function removeImageFromOrganitaion(
   slug: string,
   name: UploadKey
 ) {
