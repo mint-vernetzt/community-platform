@@ -63,14 +63,14 @@ function createIcsString(
   const icsEvent = {
     start: [
       event.startTime.getFullYear(),
-      event.startTime.getMonth(),
+      event.startTime.getMonth() + 1,
       event.startTime.getDate(),
       event.startTime.getHours(),
       event.startTime.getMinutes(),
     ] as DateArray,
     end: [
       event.endTime.getFullYear(),
-      event.endTime.getMonth(),
+      event.endTime.getMonth() + 1,
       event.endTime.getDate(),
       event.endTime.getHours(),
       event.endTime.getMinutes(),
@@ -126,7 +126,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  const urlEndingToRemove = "icsDownload";
+  const urlEndingToRemove = "ics-download";
   const urlEndingToAppend = "";
   const absoluteEventURL = transformAbsoluteURL(
     request.url,

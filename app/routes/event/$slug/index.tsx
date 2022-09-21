@@ -275,7 +275,7 @@ function Index() {
         )}
         <Link
           className="btn btn-outline btn-primary mt-4"
-          to="icsDownload"
+          to="ics-download"
           reloadDocument
         >
           Kalendereintrag herunterladen
