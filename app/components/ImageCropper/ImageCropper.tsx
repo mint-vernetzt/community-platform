@@ -273,7 +273,7 @@ function ImageCropper(props: ImageCropperProps) {
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button
-                    className="bg-transparent w-8 h-8 p-0 border border-transparent absolute -top-4 -right-4 border-0"
+                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute -top-4 -right-4 border-0"
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
