@@ -191,6 +191,7 @@ export async function updateProfileByUserId(id: string, data: UpdateProfile) {
       areas: areasQuery,
       offers: offersQuery,
       seekings: seekingsQuery,
+      updatedAt: new Date(),
     },
   });
 
@@ -218,6 +219,7 @@ export async function createOrganizationOnProfile(
           },
         },
       },
+      updatedAt: new Date(),
     },
   });
   return profile;

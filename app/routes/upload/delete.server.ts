@@ -12,6 +12,7 @@ export async function removeImageFromProfile(
     },
     data: {
       [name]: null,
+      updatedAt: new Date(),
     },
   });
 }
@@ -26,6 +27,7 @@ export async function removeImageFromOrganitaion(
     },
     data: {
       [name]: null,
+      updatedAt: new Date(),
     },
   });
 }

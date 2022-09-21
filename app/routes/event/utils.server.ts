@@ -40,6 +40,7 @@ export async function createEventOnProfile(
           },
         },
       },
+      updatedAt: new Date(),
     },
   });
   return profile;
