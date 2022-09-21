@@ -141,6 +141,7 @@ function ImageCropper(props: ImageCropperProps) {
 
     setImgSrc("");
     setCrop(undefined);
+    setCompletedCrop(undefined);
   }
 
   function closeModal() {
