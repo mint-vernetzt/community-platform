@@ -145,6 +145,7 @@ export async function getEventByField(field: string, value: string) {
               firstName: true,
               lastName: true,
               username: true,
+              email: true,
             },
           },
         },
@@ -158,6 +159,7 @@ export async function getEventByField(field: string, value: string) {
               firstName: true,
               lastName: true,
               username: true,
+              email: true,
             },
           },
         },
@@ -216,7 +218,7 @@ export async function getFullDepthParticipants(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username, email
         FROM "profiles"
           JOIN "participants_of_events"
           ON "profiles".id = "participants_of_events".profile_id
@@ -224,7 +226,43 @@ export async function getFullDepthParticipants(id: string) {
           ON "participants_of_events".event_id = get_full_depth.id
       ;`;
 
-    return result as Pick<Profile, "firstName" | "lastName" | "username">[];
+    return result as Pick<
+      Profile,
+      "firstName" | "lastName" | "username" | "email"
+    >[];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export async function getFullDepthWaitingList(id: string) {
+  try {
+    // Get event and all child events of arbitrary depth with raw query
+    // Join the result with relevant relation tables
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_full_depth AS (
+          SELECT id, parent_event_id
+          FROM "events"
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id
+          FROM "events"
+            JOIN get_full_depth
+            ON "events".parent_event_id = get_full_depth.id
+      )
+        SELECT DISTINCT first_name as "firstName", last_name as "lastName", username, email
+        FROM "profiles"
+          JOIN "waiting_participants_of_events"
+          ON "profiles".id = "waiting_participants_of_events".profile_id
+          JOIN get_full_depth
+          ON "waiting_participants_of_events".event_id = get_full_depth.id
+      ;`;
+
+    return result as Pick<
+      Profile,
+      "firstName" | "lastName" | "username" | "email"
+    >[];
   } catch (e) {
     console.error(e);
     return null;
