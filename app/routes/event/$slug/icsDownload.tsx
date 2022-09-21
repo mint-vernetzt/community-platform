@@ -1,9 +1,8 @@
 import type { DateArray } from "ics";
-import * as ics from "ics"; // ics is undefined
+import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { transformAbsoluteURL } from "~/lib/utils/string";
-import { MakeOptional } from "~/lib/utils/types";
 import { getEventBySlugOrThrow } from "./utils.server";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
@@ -13,26 +12,15 @@ type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
 export function createIcsString(
-  event: MakeOptional<
-    Pick<
-      EventWithRelations,
-      | "id"
-      | "startTime"
-      | "endTime"
-      | "name"
-      | "slug"
-      | "createdAt"
-      | "updatedAt"
-      | "description"
-      | "tags"
-      | "venueCity"
-      | "venueName"
-      | "venueStreet"
-      | "venueStreetNumber"
-      | "venueZipCode"
-      | "conferenceLink"
-      | "conferenceCode"
-    >,
+  event: Pick<
+    EventWithRelations,
+    | "id"
+    | "startTime"
+    | "endTime"
+    | "name"
+    | "slug"
+    | "createdAt"
+    | "updatedAt"
     | "description"
     | "tags"
     | "venueCity"
@@ -65,12 +53,9 @@ export function createIcsString(
   if (event.venueCity) {
     location.push(event.venueCity);
   }
-  let tagTitles: string[] = [];
-  if (event.tags) {
-    tagTitles = event.tags.map((item) => {
-      return item.tag.title;
-    });
-  }
+  const tagTitles = event.tags.map((item) => {
+    return item.tag.title;
+  });
 
   const icsEvent = {
     start: [
