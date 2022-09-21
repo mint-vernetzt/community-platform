@@ -311,6 +311,7 @@ function ImageCropper(props: ImageCropperProps) {
               minWidth={minCropWidth}
               minHeight={minCropHeight}
               style={{ maxHeight: "288px" }}
+              circularCrop={true}
             >
               <img
                 ref={imgRef}
@@ -346,34 +347,6 @@ function ImageCropper(props: ImageCropperProps) {
           <div className="flex items-center w-full">
             <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-end">
               <button
-                id="scaleUp"
-                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
-                onClick={handleZoomClick}
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 0C6.41421 0 6.75 0.335786 6.75 0.75V5.25H11.25C11.6642 5.25 12 5.58579 12 6C12 6.41421 11.6642 6.75 11.25 6.75H6.75V11.25C6.75 11.6642 6.41421 12 6 12C5.58579 12 5.25 11.6642 5.25 11.25V6.75H0.75C0.335786 6.75 0 6.41421 0 6C0 5.58579 0.335786 5.25 0.75 5.25H5.25V0.75C5.25 0.335786 5.58579 0 6 0Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className="w-[250px] py-2 px-4 hidden md:block md:w-[calc(50%-2rem)] ">
-              <Slider
-                min={0.1}
-                max={DEFAULT_SCALE * 2}
-                step={0.05}
-                defaultValue={DEFAULT_SCALE}
-                onChange={(v) => setScale(v as number)}
-              />
-            </div>
-            <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-start">
-              <button
                 id="scaleDown"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
                 onClick={handleZoomClick}
@@ -386,6 +359,34 @@ function ImageCropper(props: ImageCropperProps) {
                 >
                   <path
                     d="M0.398682 1.41893C0.398682 0.898206 0.68838 0.476074 1.04574 0.476074H10.1046C10.4619 0.476074 10.7516 0.898206 10.7516 1.41893C10.7516 1.93966 10.4619 2.36179 10.1046 2.36179H1.04574C0.68838 2.36179 0.398682 1.93966 0.398682 1.41893Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="w-[250px] py-2 px-4 hidden md:block md:w-[calc(50%-2rem)] ">
+              <Slider
+                min={0.1}
+                max={DEFAULT_SCALE * 2}
+                step={0.05}
+                value={scale}
+                onChange={(v) => setScale(v as number)}
+              />
+            </div>
+            <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-start">
+              <button
+                id="scaleUp"
+                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
+                onClick={handleZoomClick}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6 0C6.41421 0 6.75 0.335786 6.75 0.75V5.25H11.25C11.6642 5.25 12 5.58579 12 6C12 6.41421 11.6642 6.75 11.25 6.75H6.75V11.25C6.75 11.6642 6.41421 12 6 12C5.58579 12 5.25 11.6642 5.25 11.25V6.75H0.75C0.335786 6.75 0 6.41421 0 6C0 5.58579 0.335786 5.25 0.75 5.25H5.25V0.75C5.25 0.335786 5.58579 0 6 0Z"
                     fill="currentColor"
                   />
                 </svg>
