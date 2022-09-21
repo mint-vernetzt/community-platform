@@ -130,11 +130,17 @@ function ImageCropper(props: ImageCropperProps) {
   );
 
   function reset() {
-    const inputFile = document.getElementById(`${id}-file`);
-    if (inputFile) {
-      setCrop(undefined); // Makes crop preview update between images.
-      setImgSrc("");
+    const inputFile = document.getElementById(`${id}-file`) as HTMLInputElement;
+    if (inputFile === null) {
+      return;
     }
+
+    if (inputFile && inputFile.files && inputFile.files.length > 0) {
+      inputFile.value = "";
+    }
+
+    setImgSrc("");
+    setCrop(undefined);
   }
 
   function closeModal() {
