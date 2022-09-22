@@ -11,7 +11,7 @@ export function InputFile({ id, hasImage, onSelectFile }: InputFileProps) {
     <>
       <label
         htmlFor={id}
-        className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+        className="flex content-center items-center nowrap py-2 cursor-pointer text-primary overflow-hidden"
       >
         <svg
           width="17"
@@ -32,7 +32,7 @@ export function InputFile({ id, hasImage, onSelectFile }: InputFileProps) {
         type="file"
         accept="image/*"
         onChange={onSelectFile}
-        className="opacity-0 w-0 h-0"
+        className="opacity-0 w-0 h-0 overflow-hidden"
       />
     </>
   );
