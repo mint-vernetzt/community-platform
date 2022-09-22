@@ -346,7 +346,7 @@ function ImageCropper(props: ImageCropperProps) {
           hasImage={image !== undefined}
         />
         {imgSrc && (
-          <div className="flex items-center w-full">
+          <div className="flex items-center w-full mt-2">
             <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-end">
               <button
                 id="scaleDown"
