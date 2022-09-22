@@ -1,5 +1,11 @@
 import React from "react";
-import { ActionFunction, Link, LoaderFunction, useActionData } from "remix";
+import {
+  ActionFunction,
+  Link,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -31,15 +37,25 @@ const schema = z.object({
       "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
     ),
   termsAccepted: z.boolean(),
+  redirectTo: z.string().optional(),
 });
 
-export const loader: LoaderFunction = async (args) => {
-  return null;
+type LoaderData = {
+  redirectTo: string | null;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+  const { request } = args;
+  const url = new URL(request.url);
+  const redirectTo = url.searchParams.get("redirect_to");
+
+  return { redirectTo };
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
   // TODO: move to database trigger
-  const { firstName, lastName, academicTitle, termsAccepted } = values;
+  const { firstName, lastName, academicTitle, termsAccepted, redirectTo } =
+    values;
 
   if (!termsAccepted) {
     throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
@@ -57,13 +73,18 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       : ""
   }`;
 
-  const { error } = await signUp(values.email, values.password, {
-    firstName,
-    lastName,
-    username,
-    academicTitle,
-    termsAccepted,
-  });
+  const { error } = await signUp(
+    values.email,
+    values.password,
+    values.redirectTo,
+    {
+      firstName,
+      lastName,
+      username,
+      academicTitle,
+      termsAccepted,
+    }
+  );
   if (error !== null) {
     throw error.message;
   }
@@ -84,6 +105,7 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Register() {
+  const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
 
   return (
@@ -127,7 +149,14 @@ export default function Register() {
                 </p>
               </>
             ) : (
-              <RemixForm method="post" schema={schema}>
+              <RemixForm
+                method="post"
+                schema={schema}
+                hiddenFields={["redirectTo"]}
+                values={{
+                  redirectTo: loaderData.redirectTo,
+                }}
+              >
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
@@ -138,6 +167,7 @@ export default function Register() {
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
+                        <Field name="redirectTo" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>

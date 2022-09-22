@@ -79,6 +79,7 @@ authenticator.use(supabaseStrategy);
 export async function signUp(
   email: string,
   password: string,
+  redirectTo: string | undefined,
   metaData: {
     firstName: string;
     lastName: string;
@@ -93,7 +94,7 @@ export async function signUp(
 }> {
   const { user, session, error } = await supabaseClient.auth.signUp(
     { email, password },
-    { data: metaData }
+    { data: metaData, redirectTo: redirectTo }
   );
   return { user, session, error };
 }
