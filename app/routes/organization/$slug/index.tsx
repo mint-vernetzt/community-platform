@@ -339,13 +339,14 @@ export default function Index() {
                         uploadKey="logo"
                         headline="Logo"
                         image={logo}
-                        aspect={null}
-                        minCropWidth={50}
-                        minCropHeight={50}
+                        aspect={1 / 1}
+                        minCropWidth={100}
+                        minCropHeight={100}
                         maxTargetHeight={1488}
                         maxTargetWidth={1488}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
+                        circularCrop={true}
                       >
                         <Avatar />
                       </ImageCropper>
