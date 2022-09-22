@@ -31,6 +31,7 @@ export interface ImageCropperProps {
   handleCancel?: () => void;
   children: React.ReactNode;
   csrfToken: string;
+  circularCrop?: boolean;
 }
 
 /**
@@ -86,6 +87,7 @@ function ImageCropper(props: ImageCropperProps) {
     maxTargetWidth,
     maxTargetHeight,
     handleCancel,
+    circularCrop = false,
   } = props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -311,7 +313,7 @@ function ImageCropper(props: ImageCropperProps) {
               minWidth={minCropWidth}
               minHeight={minCropHeight}
               style={{ maxHeight: "288px" }}
-              circularCrop={true}
+              circularCrop={circularCrop}
             >
               <img
                 ref={imgRef}

@@ -346,6 +346,7 @@ export default function Index() {
                         maxTargetWidth={1488}
                         csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
+                        circularCrop={true}
                       >
                         <Avatar />
                       </ImageCropper>
