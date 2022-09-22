@@ -55,6 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
+  // Is this the resulting publicURL which can be stored in the database?
   const path = formData.get(name) as string;
 
   if (name !== undefined && path !== null && profileId !== null) {

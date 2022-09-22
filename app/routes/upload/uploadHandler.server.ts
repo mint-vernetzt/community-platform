@@ -35,6 +35,7 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
 
 async function persistUpload(path: string, buffer: Buffer) {
   return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+    // How to pass another bucket name
     .from("images")
     .upload(path, buffer, {
       upsert: true,
