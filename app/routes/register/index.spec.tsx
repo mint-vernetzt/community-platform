@@ -1,19 +1,31 @@
-import { action, loader } from "./index";
+import { loader } from "./index";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-const path = "/register";
+const url = "http://www.community.org/register";
+const urlWithRedirect =
+  "http://www.community.org/register?redirect_to=http://www.testpage.org";
 
 test("call loader", async () => {
   const res = await loader({
-    request: new Request(path),
+    request: new Request(url),
     params: {},
     context: {},
   });
 
-  expect(res).toBeNull();
+  expect(res).toStrictEqual({ redirectTo: null });
+});
+
+test("call loader with redirect parameter", async () => {
+  const res = await loader({
+    request: new Request(urlWithRedirect),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual({ redirectTo: "http://www.testpage.org" });
 });
 
 /* TODO: run e2e test
