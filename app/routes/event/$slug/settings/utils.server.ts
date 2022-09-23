@@ -1,6 +1,7 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
+import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getEventBySlugOrThrow } from "../utils.server";
@@ -43,10 +44,25 @@ export async function checkOwnershipOrThrow(
 // Could be a top level function, as it's used in almost all actions
 export async function checkIdentityOrThrow(
   request: Request,
-  currentUser: User
+  currentUser: User,
+  isMultipartFormData: boolean = false
 ) {
   const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
+  let formData: FormData;
+
+  if (isMultipartFormData) {
+    const multipartFormDataProvider: UploadHandler = async () => {
+      // This upload handler only provides the multipart form data but does not upload anything
+      return undefined;
+    };
+    formData = await unstable_parseMultipartFormData(
+      clonedRequest,
+      multipartFormDataProvider
+    );
+  } else {
+    formData = await clonedRequest.formData();
+  }
+
   const userId = formData.get("userId") as string | null;
 
   if (userId === null || userId !== currentUser.id) {

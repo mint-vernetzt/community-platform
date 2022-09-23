@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const uploadKeys = ["avatar", "background", "logo"];
-const uploadKey = z.enum(["avatar", "background", "logo"]);
+export const uploadKeys = ["avatar", "background", "logo", "document"];
+const uploadKey = z.enum(["avatar", "background", "logo", "document"]);
 
 const subject = z.enum(["user", "organisation"]);
 export type UploadKey = z.infer<typeof uploadKey>;

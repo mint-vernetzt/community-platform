@@ -27,9 +27,10 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
 
-  // Only string or File can be returned
+  // Only string, File or undefined can be returned
   // Is there a better solution than JSON?
-  return JSON.stringify({ buffer, path });
+  // Maybe use memoryUpload?
+  return JSON.stringify({ buffer, path, filename });
 };
 
 async function persistUpload(path: string, buffer: Buffer, bucketName: string) {
@@ -96,8 +97,6 @@ export const upload = async (request: Request, bucketName: string) => {
       bucketName
     );
     validatePersistence(error, data, uploadHandlerResponse.path);
-
-    formData.append(uploadKey as string, uploadHandlerResponse.path);
 
     return formData;
   } catch (exception) {

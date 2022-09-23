@@ -1,21 +1,26 @@
+import { DataFunctionArgs } from "@remix-run/server-runtime";
 import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest } from "remix-utils";
+import { badRequest, serverError } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { upload } from "~/routes/upload/uploadHandler.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
+  uploadKey: z.string(),
+  document: z.unknown(),
+  // document: z.instanceof(File),
   submit: z.string(),
 });
 
-const environmentSchema = z.object({ eventId: z.string() });
+const environmentSchema = z.object({ args: z.unknown() });
 
 type LoaderData = {
   userId: string;
@@ -46,18 +51,10 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  if (values.eventId !== environment.eventId) {
-    throw new Error("Id nicht korrekt");
-  }
-  console.log("SUBMIT VALUE:\n\n", values.submit);
-  // TODO: switch (submit value)
-  // upload
-  // edit
-  // delete
-});
+  console.log("\nVALUES:\n", values);
+  console.log("\nENVIRONMENT:\n", environment);
 
-export const action: ActionFunction = async (args) => {
-  const { request, params } = args;
+  const { request, params } = environment.args as DataFunctionArgs;
 
   await checkFeatureAbilitiesOrThrow(request, "events");
 
@@ -71,11 +68,42 @@ export const action: ActionFunction = async (args) => {
 
   await checkOwnershipOrThrow(event, currentUser);
 
+  if (values.eventId !== event.id) {
+    throw new Error("Id nicht korrekt");
+  }
+
+  // TODO: switch (submit value)
+  // upload
+  if (values.submit === "upload") {
+    const formData = await upload(request, "documents");
+    const uploadHandlerResponseJSON = formData.get("document");
+    if (uploadHandlerResponseJSON === null) {
+      console.log("\nUPLOAD HANDLER RESPONSE IS NULL\n");
+      throw serverError({ message: "Something went wrong on upload." });
+    }
+    const uploadHandlerResponse: {
+      buffer: Buffer;
+      path: string;
+      filename: string;
+    } = JSON.parse(uploadHandlerResponseJSON as string);
+    // TODO: Persist path and filename in database
+    console.log("\nPUBLIC URL / PATH OF PDF:\n", uploadHandlerResponse.path);
+    console.log("\nFILENAME OF PDF:\n", uploadHandlerResponse.filename, "\n");
+  }
+  // edit
+  // delete
+});
+
+export const action: ActionFunction = async (args) => {
+  const { request } = args;
+
+  console.log("\nBEFORE PERFORM MUTATION\n");
+
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { eventId: event.id },
+    environment: { args: args },
   });
 
   if (result.success === false) {
@@ -83,6 +111,7 @@ export const action: ActionFunction = async (args) => {
       result.errors._global !== undefined &&
       result.errors._global.includes("Id nicht korrekt")
     ) {
+      console.log("\nID NICHT KORREKT\n");
       throw badRequest({ message: "Id nicht korrekt" });
     }
   }
@@ -102,17 +131,30 @@ function Delete() {
       {/* - RemixForm to delete document with submit value delete */}
       {/* - Modal to edit document. Inside RemixForm with edit inputs and submit value edit */}
 
-      <RemixForm method="post" schema={schema}>
+      <RemixForm method="post" schema={schema} encType="multipart/form-data">
         {({ Field, Errors, register }) => (
           <>
             <Field name="submit" hidden value="upload" />
             <Field name="userId" hidden value={loaderData.userId} />
             <Field name="eventId" hidden value={loaderData.eventId} />
+            <Field name="uploadKey" hidden value={"document"} />
+            <Field name="document" label="PDF Dokument auswählen">
+              {({ Errors }) => (
+                <>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    {...register("document")}
+                  />
+                  <Errors />
+                </>
+              )}
+            </Field>
             <button
               type="submit"
-              className="btn btn-outline-primary ml-auto btn-small"
+              className="btn btn-outline-primary ml-auto btn-small mt-2"
             >
-              Dokument hochladen
+              PDF Dokument hochladen
             </button>
             <Errors />
           </>
