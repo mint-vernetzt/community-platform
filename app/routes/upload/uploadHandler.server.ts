@@ -26,17 +26,16 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
-  const { data, error } = await persistUpload(path, buffer);
 
-  validatePersistence(error, data, path);
-
-  return path;
+  // Only string or File can be returned
+  // Is there a better solution than JSON?
+  return JSON.stringify({ buffer, path });
 };
 
-async function persistUpload(path: string, buffer: Buffer) {
+async function persistUpload(path: string, buffer: Buffer, bucketName: string) {
   return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
     // How to pass another bucket name
-    .from("images")
+    .from(bucketName)
     .upload(path, buffer, {
       upsert: true,
     });
@@ -73,9 +72,34 @@ export async function updateOrganizationProfileImage(
   });
 }
 
-export const upload = async (request: Request) => {
+export const upload = async (request: Request, bucketName: string) => {
   try {
-    return await unstable_parseMultipartFormData(request, uploadHandler);
+    const formData = await unstable_parseMultipartFormData(
+      request,
+      uploadHandler
+    );
+    const uploadKey = formData.get("uploadKey");
+    if (uploadKey === null) {
+      throw serverError({ message: "Something went wrong on upload." });
+    }
+    const uploadHandlerResponseJSON = formData.get(uploadKey as string);
+    if (uploadHandlerResponseJSON === null) {
+      throw serverError({ message: "Something went wrong on upload." });
+    }
+    const uploadHandlerResponse: { buffer: Buffer; path: string } = JSON.parse(
+      uploadHandlerResponseJSON as string
+    );
+
+    const { data, error } = await persistUpload(
+      uploadHandlerResponse.path,
+      uploadHandlerResponse.buffer,
+      bucketName
+    );
+    validatePersistence(error, data, uploadHandlerResponse.path);
+
+    formData.append(uploadKey as string, uploadHandlerResponse.path);
+
+    return formData;
   } catch (exception) {
     throw serverError({ message: "Something went wrong on upload." });
   }
