@@ -6,6 +6,7 @@ import { supabaseAdmin } from "~/supabase";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { uploadKeys } from "./schema";
 
+// Maybe we should use a library to get extensions out of the file header (Prevent MIME-Sniffing)
 const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
 function getExtensionFromFilename(filename: string) {
   const result = EXTENSION_REGEX.exec(filename);
@@ -26,11 +27,14 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
+  // TODO: Get actual mimeType
+  const mimeType = "TODO";
+  const sizeInBytes = buffer.length;
 
   // Only string, File or undefined can be returned
   // Is there a better solution than JSON?
   // Maybe use memoryUpload?
-  return JSON.stringify({ buffer, path, filename });
+  return JSON.stringify({ buffer, path, filename, mimeType, sizeInBytes });
 };
 
 async function persistUpload(path: string, buffer: Buffer, bucketName: string) {
@@ -87,9 +91,13 @@ export const upload = async (request: Request, bucketName: string) => {
     if (uploadHandlerResponseJSON === null) {
       throw serverError({ message: "Something went wrong on upload." });
     }
-    const uploadHandlerResponse: { buffer: Buffer; path: string } = JSON.parse(
-      uploadHandlerResponseJSON as string
-    );
+    const uploadHandlerResponse: {
+      buffer: Buffer;
+      path: string;
+      filename: string;
+      mimeType: string;
+      sizeInBytes: number;
+    } = JSON.parse(uploadHandlerResponseJSON as string);
 
     const { data, error } = await persistUpload(
       uploadHandlerResponse.path,

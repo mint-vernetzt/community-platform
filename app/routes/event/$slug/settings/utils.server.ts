@@ -1,4 +1,4 @@
-import { Event } from "@prisma/client";
+import { Document, Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
@@ -259,6 +259,30 @@ export async function connectExperienceLevelToEvent() {
   //     experienceLevel: { connect: { id: parentEventId } },
   //   },
   // });
+}
+
+export async function createDocumentOnEvent(
+  eventId: string,
+  document: Pick<Document, "fileName" | "path" | "size" | "mimeType">
+) {
+  const profile = prismaClient.event.update({
+    where: {
+      id: eventId,
+    },
+    data: {
+      documents: {
+        create: {
+          document: {
+            create: {
+              ...document,
+            },
+          },
+        },
+      },
+      updatedAt: new Date(),
+    },
+  });
+  return profile;
 }
 
 export async function deleteEventById(id: string) {

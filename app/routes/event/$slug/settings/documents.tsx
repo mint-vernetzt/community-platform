@@ -1,3 +1,4 @@
+import { Document } from "@prisma/client";
 import { DataFunctionArgs } from "@remix-run/server-runtime";
 import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
@@ -9,7 +10,11 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { upload } from "~/routes/upload/uploadHandler.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
+import {
+  checkIdentityOrThrow,
+  checkOwnershipOrThrow,
+  createDocumentOnEvent,
+} from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -79,19 +84,46 @@ const mutation = makeDomainFunction(
     const uploadHandlerResponseJSON = formData.get("document");
     if (uploadHandlerResponseJSON === null) {
       console.log("\nUPLOAD HANDLER RESPONSE IS NULL\n");
-      throw serverError({ message: "Something went wrong on upload." });
+      throw new Error("Das hochladen des Dokumentes ist fehlgeschlagen.");
     }
     const uploadHandlerResponse: {
       buffer: Buffer;
       path: string;
       filename: string;
+      mimeType: string;
+      sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
-    // TODO: Persist path and filename in database
+    // TODO: Persist document in database, connect with event
     console.log("\nPUBLIC URL / PATH OF PDF:\n", uploadHandlerResponse.path);
     console.log("\nFILENAME OF PDF:\n", uploadHandlerResponse.filename, "\n");
+    console.log(
+      "\nSIZE IN BYTES OF PDF:\n",
+      uploadHandlerResponse.sizeInBytes,
+      "\n"
+    );
+    console.log("\nMIME TYPE OF PDF:\n", uploadHandlerResponse.mimeType, "\n");
+
+    const document: Pick<Document, "fileName" | "path" | "size" | "mimeType"> =
+      {
+        fileName: uploadHandlerResponse.filename,
+        path: uploadHandlerResponse.path,
+        size: uploadHandlerResponse.sizeInBytes,
+        mimeType: uploadHandlerResponse.mimeType,
+      };
+    try {
+      await createDocumentOnEvent(event.id, document);
+    } catch (error) {
+      // TODO: Error on uploading two files with the same name -> Should filename be unique?
+      // If yes, what to do with filename? (f.e. append (Copy), (1), etc...)
+      console.log(error);
+      throw new Error(
+        "Dokument konnte nicht in der Datenbank gespeichert werden."
+      );
+    }
   }
   // edit
   // delete
+  return values;
 });
 
 export const action: ActionFunction = async (args) => {
@@ -107,12 +139,28 @@ export const action: ActionFunction = async (args) => {
   });
 
   if (result.success === false) {
-    if (
-      result.errors._global !== undefined &&
-      result.errors._global.includes("Id nicht korrekt")
-    ) {
-      console.log("\nID NICHT KORREKT\n");
-      throw badRequest({ message: "Id nicht korrekt" });
+    if (result.errors._global !== undefined) {
+      if (result.errors._global.includes("Id nicht korrekt")) {
+        throw badRequest({ message: "Id nicht korrekt" });
+      }
+      if (
+        result.errors._global.includes(
+          "Dokument konnte nicht in der Datenbank gespeichert werden."
+        )
+      ) {
+        throw serverError({
+          message: "Dokument konnte nicht in der Datenbank gespeichert werden.",
+        });
+      }
+      if (
+        result.errors._global.includes(
+          "Das hochladen des Dokumentes ist fehlgeschlagen."
+        )
+      ) {
+        throw serverError({
+          message: "Das hochladen des Dokumentes ist fehlgeschlagen.",
+        });
+      }
     }
   }
 
