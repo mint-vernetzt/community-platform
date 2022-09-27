@@ -3,7 +3,7 @@ import { forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import { deriveMode, getEventBySlugOrThrow } from "../utils.server";
 
 type LoaderData = Response;
 

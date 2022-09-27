@@ -1,6 +1,6 @@
 import { Document } from "@prisma/client";
 import { DataFunctionArgs } from "@remix-run/server-runtime";
-import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
+import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, serverError } from "remix-utils";
@@ -29,7 +29,7 @@ const environmentSchema = z.object({ args: z.unknown() });
 
 type LoaderData = {
   userId: string;
-  eventId: string;
+  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -48,7 +48,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   return {
     userId: currentUser.id,
-    eventId: event.id,
+    event: event,
   };
 };
 
@@ -178,13 +178,74 @@ function Delete() {
       {/* For each document */}
       {/* - RemixForm to delete document with submit value delete */}
       {/* - Modal to edit document. Inside RemixForm with edit inputs and submit value edit */}
+      {/* - Link to resource route for download with url parameter filename=${filename} */}
+      {/* For all documents */}
+      {/* - Link to resource route for download WITHOUT url parameter filename (meaning download all as zip) */}
+      {loaderData.event.documents.length > 0 && (
+        <div className="mb-8">
+          <h3>Aktuelle Dokumente</h3>
+          <ul>
+            {loaderData.event.documents.map((item, index) => {
+              return (
+                <div
+                  key={`document-${index}`}
+                  className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+                >
+                  <p>{item.document.title || item.document.fileName}</p>
+                  {/* TODO: Round size */}
+                  <p className="mx-4">{item.document.size / 1024 / 1024} MB</p>
+                  {/* TODO: Provide download on resource route */}
+                  <Link
+                    className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
+                    to={`documents-download?filename=${item.document.fileName}`}
+                    reloadDocument
+                  >
+                    Herunterladen
+                  </Link>
+                  {/* TODO: Wrap edit Form inside Modal */}
+                  <button className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2">
+                    Editieren
+                  </button>
+                  <RemixForm method="post" schema={schema}>
+                    {({ Field, Errors }) => (
+                      <>
+                        <Field name="submit" hidden value="delete" />
+                        <Field name="userId" hidden value={loaderData.userId} />
+                        <Field
+                          name="eventId"
+                          hidden
+                          value={loaderData.event.id}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-outline-primary ml-auto btn-small mt-2"
+                        >
+                          Löschen
+                        </button>
+                        <Errors />
+                      </>
+                    )}
+                  </RemixForm>
+                </div>
+              );
+            })}
+          </ul>
+          <Link
+            className="btn btn-outline btn-primary mt-4"
+            to={`documents-download`}
+            reloadDocument
+          >
+            Alle Herunterladen
+          </Link>
+        </div>
+      )}
 
       <RemixForm method="post" schema={schema} encType="multipart/form-data">
         {({ Field, Errors, register }) => (
           <>
             <Field name="submit" hidden value="upload" />
             <Field name="userId" hidden value={loaderData.userId} />
-            <Field name="eventId" hidden value={loaderData.eventId} />
+            <Field name="eventId" hidden value={loaderData.event.id} />
             <Field name="uploadKey" hidden value={"document"} />
             <Field name="document" label="PDF Dokument auswählen">
               {({ Errors }) => (
