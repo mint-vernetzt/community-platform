@@ -1,8 +1,9 @@
 import { LoaderFunction } from "remix";
-import { forbidden } from "remix-utils";
+import { badRequest, forbidden, pdf } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { download } from "~/storage.server";
 import { deriveMode, getEventBySlugOrThrow } from "../utils.server";
 
 type LoaderData = Response;
@@ -21,16 +22,38 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  const filename = "";
-  // TODO: get url parameter filename
-  // If null -> download all files from event as zip
-  // if !null -> download file with filename from url parameter
-
-  return new Response("TODO: file", {
+  const url = new URL(request.url);
+  const path = url.searchParams.get("path");
+  let filename = url.searchParams.get("filename");
+  let file;
+  let contentType;
+  if (path !== null) {
+    if (filename === null) {
+      throw badRequest({
+        message:
+          "Either pass - path - and - filename - as url parameter to download a single document or pass nothing to download all documents of the event as zip.",
+      });
+    }
+    const blob = await download(path);
+    // TODO: Generate pdf file
+    //file = generatePDF(blob);
+    contentType = "application/pdf";
+  } else {
+    const files = await Promise.all(
+      event.documents.map(async (item) => {
+        return await download(item.document.path);
+      })
+    );
+    // TODO: zip files -> Find package (maybe remix || react)
+    // file = zip(files)
+    contentType = "application/zip";
+    filename = `${event.name}_Dokumente.zip`;
+  }
+  return new Response(file, {
     status: 200,
     headers: {
-      "Content-Type": "TODO: get MIME type of file",
-      "Content-Disposition": `filename="/*TODO: If zip -> ${event.name}_Dokumente.zip / else -> ${filename}.fileExtension"`,
+      "Content-Type": contentType,
+      "Content-Disposition": `filename=${filename}`,
     },
   });
 };

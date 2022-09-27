@@ -44,8 +44,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   await checkOwnershipOrThrow(event, currentUser);
 
-  // TODO: Get all documents from event
-
   return {
     userId: currentUser.id,
     event: event,
@@ -197,7 +195,13 @@ function Delete() {
                   {/* TODO: Provide download on resource route */}
                   <Link
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
-                    to={`documents-download?filename=${item.document.fileName}`}
+                    to={`/event/${
+                      loaderData.event.slug
+                    }/settings/documents-download?path=${
+                      item.document.path
+                    }&filename=${
+                      item.document.title || item.document.fileName
+                    }`}
                     reloadDocument
                   >
                     Herunterladen
@@ -232,7 +236,7 @@ function Delete() {
           </ul>
           <Link
             className="btn btn-outline btn-primary mt-4"
-            to={`documents-download`}
+            to={`/event/${loaderData.event.slug}/settings/documents-download`}
             reloadDocument
           >
             Alle Herunterladen
