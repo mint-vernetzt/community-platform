@@ -284,9 +284,9 @@ function Index() {
         </Link>
         {/* Show documents from loader data */}
         {/* For each document */}
-        {/* - Link to resource route for download with url parameter filename=${filename} */}
+        {/* - Link to resource route for download with url parameter filename=${filename} and path=${path} */}
         {/* For all documents */}
-        {/* - Link to resource route for download WITHOUT url parameter filename (meaning download all as zip) */}
+        {/* - Link to resource route for download WITHOUT url parameters (meaning download all as zip) */}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
         <h3>End: {loaderData.event.endTime}</h3>

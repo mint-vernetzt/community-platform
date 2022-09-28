@@ -5,11 +5,9 @@ import { createHashFromString, stream2buffer } from "~/utils.server";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 
-// Maybe we should use a library to get extensions out of the file header (Prevent MIME-Sniffing)
 const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
 function getExtensionFromFilename(filename: string) {
   const result = EXTENSION_REGEX.exec(filename);
-  console.log("\nREGEX EXTENSION RESULT\n", result);
   return result !== null ? result[1] : "unknown";
 }
 
@@ -27,7 +25,7 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
-  // TODO: Get actual mimeType
+  // TODO: Get actual mimeType with library
   let mimeType;
   if (name === "document") {
     mimeType = "application/pdf";
@@ -92,7 +90,7 @@ export const upload = async (request: Request, bucketName: string) => {
       mimeType: string;
       sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
-    // Convert buffer data to Buffer
+    // Convert buffer.data (number[]) to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
 
     const { data, error } = await persistUpload(

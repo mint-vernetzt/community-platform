@@ -21,7 +21,6 @@ const schema = z.object({
   eventId: z.string(),
   uploadKey: z.string(),
   document: z.unknown(),
-  // document: z.instanceof(File),
   submit: z.string(),
 });
 
@@ -103,8 +102,6 @@ const mutation = makeDomainFunction(
     try {
       await createDocumentOnEvent(event.id, document);
     } catch (error) {
-      // TODO: Error on uploading two files with the same name -> Should filename be unique?
-      // If yes, what to do with filename? (f.e. append (Copy), (1), etc...)
       console.log(error);
       throw new Error(
         "Dokument konnte nicht in der Datenbank gespeichert werden."
@@ -118,8 +115,6 @@ const mutation = makeDomainFunction(
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-
-  console.log("\nBEFORE PERFORM MUTATION\n");
 
   const result = await performMutation({
     request,
@@ -153,7 +148,6 @@ export const action: ActionFunction = async (args) => {
       }
     }
   }
-
   return result;
 };
 
