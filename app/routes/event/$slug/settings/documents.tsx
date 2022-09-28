@@ -8,7 +8,7 @@ import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { upload } from "~/routes/upload/uploadHandler.server";
+import { upload } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   checkIdentityOrThrow,
@@ -25,6 +25,7 @@ const schema = z.object({
   submit: z.string(),
 });
 
+// TODO: args: z.object( request: z.unknown(), params, ...)
 const environmentSchema = z.object({ args: z.unknown() });
 
 type LoaderData = {
@@ -82,7 +83,6 @@ const mutation = makeDomainFunction(
     const formData = await upload(request, "documents");
     const uploadHandlerResponseJSON = formData.get("document");
     if (uploadHandlerResponseJSON === null) {
-      console.log("\nUPLOAD HANDLER RESPONSE IS NULL\n");
       throw new Error("Das hochladen des Dokumentes ist fehlgeschlagen.");
     }
     const uploadHandlerResponse: {
@@ -92,15 +92,6 @@ const mutation = makeDomainFunction(
       mimeType: string;
       sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
-    // TODO: Persist document in database, connect with event
-    console.log("\nPUBLIC URL / PATH OF PDF:\n", uploadHandlerResponse.path);
-    console.log("\nFILENAME OF PDF:\n", uploadHandlerResponse.filename, "\n");
-    console.log(
-      "\nSIZE IN BYTES OF PDF:\n",
-      uploadHandlerResponse.sizeInBytes,
-      "\n"
-    );
-    console.log("\nMIME TYPE OF PDF:\n", uploadHandlerResponse.mimeType, "\n");
 
     const document: Pick<Document, "fileName" | "path" | "size" | "mimeType"> =
       {
@@ -166,7 +157,7 @@ export const action: ActionFunction = async (args) => {
   return result;
 };
 
-function Delete() {
+function Documents() {
   const loaderData = useLoaderData<LoaderData>();
 
   return (
@@ -278,4 +269,4 @@ function Delete() {
   );
 }
 
-export default Delete;
+export default Documents;
