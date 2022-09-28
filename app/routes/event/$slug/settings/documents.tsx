@@ -77,6 +77,7 @@ const mutation = makeDomainFunction(
 
   // TODO: switch (submit value)
   // upload
+  // TODO: Handle empty upload
   if (values.submit === "upload") {
     const formData = await upload(request, "documents");
     const uploadHandlerResponseJSON = formData.get("document");
