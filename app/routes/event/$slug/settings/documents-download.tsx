@@ -1,5 +1,5 @@
 import { LoaderFunction } from "remix";
-import { badRequest, forbidden, pdf } from "remix-utils";
+import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -35,9 +35,8 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       });
     }
     const blob = await download(path);
-    // TODO: Generate pdf file
-    //file = generatePDF(blob);
-    contentType = "application/pdf";
+    file = await blob.arrayBuffer();
+    contentType = blob.type;
   } else {
     const files = await Promise.all(
       event.documents.map(async (item) => {
@@ -49,11 +48,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     contentType = "application/zip";
     filename = `${event.name}_Dokumente.zip`;
   }
+
   return new Response(file, {
     status: 200,
     headers: {
       "Content-Type": contentType,
-      "Content-Disposition": `filename=${filename}`,
+      "Content-Disposition": `attachment; filename=${filename}`,
     },
   });
 };
