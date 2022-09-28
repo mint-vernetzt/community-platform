@@ -63,6 +63,8 @@ export const action: ActionFunction = async ({ request }) => {
     buffer: Buffer;
     path: string;
     filename: string;
+    mimeType: string;
+    sizeInBytes: number;
   } = JSON.parse(uploadHandlerResponseJSON as string);
 
   if (

@@ -28,21 +28,26 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const hash = await createHashFromString(buffer.toString());
   const path = generatePathName(filename, hash, name);
   // TODO: Get actual mimeType
-  const mimeType = "TODO";
+  let mimeType;
+  if (name === "document") {
+    mimeType = "application/pdf";
+  }
   const sizeInBytes = buffer.length;
 
-  // Only string, File or undefined can be returned
-  // Is there a better solution than JSON?
-  // Maybe use memoryUpload?
   return JSON.stringify({ buffer, path, filename, mimeType, sizeInBytes });
 };
 
-async function persistUpload(path: string, buffer: Buffer, bucketName: string) {
+async function persistUpload(
+  path: string,
+  buffer: Buffer,
+  bucketName: string,
+  mimeType?: string
+) {
   return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    // How to pass another bucket name
     .from(bucketName)
     .upload(path, buffer, {
       upsert: true,
+      contentType: mimeType,
     });
 }
 
@@ -92,19 +97,25 @@ export const upload = async (request: Request, bucketName: string) => {
       throw serverError({ message: "Something went wrong on upload." });
     }
     const uploadHandlerResponse: {
-      buffer: Buffer;
+      buffer: {
+        type: "Buffer";
+        data: number[];
+      };
       path: string;
       filename: string;
       mimeType: string;
       sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
+    // Convert buffer data to Buffer
+    const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
 
     const { data, error } = await persistUpload(
       uploadHandlerResponse.path,
-      uploadHandlerResponse.buffer,
-      bucketName
+      buffer,
+      bucketName,
+      uploadHandlerResponse.mimeType
     );
-    validatePersistence(error, data, uploadHandlerResponse.path);
+    validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
 
     return formData;
   } catch (exception) {
@@ -112,12 +123,17 @@ export const upload = async (request: Request, bucketName: string) => {
   }
 };
 
-function validatePersistence(error: any, data: any, path: string) {
+function validatePersistence(
+  error: any,
+  data: any,
+  path: string,
+  bucketName?: string
+) {
   if (error || data === null) {
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(path) === null) {
+  if (getPublicURL(path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });
