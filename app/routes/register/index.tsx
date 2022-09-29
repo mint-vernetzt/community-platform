@@ -37,25 +37,33 @@ const schema = z.object({
       "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
     ),
   termsAccepted: z.boolean(),
-  redirectTo: z.string().optional(),
+  redirectToAfterRegister: z.string().optional(),
 });
 
 type LoaderData = {
-  redirectTo: string | null;
+  redirectToAfterRegister: string | null;
+  loginRedirect?: string;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request } = args;
   const url = new URL(request.url);
-  const redirectTo = url.searchParams.get("redirect_to");
+  const redirectToAfterRegister = url.searchParams.get("redirect_to");
+  let loginRedirect;
+  if (redirectToAfterRegister !== null) {
+    const redirectURL = new URL(redirectToAfterRegister);
+    const eventSlug = redirectURL.searchParams.get("event_slug");
+    if (eventSlug !== null) {
+      loginRedirect = `/login?event_slug=${eventSlug}`;
+    }
+  }
 
-  return { redirectTo };
+  return { redirectToAfterRegister, loginRedirect };
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
   // TODO: move to database trigger
-  const { firstName, lastName, academicTitle, termsAccepted, redirectTo } =
-    values;
+  const { firstName, lastName, academicTitle, termsAccepted } = values;
 
   if (!termsAccepted) {
     throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
@@ -76,7 +84,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   const { error } = await signUp(
     values.email,
     values.password,
-    values.redirectTo,
+    values.redirectToAfterRegister,
     {
       firstName,
       lastName,
@@ -119,7 +127,10 @@ export default function Register() {
             </div>
             <div className="ml-auto">
               Bereits Mitglied?{" "}
-              <a href="/login" className="text-primary font-bold">
+              <a
+                href={loaderData.loginRedirect || "/login"}
+                className="text-primary font-bold"
+              >
                 Anmelden
               </a>
             </div>
@@ -152,9 +163,9 @@ export default function Register() {
               <RemixForm
                 method="post"
                 schema={schema}
-                hiddenFields={["redirectTo"]}
+                hiddenFields={["redirectToAfterRegister"]}
                 values={{
-                  redirectTo: loaderData.redirectTo,
+                  redirectToAfterRegister: loaderData.redirectToAfterRegister,
                 }}
               >
                 {({ Field, Button, Errors, register }) => (
@@ -167,7 +178,7 @@ export default function Register() {
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
-                        <Field name="redirectTo" />
+                        <Field name="redirectToAfterRegister" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>
