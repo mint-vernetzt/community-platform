@@ -49,6 +49,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     filename = `${event.name}_Dokumente.zip`;
   }
 
+  // TODO: Check for missing headers
   return new Response(file, {
     status: 200,
     headers: {
