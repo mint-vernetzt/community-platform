@@ -3,6 +3,7 @@ import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
 import { SomeZodObject, z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
+import { transformAbsoluteURL } from "~/lib/utils/string";
 import { updateProfileByUserId } from "~/profile.server";
 import {
   authenticator,
@@ -72,7 +73,14 @@ export const loader: LoaderFunction = async (args) => {
     loginSuccessRedirect = `/event/${eventSlug}`;
     loginFailureRedirect = `/login?event_slug=${eventSlug}`;
     registerRedirect = `/register?redirect_to=${request.url}`;
-    resetPasswordRedirect = `/reset?redirect_to=${request.url}`;
+    const urlEndingToRemove = `/login?event_slug=${eventSlug}`;
+    const urlEndingToAppend = `/set-password?redirect_to=${request.url}`;
+    const absoluteSetPasswordURL = transformAbsoluteURL(
+      request.url,
+      urlEndingToRemove,
+      urlEndingToAppend
+    );
+    resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
   }
 
   await supabaseStrategy.checkSession(request, {
