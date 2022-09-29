@@ -140,9 +140,12 @@ export const getUserByAccessToken = async (
 };
 
 export async function resetPassword(
-  email: string
+  email: string,
+  redirectToAfterResetPassword?: string
 ): Promise<{ error: ApiError | null }> {
-  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email);
+  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email, {
+    redirectTo: redirectToAfterResetPassword,
+  });
   return { error };
 }
 

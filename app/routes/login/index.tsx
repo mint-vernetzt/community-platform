@@ -1,3 +1,4 @@
+import React from "react";
 import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
@@ -40,8 +41,8 @@ type LoaderData = {
   error: Error | null;
   loginSuccessRedirect?: string;
   loginFailureRedirect?: string;
-  registerRedirect?: string;
-  resetPasswordRedirect?: string;
+  registerRedirect: string;
+  resetPasswordRedirect: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -66,22 +67,18 @@ export const loader: LoaderFunction = async (args) => {
   }
   let loginSuccessRedirect;
   let loginFailureRedirect;
-  let registerRedirect;
-  let resetPasswordRedirect;
   const eventSlug = url.searchParams.get("event_slug");
   if (eventSlug !== null) {
     loginSuccessRedirect = `/event/${eventSlug}`;
     loginFailureRedirect = `/login?event_slug=${eventSlug}`;
-    registerRedirect = `/register?redirect_to=${request.url}`;
-    const urlEndingToRemove = `/login?event_slug=${eventSlug}`;
-    const urlEndingToAppend = `/set-password?redirect_to=${request.url}`;
-    const absoluteSetPasswordURL = transformAbsoluteURL(
-      request.url,
-      urlEndingToRemove,
-      urlEndingToAppend
-    );
-    resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
   }
+  const registerRedirect = `/register?redirect_to=${request.url}&`;
+  const absoluteSetPasswordURL =
+    url.protocol +
+    "//" +
+    url.host +
+    `/reset/set-password?redirect_to=${request.url}&`;
+  const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
 
   await supabaseStrategy.checkSession(request, {
     successRedirect: "/explore",
@@ -129,6 +126,7 @@ export const action: ActionFunction = async (args) => {
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
   return (
     <LoginForm
       method="post"
@@ -151,7 +149,7 @@ export default function Index() {
                 <div className="ml-auto">
                   Noch kein Mitglied?{" "}
                   <a
-                    href={loaderData.registerRedirect || "/register"}
+                    href={loaderData.registerRedirect}
                     className="text-primary font-bold"
                   >
                     Registrieren
@@ -207,7 +205,7 @@ export default function Index() {
                   </div>
                   <div className="basis-6/12 px-4 text-right">
                     <a
-                      href={loaderData.resetPasswordRedirect || "/reset"}
+                      href={loaderData.resetPasswordRedirect}
                       className="text-primary font-bold"
                     >
                       Passwort vergessen?

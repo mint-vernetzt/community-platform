@@ -21,6 +21,7 @@ const schema = z.object({
     .string()
     .email("Bitte gib eine gültige E-Mail-Adresse ein.")
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
+  redirectToAfterResetPassword: z.string().optional(),
 });
 
 type LoaderData = {
@@ -49,7 +50,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { error } = await resetPassword(values.email);
+  const { error } = await resetPassword(
+    values.email,
+    values.redirectToAfterResetPassword
+  );
 
   if (error !== null && error.message !== "User not found") {
     throw error.message;
@@ -109,7 +113,15 @@ export default function Index() {
                 </p>
               </>
             ) : (
-              <RemixForm method="post" schema={schema}>
+              <RemixForm
+                method="post"
+                schema={schema}
+                hiddenFields={["redirectToAfterResetPassword"]}
+                values={{
+                  redirectToAfterResetPassword:
+                    loaderData.redirectToAfterResetPassword,
+                }}
+              >
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
@@ -119,6 +131,7 @@ export default function Index() {
                       Passwort einstellen kannst.
                     </p>
 
+                    <Field name="redirectToAfterResetPassword" />
                     <div className="mb-8">
                       <Field name="email" label="E-Mail">
                         {({ Errors }) => (

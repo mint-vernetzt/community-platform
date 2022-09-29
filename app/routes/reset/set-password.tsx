@@ -1,12 +1,14 @@
+import React from "react";
 import {
   ActionFunction,
   json,
   LoaderFunction,
+  redirect,
   useActionData,
   useLoaderData,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction } from "remix-forms";
+import { Form as RemixForm, formAction, performMutation } from "remix-forms";
 import { z } from "zod";
 import { updatePasswordByAccessToken } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
@@ -26,20 +28,23 @@ const schema = z.object({
       1,
       "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
     ),
+  redirectToAfterSetPassword: z.string().optional(),
 });
 
 type LoaderData = {
   accessToken: string | null;
+  redirectToAfterSetPassword: string | null;
 };
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
   const url = new URL(request.url);
-
+  console.log(request.url);
   const accessToken = url.searchParams.get("access_token");
+  const redirectToAfterSetPassword = url.searchParams.get("redirect_to");
 
-  return json<LoaderData>({ accessToken });
+  return json<LoaderData>({ accessToken, redirectToAfterSetPassword });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -66,12 +71,17 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  return formAction({
+  const result = await performMutation({
     request,
     schema,
     mutation,
-    successPath: "/login",
   });
+
+  if (result.success) {
+    return redirect(result.data.redirectToAfterSetPassword || "/login");
+  }
+
+  return result;
 };
 
 export function getAccessToken(
@@ -86,10 +96,16 @@ export function getAccessToken(
   }
   return "";
 }
+// TODO: get hash parameter from url (see root index)
+function getWindow() {
+  return typeof window !== "undefined" ? window : null;
+}
 
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+
+  // TODO: get hash parameter from url (see root index) or from action
   const accessToken = getAccessToken(loaderData, actionData);
 
   return (
@@ -104,12 +120,20 @@ export default function SetPassword() {
             <div className="ml-auto"></div>
           </div>
         </div>
-        <RemixForm method="post" schema={schema}>
+        <RemixForm
+          method="post"
+          schema={schema}
+          hiddenFields={["redirectToAfterSetPassword"]}
+          values={{
+            redirectToAfterSetPassword: loaderData.redirectToAfterSetPassword,
+          }}
+        >
           {({ Field, Button, Errors, register }) => (
             <div className="flex flex-col md:flex-row -mx-4">
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
+                <Field name="redirectToAfterSetPassword" />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (
