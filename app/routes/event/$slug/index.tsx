@@ -6,7 +6,6 @@ import { z } from "zod";
 import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { transformAbsoluteURL } from "~/lib/utils/string";
 import {
   connectParticipantToEvent,
   connectToWaitingListOfEvent,
@@ -41,7 +40,6 @@ type LoaderData = {
   fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
   fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
-  redirectToAfterRegister: string;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -66,14 +64,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
   const fullDepthOrganizers = await getFullDepthOrganizers(event.id);
 
-  const urlEndingToRemove = `event/${slug}`;
-  const urlEndingToAppend = `login?event_slug=${slug}`;
-  const redirectToAfterRegister = transformAbsoluteURL(
-    request.url,
-    urlEndingToRemove,
-    urlEndingToAppend
-  );
-
   return {
     mode,
     event,
@@ -81,7 +71,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     fullDepthSpeaker,
     userId: currentUser?.id || undefined,
     fullDepthOrganizers,
-    redirectToAfterRegister,
   };
 };
 
@@ -258,12 +247,6 @@ function Index() {
                   to={`/login?event_slug=${loaderData.event.slug}`}
                 >
                   Anmelden um teilzunehmen
-                </Link>
-                <Link
-                  className="btn btn-outline btn-primary"
-                  to={`/register?redirect_to=${loaderData.redirectToAfterRegister}`}
-                >
-                  Registrieren um teilzunehmen
                 </Link>
               </>
             )}
