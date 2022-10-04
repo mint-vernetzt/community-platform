@@ -285,6 +285,14 @@ export async function createDocumentOnEvent(
   return profile;
 }
 
+export async function disconnectDocumentFromEvent(documentId: string) {
+  await prismaClient.document.delete({
+    where: {
+      id: documentId,
+    },
+  });
+}
+
 export async function deleteEventById(id: string) {
   return await prismaClient.event.delete({ where: { id } });
 }

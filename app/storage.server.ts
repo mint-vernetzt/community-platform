@@ -92,6 +92,9 @@ export const upload = async (request: Request, bucketName: string) => {
     } = JSON.parse(uploadHandlerResponseJSON as string);
     // Convert buffer.data (number[]) to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
+    if (buffer.length === 0) {
+      throw serverError({ message: "Cannot upload empty file." });
+    }
 
     const { data, error } = await persistUpload(
       uploadHandlerResponse.path,

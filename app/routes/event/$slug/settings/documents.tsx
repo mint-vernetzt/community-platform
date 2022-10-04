@@ -15,13 +15,15 @@ import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
   createDocumentOnEvent,
+  disconnectDocumentFromEvent as deleteDocument,
 } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  uploadKey: z.string(),
-  document: z.unknown(),
+  uploadKey: z.string().optional(),
+  document: z.unknown().optional(),
+  documentId: z.string().optional(),
   submit: z.string(),
 });
 
@@ -116,8 +118,23 @@ const mutation = makeDomainFunction(
       );
     }
   }
-  // edit
-  // delete
+  // TODO: edit
+  else if (values.submit === "delete") {
+    console.log("DELETE");
+    if (values.documentId === undefined) {
+      throw new Error(
+        "Dokument konnte nicht aus der Datenbank gelöscht werden."
+      );
+    }
+    try {
+      await deleteDocument(values.documentId);
+    } catch (error) {
+      console.log(error);
+      throw new Error(
+        "Dokument konnte nicht aus der Datenbank gelöscht werden."
+      );
+    }
+  }
   return values;
 });
 
@@ -143,6 +160,15 @@ export const action: ActionFunction = async (args) => {
       ) {
         throw serverError({
           message: "Dokument konnte nicht in der Datenbank gespeichert werden.",
+        });
+      }
+      if (
+        result.errors._global.includes(
+          "Dokument konnte nicht aus der Datenbank gelöscht werden."
+        )
+      ) {
+        throw serverError({
+          message: "Dokument konnte nicht aus der Datenbank gelöscht werden.",
         });
       }
       if (
@@ -214,6 +240,11 @@ function Documents() {
                       <>
                         <Field name="submit" hidden value="delete" />
                         <Field name="userId" hidden value={loaderData.userId} />
+                        <Field
+                          name="documentId"
+                          hidden
+                          value={item.document.id}
+                        />
                         <Field
                           name="eventId"
                           hidden
