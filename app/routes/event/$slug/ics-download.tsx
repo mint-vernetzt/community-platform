@@ -5,7 +5,6 @@ import { forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { transformAbsoluteURL } from "~/lib/utils/string";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
@@ -126,13 +125,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  const urlEndingToRemove = "ics-download";
-  const urlEndingToAppend = "";
-  const absoluteEventURL = transformAbsoluteURL(
-    request.url,
-    urlEndingToRemove,
-    urlEndingToAppend
-  );
+  const url = new URL(request.url);
+  const absoluteEventURL =
+    url.protocol + "//" + url.host + `/event/${event.slug}`;
   const ics = createIcsString(event, absoluteEventURL);
 
   return new Response(ics, {

@@ -2,15 +2,14 @@ import type { ApiError, User } from "@supabase/supabase-js";
 import { createCookieSessionStorage } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
-import { supabaseAdmin, supabaseClient } from "./supabase";
-import type { Session } from "./supabase";
-import { prismaClient } from "./prisma";
 import { unauthorized } from "remix-utils";
-
 // important for testing nested calls (https://stackoverflow.com/a/55193363)
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules
 import * as self from "./auth.server";
+import { prismaClient } from "./prisma";
+import type { Session } from "./supabase";
+import { supabaseAdmin, supabaseClient } from "./supabase";
 
 export const SESSION_NAME = "sb";
 
@@ -79,6 +78,7 @@ authenticator.use(supabaseStrategy);
 export async function signUp(
   email: string,
   password: string,
+  redirectTo: string | undefined,
   metaData: {
     firstName: string;
     lastName: string;
@@ -93,7 +93,7 @@ export async function signUp(
 }> {
   const { user, session, error } = await supabaseClient.auth.signUp(
     { email, password },
-    { data: metaData }
+    { data: metaData, redirectTo: redirectTo }
   );
   return { user, session, error };
 }
@@ -139,9 +139,12 @@ export const getUserByAccessToken = async (
 };
 
 export async function resetPassword(
-  email: string
+  email: string,
+  redirectToAfterResetPassword?: string
 ): Promise<{ error: ApiError | null }> {
-  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email);
+  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email, {
+    redirectTo: redirectToAfterResetPassword,
+  });
   return { error };
 }
 

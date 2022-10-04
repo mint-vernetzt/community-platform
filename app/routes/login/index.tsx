@@ -22,8 +22,8 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  successRedirect: z.string().optional(),
-  failureRedirect: z.string().optional(),
+  loginSuccessRedirect: z.string().optional(),
+  loginFailureRedirect: z.string().optional(),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
@@ -31,14 +31,16 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
 }
 
 const defaultRedirect = {
-  successRedirect: "/",
-  failureRedirect: "/login",
+  loginSuccessRedirect: "/",
+  loginFailureRedirect: "/login",
 };
 
 type LoaderData = {
   error: Error | null;
-  successRedirect?: string;
-  failureRedirect?: string;
+  loginSuccessRedirect?: string;
+  loginFailureRedirect?: string;
+  registerRedirect: string;
+  resetPasswordRedirect: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -61,13 +63,20 @@ export const loader: LoaderFunction = async (args) => {
       });
     }
   }
-  let successRedirect;
-  let failureRedirect;
+  let loginSuccessRedirect;
+  let loginFailureRedirect;
   const eventSlug = url.searchParams.get("event_slug");
   if (eventSlug !== null) {
-    successRedirect = `/event/${eventSlug}`;
-    failureRedirect = `/login?event_slug=${eventSlug}`;
+    loginSuccessRedirect = `/event/${eventSlug}`;
+    loginFailureRedirect = `/login?event_slug=${eventSlug}`;
   }
+  const registerRedirect = `/register?redirect_to=${request.url}`;
+  const absoluteSetPasswordURL =
+    url.protocol +
+    "//" +
+    url.host +
+    `/reset/set-password?redirect_to=${request.url}`;
+  const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
 
   await supabaseStrategy.checkSession(request, {
     successRedirect: "/explore",
@@ -79,7 +88,13 @@ export const loader: LoaderFunction = async (args) => {
 
   const error = session.get(authenticator.sessionErrorKey);
 
-  return json<LoaderData>({ error, successRedirect, failureRedirect });
+  return json<LoaderData>({
+    error,
+    loginSuccessRedirect,
+    loginFailureRedirect,
+    registerRedirect,
+    resetPasswordRedirect,
+  });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => values);
@@ -96,9 +111,11 @@ export const action: ActionFunction = async (args) => {
   if (result.success) {
     await authenticator.authenticate("sb", request, {
       successRedirect:
-        result.data.successRedirect || defaultRedirect.successRedirect,
+        result.data.loginSuccessRedirect ||
+        defaultRedirect.loginSuccessRedirect,
       failureRedirect:
-        result.data.failureRedirect || defaultRedirect.failureRedirect,
+        result.data.loginFailureRedirect ||
+        defaultRedirect.loginFailureRedirect,
     });
   }
 
@@ -107,14 +124,15 @@ export const action: ActionFunction = async (args) => {
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
   return (
     <LoginForm
       method="post"
       schema={schema}
-      hiddenFields={["successRedirect", "failureRedirect"]}
+      hiddenFields={["loginSuccessRedirect", "loginFailureRedirect"]}
       values={{
-        successRedirect: loaderData.successRedirect,
-        failureRedirect: loaderData.failureRedirect,
+        loginSuccessRedirect: loaderData.loginSuccessRedirect,
+        loginFailureRedirect: loaderData.loginFailureRedirect,
       }}
     >
       {({ Field, Button, Errors, register }) => (
@@ -128,7 +146,10 @@ export default function Index() {
                 </div>
                 <div className="ml-auto">
                   Noch kein Mitglied?{" "}
-                  <a href="/register" className="text-primary font-bold">
+                  <a
+                    href={loaderData.registerRedirect}
+                    className="text-primary font-bold"
+                  >
                     Registrieren
                   </a>
                 </div>
@@ -172,8 +193,8 @@ export default function Index() {
                     )}
                   </Field>
                 </div>
-                <Field name="successRedirect" />
-                <Field name="failureRedirect" />
+                <Field name="loginSuccessRedirect" />
+                <Field name="loginFailureRedirect" />
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
@@ -181,7 +202,10 @@ export default function Index() {
                     </button>
                   </div>
                   <div className="basis-6/12 px-4 text-right">
-                    <a href="/reset" className="text-primary font-bold">
+                    <a
+                      href={loaderData.resetPasswordRedirect}
+                      className="text-primary font-bold"
+                    >
                       Passwort vergessen?
                     </a>
                   </div>

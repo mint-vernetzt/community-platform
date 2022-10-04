@@ -241,12 +241,14 @@ function Index() {
         ) : (
           <>
             {loaderData.mode === "anon" && (
-              <Link
-                className="btn btn-outline btn-primary"
-                to={`/login?event_slug=${loaderData.event.slug}`}
-              >
-                Anmelden um teilzunehmen
-              </Link>
+              <>
+                <Link
+                  className="btn btn-outline btn-primary"
+                  to={`/login?event_slug=${loaderData.event.slug}`}
+                >
+                  Anmelden um teilzunehmen
+                </Link>
+              </>
             )}
             {loaderData.mode !== "anon" && (
               <RemixForm method="post" schema={schema}>

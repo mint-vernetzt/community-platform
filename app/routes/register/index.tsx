@@ -1,5 +1,11 @@
 import React from "react";
-import { ActionFunction, Link, LoaderFunction, useActionData } from "remix";
+import {
+  ActionFunction,
+  Link,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -31,10 +37,28 @@ const schema = z.object({
       "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
     ),
   termsAccepted: z.boolean(),
+  redirectToAfterRegister: z.string().optional(),
 });
 
-export const loader: LoaderFunction = async (args) => {
-  return null;
+type LoaderData = {
+  redirectToAfterRegister: string | null;
+  loginRedirect?: string;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+  const { request } = args;
+  const url = new URL(request.url);
+  const redirectToAfterRegister = url.searchParams.get("redirect_to");
+  let loginRedirect;
+  if (redirectToAfterRegister !== null) {
+    const redirectURL = new URL(redirectToAfterRegister);
+    const eventSlug = redirectURL.searchParams.get("event_slug");
+    if (eventSlug !== null) {
+      loginRedirect = `/login?event_slug=${eventSlug}`;
+    }
+  }
+
+  return { redirectToAfterRegister, loginRedirect };
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -57,13 +81,18 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       : ""
   }`;
 
-  const { error } = await signUp(values.email, values.password, {
-    firstName,
-    lastName,
-    username,
-    academicTitle,
-    termsAccepted,
-  });
+  const { error } = await signUp(
+    values.email,
+    values.password,
+    values.redirectToAfterRegister,
+    {
+      firstName,
+      lastName,
+      username,
+      academicTitle,
+      termsAccepted,
+    }
+  );
   if (error !== null) {
     throw error.message;
   }
@@ -84,6 +113,7 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Register() {
+  const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
 
   return (
@@ -97,7 +127,10 @@ export default function Register() {
             </div>
             <div className="ml-auto">
               Bereits Mitglied?{" "}
-              <a href="/login" className="text-primary font-bold">
+              <a
+                href={loaderData.loginRedirect || "/login"}
+                className="text-primary font-bold"
+              >
                 Anmelden
               </a>
             </div>
@@ -127,7 +160,14 @@ export default function Register() {
                 </p>
               </>
             ) : (
-              <RemixForm method="post" schema={schema}>
+              <RemixForm
+                method="post"
+                schema={schema}
+                hiddenFields={["redirectToAfterRegister"]}
+                values={{
+                  redirectToAfterRegister: loaderData.redirectToAfterRegister,
+                }}
+              >
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
@@ -138,6 +178,7 @@ export default function Register() {
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
+                        <Field name="redirectToAfterRegister" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>

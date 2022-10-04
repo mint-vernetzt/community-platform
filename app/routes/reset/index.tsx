@@ -1,4 +1,9 @@
-import { ActionFunction, useActionData } from "remix";
+import {
+  ActionFunction,
+  LoaderFunction,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { resetPassword } from "../../auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -16,10 +21,39 @@ const schema = z.object({
     .string()
     .email("Bitte gib eine gültige E-Mail-Adresse ein.")
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
+  redirectToAfterResetPassword: z.string().optional(),
 });
 
+type LoaderData = {
+  redirectToAfterResetPassword: string | null;
+  loginRedirect?: string;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+  const { request } = args;
+  const url = new URL(request.url);
+  const redirectToAfterResetPassword = url.searchParams.get("redirect_to");
+  let loginRedirect;
+  if (redirectToAfterResetPassword !== null) {
+    const redirectURL = new URL(redirectToAfterResetPassword);
+    const redirectAfterRedirect = redirectURL.searchParams.get("redirect_to");
+    if (redirectAfterRedirect !== null) {
+      const redirectAfterRedirectURL = new URL(redirectAfterRedirect);
+      const eventSlug = redirectAfterRedirectURL.searchParams.get("event_slug");
+      if (eventSlug !== null) {
+        loginRedirect = `/login?event_slug=${eventSlug}`;
+      }
+    }
+  }
+
+  return { redirectToAfterResetPassword, loginRedirect };
+};
+
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { error } = await resetPassword(values.email);
+  const { error } = await resetPassword(
+    values.email,
+    values.redirectToAfterResetPassword
+  );
 
   if (error !== null && error.message !== "User not found") {
     throw error.message;
@@ -41,6 +75,7 @@ export const action: ActionFunction = async (args) => {
 
 export default function Index() {
   const actionData = useActionData<ActionData>();
+  const loaderData = useLoaderData<LoaderData>();
 
   return (
     <>
@@ -51,7 +86,14 @@ export default function Index() {
             <div>
               <HeaderLogo />
             </div>
-            <div className="ml-auto"></div>
+            <div className="ml-auto">
+              <a
+                href={loaderData.loginRedirect || "/login"}
+                className="text-primary font-bold"
+              >
+                Anmelden
+              </a>
+            </div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row -mx-4">
@@ -71,7 +113,15 @@ export default function Index() {
                 </p>
               </>
             ) : (
-              <RemixForm method="post" schema={schema}>
+              <RemixForm
+                method="post"
+                schema={schema}
+                hiddenFields={["redirectToAfterResetPassword"]}
+                values={{
+                  redirectToAfterResetPassword:
+                    loaderData.redirectToAfterResetPassword,
+                }}
+              >
                 {({ Field, Button, Errors, register }) => (
                   <>
                     <p className="mb-4">
@@ -81,6 +131,7 @@ export default function Index() {
                       Passwort einstellen kannst.
                     </p>
 
+                    <Field name="redirectToAfterResetPassword" />
                     <div className="mb-8">
                       <Field name="email" label="E-Mail">
                         {({ Errors }) => (
