@@ -71,12 +71,12 @@ export const loader: LoaderFunction = async (args) => {
     loginSuccessRedirect = `/event/${eventSlug}`;
     loginFailureRedirect = `/login?event_slug=${eventSlug}`;
   }
-  const registerRedirect = `/register?redirect_to=${request.url}&`;
+  const registerRedirect = `/register?redirect_to=${request.url}`;
   const absoluteSetPasswordURL =
     url.protocol +
     "//" +
     url.host +
-    `/reset/set-password?redirect_to=${request.url}&`;
+    `/reset/set-password?redirect_to=${request.url}`;
   const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
 
   await supabaseStrategy.checkSession(request, {

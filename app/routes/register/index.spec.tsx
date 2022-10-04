@@ -5,27 +5,49 @@ import { loader } from "./index";
 const expect = global.expect;
 
 const url = "http://www.community.org/register";
-const urlWithRedirect =
-  "http://www.community.org/register?redirect_to=http://www.testpage.org";
+const urlWithRedirectToLogin =
+  "http://www.community.org/register?redirect_to=http://www.testpage.org/login";
+const urlWithRedirectToLoginAndEvent =
+  "http://www.community.org/register?redirect_to=http://www.testpage.org/login?event_slug=testevent";
 
-test("call loader", async () => {
+test("call loader without redirect", async () => {
   const res = await loader({
     request: new Request(url),
     params: {},
     context: {},
   });
 
-  expect(res).toStrictEqual({ redirectTo: null });
+  expect(res).toStrictEqual({
+    redirectToAfterRegister: null,
+    loginRedirect: undefined,
+  });
 });
 
-test("call loader with redirect parameter", async () => {
+test("call loader with redirect parameter to login", async () => {
   const res = await loader({
-    request: new Request(urlWithRedirect),
+    request: new Request(urlWithRedirectToLogin),
     params: {},
     context: {},
   });
 
-  expect(res).toStrictEqual({ redirectTo: "http://www.testpage.org" });
+  expect(res).toStrictEqual({
+    redirectToAfterRegister: "http://www.testpage.org/login",
+    loginRedirect: undefined,
+  });
+});
+
+test("call loader with redirect parameter to login and event", async () => {
+  const res = await loader({
+    request: new Request(urlWithRedirectToLoginAndEvent),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual({
+    redirectToAfterRegister:
+      "http://www.testpage.org/login?event_slug=testevent",
+    loginRedirect: "/login?event_slug=testevent",
+  });
 });
 
 /* TODO: run e2e test
