@@ -36,6 +36,7 @@
     "cross-env": "^7.0.3",
     "date-fns": "^2.29.2",
     "dotenv": "^16.0.0",
+    "file-type": "^18.0.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "ics": "^2.40.0",
