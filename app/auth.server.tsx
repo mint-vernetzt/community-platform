@@ -2,15 +2,14 @@ import type { ApiError, User } from "@supabase/supabase-js";
 import { createCookieSessionStorage } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
-import { supabaseAdmin, supabaseClient } from "./supabase";
-import type { Session } from "./supabase";
-import { prismaClient } from "./prisma";
 import { unauthorized } from "remix-utils";
-
 // important for testing nested calls (https://stackoverflow.com/a/55193363)
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules
 import * as self from "./auth.server";
+import { prismaClient } from "./prisma";
+import type { Session } from "./supabase";
+import { supabaseAdmin, supabaseClient } from "./supabase";
 
 export const SESSION_NAME = "sb";
 

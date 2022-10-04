@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ActionFunction,
   json,
@@ -41,7 +40,6 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
   const url = new URL(request.url);
-  console.log(request.url);
   const accessToken = url.searchParams.get("access_token");
   const redirectToAfterSetPassword = url.searchParams.get("redirect_to");
 

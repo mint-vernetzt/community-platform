@@ -1,4 +1,3 @@
-import React from "react";
 import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
