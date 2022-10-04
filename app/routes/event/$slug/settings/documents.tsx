@@ -1,5 +1,6 @@
 import { Document } from "@prisma/client";
 import { DataFunctionArgs } from "@remix-run/server-runtime";
+import { useState } from "react";
 import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -76,8 +77,6 @@ const mutation = makeDomainFunction(
   }
 
   // TODO: switch (submit value)
-  // upload
-  // TODO: Handle empty upload
   if (values.submit === "upload") {
     const formData = await upload(request, "documents");
     const uploadHandlerResponseJSON = formData.get("document");
@@ -157,6 +156,13 @@ export const action: ActionFunction = async (args) => {
 
 function Documents() {
   const loaderData = useLoaderData<LoaderData>();
+  const [fileSelected, setFileSelected] = useState(false);
+
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFileSelected(true);
+    }
+  };
 
   return (
     <>
@@ -180,9 +186,7 @@ function Documents() {
                   className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
                 >
                   <p>{item.document.title || item.document.filename}</p>
-                  {/* TODO: Round size */}
                   <p className="mx-4">{item.document.sizeInMB} MB</p>
-                  {/* TODO: Provide download on resource route */}
                   <Link
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
                     to={`/event/${
@@ -247,7 +251,7 @@ function Documents() {
                   <input
                     type="file"
                     accept="application/pdf"
-                    {...register("document")}
+                    onChange={onSelectFile}
                   />
                   <Errors />
                 </>
@@ -256,6 +260,7 @@ function Documents() {
             <button
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small mt-2"
+              disabled={!fileSelected}
             >
               PDF Dokument hochladen
             </button>
