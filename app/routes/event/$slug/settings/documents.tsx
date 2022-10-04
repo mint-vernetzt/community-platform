@@ -25,8 +25,13 @@ const schema = z.object({
   submit: z.string(),
 });
 
-// TODO: args: z.object( request: z.unknown(), params, ...)
-const environmentSchema = z.object({ args: z.unknown() });
+const environmentSchema = z.object({
+  args: z.object({
+    request: z.unknown(),
+    context: z.unknown(),
+    params: z.unknown(),
+  }),
+});
 
 type LoaderData = {
   userId: string;
