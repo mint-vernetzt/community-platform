@@ -1,5 +1,5 @@
 import React from "react";
-import { LoaderFunction, redirect, useLoaderData, useSubmit } from "remix";
+import { LoaderFunction, useLoaderData, useSubmit } from "remix";
 import { authenticator, sessionStorage } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {
@@ -25,14 +25,8 @@ export default function Index() {
     const accessToken = urlSearchParams.get("access_token");
 
     if (accessToken !== null) {
-      if (type === "signup" || type === "email_change") {
+      if (type === "email_change") {
         submit({ type, access_token: accessToken }, { action: "/login?index" }); // TODO: maybe we can automatically log in user
-        return;
-      } else if (type === "recovery") {
-        submit(
-          { access_token: accessToken },
-          { action: "/reset/set-password" }
-        );
         return;
       }
     }

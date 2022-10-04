@@ -8,8 +8,9 @@ import {
   useLoaderData,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction, performMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
+import { getURLSearchParameterFromURLHash } from "~/lib/utils/url";
 import { updatePasswordByAccessToken } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -85,28 +86,27 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export function getAccessToken(
-  loaderData: LoaderData,
+  urlSearchParameter: URLSearchParams | null,
   actionData?: ActionData
 ) {
-  if (loaderData.accessToken !== null) {
-    return loaderData.accessToken;
+  if (urlSearchParameter !== null) {
+    const accessToken = urlSearchParameter.get("access_token");
+    if (accessToken !== null) {
+      return accessToken;
+    }
   }
   if (actionData !== undefined && actionData.values !== undefined) {
     return actionData.values.accessToken;
   }
   return "";
 }
-// TODO: get hash parameter from url (see root index)
-function getWindow() {
-  return typeof window !== "undefined" ? window : null;
-}
 
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
 
-  // TODO: get hash parameter from url (see root index) or from action
-  const accessToken = getAccessToken(loaderData, actionData);
+  const urlSearchParameter = getURLSearchParameterFromURLHash();
+  const accessToken = getAccessToken(urlSearchParameter, actionData);
 
   return (
     <>
