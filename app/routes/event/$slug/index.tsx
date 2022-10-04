@@ -282,11 +282,39 @@ function Index() {
         >
           Kalendereintrag herunterladen
         </Link>
-        {/* Show documents from loader data */}
-        {/* For each document */}
-        {/* - Link to resource route for download with url parameter filename=${filename} and path=${path} */}
-        {/* For all documents */}
-        {/* - Link to resource route for download WITHOUT url parameters (meaning download all as zip) */}
+        {loaderData.event.documents.length > 0 && (
+          <div className="my-8">
+            <h3>Aktuelle Dokumente</h3>
+            <ul>
+              {loaderData.event.documents.map((item, index) => {
+                return (
+                  <div key={`document-${index}`}>
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/event/${
+                        loaderData.event.slug
+                      }/settings/documents-download?path=${
+                        item.document.path
+                      }&filename=${
+                        item.document.title || item.document.filename
+                      }`}
+                      reloadDocument
+                    >
+                      {item.document.title || item.document.filename}
+                    </Link>
+                  </div>
+                );
+              })}
+            </ul>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to={`/event/${loaderData.event.slug}/settings/documents-download`}
+              reloadDocument
+            >
+              Alle Herunterladen
+            </Link>
+          </div>
+        )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {loaderData.event.startTime}</h3>
         <h3>End: {loaderData.event.endTime}</h3>
