@@ -1,3 +1,4 @@
+import JSZip from "jszip";
 import { LoaderFunction } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
@@ -38,13 +39,22 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     file = await blob.arrayBuffer();
     contentType = blob.type;
   } else {
+    const zip = new JSZip();
     const files = await Promise.all(
       event.documents.map(async (item) => {
-        return await download(item.document.path);
+        const blob = await download(item.document.path);
+        let file = {
+          name: item.document.title || item.document.filename,
+          content: await blob.arrayBuffer(),
+        };
+        return file;
       })
     );
-    // TODO: zip files -> Find package (maybe remix || react)
-    // file = zip(files)
+    files.map((file) => {
+      zip.file(file.name, file.content);
+      return null;
+    });
+    file = await zip.generateAsync({ type: "arraybuffer" });
     contentType = "application/zip";
     filename = `${event.name}_Dokumente.zip`;
   }
