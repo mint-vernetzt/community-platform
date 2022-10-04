@@ -92,13 +92,17 @@ const mutation = makeDomainFunction(
       sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
 
-    const document: Pick<Document, "fileName" | "path" | "size" | "mimeType"> =
-      {
-        fileName: uploadHandlerResponse.filename,
-        path: uploadHandlerResponse.path,
-        size: uploadHandlerResponse.sizeInBytes,
-        mimeType: uploadHandlerResponse.mimeType,
-      };
+    const document: Pick<
+      Document,
+      "filename" | "path" | "sizeInMB" | "mimeType"
+    > = {
+      filename: uploadHandlerResponse.filename,
+      path: uploadHandlerResponse.path,
+      sizeInMB:
+        Math.round((uploadHandlerResponse.sizeInBytes / 1024 / 1024) * 100) /
+        100,
+      mimeType: uploadHandlerResponse.mimeType,
+    };
     try {
       await createDocumentOnEvent(event.id, document);
     } catch (error) {
@@ -175,9 +179,9 @@ function Documents() {
                   key={`document-${index}`}
                   className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
                 >
-                  <p>{item.document.title || item.document.fileName}</p>
+                  <p>{item.document.title || item.document.filename}</p>
                   {/* TODO: Round size */}
-                  <p className="mx-4">{item.document.size / 1024 / 1024} MB</p>
+                  <p className="mx-4">{item.document.sizeInMB} MB</p>
                   {/* TODO: Provide download on resource route */}
                   <Link
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
@@ -186,7 +190,7 @@ function Documents() {
                     }/settings/documents-download?path=${
                       item.document.path
                     }&filename=${
-                      item.document.title || item.document.fileName
+                      item.document.title || item.document.filename
                     }`}
                     reloadDocument
                   >

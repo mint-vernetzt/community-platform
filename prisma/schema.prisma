@@ -447,17 +447,14 @@ model Tag {
 
 model Document {
   id          String            @id @default(uuid())
-  // Rename to filename -> makes @map tag obsolete
-  // No uniqueness
-  fileName    String            @unique @map("file_name")
+  filename    String
   path        String
-  // In megabytes
-  size        Int
+  sizeInMB    Float             @map("size_in_mb")
   mimeType    String            @map("mime_type")
   title       String?
   description String?
   createdAt   DateTime          @default(now()) @map("created_at")
-  // updatedAt DateTime @default(now()) @map("updated_at")
+  updatedAt   DateTime          @default(now()) @map("updated_at")
   events      DocumentOfEvent[]
 
   @@map("documents")

@@ -169,9 +169,9 @@ export async function getEventByField(field: string, value: string) {
           document: {
             select: {
               id: true,
-              fileName: true,
+              filename: true,
               path: true,
-              size: true,
+              sizeInMB: true,
               title: true,
               description: true,
             },

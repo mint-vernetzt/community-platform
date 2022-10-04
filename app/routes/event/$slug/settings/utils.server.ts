@@ -263,7 +263,7 @@ export async function connectExperienceLevelToEvent() {
 
 export async function createDocumentOnEvent(
   eventId: string,
-  document: Pick<Document, "fileName" | "path" | "size" | "mimeType">
+  document: Pick<Document, "filename" | "path" | "sizeInMB" | "mimeType">
 ) {
   const profile = prismaClient.event.update({
     where: {
