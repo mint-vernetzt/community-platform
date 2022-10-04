@@ -285,10 +285,23 @@ export async function createDocumentOnEvent(
   return profile;
 }
 
-export async function disconnectDocumentFromEvent(documentId: string) {
+export async function updateDocument(
+  id: string,
+  data: Pick<Document, "title" | "description">
+) {
+  await prismaClient.document.update({
+    where: { id },
+    data: {
+      ...data,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function disconnectDocumentFromEvent(id: string) {
   await prismaClient.document.delete({
     where: {
-      id: documentId,
+      id,
     },
   });
 }

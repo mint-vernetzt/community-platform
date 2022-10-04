@@ -288,7 +288,7 @@ function Index() {
             <ul>
               {loaderData.event.documents.map((item, index) => {
                 return (
-                  <div key={`document-${index}`}>
+                  <div key={`document-${index}`} className="mb-2">
                     <Link
                       className="underline hover:no-underline"
                       to={`/event/${
@@ -302,6 +302,9 @@ function Index() {
                     >
                       {item.document.title || item.document.filename}
                     </Link>
+                    {item.document.description && (
+                      <p> - {item.document.description}</p>
+                    )}
                   </div>
                 );
               })}

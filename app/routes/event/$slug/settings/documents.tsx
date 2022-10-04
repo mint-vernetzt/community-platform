@@ -7,6 +7,9 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, serverError } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
+import InputText from "~/components/FormElements/InputText/InputText";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { upload } from "~/storage.server";
@@ -16,6 +19,7 @@ import {
   checkOwnershipOrThrow,
   createDocumentOnEvent,
   disconnectDocumentFromEvent as deleteDocument,
+  updateDocument,
 } from "./utils.server";
 
 const schema = z.object({
@@ -24,6 +28,8 @@ const schema = z.object({
   uploadKey: z.string().optional(),
   document: z.unknown().optional(),
   documentId: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
   submit: z.string(),
 });
 
@@ -117,9 +123,22 @@ const mutation = makeDomainFunction(
         "Dokument konnte nicht in der Datenbank gespeichert werden."
       );
     }
-  }
-  // TODO: edit
-  else if (values.submit === "delete") {
+  } else if (values.submit === "edit") {
+    if (values.documentId === undefined) {
+      throw new Error("Dokument konnte nicht editiert werden.");
+    }
+    try {
+      await updateDocument(values.documentId, {
+        title: values.title || null,
+        description: values.description || null,
+      });
+    } catch (error) {
+      console.log(error);
+      throw new Error(
+        "Dokument konnte nicht aus der Datenbank gelöscht werden."
+      );
+    }
+  } else if (values.submit === "delete") {
     console.log("DELETE");
     if (values.documentId === undefined) {
       throw new Error(
@@ -180,6 +199,13 @@ export const action: ActionFunction = async (args) => {
           message: "Das hochladen des Dokumentes ist fehlgeschlagen.",
         });
       }
+      if (
+        result.errors._global.includes("Dokument konnte nicht editiert werden.")
+      ) {
+        throw serverError({
+          message: "Dokument konnte nicht editiert werden.",
+        });
+      }
     }
   }
   return result;
@@ -231,10 +257,80 @@ function Documents() {
                   >
                     Herunterladen
                   </Link>
-                  {/* TODO: Wrap edit Form inside Modal */}
-                  <button className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2">
+                  <label
+                    htmlFor="modal-background-upload"
+                    className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
+                  >
                     Editieren
-                  </button>
+                  </label>
+                  <Modal id="modal-background-upload">
+                    <RemixForm method="post" schema={schema} reloadDocument>
+                      {({ Field, Errors, register }) => (
+                        <>
+                          <Field name="submit" hidden value="edit" />
+                          <Field
+                            name="userId"
+                            hidden
+                            value={loaderData.userId}
+                          />
+                          <Field
+                            name="documentId"
+                            hidden
+                            value={item.document.id}
+                          />
+                          <Field
+                            name="eventId"
+                            hidden
+                            value={loaderData.event.id}
+                          />
+                          <Field name="title">
+                            {({ Errors }) => (
+                              <>
+                                <InputText
+                                  {...register("title")}
+                                  id="title"
+                                  label="Titel"
+                                  defaultValue={
+                                    item.document.title ||
+                                    item.document.filename
+                                  }
+                                />
+                                <Errors />
+                              </>
+                            )}
+                          </Field>
+                          <Field name="description">
+                            {({ Errors }) => (
+                              <>
+                                <TextAreaWithCounter
+                                  {...register("description")}
+                                  id="description"
+                                  label="Beschreibung"
+                                  defaultValue={item.document.description || ""}
+                                  maxCharacters={100}
+                                />
+                                <Errors />
+                              </>
+                            )}
+                          </Field>
+                          <button
+                            type="submit"
+                            className="btn btn-outline-primary ml-auto btn-small mt-2"
+                          >
+                            Speichern
+                          </button>
+                          <Errors />
+                          <Link
+                            to={`/event/${loaderData.event.slug}/settings/documents`}
+                            reloadDocument
+                            className={`btn btn-outline-primary ml-auto btn-small mt-2 ml-4`}
+                          >
+                            Abbrechen
+                          </Link>
+                        </>
+                      )}
+                    </RemixForm>
+                  </Modal>
                   <RemixForm method="post" schema={schema}>
                     {({ Field, Errors }) => (
                       <>
