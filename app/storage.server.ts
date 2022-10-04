@@ -2,17 +2,12 @@ import { serverError } from "remix-utils";
 import { supabaseAdmin } from "./supabase";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { createHashFromString, stream2buffer } from "~/utils.server";
+import { fromBuffer } from "file-type";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
+const imageUploadKeys = ["avatar", "background", "logo"];
 
-const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
-function getExtensionFromFilename(filename: string) {
-  const result = EXTENSION_REGEX.exec(filename);
-  return result !== null ? result[1] : "unknown";
-}
-
-function generatePathName(filename: string, hash: string, name: string) {
-  const extension = getExtensionFromFilename(filename);
+function generatePathName(extension: string, hash: string, name: string) {
   return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
 }
 
@@ -24,15 +19,38 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
 
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
-  const path = generatePathName(filename, hash, name);
-  // TODO: Get actual mimeType with library
-  let mimeType;
-  if (name === "document") {
-    mimeType = "application/pdf";
+  const fileTypeResult = await fromBuffer(buffer);
+  console.log("\nFILE TYPE RESULT\n", fileTypeResult);
+  if (fileTypeResult === undefined) {
+    throw serverError({
+      message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
+    });
   }
+  if (name === "document" && fileTypeResult.mime !== "application/pdf") {
+    throw serverError({
+      message:
+        "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
+    });
+  }
+  if (
+    imageUploadKeys.includes(name) &&
+    !fileTypeResult.mime.includes("image/")
+  ) {
+    throw serverError({
+      message:
+        "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
+    });
+  }
+  const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
 
-  return JSON.stringify({ buffer, path, filename, mimeType, sizeInBytes });
+  return JSON.stringify({
+    buffer,
+    path,
+    filename,
+    mimeType: fileTypeResult.mime,
+    sizeInBytes,
+  });
 };
 
 async function persistUpload(

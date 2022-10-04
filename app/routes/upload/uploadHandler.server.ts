@@ -1,3 +1,4 @@
+import { fromBuffer } from "file-type";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -6,15 +7,9 @@ import { supabaseAdmin } from "~/supabase";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { uploadKeys } from "./schema";
 
-// Maybe we should use a library to get extensions out of the file header (Prevent MIME-Sniffing)
-const EXTENSION_REGEX = /(?:\.([^.]+))?$/;
-function getExtensionFromFilename(filename: string) {
-  const result = EXTENSION_REGEX.exec(filename);
-  return result !== null ? result[1] : "unknown";
-}
+const imageUploadKeys = ["avatar", "logo", "background"];
 
-function generatePathName(filename: string, hash: string, name: string) {
-  const extension = getExtensionFromFilename(filename);
+function generatePathName(extension: string, hash: string, name: string) {
   return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
 }
 
@@ -26,15 +21,38 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
 
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
-  const path = generatePathName(filename, hash, name);
-  // TODO: Get actual mimeType
-  let mimeType;
-  if (name === "document") {
-    mimeType = "application/pdf";
+  const fileTypeResult = await fromBuffer(buffer);
+  console.log("\nFILE TYPE RESULT\n", fileTypeResult);
+  if (fileTypeResult === undefined) {
+    throw serverError({
+      message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
+    });
   }
+  if (name === "document" && fileTypeResult.mime !== "application/pdf") {
+    throw serverError({
+      message:
+        "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
+    });
+  }
+  if (
+    imageUploadKeys.includes(name) &&
+    !fileTypeResult.mime.includes("image/")
+  ) {
+    throw serverError({
+      message:
+        "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
+    });
+  }
+  const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
 
-  return JSON.stringify({ buffer, path, filename, mimeType, sizeInBytes });
+  return JSON.stringify({
+    buffer,
+    path,
+    filename,
+    mimeType: fileTypeResult.mime,
+    sizeInBytes,
+  });
 };
 
 async function persistUpload(
@@ -108,6 +126,9 @@ export const upload = async (request: Request, bucketName: string) => {
     } = JSON.parse(uploadHandlerResponseJSON as string);
     // Convert buffer data to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
+    if (buffer.length === 0) {
+      throw serverError({ message: "Cannot upload empty file." });
+    }
 
     const { data, error } = await persistUpload(
       uploadHandlerResponse.path,
