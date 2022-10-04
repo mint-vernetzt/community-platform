@@ -1,8 +1,8 @@
-import { serverError } from "remix-utils";
-import { supabaseAdmin } from "./supabase";
-import { unstable_parseMultipartFormData, UploadHandler } from "remix";
-import { createHashFromString, stream2buffer } from "~/utils.server";
 import { fromBuffer } from "file-type";
+import { unstable_parseMultipartFormData, UploadHandler } from "remix";
+import { serverError } from "remix-utils";
+import { createHashFromString, stream2buffer } from "~/utils.server";
+import { supabaseAdmin } from "./supabase";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 const imageUploadKeys = ["avatar", "background", "logo"];
@@ -20,7 +20,6 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
   const fileTypeResult = await fromBuffer(buffer);
-  console.log("\nFILE TYPE RESULT\n", fileTypeResult);
   if (fileTypeResult === undefined) {
     throw serverError({
       message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",

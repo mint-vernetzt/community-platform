@@ -140,22 +140,6 @@ async function getTagsByIds(ids: string[]) {
   return tags;
 }
 
-export async function transformEventToIcsEvent(
-  event: ReturnType<typeof transformFormToEvent>
-) {
-  const icsEvent = {
-    ...event,
-    updatedAt: new Date(Date.now()),
-    tags: await getTagsByIds(event.tags),
-    // WIP
-    // createdAt: await get createdAt from Event
-  };
-
-  console.log("TRANSFORMED EVENT TO ICS\n\n", icsEvent);
-
-  return icsEvent;
-}
-
 // TODO: any type
 export async function updateEventById(id: string, data: any) {
   await prismaClient.event.update({
@@ -249,16 +233,6 @@ export async function updateEventById(id: string, data: any) {
           : { disconnect: true },
     },
   });
-}
-
-export async function connectExperienceLevelToEvent() {
-  // await prismaClient.event.update({
-  //   where: { id: eventId },
-  //   data: {
-  //     updatedAt: new Date(),
-  //     experienceLevel: { connect: { id: parentEventId } },
-  //   },
-  // });
 }
 
 export async function createDocumentOnEvent(

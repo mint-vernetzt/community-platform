@@ -68,9 +68,6 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  console.log("\nVALUES:\n", values);
-  console.log("\nENVIRONMENT:\n", environment);
-
   const { request, params } = environment.args as DataFunctionArgs;
 
   await checkFeatureAbilitiesOrThrow(request, "events");
@@ -89,7 +86,6 @@ const mutation = makeDomainFunction(
     throw new Error("Id nicht korrekt");
   }
 
-  // TODO: switch (submit value)
   if (values.submit === "upload") {
     const formData = await upload(request, "documents");
     const uploadHandlerResponseJSON = formData.get("document");
@@ -118,7 +114,6 @@ const mutation = makeDomainFunction(
     try {
       await createDocumentOnEvent(event.id, document);
     } catch (error) {
-      console.log(error);
       throw new Error(
         "Dokument konnte nicht in der Datenbank gespeichert werden."
       );
@@ -133,13 +128,11 @@ const mutation = makeDomainFunction(
         description: values.description || null,
       });
     } catch (error) {
-      console.log(error);
       throw new Error(
         "Dokument konnte nicht aus der Datenbank gelöscht werden."
       );
     }
   } else if (values.submit === "delete") {
-    console.log("DELETE");
     if (values.documentId === undefined) {
       throw new Error(
         "Dokument konnte nicht aus der Datenbank gelöscht werden."
@@ -148,7 +141,6 @@ const mutation = makeDomainFunction(
     try {
       await deleteDocument(values.documentId);
     } catch (error) {
-      console.log(error);
       throw new Error(
         "Dokument konnte nicht aus der Datenbank gelöscht werden."
       );

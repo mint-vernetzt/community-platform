@@ -22,7 +22,6 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
   const buffer = await stream2buffer(stream);
   const hash = await createHashFromString(buffer.toString());
   const fileTypeResult = await fromBuffer(buffer);
-  console.log("\nFILE TYPE RESULT\n", fileTypeResult);
   if (fileTypeResult === undefined) {
     throw serverError({
       message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
