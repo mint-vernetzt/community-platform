@@ -450,7 +450,7 @@ export default function Index() {
             {loaderData.data.memberOf && loaderData.data.memberOf.length > 0 && (
               <>
                 <div
-                  id="myorganisations"
+                  id="organisations"
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
@@ -520,7 +520,7 @@ export default function Index() {
               loaderData.mode !== "anon" && (
                 <>
                   <div
-                    id="myevents"
+                    id="events"
                     className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                   >
                     <div className="flex-auto pr-4">

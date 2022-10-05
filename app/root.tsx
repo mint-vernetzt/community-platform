@@ -231,7 +231,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.currentUserInfo.username}#myorganisations`}
+                      to={`/profile/${props.currentUserInfo.username}#organisations`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                     >
                       Organisationen anzeigen
@@ -257,7 +257,7 @@ function NavBar(props: NavBarProps) {
                       </li>
                       <li>
                         <Link
-                          to={`/profile/${props.currentUserInfo.username}#myevents`}
+                          to={`/profile/${props.currentUserInfo.username}#events`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         >
                           Veranstaltungen anzeigen
