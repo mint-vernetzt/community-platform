@@ -10,6 +10,7 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
+import { updateDocument } from "~/document.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { upload } from "~/storage.server";
@@ -18,8 +19,7 @@ import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
   createDocumentOnEvent,
-  disconnectDocumentFromEvent as deleteDocument,
-  updateDocument,
+  disconnectDocumentFromEvent,
 } from "./utils.server";
 
 const schema = z.object({
@@ -139,7 +139,7 @@ const mutation = makeDomainFunction(
       );
     }
     try {
-      await deleteDocument(values.documentId);
+      await disconnectDocumentFromEvent(values.documentId);
     } catch (error) {
       throw new Error(
         "Dokument konnte nicht aus der Datenbank gelöscht werden."
@@ -238,13 +238,7 @@ function Documents() {
                   <p className="mx-4">{item.document.sizeInMB} MB</p>
                   <Link
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
-                    to={`/event/${
-                      loaderData.event.slug
-                    }/settings/documents-download?path=${
-                      item.document.path
-                    }&filename=${
-                      item.document.title || item.document.filename
-                    }`}
+                    to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                     reloadDocument
                   >
                     Herunterladen
@@ -354,7 +348,7 @@ function Documents() {
           </ul>
           <Link
             className="btn btn-outline btn-primary mt-4"
-            to={`/event/${loaderData.event.slug}/settings/documents-download`}
+            to={`/event/${loaderData.event.slug}/documents-download`}
             reloadDocument
           >
             Alle Herunterladen

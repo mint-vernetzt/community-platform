@@ -291,13 +291,7 @@ function Index() {
                   <div key={`document-${index}`} className="mb-2">
                     <Link
                       className="underline hover:no-underline"
-                      to={`/event/${
-                        loaderData.event.slug
-                      }/settings/documents-download?path=${
-                        item.document.path
-                      }&filename=${
-                        item.document.title || item.document.filename
-                      }`}
+                      to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
                       {item.document.title || item.document.filename}
@@ -311,7 +305,7 @@ function Index() {
             </ul>
             <Link
               className="btn btn-outline btn-primary mt-4"
-              to={`/event/${loaderData.event.slug}/settings/documents-download`}
+              to={`/event/${loaderData.event.slug}/documents-download`}
               reloadDocument
             >
               Alle Herunterladen

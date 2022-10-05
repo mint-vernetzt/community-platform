@@ -1,6 +1,8 @@
+import { Document } from "@prisma/client";
 import { fromBuffer } from "file-type";
+import JSZip from "jszip";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
-import { serverError } from "remix-utils";
+import { badRequest, serverError } from "remix-utils";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { supabaseAdmin } from "./supabase";
 
@@ -151,6 +153,56 @@ export async function download(relativePath: string, bucket = "documents") {
     });
   }
   return data;
+}
+
+export async function getDownloadDocumentsResponse(
+  documents: Pick<Document, "title" | "filename" | "path">[],
+  zipFilename: string = "Dokumente.zip"
+) {
+  if (documents.length === 0) {
+    throw badRequest({
+      message: "Please pass at least one document inside the documents array.",
+    });
+  }
+
+  const files = await Promise.all(
+    documents.map(async (document) => {
+      const blob = await download(document.path);
+      let file = {
+        name: document.title || document.filename,
+        content: await blob.arrayBuffer(),
+        type: blob.type,
+      };
+      return file;
+    })
+  );
+
+  let file;
+  let filename;
+  let contentType;
+  if (files.length === 1) {
+    file = files[0].content;
+    filename = files[0].name;
+    contentType = files[0].type;
+  } else {
+    const zip = new JSZip();
+    files.map((file) => {
+      zip.file(file.name, file.content);
+      return null;
+    });
+    file = await zip.generateAsync({ type: "arraybuffer" });
+    contentType = "application/zip";
+    filename = `${zipFilename}`;
+  }
+
+  // TODO: Check for missing headers
+  return new Response(file, {
+    status: 200,
+    headers: {
+      "Content-Type": contentType,
+      "Content-Disposition": `attachment; filename=${filename}`,
+    },
+  });
 }
 
 export async function remove(paths: string[], bucket = "images") {

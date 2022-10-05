@@ -128,18 +128,6 @@ export function transformFormToEvent(form: any) {
   };
 }
 
-async function getTagsByIds(ids: string[]) {
-  const tags = await prismaClient.tag.findMany({
-    where: {
-      id: { in: ids },
-    },
-    select: {
-      title: true,
-    },
-  });
-  return tags;
-}
-
 // TODO: any type
 export async function updateEventById(id: string, data: any) {
   await prismaClient.event.update({
@@ -257,19 +245,6 @@ export async function createDocumentOnEvent(
     },
   });
   return profile;
-}
-
-export async function updateDocument(
-  id: string,
-  data: Pick<Document, "title" | "description">
-) {
-  await prismaClient.document.update({
-    where: { id },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-    },
-  });
 }
 
 export async function disconnectDocumentFromEvent(id: string) {
