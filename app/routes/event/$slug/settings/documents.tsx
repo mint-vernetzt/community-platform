@@ -45,6 +45,15 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   };
 };
 
+function closeModal() {
+  const $modalToggle = document.getElementById(
+    "modal-edit-document"
+  ) as HTMLInputElement | null;
+  if ($modalToggle) {
+    $modalToggle.checked = false;
+  }
+}
+
 function Documents() {
   const loaderData = useLoaderData<LoaderData>();
 
@@ -82,19 +91,25 @@ function Documents() {
                     Herunterladen
                   </Link>
                   <label
-                    htmlFor="modal-background-upload"
+                    htmlFor="modal-edit-document"
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
                   >
                     Editieren
                   </label>
-                  <Modal id="modal-background-upload">
+                  <Modal id="modal-edit-document">
                     <RemixForm
                       method="post"
                       fetcher={editDocumentFetcher}
                       action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
                       schema={editDocumentSchema}
-                      // TODO: How to close modal after submit?
-                      //reloadDocument
+                      onSubmit={(event) => {
+                        closeModal();
+                        // @ts-ignore
+                        if (event.nativeEvent.submitter.name === "cancel") {
+                          event.preventDefault();
+                          event.currentTarget.reset();
+                        }
+                      }}
                     >
                       {({ Field, Errors, register }) => (
                         <>
@@ -149,14 +164,14 @@ function Documents() {
                           >
                             Speichern
                           </button>
-                          <Errors />
-                          <Link
-                            to={`/event/${loaderData.event.slug}/settings/documents`}
-                            reloadDocument
-                            className={`btn btn-outline-primary ml-auto btn-small mt-2 ml-4`}
+                          <button
+                            type="submit"
+                            name="cancel"
+                            className="btn btn-outline-primary ml-auto btn-small mt-2"
                           >
                             Abbrechen
-                          </Link>
+                          </button>
+                          <Errors />
                         </>
                       )}
                     </RemixForm>
