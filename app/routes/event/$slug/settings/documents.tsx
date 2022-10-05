@@ -29,12 +29,15 @@ import {
   ActionData as EditDocumentActionData,
   editDocumentSchema,
 } from "./documents/edit-document";
-import { disconnectDocumentFromEvent } from "./documents/utils.server";
 import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
+  ActionData as UploadDocumentActionData,
+  uploadDocumentSchema,
+} from "./documents/upload-document";
+import {
   createDocumentOnEvent,
-} from "./utils.server";
+  disconnectDocumentFromEvent,
+} from "./documents/utils.server";
+import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -220,6 +223,7 @@ export const action: ActionFunction = async (args) => {
 function Documents() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const uploadDocumentFetcher = useFetcher<UploadDocumentActionData>();
   const editDocumentFetcher = useFetcher<EditDocumentActionData>();
   const deleteDocumentFetcher = useFetcher<DeleteDocumentActionData>();
 
@@ -375,10 +379,15 @@ function Documents() {
         </div>
       )}
 
-      <RemixForm method="post" schema={schema} encType="multipart/form-data">
-        {({ Field, Errors, register }) => (
+      <RemixForm
+        method="post"
+        fetcher={uploadDocumentFetcher}
+        action={`/event/${loaderData.event.slug}/settings/documents/upload-document`}
+        schema={uploadDocumentSchema}
+        encType="multipart/form-data"
+      >
+        {({ Field, Errors }) => (
           <>
-            <Field name="submit" hidden value="upload" />
             <Field name="userId" hidden value={loaderData.userId} />
             <Field name="eventId" hidden value={loaderData.event.id} />
             <Field name="uploadKey" hidden value={"document"} />

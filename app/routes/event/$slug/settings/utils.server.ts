@@ -223,38 +223,6 @@ export async function updateEventById(id: string, data: any) {
   });
 }
 
-export async function createDocumentOnEvent(
-  eventId: string,
-  document: Pick<Document, "filename" | "path" | "sizeInMB" | "mimeType">
-) {
-  const profile = prismaClient.event.update({
-    where: {
-      id: eventId,
-    },
-    data: {
-      documents: {
-        create: {
-          document: {
-            create: {
-              ...document,
-            },
-          },
-        },
-      },
-      updatedAt: new Date(),
-    },
-  });
-  return profile;
-}
-
-export async function disconnectDocumentFromEvent(id: string) {
-  await prismaClient.document.delete({
-    where: {
-      id,
-    },
-  });
-}
-
 export async function deleteEventById(id: string) {
   return await prismaClient.event.delete({ where: { id } });
 }
