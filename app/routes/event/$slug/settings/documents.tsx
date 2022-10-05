@@ -54,6 +54,15 @@ function closeModal() {
   }
 }
 
+function clearFileInput() {
+  const $fileInput = document.getElementById(
+    "document-upload-input"
+  ) as HTMLInputElement | null;
+  if ($fileInput) {
+    $fileInput.value = "";
+  }
+}
+
 function Documents() {
   const loaderData = useLoaderData<LoaderData>();
 
@@ -225,6 +234,10 @@ function Documents() {
         action={`/event/${loaderData.event.slug}/settings/documents/upload-document`}
         schema={uploadDocumentSchema}
         encType="multipart/form-data"
+        onTransition={() => {
+          clearFileInput();
+          setFileSelected(false);
+        }}
       >
         {({ Field, Errors }) => (
           <>
@@ -235,6 +248,7 @@ function Documents() {
               {({ Errors }) => (
                 <>
                   <input
+                    id="document-upload-input"
                     type="file"
                     accept="application/pdf"
                     onChange={onSelectFile}
