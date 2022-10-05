@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { MetaFunction } from "remix";
 import {
   Form,
   json,
@@ -9,6 +8,7 @@ import {
   LiveReload,
   LoaderFunction,
   Meta,
+  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -156,6 +156,12 @@ type CurrentUserInfo = {
 };
 
 function NavBar(props: NavBarProps) {
+  const closeDropdown = () => {
+    if (document.activeElement !== null) {
+      (document.activeElement as HTMLAnchorElement).blur();
+    }
+  };
+
   return (
     <header id="header" className="shadow-md mb-8">
       <div className="container relative z-10">
@@ -217,6 +223,7 @@ function NavBar(props: NavBarProps) {
                     <Link
                       to={`/profile/${props.currentUserInfo.username}`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
                     >
                       Profil anzeigen
                     </Link>
@@ -233,6 +240,7 @@ function NavBar(props: NavBarProps) {
                     <Link
                       to={`/profile/${props.currentUserInfo.username}#organisations`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
                     >
                       Organisationen anzeigen
                     </Link>
@@ -241,6 +249,7 @@ function NavBar(props: NavBarProps) {
                     <Link
                       to={`/organization/create`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
                     >
                       Organisationen anlegen
                     </Link>
@@ -259,6 +268,7 @@ function NavBar(props: NavBarProps) {
                         <Link
                           to={`/profile/${props.currentUserInfo.username}#events`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
                         >
                           Veranstaltungen anzeigen
                         </Link>
@@ -267,6 +277,7 @@ function NavBar(props: NavBarProps) {
                         <Link
                           to={`/event/create`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
                         >
                           Veranstaltungen anlegen
                         </Link>
