@@ -449,7 +449,10 @@ export default function Index() {
 
             {loaderData.data.memberOf && loaderData.data.memberOf.length > 0 && (
               <>
-                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                <div
+                  id="myorganisations"
+                  className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
+                >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Organisationen</h3>
                   </div>
@@ -516,7 +519,10 @@ export default function Index() {
             {loaderData.abilities.events.hasAccess === true &&
               loaderData.mode !== "anon" && (
                 <>
-                  <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div
+                    id="myevents"
+                    className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
+                  >
                     <div className="flex-auto pr-4">
                       <h3 className="mb-0 font-bold">Veranstaltungen</h3>
                     </div>
