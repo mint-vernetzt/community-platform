@@ -1,25 +1,12 @@
-import { Document } from "@prisma/client";
-import { DataFunctionArgs } from "@remix-run/server-runtime";
 import { useState } from "react";
-import {
-  ActionFunction,
-  Link,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData,
-} from "remix";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest, serverError } from "remix-utils";
-import { z } from "zod";
-import { getUserByRequestOrThrow, resetPassword } from "~/auth.server";
+import { Link, LoaderFunction, useFetcher, useLoaderData } from "remix";
+import { Form as RemixForm } from "remix-forms";
+import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
-import { updateDocument } from "~/document.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { upload } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
   ActionData as DeleteDocumentActionData,
@@ -33,30 +20,7 @@ import {
   ActionData as UploadDocumentActionData,
   uploadDocumentSchema,
 } from "./documents/upload-document";
-import {
-  createDocumentOnEvent,
-  disconnectDocumentFromEvent,
-} from "./documents/utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "./utils.server";
-
-const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  uploadKey: z.string().optional(),
-  document: z.unknown().optional(),
-  documentId: z.string().optional(),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  submit: z.string(),
-});
-
-const environmentSchema = z.object({
-  args: z.object({
-    request: z.unknown(),
-    context: z.unknown(),
-    params: z.unknown(),
-  }),
-});
+import { checkOwnershipOrThrow } from "./utils.server";
 
 type LoaderData = {
   userId: string;
@@ -79,145 +43,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     userId: currentUser.id,
     event: event,
   };
-};
-
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const { request, params } = environment.args as DataFunctionArgs;
-
-  await checkFeatureAbilitiesOrThrow(request, "events");
-
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const currentUser = await getUserByRequestOrThrow(request);
-
-  await checkIdentityOrThrow(request, currentUser);
-
-  const event = await getEventBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, currentUser);
-
-  if (values.eventId !== event.id) {
-    throw new Error("Id nicht korrekt");
-  }
-
-  if (values.submit === "upload") {
-    const formData = await upload(request, "documents");
-    const uploadHandlerResponseJSON = formData.get("document");
-    if (uploadHandlerResponseJSON === null) {
-      throw new Error("Das hochladen des Dokumentes ist fehlgeschlagen.");
-    }
-    const uploadHandlerResponse: {
-      buffer: Buffer;
-      path: string;
-      filename: string;
-      mimeType: string;
-      sizeInBytes: number;
-    } = JSON.parse(uploadHandlerResponseJSON as string);
-
-    const document: Pick<
-      Document,
-      "filename" | "path" | "sizeInMB" | "mimeType"
-    > = {
-      filename: uploadHandlerResponse.filename,
-      path: uploadHandlerResponse.path,
-      sizeInMB:
-        Math.round((uploadHandlerResponse.sizeInBytes / 1024 / 1024) * 100) /
-        100,
-      mimeType: uploadHandlerResponse.mimeType,
-    };
-    try {
-      await createDocumentOnEvent(event.id, document);
-    } catch (error) {
-      throw new Error(
-        "Dokument konnte nicht in der Datenbank gespeichert werden."
-      );
-    }
-  } else if (values.submit === "edit") {
-    if (values.documentId === undefined) {
-      throw new Error("Dokument konnte nicht editiert werden.");
-    }
-    try {
-      await updateDocument(values.documentId, {
-        title: values.title || null,
-        description: values.description || null,
-      });
-    } catch (error) {
-      throw new Error(
-        "Dokument konnte nicht aus der Datenbank gelöscht werden."
-      );
-    }
-  } else if (values.submit === "delete") {
-    if (values.documentId === undefined) {
-      throw new Error(
-        "Dokument konnte nicht aus der Datenbank gelöscht werden."
-      );
-    }
-    try {
-      await disconnectDocumentFromEvent(values.documentId);
-    } catch (error) {
-      throw new Error(
-        "Dokument konnte nicht aus der Datenbank gelöscht werden."
-      );
-    }
-  }
-  return values;
-});
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
-
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
-    environment: { args: args },
-  });
-
-  if (result.success === false) {
-    if (result.errors._global !== undefined) {
-      if (result.errors._global.includes("Id nicht korrekt")) {
-        throw badRequest({ message: "Id nicht korrekt" });
-      }
-      if (
-        result.errors._global.includes(
-          "Dokument konnte nicht in der Datenbank gespeichert werden."
-        )
-      ) {
-        throw serverError({
-          message: "Dokument konnte nicht in der Datenbank gespeichert werden.",
-        });
-      }
-      if (
-        result.errors._global.includes(
-          "Dokument konnte nicht aus der Datenbank gelöscht werden."
-        )
-      ) {
-        throw serverError({
-          message: "Dokument konnte nicht aus der Datenbank gelöscht werden.",
-        });
-      }
-      if (
-        result.errors._global.includes(
-          "Das hochladen des Dokumentes ist fehlgeschlagen."
-        )
-      ) {
-        throw serverError({
-          message: "Das hochladen des Dokumentes ist fehlgeschlagen.",
-        });
-      }
-      if (
-        result.errors._global.includes("Dokument konnte nicht editiert werden.")
-      ) {
-        throw serverError({
-          message: "Dokument konnte nicht editiert werden.",
-        });
-      }
-    }
-  }
-  return result;
 };
 
 function Documents() {
