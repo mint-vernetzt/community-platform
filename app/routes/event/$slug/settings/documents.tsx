@@ -22,14 +22,18 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { upload } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import {
+  ActionData as DeleteDocumentActionData,
+  deleteDocumentSchema,
+} from "./documents/delete-document";
+import {
   ActionData as EditDocumentActionData,
   editDocumentSchema,
 } from "./documents/edit-document";
+import { disconnectDocumentFromEvent } from "./documents/utils.server";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
   createDocumentOnEvent,
-  disconnectDocumentFromEvent,
 } from "./utils.server";
 
 const schema = z.object({
@@ -217,6 +221,7 @@ function Documents() {
   const loaderData = useLoaderData<LoaderData>();
 
   const editDocumentFetcher = useFetcher<EditDocumentActionData>();
+  const deleteDocumentFetcher = useFetcher<DeleteDocumentActionData>();
 
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,10 +332,14 @@ function Documents() {
                       )}
                     </RemixForm>
                   </Modal>
-                  <RemixForm method="post" schema={schema}>
+                  <RemixForm
+                    method="post"
+                    fetcher={deleteDocumentFetcher}
+                    action={`/event/${loaderData.event.slug}/settings/documents/delete-document`}
+                    schema={deleteDocumentSchema}
+                  >
                     {({ Field, Errors }) => (
                       <>
-                        <Field name="submit" hidden value="delete" />
                         <Field name="userId" hidden value={loaderData.userId} />
                         <Field
                           name="documentId"
