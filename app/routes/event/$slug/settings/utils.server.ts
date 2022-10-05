@@ -1,4 +1,4 @@
-import { Document, Event } from "@prisma/client";
+import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
