@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { MetaFunction } from "remix";
 import {
   Form,
   json,
@@ -9,6 +8,7 @@ import {
   LiveReload,
   LoaderFunction,
   Meta,
+  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -20,6 +20,7 @@ import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
+import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
@@ -37,6 +38,7 @@ export type RootRouteData = {
   matomoSiteId: string | undefined;
   csrf: string | undefined;
   currentUserInfo?: CurrentUserInfo;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 type LoaderData = RootRouteData;
@@ -47,6 +49,8 @@ export const loader: LoaderFunction = async (args) => {
   const session = await sessionStorage.getSession(
     request.headers.get("Cookie")
   );
+
+  const abilities = await getFeatureAbilities(request, "events");
 
   let csrf;
   if (session !== null) {
@@ -102,6 +106,7 @@ export const loader: LoaderFunction = async (args) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       currentUserInfo,
+      abilities,
     },
     { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
   );
@@ -141,6 +146,7 @@ function HeaderLogo() {
 
 type NavBarProps = {
   currentUserInfo?: CurrentUserInfo;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 type CurrentUserInfo = {
@@ -150,8 +156,14 @@ type CurrentUserInfo = {
 };
 
 function NavBar(props: NavBarProps) {
+  const closeDropdown = () => {
+    if (document.activeElement !== null) {
+      (document.activeElement as HTMLAnchorElement).blur();
+    }
+  };
+
   return (
-    <header className="shadow-md mb-8">
+    <header id="header" className="shadow-md mb-8">
       <div className="container relative z-10">
         <div className="py-3 flex flex-row items-center">
           <div>
@@ -181,22 +193,106 @@ function NavBar(props: NavBarProps) {
                 )}
                 <ul
                   tabIndex={0}
-                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4"
                 >
+                  <li className="relative p-4 pb-2 flex">
+                    <a
+                      href="#header"
+                      className="w-4 h-4 p-0 items-center justify-center z-10 ml-auto focus:bg-white"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1.29199 1.292C1.38488 1.19888 1.49523 1.12499 1.61672 1.07458C1.73821 1.02416 1.86845 0.998215 1.99999 0.998215C2.13152 0.998215 2.26176 1.02416 2.38325 1.07458C2.50474 1.12499 2.6151 1.19888 2.70799 1.292L7.99999 6.586L13.292 1.292C13.385 1.19903 13.4953 1.12527 13.6168 1.07495C13.7383 1.02464 13.8685 0.998738 14 0.998738C14.1315 0.998738 14.2617 1.02464 14.3832 1.07495C14.5046 1.12527 14.615 1.19903 14.708 1.292C14.801 1.38498 14.8747 1.49536 14.925 1.61683C14.9754 1.73831 15.0012 1.86851 15.0012 2C15.0012 2.13149 14.9754 2.26169 14.925 2.38317C14.8747 2.50465 14.801 2.61503 14.708 2.708L9.41399 8L14.708 13.292C14.801 13.385 14.8747 13.4954 14.925 13.6168C14.9754 13.7383 15.0012 13.8685 15.0012 14C15.0012 14.1315 14.9754 14.2617 14.925 14.3832C14.8747 14.5046 14.801 14.615 14.708 14.708C14.615 14.801 14.5046 14.8747 14.3832 14.925C14.2617 14.9754 14.1315 15.0013 14 15.0013C13.8685 15.0013 13.7383 14.9754 13.6168 14.925C13.4953 14.8747 13.385 14.801 13.292 14.708L7.99999 9.414L2.70799 14.708C2.61501 14.801 2.50463 14.8747 2.38315 14.925C2.26168 14.9754 2.13147 15.0013 1.99999 15.0013C1.8685 15.0013 1.7383 14.9754 1.61682 14.925C1.49534 14.8747 1.38496 14.801 1.29199 14.708C1.19901 14.615 1.12526 14.5046 1.07494 14.3832C1.02462 14.2617 0.998723 14.1315 0.998723 14C0.998723 13.8685 1.02462 13.7383 1.07494 13.6168C1.12526 13.4954 1.19901 13.385 1.29199 13.292L6.58599 8L1.29199 2.708C1.19886 2.61511 1.12497 2.50476 1.07456 2.38327C1.02415 2.26178 0.998199 2.13154 0.998199 2C0.998199 1.86847 1.02415 1.73822 1.07456 1.61673C1.12497 1.49524 1.19886 1.38489 1.29199 1.292Z"
+                          fill="#454C5C"
+                        />
+                      </svg>
+                    </a>
+                  </li>
                   <li>
-                    <Link to={`/profile/${props.currentUserInfo.username}`}>
+                    <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                      Mein Profil
+                    </h5>
+                  </li>
+                  <li>
+                    <Link
+                      to={`/profile/${props.currentUserInfo.username}`}
+                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
+                    >
                       Profil anzeigen
+                    </Link>
+                  </li>
+                  <li className="p-4 pb-6">
+                    <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                  </li>
+                  <li>
+                    <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                      Meine Organisationen
+                    </h5>
+                  </li>
+                  <li>
+                    <Link
+                      to={`/profile/${props.currentUserInfo.username}#organisations`}
+                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
+                    >
+                      Organisationen anzeigen
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.currentUserInfo.username}/settings`}
+                      to={`/organization/create`}
+                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
                     >
-                      Profil bearbeiten
+                      Organisationen anlegen
                     </Link>
                   </li>
+                  {props.abilities.events.hasAccess === true && (
+                    <>
+                      <li className="p-4 pb-6">
+                        <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                      </li>
+                      <li>
+                        <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                          Meine Veranstaltungen
+                        </h5>
+                      </li>
+                      <li>
+                        <Link
+                          to={`/profile/${props.currentUserInfo.username}#events`}
+                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
+                        >
+                          Veranstaltungen anzeigen
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to={`/event/create`}
+                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
+                        >
+                          Veranstaltungen anlegen
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                  <li className="p-4">
+                    <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                  </li>
                   <li>
-                    <Form action="/logout?index" method="post">
+                    <Form
+                      action="/logout?index"
+                      method="post"
+                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300 rounded-none"
+                    >
                       <button type="submit" className="w-full text-left">
                         Logout
                       </button>
@@ -230,7 +326,7 @@ function NavBar(props: NavBarProps) {
 
 export default function App() {
   const location = useLocation();
-  const { matomoUrl, matomoSiteId, currentUserInfo } =
+  const { matomoUrl, matomoSiteId, currentUserInfo, abilities } =
     useLoaderData<LoaderData>();
 
   React.useEffect(() => {
@@ -280,7 +376,7 @@ export default function App() {
       <body>
         <div className="flex flex-col min-h-screen">
           {isNonAppBaseRoute ? null : (
-            <NavBar currentUserInfo={currentUserInfo} />
+            <NavBar currentUserInfo={currentUserInfo} abilities={abilities} />
           )}
 
           <main className="flex-auto">
