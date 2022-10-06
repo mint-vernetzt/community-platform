@@ -32,7 +32,7 @@ export function links() {
 
 type ProfileLoaderData = {
   mode: Mode;
-  data: Partial<NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>>;
+  data: NonNullable<Awaited<ReturnType<typeof filterProfileByMode>>>;
   images: {
     avatar?: string;
     background?: string;
@@ -94,6 +94,45 @@ export const loader: LoaderFunction = async (
     return member;
   });
 
+  // TODO: filter profile events by mode
+  // Show explicit events
+  // Owner:
+  // - teamMemberOfEvent:
+  // -- published and not published (show label)
+  // -- participating label or participate/waitinglist button
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+  // - speakerOfEvent:
+  // -- only published
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+  // - participant/waitingListofEvent:
+  // -- only published
+  // -- participating or waiting list label
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+
+  // Authenticated:
+  // - teamMemberOfEvent:
+  // -- only published
+  // -- participating label or participate/waitinglist button
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+  // - speakerOfEvent:
+  // -- only published
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+  // - participant/waitingListofEvent:
+  // -- only published
+  // -- participating or waiting list label
+  // -- everything else (including particpants/max participants counter)
+  // -- sort by startDate
+
+  // Everything else:
+  // TODO: hybrid/onSite/digital
+  // TODO: subline
+  // startDate
+  // name
   let data = await filterProfileByMode(profile, mode);
 
   return json({ mode, data, images, abilities });
@@ -540,7 +579,7 @@ export default function Index() {
                   {loaderData.data.participatedEvents &&
                     loaderData.data.participatedEvents.length > 0 && (
                       <>
-                        <h6 className="mb-2 font-bold">Teilnehmer bei:</h6>
+                        <h6 className="mb-2 font-bold">Teilnahme</h6>
                         <div className="flex flex-wrap -mx-3 items-stretch">
                           {loaderData.data.participatedEvents.map(
                             ({ event }, index) => (
@@ -570,41 +609,9 @@ export default function Index() {
                   {loaderData.data.contributedEvents &&
                     loaderData.data.contributedEvents.length > 0 && (
                       <>
-                        <h6 className="mb-2 font-bold">Speaker bei:</h6>
+                        <h6 className="mb-2 font-bold">Speaker:in</h6>
                         <div className="flex flex-wrap -mx-3 items-stretch">
                           {loaderData.data.contributedEvents.map(
-                            ({ event }, index) => (
-                              <div
-                                key={`profile-${index}`}
-                                data-testid="gridcell"
-                                className="flex-100 lg:flex-1/2 px-3 mb-8"
-                              >
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                                >
-                                  <div className="w-full flex items-center flex-row">
-                                    <div className="pl-4">
-                                      <H3 like="h4" className="text-xl mb-1">
-                                        {event.name}
-                                      </H3>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                  {loaderData.data.waitingForEvents &&
-                    loaderData.data.waitingForEvents.length > 0 && (
-                      <>
-                        <h6 className="mb-2 font-bold">
-                          Auf der Warteliste bei:
-                        </h6>
-                        <div className="flex flex-wrap -mx-3 items-stretch">
-                          {loaderData.data.waitingForEvents.map(
                             ({ event }, index) => (
                               <div
                                 key={`profile-${index}`}
@@ -632,7 +639,7 @@ export default function Index() {
                   {loaderData.data.teamMemberOfEvents &&
                     loaderData.data.teamMemberOfEvents.length > 0 && (
                       <>
-                        <h6 className="mb-2 font-bold">Teammitglied bei:</h6>
+                        <h6 className="mb-2 font-bold">Organisation/Team</h6>
                         <div className="flex flex-wrap -mx-3 items-stretch">
                           {loaderData.data.teamMemberOfEvents.map(
                             ({ event }, index) => (
