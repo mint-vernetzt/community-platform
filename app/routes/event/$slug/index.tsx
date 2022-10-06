@@ -210,6 +210,18 @@ function createParticipationOption(
   return participationOption;
 }
 
+function formatDateTime(date: Date) {
+  const formattedDate = `${date.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })}, ${date.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} Uhr`;
+  return formattedDate;
+}
+
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
@@ -279,8 +291,6 @@ function Index() {
     duration = `${formattedStartDate} - ${formattedEndDate}`;
   }
 
-  console.log(duration);
-
   return (
     <>
       <div className="mb-4 ml-4">
@@ -335,8 +345,8 @@ function Index() {
           <strong>{duration}</strong>
         </p>
         <h3>Published: {String(loaderData.event.published)}</h3>
-        <h3>Start: {loaderData.event.startTime}</h3>
-        <h3>End: {loaderData.event.endTime}</h3>
+        <h3>Start: {formatDateTime(startTime)}</h3>
+        <h3>End: {formatDateTime(endTime)}</h3>
         <h3>Venue</h3>
         {loaderData.event.venueName !== null && (
           <h5>
@@ -345,8 +355,16 @@ function Index() {
             {loaderData.event.venueZipCode} {loaderData.event.venueCity}
           </h5>
         )}
-        <h3>Participation until: {loaderData.event.participationUntil}</h3>
-        <h3>Participant limit: {loaderData.event.participantLimit}</h3>
+        <h3>
+          Participation until:{" "}
+          {formatDateTime(new Date(loaderData.event.participationUntil))}
+        </h3>
+        <h3>
+          Participant limit:{" "}
+          {loaderData.event.participantLimit === null
+            ? "ohne Beschränkung"
+            : loaderData.event.participantLimit}
+        </h3>
         <h3>Description</h3>
         <p>{loaderData.event.description}</p>
         <h3>Focuses</h3>
