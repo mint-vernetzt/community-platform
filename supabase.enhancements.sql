@@ -27,3 +27,19 @@ create policy "authenticated user can upload images"
 create policy "authenticated user can update images"
   on storage.objects for update
   with check ( bucket_id = 'images' and auth.role() = 'authenticated');
+
+-- Create bucket for documents
+insert into storage.buckets (id, name)
+values ('documents', 'documents');
+
+create policy "authenticated user can access documents"
+  on storage.objects for select
+  using ( bucket_id = 'documents' and auth.role() = 'authenticated');
+
+create policy "authenticated user can upload documents"
+  on storage.objects for insert
+  with check ( bucket_id = 'documents' and auth.role() = 'authenticated');
+
+create policy "authenticated user can update documents"
+  on storage.objects for update
+  with check ( bucket_id = 'documents' and auth.role() = 'authenticated');

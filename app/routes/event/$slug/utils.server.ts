@@ -164,6 +164,21 @@ export async function getEventByField(field: string, value: string) {
           },
         },
       },
+      documents: {
+        select: {
+          document: {
+            select: {
+              id: true,
+              filename: true,
+              path: true,
+              extension: true,
+              sizeInMB: true,
+              title: true,
+              description: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;
