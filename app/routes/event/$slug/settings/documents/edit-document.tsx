@@ -15,6 +15,7 @@ const schema = z.object({
   documentId: z.string(),
   title: z.string().optional(),
   description: z.string().optional(),
+  extension: z.string(),
 });
 
 const environmentSchema = z.object({
@@ -30,9 +31,19 @@ const mutation = makeDomainFunction(
   if (values.eventId !== environment.eventId) {
     throw "Event id nicht korrekt";
   }
+  let title;
+  if (values.title !== undefined) {
+    if (!values.title.includes("." + values.extension)) {
+      title = values.title + "." + values.extension;
+    } else {
+      title = values.title;
+    }
+  } else {
+    title = null;
+  }
   try {
     await updateDocument(values.documentId, {
-      title: values.title || null,
+      title: title,
       description: values.description || null,
     });
   } catch (error) {

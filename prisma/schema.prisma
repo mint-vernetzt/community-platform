@@ -449,6 +449,7 @@ model Document {
   id          String            @id @default(uuid())
   filename    String
   path        String
+  extension   String
   sizeInMB    Float             @map("size_in_mb")
   mimeType    String            @map("mime_type")
   title       String?

@@ -171,6 +171,7 @@ export async function getEventByField(field: string, value: string) {
               id: true,
               filename: true,
               path: true,
+              extension: true,
               sizeInMB: true,
               title: true,
               description: true,

@@ -137,6 +137,11 @@ function Documents() {
                             hidden
                             value={loaderData.event.id}
                           />
+                          <Field
+                            name="extension"
+                            hidden
+                            value={item.document.extension}
+                          />
                           <Field name="title">
                             {({ Errors }) => (
                               <>

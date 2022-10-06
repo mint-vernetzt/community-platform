@@ -42,20 +42,23 @@ const mutation = makeDomainFunction(
     buffer: Buffer;
     path: string;
     filename: string;
+    extension: string;
     mimeType: string;
     sizeInBytes: number;
   } = JSON.parse(uploadHandlerResponseJSON as string);
 
   const document: Pick<
     Document,
-    "filename" | "path" | "sizeInMB" | "mimeType"
+    "filename" | "path" | "extension" | "sizeInMB" | "mimeType"
   > = {
     filename: uploadHandlerResponse.filename,
     path: uploadHandlerResponse.path,
+    extension: uploadHandlerResponse.extension,
     sizeInMB:
       Math.round((uploadHandlerResponse.sizeInBytes / 1024 / 1024) * 100) / 100,
     mimeType: uploadHandlerResponse.mimeType,
   };
+
   try {
     await createDocumentOnEvent(values.eventId, document);
   } catch (error) {

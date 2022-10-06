@@ -49,6 +49,7 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
     buffer,
     path,
     filename,
+    extension: fileTypeResult.ext,
     mimeType: fileTypeResult.mime,
     sizeInBytes,
   });
@@ -58,7 +59,7 @@ async function persistUpload(
   path: string,
   buffer: Buffer,
   bucketName: string,
-  mimeType?: string
+  mimeType: string
 ) {
   return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
     .from(bucketName)
@@ -106,6 +107,7 @@ export const upload = async (request: Request, bucketName: string) => {
       };
       path: string;
       filename: string;
+      extension: string;
       mimeType: string;
       sizeInBytes: number;
     } = JSON.parse(uploadHandlerResponseJSON as string);
