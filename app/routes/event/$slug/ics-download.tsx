@@ -130,6 +130,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     url.protocol + "//" + url.host + `/event/${event.slug}`;
   const ics = createIcsString(event, absoluteEventURL);
 
+  // TODO: Check for missing headers
   return new Response(ics, {
     status: 200,
     headers: {

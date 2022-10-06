@@ -73,7 +73,7 @@ async function initializeBuckets(buckets: string[]) {
   }
 }
 
-const buckets = ["images"];
+const buckets = ["images", "documents"];
 initializeBuckets(buckets).finally(() =>
   console.log(`Bucket(s) "${buckets.join(", ")}" initialized.`)
 );

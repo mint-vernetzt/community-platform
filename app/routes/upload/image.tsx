@@ -47,7 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
   const profileId = sessionUser.id;
 
-  const formData = await upload(request);
+  const formData = await upload(request, "images");
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
@@ -55,15 +55,33 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
-  const path = formData.get(name) as string;
+  const uploadHandlerResponseJSON = formData.get(name as string);
+  if (uploadHandlerResponseJSON === null) {
+    throw serverError({ message: "Something went wrong on upload." });
+  }
+  const uploadHandlerResponse: {
+    buffer: Buffer;
+    path: string;
+    filename: string;
+    mimeType: string;
+    sizeInBytes: number;
+  } = JSON.parse(uploadHandlerResponseJSON as string);
 
-  if (name !== undefined && path !== null && profileId !== null) {
+  if (
+    name !== undefined &&
+    uploadHandlerResponse.path !== null &&
+    profileId !== null
+  ) {
     if (subject === "user") {
-      await updateUserProfileImage(profileId, name, path);
+      await updateUserProfileImage(profileId, name, uploadHandlerResponse.path);
     }
 
     if (subject === "organisation") {
-      await updateOrganizationProfileImage(slug, name, path);
+      await updateOrganizationProfileImage(
+        slug,
+        name,
+        uploadHandlerResponse.path
+      );
     }
   }
 

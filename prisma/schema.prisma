@@ -447,13 +447,15 @@ model Tag {
 
 model Document {
   id          String            @id @default(uuid())
-  fileName    String            @unique @map("file_name")
+  filename    String
   path        String
-  size        Int
+  extension   String
+  sizeInMB    Float             @map("size_in_mb")
   mimeType    String            @map("mime_type")
   title       String?
   description String?
   createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @default(now()) @map("updated_at")
   events      DocumentOfEvent[]
 
   @@map("documents")

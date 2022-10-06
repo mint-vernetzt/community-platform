@@ -344,6 +344,36 @@ function Index() {
         <p>
           <strong>{duration}</strong>
         </p>
+        {loaderData.event.documents.length > 0 && (
+          <div className="my-8">
+            <h3>Aktuelle Dokumente</h3>
+            <ul>
+              {loaderData.event.documents.map((item, index) => {
+                return (
+                  <div key={`document-${index}`} className="mb-2">
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
+                      reloadDocument
+                    >
+                      {item.document.title || item.document.filename}
+                    </Link>
+                    {item.document.description && (
+                      <p> - {item.document.description}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </ul>
+            <Link
+              className="btn btn-outline btn-primary mt-4"
+              to={`/event/${loaderData.event.slug}/documents-download`}
+              reloadDocument
+            >
+              Alle Herunterladen
+            </Link>
+          </div>
+        )}
         <h3>Published: {String(loaderData.event.published)}</h3>
         <h3>Start: {formatDateTime(startTime)}</h3>
         <h3>End: {formatDateTime(endTime)}</h3>

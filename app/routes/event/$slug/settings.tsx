@@ -48,6 +48,12 @@ function Settings() {
               >
                 Verantwortliche Organisationen
               </NavLink>
+              <NavLink
+                to="documents"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Dokumente verwalten
+              </NavLink>
               <hr className="border-neutral-400 my-4 lg:my-8" />
               <NavLink
                 to="delete"

@@ -1,6 +1,7 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
+import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getEventBySlugOrThrow } from "../utils.server";
@@ -43,10 +44,25 @@ export async function checkOwnershipOrThrow(
 // Could be a top level function, as it's used in almost all actions
 export async function checkIdentityOrThrow(
   request: Request,
-  currentUser: User
+  currentUser: User,
+  isMultipartFormData: boolean = false
 ) {
   const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
+  let formData: FormData;
+
+  if (isMultipartFormData) {
+    const multipartFormDataProvider: UploadHandler = async () => {
+      // This upload handler only provides the multipart form data but does not upload anything
+      return undefined;
+    };
+    formData = await unstable_parseMultipartFormData(
+      clonedRequest,
+      multipartFormDataProvider
+    );
+  } else {
+    formData = await clonedRequest.formData();
+  }
+
   const userId = formData.get("userId") as string | null;
 
   if (userId === null || userId !== currentUser.id) {
@@ -110,34 +126,6 @@ export function transformFormToEvent(form: any) {
     endTime,
     participationUntil,
   };
-}
-
-async function getTagsByIds(ids: string[]) {
-  const tags = await prismaClient.tag.findMany({
-    where: {
-      id: { in: ids },
-    },
-    select: {
-      title: true,
-    },
-  });
-  return tags;
-}
-
-export async function transformEventToIcsEvent(
-  event: ReturnType<typeof transformFormToEvent>
-) {
-  const icsEvent = {
-    ...event,
-    updatedAt: new Date(Date.now()),
-    tags: await getTagsByIds(event.tags),
-    // WIP
-    // createdAt: await get createdAt from Event
-  };
-
-  console.log("TRANSFORMED EVENT TO ICS\n\n", icsEvent);
-
-  return icsEvent;
 }
 
 // TODO: any type
@@ -233,16 +221,6 @@ export async function updateEventById(id: string, data: any) {
           : { disconnect: true },
     },
   });
-}
-
-export async function connectExperienceLevelToEvent() {
-  // await prismaClient.event.update({
-  //   where: { id: eventId },
-  //   data: {
-  //     updatedAt: new Date(),
-  //     experienceLevel: { connect: { id: parentEventId } },
-  //   },
-  // });
 }
 
 export async function deleteEventById(id: string) {
