@@ -50,7 +50,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const event = await getEvent(slug);
 
   if (event === null) {
-    throw notFound({ message: `Event with slug ${slug} not found` });
+    throw notFound({ message: `Event not found` });
   }
 
   const mode = await deriveMode(event, currentUser);

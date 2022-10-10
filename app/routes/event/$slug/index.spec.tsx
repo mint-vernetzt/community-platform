@@ -20,6 +20,8 @@ jest.mock("~/prisma", () => {
       teamMemberOfEvent: {
         findFirst: jest.fn(),
       },
+      waitingParticipantOfEvent: { findMany: jest.fn(), findFirst: jest.fn() },
+      participantOfEvent: { findMany: jest.fn(), findFirst: jest.fn() },
     },
   };
 });
@@ -28,6 +30,9 @@ const slug = "slug-test";
 
 describe("/event/$slug", () => {
   describe("loader", () => {
+    beforeAll(() => {
+      process.env.FEATURES = "events";
+    });
     test("no params", async () => {
       expect.assertions(2);
 
@@ -111,13 +116,27 @@ describe("/event/$slug", () => {
         return { id: "some-user-id" };
       });
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
+        return { slug, childEvents: [] };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return null;
       });
+      (prismaClient.participantOfEvent.findMany as jest.Mock)
+        .mockImplementation(() => {
+          return [];
+        })
+        .mockImplementation(() => {
+          return [];
+        });
+      (prismaClient.waitingParticipantOfEvent.findMany as jest.Mock)
+        .mockImplementationOnce(() => {
+          return [];
+        })
+        .mockImplementationOnce(() => {
+          return [];
+        });
 
       const response = await loader({
         request: new Request(""),
@@ -161,7 +180,7 @@ describe("/event/$slug", () => {
         return { id: "some-user-id" };
       });
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
+        return { slug, childEvents: [] };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -223,6 +242,10 @@ describe("/event/$slug", () => {
 
       expect(response.mode).toBe("owner");
       expect(response.event.slug).toBe(slug);
+    });
+
+    afterAll(() => {
+      delete process.env.FEATURES;
     });
   });
 });
