@@ -5,7 +5,7 @@ import { prismaClient } from "~/prisma";
 
 type Mode = "anon" | "authenticated" | "owner";
 export async function deriveMode(
-  event: Event,
+  event: NonNullable<Awaited<ReturnType<typeof getEvent>>>,
   currentUser: User | null
 ): Promise<Mode> {
   if (currentUser === null) {
@@ -342,4 +342,261 @@ export async function getFullDepthOrganizers(id: string) {
     console.error(e);
     return null;
   }
+}
+
+export type MaybeEnhancedEvent =
+  | (
+      | Awaited<ReturnType<typeof getEvent>>
+      | Awaited<ReturnType<typeof enhanceChildEventsWithParticipationStatus>>
+    ) & {
+      participants: Awaited<ReturnType<typeof getEventParticipants>>;
+    };
+
+export async function getEvent(slug: string) {
+  const result = await prismaClient.event.findFirst({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+      slug: true,
+      published: true,
+      background: true,
+      name: true,
+      startTime: true,
+      endTime: true,
+      venueName: true,
+      venueStreet: true,
+      venueStreetNumber: true,
+      venueZipCode: true,
+      venueCity: true,
+      conferenceLink: true,
+      conferenceCode: true,
+      parentEvent: {
+        select: {
+          slug: true,
+          name: true,
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      participationUntil: true,
+      participantLimit: true,
+      types: {
+        select: {
+          eventType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      tags: {
+        select: {
+          tag: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      targetGroups: {
+        select: {
+          targetGroup: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      experienceLevel: {
+        select: {
+          title: true,
+        },
+      },
+      description: true,
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              slug: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      teamMembers: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              academicTitle: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              username: true,
+              position: true,
+            },
+          },
+        },
+      },
+      speakers: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              academicTitle: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              username: true,
+              position: true,
+            },
+          },
+        },
+      },
+      childEvents: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          startTime: true,
+          endTime: true,
+          background: true,
+          participantLimit: true,
+          _count: {
+            select: {
+              participants: true,
+              waitingList: true,
+            },
+          },
+        },
+      },
+      documents: {
+        select: {
+          document: {
+            select: {
+              id: true,
+              filename: true,
+              title: true,
+              description: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          participants: true,
+        },
+      },
+    },
+  });
+  return result;
+}
+
+export async function getEventParticipants(currentEventId: string) {
+  const result = await prismaClient.participantOfEvent.findMany({
+    where: {
+      eventId: currentEventId,
+    },
+    select: {
+      profile: {
+        select: {
+          id: true,
+          academicTitle: true,
+          firstName: true,
+          lastName: true,
+          position: true,
+          username: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+  return result;
+}
+
+export async function getIsParticipant(profileId: string, eventId: string) {
+  const result = await prismaClient.participantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function getIsOnWaitingList(profileId: string, eventId: string) {
+  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function enhanceChildEventsWithParticipationStatus(
+  currentUserId: string,
+  event: Awaited<ReturnType<typeof getEvent>> & {
+    participants: Awaited<ReturnType<typeof getEventParticipants>>;
+  }
+) {
+  const eventIdsWhereParticipant = (
+    await prismaClient.participantOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereOnWaitingList = (
+    await prismaClient.waitingParticipantOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+
+  const enhancedChildEvents = event.childEvents.map((childEvent) => {
+    const isParticipant = eventIdsWhereParticipant.includes(childEvent.id);
+    const isOnWaitingList = eventIdsWhereOnWaitingList.includes(childEvent.id);
+    return {
+      ...childEvent,
+      isParticipant,
+      isOnWaitingList,
+    };
+  });
+  return { ...event, childEvents: enhancedChildEvents };
 }

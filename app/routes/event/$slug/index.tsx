@@ -1,24 +1,17 @@
-import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest, forbidden } from "remix-utils";
+import { Link, LoaderFunction, useLoaderData } from "remix";
+import { Form as RemixForm } from "remix-forms";
+import { badRequest, forbidden, notFound } from "remix-utils";
 import { z } from "zod";
-import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
+import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  connectParticipantToEvent,
-  connectToWaitingListOfEvent,
-  disconnectFromWaitingListOfEvent,
-  disconnectParticipantFromEvent,
-} from "./settings/participants/utils.server";
-import { checkIdentityOrThrow } from "./settings/utils.server";
 import {
   deriveMode,
-  getEventBySlugOrThrow,
-  getFullDepthOrganizers,
-  getFullDepthParticipants,
-  getFullDepthSpeaker,
+  enhanceChildEventsWithParticipationStatus,
+  getEvent,
+  getEventParticipants,
+  getIsOnWaitingList,
+  getIsParticipant,
+  MaybeEnhancedEvent,
 } from "./utils.server";
 
 const schema = z.object({
@@ -35,11 +28,13 @@ const environmentSchema = z.object({
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
+  event: MaybeEnhancedEvent;
+  isParticipant: boolean | undefined;
+  isOnWaitingList: boolean | undefined;
   userId?: string;
-  fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
-  fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
-  fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
+  // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
+  // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
+  // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -52,7 +47,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   }
 
   const currentUser = await getUserByRequest(request);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEvent(slug);
+
+  if (event === null) {
+    throw notFound({ message: `Event with slug ${slug} not found` });
+  }
 
   const mode = await deriveMode(event, currentUser);
 
@@ -60,116 +59,119 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  const fullDepthParticipants = await getFullDepthParticipants(event.id);
-  const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
-  const fullDepthOrganizers = await getFullDepthOrganizers(event.id);
+  let participants: Awaited<ReturnType<typeof getEventParticipants>> = [];
+  let enhancedEvent: MaybeEnhancedEvent = { ...event, participants: [] };
+
+  if (mode !== "anon" && currentUser !== null) {
+    participants = await getEventParticipants(event.id);
+    enhancedEvent.participants = participants;
+
+    if (mode === "authenticated") {
+      enhancedEvent = await enhanceChildEventsWithParticipationStatus(
+        currentUser.id,
+        enhancedEvent
+      );
+    }
+  }
+
+  let isParticipant;
+  let isOnWaitingList;
+
+  if (currentUser !== null) {
+    isParticipant = await getIsParticipant(currentUser.id, enhancedEvent.id);
+    isOnWaitingList = await getIsOnWaitingList(
+      currentUser.id,
+      enhancedEvent.id
+    );
+  }
 
   return {
     mode,
-    event,
-    fullDepthParticipants,
-    fullDepthSpeaker,
+    event: enhancedEvent,
     userId: currentUser?.id || undefined,
-    fullDepthOrganizers,
+    isParticipant,
+    isOnWaitingList,
   };
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventId !== environment.id) {
-    throw "Id nicht korrekt.";
-  }
-  if (environment.reachedParticipationDeadline) {
-    throw "Teilnahmefrist bereits abgelaufen.";
-  }
-  if (values.submit === "participate") {
-    if (environment.reachedParticipantLimit) {
-      throw "Maximale Teilnehmerzahl erreicht.";
-    } else {
-      try {
-        await connectParticipantToEvent(values.eventId, values.userId);
-      } catch (error) {
-        throw "An der Veranstaltung konnte nicht teilgenommen werden.";
-      }
-    }
-  } else if (values.submit === "addToWaitingList") {
-    try {
-      await connectToWaitingListOfEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
-    }
-  } else if (values.submit === "revokeParticipation") {
-    try {
-      await disconnectParticipantFromEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Entfernen von der Teilnehmerliste ist leider gescheitert.";
-    }
-  } else if (values.submit === "removeFromWaitingList") {
-    try {
-      await disconnectFromWaitingListOfEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Entfernen von der Warteliste ist leider gescheitert.";
-    }
-  } else {
-    throw "Unzulässige Operation";
-  }
-  return values;
-});
+// const mutation = makeDomainFunction(
+//   schema,
+//   environmentSchema
+// )(async (values, environment) => {
+//   if (values.eventId !== environment.id) {
+//     throw "Id nicht korrekt.";
+//   }
+//   if (environment.reachedParticipationDeadline) {
+//     throw "Teilnahmefrist bereits abgelaufen.";
+//   }
+//   if (values.submit === "participate") {
+//     if (environment.reachedParticipantLimit) {
+//       throw "Maximale Teilnehmerzahl erreicht.";
+//     } else {
+//       try {
+//         await connectParticipantToEvent(values.eventId, values.userId);
+//       } catch (error) {
+//         throw "An der Veranstaltung konnte nicht teilgenommen werden.";
+//       }
+//     }
+//   } else if (values.submit === "addToWaitingList") {
+//     try {
+//       await connectToWaitingListOfEvent(values.eventId, values.userId);
+//     } catch (error) {
+//       throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
+//     }
+//   } else if (values.submit === "revokeParticipation") {
+//     try {
+//       await disconnectParticipantFromEvent(values.eventId, values.userId);
+//     } catch (error) {
+//       throw "Das Entfernen von der Teilnehmerliste ist leider gescheitert.";
+//     }
+//   } else if (values.submit === "removeFromWaitingList") {
+//     try {
+//       await disconnectFromWaitingListOfEvent(values.eventId, values.userId);
+//     } catch (error) {
+//       throw "Das Entfernen von der Warteliste ist leider gescheitert.";
+//     }
+//   } else {
+//     throw "Unzulässige Operation";
+//   }
+//   return values;
+// });
 
-type ActionData = any;
+// type ActionData = any;
 
-export const action: ActionFunction = async (args): Promise<ActionData> => {
-  const { request, params } = args;
+// export const action: ActionFunction = async (args): Promise<ActionData> => {
+//   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+//   await checkFeatureAbilitiesOrThrow(request, "events");
 
-  const slug = getParamValueOrThrow(params, "slug");
+//   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+//   const currentUser = await getUserByRequestOrThrow(request);
 
-  await checkIdentityOrThrow(request, currentUser);
+//   await checkIdentityOrThrow(request, currentUser);
 
-  const event = await getEventBySlugOrThrow(slug);
+//   const event = await getEventBySlugOrThrow(slug);
 
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
-    environment: {
-      id: event.id,
-      reachedParticipantLimit: reachedParticipantLimit(event),
-      reachedParticipationDeadline: reachedParticipateDeadline(event),
-    },
-  });
+//   const result = await performMutation({
+//     request,
+//     schema,
+//     mutation,
+//     environment: {
+//       id: event.id,
+//       reachedParticipantLimit: reachedParticipantLimit(event),
+//       reachedParticipationDeadline: reachedParticipateDeadline(event),
+//     },
+//   });
 
-  return result;
-};
+//   return result;
+// };
 
 function reachedParticipateDeadline(
   event: Pick<LoaderData["event"], "participationUntil">
 ) {
   const participationUntil = new Date(event.participationUntil).getTime();
   return Date.now() > participationUntil;
-}
-
-function isUserParticipating(
-  event: Pick<LoaderData["event"], "participants">,
-  userId: LoaderData["userId"]
-) {
-  return event.participants.some((participant) => {
-    return participant.profile.id === userId;
-  });
-}
-
-function isUserOnWaitingList(
-  event: Pick<LoaderData["event"], "waitingList">,
-  userId: LoaderData["userId"]
-) {
-  return event.waitingList.some((waitingUser) => {
-    return waitingUser.profile.id === userId;
-  });
 }
 
 function reachedParticipantLimit(
@@ -225,19 +227,16 @@ function formatDateTime(date: Date) {
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
-  // Should functions like these be called inside the loader?
-  const reachedParticipationDeadline = reachedParticipateDeadline(
-    loaderData.event
-  );
-  const isParticipating = isUserParticipating(
-    loaderData.event,
-    loaderData.userId
-  );
-  const isOnWaitingList = isUserOnWaitingList(
-    loaderData.event,
-    loaderData.userId
-  );
-  const participantLimitReached = reachedParticipantLimit(loaderData.event);
+  const reachedParticipationDeadline =
+    new Date() > new Date(loaderData.event.participationUntil);
+
+  const isParticipating = loaderData.isParticipant || false;
+  const isOnWaitingList = loaderData.isOnWaitingList || false;
+
+  const participantLimitReached =
+    loaderData.event.participantLimit !== null
+      ? loaderData.event.participantLimit > loaderData.event._count.participants
+      : false;
   const participationOption = createParticipationOption(
     isParticipating,
     isOnWaitingList,
@@ -467,7 +466,7 @@ function Index() {
             </ul>
           </>
         )}
-        {loaderData.fullDepthParticipants !== null &&
+        {/* {loaderData.fullDepthParticipants !== null &&
           loaderData.fullDepthParticipants.length > 0 && (
             <>
               <h3 className="mt-4">Teilnehmer*innen:</h3>
@@ -487,8 +486,8 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
-        {loaderData.mode === "owner" &&
+          )} */}
+        {/* {loaderData.mode === "owner" &&
           loaderData.event.waitingList.length > 0 && (
             <>
               <h3 className="mt-4">Warteliste:</h3>
@@ -512,8 +511,8 @@ function Index() {
                 )}
               </ul>
             </>
-          )}
-        {loaderData.fullDepthSpeaker !== null &&
+          )} */}
+        {/* {loaderData.fullDepthSpeaker !== null &&
           loaderData.fullDepthSpeaker.length > 0 && (
             <>
               <h3 className="mt-4">Speaker*innen:</h3>
@@ -533,8 +532,8 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
-        {loaderData.fullDepthOrganizers !== null &&
+          )} */}
+        {/* {loaderData.fullDepthOrganizers !== null &&
           loaderData.fullDepthOrganizers.length > 0 && (
             <>
               <h3 className="mt-4">Organisator*innen:</h3>
@@ -554,7 +553,7 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
+          )} */}
         {loaderData.event.teamMembers.length > 0 && (
           <>
             <h3 className="mt-4">Das Team:</h3>
