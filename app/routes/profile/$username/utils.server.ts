@@ -1,6 +1,6 @@
 import { Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
-import { badRequest, forbidden } from "remix-utils";
+import { badRequest, forbidden, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
@@ -110,7 +110,7 @@ export async function updateProfileById(
   });
 }
 
-async function transformEventData(
+function transformEventData(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
   key: keyof Pick<
     NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
@@ -122,7 +122,7 @@ async function transformEventData(
   mode: Mode,
   sessionUser: User | null
 ) {
-  let transformedEventData;
+  let transformedEventData = profile[key];
 
   let events;
   if (key === "participatedEvents") {
@@ -209,34 +209,7 @@ async function transformEventData(
       return eventWithParticipationStatus;
     });
   }
-
-  // let transformedEventData:
-  //   | Awaited<ReturnType<typeof getRootEvents>>
-  //   | ReturnType<typeof sortEventsAlphabetically>;
-
-  // if (key === "participatedEvents" || key === "contributedEvents") {
-  //   // Raw query in getRootEvents already filters published events and sorts them alphabetically
-  //   transformedEventData = await getRootEvents(profile[key]);
-  // } else if (key === "teamMemberOfEvents" && mode === "owner") {
-  //   // Profile owner who is team member of an event should also see unpublished events
-  //   transformedEventData = sortEventsAlphabetically(profile[key]);
-  // } else {
-  //   const publishedEvents = filterPublishedEvents(profile[key]);
-  //   transformedEventData = sortEventsAlphabetically(publishedEvents);
-  // }
-
-  if (transformedEventData === undefined) {
-    return [];
-  }
-  return transformedEventData as Array<
-    ArrayElement<typeof transformedEventData> & {
-      event: {
-        ownerIsOnWaitingList?: boolean;
-        userIsOnWaitingList?: boolean;
-        userIsParticipating?: boolean;
-      };
-    }
-  >;
+  return transformedEventData;
 }
 
 // TODO: Type issues, rework public fields
@@ -245,7 +218,7 @@ export async function filterProfileByMode(
   mode: Mode,
   sessionUser: User | null
 ) {
-  let data: Partial<typeof profile> = {};
+  let data = profile;
 
   const publicFields = [
     "id",
@@ -267,6 +240,7 @@ export async function filterProfileByMode(
     "waitingForEvents",
   ];
 
+  let includedKeys: string[] = [];
   for (const key in profile) {
     // Only show public fields if user is anon, show all fields if user is not anon
     if (mode !== "anon" || publicFields.includes(key)) {
@@ -274,12 +248,20 @@ export async function filterProfileByMode(
       if (eventRelationKeys.includes(key)) {
         // TODO: Type issue
         // @ts-ignore
-        data[key] = await transformEventData(profile, key, mode, sessionUser);
+        data[key] = transformEventData(profile, key, mode, sessionUser);
       } else {
         // @ts-ignore <-- Partials allow undefined, Profile not
         data[key] = profile[key];
+        includedKeys.push(key);
       }
     }
   }
+
   return data;
+  // return data as Pick<typeof profile, keyof typeof publicFields.keys> & {
+  //   participatedEvents: ReturnType<typeof transformEventData>;
+  //   waitingForEvents: ReturnType<typeof transformEventData>;
+  //   contributedEvents: ReturnType<typeof transformEventData>;
+  //   teamMemberOfEvents: ReturnType<typeof transformEventData>;
+  // };
 }
