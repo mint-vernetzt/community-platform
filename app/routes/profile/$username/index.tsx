@@ -167,6 +167,19 @@ function hasWebsiteOrSocialService(
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
+function canViewEvents(loaderData: ProfileLoaderData) {
+  return (
+    loaderData.abilities.events.hasAccess === true &&
+    loaderData.mode !== "anon" &&
+    loaderData.data.teamMemberOfEvents &&
+    loaderData.data.teamMemberOfEvents.length > 0 &&
+    loaderData.data.participatedEvents &&
+    loaderData.data.participatedEvents.length > 0 &&
+    loaderData.data.contributedEvents &&
+    loaderData.data.contributedEvents.length > 0
+  );
+}
+
 export default function Index() {
   const loaderData = useLoaderData<ProfileLoaderData>();
 
@@ -555,117 +568,117 @@ export default function Index() {
                 </div>
               </>
             )}
-            {loaderData.abilities.events.hasAccess === true &&
-              loaderData.mode !== "anon" && (
-                <>
-                  <div
-                    id="events"
-                    className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
-                  >
-                    <div className="flex-auto pr-4">
-                      <h3 className="mb-0 font-bold">Veranstaltungen</h3>
+            {(canViewEvents(loaderData) || loaderData.mode === "owner") && (
+              <>
+                <div
+                  id="events"
+                  className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
+                >
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">Veranstaltungen</h3>
+                  </div>
+                  {loaderData.mode === "owner" && (
+                    <div className="flex-initial pl-4">
+                      <Link
+                        to="/event/create"
+                        className="btn btn-outline btn-primary"
+                      >
+                        Veranstaltung anlegen
+                      </Link>
                     </div>
-                    {loaderData.mode === "owner" && (
-                      <div className="flex-initial pl-4">
-                        <Link
-                          to="/event/create"
-                          className="btn btn-outline btn-primary"
-                        >
-                          Veranstaltung anlegen
-                        </Link>
+                  )}
+                </div>
+                {loaderData.data.teamMemberOfEvents &&
+                  loaderData.data.teamMemberOfEvents.length > 0 && (
+                    <>
+                      <h6 className="mb-2 font-bold">Organisation/Team</h6>
+                      <div className="flex flex-wrap -mx-3 items-stretch">
+                        {loaderData.data.teamMemberOfEvents.map(
+                          ({ event }, index) => (
+                            <div
+                              key={`profile-${index}`}
+                              data-testid="gridcell"
+                              className="flex-100 lg:flex-1/2 px-3 mb-8"
+                            >
+                              <Link
+                                to={`/event/${event.slug}`}
+                                className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                              >
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-xl mb-1">
+                                      {event.name}
+                                    </H3>
+                                  </div>
+                                </div>
+                              </Link>
+                            </div>
+                          )
+                        )}
                       </div>
+                    </>
+                  )}
+
+                {loaderData.data.contributedEvents &&
+                  loaderData.data.contributedEvents.length > 0 && (
+                    <>
+                      <h6 className="mb-2 font-bold">Speaker:in</h6>
+                      <div className="flex flex-wrap -mx-3 items-stretch">
+                        {loaderData.data.contributedEvents.map(
+                          ({ event }, index) => (
+                            <div
+                              key={`profile-${index}`}
+                              data-testid="gridcell"
+                              className="flex-100 lg:flex-1/2 px-3 mb-8"
+                            >
+                              <Link
+                                to={`/event/${event.slug}`}
+                                className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                              >
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-xl mb-1">
+                                      {event.name}
+                                    </H3>
+                                  </div>
+                                </div>
+                              </Link>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </>
+                  )}
+              </>
+            )}
+            {loaderData.data.participatedEvents &&
+              loaderData.data.participatedEvents.length > 0 && (
+                <>
+                  <h6 className="mb-2 font-bold">Teilnahme</h6>
+                  <div className="flex flex-wrap -mx-3 items-stretch">
+                    {loaderData.data.participatedEvents.map(
+                      ({ event }, index) => (
+                        <div
+                          key={`profile-${index}`}
+                          data-testid="gridcell"
+                          className="flex-100 lg:flex-1/2 px-3 mb-8"
+                        >
+                          <Link
+                            to={`/event/${event.slug}`}
+                            className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                          >
+                            <div className="w-full flex items-center flex-row">
+                              <div className="pl-4">
+                                <H3 like="h4" className="text-xl mb-1">
+                                  {event.name}
+                                </H3>
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
+                      )
                     )}
                   </div>
-                  {loaderData.data.participatedEvents &&
-                    loaderData.data.participatedEvents.length > 0 && (
-                      <>
-                        <h6 className="mb-2 font-bold">Teilnahme</h6>
-                        <div className="flex flex-wrap -mx-3 items-stretch">
-                          {loaderData.data.participatedEvents.map(
-                            ({ event }, index) => (
-                              <div
-                                key={`profile-${index}`}
-                                data-testid="gridcell"
-                                className="flex-100 lg:flex-1/2 px-3 mb-8"
-                              >
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                                >
-                                  <div className="w-full flex items-center flex-row">
-                                    <div className="pl-4">
-                                      <H3 like="h4" className="text-xl mb-1">
-                                        {event.name}
-                                      </H3>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                  {loaderData.data.contributedEvents &&
-                    loaderData.data.contributedEvents.length > 0 && (
-                      <>
-                        <h6 className="mb-2 font-bold">Speaker:in</h6>
-                        <div className="flex flex-wrap -mx-3 items-stretch">
-                          {loaderData.data.contributedEvents.map(
-                            ({ event }, index) => (
-                              <div
-                                key={`profile-${index}`}
-                                data-testid="gridcell"
-                                className="flex-100 lg:flex-1/2 px-3 mb-8"
-                              >
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                                >
-                                  <div className="w-full flex items-center flex-row">
-                                    <div className="pl-4">
-                                      <H3 like="h4" className="text-xl mb-1">
-                                        {event.name}
-                                      </H3>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
-                  {loaderData.data.teamMemberOfEvents &&
-                    loaderData.data.teamMemberOfEvents.length > 0 && (
-                      <>
-                        <h6 className="mb-2 font-bold">Organisation/Team</h6>
-                        <div className="flex flex-wrap -mx-3 items-stretch">
-                          {loaderData.data.teamMemberOfEvents.map(
-                            ({ event }, index) => (
-                              <div
-                                key={`profile-${index}`}
-                                data-testid="gridcell"
-                                className="flex-100 lg:flex-1/2 px-3 mb-8"
-                              >
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                                >
-                                  <div className="w-full flex items-center flex-row">
-                                    <div className="pl-4">
-                                      <H3 like="h4" className="text-xl mb-1">
-                                        {event.name}
-                                      </H3>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </>
-                    )}
                 </>
               )}
           </div>
