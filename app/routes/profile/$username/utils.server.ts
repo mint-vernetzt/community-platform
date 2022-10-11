@@ -1,11 +1,8 @@
 import { Profile } from "@prisma/client";
+import { User } from "@supabase/supabase-js";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import {
-  filterPublishedEvents,
-  getRootEvents,
-  sortEventsAlphabetically,
-} from "~/lib/event/utils";
+import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 
@@ -122,30 +119,131 @@ async function transformEventData(
     | "contributedEvents"
     | "waitingForEvents"
   >,
-  mode: Mode
+  mode: Mode,
+  sessionUser: User | null
 ) {
-  let transformedEventData:
-    | Awaited<ReturnType<typeof getRootEvents>>
-    | ReturnType<typeof sortEventsAlphabetically>;
+  let transformedEventData;
 
-  if (key === "participatedEvents" || key === "contributedEvents") {
-    // Raw query in getRootEvents already filters published events and sorts them alphabetically
-    transformedEventData = await getRootEvents(profile[key]);
-  } else if (key === "teamMemberOfEvents" && mode === "owner") {
-    // Profile owner who is team member of an event should also see unpublished events
-    transformedEventData = sortEventsAlphabetically(profile[key]);
+  let events;
+  if (key === "participatedEvents") {
+    const participatedEventsWithParticipationStatus = profile[
+      "participatedEvents"
+    ].map((item) => {
+      const eventWithParticipationStatus = {
+        event: {
+          ...item.event,
+          ownerIsOnWaitingList: false,
+        },
+      };
+      return eventWithParticipationStatus;
+    });
+    const waitingForEventsWithParticipationStatus = profile[
+      "waitingForEvents"
+    ].map((item) => {
+      const eventWithParticipationStatus = {
+        event: {
+          ...item.event,
+          ownerIsOnWaitingList: true,
+        },
+      };
+      return eventWithParticipationStatus;
+    });
+    events = [
+      ...participatedEventsWithParticipationStatus,
+      ...waitingForEventsWithParticipationStatus,
+    ];
   } else {
-    const publishedEvents = filterPublishedEvents(profile[key]);
-    transformedEventData = sortEventsAlphabetically(publishedEvents);
+    events = profile[key];
+  }
+  // TODO: Outsource this to prisma call (Problem was combining the include statement with a where statement)
+  // e.g. include: { event: { select: { name: true, }, where: { startTime: { gte: new Date() }, }, }, },
+  let currentTime = new Date();
+  const futureEvents = events.filter(function filterFutureEvents(item) {
+    if (item.event.startTime >= currentTime) {
+      return item;
+    }
+    return null;
+  });
+  const chronologicalEvents = futureEvents.sort(
+    function sortEventsChronologically(a, b) {
+      return a.event.startTime >= b.event.startTime ? 1 : -1;
+    }
+  );
+  const publishedEvents = chronologicalEvents.filter(
+    function filterPublishedEvents(item) {
+      return item.event.published;
+    }
+  );
+
+  if (mode === "owner") {
+    if (key === "teamMemberOfEvents") {
+      transformedEventData = chronologicalEvents;
+    }
+    if (key === "contributedEvents" || key === "participatedEvents") {
+      transformedEventData = publishedEvents;
+    }
+  }
+  if (mode === "authenticated") {
+    transformedEventData = publishedEvents.map((item) => {
+      const eventWithParticipationStatus = {
+        event: {
+          ...item.event,
+          userIsParticipating: item.event.participants.some(
+            function isSessionUserOnParticipantsList(participant) {
+              if (sessionUser === null) {
+                return false;
+              }
+              return participant.profileId === sessionUser.id;
+            }
+          ),
+          userIsOnWaitingList: item.event.waitingList.some(
+            function isSessionUserOnWaitingList(participant) {
+              if (sessionUser === null) {
+                return false;
+              }
+              return participant.profileId === sessionUser.id;
+            }
+          ),
+        },
+      };
+      return eventWithParticipationStatus;
+    });
   }
 
-  return transformedEventData;
+  // let transformedEventData:
+  //   | Awaited<ReturnType<typeof getRootEvents>>
+  //   | ReturnType<typeof sortEventsAlphabetically>;
+
+  // if (key === "participatedEvents" || key === "contributedEvents") {
+  //   // Raw query in getRootEvents already filters published events and sorts them alphabetically
+  //   transformedEventData = await getRootEvents(profile[key]);
+  // } else if (key === "teamMemberOfEvents" && mode === "owner") {
+  //   // Profile owner who is team member of an event should also see unpublished events
+  //   transformedEventData = sortEventsAlphabetically(profile[key]);
+  // } else {
+  //   const publishedEvents = filterPublishedEvents(profile[key]);
+  //   transformedEventData = sortEventsAlphabetically(publishedEvents);
+  // }
+
+  if (transformedEventData === undefined) {
+    return [];
+  }
+  return transformedEventData as Array<
+    ArrayElement<typeof transformedEventData> & {
+      event: {
+        ownerIsOnWaitingList?: boolean;
+        userIsOnWaitingList?: boolean;
+        userIsParticipating?: boolean;
+      };
+    }
+  >;
 }
 
 // TODO: Type issues, rework public fields
 export async function filterProfileByMode(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  mode: Mode
+  mode: Mode,
+  sessionUser: User | null
 ) {
   let data: Partial<typeof profile> = {};
 
@@ -176,7 +274,7 @@ export async function filterProfileByMode(
       if (eventRelationKeys.includes(key)) {
         // TODO: Type issue
         // @ts-ignore
-        data[key] = await transformEventData(profile, key, mode);
+        data[key] = await transformEventData(profile, key, mode, sessionUser);
       } else {
         // @ts-ignore <-- Partials allow undefined, Profile not
         data[key] = profile[key];

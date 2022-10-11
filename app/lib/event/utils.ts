@@ -33,7 +33,7 @@ export async function getRootEvents(
 
 export function filterPublishedEvents(
   events: {
-    event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
+    event: Pick<Event, "published" | "startTime">;
   }[]
 ) {
   let publishedEvents = events.filter((item) => {
@@ -53,4 +53,32 @@ export function sortEventsAlphabetically(
   });
 
   return sortedEvents;
+}
+
+export function sortEventsChronologically(
+  events: {
+    event: Pick<Event, "startTime" | "published">;
+  }[]
+) {
+  let sortedEvents = events.sort(function sortEventsChronologically(a, b) {
+    return a.event.startTime >= b.event.startTime ? 1 : -1;
+  });
+
+  return sortedEvents;
+}
+
+export function filterFutureEvents(
+  events: {
+    event: Pick<Event, "startTime" | "published">;
+  }[]
+) {
+  let currentTime = new Date();
+  let futureEvents = events.filter((item) => {
+    if (item.event.startTime >= currentTime) {
+      return item;
+    }
+    return null;
+  });
+
+  return futureEvents;
 }

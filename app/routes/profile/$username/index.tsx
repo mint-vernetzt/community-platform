@@ -57,7 +57,6 @@ export const loader: LoaderFunction = async (
 
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
-
   const abilities = await getFeatureAbilities(request, "events");
 
   let images: {
@@ -99,8 +98,7 @@ export const loader: LoaderFunction = async (
   // Owner:
   // - teamMemberOfEvent:
   // -- published and not published (show label)
-  // -- participating label or participate/waitinglist button
-  // -- everything else (including particpants/max participants counter)
+  // -- everything else (including participants/max participants counter)
   // -- sort by startDate
   // - speakerOfEvent:
   // -- only published
@@ -133,7 +131,7 @@ export const loader: LoaderFunction = async (
   // TODO: subline
   // startDate
   // name
-  let data = await filterProfileByMode(profile, mode);
+  let data = await filterProfileByMode(profile, mode, sessionUser);
 
   return json({ mode, data, images, abilities });
 };

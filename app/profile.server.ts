@@ -1,4 +1,5 @@
 import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
+import { now } from "cypress/types/lodash";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/settings/general";
 
@@ -25,6 +26,10 @@ export async function getProfileByUsername(username: string) {
             slug: true,
             published: true,
             parentEventId: true,
+            startTime: true,
+            waitingList: true,
+            participants: true,
+            participantLimit: true,
           },
         },
       },
@@ -38,6 +43,10 @@ export async function getProfileByUsername(username: string) {
             slug: true,
             published: true,
             parentEventId: true,
+            startTime: true,
+            waitingList: true,
+            participants: true,
+            participantLimit: true,
           },
         },
       },
@@ -51,6 +60,10 @@ export async function getProfileByUsername(username: string) {
             slug: true,
             published: true,
             parentEventId: true,
+            startTime: true,
+            waitingList: true,
+            participants: true,
+            participantLimit: true,
           },
         },
       },
@@ -64,6 +77,10 @@ export async function getProfileByUsername(username: string) {
             slug: true,
             published: true,
             parentEventId: true,
+            startTime: true,
+            waitingList: true,
+            participants: true,
+            participantLimit: true,
           },
         },
       },
