@@ -1,6 +1,6 @@
-import { ActionFunction } from "remix";
+import { ActionFunction, useFetcher } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -31,12 +31,55 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
     await checkSameEventOrThrow(request, event.id);
-    const profile = await getProfileByEmail(result.data.email);
-    if (profile !== null) {
-      await connectParticipantToEvent(event.id, profile.id);
+    if (currentUser.email !== result.data.email) {
+      await checkOwnershipOrThrow(event, currentUser);
+      const profile = await getProfileByEmail(result.data.email);
+      if (profile !== null) {
+        await connectParticipantToEvent(event.id, profile.id);
+      }
+    } else {
+      await connectParticipantToEvent(event.id, currentUser.id);
     }
   }
   return result;
 };
+
+type AddParticipantButtonProps = {
+  action: string;
+  userId?: string;
+  eventId?: string;
+  email?: string;
+};
+
+export function AddParticipantButton(props: AddParticipantButtonProps) {
+  const fetcher = useFetcher();
+  return (
+    <Form
+      action={props.action}
+      fetcher={fetcher}
+      schema={schema}
+      hiddenFields={["eventId", "userId", "email"]}
+      values={{
+        userId: props.userId,
+        eventId: props.eventId,
+        email: props.email,
+      }}
+    >
+      {(props) => {
+        const { Field, Errors } = props;
+        return (
+          <>
+            <Field name="userId" />
+            <Field name="eventId" />
+            <Field name="email" />
+            <button className="btn btn-primary" type="submit">
+              Teilnehmen
+            </button>
+            <Errors />
+          </>
+        );
+      }}
+    </Form>
+  );
+}

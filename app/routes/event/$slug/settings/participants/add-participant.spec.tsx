@@ -81,6 +81,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -89,7 +90,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
+      return { id: "some-event-id" };
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -168,7 +169,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     }
   });
 
-  test("add participant", async () => {
+  test("add participant (owner)", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -182,11 +183,6 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       return {
         id: "some-event-id",
       };
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
@@ -205,6 +201,58 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         data: {
           eventId: "some-event-id",
           profileId: "another-user-id",
+        },
+      });
+      expect(result.success).toBe(true);
+    } catch (error) {
+      const response = error as Response;
+      console.log(response);
+
+      const json = await response.json();
+      console.log(json);
+    }
+  });
+
+  test("add participant (self)", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "someuser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({
+      id: "some-user-id",
+      email: "someuser@mail.com",
+    } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        id: "some-event-id",
+      };
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return null;
+    });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        id: "another-user-id",
+      };
+    });
+
+    try {
+      const result = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
+        data: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
         },
       });
       expect(result.success).toBe(true);

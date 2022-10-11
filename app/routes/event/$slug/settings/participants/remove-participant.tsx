@@ -1,6 +1,6 @@
-import { ActionFunction } from "remix";
+import { ActionFunction, useFetcher } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -30,9 +30,50 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
     await checkSameEventOrThrow(request, event.id);
+    if (currentUser.id !== result.data.profileId) {
+      await checkOwnershipOrThrow(event, currentUser);
+    }
     await disconnectParticipantFromEvent(event.id, result.data.profileId);
   }
   return result;
 };
+
+type RemoveParticipantButtonProps = {
+  action: string;
+  userId?: string;
+  eventId?: string;
+  profileId?: string;
+};
+
+export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
+  const fetcher = useFetcher();
+  return (
+    <Form
+      action={props.action}
+      fetcher={fetcher}
+      schema={schema}
+      hiddenFields={["eventId", "userId", "profileId"]}
+      values={{
+        userId: props.userId,
+        eventId: props.eventId,
+        profileId: props.profileId,
+      }}
+    >
+      {(props) => {
+        const { Field, Errors } = props;
+        return (
+          <>
+            <Field name="userId" />
+            <Field name="eventId" />
+            <Field name="profileId" />
+            <button className="btn btn-primary" type="submit">
+              Nicht mehr teilnehmen
+            </button>
+            <Errors />
+          </>
+        );
+      }}
+    </Form>
+  );
+}
