@@ -1,7 +1,9 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/participants/remove-from-waiting-list";
@@ -93,6 +95,15 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       currentUser.id,
       enhancedEvent.id
     );
+  }
+
+  if (event.background !== null) {
+    const publicURL = getPublicURL(event.background);
+    if (publicURL) {
+      event.background = getImageURL(publicURL, {
+        resize: { type: "fit", width: 1488, height: 480 },
+      });
+    }
   }
 
   return {
@@ -232,6 +243,13 @@ function Index() {
   return (
     <>
       <div className="mb-4 ml-4">
+        <img
+          src={
+            loaderData.event.background ||
+            "/images/default-event-background.jpg"
+          }
+          alt="background"
+        />
         <h1>{loaderData.event.name}</h1>
         {reachedParticipationDeadline ? (
           <h3>Teilnahmefrist bereits abgelaufen.</h3>
