@@ -1,5 +1,4 @@
 import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
-import { now } from "cypress/types/lodash";
 import { prismaClient } from "./prisma";
 import { ProfileFormType } from "./routes/profile/$username/settings/general";
 
@@ -17,74 +16,6 @@ export async function getProfileByUsername(username: string) {
     areas: { select: { area: { select: { name: true } } } },
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
-    teamMemberOfEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-            startTime: true,
-            waitingList: true,
-            participants: true,
-            participantLimit: true,
-          },
-        },
-      },
-    },
-    participatedEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-            startTime: true,
-            waitingList: true,
-            participants: true,
-            participantLimit: true,
-          },
-        },
-      },
-    },
-    contributedEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-            startTime: true,
-            waitingList: true,
-            participants: true,
-            participantLimit: true,
-          },
-        },
-      },
-    },
-    waitingForEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-            startTime: true,
-            waitingList: true,
-            participants: true,
-            participantLimit: true,
-          },
-        },
-      },
-    },
     memberOf: {
       select: {
         organization: {

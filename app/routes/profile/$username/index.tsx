@@ -1,6 +1,8 @@
 import { Profile } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
+import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { json, Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
@@ -11,11 +13,19 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
+import {
+  canUserBeAddedToWaitingList,
+  canUserParticipate,
+  createDateLabel,
+  isUserOnWaitingList,
+  isUserParticipating,
+} from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { ArrayElement } from "~/lib/utils/types";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import {
@@ -24,18 +34,6 @@ import {
   getProfileEventsByMode,
   Mode,
 } from "./utils.server";
-
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import { ArrayElement } from "~/lib/utils/types";
-import {
-  canUserBeAddedToWaitingList,
-  canUserParticipate,
-  createDateLabel,
-  isLongerThanOneDay,
-  isUserOnWaitingList,
-  isUserParticipating,
-} from "~/lib/event/utils";
 
 export function links() {
   return [
@@ -94,7 +92,7 @@ export const loader: LoaderFunction = async (
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
   const abilities = await getFeatureAbilities(request, "events");
 
-  let data = await filterProfileByMode(profile, mode, sessionUser);
+  let data = await filterProfileByMode(profile, mode);
 
   let images: {
     avatar?: string;
@@ -130,44 +128,6 @@ export const loader: LoaderFunction = async (
     return member;
   });
 
-  // TODO: filter profile events by mode
-  // Show explicit events
-  // Owner:
-  // - teamMemberOfEvent:
-  // -- published and not published (show label)
-  // -- everything else (including participants/max participants counter)
-  // -- sort by startDate
-  // - speakerOfEvent:
-  // -- only published
-  // -- everything else (including particpants/max participants counter)
-  // -- sort by startDate
-  // - participant/waitingListofEvent:
-  // -- only published
-  // -- participating or waiting list label
-  // -- everything else (including particpants/max participants counter)
-  // -- sort by startDate
-
-  // Authenticated:
-  // - teamMemberOfEvent:
-  // -- only published
-  // -- participating label or participate/waitinglist button
-  // -- everything else (including particpants/max participants counter)
-  // -- sort by startDate
-  // - speakerOfEvent:
-  // -- only published
-  // -- everything else (including particpants/max participants counter)
-  // -- sort by startDate
-  // - participant/waitingListofEvent:
-  // -- only published
-  // -- participating or waiting list label
-  // -- everything else (including particpants/max participants counter)
-  // -- sort by startDate
-
-  // Everything else:
-  // TODO: hybrid/onSite/digital
-  // TODO: subline
-  // startDate
-  // name
   const profileEvents = await getProfileEventsByMode(username, mode);
   if (profileEvents === null) {
     throw notFound({ message: "Events not found" });

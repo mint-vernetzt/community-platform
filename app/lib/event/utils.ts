@@ -54,58 +54,6 @@ export async function getRootEvents(
   return publishedRootEvents;
 }
 
-export function filterPublishedEvents(
-  events: {
-    event: Pick<Event, "published" | "startTime">;
-  }[]
-) {
-  let publishedEvents = events.filter((item) => {
-    return item.event.published;
-  });
-
-  return publishedEvents;
-}
-
-export function sortEventsAlphabetically(
-  events: {
-    event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
-  }[]
-) {
-  let sortedEvents = events.sort((a, b) => {
-    return a.event.name.localeCompare(b.event.name);
-  });
-
-  return sortedEvents;
-}
-
-export function sortEventsChronologically(
-  events: {
-    event: Pick<Event, "startTime" | "published">;
-  }[]
-) {
-  let sortedEvents = events.sort(function sortEventsChronologically(a, b) {
-    return a.event.startTime >= b.event.startTime ? 1 : -1;
-  });
-
-  return sortedEvents;
-}
-
-export function filterFutureEvents(
-  events: {
-    event: Pick<Event, "startTime" | "published">;
-  }[]
-) {
-  let currentTime = new Date();
-  let futureEvents = events.filter((item) => {
-    if (item.event.startTime >= currentTime) {
-      return item;
-    }
-    return null;
-  });
-
-  return futureEvents;
-}
-
 export function isUserParticipating(
   event: Pick<EventWithRelations, "participants">,
   userId: string

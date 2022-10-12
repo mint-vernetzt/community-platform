@@ -1,8 +1,6 @@
 import { Profile } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
-import { badRequest, forbidden, serverError } from "remix-utils";
+import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 
@@ -275,113 +273,10 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
   return profileEvents;
 }
 
-function transformEventData(
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  key: keyof Pick<
-    NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "contributedEvents"
-    | "waitingForEvents"
-  >,
-  mode: Mode,
-  sessionUser: User | null
-) {
-  let transformedEventData = profile[key];
-
-  let events;
-  if (key === "participatedEvents") {
-    const participatedEventsWithParticipationStatus = profile[
-      "participatedEvents"
-    ].map((item) => {
-      const eventWithParticipationStatus = {
-        event: {
-          ...item.event,
-          ownerIsOnWaitingList: false,
-        },
-      };
-      return eventWithParticipationStatus;
-    });
-    const waitingForEventsWithParticipationStatus = profile[
-      "waitingForEvents"
-    ].map((item) => {
-      const eventWithParticipationStatus = {
-        event: {
-          ...item.event,
-          ownerIsOnWaitingList: true,
-        },
-      };
-      return eventWithParticipationStatus;
-    });
-    events = [
-      ...participatedEventsWithParticipationStatus,
-      ...waitingForEventsWithParticipationStatus,
-    ];
-  } else {
-    events = profile[key];
-  }
-  // TODO: Outsource this to prisma call (Problem was combining the include statement with a where statement)
-  // e.g. include: { event: { select: { name: true, }, where: { startTime: { gte: new Date() }, }, }, },
-  let currentTime = new Date();
-  const futureEvents = events.filter(function filterFutureEvents(item) {
-    if (item.event.startTime >= currentTime) {
-      return item;
-    }
-    return null;
-  });
-  const chronologicalEvents = futureEvents.sort(
-    function sortEventsChronologically(a, b) {
-      return a.event.startTime >= b.event.startTime ? 1 : -1;
-    }
-  );
-  const publishedEvents = chronologicalEvents.filter(
-    function filterPublishedEvents(item) {
-      return item.event.published;
-    }
-  );
-
-  if (mode === "owner") {
-    if (key === "teamMemberOfEvents") {
-      transformedEventData = chronologicalEvents;
-    }
-    if (key === "contributedEvents" || key === "participatedEvents") {
-      transformedEventData = publishedEvents;
-    }
-  }
-  if (mode === "authenticated") {
-    transformedEventData = publishedEvents.map((item) => {
-      const eventWithParticipationStatus = {
-        event: {
-          ...item.event,
-          userIsParticipating: item.event.participants.some(
-            function isSessionUserOnParticipantsList(participant) {
-              if (sessionUser === null) {
-                return false;
-              }
-              return participant.profileId === sessionUser.id;
-            }
-          ),
-          userIsOnWaitingList: item.event.waitingList.some(
-            function isSessionUserOnWaitingList(participant) {
-              if (sessionUser === null) {
-                return false;
-              }
-              return participant.profileId === sessionUser.id;
-            }
-          ),
-        },
-      };
-      return eventWithParticipationStatus;
-    });
-  }
-  return transformedEventData;
-}
-
 // TODO: Type issues, rework public fields
 export async function filterProfileByMode(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  mode: Mode,
-  sessionUser: User | null
+  mode: Mode
 ) {
   let data = profile;
 
@@ -398,35 +293,13 @@ export async function filterProfileByMode(
     ...profile.publicFields,
   ];
 
-  const eventRelationKeys = [
-    "teamMemberOfEvents",
-    "participatedEvents",
-    "contributedEvents",
-    "waitingForEvents",
-  ];
-
-  let includedKeys: string[] = [];
   for (const key in profile) {
     // Only show public fields if user is anon, show all fields if user is not anon
     if (mode !== "anon" || publicFields.includes(key)) {
-      // Event relations must be transformed
-      if (eventRelationKeys.includes(key)) {
-        // TODO: Type issue
-        // @ts-ignore
-        data[key] = transformEventData(profile, key, mode, sessionUser);
-      } else {
-        // @ts-ignore <-- Partials allow undefined, Profile not
-        data[key] = profile[key];
-        includedKeys.push(key);
-      }
+      // @ts-ignore <-- Partials allow undefined, Profile not
+      data[key] = profile[key];
     }
   }
 
   return data;
-  // return data as Pick<typeof profile, keyof typeof publicFields.keys> & {
-  //   participatedEvents: ReturnType<typeof transformEventData>;
-  //   waitingForEvents: ReturnType<typeof transformEventData>;
-  //   contributedEvents: ReturnType<typeof transformEventData>;
-  //   teamMemberOfEvents: ReturnType<typeof transformEventData>;
-  // };
 }
