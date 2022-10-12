@@ -18,10 +18,24 @@ import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, filterProfileByMode, Mode } from "./utils.server";
+import {
+  deriveMode,
+  filterProfileByMode,
+  getProfileEventsByMode,
+  Mode,
+} from "./utils.server";
 
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import rcSliderStyles from "rc-slider/assets/index.css";
+import { ArrayElement } from "~/lib/utils/types";
+import {
+  canUserBeAddedToWaitingList,
+  canUserParticipate,
+  createDateLabel,
+  isLongerThanOneDay,
+  isUserOnWaitingList,
+  isUserParticipating,
+} from "~/lib/event/utils";
 
 export function links() {
   return [
@@ -38,6 +52,27 @@ type ProfileLoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+  events: {
+    teamMemberOfEvents: NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["teamMemberOfEvents"];
+    contributedEvents: NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["contributedEvents"];
+    participatedEvents: Array<
+      | ArrayElement<
+          NonNullable<
+            Awaited<ReturnType<typeof getProfileEventsByMode>>
+          >["participatedEvents"]
+        >
+      | ArrayElement<
+          NonNullable<
+            Awaited<ReturnType<typeof getProfileEventsByMode>>
+          >["waitingForEvents"]
+        >
+    >;
+  };
+  userId?: string;
 };
 
 export const loader: LoaderFunction = async (
@@ -52,12 +87,14 @@ export const loader: LoaderFunction = async (
 
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "Not found" });
+    throw notFound({ message: "Profile not found" });
   }
 
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
   const abilities = await getFeatureAbilities(request, "events");
+
+  let data = await filterProfileByMode(profile, mode, sessionUser);
 
   let images: {
     avatar?: string;
@@ -131,9 +168,29 @@ export const loader: LoaderFunction = async (
   // TODO: subline
   // startDate
   // name
-  let data = await filterProfileByMode(profile, mode, sessionUser);
+  const profileEvents = await getProfileEventsByMode(username, mode);
+  if (profileEvents === null) {
+    throw notFound({ message: "Events not found" });
+  }
+  const events = {
+    teamMemberOfEvents: profileEvents.teamMemberOfEvents,
+    contributedEvents: profileEvents.contributedEvents,
+    participatedEvents: [
+      ...profileEvents.participatedEvents,
+      ...profileEvents.waitingForEvents,
+    ].sort(function sortEventsChronologically(a, b) {
+      return a.event.startTime >= b.event.startTime ? 1 : -1;
+    }),
+  };
 
-  return json({ mode, data, images, abilities });
+  return json({
+    mode,
+    data,
+    images,
+    abilities,
+    events,
+    userId: sessionUser?.id,
+  });
 };
 
 function hasContactInformations(data: Partial<Profile>) {
@@ -169,12 +226,9 @@ function canViewEvents(loaderData: ProfileLoaderData) {
   return (
     loaderData.abilities.events.hasAccess === true &&
     loaderData.mode !== "anon" &&
-    loaderData.data.teamMemberOfEvents &&
-    loaderData.data.teamMemberOfEvents.length > 0 &&
-    loaderData.data.participatedEvents &&
-    loaderData.data.participatedEvents.length > 0 &&
-    loaderData.data.contributedEvents &&
-    loaderData.data.contributedEvents.length > 0
+    (loaderData.events.teamMemberOfEvents.length > 0 ||
+      loaderData.events.participatedEvents.length > 0 ||
+      loaderData.events.contributedEvents.length > 0)
   );
 }
 
@@ -586,13 +640,14 @@ export default function Index() {
                     </div>
                   )}
                 </div>
-                {loaderData.data.teamMemberOfEvents &&
-                  loaderData.data.teamMemberOfEvents.length > 0 && (
-                    <>
-                      <h6 className="mb-2 font-bold">Organisation/Team</h6>
-                      <div className="flex flex-wrap -mx-3 items-stretch">
-                        {loaderData.data.teamMemberOfEvents.map(
-                          ({ event }, index) => (
+                {loaderData.events.teamMemberOfEvents.length > 0 && (
+                  <>
+                    <h6 className="mb-2 font-bold">Organisation/Team</h6>
+                    <div className="flex flex-wrap -mx-3 items-stretch">
+                      {loaderData.events.teamMemberOfEvents.map(
+                        ({ event }, index) => {
+                          const dateLabel = createDateLabel(event);
+                          return (
                             <div
                               key={`profile-${index}`}
                               data-testid="gridcell"
@@ -602,28 +657,150 @@ export default function Index() {
                                 to={`/event/${event.slug}`}
                                 className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                               >
+                                {/* TODO: Switch event.hybrid/onsite/digital
+                                    Show correct icon and label */}
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
-                                    <H3 like="h4" className="text-xl mb-1">
-                                      {event.name}
-                                    </H3>
+                                    <p className="text-m">
+                                      {dateLabel.date}
+                                      {dateLabel.time !== undefined
+                                        ? " | " + dateLabel.time
+                                        : ""}
+                                    </p>
                                   </div>
                                 </div>
-                              </Link>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </>
-                  )}
 
-                {loaderData.data.contributedEvents &&
-                  loaderData.data.contributedEvents.length > 0 && (
-                    <>
-                      <h6 className="mb-2 font-bold">Speaker:in</h6>
-                      <div className="flex flex-wrap -mx-3 items-stretch">
-                        {loaderData.data.contributedEvents.map(
-                          ({ event }, index) => (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.name}
+                                    </H3>
+                                  </div>
+                                </div>
+                                {/* TODO: Show event subline */}
+                                {/* TODO: Show event isCancelled */}
+                                {loaderData.mode === "owner" && (
+                                  <div className="w-full flex items-center flex-row">
+                                    <div className="pl-4">
+                                      <H3 like="h4" className="text-l mb-1">
+                                        {event.published
+                                          ? "Veröffentlicht"
+                                          : "Entwurf"}
+                                      </H3>
+                                    </div>
+                                  </div>
+                                )}
+                                {loaderData.mode !== "owner" &&
+                                  loaderData.userId !== undefined && (
+                                    <>
+                                      {isUserParticipating(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            <H3
+                                              like="h4"
+                                              className="text-l mb-1"
+                                            >
+                                              Angemeldet
+                                            </H3>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {canUserParticipate(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                            <button
+                                              type="submit"
+                                              className="btn btn-primary"
+                                            >
+                                              Anmelden
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {isUserOnWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            <H3
+                                              like="h4"
+                                              className="text-l mb-1"
+                                            >
+                                              Auf Warteliste
+                                            </H3>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {canUserBeAddedToWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                            <button
+                                              type="submit"
+                                              className="btn btn-primary"
+                                            >
+                                              Warteliste
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {!isUserParticipating(
+                                        event,
+                                        loaderData.userId
+                                      ) &&
+                                        !canUserParticipate(
+                                          event,
+                                          loaderData.userId
+                                        ) &&
+                                        !isUserOnWaitingList(
+                                          event,
+                                          loaderData.userId
+                                        ) &&
+                                        !canUserBeAddedToWaitingList(
+                                          event,
+                                          loaderData.userId
+                                        ) && (
+                                          <div className="w-full flex items-center flex-row">
+                                            <div className="pl-4">
+                                              <Link
+                                                to={`/event/${event.slug}`}
+                                                className="btn btn-primary"
+                                              >
+                                                Mehr erfahren...
+                                              </Link>
+                                            </div>
+                                          </div>
+                                        )}
+                                    </>
+                                  )}
+                              </Link>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {loaderData.events.contributedEvents.length > 0 && (
+                  <>
+                    <h6 className="mb-2 font-bold">Speaker:in</h6>
+                    <div className="flex flex-wrap -mx-3 items-stretch">
+                      {loaderData.events.contributedEvents.map(
+                        ({ event }, index) => {
+                          const dateLabel = createDateLabel(event);
+                          return (
                             <div
                               key={`profile-${index}`}
                               data-testid="gridcell"
@@ -633,52 +810,259 @@ export default function Index() {
                                 to={`/event/${event.slug}`}
                                 className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                               >
+                                {/* TODO: Switch event.hybrid/onsite/digital
+                                    Show correct icon and label */}
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
-                                    <H3 like="h4" className="text-xl mb-1">
+                                    <p className="text-m">
+                                      {dateLabel.date}
+                                      {dateLabel.time !== undefined
+                                        ? " | " + dateLabel.time
+                                        : ""}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
                                       {event.name}
                                     </H3>
                                   </div>
                                 </div>
+                                {/* TODO: Show event subline */}
+                                {/* TODO: Show event isCancelled */}
+                                {loaderData.userId !== undefined && (
+                                  <>
+                                    {isUserParticipating(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          <H3 like="h4" className="text-l mb-1">
+                                            Angemeldet
+                                          </H3>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {canUserParticipate(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                          <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                          >
+                                            Anmelden
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {isUserOnWaitingList(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          <H3 like="h4" className="text-l mb-1">
+                                            Auf Warteliste
+                                          </H3>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {canUserBeAddedToWaitingList(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                          <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                          >
+                                            Warteliste
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {!isUserParticipating(
+                                      event,
+                                      loaderData.userId
+                                    ) &&
+                                      !canUserParticipate(
+                                        event,
+                                        loaderData.userId
+                                      ) &&
+                                      !isUserOnWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) &&
+                                      !canUserBeAddedToWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            <Link
+                                              to={`/event/${event.slug}`}
+                                              className="btn btn-primary"
+                                            >
+                                              Mehr erfahren...
+                                            </Link>
+                                          </div>
+                                        </div>
+                                      )}
+                                  </>
+                                )}
                               </Link>
                             </div>
-                          )
-                        )}
-                      </div>
-                    </>
-                  )}
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
+                {loaderData.events.participatedEvents.length > 0 && (
+                  <>
+                    <h6 className="mb-2 font-bold">Teilnahme</h6>
+                    <div className="flex flex-wrap -mx-3 items-stretch">
+                      {loaderData.events.participatedEvents.map(
+                        ({ event }, index) => {
+                          const dateLabel = createDateLabel(event);
+                          return (
+                            <div
+                              key={`profile-${index}`}
+                              data-testid="gridcell"
+                              className="flex-100 lg:flex-1/2 px-3 mb-8"
+                            >
+                              <Link
+                                to={`/event/${event.slug}`}
+                                className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                              >
+                                {/* TODO: Switch event.hybrid/onsite/digital
+                                    Show correct icon and label */}
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <p className="text-m">
+                                      {dateLabel.date}
+                                      {dateLabel.time !== undefined
+                                        ? " | " + dateLabel.time
+                                        : ""}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.name}
+                                    </H3>
+                                  </div>
+                                </div>
+                                {/* TODO: Show event subline */}
+                                {/* TODO: Show event isCancelled */}
+                                {loaderData.userId !== undefined && (
+                                  <>
+                                    {isUserParticipating(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          <H3 like="h4" className="text-l mb-1">
+                                            Angemeldet
+                                          </H3>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {canUserParticipate(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                          <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                          >
+                                            Anmelden
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {isUserOnWaitingList(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          <H3 like="h4" className="text-l mb-1">
+                                            Auf Warteliste
+                                          </H3>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {canUserBeAddedToWaitingList(
+                                      event,
+                                      loaderData.userId
+                                    ) && (
+                                      <div className="w-full flex items-center flex-row">
+                                        <div className="pl-4">
+                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                          <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                          >
+                                            Warteliste
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {!isUserParticipating(
+                                      event,
+                                      loaderData.userId
+                                    ) &&
+                                      !canUserParticipate(
+                                        event,
+                                        loaderData.userId
+                                      ) &&
+                                      !isUserOnWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) &&
+                                      !canUserBeAddedToWaitingList(
+                                        event,
+                                        loaderData.userId
+                                      ) && (
+                                        <div className="w-full flex items-center flex-row">
+                                          <div className="pl-4">
+                                            <Link
+                                              to={`/event/${event.slug}`}
+                                              className="btn btn-primary"
+                                            >
+                                              Mehr erfahren...
+                                            </Link>
+                                          </div>
+                                        </div>
+                                      )}
+                                  </>
+                                )}
+                              </Link>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
-            {loaderData.data.participatedEvents &&
-              loaderData.data.participatedEvents.length > 0 && (
-                <>
-                  <h6 className="mb-2 font-bold">Teilnahme</h6>
-                  <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.data.participatedEvents.map(
-                      ({ event }, index) => (
-                        <div
-                          key={`profile-${index}`}
-                          data-testid="gridcell"
-                          className="flex-100 lg:flex-1/2 px-3 mb-8"
-                        >
-                          <Link
-                            to={`/event/${event.slug}`}
-                            className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                          >
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                <H3 like="h4" className="text-xl mb-1">
-                                  {event.name}
-                                </H3>
-                              </div>
-                            </div>
-                          </Link>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </>
-              )}
           </div>
         </div>
       </div>

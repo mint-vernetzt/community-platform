@@ -110,6 +110,171 @@ export async function updateProfileById(
   });
 }
 
+export async function getProfileEventsByMode(username: string, mode: Mode) {
+  let teamMemberWhere;
+  if (mode === "owner") {
+    teamMemberWhere = {
+      event: {
+        startTime: {
+          gte: new Date(),
+        },
+      },
+    };
+  } else {
+    teamMemberWhere = {
+      event: {
+        startTime: {
+          gte: new Date(),
+        },
+        published: true,
+      },
+    };
+  }
+
+  const profileEvents = await prismaClient.profile.findFirst({
+    select: {
+      teamMemberOfEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              waitingList: true,
+              participants: true,
+              speakers: true,
+              teamMembers: true,
+              participationUntil: true,
+              childEvents: true,
+              participantLimit: true,
+            },
+          },
+        },
+        where: teamMemberWhere,
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      participatedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              waitingList: true,
+              participants: true,
+              speakers: true,
+              teamMembers: true,
+              participationUntil: true,
+              childEvents: true,
+              participantLimit: true,
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      contributedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              waitingList: true,
+              participants: true,
+              speakers: true,
+              teamMembers: true,
+              participationUntil: true,
+              childEvents: true,
+              participantLimit: true,
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      waitingForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              waitingList: true,
+              participants: true,
+              speakers: true,
+              teamMembers: true,
+              participationUntil: true,
+              childEvents: true,
+              participantLimit: true,
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+    },
+    where: {
+      username,
+    },
+  });
+
+  return profileEvents;
+}
+
 function transformEventData(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
   key: keyof Pick<
