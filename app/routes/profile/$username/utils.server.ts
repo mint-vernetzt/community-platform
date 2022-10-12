@@ -278,7 +278,7 @@ export async function filterProfileByMode(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
   mode: Mode
 ) {
-  let data = profile;
+  let data = {};
 
   const publicFields = [
     "id",
@@ -301,5 +301,5 @@ export async function filterProfileByMode(
     }
   }
 
-  return data;
+  return data as Partial<typeof profile>;
 }
