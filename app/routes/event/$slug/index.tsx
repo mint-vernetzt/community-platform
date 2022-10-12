@@ -1,6 +1,5 @@
-import { Link, LoaderFunction, useFetcher, useLoaderData } from "remix";
+import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { AddParticipantButton } from "./settings/participants/add-participant";
@@ -12,6 +11,9 @@ import {
   enhanceChildEventsWithParticipationStatus,
   getEvent,
   getEventParticipants,
+  getEventSpeakers,
+  getFullDepthParticipants,
+  getFullDepthSpeakers,
   getIsOnWaitingList,
   getIsParticipant,
   MaybeEnhancedEvent,
@@ -51,12 +53,28 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  let participants: Awaited<ReturnType<typeof getEventParticipants>> = [];
-  let enhancedEvent: MaybeEnhancedEvent = { ...event, participants: [] };
+  let participants: Awaited<
+    ReturnType<typeof getEventParticipants | typeof getFullDepthParticipants>
+  > = [];
+  let speakers: Awaited<
+    ReturnType<typeof getEventSpeakers | typeof getFullDepthSpeakers>
+  > = [];
+  let enhancedEvent: MaybeEnhancedEvent = {
+    ...event,
+    participants: [],
+    speakers: [],
+  };
 
   if (mode !== "anon" && currentUser !== null) {
-    participants = await getEventParticipants(event.id);
+    if (event.childEvents.length > 0) {
+      participants = await getFullDepthParticipants(event.id);
+      speakers = await getFullDepthSpeakers(event.id);
+    } else {
+      participants = await getEventParticipants(event.id);
+      speakers = await getEventSpeakers(event.id);
+    }
     enhancedEvent.participants = participants;
+    enhancedEvent.speakers = speakers;
 
     if (mode === "authenticated") {
       enhancedEvent = await enhanceChildEventsWithParticipationStatus(
@@ -87,6 +105,54 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   };
 };
 
+function getDuration(startTime: Date, endTime: Date) {
+  let duration: string;
+
+  const formattedStartDate = startTime.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  const formattedEndDate = endTime.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+
+  const sameYear = startTime.getFullYear() === endTime.getFullYear();
+  const sameMonth = sameYear && startTime.getMonth() === endTime.getMonth();
+  const sameDay = formattedStartDate === formattedEndDate;
+
+  if (sameDay) {
+    // 01. Januar 2022
+    duration = startTime.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    });
+  } else if (sameMonth) {
+    // 01. - 02. Januar 2022
+    duration = `${startTime.toLocaleDateString("de-DE", {
+      day: "2-digit",
+    })}. - ${endTime.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    })}`;
+  } else if (sameYear) {
+    // 01. Jan - 02. Feb 2022
+    duration = `${startTime.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "short",
+    })} - ${formattedEndDate}`;
+  } else {
+    // 01. Jan 2022 - 02. Feb 2021
+    duration = `${formattedStartDate} - ${formattedEndDate}`;
+  }
+
+  return duration;
+}
+
 function getForm(loaderData: LoaderData) {
   const isParticipating = loaderData.isParticipant || false;
   const isOnWaitingList = loaderData.isOnWaitingList || false;
@@ -96,8 +162,6 @@ function getForm(loaderData: LoaderData) {
       ? loaderData.event.participantLimit <=
         loaderData.event._count.participants
       : false;
-
-  console.log({ isParticipating, isOnWaitingList, participantLimitReached });
 
   if (isParticipating) {
     return (
@@ -163,49 +227,7 @@ function Index() {
   const startTime = new Date(loaderData.event.startTime);
   const endTime = new Date(loaderData.event.endTime);
 
-  let duration: string;
-
-  const formattedStartDate = startTime.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-  const formattedEndDate = endTime.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
-  const sameYear = startTime.getFullYear() === endTime.getFullYear();
-  const sameMonth = sameYear && startTime.getMonth() === endTime.getMonth();
-  const sameDay = formattedStartDate === formattedEndDate;
-
-  if (sameDay) {
-    // 01. Januar 2022
-    duration = startTime.toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    });
-  } else if (sameMonth) {
-    // 01. - 02. Januar 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
-      day: "2-digit",
-    })}. - ${endTime.toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    })}`;
-  } else if (sameYear) {
-    // 01. Jan - 02. Feb 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "short",
-    })} - ${formattedEndDate}`;
-  } else {
-    // 01. Jan 2022 - 02. Feb 2021
-    duration = `${formattedStartDate} - ${formattedEndDate}`;
-  }
+  const duration = getDuration(startTime, endTime);
 
   return (
     <>
@@ -225,7 +247,9 @@ function Index() {
                 </Link>
               </>
             )}
-            {loaderData.mode !== "anon" && Form}
+            {loaderData.mode !== "anon" &&
+              loaderData.event.childEvents.length === 0 &&
+              Form}
           </>
         )}
         <Link
@@ -361,6 +385,51 @@ function Index() {
             </ul>
           </>
         )}
+        {loaderData.event.participants !== null && (
+          <>
+            <h1>Participants</h1>
+            <ul>
+              {loaderData.event.participants.map((participant) => {
+                const { profile } = participant;
+                return (
+                  <li key={profile.username}>
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${profile.username}`}
+                    >
+                      {`${profile.academicTitle || ""} ${profile.firstName} ${
+                        profile.lastName
+                      }`.trimStart()}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        {loaderData.event.speakers !== null && (
+          <>
+            <h1>Speakers</h1>
+            <ul>
+              {loaderData.event.speakers.map((speaker) => {
+                const { profile } = speaker;
+                return (
+                  <li key={profile.username}>
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${profile.username}`}
+                    >
+                      {`${profile.academicTitle || ""} ${profile.firstName} ${
+                        profile.lastName
+                      }`.trimStart()}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
         {/* {loaderData.fullDepthParticipants !== null &&
           loaderData.fullDepthParticipants.length > 0 && (
             <>
