@@ -436,7 +436,17 @@ function Index() {
           <>
             <h3>Child Events:</h3>
             <ul>
-              {loaderData.event.childEvents.map((childEvent, index) => {
+              {loaderData.event.childEvents.map((childEvent: any, index) => {
+                console.log(childEvent);
+                const hasChildEvents = childEvent._count.childEvents > 0;
+                const hasLimit = childEvent.participantLimit !== null;
+                const isAnon = loaderData.userId === undefined;
+                const isParticipant = childEvent.isParticipant;
+                const isOnWaitingList = childEvent.isOnWaitingList;
+                const limitReached = hasLimit
+                  ? childEvent.participantLimit <=
+                    childEvent._count.participants
+                  : false;
                 return (
                   <li key={`child-event-${index}`}>
                     -{" "}
@@ -446,6 +456,41 @@ function Index() {
                     >
                       {childEvent.name}
                     </Link>
+                    {childEvent.child}
+                    {!hasChildEvents && isAnon && (
+                      <Link
+                        className="btn btn-primary"
+                        to={`/login?event_slug=${childEvent.slug}`}
+                      >
+                        Anmelden um teilzunehmen
+                      </Link>
+                    )}
+                    {!hasChildEvents && isParticipant && <p>Angemeldet!</p>}
+                    {!hasChildEvents && isOnWaitingList && (
+                      <p>Auf Warteliste!</p>
+                    )}
+                    {!hasChildEvents &&
+                      (!hasLimit || (hasLimit && !limitReached)) &&
+                      !isParticipant && (
+                        <AddParticipantButton
+                          action={`/event/${childEvent.slug}/settings/participants/add-participant`}
+                          userId={loaderData.userId}
+                          eventId={childEvent.id}
+                          email={loaderData.email}
+                        />
+                      )}
+                    {!hasChildEvents &&
+                      hasLimit &&
+                      limitReached &&
+                      !isOnWaitingList &&
+                      !isParticipant && (
+                        <AddToWaitingListButton
+                          action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
+                          userId={loaderData.userId}
+                          eventId={childEvent.id}
+                          email={loaderData.email}
+                        />
+                      )}
                   </li>
                 );
               })}
