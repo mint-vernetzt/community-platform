@@ -626,6 +626,18 @@ export default function Index() {
                                       {dateLabel.time !== undefined
                                         ? " | " + dateLabel.time
                                         : ""}
+                                      {event.childEvents.length === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event.participants.length
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
                                     </p>
                                   </div>
                                 </div>
@@ -779,6 +791,18 @@ export default function Index() {
                                       {dateLabel.time !== undefined
                                         ? " | " + dateLabel.time
                                         : ""}
+                                      {event.childEvents.length === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event.participants.length
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
                                     </p>
                                   </div>
                                 </div>
@@ -913,6 +937,18 @@ export default function Index() {
                                       {dateLabel.time !== undefined
                                         ? " | " + dateLabel.time
                                         : ""}
+                                      {event.childEvents.length === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event.participants.length
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
                                     </p>
                                   </div>
                                 </div>
