@@ -1,3 +1,4 @@
+import { GravityType } from "imgproxy/dist/types";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
@@ -67,16 +68,50 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     speakers: [],
   };
 
+  if (event.childEvents.length > 0) {
+    speakers = (await getFullDepthSpeakers(event.id)) || [];
+  } else {
+    speakers = await getEventSpeakers(event.id);
+  }
+
+  speakers = speakers.map((item) => {
+    if (item.profile.avatar !== null) {
+      const publicURL = getPublicURL(item.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        item.profile.avatar = avatar;
+      }
+    }
+    return item;
+  });
+
+  enhancedEvent.speakers = speakers;
+
   if (mode !== "anon" && currentUser !== null) {
     if (event.childEvents.length > 0) {
-      participants = await getFullDepthParticipants(event.id);
-      speakers = await getFullDepthSpeakers(event.id);
+      participants = (await getFullDepthParticipants(event.id)) || [];
     } else {
       participants = await getEventParticipants(event.id);
-      speakers = await getEventSpeakers(event.id);
     }
+
+    participants = participants.map((item) => {
+      if (item.profile.avatar !== null) {
+        const publicURL = getPublicURL(item.profile.avatar);
+        if (publicURL !== null) {
+          const avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          item.profile.avatar = avatar;
+        }
+      }
+      return item;
+    });
+
     enhancedEvent.participants = participants;
-    enhancedEvent.speakers = speakers;
 
     if (mode === "authenticated") {
       enhancedEvent = await enhanceChildEventsWithParticipationStatus(
@@ -105,6 +140,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       });
     }
   }
+
+  event.responsibleOrganizations = event.responsibleOrganizations.map(
+    (item) => {
+      if (item.organization.logo !== null) {
+        const publicURL = getPublicURL(item.organization.logo);
+        if (publicURL) {
+          item.organization.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 144, height: 144 },
+          });
+        }
+      }
+      return item;
+    }
+  );
 
   return {
     mode,
