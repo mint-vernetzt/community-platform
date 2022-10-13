@@ -564,7 +564,7 @@ export default function Index() {
                   >
                     <div className="w-full flex flex-row">
                       {imageType === "avatar" && (
-                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
+                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                           {image !== null ? (
                             <img src={image} alt="" />
                           ) : (
@@ -575,7 +575,7 @@ export default function Index() {
                       {imageType === "logo" && (
                         <>
                           {image !== null ? (
-                            <div className="w-16 shrink-0">
+                            <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center">
                               <img
                                 className="max-w-full w-auto max-h-16 h-auto"
                                 src={image}
@@ -583,7 +583,7 @@ export default function Index() {
                               />
                             </div>
                           ) : (
-                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
+                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                               {initials}
                             </div>
                           )}

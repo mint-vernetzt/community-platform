@@ -22,6 +22,7 @@ import { deriveMode, filterProfileByMode, Mode } from "./utils.server";
 
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import rcSliderStyles from "rc-slider/assets/index.css";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 
 export function links() {
   return [
@@ -466,49 +467,13 @@ export default function Index() {
                 </div>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.data.memberOf.map(({ organization }, index) => (
-                    <div
-                      key={`profile-${index}`}
-                      data-testid="gridcell"
-                      className="flex-100 lg:flex-1/2 px-3 mb-8"
-                    >
-                      <Link
-                        to={`/organization/${organization.slug}`}
-                        className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                      >
-                        <div className="w-full flex items-center flex-row">
-                          {organization.logo !== "" &&
-                          organization.logo !== null ? (
-                            <div className="h-16 w-16 flex items-center justify-center relative">
-                              <img
-                                className="max-w-full w-auto max-h-16 h-auto"
-                                src={organization.logo}
-                                alt={organization.name}
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                              {getOrganizationInitials(organization.name)}
-                            </div>
-                          )}
-                          <div className="pl-4">
-                            <H3 like="h4" className="text-xl mb-1">
-                              {organization.name}
-                            </H3>
-                            {organization.types &&
-                              organization.types.length > 0 && (
-                                <p className="font-bold text-sm">
-                                  {organization.types
-                                    .map(
-                                      ({ organizationType }) =>
-                                        organizationType.title
-                                    )
-                                    .join(", ")}
-                                </p>
-                              )}
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
+                    <OrganizationCard
+                      id={`profile-${index}`}
+                      link={`/organization/${organization.slug}`}
+                      name={organization.name}
+                      types={organization.types}
+                      image={organization.logo}
+                    />
                   ))}
                 </div>
               </>
