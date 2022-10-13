@@ -27,6 +27,7 @@ import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { ArrayElement } from "~/lib/utils/types";
 import { getProfileByUsername } from "~/profile.server";
+import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { getPublicURL } from "~/storage.server";
 import {
   deriveMode,
@@ -71,6 +72,7 @@ type ProfileLoaderData = {
     >;
   };
   userId?: string;
+  userEmail?: string;
 };
 
 export const loader: LoaderFunction = async (
@@ -150,6 +152,7 @@ export const loader: LoaderFunction = async (
     abilities,
     events,
     userId: sessionUser?.id,
+    userEmail: sessionUser?.email,
   });
 };
 
@@ -687,12 +690,12 @@ export default function Index() {
                                         <div className="w-full flex items-center flex-row">
                                           <div className="pl-4">
                                             {/* TODO: Implement remix form to add-to-waiting-list route */}
-                                            <button
-                                              type="submit"
-                                              className="btn btn-primary"
-                                            >
-                                              Anmelden
-                                            </button>
+                                            <AddParticipantButton
+                                              action={`/event/${event.slug}/settings/participants/add-participant`}
+                                              userId={loaderData.userId}
+                                              eventId={event.id}
+                                              email={loaderData.userEmail}
+                                            />
                                           </div>
                                         </div>
                                       )}
@@ -836,13 +839,12 @@ export default function Index() {
                                     ) && (
                                       <div className="w-full flex items-center flex-row">
                                         <div className="pl-4">
-                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
-                                          <button
-                                            type="submit"
-                                            className="btn btn-primary"
-                                          >
-                                            Anmelden
-                                          </button>
+                                          <AddParticipantButton
+                                            action={`/event/${event.slug}/settings/participants/add-participant`}
+                                            userId={loaderData.userId}
+                                            eventId={event.id}
+                                            email={loaderData.userEmail}
+                                          />
                                         </div>
                                       </div>
                                     )}
@@ -982,13 +984,12 @@ export default function Index() {
                                     ) && (
                                       <div className="w-full flex items-center flex-row">
                                         <div className="pl-4">
-                                          {/* TODO: Implement remix form to add-to-waiting-list route */}
-                                          <button
-                                            type="submit"
-                                            className="btn btn-primary"
-                                          >
-                                            Anmelden
-                                          </button>
+                                          <AddParticipantButton
+                                            action={`/event/${event.slug}/settings/participants/add-participant`}
+                                            userId={loaderData.userId}
+                                            eventId={event.id}
+                                            email={loaderData.userEmail}
+                                          />
                                         </div>
                                       </div>
                                     )}
