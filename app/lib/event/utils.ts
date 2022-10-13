@@ -295,8 +295,8 @@ export function createDateLabel(event: Pick<Event, "startTime" | "endTime">) {
     if (startDate.getTime() === endDate.getTime()) {
       dateLabel.time = `${
         startDate.getHours() < 10
-          ? "0" + endDate.getHours()
-          : endDate.getHours()
+          ? "0" + startDate.getHours()
+          : startDate.getHours()
       }:${
         startDate.getMinutes() < 10
           ? "0" + startDate.getMinutes()
@@ -305,8 +305,8 @@ export function createDateLabel(event: Pick<Event, "startTime" | "endTime">) {
     } else {
       dateLabel.time = `${
         startDate.getHours() < 10
-          ? "0" + endDate.getHours()
-          : endDate.getHours()
+          ? "0" + startDate.getHours()
+          : startDate.getHours()
       }:${
         startDate.getMinutes() < 10
           ? "0" + startDate.getMinutes()
