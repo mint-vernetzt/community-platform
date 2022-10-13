@@ -10,9 +10,9 @@ import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getRootEvents } from "~/lib/event/utils";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import {
@@ -23,6 +23,8 @@ import { getPublicURL } from "~/storage.server";
 
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import rcSliderStyles from "rc-slider/assets/index.css";
+import ProfileCard from "~/components/ProfileCard/ProfileCard";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 
 export function links() {
   return [
@@ -228,8 +230,8 @@ export default function Index() {
     () => (
       <>
         <div
-          className={`h-36 flex items-center justify-center rounded-md overflow-hidden ${
-            logo ? "w-full" : "w-36 bg-primary text-white text-6xl"
+          className={`h-36 flex items-center justify-center rounded-full overflow-hidden ${
+            logo ? "w-36" : "w-36 bg-primary text-white text-6xl"
           }`}
         >
           {logo ? (
@@ -576,49 +578,13 @@ export default function Index() {
                       loaderData.organization.memberOf.length > 0 &&
                       loaderData.organization.memberOf.map(
                         ({ network }, index) => (
-                          <div
-                            key={`profile-${index}`}
-                            data-testid="gridcell"
-                            className="flex-100 md:flex-1/2 px-3 mb-4"
-                          >
-                            <Link
-                              to={`/organization/${network.slug}`}
-                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                            >
-                              <div className="w-full flex items-center flex-row">
-                                {network.logo !== "" &&
-                                network.logo !== null ? (
-                                  <div className="h-16 w-16 flex items-center justify-center relative shrink-0">
-                                    <img
-                                      className="max-w-full w-auto max-h-16 h-auto"
-                                      src={network.logo}
-                                      alt={network.name}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
-                                    {getOrganizationInitials(network.name)}
-                                  </div>
-                                )}
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-xl mb-1">
-                                    {network.name}
-                                  </H3>
-                                  {network.types &&
-                                    network.types.length > 0 && (
-                                      <p className="font-bold text-sm">
-                                        {network.types
-                                          .map(
-                                            ({ organizationType }) =>
-                                              organizationType.title
-                                          )
-                                          .join(", ")}
-                                      </p>
-                                    )}
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
+                          <OrganizationCard
+                            id={`profile-${index}`}
+                            link={`/organization/${network.slug}`}
+                            name={network.name}
+                            types={network.types}
+                            image={network.logo}
+                          />
                         )
                       )}
                   </div>
@@ -635,51 +601,13 @@ export default function Index() {
                       loaderData.organization.networkMembers.length > 0 &&
                       loaderData.organization.networkMembers.map(
                         ({ networkMember }, index) => (
-                          <div
-                            key={`profile-${index}`}
-                            data-testid="gridcell"
-                            className="flex-100 md:flex-1/2 px-3 mb-4"
-                          >
-                            <Link
-                              to={`/organization/${networkMember.slug}`}
-                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                            >
-                              <div className="w-full flex items-center flex-row">
-                                {networkMember.logo !== "" &&
-                                networkMember.logo !== null ? (
-                                  <div className="h-16 w-16 flex items-center justify-center relative">
-                                    <img
-                                      className="max-w-full w-auto max-h-16 h-auto"
-                                      src={networkMember.logo}
-                                      alt={networkMember.name}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                                    {getOrganizationInitials(
-                                      networkMember.name
-                                    )}
-                                  </div>
-                                )}
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-xl mb-1">
-                                    {networkMember.name}
-                                  </H3>
-                                  {networkMember.types &&
-                                    networkMember.types.length > 0 && (
-                                      <p className="font-bold text-sm">
-                                        {networkMember.types
-                                          .map(
-                                            ({ organizationType }) =>
-                                              organizationType.title
-                                          )
-                                          .join(", ")}
-                                      </p>
-                                    )}
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
+                          <OrganizationCard
+                            id={`profile-${index}`}
+                            link={`/organization/${networkMember.slug}`}
+                            name={networkMember.name}
+                            types={networkMember.types}
+                            image={networkMember.logo}
+                          />
                         )
                       )}
                   </div>
@@ -692,40 +620,14 @@ export default function Index() {
                   <div className="flex flex-wrap -mx-3 lg:items-stretch">
                     {loaderData.organization.teamMembers.map(
                       ({ profile }, index) => (
-                        <div
-                          key={`profile-${index}`}
-                          data-testid="gridcell"
-                          className="flex-100 lg:flex-1/2 px-3 mb-4"
-                        >
-                          <Link
-                            to={`/profile/${profile.username}`}
-                            className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                          >
-                            <div className="w-full flex items-center flex-row">
-                              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden shrink-0">
-                                {profile.avatar !== null &&
-                                profile.avatar !== "" ? (
-                                  <img
-                                    src={profile.avatar}
-                                    alt={getFullName(profile)}
-                                  />
-                                ) : (
-                                  getInitials(profile)
-                                )}
-                              </div>
-                              <div className="pl-4">
-                                <H3 like="h4" className="text-xl mb-1">
-                                  {getFullName(profile)}
-                                </H3>
-                                {profile.position && (
-                                  <p className="font-bold text-sm">
-                                    {profile.position}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </Link>
-                        </div>
+                        <ProfileCard
+                          id={`profile-${index}`}
+                          link={`/profile/${profile.username}`}
+                          name={getFullName(profile)}
+                          initials={getInitials(profile)}
+                          position={profile.position}
+                          avatar={profile.avatar}
+                        />
                       )
                     )}
                   </div>

@@ -187,7 +187,7 @@ function NavBar(props: NavBarProps) {
                     <img
                       src={props.currentUserInfo.avatar}
                       alt={props.currentUserInfo.initials}
-                      className="w-10 h-10 rounded-md"
+                      className="w-10 h-10 rounded-full"
                     />
                   </label>
                 )}
