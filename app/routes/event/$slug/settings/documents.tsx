@@ -45,9 +45,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   };
 };
 
-function closeModal() {
+function closeModal(index: number) {
   const $modalToggle = document.getElementById(
-    "modal-edit-document"
+    `modal-edit-document-${index}`
   ) as HTMLInputElement | null;
   if ($modalToggle) {
     $modalToggle.checked = false;
@@ -100,19 +100,19 @@ function Documents() {
                     Herunterladen
                   </Link>
                   <label
-                    htmlFor="modal-edit-document"
+                    htmlFor={`modal-edit-document-${index}`}
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
                   >
                     Editieren
                   </label>
-                  <Modal id="modal-edit-document">
+                  <Modal id={`modal-edit-document-${index}`}>
                     <RemixForm
                       method="post"
                       fetcher={editDocumentFetcher}
                       action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
                       schema={editDocumentSchema}
                       onSubmit={(event) => {
-                        closeModal();
+                        closeModal(index);
                         // @ts-ignore
                         if (event.nativeEvent.submitter.name === "cancel") {
                           event.preventDefault();
