@@ -1,45 +1,38 @@
-import { ActionFunction, Link, LoaderFunction, useLoaderData } from "remix";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest, forbidden } from "remix-utils";
-import { z } from "zod";
-import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
+import { GravityType } from "imgproxy/dist/types";
+import { Link, LoaderFunction, useLoaderData } from "remix";
+import { badRequest, forbidden, notFound } from "remix-utils";
+import { getUserByRequest } from "~/auth.server";
+import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  connectParticipantToEvent,
-  connectToWaitingListOfEvent,
-  disconnectFromWaitingListOfEvent,
-  disconnectParticipantFromEvent,
-} from "./settings/participants/utils.server";
-import { checkIdentityOrThrow } from "./settings/utils.server";
+import { getPublicURL } from "~/storage.server";
+import { AddParticipantButton } from "./settings/participants/add-participant";
+import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
+import { RemoveFromWaitingListButton } from "./settings/participants/remove-from-waiting-list";
+import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import {
   deriveMode,
-  getEventBySlugOrThrow,
-  getFullDepthOrganizers,
+  enhanceChildEventsWithParticipationStatus,
+  getEvent,
+  getEventParticipants,
+  getEventSpeakers,
   getFullDepthParticipants,
-  getFullDepthSpeaker,
+  getFullDepthSpeakers,
+  getIsOnWaitingList,
+  getIsParticipant,
+  MaybeEnhancedEvent,
 } from "./utils.server";
-
-const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  submit: z.string(),
-});
-
-const environmentSchema = z.object({
-  id: z.string(),
-  reachedParticipantLimit: z.boolean(),
-  reachedParticipationDeadline: z.boolean(),
-});
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
+  event: MaybeEnhancedEvent;
+  // TODO: move "is"-Properties to event
+  isParticipant: boolean | undefined;
+  isOnWaitingList: boolean | undefined;
   userId?: string;
-  fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
-  fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
-  fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
+  email?: string;
+  // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
+  // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
+  // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -52,7 +45,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   }
 
   const currentUser = await getUserByRequest(request);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEvent(slug);
+
+  if (event === null) {
+    throw notFound({ message: `Event not found` });
+  }
 
   const mode = await deriveMode(event, currentUser);
 
@@ -60,181 +57,249 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     throw forbidden({ message: "Event not published" });
   }
 
-  const fullDepthParticipants = await getFullDepthParticipants(event.id);
-  const fullDepthSpeaker = await getFullDepthSpeaker(event.id);
-  const fullDepthOrganizers = await getFullDepthOrganizers(event.id);
+  let participants: Awaited<
+    ReturnType<typeof getEventParticipants | typeof getFullDepthParticipants>
+  > = [];
+  let speakers: Awaited<
+    ReturnType<typeof getEventSpeakers | typeof getFullDepthSpeakers>
+  > = [];
+  let enhancedEvent: MaybeEnhancedEvent = {
+    ...event,
+    participants: [],
+    speakers: [],
+  };
+
+  if (event.childEvents.length > 0) {
+    speakers = (await getFullDepthSpeakers(event.id)) || [];
+  } else {
+    speakers = await getEventSpeakers(event.id);
+  }
+
+  speakers = speakers.map((item) => {
+    if (item.profile.avatar !== null) {
+      const publicURL = getPublicURL(item.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        item.profile.avatar = avatar;
+      }
+    }
+    return item;
+  });
+
+  enhancedEvent.speakers = speakers;
+
+  if (mode !== "anon" && currentUser !== null) {
+    if (event.childEvents.length > 0) {
+      participants = (await getFullDepthParticipants(event.id)) || [];
+    } else {
+      participants = await getEventParticipants(event.id);
+    }
+
+    participants = participants.map((item) => {
+      if (item.profile.avatar !== null) {
+        const publicURL = getPublicURL(item.profile.avatar);
+        if (publicURL !== null) {
+          const avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          item.profile.avatar = avatar;
+        }
+      }
+      return item;
+    });
+
+    enhancedEvent.participants = participants;
+
+    if (mode === "authenticated") {
+      enhancedEvent = await enhanceChildEventsWithParticipationStatus(
+        currentUser.id,
+        enhancedEvent
+      );
+    }
+  }
+
+  let isParticipant;
+  let isOnWaitingList;
+
+  if (currentUser !== null) {
+    isParticipant = await getIsParticipant(currentUser.id, enhancedEvent.id);
+    isOnWaitingList = await getIsOnWaitingList(
+      currentUser.id,
+      enhancedEvent.id
+    );
+  }
+
+  if (event.background !== null) {
+    const publicURL = getPublicURL(event.background);
+    if (publicURL) {
+      event.background = getImageURL(publicURL, {
+        resize: { type: "fit", width: 1488, height: 480 },
+      });
+    }
+  }
+
+  event.responsibleOrganizations = event.responsibleOrganizations.map(
+    (item) => {
+      if (item.organization.logo !== null) {
+        const publicURL = getPublicURL(item.organization.logo);
+        if (publicURL) {
+          item.organization.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 144, height: 144 },
+          });
+        }
+      }
+      return item;
+    }
+  );
 
   return {
     mode,
-    event,
-    fullDepthParticipants,
-    fullDepthSpeaker,
+    event: enhancedEvent,
     userId: currentUser?.id || undefined,
-    fullDepthOrganizers,
+    email: currentUser?.email || undefined,
+    isParticipant,
+    isOnWaitingList,
   };
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventId !== environment.id) {
-    throw "Id nicht korrekt.";
-  }
-  if (environment.reachedParticipationDeadline) {
-    throw "Teilnahmefrist bereits abgelaufen.";
-  }
-  if (values.submit === "participate") {
-    if (environment.reachedParticipantLimit) {
-      throw "Maximale Teilnehmerzahl erreicht.";
-    } else {
-      try {
-        await connectParticipantToEvent(values.eventId, values.userId);
-      } catch (error) {
-        throw "An der Veranstaltung konnte nicht teilgenommen werden.";
-      }
-    }
-  } else if (values.submit === "addToWaitingList") {
-    try {
-      await connectToWaitingListOfEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Hinzufügen zur Warteliste ist leider gescheitert.";
-    }
-  } else if (values.submit === "revokeParticipation") {
-    try {
-      await disconnectParticipantFromEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Entfernen von der Teilnehmerliste ist leider gescheitert.";
-    }
-  } else if (values.submit === "removeFromWaitingList") {
-    try {
-      await disconnectFromWaitingListOfEvent(values.eventId, values.userId);
-    } catch (error) {
-      throw "Das Entfernen von der Warteliste ist leider gescheitert.";
-    }
+function getDuration(startTime: Date, endTime: Date) {
+  let duration: string;
+
+  const formattedStartDate = startTime.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  const formattedEndDate = endTime.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+
+  const sameYear = startTime.getFullYear() === endTime.getFullYear();
+  const sameMonth = sameYear && startTime.getMonth() === endTime.getMonth();
+  const sameDay = formattedStartDate === formattedEndDate;
+
+  if (sameDay) {
+    // 01. Januar 2022
+    duration = startTime.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    });
+  } else if (sameMonth) {
+    // 01. - 02. Januar 2022
+    duration = `${startTime.toLocaleDateString("de-DE", {
+      day: "2-digit",
+    })}. - ${endTime.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    })}`;
+  } else if (sameYear) {
+    // 01. Jan - 02. Feb 2022
+    duration = `${startTime.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "short",
+    })} - ${formattedEndDate}`;
   } else {
-    throw "Unzulässige Operation";
+    // 01. Jan 2022 - 02. Feb 2021
+    duration = `${formattedStartDate} - ${formattedEndDate}`;
   }
-  return values;
-});
 
-type ActionData = any;
-
-export const action: ActionFunction = async (args): Promise<ActionData> => {
-  const { request, params } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "events");
-
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const currentUser = await getUserByRequestOrThrow(request);
-
-  await checkIdentityOrThrow(request, currentUser);
-
-  const event = await getEventBySlugOrThrow(slug);
-
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
-    environment: {
-      id: event.id,
-      reachedParticipantLimit: reachedParticipantLimit(event),
-      reachedParticipationDeadline: reachedParticipateDeadline(event),
-    },
-  });
-
-  return result;
-};
-
-function reachedParticipateDeadline(
-  event: Pick<LoaderData["event"], "participationUntil">
-) {
-  const participationUntil = new Date(event.participationUntil).getTime();
-  return Date.now() > participationUntil;
+  return duration;
 }
 
-function isUserParticipating(
-  event: Pick<LoaderData["event"], "participants">,
-  userId: LoaderData["userId"]
-) {
-  return event.participants.some((participant) => {
-    return participant.profile.id === userId;
-  });
-}
+function getForm(loaderData: LoaderData) {
+  const isParticipating = loaderData.isParticipant || false;
+  const isOnWaitingList = loaderData.isOnWaitingList || false;
 
-function isUserOnWaitingList(
-  event: Pick<LoaderData["event"], "waitingList">,
-  userId: LoaderData["userId"]
-) {
-  return event.waitingList.some((waitingUser) => {
-    return waitingUser.profile.id === userId;
-  });
-}
-
-function reachedParticipantLimit(
-  event: Pick<LoaderData["event"], "participants" | "participantLimit">
-) {
-  if (event.participantLimit === null) {
-    return false;
-  }
-  return event.participants.length >= event.participantLimit;
-}
-
-function createParticipationOption(
-  isParticipating: boolean,
-  isOnWaitingList: boolean,
-  participantLimitReached: boolean
-) {
-  let participationOption = {
-    value: "",
-    buttonLabel: "",
-  };
+  const participantLimitReached =
+    loaderData.event.participantLimit !== null
+      ? loaderData.event.participantLimit <=
+        loaderData.event._count.participants
+      : false;
 
   if (isParticipating) {
-    participationOption.value = "revokeParticipation";
-    participationOption.buttonLabel = "Nicht mehr teilnehmen";
+    return (
+      <RemoveParticipantButton
+        action="./settings/participants/remove-participant"
+        userId={loaderData.userId}
+        profileId={loaderData.userId}
+        eventId={loaderData.event.id}
+      />
+    );
   } else if (isOnWaitingList) {
-    participationOption.value = "removeFromWaitingList";
-    participationOption.buttonLabel = "Von der Warteliste entfernen";
+    return (
+      <RemoveFromWaitingListButton
+        action="./settings/participants/remove-from-waiting-list"
+        userId={loaderData.userId}
+        profileId={loaderData.userId}
+        eventId={loaderData.event.id}
+      />
+    );
   } else {
     if (participantLimitReached) {
-      participationOption.value = "addToWaitingList";
-      participationOption.buttonLabel = "Auf die Warteliste";
+      return (
+        <AddToWaitingListButton
+          action="./settings/participants/add-to-waiting-list"
+          userId={loaderData.userId}
+          eventId={loaderData.event.id}
+          email={loaderData.email}
+        />
+      );
     } else {
-      participationOption.value = "participate";
-      participationOption.buttonLabel = "Teilnehmen";
+      return (
+        <AddParticipantButton
+          action="./settings/participants/add-participant"
+          userId={loaderData.userId}
+          eventId={loaderData.event.id}
+          email={loaderData.email}
+        />
+      );
     }
   }
+}
 
-  return participationOption;
+function formatDateTime(date: Date) {
+  const formattedDate = `${date.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })}, ${date.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} Uhr`;
+  return formattedDate;
 }
 
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
-  // Should functions like these be called inside the loader?
-  const reachedParticipationDeadline = reachedParticipateDeadline(
-    loaderData.event
-  );
-  const isParticipating = isUserParticipating(
-    loaderData.event,
-    loaderData.userId
-  );
-  const isOnWaitingList = isUserOnWaitingList(
-    loaderData.event,
-    loaderData.userId
-  );
-  const participantLimitReached = reachedParticipantLimit(loaderData.event);
-  const participationOption = createParticipationOption(
-    isParticipating,
-    isOnWaitingList,
-    participantLimitReached
-  );
+  const reachedParticipationDeadline =
+    new Date() > new Date(loaderData.event.participationUntil);
+
+  const Form = getForm(loaderData);
+
+  const startTime = new Date(loaderData.event.startTime);
+  const endTime = new Date(loaderData.event.endTime);
+
+  const duration = getDuration(startTime, endTime);
 
   return (
     <>
       <div className="mb-4 ml-4">
+        <img
+          src={
+            loaderData.event.background ||
+            "/images/default-event-background.jpg"
+          }
+          alt="background"
+        />
         <h1>{loaderData.event.name}</h1>
         {reachedParticipationDeadline ? (
           <h3>Teilnahmefrist bereits abgelaufen.</h3>
@@ -250,29 +315,9 @@ function Index() {
                 </Link>
               </>
             )}
-            {loaderData.mode !== "anon" && (
-              <RemixForm method="post" schema={schema}>
-                {({ Field, Errors }) => (
-                  <>
-                    <Field
-                      name="userId"
-                      hidden
-                      value={loaderData.userId || ""}
-                    />
-                    <Field name="eventId" hidden value={loaderData.event.id} />
-                    <Field
-                      name="submit"
-                      hidden
-                      value={participationOption.value}
-                    />
-                    <button className="btn btn-primary" type="submit">
-                      {participationOption.buttonLabel}
-                    </button>
-                    <Errors />
-                  </>
-                )}
-              </RemixForm>
-            )}
+            {loaderData.mode !== "anon" &&
+              loaderData.event.childEvents.length === 0 &&
+              Form}
           </>
         )}
         <Link
@@ -282,6 +327,9 @@ function Index() {
         >
           Kalendereintrag herunterladen
         </Link>
+        <p>
+          <strong>{duration}</strong>
+        </p>
         {loaderData.event.documents.length > 0 && (
           <div className="my-8">
             <h3>Aktuelle Dokumente</h3>
@@ -313,8 +361,8 @@ function Index() {
           </div>
         )}
         <h3>Published: {String(loaderData.event.published)}</h3>
-        <h3>Start: {loaderData.event.startTime}</h3>
-        <h3>End: {loaderData.event.endTime}</h3>
+        <h3>Start: {formatDateTime(startTime)}</h3>
+        <h3>End: {formatDateTime(endTime)}</h3>
         <h3>Venue</h3>
         {loaderData.event.venueName !== null && (
           <h5>
@@ -323,8 +371,16 @@ function Index() {
             {loaderData.event.venueZipCode} {loaderData.event.venueCity}
           </h5>
         )}
-        <h3>Participation until: {loaderData.event.participationUntil}</h3>
-        <h3>Participant limit: {loaderData.event.participantLimit}</h3>
+        <h3>
+          Participation until:{" "}
+          {formatDateTime(new Date(loaderData.event.participationUntil))}
+        </h3>
+        <h3>
+          Participant limit:{" "}
+          {loaderData.event.participantLimit === null
+            ? "ohne Beschränkung"
+            : loaderData.event.participantLimit}
+        </h3>
         <h3>Description</h3>
         <p>{loaderData.event.description}</p>
         <h3>Focuses</h3>
@@ -382,6 +438,21 @@ function Index() {
             <h3>Child Events:</h3>
             <ul>
               {loaderData.event.childEvents.map((childEvent, index) => {
+                console.log(childEvent);
+                const hasChildEvents = childEvent._count.childEvents > 0;
+                const hasLimit = childEvent.participantLimit !== null;
+                const isAnon = loaderData.userId === undefined;
+                let isParticipant = false;
+                let isOnWaitingList = false;
+                if ("isParticipant" in childEvent) {
+                  isParticipant = childEvent.isParticipant;
+                  isOnWaitingList = childEvent.isOnWaitingList;
+                }
+                const limitReached =
+                  childEvent.participantLimit !== null
+                    ? childEvent.participantLimit <=
+                      childEvent._count.participants
+                    : false;
                 return (
                   <li key={`child-event-${index}`}>
                     -{" "}
@@ -391,13 +462,92 @@ function Index() {
                     >
                       {childEvent.name}
                     </Link>
+                    {!hasChildEvents && isAnon && (
+                      <Link
+                        className="btn btn-primary"
+                        to={`/login?event_slug=${childEvent.slug}`}
+                      >
+                        Anmelden um teilzunehmen
+                      </Link>
+                    )}
+                    {!hasChildEvents && isParticipant && <p>Angemeldet!</p>}
+                    {!hasChildEvents && isOnWaitingList && (
+                      <p>Auf Warteliste!</p>
+                    )}
+                    {!hasChildEvents &&
+                      (!hasLimit || (hasLimit && !limitReached)) &&
+                      !isParticipant && (
+                        <AddParticipantButton
+                          action={`/event/${childEvent.slug}/settings/participants/add-participant`}
+                          userId={loaderData.userId}
+                          eventId={childEvent.id}
+                          email={loaderData.email}
+                        />
+                      )}
+                    {!hasChildEvents &&
+                      hasLimit &&
+                      limitReached &&
+                      !isOnWaitingList &&
+                      !isParticipant && (
+                        <AddToWaitingListButton
+                          action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
+                          userId={loaderData.userId}
+                          eventId={childEvent.id}
+                          email={loaderData.email}
+                        />
+                      )}
                   </li>
                 );
               })}
             </ul>
           </>
         )}
-        {loaderData.fullDepthParticipants !== null &&
+        {loaderData.event.participants !== null && (
+          <>
+            <h1>Participants</h1>
+            <ul>
+              {loaderData.event.participants.map((participant) => {
+                const { profile } = participant;
+                return (
+                  <li key={profile.username}>
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${profile.username}`}
+                    >
+                      {`${profile.academicTitle || ""} ${profile.firstName} ${
+                        profile.lastName
+                      }`.trimStart()}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        {loaderData.event.speakers !== null && (
+          <>
+            <h1>Speakers</h1>
+            <ul>
+              {loaderData.event.speakers.map((speaker) => {
+                const { profile } = speaker;
+                return (
+                  <li key={profile.username}>
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/profile/${profile.username}`}
+                    >
+                      {`${profile.academicTitle || ""} ${profile.firstName} ${
+                        profile.lastName
+                      }`.trimStart()}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
+        {/* {loaderData.fullDepthParticipants !== null &&
           loaderData.fullDepthParticipants.length > 0 && (
             <>
               <h3 className="mt-4">Teilnehmer*innen:</h3>
@@ -417,8 +567,8 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
-        {loaderData.mode === "owner" &&
+          )} */}
+        {/* {loaderData.mode === "owner" &&
           loaderData.event.waitingList.length > 0 && (
             <>
               <h3 className="mt-4">Warteliste:</h3>
@@ -442,8 +592,8 @@ function Index() {
                 )}
               </ul>
             </>
-          )}
-        {loaderData.fullDepthSpeaker !== null &&
+          )} */}
+        {/* {loaderData.fullDepthSpeaker !== null &&
           loaderData.fullDepthSpeaker.length > 0 && (
             <>
               <h3 className="mt-4">Speaker*innen:</h3>
@@ -463,8 +613,8 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
-        {loaderData.fullDepthOrganizers !== null &&
+          )} */}
+        {/* {loaderData.fullDepthOrganizers !== null &&
           loaderData.fullDepthOrganizers.length > 0 && (
             <>
               <h3 className="mt-4">Organisator*innen:</h3>
@@ -484,7 +634,7 @@ function Index() {
                 })}
               </ul>
             </>
-          )}
+          )} */}
         {loaderData.event.teamMembers.length > 0 && (
           <>
             <h3 className="mt-4">Das Team:</h3>

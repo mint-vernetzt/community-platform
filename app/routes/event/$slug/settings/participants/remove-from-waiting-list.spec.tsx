@@ -80,6 +80,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
     });
 
     expect.assertions(2);
@@ -87,7 +88,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
+      return { id: "some-event-id" };
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -165,7 +166,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
     }
   });
 
-  test("remove from waiting list", async () => {
+  test("remove from waiting list (privileged user)", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -199,6 +200,48 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
           profileId_eventId: {
             eventId: "some-event-id",
             profileId: "another-user-id",
+          },
+        },
+      });
+      expect(result.success).toBe(true);
+    } catch (error) {
+      const response = error as Response;
+      console.log(response);
+
+      const json = await response.json();
+      console.log(json);
+    }
+  });
+
+  test("remove from waiting list (self)", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      profileId: "some-user-id",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        id: "some-event-id",
+      };
+    });
+
+    try {
+      const result = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      expect(
+        prismaClient.waitingParticipantOfEvent.delete as jest.Mock
+      ).toHaveBeenLastCalledWith({
+        where: {
+          profileId_eventId: {
+            eventId: "some-event-id",
+            profileId: "some-user-id",
           },
         },
       });

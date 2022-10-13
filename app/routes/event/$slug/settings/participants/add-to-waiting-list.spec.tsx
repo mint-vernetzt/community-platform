@@ -81,6 +81,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -89,7 +90,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
+      return { id: "some-event-id" };
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -168,7 +169,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     }
   });
 
-  test("add to waiting list", async () => {
+  test("add to waiting list (privileged user)", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -207,6 +208,49 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         data: {
           eventId: "some-event-id",
           profileId: "another-user-id",
+        },
+      });
+      expect(result.success).toBe(true);
+    } catch (error) {
+      const response = error as Response;
+      console.log(response);
+
+      const json = await response.json();
+      console.log(json);
+    }
+  });
+
+  test("add to waiting list (self)", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "someuser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({
+      id: "some-user-id",
+      email: "someuser@mail.com",
+    } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        id: "some-event-id",
+      };
+    });
+
+    try {
+      const result = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      expect(
+        prismaClient.waitingParticipantOfEvent.create
+      ).toHaveBeenLastCalledWith({
+        data: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
         },
       });
       expect(result.success).toBe(true);
