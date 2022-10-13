@@ -34,6 +34,15 @@ jest.mock("~/profile.server", () => {
   };
 });
 
+jest.mock("~/lib/event/utils", () => {
+  return {
+    // eslint-disable-next-line
+    addUserParticipationStatus: jest.fn(),
+    // eslint-disable-next-line
+    combineEventsSortChronologically: jest.fn(),
+  };
+});
+
 const profile = {
   username: "username",
   firstName: "User",
