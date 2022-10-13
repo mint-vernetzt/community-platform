@@ -25,6 +25,7 @@ import {
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   event: MaybeEnhancedEvent;
+  // TODO: move "is"-Properties to event
   isParticipant: boolean | undefined;
   isOnWaitingList: boolean | undefined;
   userId?: string;
@@ -436,17 +437,22 @@ function Index() {
           <>
             <h3>Child Events:</h3>
             <ul>
-              {loaderData.event.childEvents.map((childEvent: any, index) => {
+              {loaderData.event.childEvents.map((childEvent, index) => {
                 console.log(childEvent);
                 const hasChildEvents = childEvent._count.childEvents > 0;
                 const hasLimit = childEvent.participantLimit !== null;
                 const isAnon = loaderData.userId === undefined;
-                const isParticipant = childEvent.isParticipant;
-                const isOnWaitingList = childEvent.isOnWaitingList;
-                const limitReached = hasLimit
-                  ? childEvent.participantLimit <=
-                    childEvent._count.participants
-                  : false;
+                let isParticipant = false;
+                let isOnWaitingList = false;
+                if ("isParticipant" in childEvent) {
+                  isParticipant = childEvent.isParticipant;
+                  isOnWaitingList = childEvent.isOnWaitingList;
+                }
+                const limitReached =
+                  childEvent.participantLimit !== null
+                    ? childEvent.participantLimit <=
+                      childEvent._count.participants
+                    : false;
                 return (
                   <li key={`child-event-${index}`}>
                     -{" "}
@@ -456,7 +462,6 @@ function Index() {
                     >
                       {childEvent.name}
                     </Link>
-                    {childEvent.child}
                     {!hasChildEvents && isAnon && (
                       <Link
                         className="btn btn-primary"
