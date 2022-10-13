@@ -54,40 +54,80 @@ export async function getRootEvents(
   return publishedRootEvents;
 }
 
-export function isUserParticipating(
-  event: Pick<EventWithRelations, "participants">,
-  userId: string
-) {
+export function combineEventsSortChronologically<
+  EventsType extends { event: Pick<Event, "startTime"> }[],
+  EventsToAddType extends { event: Pick<Event, "startTime"> }[]
+>(events: EventsType, eventsToAdd: EventsToAddType) {
+  return [...events, ...eventsToAdd].sort(function sortEventsChronologically(
+    a,
+    b
+  ) {
+    return a.event.startTime >= b.event.startTime ? 1 : -1;
+  });
+}
+
+export function isUserParticipating<
+  EventType extends Pick<EventWithRelations, "participants">
+>(event: EventType, userId?: string) {
   return event.participants.some((participant) => {
     return participant.profileId === userId;
   });
 }
 
-export function isUserOnWaitingList(
-  event: Pick<EventWithRelations, "waitingList">,
-  userId: string
-) {
+export function isUserOnWaitingList<
+  EventType extends Pick<EventWithRelations, "waitingList">
+>(event: EventType, userId?: string) {
   return event.waitingList.some((waitingUser) => {
     return waitingUser.profileId === userId;
   });
 }
 
-function isUserTeamMember(
-  event: Pick<EventWithRelations, "teamMembers">,
-  userId: string
-) {
+function isUserTeamMember<
+  EventType extends Pick<EventWithRelations, "teamMembers">
+>(event: EventType, userId?: string) {
   return event.teamMembers.some((member) => {
     return member.profileId === userId;
   });
 }
 
-function isUserSpeaker(
-  event: Pick<EventWithRelations, "speakers">,
-  userId: string
+function isUserSpeaker<EventType extends Pick<EventWithRelations, "speakers">>(
+  event: EventType,
+  userId?: string
 ) {
   return event.speakers.some((speaker) => {
     return speaker.profileId === userId;
   });
+}
+
+export function addUserParticipationStatus<
+  EventsType extends {
+    event: Pick<
+      EventWithRelations,
+      "participants" | "waitingList" | "speakers" | "teamMembers"
+    >;
+  }[]
+>(events: EventsType, userId?: string) {
+  const result = events.map((item) => {
+    return {
+      event: {
+        ...item.event,
+        isUserParticipating: isUserParticipating<typeof item.event>(
+          item.event,
+          userId
+        ),
+        isUserOnWaitingList: isUserOnWaitingList<typeof item.event>(
+          item.event,
+          userId
+        ),
+        isUserTeamMember: isUserTeamMember<typeof item.event>(
+          item.event,
+          userId
+        ),
+        isUserSpeaker: isUserSpeaker<typeof item.event>(item.event, userId),
+      },
+    };
+  });
+  return result;
 }
 
 function reachedParticipateDeadline(event: Pick<Event, "participationUntil">) {
@@ -123,14 +163,18 @@ export function canUserParticipate(
     | "participantLimit"
     | "childEvents"
     | "published"
-  >,
-  userId: string
+  > & {
+    isUserParticipating: boolean;
+    isUserOnWaitingList: boolean;
+    isUserTeamMember: boolean;
+    isUserSpeaker: boolean;
+  }
 ) {
   return (
-    !isUserParticipating(event, userId) &&
-    !isUserOnWaitingList(event, userId) &&
-    !isUserTeamMember(event, userId) &&
-    !isUserSpeaker(event, userId) &&
+    !event.isUserParticipating &&
+    !event.isUserOnWaitingList &&
+    !event.isUserTeamMember &&
+    !event.isUserSpeaker &&
     !reachedParticipateDeadline(event) &&
     !reachedParticipantLimit(event) &&
     !hasChildEvents(event) &&
@@ -149,14 +193,18 @@ export function canUserBeAddedToWaitingList(
     | "participantLimit"
     | "childEvents"
     | "published"
-  >,
-  userId: string
+  > & {
+    isUserParticipating: boolean;
+    isUserOnWaitingList: boolean;
+    isUserTeamMember: boolean;
+    isUserSpeaker: boolean;
+  }
 ) {
   return (
-    !isUserParticipating(event, userId) &&
-    !isUserOnWaitingList(event, userId) &&
-    !isUserTeamMember(event, userId) &&
-    !isUserSpeaker(event, userId) &&
+    !event.isUserOnWaitingList &&
+    !event.isUserParticipating &&
+    !event.isUserTeamMember &&
+    !event.isUserSpeaker &&
     !reachedParticipateDeadline(event) &&
     reachedParticipantLimit(event) &&
     !hasChildEvents(event) &&
