@@ -66,6 +66,12 @@ export async function getEventByField(field: string, value: string) {
           title: true,
         },
       },
+      stage: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
       areas: {
         select: {
           areaId: true,

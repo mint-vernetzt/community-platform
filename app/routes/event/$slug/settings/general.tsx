@@ -36,6 +36,7 @@ import {
   getAreas,
   getExperienceLevels,
   getFocuses,
+  getStages,
   getTags,
   getTargetGroups,
   getTypes,
@@ -132,6 +133,7 @@ const schema = object({
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
+  stage: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
   conferenceLink: website(),
@@ -169,6 +171,7 @@ type LoaderData = {
   targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
   tags: Awaited<ReturnType<typeof getTags>>;
   experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
+  stages: Awaited<ReturnType<typeof getStages>>;
   areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
@@ -188,6 +191,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const tags = await getTags();
   const targetGroups = await getTargetGroups();
   const experienceLevels = await getExperienceLevels();
+  const stages = await getStages();
   const areas = await getAreas();
 
   return {
@@ -198,6 +202,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     tags,
     targetGroups,
     experienceLevels,
+    stages,
     areas,
   };
 };
@@ -272,6 +277,7 @@ function General() {
     targetGroups,
     tags,
     experienceLevels,
+    stages,
     areas,
   } = useLoaderData<LoaderData>();
 
@@ -307,6 +313,13 @@ function General() {
     return {
       label: experienceLevel.title,
       value: experienceLevel.id,
+    };
+  });
+
+  const stageOptions = stages.map((item) => {
+    return {
+      label: item.title,
+      value: item.id,
     };
   });
 
@@ -549,6 +562,16 @@ function General() {
             </div>
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
+          <div className="mb-4">
+            <SelectField
+              {...register("stage")}
+              name="stage"
+              label={"Veranstaltungstyp"}
+              placeholder="Wähle den Veranstaltungstyp aus."
+              options={stageOptions}
+              defaultValue={event.stage || ""}
+            />
+          </div>
 
           <div className="mb-6">
             <InputText
