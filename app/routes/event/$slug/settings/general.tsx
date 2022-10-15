@@ -41,6 +41,7 @@ import {
   getTypes,
 } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
+import { cancelSchema } from "./events/cancel";
 import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
@@ -274,6 +275,7 @@ function General() {
   } = useLoaderData<LoaderData>();
 
   const publishFetcher = useFetcher();
+  const cancelFetcher = useFetcher();
 
   const transition = useTransition();
   const actionData = useActionData<ActionData>();
@@ -416,8 +418,6 @@ function General() {
           // @ts-ignore
           eventId: event.id,
           userId: userId,
-          // TODO: Fix type issue
-          // @ts-ignore
           publish: !originalEvent.published,
         }}
       >
@@ -430,11 +430,38 @@ function General() {
               <Field name="publish"></Field>
               <div className="mt-2">
                 <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {
-                    // TODO: Fix type issue
-                    // @ts-ignore
-                    originalEvent.published ? "Verstecken" : "Veröffentlichen"
-                  }
+                  {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
+                </Button>
+              </div>
+            </>
+          );
+        }}
+      </RemixForm>
+      <RemixForm
+        schema={cancelSchema}
+        fetcher={cancelFetcher}
+        action={`/event/${slug}/settings/events/cancel`}
+        hiddenFields={["eventId", "userId", "cancel"]}
+        values={{
+          // TODO: Fix type issue
+          // @ts-ignore
+          eventId: event.id,
+          userId: userId,
+          cancel: !originalEvent.canceled,
+        }}
+      >
+        {(props) => {
+          const { Button, Field } = props;
+          return (
+            <>
+              <Field name="userId" />
+              <Field name="eventId" />
+              <Field name="cancel"></Field>
+              <div className="mt-2">
+                <Button className="btn btn-outline-primary ml-auto btn-small">
+                  {originalEvent.canceled
+                    ? "Absage rückgängig machen"
+                    : "Absagen"}
                 </Button>
               </div>
             </>
