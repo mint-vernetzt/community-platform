@@ -112,6 +112,7 @@ const schema = object({
     })
     .required("Bitte gib den Beginn für die Registrierung an"),
 
+  subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
   // published: mixed()
   //   .test((value) => {
@@ -631,6 +632,16 @@ function General() {
               defaultValue={event.participantLimit || ""}
               errorMessage={errors?.participantLimit?.message}
               type="number"
+            />
+          </div>
+          <div className="mb-4">
+            <TextAreaWithCounter
+              {...register("subline")}
+              id="subline"
+              defaultValue={event.subline || ""}
+              label="Kurzbeschreibung"
+              errorMessage={errors?.subline?.message}
+              maxCharacters={70}
             />
           </div>
           <div className="mb-4">
