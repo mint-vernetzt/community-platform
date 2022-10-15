@@ -210,6 +210,8 @@ model Event {
   venueCity                String?                          @map("venue_city")
   venueZipCode             String?                          @map("venue_zip_code")
   documents                DocumentOfEvent[]
+  stage                    Stage?                           @relation(name: "stage_of_event", fields: [stageId], references: [id])
+  stageId                  String?                          @map("stage_id")
 
   @@map("events")
 }
@@ -443,6 +445,15 @@ model Tag {
   events      TagOfEvent[]
 
   @@map("tags")
+}
+
+model Stage {
+  id     String  @id @default(uuid())
+  title  String  @unique
+  slug   String  @unique
+  events Event[] @relation(name: "stage_of_event")
+
+  @@map("stages")
 }
 
 model Document {
