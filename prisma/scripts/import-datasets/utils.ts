@@ -25,7 +25,8 @@ export type TableName =
   | "tag"
   | "targetGroup"
   | "eventType"
-  | "experienceLevel";
+  | "experienceLevel"
+  | "stage";
 
 type Lookup = {
   [keyof: string]: GenericEntry;

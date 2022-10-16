@@ -27,7 +27,7 @@ export async function canvasPreview(
   canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
   canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
 
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "#fcfcfd";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.scale(pixelRatio, pixelRatio);

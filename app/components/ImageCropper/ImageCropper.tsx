@@ -245,7 +245,7 @@ function ImageCropper(props: ImageCropperProps) {
     <div className="flex flex-col items-center">
       <h2 className="text-center font-bold">{headline}</h2>
       <div className="flex items-center">
-        <div className="relative">
+        <div className="relative max-h-72">
           {image && !completedCrop && (
             <Form
               action={DELETE_URL}
@@ -275,7 +275,7 @@ function ImageCropper(props: ImageCropperProps) {
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button
-                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute -top-4 -right-4 border-0"
+                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute top-0 right-2 rounded-full border-2 border-neutral-200"
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
@@ -290,6 +290,7 @@ function ImageCropper(props: ImageCropperProps) {
                       viewBox="0 0 32 32"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      className="w-full h-auto"
                     >
                       <circle cx="16" cy="16" r="16" fill="#EE7775" />
                       <path
@@ -346,8 +347,8 @@ function ImageCropper(props: ImageCropperProps) {
           hasImage={image !== undefined}
         />
         {imgSrc && (
-          <div className="flex items-center w-full mt-2">
-            <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-end">
+          <div className="flex items-center w-full mb-2">
+            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-end px-4 md:px2">
               <button
                 id="scaleDown"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
@@ -366,7 +367,7 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-[250px] py-2 px-4 hidden md:block md:w-[calc(50%-2rem)] ">
+            <div className="w-[250px] py-2 hidden md:block md:w-[calc(50%-2rem)] md:px2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
@@ -375,7 +376,7 @@ function ImageCropper(props: ImageCropperProps) {
                 onChange={(v) => setScale(v as number)}
               />
             </div>
-            <div className="flex-auto w-1/2 text-center md:w-[calc(25%+1rem)] flex justify-center md:justify-start">
+            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-start px-4 md:px2">
               <button
                 id="scaleUp"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
@@ -397,7 +398,7 @@ function ImageCropper(props: ImageCropperProps) {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-8 w-full mt-6">
+      <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
         <label
           htmlFor={id}
           className="btn btn-small btn-link p-5"

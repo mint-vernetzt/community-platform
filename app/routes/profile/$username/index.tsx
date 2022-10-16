@@ -11,6 +11,7 @@ import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIco
 import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
@@ -20,7 +21,6 @@ import {
   combineEventsSortChronologically,
   createDateLabel,
 } from "~/lib/event/utils";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
@@ -249,7 +249,7 @@ export default function Index() {
   const avatar = loaderData.images.avatar;
   const Avatar = React.useCallback(
     () => (
-      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden">
+      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden rounded-full">
         {avatar !== undefined ? <img src={avatar} alt={fullName} /> : initials}
       </div>
     ),
@@ -326,7 +326,7 @@ export default function Index() {
                   <>
                     <label
                       htmlFor="modal-avatar"
-                      className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                      className="flex content-center items-center nowrap pt-4 pb-2 cursor-pointer text-primary"
                     >
                       <svg
                         width="17"
@@ -337,7 +337,7 @@ export default function Index() {
                       >
                         <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                       </svg>
-                      <span className="ml-2 mr-4">Bild ändern</span>
+                      <span className="ml-2">Bild ändern</span>
                     </label>
 
                     <Modal id="modal-avatar">
@@ -581,49 +581,14 @@ export default function Index() {
                 </div>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.data.memberOf.map(({ organization }, index) => (
-                    <div
-                      key={`profile-${index}`}
-                      data-testid="gridcell"
-                      className="flex-100 lg:flex-1/2 px-3 mb-8"
-                    >
-                      <Link
-                        to={`/organization/${organization.slug}`}
-                        className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
-                      >
-                        <div className="w-full flex items-center flex-row">
-                          {organization.logo !== "" &&
-                          organization.logo !== null ? (
-                            <div className="h-16 w-16 flex items-center justify-center relative">
-                              <img
-                                className="max-w-full w-auto max-h-16 h-auto"
-                                src={organization.logo}
-                                alt={organization.name}
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                              {getOrganizationInitials(organization.name)}
-                            </div>
-                          )}
-                          <div className="pl-4">
-                            <H3 like="h4" className="text-xl mb-1">
-                              {organization.name}
-                            </H3>
-                            {organization.types &&
-                              organization.types.length > 0 && (
-                                <p className="font-bold text-sm">
-                                  {organization.types
-                                    .map(
-                                      ({ organizationType }) =>
-                                        organizationType.title
-                                    )
-                                    .join(", ")}
-                                </p>
-                              )}
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
+                    <OrganizationCard
+                      key={`organization-${index}`}
+                      id={`organization-${index}`}
+                      link={`/organization/${organization.slug}`}
+                      name={organization.name}
+                      types={organization.types}
+                      image={organization.logo}
+                    />
                   ))}
                 </div>
               </>

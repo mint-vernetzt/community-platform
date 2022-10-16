@@ -97,6 +97,11 @@ export async function getExperienceLevels() {
   return experienceLevel;
 }
 
+export async function getStages() {
+  const stages = await prismaClient.stage.findMany();
+  return stages;
+}
+
 export async function getAreas() {
   return await prismaClient.area.findMany({
     include: {

@@ -98,6 +98,7 @@ export function transformEventToForm(
     types: event.types.map((type) => type.eventTypeId) ?? [],
     areas: event.areas.map((area) => area.areaId) ?? [],
     experienceLevel: event.experienceLevel?.id || "",
+    stage: event.stage?.id || "",
   };
 }
 
@@ -218,6 +219,10 @@ export async function updateEventById(id: string, data: any) {
       experienceLevel:
         data.experienceLevel !== null
           ? { connect: { id: data.experienceLevel } }
+          : { disconnect: true },
+      stage:
+        data.stage !== null
+          ? { connect: { id: data.stage } }
           : { disconnect: true },
     },
   });

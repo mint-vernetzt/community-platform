@@ -2,10 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator jsonSchema {
-  provider = "prisma-json-schema-generator"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -185,8 +181,10 @@ model Event {
   parentEvent              Event?                           @relation(name: "parent_of_event", fields: [parentEventId], references: [id], onDelete: Cascade)
   parentEventId            String?                          @map("parent_event_id")
   childEvents              Event[]                          @relation(name: "parent_of_event")
+  subline                  String?
   description              String?
   published                Boolean                          @default(false)
+  canceled                 Boolean                          @default(false)
   createdAt                DateTime                         @default(now()) @map("created_at")
   updatedAt                DateTime                         @default(now()) @map("updated_at")
   focuses                  FocusOfEvent[]
@@ -210,6 +208,8 @@ model Event {
   venueCity                String?                          @map("venue_city")
   venueZipCode             String?                          @map("venue_zip_code")
   documents                DocumentOfEvent[]
+  stage                    Stage?                           @relation(name: "stage_of_event", fields: [stageId], references: [id])
+  stageId                  String?                          @map("stage_id")
 
   @@map("events")
 }
@@ -443,6 +443,15 @@ model Tag {
   events      TagOfEvent[]
 
   @@map("tags")
+}
+
+model Stage {
+  id     String  @id @default(uuid())
+  title  String  @unique
+  slug   String  @unique
+  events Event[] @relation(name: "stage_of_event")
+
+  @@map("stages")
 }
 
 model Document {
