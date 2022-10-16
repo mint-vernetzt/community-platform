@@ -149,6 +149,13 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               participationUntil: true,
               childEvents: true,
               participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
             },
           },
         },
@@ -177,6 +184,13 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               participationUntil: true,
               childEvents: true,
               participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
             },
           },
         },
@@ -212,6 +226,13 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               participationUntil: true,
               childEvents: true,
               participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
             },
           },
         },
@@ -247,6 +268,13 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               participationUntil: true,
               childEvents: true,
               participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
             },
           },
         },

@@ -627,11 +627,12 @@ export default function Index() {
                               data-testid="gridcell"
                               className="flex-100 lg:flex-1/2 px-3 mb-8"
                             >
-                              {/* TODO: Switch event.hybrid/onsite/digital
-                                    Show correct icon and label */}
                               <div className="w-full flex items-center flex-row">
                                 <div className="pl-4">
                                   <p className="text-m">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
                                     {dateLabel.date}
                                     {dateLabel.time !== undefined
                                       ? " | " + dateLabel.time
@@ -659,8 +660,35 @@ export default function Index() {
                                   </H3>
                                 </div>
                               </div>
-                              {/* TODO: Show event subline */}
-                              {/* TODO: Show event isCancelled */}
+                              {event.subline !== null && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.subline}
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
+                              {loaderData.mode === "owner" && !event.canceled && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.published
+                                        ? "Veröffentlicht"
+                                        : "Entwurf"}
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
+                              {event.canceled && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      Abgesagt
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
                               {event.isUserParticipating && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
@@ -707,7 +735,8 @@ export default function Index() {
                               {!event.isUserParticipating &&
                                 !canUserParticipate(event) &&
                                 !event.isUserOnWaitingList &&
-                                !canUserBeAddedToWaitingList(event) && (
+                                !canUserBeAddedToWaitingList(event) &&
+                                loaderData.mode !== "owner" && (
                                   <div className="w-full flex items-center flex-row">
                                     <div className="pl-4">
                                       <Link
@@ -740,11 +769,12 @@ export default function Index() {
                               data-testid="gridcell"
                               className="flex-100 lg:flex-1/2 px-3 mb-8"
                             >
-                              {/* TODO: Switch event.hybrid/onsite/digital
-                                    Show correct icon and label */}
                               <div className="w-full flex items-center flex-row">
                                 <div className="pl-4">
                                   <p className="text-m">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
                                     {dateLabel.date}
                                     {dateLabel.time !== undefined
                                       ? " | " + dateLabel.time
@@ -772,8 +802,24 @@ export default function Index() {
                                   </H3>
                                 </div>
                               </div>
-                              {/* TODO: Show event subline */}
-                              {/* TODO: Show event isCancelled */}
+                              {event.subline !== null && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.subline}
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
+                              {event.canceled && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      Abgesagt
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
                               {event.isUserParticipating && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
@@ -852,11 +898,12 @@ export default function Index() {
                               data-testid="gridcell"
                               className="flex-100 lg:flex-1/2 px-3 mb-8"
                             >
-                              {/* TODO: Switch event.hybrid/onsite/digital
-                                    Show correct icon and label */}
                               <div className="w-full flex items-center flex-row">
                                 <div className="pl-4">
                                   <p className="text-m">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
                                     {dateLabel.date}
                                     {dateLabel.time !== undefined
                                       ? " | " + dateLabel.time
@@ -884,8 +931,24 @@ export default function Index() {
                                   </H3>
                                 </div>
                               </div>
-                              {/* TODO: Show event subline */}
-                              {/* TODO: Show event isCancelled */}
+                              {event.subline !== null && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      {event.subline}
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
+                              {event.canceled && (
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-l mb-1">
+                                      Abgesagt
+                                    </H3>
+                                  </div>
+                                </div>
+                              )}
                               {event.isUserParticipating && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
