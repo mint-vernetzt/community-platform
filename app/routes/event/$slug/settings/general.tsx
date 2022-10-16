@@ -323,12 +323,16 @@ function General() {
     };
   });
 
-  const focusOptions = focuses.map((focus) => {
-    return {
-      label: focus.title,
-      value: focus.id,
-    };
-  });
+  const focusOptions = focuses
+    .filter((focus) => {
+      return !event.focuses.includes(focus.id);
+    })
+    .map((item) => {
+      return {
+        label: item.title,
+        value: item.id,
+      };
+    });
 
   const selectedFocuses =
     event.focuses && focuses
@@ -337,12 +341,16 @@ function General() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
-  const typeOptions = types.map((type) => {
-    return {
-      label: type.title,
-      value: type.id,
-    };
-  });
+  const typeOptions = types
+    .filter((type) => {
+      return !event.types.includes(type.id);
+    })
+    .map((type) => {
+      return {
+        label: type.title,
+        value: type.id,
+      };
+    });
 
   const selectedTypes =
     event.types && types
@@ -351,12 +359,16 @@ function General() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
-  const targetGroupOptions = targetGroups.map((targetGroup) => {
-    return {
-      label: targetGroup.title,
-      value: targetGroup.id,
-    };
-  });
+  const targetGroupOptions = targetGroups
+    .filter((targetGroup) => {
+      return !event.targetGroups.includes(targetGroup.id);
+    })
+    .map((targetGroup) => {
+      return {
+        label: targetGroup.title,
+        value: targetGroup.id,
+      };
+    });
 
   const selectedTargetGroups =
     event.targetGroups && targetGroups
@@ -365,12 +377,16 @@ function General() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
-  const tagOptions = tags.map((tag) => {
-    return {
-      label: tag.title,
-      value: tag.id,
-    };
-  });
+  const tagOptions = tags
+    .filter((tag) => {
+      return !event.tags.includes(tag.id);
+    })
+    .map((tag) => {
+      return {
+        label: tag.title,
+        value: tag.id,
+      };
+    });
 
   const selectedTags =
     event.tags && tags
