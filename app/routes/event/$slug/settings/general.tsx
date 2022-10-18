@@ -36,11 +36,13 @@ import {
   getAreas,
   getExperienceLevels,
   getFocuses,
+  getStages,
   getTags,
   getTargetGroups,
   getTypes,
 } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
+import { cancelSchema } from "./events/cancel";
 import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
@@ -111,6 +113,7 @@ const schema = object({
     })
     .required("Bitte gib den Beginn für die Registrierung an"),
 
+  subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
   // published: mixed()
   //   .test((value) => {
@@ -130,6 +133,7 @@ const schema = object({
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
+  stage: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
   conferenceLink: website(),
@@ -167,6 +171,7 @@ type LoaderData = {
   targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
   tags: Awaited<ReturnType<typeof getTags>>;
   experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
+  stages: Awaited<ReturnType<typeof getStages>>;
   areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
@@ -186,6 +191,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const tags = await getTags();
   const targetGroups = await getTargetGroups();
   const experienceLevels = await getExperienceLevels();
+  const stages = await getStages();
   const areas = await getAreas();
 
   return {
@@ -196,6 +202,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     tags,
     targetGroups,
     experienceLevels,
+    stages,
     areas,
   };
 };
@@ -270,10 +277,12 @@ function General() {
     targetGroups,
     tags,
     experienceLevels,
+    stages,
     areas,
   } = useLoaderData<LoaderData>();
 
   const publishFetcher = useFetcher();
+  const cancelFetcher = useFetcher();
 
   const transition = useTransition();
   const actionData = useActionData<ActionData>();
@@ -304,6 +313,13 @@ function General() {
     return {
       label: experienceLevel.title,
       value: experienceLevel.id,
+    };
+  });
+
+  const stageOptions = stages.map((item) => {
+    return {
+      label: item.title,
+      value: item.id,
     };
   });
 
@@ -416,8 +432,6 @@ function General() {
           // @ts-ignore
           eventId: event.id,
           userId: userId,
-          // TODO: Fix type issue
-          // @ts-ignore
           publish: !originalEvent.published,
         }}
       >
@@ -430,11 +444,38 @@ function General() {
               <Field name="publish"></Field>
               <div className="mt-2">
                 <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {
-                    // TODO: Fix type issue
-                    // @ts-ignore
-                    originalEvent.published ? "Verstecken" : "Veröffentlichen"
-                  }
+                  {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
+                </Button>
+              </div>
+            </>
+          );
+        }}
+      </RemixForm>
+      <RemixForm
+        schema={cancelSchema}
+        fetcher={cancelFetcher}
+        action={`/event/${slug}/settings/events/cancel`}
+        hiddenFields={["eventId", "userId", "cancel"]}
+        values={{
+          // TODO: Fix type issue
+          // @ts-ignore
+          eventId: event.id,
+          userId: userId,
+          cancel: !originalEvent.canceled,
+        }}
+      >
+        {(props) => {
+          const { Button, Field } = props;
+          return (
+            <>
+              <Field name="userId" />
+              <Field name="eventId" />
+              <Field name="cancel"></Field>
+              <div className="mt-2">
+                <Button className="btn btn-outline-primary ml-auto btn-small">
+                  {originalEvent.canceled
+                    ? "Absage rückgängig machen"
+                    : "Absagen"}
                 </Button>
               </div>
             </>
@@ -521,6 +562,16 @@ function General() {
             </div>
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
+          <div className="mb-4">
+            <SelectField
+              {...register("stage")}
+              name="stage"
+              label={"Veranstaltungstyp"}
+              placeholder="Wähle den Veranstaltungstyp aus."
+              options={stageOptions}
+              defaultValue={event.stage || ""}
+            />
+          </div>
 
           <div className="mb-6">
             <InputText
@@ -604,6 +655,16 @@ function General() {
               defaultValue={event.participantLimit || ""}
               errorMessage={errors?.participantLimit?.message}
               type="number"
+            />
+          </div>
+          <div className="mb-4">
+            <TextAreaWithCounter
+              {...register("subline")}
+              id="subline"
+              defaultValue={event.subline || ""}
+              label="Kurzbeschreibung"
+              errorMessage={errors?.subline?.message}
+              maxCharacters={70}
             />
           </div>
           <div className="mb-4">

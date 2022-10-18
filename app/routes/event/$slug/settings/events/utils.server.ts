@@ -86,6 +86,13 @@ export async function publishEventAndItsChildren(
   });
 }
 
+export async function cancelEvent(eventId: string, cancel = true) {
+  await prismaClient.event.update({
+    where: { id: eventId },
+    data: { canceled: cancel, updatedAt: new Date() },
+  });
+}
+
 export async function getAllIdsOfChildEvents(eventId: string) {
   const result = await prismaClient.event.findFirst({
     where: { id: eventId },
