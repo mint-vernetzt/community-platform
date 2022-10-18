@@ -128,15 +128,20 @@
   @apply mr-2 mb-2 px-3 py-1 mt-2 h-auto rounded-lg border-2 text-sm font-semibold whitespace-nowrap;
 }
 
+.event-tags .badge {
+  @apply m-1 px-3 py-1.5  h-auto rounded-lg border border-secondary text-sm font-semibold whitespace-nowrap text-secondary bg-white;
+}
+
 .btn-link {
   @apply bg-white text-primary px-0;
 }
 
 .btn-outline-primary {
   @apply bg-white text-primary border border-primary;
-  &:hover {
-    @apply bg-primary text-white;
-  }
+}
+
+.btn-outline-primary:hover {
+  @apply bg-primary text-white;
 }
 
 .btn-small {
