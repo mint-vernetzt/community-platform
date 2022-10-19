@@ -652,14 +652,18 @@ export default function Index() {
                                   </p>
                                 </div>
                               </div>
-
-                              <div className="w-full flex items-center flex-row">
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-l mb-1">
-                                    {event.name}
-                                  </H3>
+                              <Link to={`/event/${event.slug}`}>
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3
+                                      like="h4"
+                                      className="text-l mb-1 hover:underline"
+                                    >
+                                      {event.name}
+                                    </H3>
+                                  </div>
                                 </div>
-                              </div>
+                              </Link>
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
@@ -796,13 +800,18 @@ export default function Index() {
                                 </div>
                               </div>
 
-                              <div className="w-full flex items-center flex-row">
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-l mb-1">
-                                    {event.name}
-                                  </H3>
+                              <Link to={`/event/${event.slug}`}>
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3
+                                      like="h4"
+                                      className="text-l mb-1 hover:underline"
+                                    >
+                                      {event.name}
+                                    </H3>
+                                  </div>
                                 </div>
-                              </div>
+                              </Link>
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
@@ -926,13 +935,18 @@ export default function Index() {
                                 </div>
                               </div>
 
-                              <div className="w-full flex items-center flex-row">
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-l mb-1">
-                                    {event.name}
-                                  </H3>
+                              <Link to={`/event/${event.slug}`}>
+                                <div className="w-full flex items-center flex-row">
+                                  <div className="pl-4">
+                                    <H3
+                                      like="h4"
+                                      className="text-l mb-1 hover:underline"
+                                    >
+                                      {event.name}
+                                    </H3>
+                                  </div>
                                 </div>
-                              </div>
+                              </Link>
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
