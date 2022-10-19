@@ -4,6 +4,7 @@ import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
@@ -165,54 +166,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     isOnWaitingList,
   };
 };
-
-function getDuration(startTime: Date, endTime: Date) {
-  let duration: string;
-
-  const formattedStartDate = startTime.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-  const formattedEndDate = endTime.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
-  const sameYear = startTime.getFullYear() === endTime.getFullYear();
-  const sameMonth = sameYear && startTime.getMonth() === endTime.getMonth();
-  const sameDay = formattedStartDate === formattedEndDate;
-
-  if (sameDay) {
-    // 01. Januar 2022
-    duration = startTime.toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    });
-  } else if (sameMonth) {
-    // 01. - 02. Januar 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
-      day: "2-digit",
-    })}. - ${endTime.toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    })}`;
-  } else if (sameYear) {
-    // 01. Jan - 02. Feb 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "short",
-    })} - ${formattedEndDate}`;
-  } else {
-    // 01. Jan 2022 - 02. Feb 2021
-    duration = `${formattedStartDate} - ${formattedEndDate}`;
-  }
-
-  return duration;
-}
 
 function getForm(loaderData: LoaderData) {
   const isParticipating = loaderData.isParticipant || false;
@@ -438,7 +391,6 @@ function Index() {
             <h3>Child Events:</h3>
             <ul>
               {loaderData.event.childEvents.map((childEvent, index) => {
-                console.log(childEvent);
                 const hasChildEvents = childEvent._count.childEvents > 0;
                 const hasLimit = childEvent.participantLimit !== null;
                 const isAnon = loaderData.userId === undefined;
