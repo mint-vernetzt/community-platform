@@ -529,6 +529,9 @@ export async function getEvent(slug: string) {
             },
           },
         },
+        orderBy: {
+          startTime: "desc",
+        },
       },
       documents: {
         select: {
@@ -616,6 +619,26 @@ export async function getIsOnWaitingList(profileId: string, eventId: string) {
   return result !== null;
 }
 
+export async function getIsSpeaker(profileId: string, eventId: string) {
+  const result = await prismaClient.speakerOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function getIsTeamMember(profileId: string, eventId: string) {
+  const result = await prismaClient.teamMemberOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
 export async function enhanceChildEventsWithParticipationStatus(
   currentUserId: string,
   event: Awaited<ReturnType<typeof getEvent>> & {
@@ -648,14 +671,38 @@ export async function enhanceChildEventsWithParticipationStatus(
       },
     })
   ).map((event) => event.eventId);
+  const eventIdsWhereSpeaker = (
+    await prismaClient.speakerOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereTeamMember = (
+    await prismaClient.teamMemberOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     const isParticipant = eventIdsWhereParticipant.includes(childEvent.id);
     const isOnWaitingList = eventIdsWhereOnWaitingList.includes(childEvent.id);
+    const isSpeaker = eventIdsWhereSpeaker.includes(childEvent.id);
+    const isTeamMember = eventIdsWhereTeamMember.includes(childEvent.id);
     return {
       ...childEvent,
       isParticipant,
       isOnWaitingList,
+      isSpeaker,
+      isTeamMember,
     };
   });
   return { ...event, childEvents: enhancedChildEvents };
