@@ -25,6 +25,7 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getDuration } from "~/lib/utils/time";
 import { ArrayElement } from "~/lib/utils/types";
 import { getProfileByUsername } from "~/profile.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
@@ -619,8 +620,8 @@ export default function Index() {
                     <div className="flex flex-wrap -mx-3 items-stretch">
                       {loaderData.events.teamMemberOfEvents.map(
                         ({ event }, index) => {
-                          const dateLabel = createDateLabel(event);
-
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
                           return (
                             <div
                               key={`profile-${index}`}
@@ -633,10 +634,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
-                                    {dateLabel.date}
-                                    {dateLabel.time !== undefined
-                                      ? " | " + dateLabel.time
-                                      : ""}
+                                    {getDuration(startTime, endTime)}
                                     {event.childEvents.length === 0 && (
                                       <>
                                         {event.participantLimit === null
@@ -767,7 +765,8 @@ export default function Index() {
                     <div className="flex flex-wrap -mx-3 items-stretch">
                       {loaderData.events.contributedEvents.map(
                         ({ event }, index) => {
-                          const dateLabel = createDateLabel(event);
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
                           return (
                             <div
                               key={`profile-${index}`}
@@ -780,10 +779,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
-                                    {dateLabel.date}
-                                    {dateLabel.time !== undefined
-                                      ? " | " + dateLabel.time
-                                      : ""}
+                                    {getDuration(startTime, endTime)}
                                     {event.childEvents.length === 0 && (
                                       <>
                                         {event.participantLimit === null
@@ -902,7 +898,8 @@ export default function Index() {
                     <div className="flex flex-wrap -mx-3 items-stretch">
                       {loaderData.events.participatedEvents.map(
                         ({ event }, index) => {
-                          const dateLabel = createDateLabel(event);
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
                           return (
                             <div
                               key={`profile-${index}`}
@@ -915,10 +912,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
-                                    {dateLabel.date}
-                                    {dateLabel.time !== undefined
-                                      ? " | " + dateLabel.time
-                                      : ""}
+                                    {getDuration(startTime, endTime)}
                                     {event.childEvents.length === 0 && (
                                       <>
                                         {event.participantLimit === null
