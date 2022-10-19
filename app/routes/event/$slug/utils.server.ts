@@ -521,6 +521,16 @@ export async function getEvent(slug: string) {
           endTime: true,
           background: true,
           participantLimit: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          canceled: true,
+          published: true,
+          subline: true,
+          participationUntil: true,
+
           _count: {
             select: {
               childEvents: true,
@@ -528,6 +538,9 @@ export async function getEvent(slug: string) {
               waitingList: true,
             },
           },
+        },
+        orderBy: {
+          startTime: "desc",
         },
       },
       documents: {
@@ -596,26 +609,6 @@ export async function getEventSpeakers(currentEventId: string) {
   return result;
 }
 
-export async function getIsParticipant(profileId: string, eventId: string) {
-  const result = await prismaClient.participantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsOnWaitingList(profileId: string, eventId: string) {
-  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
 export async function enhanceChildEventsWithParticipationStatus(
   currentUserId: string,
   event: Awaited<ReturnType<typeof getEvent>> & {
@@ -648,14 +641,38 @@ export async function enhanceChildEventsWithParticipationStatus(
       },
     })
   ).map((event) => event.eventId);
+  const eventIdsWhereSpeaker = (
+    await prismaClient.speakerOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereTeamMember = (
+    await prismaClient.teamMemberOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     const isParticipant = eventIdsWhereParticipant.includes(childEvent.id);
     const isOnWaitingList = eventIdsWhereOnWaitingList.includes(childEvent.id);
+    const isSpeaker = eventIdsWhereSpeaker.includes(childEvent.id);
+    const isTeamMember = eventIdsWhereTeamMember.includes(childEvent.id);
     return {
       ...childEvent,
       isParticipant,
       isOnWaitingList,
+      isSpeaker,
+      isTeamMember,
     };
   });
   return { ...event, childEvents: enhancedChildEvents };

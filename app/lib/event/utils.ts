@@ -1,9 +1,10 @@
 import { Event, Prisma } from "@prisma/client";
 import { getRootEvent } from "~/event.server";
+import { prismaClient } from "~/prisma";
 import { ArrayElement } from "../utils/types";
 
-const eventWithRelations = Prisma.validator<Prisma.EventArgs>()({
-  include: {
+const eventRelations = Prisma.validator<Prisma.EventArgs>()({
+  select: {
     participants: true,
     speakers: true,
     parentEvent: true,
@@ -19,12 +20,17 @@ const eventWithRelations = Prisma.validator<Prisma.EventArgs>()({
     areas: true,
     documents: true,
     stage: true,
+    _count: {
+      select: {
+        participants: true,
+        childEvents: true,
+      },
+    },
   },
 });
 
-export type EventWithRelations = Prisma.EventGetPayload<
-  typeof eventWithRelations
->;
+export type EventWithRelations = Prisma.EventGetPayload<typeof eventRelations> &
+  Event;
 
 export async function getRootEvents(
   events: {
@@ -67,64 +73,71 @@ export function combineEventsSortChronologically<
   });
 }
 
-export function isUserParticipating<
-  EventType extends Pick<EventWithRelations, "participants">
->(event: EventType, userId?: string) {
-  return event.participants.some((participant) => {
-    return participant.profileId === userId;
+export async function getIsParticipant(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.participantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
   });
+  return result !== null;
 }
 
-export function isUserOnWaitingList<
-  EventType extends Pick<EventWithRelations, "waitingList">
->(event: EventType, userId?: string) {
-  return event.waitingList.some((waitingUser) => {
-    return waitingUser.profileId === userId;
+export async function getIsOnWaitingList(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
   });
+  return result !== null;
 }
 
-function isUserTeamMember<
-  EventType extends Pick<EventWithRelations, "teamMembers">
->(event: EventType, userId?: string) {
-  return event.teamMembers.some((member) => {
-    return member.profileId === userId;
+export async function getIsSpeaker(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.speakerOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
   });
+  return result !== null;
 }
 
-function isUserSpeaker<EventType extends Pick<EventWithRelations, "speakers">>(
-  event: EventType,
-  userId?: string
-) {
-  return event.speakers.some((speaker) => {
-    return speaker.profileId === userId;
+export async function getIsTeamMember(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.teamMemberOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
   });
+  return result !== null;
 }
 
 export function addUserParticipationStatus<
   EventsType extends {
-    event: Pick<
-      EventWithRelations,
-      "participants" | "waitingList" | "speakers" | "teamMembers"
-    >;
+    event: Pick<Event, "id">;
   }[]
 >(events: EventsType, userId?: string) {
   const result = events.map((item) => {
     return {
       event: {
         ...item.event,
-        isUserParticipating: isUserParticipating<typeof item.event>(
-          item.event,
-          userId
-        ),
-        isUserOnWaitingList: isUserOnWaitingList<typeof item.event>(
-          item.event,
-          userId
-        ),
-        isUserTeamMember: isUserTeamMember<typeof item.event>(
-          item.event,
-          userId
-        ),
-        isUserSpeaker: isUserSpeaker<typeof item.event>(item.event, userId),
+        isParticipant: getIsParticipant(item.event.id, userId),
+        isOnWaitingList: getIsOnWaitingList(item.event.id, userId),
+        isTeamMember: getIsTeamMember(item.event.id, userId),
+        isSpeaker: getIsSpeaker(item.event.id, userId),
       },
     };
   });
@@ -137,22 +150,23 @@ function reachedParticipateDeadline(event: Pick<Event, "participationUntil">) {
 }
 
 function reachedParticipantLimit(
-  event: Pick<EventWithRelations, "participants" | "participantLimit">
+  participantCount: number,
+  participantLimit: number | null
 ) {
-  if (event.participantLimit === null) {
+  if (participantLimit === null) {
     return false;
   }
-  return event.participants.length >= event.participantLimit;
+  return participantCount >= participantLimit;
 }
-
-function hasChildEvents(event: Pick<EventWithRelations, "childEvents">) {
-  return event.childEvents.length > 0;
+// TODO: To much abstraction
+function hasChildEvents(childrenCount: number) {
+  return childrenCount > 0;
 }
-
+// TODO: To much abstraction
 function isPublished(event: Pick<Event, "published">) {
   return event.published;
 }
-
+// TODO: To much abstraction
 function isCanceled(event: Pick<Event, "canceled">) {
   return event.canceled;
 }
@@ -160,30 +174,29 @@ function isCanceled(event: Pick<Event, "canceled">) {
 export function canUserParticipate(
   event: Pick<
     EventWithRelations,
-    | "participants"
-    | "waitingList"
-    | "teamMembers"
-    | "speakers"
     | "participationUntil"
     | "participantLimit"
-    | "childEvents"
     | "published"
     | "canceled"
+    | "_count"
   > & {
-    isUserParticipating: boolean;
-    isUserOnWaitingList: boolean;
-    isUserTeamMember: boolean;
-    isUserSpeaker: boolean;
+    isParticipant: boolean;
+    isOnWaitingList: boolean;
+    isTeamMember: boolean;
+    isSpeaker: boolean;
   }
 ) {
   return (
-    !event.isUserParticipating &&
-    !event.isUserOnWaitingList &&
-    !event.isUserTeamMember &&
-    !event.isUserSpeaker &&
+    !event.isParticipant &&
+    !event.isOnWaitingList &&
+    !event.isTeamMember &&
+    !event.isSpeaker &&
     !reachedParticipateDeadline(event) &&
-    !reachedParticipantLimit(event) &&
-    !hasChildEvents(event) &&
+    !reachedParticipantLimit(
+      event._count.participants,
+      event.participantLimit
+    ) &&
+    !hasChildEvents(event._count.childEvents) &&
     isPublished(event) &&
     !isCanceled(event)
   );
@@ -192,30 +205,29 @@ export function canUserParticipate(
 export function canUserBeAddedToWaitingList(
   event: Pick<
     EventWithRelations,
-    | "participants"
-    | "waitingList"
-    | "teamMembers"
-    | "speakers"
     | "participationUntil"
     | "participantLimit"
-    | "childEvents"
     | "published"
     | "canceled"
+    | "_count"
   > & {
-    isUserParticipating: boolean;
-    isUserOnWaitingList: boolean;
-    isUserTeamMember: boolean;
-    isUserSpeaker: boolean;
+    isParticipant: boolean;
+    isOnWaitingList: boolean;
+    isTeamMember: boolean;
+    isSpeaker: boolean;
   }
 ) {
   return (
-    !event.isUserOnWaitingList &&
-    !event.isUserParticipating &&
-    !event.isUserTeamMember &&
-    !event.isUserSpeaker &&
+    !event.isOnWaitingList &&
+    !event.isParticipant &&
+    !event.isTeamMember &&
+    !event.isSpeaker &&
     !reachedParticipateDeadline(event) &&
-    reachedParticipantLimit(event) &&
-    !hasChildEvents(event) &&
+    reachedParticipantLimit(
+      event._count.participants,
+      event.participantLimit
+    ) &&
+    !hasChildEvents(event._count.childEvents) &&
     isPublished(event) &&
     !isCanceled(event)
   );

@@ -2,7 +2,16 @@ import { GravityType } from "imgproxy/dist/types";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
+import {
+  canUserBeAddedToWaitingList,
+  canUserParticipate,
+  getIsOnWaitingList,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
+} from "~/lib/event/utils";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
@@ -18,8 +27,6 @@ import {
   getEventSpeakers,
   getFullDepthParticipants,
   getFullDepthSpeakers,
-  getIsOnWaitingList,
-  getIsParticipant,
   MaybeEnhancedEvent,
 } from "./utils.server";
 
@@ -29,6 +36,8 @@ type LoaderData = {
   // TODO: move "is"-Properties to event
   isParticipant: boolean | undefined;
   isOnWaitingList: boolean | undefined;
+  isSpeaker: boolean | undefined;
+  isTeamMember: boolean | undefined;
   userId?: string;
   email?: string;
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
@@ -125,13 +134,17 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   let isParticipant;
   let isOnWaitingList;
+  let isSpeaker;
+  let isTeamMember;
 
   if (currentUser !== null) {
-    isParticipant = await getIsParticipant(currentUser.id, enhancedEvent.id);
+    isParticipant = await getIsParticipant(enhancedEvent.id, currentUser.id);
     isOnWaitingList = await getIsOnWaitingList(
-      currentUser.id,
-      enhancedEvent.id
+      enhancedEvent.id,
+      currentUser.id
     );
+    isSpeaker = await getIsSpeaker(enhancedEvent.id, currentUser.id);
+    isTeamMember = await getIsTeamMember(enhancedEvent.id, currentUser.id);
   }
 
   if (event.background !== null) {
@@ -164,6 +177,8 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     email: currentUser?.email || undefined,
     isParticipant,
     isOnWaitingList,
+    isSpeaker,
+    isTeamMember,
   };
 };
 
@@ -389,69 +404,134 @@ function Index() {
         {loaderData.event.childEvents.length > 0 && (
           <>
             <h3>Child Events:</h3>
-            <ul>
-              {loaderData.event.childEvents.map((childEvent, index) => {
-                const hasChildEvents = childEvent._count.childEvents > 0;
-                const hasLimit = childEvent.participantLimit !== null;
-                const isAnon = loaderData.userId === undefined;
-                let isParticipant = false;
-                let isOnWaitingList = false;
-                if ("isParticipant" in childEvent) {
-                  isParticipant = childEvent.isParticipant;
-                  isOnWaitingList = childEvent.isOnWaitingList;
-                }
-                const limitReached =
-                  childEvent.participantLimit !== null
-                    ? childEvent.participantLimit <=
-                      childEvent._count.participants
-                    : false;
-                return (
-                  <li key={`child-event-${index}`}>
-                    -{" "}
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/event/${childEvent.slug}`}
-                    >
-                      {childEvent.name}
-                    </Link>
-                    {!hasChildEvents && isAnon && (
-                      <Link
-                        className="btn btn-primary"
-                        to={`/login?event_slug=${childEvent.slug}`}
-                      >
-                        Anmelden um teilzunehmen
-                      </Link>
+            {loaderData.event.childEvents.map((event, index) => {
+              const startTime = new Date(event.startTime);
+              const endTime = new Date(event.endTime);
+              return (
+                <div
+                  key={`profile-${index}`}
+                  data-testid="gridcell"
+                  className="flex-100 lg:flex-1/2 px-3 mb-8"
+                >
+                  <div className="w-full flex items-center flex-row">
+                    <div className="pl-4">
+                      <p className="text-m">
+                        {/* TODO: Display icons (see figma) */}
+                        {event.stage !== null && event.stage.title + " | "}
+                        {getDuration(startTime, endTime)}
+                        {event._count.childEvents === 0 && (
+                          <>
+                            {event.participantLimit === null
+                              ? " | Unbegrenzte Plätze"
+                              : ` | ${
+                                  event.participantLimit -
+                                  event._count.participants
+                                } / ${event.participantLimit} Plätzen frei`}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <Link to={`/event/${event.slug}`}>
+                    <div className="w-full flex items-center flex-row">
+                      <div className="pl-4">
+                        <H3 like="h4" className="text-l mb-1 hover:underline">
+                          {event.name}
+                        </H3>
+                      </div>
+                    </div>
+                  </Link>
+                  {event.subline !== null && (
+                    <div className="w-full flex items-center flex-row">
+                      <div className="pl-4">
+                        <p className="text-l mb-1">{event.subline}</p>
+                      </div>
+                    </div>
+                  )}
+                  {loaderData.mode === "owner" && !event.canceled && (
+                    <div className="w-full flex items-center flex-row">
+                      <div className="pl-4">
+                        <H3 like="h4" className="text-l mb-1">
+                          {event.published ? "Veröffentlicht" : "Entwurf"}
+                        </H3>
+                      </div>
+                    </div>
+                  )}
+                  {event.canceled && (
+                    <div className="w-full flex items-center flex-row">
+                      <div className="pl-4">
+                        <H3 like="h4" className="text-l mb-1">
+                          Abgesagt
+                        </H3>
+                      </div>
+                    </div>
+                  )}
+                  {"isParticipant" in event &&
+                    event.isParticipant &&
+                    !event.canceled && (
+                      <div className="w-full flex items-center flex-row">
+                        <div className="pl-4">
+                          <H3 like="h4" className="text-l mb-1">
+                            Angemeldet
+                          </H3>
+                        </div>
+                      </div>
                     )}
-                    {!hasChildEvents && isParticipant && <p>Angemeldet!</p>}
-                    {!hasChildEvents && isOnWaitingList && (
-                      <p>Auf Warteliste!</p>
-                    )}
-                    {!hasChildEvents &&
-                      (!hasLimit || (hasLimit && !limitReached)) &&
-                      !isParticipant && (
+                  {"isParticipant" in event && canUserParticipate(event) && (
+                    <div className="w-full flex items-center flex-row">
+                      <div className="pl-4">
                         <AddParticipantButton
-                          action={`/event/${childEvent.slug}/settings/participants/add-participant`}
+                          action={`/event/${event.slug}/settings/participants/add-participant`}
                           userId={loaderData.userId}
-                          eventId={childEvent.id}
+                          eventId={event.id}
                           email={loaderData.email}
                         />
-                      )}
-                    {!hasChildEvents &&
-                      hasLimit &&
-                      limitReached &&
-                      !isOnWaitingList &&
-                      !isParticipant && (
-                        <AddToWaitingListButton
-                          action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
-                          userId={loaderData.userId}
-                          eventId={childEvent.id}
-                          email={loaderData.email}
-                        />
-                      )}
-                  </li>
-                );
-              })}
-            </ul>
+                      </div>
+                    </div>
+                  )}
+                  {"isParticipant" in event &&
+                    event.isOnWaitingList &&
+                    !event.canceled && (
+                      <div className="w-full flex items-center flex-row">
+                        <div className="pl-4">
+                          <H3 like="h4" className="text-l mb-1">
+                            Auf Warteliste
+                          </H3>
+                        </div>
+                      </div>
+                    )}
+                  {"isParticipant" in event &&
+                    canUserBeAddedToWaitingList(event) && (
+                      <div className="w-full flex items-center flex-row">
+                        <div className="pl-4">
+                          {/* TODO: Implement remix form to add-to-waiting-list route */}
+                          <button type="submit" className="btn btn-primary">
+                            Warteliste
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  {loaderData.mode !== "owner" &&
+                    "isParticipant" in event &&
+                    !event.isParticipant &&
+                    !canUserParticipate(event) &&
+                    !event.isOnWaitingList &&
+                    !canUserBeAddedToWaitingList(event) &&
+                    !event.canceled && (
+                      <div className="w-full flex items-center flex-row">
+                        <div className="pl-4">
+                          <Link
+                            to={`/event/${event.slug}`}
+                            className="btn btn-primary"
+                          >
+                            Mehr erfahren...
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                </div>
+              );
+            })}
           </>
         )}
         {loaderData.event.participants !== null && (

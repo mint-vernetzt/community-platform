@@ -142,12 +142,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               parentEventId: true,
               startTime: true,
               endTime: true,
-              waitingList: true,
-              participants: true,
-              speakers: true,
-              teamMembers: true,
               participationUntil: true,
-              childEvents: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -156,6 +151,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
             },
           },
         },
@@ -177,12 +178,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               parentEventId: true,
               startTime: true,
               endTime: true,
-              waitingList: true,
-              participants: true,
-              speakers: true,
-              teamMembers: true,
               participationUntil: true,
-              childEvents: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -191,6 +187,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
             },
           },
         },
@@ -219,12 +221,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               parentEventId: true,
               startTime: true,
               endTime: true,
-              waitingList: true,
-              participants: true,
-              speakers: true,
-              teamMembers: true,
               participationUntil: true,
-              childEvents: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -233,6 +230,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
             },
           },
         },
@@ -261,12 +264,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               parentEventId: true,
               startTime: true,
               endTime: true,
-              waitingList: true,
-              participants: true,
-              speakers: true,
-              teamMembers: true,
               participationUntil: true,
-              childEvents: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -275,6 +273,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
             },
           },
         },
