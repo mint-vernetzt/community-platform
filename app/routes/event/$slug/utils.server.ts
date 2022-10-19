@@ -521,6 +521,16 @@ export async function getEvent(slug: string) {
           endTime: true,
           background: true,
           participantLimit: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          canceled: true,
+          published: true,
+          subline: true,
+          participationUntil: true,
+
           _count: {
             select: {
               childEvents: true,
@@ -597,46 +607,6 @@ export async function getEventSpeakers(currentEventId: string) {
     },
   });
   return result;
-}
-
-export async function getIsParticipant(profileId: string, eventId: string) {
-  const result = await prismaClient.participantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsOnWaitingList(profileId: string, eventId: string) {
-  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsSpeaker(profileId: string, eventId: string) {
-  const result = await prismaClient.speakerOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsTeamMember(profileId: string, eventId: string) {
-  const result = await prismaClient.teamMemberOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
 }
 
 export async function enhanceChildEventsWithParticipationStatus(

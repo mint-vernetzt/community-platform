@@ -59,10 +59,10 @@ type ProfileLoaderData = {
         >["teamMemberOfEvents"]
       > & {
         event: {
-          isUserParticipating: boolean;
-          isUserOnWaitingList: boolean;
-          isUserTeamMember: boolean;
-          isUserSpeaker: boolean;
+          isParticipant: boolean;
+          isOnWaitingList: boolean;
+          isTeamMember: boolean;
+          isSpeaker: boolean;
         };
       }
     >;
@@ -73,10 +73,10 @@ type ProfileLoaderData = {
         >["contributedEvents"]
       > & {
         event: {
-          isUserParticipating: boolean;
-          isUserOnWaitingList: boolean;
-          isUserTeamMember: boolean;
-          isUserSpeaker: boolean;
+          isParticipant: boolean;
+          isOnWaitingList: boolean;
+          isTeamMember: boolean;
+          isSpeaker: boolean;
         };
       }
     >;
@@ -87,10 +87,10 @@ type ProfileLoaderData = {
           >["participatedEvents"]
         > & {
           event: {
-            isUserParticipating: boolean;
-            isUserOnWaitingList: boolean;
-            isUserTeamMember: boolean;
-            isUserSpeaker: boolean;
+            isParticipant: boolean;
+            isOnWaitingList: boolean;
+            isTeamMember: boolean;
+            isSpeaker: boolean;
           };
         })
       | (ArrayElement<
@@ -99,10 +99,10 @@ type ProfileLoaderData = {
           >["waitingForEvents"]
         > & {
           event: {
-            isUserParticipating: boolean;
-            isUserOnWaitingList: boolean;
-            isUserTeamMember: boolean;
-            isUserSpeaker: boolean;
+            isParticipant: boolean;
+            isOnWaitingList: boolean;
+            isTeamMember: boolean;
+            isSpeaker: boolean;
           };
         })
     >;
@@ -178,13 +178,15 @@ export const loader: LoaderFunction = async (
 
   // TODO: Generic type returns wrong type
   const enhancedEvents = {
-    teamMemberOfEvents: addUserParticipationStatus<
-      typeof profileEvents.teamMemberOfEvents
-    >(profileEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: addUserParticipationStatus<
-      typeof profileEvents.contributedEvents
-    >(profileEvents.contributedEvents, sessionUser?.id),
-    participatedEvents: addUserParticipationStatus<typeof combinedEvents>(
+    teamMemberOfEvents: addUserParticipationStatus(
+      profileEvents.teamMemberOfEvents,
+      sessionUser?.id
+    ),
+    contributedEvents: addUserParticipationStatus(
+      profileEvents.contributedEvents,
+      sessionUser?.id
+    ),
+    participatedEvents: addUserParticipationStatus(
       combinedEvents,
       sessionUser?.id
     ),
@@ -634,13 +636,13 @@ export default function Index() {
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
                                     {getDuration(startTime, endTime)}
-                                    {event.childEvents.length === 0 && (
+                                    {event._count.childEvents === 0 && (
                                       <>
                                         {event.participantLimit === null
                                           ? " | Unbegrenzte Plätze"
                                           : ` | ${
                                               event.participantLimit -
-                                              event.participants.length
+                                              event._count.participants
                                             } / ${
                                               event.participantLimit
                                             } Plätzen frei`}
@@ -664,9 +666,9 @@ export default function Index() {
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
-                                    <H3 like="h4" className="text-l mb-1">
+                                    <p className="text-l mb-1">
                                       {event.subline}
-                                    </H3>
+                                    </p>
                                   </div>
                                 </div>
                               )}
@@ -690,7 +692,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && !event.canceled && (
+                              {event.isParticipant && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -711,7 +713,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && !event.canceled && (
+                              {event.isOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -734,9 +736,9 @@ export default function Index() {
                                 </div>
                               )}
                               {loaderData.mode !== "owner" &&
-                                !event.isUserParticipating &&
+                                !event.isParticipant &&
                                 !canUserParticipate(event) &&
-                                !event.isUserOnWaitingList &&
+                                !event.isOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
@@ -779,13 +781,13 @@ export default function Index() {
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
                                     {getDuration(startTime, endTime)}
-                                    {event.childEvents.length === 0 && (
+                                    {event._count.childEvents === 0 && (
                                       <>
                                         {event.participantLimit === null
                                           ? " | Unbegrenzte Plätze"
                                           : ` | ${
                                               event.participantLimit -
-                                              event.participants.length
+                                              event._count.participants
                                             } / ${
                                               event.participantLimit
                                             } Plätzen frei`}
@@ -810,9 +812,9 @@ export default function Index() {
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
-                                    <H3 like="h4" className="text-l mb-1">
+                                    <p className="text-l mb-1">
                                       {event.subline}
-                                    </H3>
+                                    </p>
                                   </div>
                                 </div>
                               )}
@@ -825,7 +827,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && !event.canceled && (
+                              {event.isParticipant && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -846,7 +848,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && !event.canceled && (
+                              {event.isOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -868,9 +870,9 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {!event.isUserParticipating &&
+                              {!event.isParticipant &&
                                 !canUserParticipate(event) &&
-                                !event.isUserOnWaitingList &&
+                                !event.isOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
@@ -912,13 +914,13 @@ export default function Index() {
                                     {event.stage !== null &&
                                       event.stage.title + " | "}
                                     {getDuration(startTime, endTime)}
-                                    {event.childEvents.length === 0 && (
+                                    {event._count.childEvents === 0 && (
                                       <>
                                         {event.participantLimit === null
                                           ? " | Unbegrenzte Plätze"
                                           : ` | ${
                                               event.participantLimit -
-                                              event.participants.length
+                                              event._count.participants
                                             } / ${
                                               event.participantLimit
                                             } Plätzen frei`}
@@ -943,9 +945,9 @@ export default function Index() {
                               {event.subline !== null && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
-                                    <H3 like="h4" className="text-l mb-1">
+                                    <p className="text-l mb-1">
                                       {event.subline}
-                                    </H3>
+                                    </p>
                                   </div>
                                 </div>
                               )}
@@ -958,7 +960,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && !event.canceled && (
+                              {event.isParticipant && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -979,7 +981,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && !event.canceled && (
+                              {event.isOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -1001,9 +1003,9 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {!event.isUserParticipating &&
+                              {!event.isParticipant &&
                                 !canUserParticipate(event) &&
-                                !event.isUserOnWaitingList &&
+                                !event.isOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
