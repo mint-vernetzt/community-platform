@@ -16,58 +16,6 @@ export async function getProfileByUsername(username: string) {
     areas: { select: { area: { select: { name: true } } } },
     offers: { select: { offer: { select: { title: true } } } },
     seekings: { select: { offer: { select: { title: true } } } },
-    teamMemberOfEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-          },
-        },
-      },
-    },
-    participatedEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-          },
-        },
-      },
-    },
-    contributedEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-          },
-        },
-      },
-    },
-    waitingForEvents: {
-      select: {
-        event: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            published: true,
-            parentEventId: true,
-          },
-        },
-      },
-    },
     memberOf: {
       select: {
         organization: {

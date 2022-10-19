@@ -1,6 +1,7 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
+import { zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -73,15 +74,22 @@ export async function checkIdentityOrThrow(
 export function transformEventToForm(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlugOrThrow>>>
 ) {
+  const startTimeZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTimeZoned = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const participationUntilZoned = utcToZonedTime(
+    event.participationUntil,
+    "Europe/Berlin"
+  );
+
   const dateFormat = "yyyy-MM-dd";
   const timeFormat = "HH:mm";
 
-  const startDate = format(event.startTime, dateFormat);
-  const startTime = format(event.startTime, timeFormat);
-  const endDate = format(event.endTime, dateFormat);
-  const endTime = format(event.endTime, timeFormat);
-  const participationUntilDate = format(event.participationUntil, dateFormat);
-  const participationUntilTime = format(event.participationUntil, timeFormat);
+  const startDate = format(startTimeZoned, dateFormat);
+  const startTime = format(startTimeZoned, timeFormat);
+  const endDate = format(endTimeZoned, dateFormat);
+  const endTime = format(endTimeZoned, timeFormat);
+  const participationUntilDate = format(participationUntilZoned, dateFormat);
+  const participationUntilTime = format(participationUntilZoned, timeFormat);
 
   return {
     ...event,
@@ -115,10 +123,17 @@ export function transformFormToEvent(form: any) {
     ...event
   } = form;
 
-  const startTime = new Date(`${startDate} ${event.startTime}`);
-  const endTime = new Date(`${endDate} ${event.endTime}`);
-  const participationUntil = new Date(
-    `${participationUntilDate} ${participationUntilTime}`
+  const startTime = zonedTimeToUtc(
+    `${startDate} ${event.startTime}`,
+    "Europe/Berlin"
+  );
+  const endTime = zonedTimeToUtc(
+    `${endDate} ${event.endTime}`,
+    "Europe/Berlin"
+  );
+  const participationUntil = zonedTimeToUtc(
+    `${participationUntilDate} ${participationUntilTime}`,
+    "Europe/Berlin"
   );
 
   return {

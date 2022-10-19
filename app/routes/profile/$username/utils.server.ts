@@ -1,11 +1,6 @@
 import { Profile } from "@prisma/client";
 import { badRequest, forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import {
-  filterPublishedEvents,
-  getRootEvents,
-  sortEventsAlphabetically,
-} from "~/lib/event/utils";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 
@@ -113,33 +108,201 @@ export async function updateProfileById(
   });
 }
 
-async function transformEventData(
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  key: keyof Pick<
-    NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "contributedEvents"
-    | "waitingForEvents"
-  >,
-  mode: Mode
-) {
-  let transformedEventData:
-    | Awaited<ReturnType<typeof getRootEvents>>
-    | ReturnType<typeof sortEventsAlphabetically>;
-
-  if (key === "participatedEvents" || key === "contributedEvents") {
-    // Raw query in getRootEvents already filters published events and sorts them alphabetically
-    transformedEventData = await getRootEvents(profile[key]);
-  } else if (key === "teamMemberOfEvents" && mode === "owner") {
-    // Profile owner who is team member of an event should also see unpublished events
-    transformedEventData = sortEventsAlphabetically(profile[key]);
+export async function getProfileEventsByMode(username: string, mode: Mode) {
+  let teamMemberWhere;
+  if (mode === "owner") {
+    teamMemberWhere = {
+      event: {
+        startTime: {
+          gte: new Date(),
+        },
+      },
+    };
   } else {
-    const publishedEvents = filterPublishedEvents(profile[key]);
-    transformedEventData = sortEventsAlphabetically(publishedEvents);
+    teamMemberWhere = {
+      event: {
+        startTime: {
+          gte: new Date(),
+        },
+        published: true,
+      },
+    };
   }
 
-  return transformedEventData;
+  const profileEvents = await prismaClient.profile.findFirst({
+    select: {
+      teamMemberOfEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
+            },
+          },
+        },
+        where: teamMemberWhere,
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      participatedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      contributedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+      waitingForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "desc",
+          },
+        },
+      },
+    },
+    where: {
+      username,
+    },
+  });
+
+  return profileEvents;
 }
 
 // TODO: Type issues, rework public fields
@@ -147,7 +310,7 @@ export async function filterProfileByMode(
   profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
   mode: Mode
 ) {
-  let data: Partial<typeof profile> = {};
+  let data = {};
 
   const publicFields = [
     "id",
@@ -162,26 +325,13 @@ export async function filterProfileByMode(
     ...profile.publicFields,
   ];
 
-  const eventRelationKeys = [
-    "teamMemberOfEvents",
-    "participatedEvents",
-    "contributedEvents",
-    "waitingForEvents",
-  ];
-
   for (const key in profile) {
     // Only show public fields if user is anon, show all fields if user is not anon
     if (mode !== "anon" || publicFields.includes(key)) {
-      // Event relations must be transformed
-      if (eventRelationKeys.includes(key)) {
-        // TODO: Type issue
-        // @ts-ignore
-        data[key] = await transformEventData(profile, key, mode);
-      } else {
-        // @ts-ignore <-- Partials allow undefined, Profile not
-        data[key] = profile[key];
-      }
+      // @ts-ignore <-- Partials allow undefined, Profile not
+      data[key] = profile[key];
     }
   }
-  return data;
+
+  return data as Partial<typeof profile>;
 }
