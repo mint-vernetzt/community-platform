@@ -19,7 +19,6 @@ import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
   combineEventsSortChronologically,
-  createDateLabel,
 } from "~/lib/event/utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
