@@ -18,6 +18,7 @@ const eventWithRelations = Prisma.validator<Prisma.EventArgs>()({
     waitingList: true,
     areas: true,
     documents: true,
+    stage: true,
   },
 });
 
