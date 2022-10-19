@@ -102,6 +102,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   enhancedEvent.speakers = speakers;
 
+  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
+    if (item.profile.avatar !== null) {
+      const publicURL = getPublicURL(item.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        item.profile.avatar = avatar;
+      }
+    }
+    return item;
+  });
+
   if (mode !== "anon" && currentUser !== null) {
     if (event.childEvents.length > 0) {
       participants = (await getFullDepthParticipants(event.id)) || [];
@@ -156,6 +170,18 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       });
     }
   }
+
+  enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
+    if (item.background !== null) {
+      const publicURL = getPublicURL(item.background);
+      if (publicURL) {
+        item.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return item;
+  });
 
   event.responsibleOrganizations = event.responsibleOrganizations.map(
     (item) => {
@@ -432,7 +458,11 @@ function Index() {
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div>
-                    <a href={loaderData.event.conferenceLink} target="_blank">
+                    <a
+                      href={loaderData.event.conferenceLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       {loaderData.event.conferenceLink}
                     </a>
                   </div>
@@ -655,7 +685,6 @@ function Index() {
                 <h3 className="mt-16 mb-8 font-bold">Subveranstaltungen</h3>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((childEvent, index) => {
-                    console.log(childEvent);
                     const hasChildEvents = childEvent._count.childEvents > 0;
                     const hasLimit = childEvent.participantLimit !== null;
                     const isAnon = loaderData.userId === undefined;
@@ -788,6 +817,144 @@ function Index() {
                       </div>
                     );
                   })}
+                  {/* Unstyled child events with logic */}
+                  {loaderData.event.childEvents.map((event, index) => {
+                    const startTime = new Date(event.startTime);
+                    const endTime = new Date(event.endTime);
+                    return (
+                      <div
+                        key={`profile-${index}`}
+                        data-testid="gridcell"
+                        className="flex-100 lg:flex-1/2 px-3 mb-8"
+                      >
+                        <div className="w-full flex items-center flex-row">
+                          <div className="pl-4">
+                            <p className="text-m">
+                              {/* TODO: Display icons (see figma) */}
+                              {event.stage !== null &&
+                                event.stage.title + " | "}
+                              {getDuration(startTime, endTime)}
+                              {event._count.childEvents === 0 && (
+                                <>
+                                  {event.participantLimit === null
+                                    ? " | Unbegrenzte Plätze"
+                                    : ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${
+                                        event.participantLimit
+                                      } Plätzen frei`}
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link to={`/event/${event.slug}`}>
+                          <div className="w-full flex items-center flex-row">
+                            <div className="pl-4">
+                              <H3
+                                like="h4"
+                                className="text-l mb-1 hover:underline"
+                              >
+                                {event.name}
+                              </H3>
+                            </div>
+                          </div>
+                        </Link>
+                        {event.subline !== null && (
+                          <div className="w-full flex items-center flex-row">
+                            <div className="pl-4">
+                              <p className="text-l mb-1">{event.subline}</p>
+                            </div>
+                          </div>
+                        )}
+                        {loaderData.mode === "owner" && !event.canceled && (
+                          <div className="w-full flex items-center flex-row">
+                            <div className="pl-4">
+                              <H3 like="h4" className="text-l mb-1">
+                                {event.published ? "Veröffentlicht" : "Entwurf"}
+                              </H3>
+                            </div>
+                          </div>
+                        )}
+                        {event.canceled && (
+                          <div className="w-full flex items-center flex-row">
+                            <div className="pl-4">
+                              <H3 like="h4" className="text-l mb-1">
+                                Abgesagt
+                              </H3>
+                            </div>
+                          </div>
+                        )}
+                        {"isParticipant" in event &&
+                          event.isParticipant &&
+                          !event.canceled && (
+                            <div className="w-full flex items-center flex-row">
+                              <div className="pl-4">
+                                <H3 like="h4" className="text-l mb-1">
+                                  Angemeldet
+                                </H3>
+                              </div>
+                            </div>
+                          )}
+                        {"isParticipant" in event && canUserParticipate(event) && (
+                          <div className="w-full flex items-center flex-row">
+                            <div className="pl-4">
+                              <AddParticipantButton
+                                action={`/event/${event.slug}/settings/participants/add-participant`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.email}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        {"isParticipant" in event &&
+                          event.isOnWaitingList &&
+                          !event.canceled && (
+                            <div className="w-full flex items-center flex-row">
+                              <div className="pl-4">
+                                <H3 like="h4" className="text-l mb-1">
+                                  Auf Warteliste
+                                </H3>
+                              </div>
+                            </div>
+                          )}
+                        {"isParticipant" in event &&
+                          canUserBeAddedToWaitingList(event) && (
+                            <div className="w-full flex items-center flex-row">
+                              <div className="pl-4">
+                                {/* TODO: Implement remix form to add-to-waiting-list route */}
+                                <button
+                                  type="submit"
+                                  className="btn btn-primary"
+                                >
+                                  Warteliste
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        {"isParticipant" in event &&
+                          !event.isParticipant &&
+                          !canUserParticipate(event) &&
+                          !event.isOnWaitingList &&
+                          !canUserBeAddedToWaitingList(event) &&
+                          !event.canceled && (
+                            <div className="w-full flex items-center flex-row">
+                              <div className="pl-4">
+                                <Link
+                                  to={`/event/${event.slug}`}
+                                  className="btn btn-primary"
+                                >
+                                  Mehr erfahren...
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -902,27 +1069,26 @@ function Index() {
               </ul>
             </>
           )} */}
-        {/* {loaderData.fullDepthOrganizers !== null &&
-          loaderData.fullDepthOrganizers.length > 0 && (
-            <>
-              <h3 className="mt-4">Organisator*innen:</h3>
-              <ul>
-                {loaderData.fullDepthOrganizers.map((organization, index) => {
-                  return (
-                    <li key={`organizer-${index}`}>
-                      -{" "}
-                      <Link
-                        className="underline hover:no-underline"
-                        to={`/organization/${organization.slug}`}
-                      >
-                        {organization.name}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          )} */}
+        {loaderData.event.responsibleOrganizations.length > 0 && (
+          <>
+            <h3 className="mt-4">Organisator*innen:</h3>
+            <ul>
+              {loaderData.event.responsibleOrganizations.map((item, index) => {
+                return (
+                  <li key={`organizer-${index}`}>
+                    -{" "}
+                    <Link
+                      className="underline hover:no-underline"
+                      to={`/organization/${item.organization.slug}`}
+                    >
+                      {item.organization.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </div>
     </>
   );

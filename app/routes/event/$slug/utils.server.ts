@@ -418,6 +418,14 @@ export async function getEvent(slug: string) {
       venueCity: true,
       conferenceLink: true,
       conferenceCode: true,
+      subline: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      canceled: true,
+
       parentEvent: {
         select: {
           slug: true,
@@ -484,6 +492,7 @@ export async function getEvent(slug: string) {
               id: true,
               slug: true,
               logo: true,
+              name: true,
               types: {
                 select: {
                   organizationType: {
