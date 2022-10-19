@@ -241,7 +241,6 @@ function Index() {
   const startTime = new Date(loaderData.event.startTime);
   const endTime = new Date(loaderData.event.endTime);
 
-  // Do we need this in this scope? I thought we need the duration only on the event cards (childEvents)?
   const duration = getDuration(startTime, endTime);
 
   return (
@@ -281,7 +280,6 @@ function Index() {
         >
           Kalendereintrag herunterladen
         </Link>
-        {/* Do we need this in this scope? I thought we need the duration only on the event cards (childEvents)? */}
         <p>
           <strong>{duration}</strong>
         </p>
