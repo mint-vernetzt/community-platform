@@ -153,6 +153,10 @@ function isPublished(event: Pick<Event, "published">) {
   return event.published;
 }
 
+function isCanceled(event: Pick<Event, "canceled">) {
+  return event.canceled;
+}
+
 export function canUserParticipate(
   event: Pick<
     EventWithRelations,
@@ -164,6 +168,7 @@ export function canUserParticipate(
     | "participantLimit"
     | "childEvents"
     | "published"
+    | "canceled"
   > & {
     isUserParticipating: boolean;
     isUserOnWaitingList: boolean;
@@ -179,7 +184,8 @@ export function canUserParticipate(
     !reachedParticipateDeadline(event) &&
     !reachedParticipantLimit(event) &&
     !hasChildEvents(event) &&
-    isPublished(event)
+    isPublished(event) &&
+    !isCanceled(event)
   );
 }
 
@@ -194,6 +200,7 @@ export function canUserBeAddedToWaitingList(
     | "participantLimit"
     | "childEvents"
     | "published"
+    | "canceled"
   > & {
     isUserParticipating: boolean;
     isUserOnWaitingList: boolean;
@@ -209,7 +216,8 @@ export function canUserBeAddedToWaitingList(
     !reachedParticipateDeadline(event) &&
     reachedParticipantLimit(event) &&
     !hasChildEvents(event) &&
-    isPublished(event)
+    isPublished(event) &&
+    !isCanceled(event)
   );
 }
 

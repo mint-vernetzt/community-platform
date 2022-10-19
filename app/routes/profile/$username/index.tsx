@@ -689,7 +689,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && (
+                              {event.isUserParticipating && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -710,7 +710,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && (
+                              {event.isUserOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -732,11 +732,12 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {!event.isUserParticipating &&
+                              {loaderData.mode !== "owner" &&
+                                !event.isUserParticipating &&
                                 !canUserParticipate(event) &&
                                 !event.isUserOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&
-                                loaderData.mode !== "owner" && (
+                                !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
                                     <div className="pl-4">
                                       <Link
@@ -820,7 +821,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && (
+                              {event.isUserParticipating && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -841,7 +842,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && (
+                              {event.isUserOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -866,7 +867,8 @@ export default function Index() {
                               {!event.isUserParticipating &&
                                 !canUserParticipate(event) &&
                                 !event.isUserOnWaitingList &&
-                                !canUserBeAddedToWaitingList(event) && (
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
                                     <div className="pl-4">
                                       <Link
@@ -949,7 +951,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserParticipating && (
+                              {event.isUserParticipating && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -970,7 +972,7 @@ export default function Index() {
                                   </div>
                                 </div>
                               )}
-                              {event.isUserOnWaitingList && (
+                              {event.isUserOnWaitingList && !event.canceled && (
                                 <div className="w-full flex items-center flex-row">
                                   <div className="pl-4">
                                     <H3 like="h4" className="text-l mb-1">
@@ -995,7 +997,8 @@ export default function Index() {
                               {!event.isUserParticipating &&
                                 !canUserParticipate(event) &&
                                 !event.isUserOnWaitingList &&
-                                !canUserBeAddedToWaitingList(event) && (
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
                                   <div className="w-full flex items-center flex-row">
                                     <div className="pl-4">
                                       <Link
