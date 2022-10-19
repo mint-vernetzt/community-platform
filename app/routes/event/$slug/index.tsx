@@ -293,7 +293,54 @@ function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
+      <section className="container md:mt-2">
+        <div className="font-semi text-neutral-500 flex items-center mb-4">
+          <a href="/explore">Veranstaltungen</a>
+          {loaderData.event.parentEvent !== null && (
+            <>
+              <span className="mx-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
+                  />
+                </svg>
+              </span>
+              <Link
+                className=""
+                to={`/event/${loaderData.event.parentEvent.slug}`}
+              >
+                {loaderData.event.parentEvent.name}
+              </Link>
+            </>
+          )}
+        </div>
+        <div className="font-semi text-neutral-600 flex items-center">
+          <a href="#" className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              className="h-auto w-6"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+              />
+            </svg>
+            <span className="ml-2">zurück</span>
+          </a>
+        </div>
+      </section>
+      <section className="hidden md:block container mt-6">
         <div className="rounded-3xl overflow-hidden w-full">
           <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
             <div className="w-full h-full">
@@ -308,43 +355,71 @@ function Index() {
               )}
             </div>
           </div>
-          {reachedParticipationDeadline ? (
-            <div className="bg-accent-300 p-8">
-              <p className="font-bold text-center">
-                Teilnahmefrist bereits abgelaufen.
-              </p>
-            </div>
-          ) : (
+          {loaderData.mode !== "owner" && (
             <>
-              {loaderData.mode === "anon" && (
-                <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
-                  <Link
-                    className="btn btn-outline btn-primary"
-                    to={`/login?event_slug=${loaderData.event.slug}`}
-                  >
-                    Anmelden um teilzunehmen
-                  </Link>
+              {reachedParticipationDeadline ? (
+                <div className="bg-accent-300 p-8">
+                  <p className="font-bold text-center">
+                    Teilnahmefrist bereits abgelaufen.
+                  </p>
                 </div>
+              ) : (
+                <>
+                  {loaderData.mode === "anon" && (
+                    <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                      <Link
+                        className="btn btn-outline btn-primary"
+                        to={`/login?event_slug=${loaderData.event.slug}`}
+                      >
+                        Anmelden um teilzunehmen
+                      </Link>
+                    </div>
+                  )}
+                  {loaderData.mode !== "anon" &&
+                    loaderData.event.childEvents.length === 0 && (
+                      <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                        {Form}
+                      </div>
+                    )}
+                </>
               )}
-              {loaderData.mode !== "anon" &&
-                loaderData.event.childEvents.length === 0 && (
-                  <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
-                    {Form}
+              {loaderData.event.childEvents.length > 0 && (
+                <>
+                  <div className="bg-accent-300 p-8">
+                    <p className="font-bold text-center">
+                      Wähle Sub-Veranstaltungen aus, an denen Du teilnehmen
+                      möchtest.
+                    </p>
                   </div>
-                )}
-            </>
-          )}
-          {loaderData.event.childEvents.length > 0 && (
-            <>
-              <div className="bg-accent-300 p-8">
-                <p className="font-bold text-center">
-                  Wähle Sub-Veranstaltungen aus, an denen Du teilnehmen
-                  möchtest.
-                </p>
-              </div>
+                </>
+              )}
             </>
           )}
         </div>
+        {loaderData.mode === "owner" && (
+          <div className="bg-accent-white p-8 pb-0">
+            <p className="font-bold text-right">
+              <Link
+                className="btn btn-outline btn-primary ml-4"
+                to={`/event/${loaderData.event.slug}/settings`}
+              >
+                Veranstaltung bearbeiten
+              </Link>
+              <Link
+                className="btn btn-primary ml-4"
+                to={`/event/create/?child=${loaderData.event.id}`}
+              >
+                Rahmenveranstaltung anlegen
+              </Link>
+              <Link
+                className="btn btn-primary ml-4"
+                to={`/event/create/?parent=${loaderData.event.id}`}
+              >
+                Subveranstaltung anlegen
+              </Link>
+            </p>
+          </div>
+        )}
       </section>
       <div className="container relative pt-20 pb-44">
         <div className="flex -mx-4 justify-center">
@@ -509,6 +584,13 @@ function Index() {
                   </button>
                 );
               })}
+              {loaderData.event.areas.map((item, index) => {
+                return (
+                  <button key={`areas-${index}`} className="badge">
+                    {item.area.name}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6 mt-6">
@@ -602,8 +684,8 @@ function Index() {
 
             {loaderData.event.childEvents.length > 0 && (
               <>
-                <h3 className="mt-16 font-bold">Subveranstaltungen</h3>
-                <div>
+                <h3 className="mt-16 mb-8 font-bold">Subveranstaltungen</h3>
+                <div className="mb-16">
                   {loaderData.event.childEvents.map((childEvent, index) => {
                     console.log(childEvent);
                     const hasChildEvents = childEvent._count.childEvents > 0;
@@ -621,6 +703,10 @@ function Index() {
                           childEvent._count.participants
                         : false;
 
+                    let freeSpaces =
+                      childEvent.participantLimit -
+                      childEvent._count.participants;
+
                     const childStartTime = new Date(childEvent.startTime);
                     const childEndTime = new Date(childEvent.endTime);
 
@@ -631,13 +717,25 @@ function Index() {
                     return (
                       <div
                         key={`child-event-${index}`}
-                        className="rounded-lg bg-white shadow-xl border border-neutral-300 px-4 py-6 mb-2 flex item-stretch"
+                        className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
+                        <div className="w-40 shrink-0">
+                          {childEvent.background !== undefined && (
+                            <img
+                              src={
+                                childEvent.background ||
+                                "/images/default-event-background.jpg"
+                              }
+                              alt={childEvent.name}
+                              className="cover w-full h-full"
+                            />
+                          )}
+                        </div>
                         <Link
-                          className="underline hover:no-underline"
+                          className="px-4 py-6"
                           to={`/event/${childEvent.slug}`}
                         >
-                          <p className="text-xs">
+                          <p className="text-xs mb-1">
                             {hasChildEvents && <span>{childDuration}</span>}
                             {!hasChildEvents && (
                               <span>
@@ -645,8 +743,33 @@ function Index() {
                                 Uhrzeit
                               </span>
                             )}
+                            {hasLimit && !limitReached && (
+                              <>
+                                {" "}
+                                |{" "}
+                                <span>
+                                  {freeSpaces} / {childEvent.participantLimit}{" "}
+                                  Plätzen frei
+                                </span>
+                              </>
+                            )}
+                            {limitReached && (
+                              <>
+                                {" "}
+                                |{" "}
+                                <span>
+                                  {childEvent._count.waitingList} auf der
+                                  Warteliste
+                                </span>
+                              </>
+                            )}
                           </p>
-                          {childEvent.name}
+                          <h4 className="font-bold text-base m-0">
+                            {childEvent.name}
+                          </h4>
+                          <p className="text-xs mt-1">
+                            Subheader noch nicht implementiert.
+                          </p>
                         </Link>
                         {!hasChildEvents && isAnon && (
                           <div className="flex item-center ml-auto">
@@ -654,35 +777,45 @@ function Index() {
                               className="btn btn-primary"
                               to={`/login?event_slug=${childEvent.slug}`}
                             >
-                              Anmelden um teilzunehmen
+                              Anmelden
                             </Link>
                           </div>
                         )}
-                        {!hasChildEvents && isParticipant && <p>Angemeldet!</p>}
+                        {!hasChildEvents && isParticipant && (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                            <p>Angemeldet</p>
+                          </div>
+                        )}
                         {!hasChildEvents && isOnWaitingList && (
-                          <p>Auf Warteliste!</p>
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                            <p>Wartend</p>
+                          </div>
                         )}
                         {!hasChildEvents &&
                           (!hasLimit || (hasLimit && !limitReached)) &&
                           !isParticipant && (
-                            <AddParticipantButton
-                              action={`/event/${childEvent.slug}/settings/participants/add-participant`}
-                              userId={loaderData.userId}
-                              eventId={childEvent.id}
-                              email={loaderData.email}
-                            />
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddParticipantButton
+                                action={`/event/${childEvent.slug}/settings/participants/add-participant`}
+                                userId={loaderData.userId}
+                                eventId={childEvent.id}
+                                email={loaderData.email}
+                              />
+                            </div>
                           )}
                         {!hasChildEvents &&
                           hasLimit &&
                           limitReached &&
                           !isOnWaitingList &&
                           !isParticipant && (
-                            <AddToWaitingListButton
-                              action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
-                              userId={loaderData.userId}
-                              eventId={childEvent.id}
-                              email={loaderData.email}
-                            />
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddToWaitingListButton
+                                action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
+                                userId={loaderData.userId}
+                                eventId={childEvent.id}
+                                email={loaderData.email}
+                              />
+                            </div>
                           )}
                       </div>
                     );
@@ -690,185 +823,50 @@ function Index() {
                 </div>
               </>
             )}
+
+            {loaderData.event.participants !== null && (
+              <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6 mt-6">
+                <div className="text-xs leading-6">Teilnehmer:innen</div>
+                <div className="grid grid-cols-2 gap-4">
+                  {loaderData.event.participants.map((participant) => {
+                    const { profile } = participant;
+                    return (
+                      <div key={profile.username}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/profile/${profile.username}`}
+                        >
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            {profile.avatar !== null &&
+                            profile.avatar !== "" ? (
+                              <img
+                                src={profile.avatar}
+                                alt={profile.firstName + " " + profile.lastName}
+                              />
+                            ) : (
+                              getInitials(profile)
+                            )}
+                          </div>
+
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {`${profile.academicTitle || ""} ${
+                                profile.firstName
+                              } ${profile.lastName}`.trimStart()}
+                            </h5>
+                            <p className="text-sm m-0">{profile.position}</p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
       <div className="mb-4 ml-4">
-        {loaderData.event.documents.length > 0 && (
-          <div className="my-8">
-            <h3>Aktuelle Dokumente</h3>
-            <ul>
-              {loaderData.event.documents.map((item, index) => {
-                return (
-                  <div key={`document-${index}`} className="mb-2">
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
-                      reloadDocument
-                    >
-                      {item.document.title || item.document.filename}
-                    </Link>
-                    {item.document.description && (
-                      <p> - {item.document.description}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </ul>
-            <Link
-              className="btn btn-outline btn-primary mt-4"
-              to={`/event/${loaderData.event.slug}/documents-download`}
-              reloadDocument
-            >
-              Alle Herunterladen
-            </Link>
-          </div>
-        )}
-        <h3>Published: {String(loaderData.event.published)}</h3>
-
-        <h3>
-          Experience Level: {loaderData.event.experienceLevel?.title || ""}
-        </h3>
-        <h3>Types</h3>
-        <ul>
-          {loaderData.event.types.map((item, index) => {
-            return <li key={`types-${index}`}>{item.eventType.title}</li>;
-          })}
-        </ul>
-        <h3>Tags</h3>
-        <ul></ul>
-        <h3>Areas</h3>
-        <ul>
-          <div className="lg:flex-auto">
-            {loaderData.event.areas.map((item) => item.area.name).join(" / ")}
-          </div>
-        </ul>
-
-        {loaderData.event.parentEvent !== null && (
-          <h3>
-            Parent Event:{" "}
-            <Link
-              className="underline hover:no-underline"
-              to={`/event/${loaderData.event.parentEvent.slug}`}
-            >
-              {loaderData.event.parentEvent.name}
-            </Link>
-          </h3>
-        )}
-        {loaderData.event.childEvents.length > 0 && (
-          <>
-            <h3>Child Events:</h3>
-            <ul>
-              {loaderData.event.childEvents.map((childEvent, index) => {
-                console.log(childEvent);
-                const hasChildEvents = childEvent._count.childEvents > 0;
-                const hasLimit = childEvent.participantLimit !== null;
-                const isAnon = loaderData.userId === undefined;
-                let isParticipant = false;
-                let isOnWaitingList = false;
-                if ("isParticipant" in childEvent) {
-                  isParticipant = childEvent.isParticipant;
-                  isOnWaitingList = childEvent.isOnWaitingList;
-                }
-                const limitReached =
-                  childEvent.participantLimit !== null
-                    ? childEvent.participantLimit <=
-                      childEvent._count.participants
-                    : false;
-                return (
-                  <li key={`child-event-${index}`}>
-                    -{" "}
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/event/${childEvent.slug}`}
-                    >
-                      {childEvent.name}
-                    </Link>
-                    {!hasChildEvents && isAnon && (
-                      <Link
-                        className="btn btn-primary"
-                        to={`/login?event_slug=${childEvent.slug}`}
-                      >
-                        Anmelden um teilzunehmen
-                      </Link>
-                    )}
-                    {!hasChildEvents && isParticipant && <p>Angemeldet!</p>}
-                    {!hasChildEvents && isOnWaitingList && (
-                      <p>Auf Warteliste!</p>
-                    )}
-                    {!hasChildEvents &&
-                      (!hasLimit || (hasLimit && !limitReached)) &&
-                      !isParticipant && (
-                        <AddParticipantButton
-                          action={`/event/${childEvent.slug}/settings/participants/add-participant`}
-                          userId={loaderData.userId}
-                          eventId={childEvent.id}
-                          email={loaderData.email}
-                        />
-                      )}
-                    {!hasChildEvents &&
-                      hasLimit &&
-                      limitReached &&
-                      !isOnWaitingList &&
-                      !isParticipant && (
-                        <AddToWaitingListButton
-                          action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
-                          userId={loaderData.userId}
-                          eventId={childEvent.id}
-                          email={loaderData.email}
-                        />
-                      )}
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-        {loaderData.event.participants !== null && (
-          <>
-            <h1>Participants</h1>
-            <ul>
-              {loaderData.event.participants.map((participant) => {
-                const { profile } = participant;
-                return (
-                  <li key={profile.username}>
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/profile/${profile.username}`}
-                    >
-                      {`${profile.academicTitle || ""} ${profile.firstName} ${
-                        profile.lastName
-                      }`.trimStart()}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-        {loaderData.event.speakers !== null && (
-          <>
-            <h1>Speakers</h1>
-            <ul>
-              {loaderData.event.speakers.map((speaker) => {
-                const { profile } = speaker;
-                return (
-                  <li key={profile.username}>
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/profile/${profile.username}`}
-                    >
-                      {`${profile.academicTitle || ""} ${profile.firstName} ${
-                        profile.lastName
-                      }`.trimStart()}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-
         {/* {loaderData.fullDepthParticipants !== null &&
           loaderData.fullDepthParticipants.length > 0 && (
             <>
@@ -957,49 +955,7 @@ function Index() {
               </ul>
             </>
           )} */}
-        {loaderData.event.teamMembers.length > 0 && (
-          <>
-            <h3 className="mt-4">Das Team:</h3>
-            <ul>
-              {loaderData.event.teamMembers.map((member, index) => {
-                return (
-                  <li key={`team-member-${index}`}>
-                    -{" "}
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/profile/${member.profile.username}`}
-                    >
-                      {member.profile.firstName + " " + member.profile.lastName}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
       </div>
-      {loaderData.mode === "owner" && (
-        <>
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/event/${loaderData.event.slug}/settings`}
-          >
-            Veranstaltung bearbeiten
-          </Link>
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/event/create/?child=${loaderData.event.id}`}
-          >
-            Rahmenveranstaltung anlegen
-          </Link>
-          <Link
-            className="btn btn-outline btn-primary"
-            to={`/event/create/?parent=${loaderData.event.id}`}
-          >
-            Subveranstaltung anlegen
-          </Link>
-        </>
-      )}
     </>
   );
 }
