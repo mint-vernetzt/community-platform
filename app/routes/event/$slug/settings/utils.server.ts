@@ -1,6 +1,7 @@
 import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
+import { zonedTimeToUtc } from "date-fns-tz";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -115,10 +116,17 @@ export function transformFormToEvent(form: any) {
     ...event
   } = form;
 
-  const startTime = new Date(`${startDate} ${event.startTime}`);
-  const endTime = new Date(`${endDate} ${event.endTime}`);
-  const participationUntil = new Date(
-    `${participationUntilDate} ${participationUntilTime}`
+  const startTime = zonedTimeToUtc(
+    `${startDate} ${event.startTime}`,
+    "Europe/Berlin"
+  );
+  const endTime = zonedTimeToUtc(
+    `${endDate} ${event.endTime}`,
+    "Europe/Berlin"
+  );
+  const participationUntil = zonedTimeToUtc(
+    `${participationUntilDate} ${participationUntilTime}`,
+    "Europe/Berlin"
   );
 
   return {
