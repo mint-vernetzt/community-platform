@@ -529,6 +529,9 @@ export async function getEvent(slug: string) {
             },
           },
         },
+        orderBy: {
+          startTime: "desc",
+        },
       },
       documents: {
         select: {
