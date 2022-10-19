@@ -20,8 +20,6 @@ import {
   getFullDepthSpeakers,
   getIsOnWaitingList,
   getIsParticipant,
-  getIsSpeaker,
-  getIsTeamMember,
   MaybeEnhancedEvent,
 } from "./utils.server";
 
@@ -31,8 +29,6 @@ type LoaderData = {
   // TODO: move "is"-Properties to event
   isParticipant: boolean | undefined;
   isOnWaitingList: boolean | undefined;
-  isSpeaker: boolean | undefined;
-  isTeamMember: boolean | undefined;
   userId?: string;
   email?: string;
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
@@ -129,8 +125,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   let isParticipant;
   let isOnWaitingList;
-  let isSpeaker;
-  let isTeamMember;
 
   if (currentUser !== null) {
     isParticipant = await getIsParticipant(currentUser.id, enhancedEvent.id);
@@ -138,8 +132,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       currentUser.id,
       enhancedEvent.id
     );
-    isSpeaker = await getIsSpeaker(currentUser.id, enhancedEvent.id);
-    isTeamMember = await getIsTeamMember(currentUser.id, enhancedEvent.id);
   }
 
   if (event.background !== null) {
@@ -172,8 +164,6 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     email: currentUser?.email || undefined,
     isParticipant,
     isOnWaitingList,
-    isSpeaker,
-    isTeamMember,
   };
 };
 
@@ -406,13 +396,9 @@ function Index() {
                 const isAnon = loaderData.userId === undefined;
                 let isParticipant = false;
                 let isOnWaitingList = false;
-                let isSpeaker = false;
-                let isTeamMember = false;
                 if ("isParticipant" in childEvent) {
                   isParticipant = childEvent.isParticipant;
                   isOnWaitingList = childEvent.isOnWaitingList;
-                  isSpeaker = childEvent.isSpeaker;
-                  isTeamMember = childEvent.isTeamMember;
                 }
                 const limitReached =
                   childEvent.participantLimit !== null
