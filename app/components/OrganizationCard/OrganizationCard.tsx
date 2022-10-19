@@ -1,13 +1,16 @@
 import { Link } from "remix";
 import { H3 } from "../Heading/Heading";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { OrganizationType } from "@prisma/client";
 
 export interface OrganizationCardProps {
   id: string;
   link: string;
   name: string;
   image?: string | null;
-  types?: string | null;
+  types?: {
+    organizationType: Pick<OrganizationType, "title">;
+  }[];
 }
 
 function OrganizationCard(props: OrganizationCardProps) {
