@@ -1,11 +1,13 @@
 import { GravityType } from "imgproxy/dist/types";
+import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import Modal from "~/components/Modal/Modal";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import { useNavigate } from "react-router-dom";
 import { Link, LoaderFunction, MetaFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import { useNavigate } from "react-router-dom";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import Modal from "~/components/Modal/Modal";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -34,6 +36,13 @@ import {
   getFullDepthSpeakers,
   MaybeEnhancedEvent,
 } from "./utils.server";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
