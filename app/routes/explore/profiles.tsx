@@ -236,7 +236,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     );
   }
 
-  // Add avatars and logos
+  // Add avatars
   const profilesWithImages = sortedProfiles.map((item) => {
     if ("username" in item) {
       let { avatar, ...rest } = item;
@@ -464,30 +464,13 @@ export default function Index() {
                   >
                     <div className="w-full flex flex-row">
                       {imageType === "avatar" && (
-                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                           {image !== null ? (
                             <img src={image} alt="" />
                           ) : (
                             initials
                           )}
                         </div>
-                      )}
-                      {imageType === "logo" && (
-                        <>
-                          {image !== null ? (
-                            <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center">
-                              <img
-                                className="max-w-full w-auto max-h-16 h-auto"
-                                src={image}
-                                alt={name}
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                              {initials}
-                            </div>
-                          )}
-                        </>
                       )}
                       <div className="pl-4">
                         <H3 like="h4" className="text-xl mb-1">

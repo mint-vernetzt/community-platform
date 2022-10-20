@@ -3,7 +3,6 @@ import { GravityType } from "imgproxy/dist/types";
 import React, { FormEvent } from "react";
 import {
   ActionFunction,
-  json,
   Link,
   LoaderFunction,
   useActionData,
@@ -21,41 +20,22 @@ import { getUserByRequest } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
-import { getFullName } from "~/lib/profile/getFullName";
-import { getInitials } from "~/lib/profile/getInitials";
 import { createAreaOptionFromData } from "~/lib/utils/components";
-import { ArrayElement } from "~/lib/utils/types";
 import { getFilteredOrganizations } from "~/organization.server";
-import {
-  getAllOffers,
-  getAreaById,
-  getFilteredProfiles,
-} from "~/profile.server";
+import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import {
-  getScoreOfEntity,
-  getAllProfiles,
-  getAllOrganizations,
-} from "./utils.server";
+import { getAllOrganizations, getScoreOfEntity } from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
-  offerId: z.string().optional(),
-  seekingId: z.string().optional(),
 });
 
-type Profiles = Awaited<ReturnType<typeof getAllProfiles>>;
 type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
-
-type ProfilesAndOrganizations = (
-  | ArrayElement<Profiles>
-  | ArrayElement<Organizations>
-)[];
 
 type LoaderData = {
   isLoggedIn: boolean;
-  profilesAndOrganizations: ProfilesAndOrganizations;
+  organizations: Organizations;
   areas: Awaited<ReturnType<typeof getAreas>>;
   offers: Awaited<ReturnType<typeof getAllOffers>>;
 };
@@ -67,43 +47,6 @@ export const loader: LoaderFunction = async (args) => {
 
   const isLoggedIn = sessionUser !== null;
 
-  let profiles;
-
-  const allProfiles = await getAllProfiles();
-  if (allProfiles !== null) {
-    profiles = allProfiles.map((profile) => {
-      const { bio, position, avatar, publicFields, ...otherFields } = profile;
-      let extensions: { bio?: string; position?: string } = {};
-
-      if (
-        (publicFields.includes("bio") || sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
-      }
-      if (
-        (publicFields.includes("position") || sessionUser !== null) &&
-        position !== null
-      ) {
-        extensions.position = position;
-      }
-
-      let avatarImage: string | null = null;
-
-      if (avatar !== null) {
-        const publicURL = getPublicURL(avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      return { ...otherFields, ...extensions, avatar: avatarImage };
-    });
-  }
-
   const areas = await getAreas();
   const offers = await getAllOffers();
 
@@ -111,47 +54,44 @@ export const loader: LoaderFunction = async (args) => {
 
   const allOrganizations = await getAllOrganizations();
   if (allOrganizations !== null) {
-    organizations = allOrganizations.map((organization) => {
-      const { bio, publicFields, logo, ...otherFields } = organization;
-      let extensions: { bio?: string } = {};
+    organizations = allOrganizations
+      .map((organization) => {
+        const { bio, publicFields, logo, ...otherFields } = organization;
+        let extensions: { bio?: string } = {};
 
-      if (
-        (publicFields.includes("bio") || sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
-      }
-
-      let logoImage: string | null = null;
-
-      if (logo !== null) {
-        const publicURL = getPublicURL(logo);
-        if (publicURL !== null) {
-          logoImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
+        if (
+          (publicFields.includes("bio") || sessionUser !== null) &&
+          bio !== null
+        ) {
+          extensions.bio = bio;
         }
-      }
 
-      return { ...otherFields, ...extensions, logo: logoImage };
-    });
+        let logoImage: string | null = null;
+
+        if (logo !== null) {
+          const publicURL = getPublicURL(logo);
+          if (publicURL !== null) {
+            logoImage = getImageURL(publicURL, {
+              resize: { type: "fit", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+
+        return { ...otherFields, ...extensions, logo: logoImage };
+      })
+      .sort((a, b) => {
+        const scoreA = getScoreOfEntity(a);
+        const scoreB = getScoreOfEntity(b);
+
+        if (scoreA === scoreB) {
+          return b.updatedAt.getTime() - a.updatedAt.getTime();
+        }
+        return scoreB - scoreA;
+      });
   }
 
-  const profilesAndOrganizations = [
-    ...(profiles ?? []),
-    ...(organizations ?? []),
-  ].sort((a, b) => {
-    const scoreA = getScoreOfEntity(a);
-    const scoreB = getScoreOfEntity(b);
-
-    if (scoreA === scoreB) {
-      return b.updatedAt.getTime() - a.updatedAt.getTime();
-    }
-    return scoreB - scoreA;
-  });
-
-  return { isLoggedIn, profilesAndOrganizations, areas, offers };
+  return { isLoggedIn, organizations, areas, offers };
 };
 
 function getCompareValues(
@@ -175,7 +115,7 @@ function getCompareValues(
 }
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  if (!(values.areaId || values.offerId || values.seekingId)) {
+  if (!values.areaId) {
     throw "";
   }
 
@@ -184,24 +124,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     areaToFilter = await getAreaById(values.areaId);
   }
 
-  let filteredOrganizations;
-  if (values.offerId === undefined && values.seekingId === undefined) {
-    filteredOrganizations = await getFilteredOrganizations(areaToFilter);
-  }
+  let filteredOrganizations = await getFilteredOrganizations(areaToFilter);
 
-  let filteredProfiles = await getFilteredProfiles(
-    areaToFilter,
-    values.offerId,
-    values.seekingId
-  );
-
-  const filteredProfilesAndOrganizations = [
-    ...(filteredProfiles ?? []),
-    ...(filteredOrganizations ?? []),
-  ];
   // TODO: Outsource profile sorting to database
 
-  let sortedProfilesAndOrganizations;
+  let sortedOrganizations;
   if (areaToFilter) {
     // Explanation of the below sorting code:
     //
@@ -230,129 +157,95 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
 
     // 1.
-    const profilesAndOrganizationsWithCountry = filteredProfilesAndOrganizations
-      .filter((profileOrOrganization) =>
-        profileOrOrganization.areas.some((area) => area.area.type === "country")
-      )
+    const organizationsWithCountry = filteredOrganizations
+      .filter((item) => item.areas.some((area) => area.area.type === "country"))
       // 2.
       .sort((a, b) => {
         let compareValues = getCompareValues(a, b);
         return compareValues.a.localeCompare(compareValues.b);
       });
-    const profilesAndOrganizationsWithState = filteredProfilesAndOrganizations
-      .filter((profileOrOrganization) =>
-        profileOrOrganization.areas.some((area) => area.area.type === "state")
+    const organizationsWithState = filteredOrganizations
+      .filter((item) => item.areas.some((area) => area.area.type === "state"))
+      .sort((a, b) => {
+        let compareValues = getCompareValues(a, b);
+        return compareValues.a.localeCompare(compareValues.b);
+      });
+    const organizationsWithDistrict = filteredOrganizations
+      .filter((item) =>
+        item.areas.some((area) => area.area.type === "district")
       )
       .sort((a, b) => {
         let compareValues = getCompareValues(a, b);
         return compareValues.a.localeCompare(compareValues.b);
       });
-    const profilesAndOrganizationsWithDistrict =
-      filteredProfilesAndOrganizations
-        .filter((profileOrOrganization) =>
-          profileOrOrganization.areas.some(
-            (area) => area.area.type === "district"
-          )
-        )
-        .sort((a, b) => {
-          let compareValues = getCompareValues(a, b);
-          return compareValues.a.localeCompare(compareValues.b);
-        });
     // 3.
     const stateId = areaToFilter.stateId; // TypeScript reasons...
     if (areaToFilter.type === "country") {
-      sortedProfilesAndOrganizations = [
-        ...profilesAndOrganizationsWithCountry,
-        ...profilesAndOrganizationsWithState,
-        ...profilesAndOrganizationsWithDistrict,
+      sortedOrganizations = [
+        ...organizationsWithCountry,
+        ...organizationsWithState,
+        ...organizationsWithDistrict,
       ];
     }
     // 3.1.
     if (areaToFilter.type === "state") {
-      sortedProfilesAndOrganizations = [
-        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
-          profileOrOrganization.areas.some(
-            (area) => area.area.stateId === stateId
-          )
+      sortedOrganizations = [
+        ...organizationsWithState.filter((item) =>
+          item.areas.some((area) => area.area.stateId === stateId)
         ),
-        ...profilesAndOrganizationsWithDistrict.filter(
-          (profileOrOrganization) =>
-            profileOrOrganization.areas.some(
-              (area) => area.area.stateId === stateId
-            )
+        ...organizationsWithDistrict.filter((item) =>
+          item.areas.some((area) => area.area.stateId === stateId)
         ),
-        ...profilesAndOrganizationsWithCountry,
+        ...organizationsWithCountry,
       ];
     }
     if (areaToFilter.type === "district") {
-      sortedProfilesAndOrganizations = [
-        ...profilesAndOrganizationsWithDistrict.filter(
-          (profileOrOrganization) =>
-            profileOrOrganization.areas.some(
-              (area) => area.area.stateId === stateId
-            )
+      sortedOrganizations = [
+        ...organizationsWithDistrict.filter((item) =>
+          item.areas.some((area) => area.area.stateId === stateId)
         ),
-        ...profilesAndOrganizationsWithState.filter((profileOrOrganization) =>
-          profileOrOrganization.areas.some(
-            (area) => area.area.stateId === stateId
-          )
+        ...organizationsWithState.filter((item) =>
+          item.areas.some((area) => area.area.stateId === stateId)
         ),
-        ...profilesAndOrganizationsWithCountry,
+        ...organizationsWithCountry,
       ];
     }
     // 4.
-    const profilesAndOrganizationsSet = new Set(sortedProfilesAndOrganizations);
-    sortedProfilesAndOrganizations = Array.from(profilesAndOrganizationsSet);
+    const organizationsSet = new Set(sortedOrganizations);
+    sortedOrganizations = Array.from(organizationsSet);
   } else {
     // Sorting firstName alphabetical when no area filter is applied
-    sortedProfilesAndOrganizations = filteredProfiles.sort((a, b) =>
-      a.firstName.localeCompare(b.firstName)
+    sortedOrganizations = filteredOrganizations.sort((a, b) =>
+      a.name.localeCompare(b.name)
     );
   }
 
-  // Add avatars and logos
-  const profilesAndOrganizationsWithImages = sortedProfilesAndOrganizations.map(
-    (profileOrOrganization) => {
-      if ("username" in profileOrOrganization) {
-        let { avatar, ...rest } = profileOrOrganization;
+  // Add  logos
+  const organizationsWithImages = sortedOrganizations.map((item) => {
+    let { logo, ...rest } = item;
 
-        if (avatar !== null) {
-          const publicURL = getPublicURL(avatar);
-          if (publicURL !== null) {
-            avatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-            });
-          }
-        }
-
-        return { ...rest, avatar };
+    if (logo !== null) {
+      const publicURL = getPublicURL(logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+        });
       }
-
-      let { logo, ...rest } = profileOrOrganization;
-
-      if (logo !== null) {
-        const publicURL = getPublicURL(logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-          });
-        }
-      }
-
-      return { ...rest, logo };
     }
-  );
+
+    return { ...rest, logo };
+  });
 
   return {
     values,
-    profilesAndOrganizations: profilesAndOrganizationsWithImages,
+    organizations: organizationsWithImages,
   };
 });
 
 type ActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema> & {
-    profilesAndOrganizations: ProfilesAndOrganizations;
+    organizations: Organizations;
   }
 >;
 
@@ -372,10 +265,10 @@ export default function Index() {
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let profilesAndOrganizations = loaderData.profilesAndOrganizations;
+  let organizations = loaderData.organizations;
 
   if (actionData && actionData.success) {
-    profilesAndOrganizations = actionData.data.profilesAndOrganizations;
+    organizations = actionData.data.organizations;
   }
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
@@ -453,58 +346,7 @@ export default function Index() {
                       )}
                     </Field>
                   </div>
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="offerId"
-                      label="Filtern nach Angeboten:"
-                      className=""
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Ich suche
-                          </label>
-                          <select
-                            {...register("offerId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {loaderData.offers.map((offer, index) => (
-                              <option key={`offer-${index}`} value={offer.id}>
-                                {offer.title}
-                              </option>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="seekingId"
-                      label="Filtern nach Gesuchen:"
-                      className=""
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Ich möchte unterstützen mit
-                          </label>
-                          <select
-                            {...register("seekingId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {loaderData.offers.map((offer, index) => (
-                              <option key={`seeking-${index}`} value={offer.id}>
-                                {offer.title}
-                              </option>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
+
                   <Errors />
                 </div>
                 <div className="flex justify-end">
@@ -532,26 +374,19 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profilesAndOrganizations.length > 0 ? (
-            profilesAndOrganizations.map((profileOrOrganization, index) => {
+          {organizations.length > 0 ? (
+            organizations.map((item, index) => {
               let slug, image, imageType, initials, name, subtitle;
-              if ("username" in profileOrOrganization) {
-                slug = `/profile/${profileOrOrganization.username}`;
-                image = profileOrOrganization.avatar;
-                imageType = "avatar";
-                initials = getInitials(profileOrOrganization);
-                name = getFullName(profileOrOrganization);
-                subtitle = profileOrOrganization.position;
-              } else {
-                slug = `/organization/${profileOrOrganization.slug}`;
-                image = profileOrOrganization.logo;
-                imageType = "logo";
-                initials = getOrganizationInitials(profileOrOrganization.name);
-                name = profileOrOrganization.name;
-                subtitle = profileOrOrganization.types
-                  .map(({ organizationType }) => organizationType.title)
-                  .join(" / ");
-              }
+
+              slug = `/organization/${item.slug}`;
+              image = item.logo;
+              imageType = "logo";
+              initials = getOrganizationInitials(item.name);
+              name = item.name;
+              subtitle = item.types
+                .map(({ organizationType }) => organizationType.title)
+                .join(" / ");
+
               return (
                 <div
                   key={`profile-${index}`}
@@ -563,19 +398,10 @@ export default function Index() {
                     className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
                     <div className="w-full flex flex-row">
-                      {imageType === "avatar" && (
-                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                          {image !== null ? (
-                            <img src={image} alt="" />
-                          ) : (
-                            initials
-                          )}
-                        </div>
-                      )}
                       {imageType === "logo" && (
                         <>
                           {image !== null ? (
-                            <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center border">
                               <img
                                 className="max-w-full w-auto max-h-16 h-auto"
                                 src={image}
@@ -599,27 +425,24 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {profileOrOrganization.bio !== undefined && (
-                      <p className="mt-3 line-clamp-2">
-                        {profileOrOrganization.bio}
-                      </p>
+                    {item.bio !== undefined && (
+                      <p className="mt-3 line-clamp-2">{item.bio}</p>
                     )}
 
-                    {profileOrOrganization.areas !== undefined &&
-                      profileOrOrganization.areas.length > 0 && (
-                        <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
-                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                            Aktivitätsgebiete
-                          </div>
-                          <div className="flex-auto line-clamp-3">
-                            <span>
-                              {profileOrOrganization.areas
-                                .map((area) => area.area.name)
-                                .join(" / ")}
-                            </span>
-                          </div>
+                    {item.areas !== undefined && item.areas.length > 0 && (
+                      <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
+                        <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                          Aktivitätsgebiete
                         </div>
-                      )}
+                        <div className="flex-auto line-clamp-3">
+                          <span>
+                            {item.areas
+                              .map((area) => area.area.name)
+                              .join(" / ")}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </Link>
                 </div>
               );
