@@ -172,6 +172,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   }
 
+  if (mode !== "owner") {
+    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
+      return item.published;
+    });
+  }
+
   enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
     if (item.background !== null) {
       const publicURL = getPublicURL(item.background);
