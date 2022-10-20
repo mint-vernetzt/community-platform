@@ -361,6 +361,11 @@ function Index() {
               )}
             </>
           )}
+          {loaderData.mode !== "owner" && loaderData.event.canceled && (
+            <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white z-20">
+              Abgesagt
+            </div>
+          )}
           <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
             <div className="w-full h-full">
               {loaderData.event.background !== undefined && (
@@ -384,17 +389,19 @@ function Index() {
                 </div>
               ) : (
                 <>
-                  {loaderData.mode === "anon" && (
-                    <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
-                      <Link
-                        className="btn btn-outline btn-primary"
-                        to={`/login?event_slug=${loaderData.event.slug}`}
-                      >
-                        Anmelden um teilzunehmen
-                      </Link>
-                    </div>
-                  )}
+                  {loaderData.mode === "anon" &&
+                    loaderData.event.canceled === false && (
+                      <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                        <Link
+                          className="btn btn-outline btn-primary"
+                          to={`/login?event_slug=${loaderData.event.slug}`}
+                        >
+                          Anmelden um teilzunehmen
+                        </Link>
+                      </div>
+                    )}
                   {loaderData.mode !== "anon" &&
+                    loaderData.event.canceled === false &&
                     loaderData.event.childEvents.length === 0 && (
                       <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
                         {Form}
