@@ -702,7 +702,9 @@ function Index() {
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0">{profile.position}</p>
+                            <p className="text-sm m-0 line-clamp-2">
+                              {profile.position}
+                            </p>
                           </div>
                         </Link>
                       </div>
@@ -711,7 +713,6 @@ function Index() {
                 </div>
               </>
             )}
-
             {loaderData.event.childEvents.length > 0 && (
               <>
                 <h3 id="child-events" className="mt-16 mb-8 font-bold">
@@ -879,7 +880,7 @@ function Index() {
                                 " " +
                                 member.profile.lastName}
                             </h5>
-                            <p className="text-sm m-0">
+                            <p className="text-sm m-0 line-clamp-2">
                               {member.profile.position}
                             </p>
                           </div>
@@ -890,7 +891,6 @@ function Index() {
                 </div>
               </>
             )}
-
             {loaderData.event.responsibleOrganizations.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
@@ -923,7 +923,7 @@ function Index() {
                                 {item.organization.name}
                               </h5>
 
-                              <p className="text-sm m-0">
+                              <p className="text-sm m-0 line-clamp-2">
                                 {item.organization.types
                                   .map((item) => item.organizationType.title)
                                   .join(", ")}
@@ -971,7 +971,9 @@ function Index() {
                                   profile.firstName
                                 } ${profile.lastName}`.trimStart()}
                               </h5>
-                              <p className="text-sm m-0">{profile.position}</p>
+                              <p className="text-sm m-0 line-clamp-2">
+                                {profile.position}
+                              </p>
                             </div>
                           </Link>
                         </div>
