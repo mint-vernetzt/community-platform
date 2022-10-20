@@ -802,52 +802,57 @@ function Index() {
                         key={`child-event-${index}`}
                         className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
-                        <div className="w-40 shrink-0">
-                          {event.background !== undefined && (
-                            <img
-                              src={
-                                event.background ||
-                                "/images/default-event-background.jpg"
-                              }
-                              alt={event.name}
-                              className="cover w-full h-full"
-                            />
-                          )}
-                        </div>
-                        <Link className="px-4 py-6" to={`/event/${event.slug}`}>
-                          <p className="text-xs mb-1">
-                            {/* TODO: Display icons (see figma) */}
-                            {event.stage !== null && event.stage.title + " | "}
-                            {getDuration(startTime, endTime)}
-                            {event._count.childEvents === 0 && (
-                              <>
-                                {event.participantLimit === null
-                                  ? " | Unbegrenzte Plätze"
-                                  : ` | ${
-                                      event.participantLimit -
-                                      event._count.participants
-                                    } / ${event.participantLimit} Plätzen frei`}
-                              </>
+                        <Link className="flex" to={`/event/${event.slug}`}>
+                          <div className="w-40 shrink-0">
+                            {event.background !== undefined && (
+                              <img
+                                src={
+                                  event.background ||
+                                  "/images/default-event-background.jpg"
+                                }
+                                alt={event.name}
+                                className="object-cover w-full h-full"
+                              />
                             )}
-                            {event.participantLimit !== null &&
-                              event._count.participants >=
-                                event.participantLimit && (
+                          </div>
+                          <div className="px-4 py-6">
+                            <p className="text-xs mb-1">
+                              {/* TODO: Display icons (see figma) */}
+                              {event.stage !== null &&
+                                event.stage.title + " | "}
+                              {getDuration(startTime, endTime)}
+                              {event._count.childEvents === 0 && (
                                 <>
-                                  {" "}
-                                  |{" "}
-                                  <span>
-                                    {event._count.waitingList} auf der
-                                    Warteliste
-                                  </span>
+                                  {event.participantLimit === null
+                                    ? " | Unbegrenzte Plätze"
+                                    : ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${
+                                        event.participantLimit
+                                      } Plätzen frei`}
                                 </>
                               )}
-                          </p>
-                          <h4 className="font-bold text-base m-0 line-clamp-1">
-                            {event.name}
-                          </h4>
-                          {event.subline !== null && (
-                            <p className="text-xs mt-1">{event.subline}</p>
-                          )}
+                              {event.participantLimit !== null &&
+                                event._count.participants >=
+                                  event.participantLimit && (
+                                  <>
+                                    {" "}
+                                    |{" "}
+                                    <span>
+                                      {event._count.waitingList} auf der
+                                      Warteliste
+                                    </span>
+                                  </>
+                                )}
+                            </p>
+                            <h4 className="font-bold text-base m-0 line-clamp-1">
+                              {event.name}
+                            </h4>
+                            {event.subline !== null && (
+                              <p className="text-xs mt-1">{event.subline}</p>
+                            )}
+                          </div>
                         </Link>
 
                         {loaderData.mode === "owner" && !event.canceled && (
