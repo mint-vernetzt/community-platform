@@ -165,7 +165,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         where: teamMemberWhere,
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -210,7 +210,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -255,7 +255,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -300,7 +300,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
