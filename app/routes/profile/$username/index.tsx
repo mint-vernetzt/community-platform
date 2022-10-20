@@ -174,6 +174,62 @@ export const loader: LoaderFunction = async (
     throw notFound({ message: "Events not found" });
   }
 
+  profileEvents.teamMemberOfEvents = profileEvents.teamMemberOfEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.contributedEvents = profileEvents.contributedEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.participatedEvents = profileEvents.participatedEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.waitingForEvents = profileEvents.waitingForEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
   const combinedEvents = combineEventsSortChronologically<
     typeof profileEvents.participatedEvents,
     typeof profileEvents.waitingForEvents
