@@ -125,23 +125,27 @@ export async function getIsTeamMember(eventId: string, profileId?: string) {
   return result !== null;
 }
 
-export function addUserParticipationStatus<
+export async function addUserParticipationStatus<
   EventsType extends {
     event: Pick<Event, "id">;
   }[]
 >(events: EventsType, userId?: string) {
-  const result = events.map((item) => {
-    return {
-      event: {
-        ...item.event,
-        isParticipant: getIsParticipant(item.event.id, userId),
-        isOnWaitingList: getIsOnWaitingList(item.event.id, userId),
-        isTeamMember: getIsTeamMember(item.event.id, userId),
-        isSpeaker: getIsSpeaker(item.event.id, userId),
-      },
-    };
-  });
-  return result;
+  const result = await Promise.all(
+    events.map(async (item) => {
+      return {
+        event: {
+          ...item.event,
+          isParticipant: await getIsParticipant(item.event.id, userId),
+          isOnWaitingList: await getIsOnWaitingList(item.event.id, userId),
+          isTeamMember: await getIsTeamMember(item.event.id, userId),
+          isSpeaker: await getIsSpeaker(item.event.id, userId),
+        },
+      };
+    })
+  );
+  return result as Array<
+    ArrayElement<EventsType> & ArrayElement<typeof result>
+  >;
 }
 
 function reachedParticipateDeadline(event: Pick<Event, "participationUntil">) {
