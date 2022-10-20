@@ -62,3 +62,32 @@ export function getDuration(startTime: Date, endTime: Date) {
 
   return duration;
 }
+
+export function getFormattedDate(date: Date) {
+  const result = date.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  });
+  return result;
+}
+
+export function getTimeDuration(startTime: Date, endTime: Date) {
+  const sameTime = startTime.getTime() === endTime.getTime();
+  let result: string;
+  if (sameTime) {
+    result = `${startTime.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} Uhr`;
+  } else {
+    result = `${startTime.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} - ${endTime.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} Uhr`;
+  }
+  return result;
+}

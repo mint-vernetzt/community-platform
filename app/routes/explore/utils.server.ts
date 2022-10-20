@@ -72,3 +72,123 @@ export function getScoreOfEntity(entity: any) {
 
   return score;
 }
+
+export async function getEvents() {
+  const result = await prismaClient.event.findMany({
+    where: {
+      startTime: {
+        gte: new Date(),
+      },
+      published: true,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parentEventId: true,
+      startTime: true,
+      endTime: true,
+      participationUntil: true,
+      participantLimit: true,
+      background: true,
+      published: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      canceled: true,
+      subline: true,
+      description: true,
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          responsibleOrganizations: true,
+          waitingList: true,
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+  return result;
+}
+
+export type MaybeEnhancedEvents =
+  | Awaited<ReturnType<typeof getEvents>>
+  | Awaited<ReturnType<typeof enhanceEventsWithParticipationStatus>>;
+
+export async function enhanceEventsWithParticipationStatus(
+  currentUserId: string,
+  events: Awaited<ReturnType<typeof getEvents>>
+) {
+  const eventIdsWhereParticipant = (
+    await prismaClient.participantOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereOnWaitingList = (
+    await prismaClient.waitingParticipantOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereSpeaker = (
+    await prismaClient.speakerOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+  const eventIdsWhereTeamMember = (
+    await prismaClient.teamMemberOfEvent.findMany({
+      where: {
+        profileId: currentUserId,
+      },
+      select: {
+        eventId: true,
+      },
+    })
+  ).map((event) => event.eventId);
+
+  const enhancedEvents = events.map((item) => {
+    const isParticipant = eventIdsWhereParticipant.includes(item.id);
+    const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
+    const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
+    const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+
+    return {
+      ...item,
+      isParticipant,
+      isOnWaitingList,
+      isSpeaker,
+      isTeamMember,
+    };
+  });
+  return enhancedEvents;
+}
