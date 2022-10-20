@@ -440,12 +440,6 @@ function Index() {
                 </Link>
                 <Link
                   className="btn btn-primary ml-4"
-                  to={`/event/create/?child=${loaderData.event.id}`}
-                >
-                  Rahmenveranstaltung anlegen
-                </Link>
-                <Link
-                  className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
                   Subveranstaltung anlegen
