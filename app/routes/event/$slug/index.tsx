@@ -458,7 +458,8 @@ function Index() {
               ) : (
                 <>
                   {loaderData.mode === "anon" &&
-                    loaderData.event.canceled === false && (
+                    loaderData.event.canceled === false &&
+                    loaderData.event.childEvents.length === 0 && (
                       <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
                         <Link
                           className="btn btn-outline btn-primary"
