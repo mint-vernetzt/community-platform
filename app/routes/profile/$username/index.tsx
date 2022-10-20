@@ -307,7 +307,7 @@ export default function Index() {
   const avatar = loaderData.images.avatar;
   const Avatar = React.useCallback(
     () => (
-      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md overflow-hidden rounded-full">
+      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
         {avatar !== undefined ? <img src={avatar} alt={fullName} /> : initials}
       </div>
     ),

@@ -277,7 +277,7 @@ export default function Index() {
     () => (
       <>
         <div
-          className={`h-36 flex items-center justify-center rounded-full overflow-hidden ${
+          className={`h-36 flex items-center justify-center rounded-full overflow-hidden border ${
             logo ? "w-36" : "w-36 bg-primary text-white text-6xl"
           }`}
         >

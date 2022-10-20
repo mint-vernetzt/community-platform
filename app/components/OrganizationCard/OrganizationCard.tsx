@@ -26,7 +26,7 @@ function OrganizationCard(props: OrganizationCardProps) {
       >
         <div className="w-full flex items-center flex-row">
           {props.image !== "" && props.image !== null ? (
-            <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden">
+            <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
               <img
                 className="max-w-full w-auto max-h-16 h-auto"
                 src={props.image}
@@ -34,7 +34,7 @@ function OrganizationCard(props: OrganizationCardProps) {
               />
             </div>
           ) : (
-            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
               {getOrganizationInitials(props.name)}
             </div>
           )}
