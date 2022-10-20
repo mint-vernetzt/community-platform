@@ -172,6 +172,7 @@ export async function getOrganizationEvents(slug: string) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,

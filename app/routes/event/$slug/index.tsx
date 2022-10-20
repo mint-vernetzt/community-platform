@@ -523,13 +523,9 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              {loaderData.event.subline !== null ? (
+              {loaderData.event.subline !== null && (
                 <p className="font-bold text-xl mt-2">
                   {loaderData.event.subline}
-                </p>
-              ) : (
-                <p className="font-bold text-xl mt-2 line-clamp-2">
-                  {loaderData.event.description}
                 </p>
               )}
             </header>
@@ -855,8 +851,14 @@ function Index() {
                             <h4 className="font-bold text-base m-0 line-clamp-1">
                               {event.name}
                             </h4>
-                            {event.subline !== null && (
-                              <p className="text-xs mt-1">{event.subline}</p>
+                            {event.subline !== null ? (
+                              <p className="text-xs mt-1 line-clamp-2">
+                                {event.subline}
+                              </p>
+                            ) : (
+                              <p className="text-xs mt-1 line-clamp-2">
+                                {event.description}
+                              </p>
                             )}
                           </div>
                         </Link>

@@ -746,9 +746,13 @@ export default function Index() {
                                 <h4 className="font-bold text-base m-0 line-clamp-1">
                                   {event.name}
                                 </h4>
-                                {event.subline !== null && (
-                                  <p className="text-xs mt-1">
+                                {event.subline !== null ? (
+                                  <p className="text-xs mt-1 line-clamp-2">
                                     {event.subline}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs mt-1 line-clamp-2">
+                                    {event.description}
                                   </p>
                                 )}
                               </div>

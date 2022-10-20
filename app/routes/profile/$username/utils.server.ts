@@ -151,6 +151,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
@@ -189,6 +190,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
@@ -234,6 +236,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
@@ -279,6 +282,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
