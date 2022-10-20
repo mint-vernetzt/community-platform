@@ -688,7 +688,7 @@ export default function Index() {
                             return (
                               <div
                                 key={`child-event-${index}`}
-                                className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
                                   className="flex"
@@ -837,7 +837,7 @@ export default function Index() {
                             return (
                               <div
                                 key={`child-event-${index}`}
-                                className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
                                   className="flex"
@@ -969,7 +969,7 @@ export default function Index() {
                             return (
                               <div
                                 key={`child-event-${index}`}
-                                className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
                                   className="flex"
