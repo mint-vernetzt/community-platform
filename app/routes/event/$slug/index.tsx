@@ -181,10 +181,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     isTeamMember = await getIsTeamMember(enhancedEvent.id, currentUser.id);
   }
 
-  if (event.background !== null) {
-    const publicURL = getPublicURL(event.background);
+  if (enhancedEvent.background !== null) {
+    const publicURL = getPublicURL(enhancedEvent.background);
     if (publicURL) {
-      event.background = getImageURL(publicURL, {
+      enhancedEvent.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
       });
     }
@@ -208,8 +208,8 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     return item;
   });
 
-  event.responsibleOrganizations = event.responsibleOrganizations.map(
-    (item) => {
+  enhancedEvent.responsibleOrganizations =
+    enhancedEvent.responsibleOrganizations.map((item) => {
       if (item.organization.logo !== null) {
         const publicURL = getPublicURL(item.organization.logo);
         if (publicURL) {
@@ -219,8 +219,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
         }
       }
       return item;
-    }
-  );
+    });
 
   return {
     mode,
