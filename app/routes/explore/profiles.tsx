@@ -425,7 +425,7 @@ export default function Index() {
                       Filter anwenden
                     </button>
                   </noscript>
-                  <Link to={"/explore"} reloadDocument>
+                  <Link to={"./"} reloadDocument>
                     <div className="btn btn-primary">Filter zurücksetzen</div>
                   </Link>
                 </div>
