@@ -155,6 +155,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -192,6 +193,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -236,6 +238,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -280,6 +283,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
