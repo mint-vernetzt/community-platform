@@ -178,12 +178,15 @@ function NavBar(props: NavBarProps) {
                 {props.currentUserInfo.avatar === undefined ? (
                   <label
                     tabIndex={0}
-                    className="text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-md overflow-hidden"
+                    className="cursor-pointer text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-full overflow-hidden"
                   >
                     {props.currentUserInfo.initials}
                   </label>
                 ) : (
-                  <label tabIndex={0} className="w-10 h-10 rounded-md">
+                  <label
+                    tabIndex={0}
+                    className="cursor-pointer w-10 h-10 rounded-full"
+                  >
                     <img
                       src={props.currentUserInfo.avatar}
                       alt={props.currentUserInfo.initials}
