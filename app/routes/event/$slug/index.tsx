@@ -19,6 +19,7 @@ import {
 } from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getInitials } from "~/lib/profile/getInitials";
+import { nl2br } from "~/lib/string/nl2br";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
@@ -533,7 +534,12 @@ function Index() {
               )}
             </header>
             {loaderData.event.description && (
-              <p className="mb-6">{loaderData.event.description}</p>
+              <p
+                className="mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: nl2br(loaderData.event.description, true),
+                }}
+              />
             )}
 
             <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6">
