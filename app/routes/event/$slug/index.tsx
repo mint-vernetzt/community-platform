@@ -829,15 +829,18 @@ function Index() {
                                     } / ${event.participantLimit} Plätzen frei`}
                               </>
                             )}
-                            {event.participantLimitReached && (
-                              <>
-                                {" "}
-                                |{" "}
-                                <span>
-                                  {event._count.waitingList} auf der Warteliste
-                                </span>
-                              </>
-                            )}
+                            {event.participantLimit !== null &&
+                              event._count.participants >=
+                                event.participantLimit && (
+                                <>
+                                  {" "}
+                                  |{" "}
+                                  <span>
+                                    {event._count.waitingList} auf der
+                                    Warteliste
+                                  </span>
+                                </>
+                              )}
                           </p>
                           <h4 className="font-bold text-base m-0 line-clamp-1">
                             {event.name}
