@@ -455,9 +455,13 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              {loaderData.event.subline !== null && (
+              {loaderData.event.subline !== null ? (
                 <p className="font-bold text-xl mt-2">
                   {loaderData.event.subline}
+                </p>
+              ) : (
+                <p className="font-bold text-xl mt-2 line-clamp-2">
+                  {loaderData.event.description}
                 </p>
               )}
             </header>
@@ -934,45 +938,48 @@ function Index() {
               </>
             )}
 
-            {loaderData.event.participants !== null && (
-              <>
-                <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {loaderData.event.participants.map((participant) => {
-                    const { profile } = participant;
-                    return (
-                      <div key={profile.username}>
-                        <Link
-                          className="flex flex-row"
-                          to={`/profile/${profile.username}`}
-                        >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                            {profile.avatar !== null &&
-                            profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={profile.firstName + " " + profile.lastName}
-                              />
-                            ) : (
-                              getInitials(profile)
-                            )}
-                          </div>
+            {loaderData.event.participants !== null &&
+              loaderData.event.participants.length > 0 && (
+                <>
+                  <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    {loaderData.event.participants.map((participant) => {
+                      const { profile } = participant;
+                      return (
+                        <div key={profile.username}>
+                          <Link
+                            className="flex flex-row"
+                            to={`/profile/${profile.username}`}
+                          >
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                              {profile.avatar !== null &&
+                              profile.avatar !== "" ? (
+                                <img
+                                  src={profile.avatar}
+                                  alt={
+                                    profile.firstName + " " + profile.lastName
+                                  }
+                                />
+                              ) : (
+                                getInitials(profile)
+                              )}
+                            </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
-                              {`${profile.academicTitle || ""} ${
-                                profile.firstName
-                              } ${profile.lastName}`.trimStart()}
-                            </h5>
-                            <p className="text-sm m-0">{profile.position}</p>
-                          </div>
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                            <div className="pl-4">
+                              <h5 className="text-sm m-0 font-bold">
+                                {`${profile.academicTitle || ""} ${
+                                  profile.firstName
+                                } ${profile.lastName}`.trimStart()}
+                              </h5>
+                              <p className="text-sm m-0">{profile.position}</p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
           </div>
         </div>
       </div>
