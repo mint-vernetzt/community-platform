@@ -25,7 +25,6 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
-import { ArrayElement } from "~/lib/utils/types";
 import { getProfileByUsername } from "~/profile.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { getPublicURL } from "~/storage.server";
@@ -43,6 +42,57 @@ export function links() {
   ];
 }
 
+// Type helper to extract return type of generic function with specific type as argument
+const getEnhancedTeamMemberOfEvents = async (
+  events: NonNullable<
+    Awaited<ReturnType<typeof getProfileEventsByMode>>
+  >["teamMemberOfEvents"],
+  userId: string
+) =>
+  await addUserParticipationStatus<
+    NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["teamMemberOfEvents"]
+  >(events, userId);
+
+const getEnhancedContributedEvents = async (
+  events: NonNullable<
+    Awaited<ReturnType<typeof getProfileEventsByMode>>
+  >["contributedEvents"],
+  userId: string
+) =>
+  await addUserParticipationStatus<
+    NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["contributedEvents"]
+  >(events, userId);
+
+const getCombinedEvents = (
+  events: NonNullable<
+    Awaited<ReturnType<typeof getProfileEventsByMode>>
+  >["participatedEvents"],
+  eventsToAdd: NonNullable<
+    Awaited<ReturnType<typeof getProfileEventsByMode>>
+  >["waitingForEvents"]
+) =>
+  combineEventsSortChronologically<
+    NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["participatedEvents"],
+    NonNullable<
+      Awaited<ReturnType<typeof getProfileEventsByMode>>
+    >["waitingForEvents"]
+  >(events, eventsToAdd);
+
+const getEnhancedParticipatedEvents = async (
+  events: ReturnType<typeof getCombinedEvents>,
+  userId: string
+) =>
+  await addUserParticipationStatus<ReturnType<typeof getCombinedEvents>>(
+    events,
+    userId
+  );
+
 type ProfileLoaderData = {
   mode: Mode;
   data: NonNullable<Awaited<ReturnType<typeof filterProfileByMode>>>;
@@ -52,59 +102,12 @@ type ProfileLoaderData = {
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   events: {
-    teamMemberOfEvents: Array<
-      ArrayElement<
-        NonNullable<
-          Awaited<ReturnType<typeof getProfileEventsByMode>>
-        >["teamMemberOfEvents"]
-      > & {
-        event: {
-          isParticipant: boolean;
-          isOnWaitingList: boolean;
-          isTeamMember: boolean;
-          isSpeaker: boolean;
-        };
-      }
+    teamMemberOfEvents: Awaited<
+      ReturnType<typeof getEnhancedTeamMemberOfEvents>
     >;
-    contributedEvents: Array<
-      ArrayElement<
-        NonNullable<
-          Awaited<ReturnType<typeof getProfileEventsByMode>>
-        >["contributedEvents"]
-      > & {
-        event: {
-          isParticipant: boolean;
-          isOnWaitingList: boolean;
-          isTeamMember: boolean;
-          isSpeaker: boolean;
-        };
-      }
-    >;
-    participatedEvents: Array<
-      | (ArrayElement<
-          NonNullable<
-            Awaited<ReturnType<typeof getProfileEventsByMode>>
-          >["participatedEvents"]
-        > & {
-          event: {
-            isParticipant: boolean;
-            isOnWaitingList: boolean;
-            isTeamMember: boolean;
-            isSpeaker: boolean;
-          };
-        })
-      | (ArrayElement<
-          NonNullable<
-            Awaited<ReturnType<typeof getProfileEventsByMode>>
-          >["waitingForEvents"]
-        > & {
-          event: {
-            isParticipant: boolean;
-            isOnWaitingList: boolean;
-            isTeamMember: boolean;
-            isSpeaker: boolean;
-          };
-        })
+    contributedEvents: Awaited<ReturnType<typeof getEnhancedContributedEvents>>;
+    participatedEvents: Awaited<
+      ReturnType<typeof getEnhancedParticipatedEvents>
     >;
   };
   userId?: string;
@@ -171,22 +174,75 @@ export const loader: LoaderFunction = async (
     throw notFound({ message: "Events not found" });
   }
 
+  profileEvents.teamMemberOfEvents = profileEvents.teamMemberOfEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.contributedEvents = profileEvents.contributedEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.participatedEvents = profileEvents.participatedEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
+  profileEvents.waitingForEvents = profileEvents.waitingForEvents.map(
+    (item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    }
+  );
+
   const combinedEvents = combineEventsSortChronologically<
     typeof profileEvents.participatedEvents,
     typeof profileEvents.waitingForEvents
   >(profileEvents.participatedEvents, profileEvents.waitingForEvents);
 
-  // TODO: Generic type returns wrong type
   const enhancedEvents = {
-    teamMemberOfEvents: addUserParticipationStatus(
-      profileEvents.teamMemberOfEvents,
-      sessionUser?.id
-    ),
-    contributedEvents: addUserParticipationStatus(
-      profileEvents.contributedEvents,
-      sessionUser?.id
-    ),
-    participatedEvents: addUserParticipationStatus(
+    teamMemberOfEvents: await addUserParticipationStatus<
+      typeof profileEvents.teamMemberOfEvents
+    >(profileEvents.teamMemberOfEvents, sessionUser?.id),
+    contributedEvents: await addUserParticipationStatus<
+      typeof profileEvents.contributedEvents
+    >(profileEvents.contributedEvents, sessionUser?.id),
+    participatedEvents: await addUserParticipationStatus<typeof combinedEvents>(
       combinedEvents,
       sessionUser?.id
     ),
@@ -623,6 +679,7 @@ export default function Index() {
                         ({ event }, index) => {
                           const startTime = new Date(event.startTime);
                           const endTime = new Date(event.endTime);
+
                           return (
                             <div
                               key={`profile-${index}`}
