@@ -1,5 +1,5 @@
 import { GravityType } from "imgproxy/dist/types";
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { Link, LoaderFunction, MetaFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,12 @@ type LoaderData = {
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
   // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
+};
+
+export const meta: MetaFunction = (args) => {
+  return {
+    title: `MINTvernetzt Community Plattform | ${args.data.event.name}`,
+  };
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {

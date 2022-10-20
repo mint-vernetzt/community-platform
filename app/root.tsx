@@ -28,7 +28,7 @@ import { supabaseClient } from "./supabase";
 import { createCSRFToken } from "./utils.server";
 
 export const meta: MetaFunction = () => {
-  return { title: "MINTvernetzt Community Plattform (Preview)" };
+  return { title: "MINTvernetzt Community Plattform" };
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
