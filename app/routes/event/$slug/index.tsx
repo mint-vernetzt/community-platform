@@ -406,8 +406,14 @@ function Index() {
                 <>
                   <div className="bg-accent-300 p-8">
                     <p className="font-bold text-center">
-                      Wähle Sub-Veranstaltungen aus, an denen Du teilnehmen
-                      möchtest.
+                      Wähle{" "}
+                      <a
+                        href="#child-events"
+                        className="underline hover:no-underline"
+                      >
+                        Subveranstaltungen
+                      </a>{" "}
+                      aus, an denen Du teilnehmen möchtest.
                     </p>
                   </div>
                 </>
@@ -703,7 +709,9 @@ function Index() {
 
             {loaderData.event.childEvents.length > 0 && (
               <>
-                <h3 className="mt-16 mb-8 font-bold">Subveranstaltungen</h3>
+                <h3 id="child-events" className="mt-16 mb-8 font-bold">
+                  Subveranstaltungen
+                </h3>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event, index) => {
                     const startTime = new Date(event.startTime);
