@@ -684,7 +684,7 @@ function Index() {
                           className="flex flex-row"
                           to={`/profile/${profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
                               <img
@@ -858,7 +858,7 @@ function Index() {
                           className="flex flex-row"
                           to={`/profile/${member.profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {member.profile.avatar !== null &&
                             member.profile.avatar !== "" ? (
                               <img
@@ -905,7 +905,7 @@ function Index() {
                           >
                             {item.organization.logo !== null &&
                             item.organization.logo !== "" ? (
-                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                                 <img
                                   src={item.organization.logo}
                                   alt={item.organization.name}
@@ -951,7 +951,7 @@ function Index() {
                             className="flex flex-row"
                             to={`/profile/${profile.username}`}
                           >
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                               {profile.avatar !== null &&
                               profile.avatar !== "" ? (
                                 <img
