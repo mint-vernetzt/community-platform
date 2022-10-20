@@ -151,10 +151,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -164,7 +166,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         where: teamMemberWhere,
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -188,10 +190,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -208,7 +212,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -232,10 +236,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -252,7 +258,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },
@@ -276,10 +282,12 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
               },
               canceled: true,
               subline: true,
+              description: true,
               _count: {
                 select: {
                   childEvents: true,
                   participants: true,
+                  waitingList: true,
                 },
               },
               background: true,
@@ -296,7 +304,7 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
         },
         orderBy: {
           event: {
-            startTime: "desc",
+            startTime: "asc",
           },
         },
       },

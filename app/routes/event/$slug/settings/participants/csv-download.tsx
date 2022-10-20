@@ -84,7 +84,11 @@ function createCsvString(
   let csv = "";
 
   for (const profile of profiles) {
-    csv += `${profile.firstName},${profile.lastName},${profile.email}\n`;
+    if ("profile" in profile) {
+      csv += `${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email}\n`;
+    } else {
+      csv += `${profile.firstName},${profile.lastName},${profile.email}\n`;
+    }
   }
 
   return csv;

@@ -143,6 +143,15 @@ export async function getOrganizationBySlug(slug: string) {
           },
         },
       },
+    },
+  });
+
+  return organization;
+}
+
+export async function getOrganizationEvents(slug: string) {
+  const organizationEvents = await prismaClient.organization.findFirst({
+    select: {
       responsibleForEvents: {
         select: {
           event: {
@@ -150,16 +159,52 @@ export async function getOrganizationBySlug(slug: string) {
               id: true,
               name: true,
               slug: true,
-              parentEventId: true,
               published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              description: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                  waitingList: true,
+                },
+              },
+              background: true,
             },
+          },
+        },
+        where: {
+          event: {
+            startTime: {
+              gte: new Date(),
+            },
+            published: true,
+          },
+        },
+        orderBy: {
+          event: {
+            startTime: "asc",
           },
         },
       },
     },
+    where: {
+      slug,
+    },
   });
 
-  return organization;
+  return organizationEvents;
 }
 
 export async function getOrganizationMembersBySlug(slug: string) {

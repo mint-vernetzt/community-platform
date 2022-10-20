@@ -6,23 +6,30 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
-import { getRootEvents } from "~/lib/event/utils";
+import {
+  addUserParticipationStatus,
+  canUserBeAddedToWaitingList,
+  canUserParticipate,
+} from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
+  getOrganizationEvents,
   OrganizationWithRelations,
 } from "~/organization.server";
+import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
+import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 
 export function links() {
@@ -31,6 +38,19 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+const getEnhancedResponsibleForEvents = async (
+  events: NonNullable<
+    Awaited<ReturnType<typeof getOrganizationEvents>>
+  >["responsibleForEvents"],
+  userId: string
+) =>
+  await addUserParticipationStatus<
+    NonNullable<
+      Awaited<ReturnType<typeof getOrganizationEvents>>
+    >["responsibleForEvents"]
+  >(events, userId);
+
 type LoaderData = {
   organization: Partial<
     NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
@@ -41,6 +61,13 @@ type LoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+  events: {
+    responsibleForEvents: Awaited<
+      ReturnType<typeof getEnhancedResponsibleForEvents>
+    >;
+  };
+  userId?: string;
+  userEmail?: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -49,7 +76,7 @@ export const loader: LoaderFunction = async (args) => {
   if (slug === undefined || slug === "") {
     throw badRequest({ message: "organization slug must be provided" });
   }
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getUserByRequest(request);
 
   const abilities = await getFeatureAbilities(request, "events");
 
@@ -129,7 +156,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
-  if (currentUser === null) {
+  if (sessionUser === null) {
     let key: keyof Partial<
       NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
     >;
@@ -163,21 +190,42 @@ export const loader: LoaderFunction = async (args) => {
   } else {
     organization = unfilteredOrganization;
     userIsPrivileged = unfilteredOrganization.teamMembers.some(
-      (member) => member.profileId === currentUser.id && member.isPrivileged
+      (member) => member.profileId === sessionUser.id && member.isPrivileged
     );
   }
 
-  if (organization.responsibleForEvents !== undefined) {
-    organization.responsibleForEvents = await getRootEvents(
-      organization.responsibleForEvents
-    );
+  const organizationEvents = await getOrganizationEvents(slug);
+  if (organizationEvents === null) {
+    throw notFound({ message: "Events not found" });
   }
+
+  organizationEvents.responsibleForEvents =
+    organizationEvents.responsibleForEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  const enhancedEvents = {
+    responsibleForEvents: await addUserParticipationStatus<
+      typeof organizationEvents.responsibleForEvents
+    >(organizationEvents.responsibleForEvents, sessionUser?.id),
+  };
 
   return {
     organization,
     userIsPrivileged,
     images,
     abilities,
+    events: enhancedEvents,
+    userId: sessionUser?.id,
+    userEmail: sessionUser?.email,
   };
 };
 
@@ -229,7 +277,7 @@ export default function Index() {
     () => (
       <>
         <div
-          className={`h-36 flex items-center justify-center rounded-full overflow-hidden ${
+          className={`h-36 flex items-center justify-center rounded-full overflow-hidden border ${
             logo ? "w-36" : "w-36 bg-primary text-white text-6xl"
           }`}
         >
@@ -636,38 +684,131 @@ export default function Index() {
                 </>
               )}
             {loaderData.abilities.events.hasAccess === true &&
-              loaderData.organization.responsibleForEvents &&
-              loaderData.organization.responsibleForEvents.length > 0 && (
+              loaderData.events.responsibleForEvents.length > 0 && (
                 <>
-                  <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
-                    <div className="flex-auto pr-4">
-                      <h3 className="mb-0 font-bold">
-                        Organisierte Veranstaltungen
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.organization.responsibleForEvents.map(
-                      ({ event }, index) => (
-                        <div
-                          key={`profile-${index}`}
-                          data-testid="gridcell"
-                          className="flex-100 lg:flex-1/2 px-3 mb-8"
-                        >
-                          <Link
-                            to={`/event/${event.slug}`}
-                            className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                  <h3 id="team-member-events" className="mt-16 mb-8 font-bold">
+                    Organisierte Veranstaltungen
+                  </h3>
+                  <div className="mb-16">
+                    {loaderData.events.responsibleForEvents.map(
+                      ({ event }, index) => {
+                        const startTime = new Date(event.startTime);
+                        const endTime = new Date(event.endTime);
+                        return (
+                          <div
+                            key={`child-event-${index}`}
+                            className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                           >
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                <H3 like="h4" className="text-xl mb-1">
-                                  {event.name}
-                                </H3>
+                            <Link className="flex" to={`/event/${event.slug}`}>
+                              <div className="w-40 shrink-0">
+                                {event.background !== undefined && (
+                                  <img
+                                    src={
+                                      event.background ||
+                                      "/images/default-event-background.jpg"
+                                    }
+                                    alt={event.name}
+                                    className="object-cover w-full h-full"
+                                  />
+                                )}
                               </div>
-                            </div>
-                          </Link>
-                        </div>
-                      )
+                              <div className="px-4 py-6">
+                                <p className="text-xs mb-1">
+                                  {/* TODO: Display icons (see figma) */}
+                                  {event.stage !== null &&
+                                    event.stage.title + " | "}
+                                  {getDuration(startTime, endTime)}
+                                  {event._count.childEvents === 0 && (
+                                    <>
+                                      {event.participantLimit === null
+                                        ? " | Unbegrenzte Plätze"
+                                        : ` | ${
+                                            event.participantLimit -
+                                            event._count.participants
+                                          } / ${
+                                            event.participantLimit
+                                          } Plätzen frei`}
+                                    </>
+                                  )}
+                                  {event.participantLimit !== null &&
+                                    event._count.participants >=
+                                      event.participantLimit && (
+                                      <>
+                                        {" "}
+                                        |{" "}
+                                        <span>
+                                          {event._count.waitingList} auf der
+                                          Warteliste
+                                        </span>
+                                      </>
+                                    )}
+                                </p>
+                                <h4 className="font-bold text-base m-0 line-clamp-1">
+                                  {event.name}
+                                </h4>
+                                {event.subline !== null ? (
+                                  <p className="text-xs mt-1 line-clamp-2">
+                                    {event.subline}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs mt-1 line-clamp-2">
+                                    {event.description}
+                                  </p>
+                                )}
+                              </div>
+                            </Link>
+                            {event.canceled && (
+                              <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                Abgesagt
+                              </div>
+                            )}
+                            {event.isParticipant && !event.canceled && (
+                              <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                <p>Angemeldet</p>
+                              </div>
+                            )}
+                            {canUserParticipate(event) && (
+                              <div className="flex items-center ml-auto pr-4 py-6">
+                                <AddParticipantButton
+                                  action={`/event/${event.slug}/settings/participants/add-participant`}
+                                  userId={loaderData.userId}
+                                  eventId={event.id}
+                                  email={loaderData.userEmail}
+                                />
+                              </div>
+                            )}
+                            {event.isOnWaitingList && !event.canceled && (
+                              <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                                <p>Wartend</p>
+                              </div>
+                            )}
+                            {canUserBeAddedToWaitingList(event) && (
+                              <div className="flex items-center ml-auto pr-4 py-6">
+                                <AddToWaitingListButton
+                                  action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                  userId={loaderData.userId}
+                                  eventId={event.id}
+                                  email={loaderData.userEmail}
+                                />
+                              </div>
+                            )}
+                            {!event.isParticipant &&
+                              !canUserParticipate(event) &&
+                              !event.isOnWaitingList &&
+                              !canUserBeAddedToWaitingList(event) &&
+                              !event.canceled && (
+                                <div className="flex items-center ml-auto pr-4 py-6">
+                                  <Link
+                                    to={`/event/${event.slug}`}
+                                    className="btn btn-primary"
+                                  >
+                                    Mehr erfahren
+                                  </Link>
+                                </div>
+                              )}
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </>
