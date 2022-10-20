@@ -554,8 +554,9 @@ function Index() {
                       "ohne Beschränkung"
                     ) : (
                       <>
-                        {loaderData.event._count.participants} /{" "}
-                        {loaderData.event.participantLimit}
+                        {loaderData.event.participantLimit -
+                          loaderData.event._count.participants}{" "}
+                        / {loaderData.event.participantLimit}
                       </>
                     )}
                   </div>
