@@ -849,7 +849,7 @@ function Index() {
                                 to={`/event/${event.slug}`}
                                 className="btn btn-primary"
                               >
-                                Mehr erfahren...
+                                Mehr erfahren
                               </Link>
                             </div>
                           )}
