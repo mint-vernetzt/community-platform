@@ -563,7 +563,7 @@ function Index() {
                 )}
               </div>
 
-              {loaderData.event.conferenceLink && (
+              {loaderData.mode !== "anon" && loaderData.event.conferenceLink && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div>
@@ -578,7 +578,7 @@ function Index() {
                 </>
               )}
 
-              {loaderData.event.conferenceCode && (
+              {loaderData.mode !== "anon" && loaderData.event.conferenceCode && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div>{loaderData.event.conferenceCode}</div>
@@ -626,51 +626,56 @@ function Index() {
                 </>
               )}
 
-              <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
-              <div>
-                <Link
-                  className="btn btn-outline btn-primary btn-small"
-                  to="ics-download"
-                  reloadDocument
-                >
-                  Download
-                </Link>
-              </div>
-
-              {loaderData.event.documents.length > 0 && (
+              {loaderData.mode !== "anon" && (
                 <>
-                  <div className="text-xs leading-6">Downloads</div>
+                  <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div>
-                    {loaderData.event.documents.map((item, index) => {
-                      return (
-                        <div key={`document-${index}`} className="">
-                          <Link
-                            className="underline hover:no-underline"
-                            to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
-                            reloadDocument
-                          >
-                            {item.document.title || item.document.filename}
-                          </Link>
-                          {item.document.description && (
-                            <p className="text-sm italic">
-                              {item.document.description}
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
-                    {loaderData.event.documents.length > 1 && (
-                      <Link
-                        className="btn btn-outline btn-primary btn-small mt-4"
-                        to={`/event/${loaderData.event.slug}/documents-download`}
-                        reloadDocument
-                      >
-                        Alle Herunterladen
-                      </Link>
-                    )}
+                    <Link
+                      className="btn btn-outline btn-primary btn-small"
+                      to="ics-download"
+                      reloadDocument
+                    >
+                      Download
+                    </Link>
                   </div>
                 </>
               )}
+
+              {loaderData.mode !== "anon" &&
+                loaderData.event.documents.length > 0 && (
+                  <>
+                    <div className="text-xs leading-6">Downloads</div>
+                    <div>
+                      {loaderData.event.documents.map((item, index) => {
+                        return (
+                          <div key={`document-${index}`} className="">
+                            <Link
+                              className="underline hover:no-underline"
+                              to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
+                              reloadDocument
+                            >
+                              {item.document.title || item.document.filename}
+                            </Link>
+                            {item.document.description && (
+                              <p className="text-sm italic">
+                                {item.document.description}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {loaderData.event.documents.length > 1 && (
+                        <Link
+                          className="btn btn-outline btn-primary btn-small mt-4"
+                          to={`/event/${loaderData.event.slug}/documents-download`}
+                          reloadDocument
+                        >
+                          Alle Herunterladen
+                        </Link>
+                      )}
+                    </div>
+                  </>
+                )}
 
               {loaderData.event.focuses.length > 0 && (
                 <>
