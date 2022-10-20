@@ -3,7 +3,6 @@ import { H3 } from "../Heading/Heading";
 
 export interface ProfileCardProps {
   id: string;
-  profile: string;
   link: string;
   name: string;
   initials: string;

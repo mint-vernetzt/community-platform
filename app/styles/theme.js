@@ -1,6 +1,6 @@
 const colors = {
-  "beige-500": "#efe8e6",
-  "beige-300": "#f7f3f2",
+  "beige-100": "#f7f3f2",
+  "beige-300": "#efe8e6",
   "blue-500": "#154194",
   "blue-400": "#1b54c0",
   "blue-300": "#2d6be1",
@@ -50,6 +50,8 @@ const extendedColors = {
   danger: colors["salmon-500"],
   "danger-500": colors["salmon-500"],
   "danger-300": colors["salmon-300"],
+  accent: colors["beige-300"],
+  "accent-300": colors["beige-300"],
 };
 
 const fontSizes = {
