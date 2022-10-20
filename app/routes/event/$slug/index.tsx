@@ -604,9 +604,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.focuses.map((item, index) => {
                       return (
-                        <button key={`focus-${index}`} className="badge">
+                        <div key={`focus-${index}`} className="badge">
                           {item.focus.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -619,9 +619,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.targetGroups.map((item, index) => {
                       return (
-                        <button key={`targetGroups-${index}`} className="badge">
+                        <div key={`targetGroups-${index}`} className="badge">
                           {item.targetGroup.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -634,9 +634,9 @@ function Index() {
                     Erfahrunsglevel
                   </div>
                   <div className="event-tags -m-1">
-                    <button className="badge">
+                    <div className="badge">
                       {loaderData.event.experienceLevel.title}
-                    </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -647,9 +647,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.tags.map((item, index) => {
                       return (
-                        <button key={`tags-${index}`} className="badge">
+                        <div key={`tags-${index}`} className="badge">
                           {item.tag.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -662,9 +662,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.areas.map((item, index) => {
                       return (
-                        <button key={`areas-${index}`} className="badge">
+                        <div key={`areas-${index}`} className="badge">
                           {item.area.name}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
