@@ -690,7 +690,7 @@ function General() {
               defaultValue={event.description || ""}
               label="Beschreibung"
               errorMessage={errors?.description?.message}
-              maxCharacters={500}
+              maxCharacters={1000}
             />
           </div>
           <div className="mb-4">

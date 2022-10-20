@@ -1,10 +1,11 @@
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
-import { Link, LoaderFunction, useLoaderData } from "remix";
-import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import { Link, LoaderFunction, MetaFunction, useLoaderData } from "remix";
+import { badRequest, forbidden, notFound } from "remix-utils";
+import { getUserByRequest } from "~/auth.server";
+import { useNavigate } from "react-router-dom";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -47,6 +48,12 @@ type LoaderData = {
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
   // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
+};
+
+export const meta: MetaFunction = (args) => {
+  return {
+    title: `MINTvernetzt Community Plattform | ${args.data.event.name}`,
+  };
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -174,6 +181,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   }
 
+  if (mode !== "owner") {
+    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
+      return item.published;
+    });
+  }
+
   enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
     if (item.background !== null) {
       const publicURL = getPublicURL(item.background);
@@ -278,6 +291,8 @@ function formatDateTime(date: Date) {
 function Index() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const navigate = useNavigate();
+
   const reachedParticipationDeadline =
     new Date() > new Date(loaderData.event.participationUntil);
 
@@ -323,7 +338,7 @@ function Index() {
                   viewBox="0 0 16 16"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
                   />
                 </svg>
@@ -333,7 +348,8 @@ function Index() {
           {loaderData.event.name}
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
-          <a href="#" className="flex items-center">
+          {/* TODO: get back route from loader */}
+          <button onClick={() => navigate(-1)} className="flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -343,38 +359,17 @@ function Index() {
               viewBox="0 0 16 16"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
               />
             </svg>
             <span className="ml-2">zurück</span>
-          </a>
+          </button>
         </div>
       </section>
       <section className="hidden md:block container mt-6">
         <div className="rounded-3xl overflow-hidden w-full relative">
-          {loaderData.mode === "owner" && (
-            <>
-              {loaderData.event.canceled ? (
-                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white z-20">
-                  Abgesagt
-                </div>
-              ) : (
-                <>
-                  {loaderData.event.published ? (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white z-20">
-                      Veröffentlicht
-                    </div>
-                  ) : (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white z-20">
-                      Entwurf
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
+          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
             <div className="w-full h-full">
               {loaderData.event.background !== undefined && (
                 <img
@@ -417,6 +412,32 @@ function Index() {
               </div>
             )}
           </div>
+          {loaderData.mode === "owner" && (
+            <>
+              {loaderData.event.canceled ? (
+                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+                  Abgesagt
+                </div>
+              ) : (
+                <>
+                  {loaderData.event.published ? (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
+                      Veröffentlicht
+                    </div>
+                  ) : (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
+                      Entwurf
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          {loaderData.mode !== "owner" && loaderData.event.canceled && (
+            <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+              Abgesagt
+            </div>
+          )}
           {loaderData.mode !== "owner" && (
             <>
               {reachedParticipationDeadline ? (
@@ -427,17 +448,19 @@ function Index() {
                 </div>
               ) : (
                 <>
-                  {loaderData.mode === "anon" && (
-                    <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
-                      <Link
-                        className="btn btn-outline btn-primary"
-                        to={`/login?event_slug=${loaderData.event.slug}`}
-                      >
-                        Anmelden um teilzunehmen
-                      </Link>
-                    </div>
-                  )}
+                  {loaderData.mode === "anon" &&
+                    loaderData.event.canceled === false && (
+                      <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                        <Link
+                          className="btn btn-outline btn-primary"
+                          to={`/login?event_slug=${loaderData.event.slug}`}
+                        >
+                          Anmelden um teilzunehmen
+                        </Link>
+                      </div>
+                    )}
                   {loaderData.mode !== "anon" &&
+                    loaderData.event.canceled === false &&
                     loaderData.event.childEvents.length === 0 && (
                       <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
                         {Form}
@@ -449,8 +472,14 @@ function Index() {
                 <>
                   <div className="bg-accent-300 p-8">
                     <p className="font-bold text-center">
-                      Wähle Sub-Veranstaltungen aus, an denen Du teilnehmen
-                      möchtest.
+                      Wähle{" "}
+                      <a
+                        href="#child-events"
+                        className="underline hover:no-underline"
+                      >
+                        Subveranstaltungen
+                      </a>{" "}
+                      aus, an denen Du teilnehmen möchtest.
                     </p>
                   </div>
                 </>
@@ -470,12 +499,6 @@ function Index() {
                 </Link>
                 <Link
                   className="btn btn-primary ml-4"
-                  to={`/event/create/?child=${loaderData.event.id}`}
-                >
-                  Rahmenveranstaltung anlegen
-                </Link>
-                <Link
-                  className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
                   Subveranstaltung anlegen
@@ -491,9 +514,13 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              {loaderData.event.subline !== null && (
+              {loaderData.event.subline !== null ? (
                 <p className="font-bold text-xl mt-2">
                   {loaderData.event.subline}
+                </p>
+              ) : (
+                <p className="font-bold text-xl mt-2 line-clamp-2">
+                  {loaderData.event.description}
                 </p>
               )}
             </header>
@@ -580,8 +607,9 @@ function Index() {
                       "ohne Beschränkung"
                     ) : (
                       <>
-                        {loaderData.event._count.participants} /{" "}
-                        {loaderData.event.participantLimit}
+                        {loaderData.event.participantLimit -
+                          loaderData.event._count.participants}{" "}
+                        / {loaderData.event.participantLimit}
                       </>
                     )}
                   </div>
@@ -614,18 +642,22 @@ function Index() {
                             {item.document.title || item.document.filename}
                           </Link>
                           {item.document.description && (
-                            <p> - {item.document.description}</p>
+                            <p className="text-sm italic">
+                              {item.document.description}
+                            </p>
                           )}
                         </div>
                       );
                     })}
-                    <Link
-                      className="btn btn-outline btn-primary btn-small mt-4"
-                      to={`/event/${loaderData.event.slug}/documents-download`}
-                      reloadDocument
-                    >
-                      Alle Herunterladen
-                    </Link>
+                    {loaderData.event.documents.length > 1 && (
+                      <Link
+                        className="btn btn-outline btn-primary btn-small mt-4"
+                        to={`/event/${loaderData.event.slug}/documents-download`}
+                        reloadDocument
+                      >
+                        Alle Herunterladen
+                      </Link>
+                    )}
                   </div>
                 </>
               )}
@@ -636,9 +668,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.focuses.map((item, index) => {
                       return (
-                        <button key={`focus-${index}`} className="badge">
+                        <div key={`focus-${index}`} className="badge">
                           {item.focus.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -651,9 +683,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.targetGroups.map((item, index) => {
                       return (
-                        <button key={`targetGroups-${index}`} className="badge">
+                        <div key={`targetGroups-${index}`} className="badge">
                           {item.targetGroup.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -666,9 +698,9 @@ function Index() {
                     Erfahrunsglevel
                   </div>
                   <div className="event-tags -m-1">
-                    <button className="badge">
+                    <div className="badge">
                       {loaderData.event.experienceLevel.title}
-                    </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -679,9 +711,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.tags.map((item, index) => {
                       return (
-                        <button key={`tags-${index}`} className="badge">
+                        <div key={`tags-${index}`} className="badge">
                           {item.tag.title}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -694,9 +726,9 @@ function Index() {
                   <div className="event-tags -m-1">
                     {loaderData.event.areas.map((item, index) => {
                       return (
-                        <button key={`areas-${index}`} className="badge">
+                        <div key={`areas-${index}`} className="badge">
                           {item.area.name}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -704,49 +736,55 @@ function Index() {
               )}
             </div>
 
-            {loaderData.event.speakers !== null && (
-              <>
-                <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                <div className="grid grid-cols-3 gap-4 mb-16">
-                  {loaderData.event.speakers.map((speaker) => {
-                    const { profile } = speaker;
-                    return (
-                      <div key={profile.username}>
-                        <Link
-                          className="flex flex-row"
-                          to={`/profile/${profile.username}`}
-                        >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                            {profile.avatar !== null &&
-                            profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={profile.firstName + " " + profile.lastName}
-                              />
-                            ) : (
-                              getInitials(profile)
-                            )}
-                          </div>
+            {loaderData.event.speakers !== null &&
+              loaderData.event.speakers.length > 0 && (
+                <>
+                  <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
+                  <div className="grid grid-cols-3 gap-4 mb-16">
+                    {loaderData.event.speakers.map((speaker) => {
+                      const { profile } = speaker;
+                      return (
+                        <div key={profile.username}>
+                          <Link
+                            className="flex flex-row"
+                            to={`/profile/${profile.username}`}
+                          >
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              {profile.avatar !== null &&
+                              profile.avatar !== "" ? (
+                                <img
+                                  src={profile.avatar}
+                                  alt={
+                                    profile.firstName + " " + profile.lastName
+                                  }
+                                />
+                              ) : (
+                                getInitials(profile)
+                              )}
+                            </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
-                              {`${profile.academicTitle || ""} ${
-                                profile.firstName
-                              } ${profile.lastName}`.trimStart()}
-                            </h5>
-                            <p className="text-sm m-0">{profile.position}</p>
-                          </div>
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-
+                            <div className="pl-4">
+                              <h5 className="text-sm m-0 font-bold">
+                                {`${profile.academicTitle || ""} ${
+                                  profile.firstName
+                                } ${profile.lastName}`.trimStart()}
+                              </h5>
+                              <p className="text-sm m-0 line-clamp-2">
+                                {profile.position}
+                              </p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             {loaderData.event.childEvents.length > 0 && (
               <>
-                <h3 className="mt-16 mb-8 font-bold">Subveranstaltungen</h3>
+                <h3 id="child-events" className="mt-16 mb-8 font-bold">
+                  Subveranstaltungen
+                </h3>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event, index) => {
                     const startTime = new Date(event.startTime);
@@ -793,7 +831,7 @@ function Index() {
                               </>
                             )}
                           </p>
-                          <h4 className="font-bold text-base m-0">
+                          <h4 className="font-bold text-base m-0 line-clamp-1">
                             {event.name}
                           </h4>
                           {event.subline !== null && (
@@ -865,7 +903,7 @@ function Index() {
                                 to={`/event/${event.slug}`}
                                 className="btn btn-primary"
                               >
-                                Mehr erfahren...
+                                Mehr erfahren
                               </Link>
                             </div>
                           )}
@@ -887,7 +925,7 @@ function Index() {
                           className="flex flex-row"
                           to={`/profile/${member.profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {member.profile.avatar !== null &&
                             member.profile.avatar !== "" ? (
                               <img
@@ -909,7 +947,7 @@ function Index() {
                                 " " +
                                 member.profile.lastName}
                             </h5>
-                            <p className="text-sm m-0">
+                            <p className="text-sm m-0 line-clamp-2">
                               {member.profile.position}
                             </p>
                           </div>
@@ -920,7 +958,6 @@ function Index() {
                 </div>
               </>
             )}
-
             {loaderData.event.responsibleOrganizations.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
@@ -935,7 +972,7 @@ function Index() {
                           >
                             {item.organization.logo !== null &&
                             item.organization.logo !== "" ? (
-                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                                 <img
                                   src={item.organization.logo}
                                   alt={item.organization.name}
@@ -953,7 +990,7 @@ function Index() {
                                 {item.organization.name}
                               </h5>
 
-                              <p className="text-sm m-0">
+                              <p className="text-sm m-0 line-clamp-2">
                                 {item.organization.types
                                   .map((item) => item.organizationType.title)
                                   .join(", ")}
@@ -968,45 +1005,50 @@ function Index() {
               </>
             )}
 
-            {loaderData.event.participants !== null && (
-              <>
-                <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {loaderData.event.participants.map((participant) => {
-                    const { profile } = participant;
-                    return (
-                      <div key={profile.username}>
-                        <Link
-                          className="flex flex-row"
-                          to={`/profile/${profile.username}`}
-                        >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                            {profile.avatar !== null &&
-                            profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={profile.firstName + " " + profile.lastName}
-                              />
-                            ) : (
-                              getInitials(profile)
-                            )}
-                          </div>
+            {loaderData.event.participants !== null &&
+              loaderData.event.participants.length > 0 && (
+                <>
+                  <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    {loaderData.event.participants.map((participant) => {
+                      const { profile } = participant;
+                      return (
+                        <div key={profile.username}>
+                          <Link
+                            className="flex flex-row"
+                            to={`/profile/${profile.username}`}
+                          >
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              {profile.avatar !== null &&
+                              profile.avatar !== "" ? (
+                                <img
+                                  src={profile.avatar}
+                                  alt={
+                                    profile.firstName + " " + profile.lastName
+                                  }
+                                />
+                              ) : (
+                                getInitials(profile)
+                              )}
+                            </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
-                              {`${profile.academicTitle || ""} ${
-                                profile.firstName
-                              } ${profile.lastName}`.trimStart()}
-                            </h5>
-                            <p className="text-sm m-0">{profile.position}</p>
-                          </div>
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                            <div className="pl-4">
+                              <h5 className="text-sm m-0 font-bold">
+                                {`${profile.academicTitle || ""} ${
+                                  profile.firstName
+                                } ${profile.lastName}`.trimStart()}
+                              </h5>
+                              <p className="text-sm m-0 line-clamp-2">
+                                {profile.position}
+                              </p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
           </div>
         </div>
       </div>
