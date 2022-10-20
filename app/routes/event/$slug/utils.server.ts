@@ -549,7 +549,7 @@ export async function getEvent(slug: string) {
           },
         },
         orderBy: {
-          startTime: "desc",
+          startTime: "asc",
         },
       },
       documents: {
