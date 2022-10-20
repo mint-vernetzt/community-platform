@@ -678,7 +678,7 @@ function General() {
               {...register("subline")}
               id="subline"
               defaultValue={event.subline || ""}
-              label="Kurzbeschreibung"
+              label="Subline"
               errorMessage={errors?.subline?.message}
               maxCharacters={70}
             />
