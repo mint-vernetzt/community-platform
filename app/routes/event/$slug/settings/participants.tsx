@@ -10,7 +10,10 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
+import {
+  getEventBySlugOrThrow,
+  getFullDepthParticipants,
+} from "../utils.server";
 import { addParticipantSchema } from "./participants/add-participant";
 import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
 import { moveToParticipantsSchema } from "./participants/move-to-participants";
@@ -26,6 +29,7 @@ type LoaderData = {
   userId: string;
   eventId: string;
   participantLimit: number | null;
+  hasFullDepthParticipants: boolean;
 } & ReturnType<typeof getParticipantsDataFromEvent>;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -40,11 +44,15 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   const { participantLimit } = event;
 
+  const fullDepthParticipants = await getFullDepthParticipants(event.id);
+
   return {
     userId: currentUser.id,
     eventId: event.id,
     ...participantsData,
     participantLimit,
+    hasFullDepthParticipants:
+      fullDepthParticipants !== null && fullDepthParticipants.length > 0,
   };
 };
 
@@ -190,23 +198,22 @@ function Participants() {
           </div>
         )}
         {loaderData.participants.length > 0 && (
-          <>
-            <Link
-              className="btn btn-outline btn-primary mt-4"
-              to="csv-download?type=participants&amp;depth=single"
-              reloadDocument
-            >
-              Teilnehmerliste als .csv herunterladen
-            </Link>
-            <Link
-              className="btn btn-outline btn-primary mt-4"
-              to="csv-download?type=participants&amp;depth=full"
-              reloadDocument
-            >
-              Teilnehmerliste inklusive Subveranstaltungen als .csv
-              herunterladen
-            </Link>
-          </>
+          <Link
+            className="btn btn-outline btn-primary mt-4"
+            to="csv-download?type=participants&amp;depth=single"
+            reloadDocument
+          >
+            Teilnehmerliste als .csv herunterladen
+          </Link>
+        )}
+        {loaderData.hasFullDepthParticipants && (
+          <Link
+            className="btn btn-outline btn-primary mt-4"
+            to="csv-download?type=participants&amp;depth=full"
+            reloadDocument
+          >
+            Teilnehmerliste inklusive Subveranstaltungen als .csv herunterladen
+          </Link>
         )}
       </div>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
