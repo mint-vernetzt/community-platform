@@ -19,6 +19,7 @@ import {
 } from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getInitials } from "~/lib/profile/getInitials";
+import { nl2br } from "~/lib/string/nl2br";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
@@ -457,7 +458,8 @@ function Index() {
               ) : (
                 <>
                   {loaderData.mode === "anon" &&
-                    loaderData.event.canceled === false && (
+                    loaderData.event.canceled === false &&
+                    loaderData.event.childEvents.length === 0 && (
                       <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
                         <Link
                           className="btn btn-outline btn-primary"
@@ -522,18 +524,19 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              {loaderData.event.subline !== null ? (
+              {loaderData.event.subline !== null && (
                 <p className="font-bold text-xl mt-2">
                   {loaderData.event.subline}
-                </p>
-              ) : (
-                <p className="font-bold text-xl mt-2 line-clamp-2">
-                  {loaderData.event.description}
                 </p>
               )}
             </header>
             {loaderData.event.description && (
-              <p className="mb-6">{loaderData.event.description}</p>
+              <p
+                className="mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: nl2br(loaderData.event.description, true),
+                }}
+              />
             )}
 
             <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6">
@@ -561,7 +564,7 @@ function Index() {
                 )}
               </div>
 
-              {loaderData.event.conferenceLink && (
+              {loaderData.mode !== "anon" && loaderData.event.conferenceLink && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div>
@@ -576,7 +579,7 @@ function Index() {
                 </>
               )}
 
-              {loaderData.event.conferenceCode && (
+              {loaderData.mode !== "anon" && loaderData.event.conferenceCode && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div>{loaderData.event.conferenceCode}</div>
@@ -624,51 +627,56 @@ function Index() {
                 </>
               )}
 
-              <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
-              <div>
-                <Link
-                  className="btn btn-outline btn-primary btn-small"
-                  to="ics-download"
-                  reloadDocument
-                >
-                  Download
-                </Link>
-              </div>
-
-              {loaderData.event.documents.length > 0 && (
+              {loaderData.mode !== "anon" && (
                 <>
-                  <div className="text-xs leading-6">Downloads</div>
+                  <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div>
-                    {loaderData.event.documents.map((item, index) => {
-                      return (
-                        <div key={`document-${index}`} className="">
-                          <Link
-                            className="underline hover:no-underline"
-                            to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
-                            reloadDocument
-                          >
-                            {item.document.title || item.document.filename}
-                          </Link>
-                          {item.document.description && (
-                            <p className="text-sm italic">
-                              {item.document.description}
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
-                    {loaderData.event.documents.length > 1 && (
-                      <Link
-                        className="btn btn-outline btn-primary btn-small mt-4"
-                        to={`/event/${loaderData.event.slug}/documents-download`}
-                        reloadDocument
-                      >
-                        Alle Herunterladen
-                      </Link>
-                    )}
+                    <Link
+                      className="btn btn-outline btn-primary btn-small"
+                      to="ics-download"
+                      reloadDocument
+                    >
+                      Download
+                    </Link>
                   </div>
                 </>
               )}
+
+              {loaderData.mode !== "anon" &&
+                loaderData.event.documents.length > 0 && (
+                  <>
+                    <div className="text-xs leading-6">Downloads</div>
+                    <div>
+                      {loaderData.event.documents.map((item, index) => {
+                        return (
+                          <div key={`document-${index}`} className="">
+                            <Link
+                              className="underline hover:no-underline"
+                              to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
+                              reloadDocument
+                            >
+                              {item.document.title || item.document.filename}
+                            </Link>
+                            {item.document.description && (
+                              <p className="text-sm italic">
+                                {item.document.description}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {loaderData.event.documents.length > 1 && (
+                        <Link
+                          className="btn btn-outline btn-primary btn-small mt-4"
+                          to={`/event/${loaderData.event.slug}/documents-download`}
+                          reloadDocument
+                        >
+                          Alle Herunterladen
+                        </Link>
+                      )}
+                    </div>
+                  </>
+                )}
 
               {loaderData.event.focuses.length > 0 && (
                 <>
@@ -800,7 +808,7 @@ function Index() {
                     return (
                       <div
                         key={`child-event-${index}`}
-                        className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                        className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
                         <Link className="flex" to={`/event/${event.slug}`}>
                           <div className="w-40 shrink-0">
@@ -849,8 +857,14 @@ function Index() {
                             <h4 className="font-bold text-base m-0 line-clamp-1">
                               {event.name}
                             </h4>
-                            {event.subline !== null && (
-                              <p className="text-xs mt-1">{event.subline}</p>
+                            {event.subline !== null ? (
+                              <p className="text-xs mt-1 line-clamp-2">
+                                {event.subline}
+                              </p>
+                            ) : (
+                              <p className="text-xs mt-1 line-clamp-2">
+                                {event.description}
+                              </p>
                             )}
                           </div>
                         </Link>

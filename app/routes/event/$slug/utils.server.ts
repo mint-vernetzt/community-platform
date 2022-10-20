@@ -525,6 +525,7 @@ export async function getEvent(slug: string) {
         select: {
           id: true,
           name: true,
+          description: true,
           slug: true,
           startTime: true,
           endTime: true,
