@@ -582,18 +582,22 @@ function Index() {
                             {item.document.title || item.document.filename}
                           </Link>
                           {item.document.description && (
-                            <p> - {item.document.description}</p>
+                            <p className="text-sm italic">
+                              {item.document.description}
+                            </p>
                           )}
                         </div>
                       );
                     })}
-                    <Link
-                      className="btn btn-outline btn-primary btn-small mt-4"
-                      to={`/event/${loaderData.event.slug}/documents-download`}
-                      reloadDocument
-                    >
-                      Alle Herunterladen
-                    </Link>
+                    {loaderData.event.documents.length > 1 && (
+                      <Link
+                        className="btn btn-outline btn-primary btn-small mt-4"
+                        to={`/event/${loaderData.event.slug}/documents-download`}
+                        reloadDocument
+                      >
+                        Alle Herunterladen
+                      </Link>
+                    )}
                   </div>
                 </>
               )}
@@ -672,47 +676,50 @@ function Index() {
               )}
             </div>
 
-            {loaderData.event.speakers !== null && (
-              <>
-                <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                <div className="grid grid-cols-3 gap-4 mb-16">
-                  {loaderData.event.speakers.map((speaker) => {
-                    const { profile } = speaker;
-                    return (
-                      <div key={profile.username}>
-                        <Link
-                          className="flex flex-row"
-                          to={`/profile/${profile.username}`}
-                        >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                            {profile.avatar !== null &&
-                            profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={profile.firstName + " " + profile.lastName}
-                              />
-                            ) : (
-                              getInitials(profile)
-                            )}
-                          </div>
+            {loaderData.event.speakers !== null &&
+              loaderData.event.speakers.length > 0 && (
+                <>
+                  <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
+                  <div className="grid grid-cols-3 gap-4 mb-16">
+                    {loaderData.event.speakers.map((speaker) => {
+                      const { profile } = speaker;
+                      return (
+                        <div key={profile.username}>
+                          <Link
+                            className="flex flex-row"
+                            to={`/profile/${profile.username}`}
+                          >
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              {profile.avatar !== null &&
+                              profile.avatar !== "" ? (
+                                <img
+                                  src={profile.avatar}
+                                  alt={
+                                    profile.firstName + " " + profile.lastName
+                                  }
+                                />
+                              ) : (
+                                getInitials(profile)
+                              )}
+                            </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
-                              {`${profile.academicTitle || ""} ${
-                                profile.firstName
-                              } ${profile.lastName}`.trimStart()}
-                            </h5>
-                            <p className="text-sm m-0 line-clamp-2">
-                              {profile.position}
-                            </p>
-                          </div>
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                            <div className="pl-4">
+                              <h5 className="text-sm m-0 font-bold">
+                                {`${profile.academicTitle || ""} ${
+                                  profile.firstName
+                                } ${profile.lastName}`.trimStart()}
+                              </h5>
+                              <p className="text-sm m-0 line-clamp-2">
+                                {profile.position}
+                              </p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             {loaderData.event.childEvents.length > 0 && (
               <>
                 <h3 id="child-events" className="mt-16 mb-8 font-bold">
