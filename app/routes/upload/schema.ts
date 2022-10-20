@@ -3,7 +3,7 @@ import { z } from "zod";
 export const uploadKeys = ["avatar", "background", "logo", "document"];
 const uploadKey = z.enum(["avatar", "background", "logo", "document"]);
 
-const subject = z.enum(["user", "organisation"]);
+const subject = z.enum(["user", "organization", "event"]);
 export type UploadKey = z.infer<typeof uploadKey>;
 export type Subject = z.infer<typeof subject>;
 
@@ -16,6 +16,5 @@ export const schema = z.object({
 });
 
 export const environment = z.object({
-  profileId: z.string().min(1),
-  request: z.unknown(),
+  request: z.instanceof(Request),
 });

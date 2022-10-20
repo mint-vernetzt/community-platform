@@ -17,11 +17,23 @@ export async function removeImageFromProfile(
   });
 }
 
-export async function removeImageFromOrganitaion(
+export async function removeImageFromOrganization(
   slug: string,
   name: UploadKey
 ) {
   return await prismaClient.organization.update({
+    where: {
+      slug,
+    },
+    data: {
+      [name]: null,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function removeImageFromEvent(slug: string, name: UploadKey) {
+  return await prismaClient.event.update({
     where: {
       slug,
     },
