@@ -777,7 +777,7 @@ function Index() {
                               </>
                             )}
                           </p>
-                          <h4 className="font-bold text-base m-0">
+                          <h4 className="font-bold text-base m-0 line-clamp-1">
                             {event.name}
                           </h4>
                           {event.subline !== null && (
