@@ -5,6 +5,7 @@ import { getUserByRequest } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -289,9 +290,14 @@ function Index() {
     <>
       <section className="container md:mt-2">
         <div className="font-semi text-neutral-500 flex items-center mb-4">
-          <a href="/explore">Veranstaltungen</a>
           {loaderData.event.parentEvent !== null && (
             <>
+              <Link
+                className=""
+                to={`/event/${loaderData.event.parentEvent.slug}`}
+              >
+                {loaderData.event.parentEvent.name}
+              </Link>
               <span className="mx-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -306,14 +312,9 @@ function Index() {
                   />
                 </svg>
               </span>
-              <Link
-                className=""
-                to={`/event/${loaderData.event.parentEvent.slug}`}
-              >
-                {loaderData.event.parentEvent.name}
-              </Link>
             </>
           )}
+          {loaderData.event.name}
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
           <a href="#" className="flex items-center">
@@ -335,8 +336,29 @@ function Index() {
         </div>
       </section>
       <section className="hidden md:block container mt-6">
-        <div className="rounded-3xl overflow-hidden w-full">
-          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
+        <div className="rounded-3xl overflow-hidden w-full relative">
+          {loaderData.mode === "owner" && (
+            <>
+              {loaderData.event.canceled ? (
+                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white z-20">
+                  Abgesagt
+                </div>
+              ) : (
+                <>
+                  {loaderData.event.published ? (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white z-20">
+                      Veröffentlicht
+                    </div>
+                  ) : (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white z-20">
+                      Entwurf
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
             <div className="w-full h-full">
               {loaderData.event.background !== undefined && (
                 <img
@@ -391,28 +413,30 @@ function Index() {
           )}
         </div>
         {loaderData.mode === "owner" && (
-          <div className="bg-accent-white p-8 pb-0">
-            <p className="font-bold text-right">
-              <Link
-                className="btn btn-outline btn-primary ml-4"
-                to={`/event/${loaderData.event.slug}/settings`}
-              >
-                Veranstaltung bearbeiten
-              </Link>
-              <Link
-                className="btn btn-primary ml-4"
-                to={`/event/create/?child=${loaderData.event.id}`}
-              >
-                Rahmenveranstaltung anlegen
-              </Link>
-              <Link
-                className="btn btn-primary ml-4"
-                to={`/event/create/?parent=${loaderData.event.id}`}
-              >
-                Subveranstaltung anlegen
-              </Link>
-            </p>
-          </div>
+          <>
+            <div className="bg-accent-white p-8 pb-0">
+              <p className="font-bold text-right">
+                <Link
+                  className="btn btn-outline btn-primary ml-4"
+                  to={`/event/${loaderData.event.slug}/settings`}
+                >
+                  Veranstaltung bearbeiten
+                </Link>
+                <Link
+                  className="btn btn-primary ml-4"
+                  to={`/event/create/?child=${loaderData.event.id}`}
+                >
+                  Rahmenveranstaltung anlegen
+                </Link>
+                <Link
+                  className="btn btn-primary ml-4"
+                  to={`/event/create/?parent=${loaderData.event.id}`}
+                >
+                  Subveranstaltung anlegen
+                </Link>
+              </p>
+            </div>
+          </>
         )}
       </section>
       <div className="container relative pt-20 pb-44">
@@ -421,9 +445,11 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              <p className="font-bold text-xl mt-2">
-                Subheader noch nicht implementiert.
-              </p>
+              {loaderData.event.subline !== null && (
+                <p className="font-bold text-xl mt-2">
+                  {loaderData.event.subline}
+                </p>
+              )}
             </header>
             {loaderData.event.description && (
               <p className="mb-6">{loaderData.event.description}</p>
@@ -557,382 +583,229 @@ function Index() {
                   </div>
                 </>
               )}
-            </div>
 
-            <div className="event-tags mt-6 -mx-1">
-              {loaderData.event.focuses.map((item, index) => {
-                return (
-                  <button key={`focus-${index}`} className="badge">
-                    {item.focus.title}
-                  </button>
-                );
-              })}
-              {loaderData.event.targetGroups.map((item, index) => {
-                return (
-                  <button key={`target-groups-${index}`} className="badge">
-                    {item.targetGroup.title}
-                  </button>
-                );
-              })}
-
-              {loaderData.event.tags.map((item, index) => {
-                return (
-                  <button key={`tags-${index}`} className="badge">
-                    {item.tag.title}
-                  </button>
-                );
-              })}
-              {loaderData.event.areas.map((item, index) => {
-                return (
-                  <button key={`areas-${index}`} className="badge">
-                    {item.area.name}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6 mt-6">
-              {loaderData.event.teamMembers.length > 0 && (
+              {loaderData.event.focuses.length > 0 && (
                 <>
-                  <div className="text-xs leading-6">Team</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {loaderData.event.teamMembers.map((member, index) => {
+                  <div className="text-xs leading-5 pt-[7px]">Schwerpunkte</div>
+                  <div className="event-tags -m-1">
+                    {loaderData.event.focuses.map((item, index) => {
                       return (
-                        <div key={`team-member-${index}`}>
-                          <Link
-                            className="flex flex-row"
-                            to={`/profile/${member.profile.username}`}
-                          >
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                              {member.profile.avatar !== null &&
-                              member.profile.avatar !== "" ? (
-                                <img
-                                  src={member.profile.avatar}
-                                  alt={
-                                    member.profile.firstName +
-                                    " " +
-                                    member.profile.lastName
-                                  }
-                                />
-                              ) : (
-                                getInitials(member.profile)
-                              )}
-                            </div>
-
-                            <div className="pl-4">
-                              <h5 className="text-sm m-0 font-bold">
-                                {member.profile.firstName +
-                                  " " +
-                                  member.profile.lastName}
-                              </h5>
-                              <p className="text-sm m-0">
-                                {member.profile.position}
-                              </p>
-                            </div>
-                          </Link>
-                        </div>
+                        <button key={`focus-${index}`} className="badge">
+                          {item.focus.title}
+                        </button>
                       );
                     })}
                   </div>
                 </>
               )}
 
-              {loaderData.event.speakers !== null && (
+              {loaderData.event.targetGroups.length > 0 && (
                 <>
-                  <div className="text-xs leading-6">Speaker:innen</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {loaderData.event.speakers.map((speaker) => {
-                      const { profile } = speaker;
+                  <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
+                  <div className="event-tags -m-1">
+                    {loaderData.event.targetGroups.map((item, index) => {
                       return (
-                        <div key={profile.username}>
-                          <Link
-                            className="flex flex-row"
-                            to={`/profile/${profile.username}`}
-                          >
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                              {profile.avatar !== null &&
-                              profile.avatar !== "" ? (
-                                <img
-                                  src={profile.avatar}
-                                  alt={
-                                    profile.firstName + " " + profile.lastName
-                                  }
-                                />
-                              ) : (
-                                getInitials(profile)
-                              )}
-                            </div>
+                        <button key={`targetGroups-${index}`} className="badge">
+                          {item.targetGroup.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
-                            <div className="pl-4">
-                              <h5 className="text-sm m-0 font-bold">
-                                {`${profile.academicTitle || ""} ${
-                                  profile.firstName
-                                } ${profile.lastName}`.trimStart()}
-                              </h5>
-                              <p className="text-sm m-0">{profile.position}</p>
-                            </div>
-                          </Link>
-                        </div>
+              {loaderData.event.experienceLevel && (
+                <>
+                  <div className="text-xs leading-5 pt-[7px]">
+                    Erfahrunsglevel
+                  </div>
+                  <div className="event-tags -m-1">
+                    <button className="badge">
+                      {loaderData.event.experienceLevel.title}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {loaderData.event.tags.length > 0 && (
+                <>
+                  <div className="text-xs leading-5 pt-[7px]">Tags</div>
+                  <div className="event-tags -m-1">
+                    {loaderData.event.tags.map((item, index) => {
+                      return (
+                        <button key={`tags-${index}`} className="badge">
+                          {item.tag.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {loaderData.event.areas.length > 0 && (
+                <>
+                  <div className="text-xs leading-5 pt-[7px]">Gebiete</div>
+                  <div className="event-tags -m-1">
+                    {loaderData.event.areas.map((item, index) => {
+                      return (
+                        <button key={`areas-${index}`} className="badge">
+                          {item.area.name}
+                        </button>
                       );
                     })}
                   </div>
                 </>
               )}
             </div>
+
+            {loaderData.event.speakers !== null && (
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
+                <div className="grid grid-cols-3 gap-4 mb-16">
+                  {loaderData.event.speakers.map((speaker) => {
+                    const { profile } = speaker;
+                    return (
+                      <div key={profile.username}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/profile/${profile.username}`}
+                        >
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            {profile.avatar !== null &&
+                            profile.avatar !== "" ? (
+                              <img
+                                src={profile.avatar}
+                                alt={profile.firstName + " " + profile.lastName}
+                              />
+                            ) : (
+                              getInitials(profile)
+                            )}
+                          </div>
+
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {`${profile.academicTitle || ""} ${
+                                profile.firstName
+                              } ${profile.lastName}`.trimStart()}
+                            </h5>
+                            <p className="text-sm m-0">{profile.position}</p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
 
             {loaderData.event.childEvents.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Subveranstaltungen</h3>
                 <div className="mb-16">
-                  {loaderData.event.childEvents.map((childEvent, index) => {
-                    const hasChildEvents = childEvent._count.childEvents > 0;
-                    const hasLimit = childEvent.participantLimit !== null;
-                    const isAnon = loaderData.userId === undefined;
-                    let isParticipant = false;
-                    let isOnWaitingList = false;
-                    if ("isParticipant" in childEvent) {
-                      isParticipant = childEvent.isParticipant;
-                      isOnWaitingList = childEvent.isOnWaitingList;
-                    }
-                    const limitReached =
-                      childEvent.participantLimit !== null
-                        ? childEvent.participantLimit <=
-                          childEvent._count.participants
-                        : false;
-
-                    let freeSpaces =
-                      childEvent.participantLimit -
-                      childEvent._count.participants;
-
-                    const childStartTime = new Date(childEvent.startTime);
-                    const childEndTime = new Date(childEvent.endTime);
-
-                    const childDuration = getDuration(
-                      childStartTime,
-                      childEndTime
-                    );
+                  {loaderData.event.childEvents.map((event, index) => {
+                    const startTime = new Date(event.startTime);
+                    const endTime = new Date(event.endTime);
                     return (
                       <div
                         key={`child-event-${index}`}
                         className="rounded-lg bg-white shadow-xl border border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
                         <div className="w-40 shrink-0">
-                          {childEvent.background !== undefined && (
+                          {event.background !== undefined && (
                             <img
                               src={
-                                childEvent.background ||
+                                event.background ||
                                 "/images/default-event-background.jpg"
                               }
-                              alt={childEvent.name}
+                              alt={event.name}
                               className="cover w-full h-full"
                             />
                           )}
                         </div>
-                        <Link
-                          className="px-4 py-6"
-                          to={`/event/${childEvent.slug}`}
-                        >
+                        <Link className="px-4 py-6" to={`/event/${event.slug}`}>
                           <p className="text-xs mb-1">
-                            {hasChildEvents && <span>{childDuration}</span>}
-                            {!hasChildEvents && (
-                              <span>
-                                Ausgabe: Startdatum | Start Uhrzeit - Ende
-                                Uhrzeit
-                              </span>
-                            )}
-                            {hasLimit && !limitReached && (
+                            {/* TODO: Display icons (see figma) */}
+                            {event.stage !== null && event.stage.title + " | "}
+                            {getDuration(startTime, endTime)}
+                            {event._count.childEvents === 0 && (
                               <>
-                                {" "}
-                                |{" "}
-                                <span>
-                                  {freeSpaces} / {childEvent.participantLimit}{" "}
-                                  Plätzen frei
-                                </span>
+                                {event.participantLimit === null
+                                  ? " | Unbegrenzte Plätze"
+                                  : ` | ${
+                                      event.participantLimit -
+                                      event._count.participants
+                                    } / ${event.participantLimit} Plätzen frei`}
                               </>
                             )}
-                            {limitReached && (
+                            {event.participantLimitReached && (
                               <>
                                 {" "}
                                 |{" "}
                                 <span>
-                                  {childEvent._count.waitingList} auf der
-                                  Warteliste
+                                  {event._count.waitingList} auf der Warteliste
                                 </span>
                               </>
                             )}
                           </p>
                           <h4 className="font-bold text-base m-0">
-                            {childEvent.name}
+                            {event.name}
                           </h4>
-                          <p className="text-xs mt-1">
-                            Subheader noch nicht implementiert.
-                          </p>
+                          {event.subline !== null && (
+                            <p className="text-xs mt-1">{event.subline}</p>
+                          )}
                         </Link>
-                        {!hasChildEvents && isAnon && (
-                          <div className="flex item-center ml-auto">
-                            <Link
-                              className="btn btn-primary"
-                              to={`/login?event_slug=${childEvent.slug}`}
-                            >
-                              Anmelden
-                            </Link>
-                          </div>
-                        )}
-                        {!hasChildEvents && isParticipant && (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                            <p>Angemeldet</p>
-                          </div>
-                        )}
-                        {!hasChildEvents && isOnWaitingList && (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                            <p>Wartend</p>
-                          </div>
-                        )}
-                        {!hasChildEvents &&
-                          (!hasLimit || (hasLimit && !limitReached)) &&
-                          !isParticipant && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <AddParticipantButton
-                                action={`/event/${childEvent.slug}/settings/participants/add-participant`}
-                                userId={loaderData.userId}
-                                eventId={childEvent.id}
-                                email={loaderData.email}
-                              />
-                            </div>
-                          )}
-                        {!hasChildEvents &&
-                          hasLimit &&
-                          limitReached &&
-                          !isOnWaitingList &&
-                          !isParticipant && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <AddToWaitingListButton
-                                action={`/event/${childEvent.slug}/settings/participants/add-to-waiting-list`}
-                                userId={loaderData.userId}
-                                eventId={childEvent.id}
-                                email={loaderData.email}
-                              />
-                            </div>
-                          )}
-                      </div>
-                    );
-                  })}
-                  {/* Unstyled child events with logic */}
-                  {loaderData.event.childEvents.map((event, index) => {
-                    const startTime = new Date(event.startTime);
-                    const endTime = new Date(event.endTime);
-                    return (
-                      <div
-                        key={`profile-${index}`}
-                        data-testid="gridcell"
-                        className="flex-100 lg:flex-1/2 px-3 mb-8"
-                      >
-                        <div className="w-full flex items-center flex-row">
-                          <div className="pl-4">
-                            <p className="text-m">
-                              {/* TODO: Display icons (see figma) */}
-                              {event.stage !== null &&
-                                event.stage.title + " | "}
-                              {getDuration(startTime, endTime)}
-                              {event._count.childEvents === 0 && (
-                                <>
-                                  {event.participantLimit === null
-                                    ? " | Unbegrenzte Plätze"
-                                    : ` | ${
-                                        event.participantLimit -
-                                        event._count.participants
-                                      } / ${
-                                        event.participantLimit
-                                      } Plätzen frei`}
-                                </>
-                              )}
-                            </p>
-                          </div>
-                        </div>
 
-                        <Link to={`/event/${event.slug}`}>
-                          <div className="w-full flex items-center flex-row">
-                            <div className="pl-4">
-                              <H3
-                                like="h4"
-                                className="text-l mb-1 hover:underline"
-                              >
-                                {event.name}
-                              </H3>
-                            </div>
-                          </div>
-                        </Link>
-                        {event.subline !== null && (
-                          <div className="w-full flex items-center flex-row">
-                            <div className="pl-4">
-                              <p className="text-l mb-1">{event.subline}</p>
-                            </div>
-                          </div>
-                        )}
                         {loaderData.mode === "owner" && !event.canceled && (
-                          <div className="w-full flex items-center flex-row">
-                            <div className="pl-4">
-                              <H3 like="h4" className="text-l mb-1">
-                                {event.published ? "Veröffentlicht" : "Entwurf"}
-                              </H3>
-                            </div>
-                          </div>
+                          <>
+                            {event.published ? (
+                              <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
+                                Veröffentlicht
+                              </div>
+                            ) : (
+                              <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
+                                Entwurf
+                              </div>
+                            )}
+                          </>
                         )}
                         {event.canceled && (
-                          <div className="w-full flex items-center flex-row">
-                            <div className="pl-4">
-                              <H3 like="h4" className="text-l mb-1">
-                                Abgesagt
-                              </H3>
-                            </div>
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                            Abgesagt
                           </div>
                         )}
                         {"isParticipant" in event &&
                           event.isParticipant &&
                           !event.canceled && (
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                <H3 like="h4" className="text-l mb-1">
-                                  Angemeldet
-                                </H3>
-                              </div>
+                            <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                              <p>Angemeldet</p>
                             </div>
                           )}
                         {"isParticipant" in event && canUserParticipate(event) && (
-                          <div className="w-full flex items-center flex-row">
-                            <div className="pl-4">
-                              <AddParticipantButton
-                                action={`/event/${event.slug}/settings/participants/add-participant`}
-                                userId={loaderData.userId}
-                                eventId={event.id}
-                                email={loaderData.email}
-                              />
-                            </div>
+                          <div className="flex items-center ml-auto pr-4 py-6">
+                            <AddParticipantButton
+                              action={`/event/${event.slug}/settings/participants/add-participant`}
+                              userId={loaderData.userId}
+                              eventId={event.id}
+                              email={loaderData.email}
+                            />
                           </div>
                         )}
                         {"isParticipant" in event &&
                           event.isOnWaitingList &&
                           !event.canceled && (
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                <H3 like="h4" className="text-l mb-1">
-                                  Auf Warteliste
-                                </H3>
-                              </div>
+                            <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                              <p>Wartend</p>
                             </div>
                           )}
                         {"isParticipant" in event &&
                           canUserBeAddedToWaitingList(event) && (
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                {/* TODO: Implement remix form to add-to-waiting-list route */}
-                                <button
-                                  type="submit"
-                                  className="btn btn-primary"
-                                >
-                                  Warteliste
-                                </button>
-                              </div>
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddToWaitingListButton
+                                action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.email}
+                              />
                             </div>
                           )}
                         {"isParticipant" in event &&
@@ -941,15 +814,13 @@ function Index() {
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
                           !event.canceled && (
-                            <div className="w-full flex items-center flex-row">
-                              <div className="pl-4">
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="btn btn-primary"
-                                >
-                                  Mehr erfahren...
-                                </Link>
-                              </div>
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <Link
+                                to={`/event/${event.slug}`}
+                                className="btn btn-primary"
+                              >
+                                Mehr erfahren...
+                              </Link>
                             </div>
                           )}
                       </div>
@@ -959,10 +830,102 @@ function Index() {
               </>
             )}
 
+            {loaderData.event.teamMembers.length > 0 && (
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Team</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {loaderData.event.teamMembers.map((member, index) => {
+                    return (
+                      <div key={`team-member-${index}`}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/profile/${member.profile.username}`}
+                        >
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            {member.profile.avatar !== null &&
+                            member.profile.avatar !== "" ? (
+                              <img
+                                src={member.profile.avatar}
+                                alt={
+                                  member.profile.firstName +
+                                  " " +
+                                  member.profile.lastName
+                                }
+                              />
+                            ) : (
+                              getInitials(member.profile)
+                            )}
+                          </div>
+
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {member.profile.firstName +
+                                " " +
+                                member.profile.lastName}
+                            </h5>
+                            <p className="text-sm m-0">
+                              {member.profile.position}
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {loaderData.event.responsibleOrganizations.length > 0 && (
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {loaderData.event.responsibleOrganizations.map(
+                    (item, index) => {
+                      return (
+                        <div key={`organizer-${index}`}>
+                          <Link
+                            className="flex flex-row"
+                            to={`/organization/${item.organization.slug}`}
+                          >
+                            {item.organization.logo !== null &&
+                            item.organization.logo !== "" ? (
+                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                                <img
+                                  src={item.organization.logo}
+                                  alt={item.organization.name}
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                                {getOrganizationInitials(
+                                  item.organization.name
+                                )}
+                              </div>
+                            )}
+                            <div className="pl-4">
+                              <h5 className="text-sm m-0 font-bold">
+                                {item.organization.name}
+                              </h5>
+
+                              <p className="text-sm m-0">
+                                {item.organization.types
+                                  .map((item) => item.organizationType.title)
+                                  .join(", ")}
+                              </p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </>
+            )}
+
             {loaderData.event.participants !== null && (
-              <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6 mt-6">
-                <div className="text-xs leading-6">Teilnehmer:innen</div>
-                <div className="grid grid-cols-2 gap-4">
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
+                <div className="grid grid-cols-3 gap-4">
                   {loaderData.event.participants.map((participant) => {
                     const { profile } = participant;
                     return (
@@ -996,99 +959,10 @@ function Index() {
                     );
                   })}
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
-      </div>
-      <div className="mb-4 ml-4">
-        {/* {loaderData.fullDepthParticipants !== null &&
-          loaderData.fullDepthParticipants.length > 0 && (
-            <>
-              <h3 className="mt-4">Teilnehmer*innen:</h3>
-              <ul>
-                {loaderData.fullDepthParticipants.map((profile, index) => {
-                  return (
-                    <li key={`participant-${index}`}>
-                      -{" "}
-                      <Link
-                        className="underline hover:no-underline"
-                        to={`/profile/${profile.username}`}
-                      >
-                        {profile.firstName + " " + profile.lastName}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          )} */}
-        {/* {loaderData.mode === "owner" &&
-          loaderData.event.waitingList.length > 0 && (
-            <>
-              <h3 className="mt-4">Warteliste:</h3>
-              <ul>
-                {loaderData.event.waitingList.map(
-                  (waitingParticipant, index) => {
-                    return (
-                      <li key={`waiting-participant-${index}`}>
-                        -{" "}
-                        <Link
-                          className="underline hover:no-underline"
-                          to={`/profile/${waitingParticipant.profile.username}`}
-                        >
-                          {waitingParticipant.profile.firstName +
-                            " " +
-                            waitingParticipant.profile.lastName}
-                        </Link>
-                      </li>
-                    );
-                  }
-                )}
-              </ul>
-            </>
-          )} */}
-        {/* {loaderData.fullDepthSpeaker !== null &&
-          loaderData.fullDepthSpeaker.length > 0 && (
-            <>
-              <h3 className="mt-4">Speaker*innen:</h3>
-              <ul>
-                {loaderData.fullDepthSpeaker.map((profile, index) => {
-                  return (
-                    <li key={`speaker-${index}`}>
-                      -{" "}
-                      <Link
-                        className="underline hover:no-underline"
-                        to={`/profile/${profile.username}`}
-                      >
-                        {profile.firstName + " " + profile.lastName}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          )} */}
-        {loaderData.event.responsibleOrganizations.length > 0 && (
-          <>
-            <h3 className="mt-4">Organisator*innen:</h3>
-            <ul>
-              {loaderData.event.responsibleOrganizations.map((item, index) => {
-                return (
-                  <li key={`organizer-${index}`}>
-                    -{" "}
-                    <Link
-                      className="underline hover:no-underline"
-                      to={`/organization/${item.organization.slug}`}
-                    >
-                      {item.organization.name}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
       </div>
     </>
   );
