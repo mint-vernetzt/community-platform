@@ -1,9 +1,15 @@
+import { User } from "@supabase/supabase-js";
 import { ActionFunction, LoaderFunction } from "remix";
-import { badRequest, serverError } from "remix-utils";
+import { badRequest, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
+import {
+  deriveMode as deriveEventMode,
+  getEvent,
+} from "../event/$slug/utils.server";
 import { Subject, uploadKeys } from "./schema";
 import {
+  updateEventBackgroundImage,
   updateOrganizationProfileImage,
   updateUserProfileImage,
   upload,
@@ -19,8 +25,13 @@ export const loader: LoaderFunction = ({ request }) => {
   return null;
 };
 
-async function handleAuth(profileId: string, subject: Subject, slug: string) {
-  if (subject === "organisation") {
+async function handleAuth(
+  profileId: string,
+  subject: Subject,
+  slug: string,
+  sessionUser: User
+) {
+  if (subject === "organization") {
     if (slug === "") {
       throw serverError({ message: "Unknown organization." });
     }
@@ -38,6 +49,16 @@ async function handleAuth(profileId: string, subject: Subject, slug: string) {
       throw serverError({ message: "Not allowed." });
     }
   }
+  if (subject === "event") {
+    const event = await getEvent(slug);
+    if (event === null) {
+      throw notFound({ message: `Event not found` });
+    }
+    const mode = await deriveEventMode(event, sessionUser);
+    if (mode !== "owner") {
+      throw serverError({ message: "Not allowed." });
+    }
+  }
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -51,7 +72,7 @@ export const action: ActionFunction = async ({ request }) => {
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
-  handleAuth(profileId, subject, slug);
+  handleAuth(profileId, subject, slug, sessionUser);
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
@@ -76,12 +97,16 @@ export const action: ActionFunction = async ({ request }) => {
       await updateUserProfileImage(profileId, name, uploadHandlerResponse.path);
     }
 
-    if (subject === "organisation") {
+    if (subject === "organization") {
       await updateOrganizationProfileImage(
         slug,
         name,
         uploadHandlerResponse.path
       );
+    }
+
+    if (subject === "event") {
+      await updateEventBackgroundImage(slug, name, uploadHandlerResponse.path);
     }
   }
 

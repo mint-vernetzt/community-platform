@@ -1,5 +1,7 @@
-import * as React from "react";
 import { GravityType } from "imgproxy/dist/types";
+import rcSliderStyles from "rc-slider/assets/index.css";
+import * as React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
@@ -7,12 +9,14 @@ import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIco
 import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getRootEvents } from "~/lib/event/utils";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import {
@@ -20,11 +24,6 @@ import {
   OrganizationWithRelations,
 } from "~/organization.server";
 import { getPublicURL } from "~/storage.server";
-
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import ProfileCard from "~/components/ProfileCard/ProfileCard";
-import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 
 export function links() {
   return [
@@ -290,7 +289,7 @@ export default function Index() {
               <Modal id="modal-background-upload">
                 <ImageCropper
                   headline="Hintergrundbild"
-                  subject="organisation"
+                  subject="organization"
                   id="modal-background-upload"
                   uploadKey="background"
                   image={background}
@@ -336,7 +335,7 @@ export default function Index() {
                     <Modal id="modal-avatar">
                       <ImageCropper
                         id="modal-avatar"
-                        subject="organisation"
+                        subject="organization"
                         slug={loaderData.organization.slug}
                         uploadKey="logo"
                         headline="Logo"
@@ -580,6 +579,7 @@ export default function Index() {
                         ({ network }, index) => (
                           <OrganizationCard
                             id={`profile-${index}`}
+                            key={`profile-${index}`}
                             link={`/organization/${network.slug}`}
                             name={network.name}
                             types={network.types}
@@ -603,6 +603,7 @@ export default function Index() {
                         ({ networkMember }, index) => (
                           <OrganizationCard
                             id={`profile-${index}`}
+                            key={`profile-${index}`}
                             link={`/organization/${networkMember.slug}`}
                             name={networkMember.name}
                             types={networkMember.types}
@@ -622,6 +623,7 @@ export default function Index() {
                       ({ profile }, index) => (
                         <ProfileCard
                           id={`profile-${index}`}
+                          key={`profile-${index}`}
                           link={`/profile/${profile.username}`}
                           name={getFullName(profile)}
                           initials={getInitials(profile)}

@@ -1,11 +1,14 @@
 import { GravityType } from "imgproxy/dist/types";
+import rcSliderStyles from "rc-slider/assets/index.css";
+import React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import { useNavigate } from "react-router-dom";
 import { Link, LoaderFunction, MetaFunction, useLoaderData } from "remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import { useNavigate } from "react-router-dom";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import Modal from "~/components/Modal/Modal";
 import { getImageURL } from "~/images.server";
-import { getInitials } from "~/lib/profile/getInitials";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -14,6 +17,8 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "~/lib/event/utils";
+import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
@@ -31,6 +36,13 @@ import {
   getFullDepthSpeakers,
   MaybeEnhancedEvent,
 } from "./utils.server";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
@@ -169,10 +181,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     isTeamMember = await getIsTeamMember(enhancedEvent.id, currentUser.id);
   }
 
-  if (event.background !== null) {
-    const publicURL = getPublicURL(event.background);
+  if (enhancedEvent.background !== null) {
+    const publicURL = getPublicURL(enhancedEvent.background);
     if (publicURL) {
-      event.background = getImageURL(publicURL, {
+      enhancedEvent.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
       });
     }
@@ -196,8 +208,8 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     return item;
   });
 
-  event.responsibleOrganizations = event.responsibleOrganizations.map(
-    (item) => {
+  enhancedEvent.responsibleOrganizations =
+    enhancedEvent.responsibleOrganizations.map((item) => {
       if (item.organization.logo !== null) {
         const publicURL = getPublicURL(item.organization.logo);
         if (publicURL) {
@@ -207,8 +219,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
         }
       }
       return item;
-    }
-  );
+    });
 
   return {
     mode,
@@ -300,6 +311,20 @@ function Index() {
 
   const duration = getDuration(startTime, endTime);
 
+  const background = loaderData.event.background;
+  const Background = React.useCallback(
+    () => (
+      <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
+        {background ? (
+          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+        ) : (
+          <div className="w-[336px] min-h-[108px]" />
+        )}
+      </div>
+    ),
+    [background]
+  );
+
   return (
     <>
       <section className="container md:mt-2">
@@ -364,6 +389,36 @@ function Index() {
                 />
               )}
             </div>
+            {loaderData.mode === "owner" && (
+              <div className="absolute bottom-6 right-6">
+                <label
+                  htmlFor="modal-background-upload"
+                  className="btn btn-primary modal-button"
+                >
+                  Bild ändern
+                </label>
+
+                <Modal id="modal-background-upload">
+                  <ImageCropper
+                    headline="Hintergrundbild"
+                    subject="event"
+                    id="modal-background-upload"
+                    uploadKey="background"
+                    image={loaderData.event.background || undefined}
+                    aspect={31 / 10}
+                    minCropWidth={620}
+                    minCropHeight={62}
+                    maxTargetWidth={1488}
+                    maxTargetHeight={480}
+                    slug={loaderData.event.slug}
+                    csrfToken={"92014sijdaf02"}
+                    redirect={`/event/${loaderData.event.slug}`}
+                  >
+                    <Background />
+                  </ImageCropper>
+                </Modal>
+              </div>
+            )}
           </div>
           {loaderData.mode === "owner" && (
             <>
