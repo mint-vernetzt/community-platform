@@ -346,33 +346,7 @@ function Index() {
       </section>
       <section className="hidden md:block container mt-6">
         <div className="rounded-3xl overflow-hidden w-full relative">
-          {loaderData.mode === "owner" && (
-            <>
-              {loaderData.event.canceled ? (
-                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white z-20">
-                  Abgesagt
-                </div>
-              ) : (
-                <>
-                  {loaderData.event.published ? (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white z-20">
-                      Veröffentlicht
-                    </div>
-                  ) : (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white z-20">
-                      Entwurf
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-          {loaderData.mode !== "owner" && loaderData.event.canceled && (
-            <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white z-20">
-              Abgesagt
-            </div>
-          )}
-          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
+          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
             <div className="w-full h-full">
               {loaderData.event.background !== undefined && (
                 <img
@@ -385,6 +359,32 @@ function Index() {
               )}
             </div>
           </div>
+          {loaderData.mode === "owner" && (
+            <>
+              {loaderData.event.canceled ? (
+                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+                  Abgesagt
+                </div>
+              ) : (
+                <>
+                  {loaderData.event.published ? (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
+                      Veröffentlicht
+                    </div>
+                  ) : (
+                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
+                      Entwurf
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          {loaderData.mode !== "owner" && loaderData.event.canceled && (
+            <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+              Abgesagt
+            </div>
+          )}
           {loaderData.mode !== "owner" && (
             <>
               {reachedParticipationDeadline ? (
