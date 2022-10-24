@@ -212,7 +212,8 @@ function Participants() {
             to="csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            Teilnehmerliste inklusive Subveranstaltungen als .csv herunterladen
+            Teilnehmerliste inklusive zugehöriger Veranstaltungen als .csv
+            herunterladen
           </Link>
         )}
       </div>
@@ -383,7 +384,8 @@ function Participants() {
               to="csv-download?type=waitingList&amp;depth=full"
               reloadDocument
             >
-              Warteliste inklusive Subveranstaltungen als .csv herunterladen
+              Warteliste inklusive zugehöriger Veranstaltungen als .csv
+              herunterladen
             </Link>
           </>
         )}

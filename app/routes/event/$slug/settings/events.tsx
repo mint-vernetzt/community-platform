@@ -145,7 +145,7 @@ function Events() {
       <hr className="border-neutral-400 my-4 lg:my-8" />
       {loaderData.childEvents.length > 0 && (
         <div className="mb-8">
-          <h3>Subveranstaltungen</h3>
+          <h3>Zugehörige Veranstaltungen</h3>
           <ul>
             {loaderData.childEvents.map((childEvent, index) => {
               return (
@@ -220,7 +220,7 @@ function Events() {
                     htmlFor="parentEventId"
                     className="label"
                   >
-                    Subveranstaltung
+                    Zugehörige Veranstaltungen
                   </label>
                 </div>
               </div>

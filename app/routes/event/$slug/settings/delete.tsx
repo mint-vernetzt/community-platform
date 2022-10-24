@@ -127,7 +127,7 @@ function Delete() {
       {loaderData.childEvents.length > 0 && (
         <>
           <p className="mb-2">
-            Folgende Veranstaltung und deren Subveranstalungen werden auch
+            Folgende Veranstaltung und zugehörige Veranstaltung werden auch
             gelöscht:
           </p>{" "}
           <ul className="mb-8">

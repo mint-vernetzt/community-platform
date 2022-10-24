@@ -493,7 +493,7 @@ function Index() {
                         href="#child-events"
                         className="underline hover:no-underline"
                       >
-                        Subveranstaltungen
+                        zugehörige Veranstaltungen
                       </a>{" "}
                       aus, an denen Du teilnehmen möchtest.
                     </p>
@@ -517,7 +517,7 @@ function Index() {
                   className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
-                  Subveranstaltung anlegen
+                  Zugehörige Veranstaltungen anlegen
                 </Link>
               </p>
             </div>
@@ -804,9 +804,13 @@ function Index() {
               )}
             {loaderData.event.childEvents.length > 0 && (
               <>
-                <h3 id="child-events" className="mt-16 mb-8 font-bold">
-                  Subveranstaltungen
+                <h3 id="child-events" className="mt-16 font-bold">
+                  Zugehörige Veranstaltungen
                 </h3>
+                <p className="mb-8">
+                  Diese Veranstaltungen finden im Rahmen von "
+                  {loaderData.event.name}" statt.
+                </p>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event, index) => {
                     const startTime = new Date(event.startTime);
