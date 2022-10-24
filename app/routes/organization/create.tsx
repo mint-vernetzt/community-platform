@@ -4,6 +4,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigate,
 } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import {
@@ -106,70 +107,106 @@ export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const { hiddenCSRFInput } = useCSRF();
+  const navigate = useNavigate();
 
   return (
     <>
-      <div className="container relative pb-44">
-        <h4 className="font-semibold">
-          Organisation, Netzwerk oder Projekt hinzufügen
-        </h4>
-        <div className="flex flex-col lg:flex-row pt-10 lg:pt-0">
-          <RemixForm method="post" schema={schema}>
-            {({ Field, Button, Errors, register }) => (
-              <>
-                <Field name="organizationName" className="mb-4">
-                  {({ Errors }) => (
-                    <>
-                      <Input
-                        id="organizationName"
-                        label="Name der Organisation"
-                        {...register("organizationName")}
-                      />
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <Field name="id">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        value={loaderData.id}
-                        {...register("id")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <Field name="csrf">
-                  {({ Errors }) => (
-                    <>
-                      {hiddenCSRFInput}
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary ml-auto btn-small"
-                >
-                  Anlegen
-                </button>
-                <Errors />
-              </>
-            )}
-          </RemixForm>
-          {actionData !== undefined &&
-            !actionData.success &&
-            actionData.alreadyExistingOrganization !== null && (
-              <OrganizationCard
-                id="already-existing-organization"
-                link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
-                name={actionData.alreadyExistingOrganization.name}
-                types={actionData.alreadyExistingOrganization.types}
-                image={actionData.alreadyExistingOrganization.logo}
+      <section className="container md:mt-2">
+        <div className="font-semi text-neutral-600 flex items-center">
+          {/* TODO: get back route from loader */}
+          <button onClick={() => navigate(-1)} className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              className="h-auto w-6"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
               />
-            )}
+            </svg>
+            <span className="ml-2">zurück</span>
+          </button>
+        </div>
+      </section>
+      <div className="container relative pt-20 pb-44">
+        <div className="flex -mx-4 justify-center">
+          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
+            <h4 className="font-semibold">
+              Organisation, Netzwerk oder Projekt hinzufügen
+            </h4>
+            <div className="pt-10 lg:pt-0">
+              <RemixForm
+                method="post"
+                schema={schema}
+                onTransition={({ reset, formState }) => {
+                  if (formState.isSubmitSuccessful) {
+                    reset();
+                  }
+                }}
+              >
+                {({ Field, Button, Errors, register }) => (
+                  <>
+                    <Field name="organizationName" className="mb-4">
+                      {({ Errors }) => (
+                        <>
+                          <Input
+                            id="organizationName"
+                            label="Name der Organisation"
+                            {...register("organizationName")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <Field name="id">
+                      {({ Errors }) => (
+                        <>
+                          <input
+                            type="hidden"
+                            value={loaderData.id}
+                            {...register("id")}
+                          ></input>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <Field name="csrf">
+                      {({ Errors }) => (
+                        <>
+                          {hiddenCSRFInput}
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-primary ml-auto btn-small mb-8"
+                    >
+                      Anlegen
+                    </button>
+                    <Errors />
+                  </>
+                )}
+              </RemixForm>
+              <div className="pt-4 -mx-4">
+                {actionData !== undefined &&
+                  !actionData.success &&
+                  actionData.alreadyExistingOrganization !== null && (
+                    <OrganizationCard
+                      id="already-existing-organization"
+                      link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
+                      name={actionData.alreadyExistingOrganization.name}
+                      types={actionData.alreadyExistingOrganization.types}
+                      image={actionData.alreadyExistingOrganization.logo}
+                    />
+                  )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
