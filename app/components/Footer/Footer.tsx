@@ -44,6 +44,15 @@ function Footer(props: FooterProps) {
                 Nutzungsbedingungen
               </a>
             </li>
+            <p>
+              Benötigst du Hilfe? Melde dich bei{" "}
+              <a
+                href="mailto:support@mint-vernetzt.de"
+                className="hover:underline hover:text-primary"
+              >
+                support@mint-vernetzt.de
+              </a>
+            </p>
           </ul>
         </div>
       </div>
