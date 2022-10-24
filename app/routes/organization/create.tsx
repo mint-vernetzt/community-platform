@@ -1,14 +1,26 @@
-import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
+import {
+  ActionFunction,
+  LoaderFunction,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction } from "remix-forms";
+import {
+  Form as RemixForm,
+  performMutation,
+  PerformMutation,
+} from "remix-forms";
 import { forbidden } from "remix-utils";
-import { z } from "zod";
+import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { createOrganizationOnProfile } from "~/profile.server";
 import { generateOrganizationSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
+import { getOrganizationByName } from "./$slug/settings/utils.server";
 
 const schema = z.object({
   csrf: z.string(),
@@ -41,6 +53,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
+  alreadyExistingOrganization: Awaited<
+    ReturnType<typeof getOrganizationByName>
+  >;
+};
+
 export const action: ActionFunction = async ({ request, params }) => {
   const currentUser = await getUserByRequest(request);
 
@@ -59,17 +77,34 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (organizationName !== null) {
     slug = generateOrganizationSlug(organizationName as string);
   }
-  const formActionResult = formAction({
+  const result = await performMutation({
     request,
     schema,
     mutation,
-    successPath: `/organization/${slug}`,
   });
-  return formActionResult;
+  let alreadyExistingOrganization: Awaited<
+    ReturnType<typeof getOrganizationByName>
+  > = null;
+  if (result.success) {
+    return redirect(`/organization/${slug}`);
+  } else {
+    if (
+      result.errors._global !== undefined &&
+      result.errors._global.includes(
+        "Es existiert bereits eine Organisation mit diesem Namen."
+      )
+    ) {
+      alreadyExistingOrganization = await getOrganizationByName(
+        result.values.organizationName
+      );
+    }
+  }
+  return { ...result, alreadyExistingOrganization };
 };
 
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
   const { hiddenCSRFInput } = useCSRF();
 
   return (
@@ -124,6 +159,17 @@ export default function Create() {
               </>
             )}
           </RemixForm>
+          {actionData !== undefined &&
+            !actionData.success &&
+            actionData.alreadyExistingOrganization !== null && (
+              <OrganizationCard
+                id="already-existing-organization"
+                link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
+                name={actionData.alreadyExistingOrganization.name}
+                types={actionData.alreadyExistingOrganization.types}
+                image={actionData.alreadyExistingOrganization.logo}
+              />
+            )}
         </div>
       </div>
     </>

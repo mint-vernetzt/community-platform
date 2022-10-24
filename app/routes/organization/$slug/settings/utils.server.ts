@@ -77,6 +77,15 @@ export async function getOrganizationByName(name: string) {
           },
         },
       },
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
     },
   });
   return organization;
