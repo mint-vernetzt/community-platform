@@ -179,25 +179,25 @@ function NavBar(props: NavBarProps) {
           </div>
 
           <div className="flex-initial w-full lg:w-1/2 order-last lg:order-2">
-            <ul className="flex -mx-5 pt-4 lg:pt-0 justify-between sm:justify-center">
-              <li className="px-5">
+            <ul className="flex -mx-2 md:-mx-5 pt-3 lg:pt-0 justify-between sm:justify-center text-sm sm:text-base">
+              <li className="px-2 md:px-5">
                 <Link
                   to="/explore/profiles"
-                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
                   Akteur:innen
                 </Link>
               </li>
-              <li className="px-5">
+              <li className="px-2 md:px-5">
                 <Link
                   to="/explore/organizations"
-                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
                   Organisationen
                 </Link>
               </li>
               {/* {loaderData.abilities.events.hasAccess && ( */}
-              <li className="px-5">
+              <li className="px-2 md:px-5">
                 <Link
                   to="/explore/events"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
