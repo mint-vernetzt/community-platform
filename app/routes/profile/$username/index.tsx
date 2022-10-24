@@ -101,12 +101,12 @@ type ProfileLoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  events?: {
+  events: {
     teamMemberOfEvents: Awaited<
       ReturnType<typeof getEnhancedTeamMemberOfEvents>
     >;
     contributedEvents: Awaited<ReturnType<typeof getEnhancedContributedEvents>>;
-    participatedEvents: Awaited<
+    participatedEvents?: Awaited<
       ReturnType<typeof getEnhancedParticipatedEvents>
     >;
   };
@@ -242,10 +242,13 @@ export const loader: LoaderFunction = async (
     contributedEvents: await addUserParticipationStatus<
       typeof profileEvents.contributedEvents
     >(profileEvents.contributedEvents, sessionUser?.id),
-    participatedEvents: await addUserParticipationStatus<typeof combinedEvents>(
-      combinedEvents,
-      sessionUser?.id
-    ),
+    participatedEvents:
+      mode !== "anon"
+        ? await addUserParticipationStatus<typeof combinedEvents>(
+            combinedEvents,
+            sessionUser?.id
+          )
+        : undefined,
   };
 
   return json({
@@ -253,7 +256,7 @@ export const loader: LoaderFunction = async (
     data,
     images,
     abilities,
-    events: mode !== "anon" ? enhancedEvents : undefined,
+    events: enhancedEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
   });
@@ -290,10 +293,10 @@ function hasWebsiteOrSocialService(
 
 function canViewEvents(loaderData: ProfileLoaderData) {
   return (
-    loaderData.events !== undefined &&
-    (loaderData.events.teamMemberOfEvents.length > 0 ||
-      loaderData.events.participatedEvents.length > 0 ||
-      loaderData.events.contributedEvents.length > 0)
+    loaderData.events.teamMemberOfEvents.length > 0 ||
+    (loaderData.events.participatedEvents !== undefined &&
+      loaderData.events.participatedEvents.length > 0) ||
+    loaderData.events.contributedEvents.length > 0
   );
 }
 
@@ -781,31 +784,33 @@ export default function Index() {
                                     <p>Angemeldet</p>
                                   </div>
                                 )}
-                                {canUserParticipate(event) && (
-                                  <div className="flex items-center ml-auto pr-4 py-6">
-                                    <AddParticipantButton
-                                      action={`/event/${event.slug}/settings/participants/add-participant`}
-                                      userId={loaderData.userId}
-                                      eventId={event.id}
-                                      email={loaderData.userEmail}
-                                    />
-                                  </div>
-                                )}
+                                {loaderData.mode !== "anon" &&
+                                  canUserParticipate(event) && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <AddParticipantButton
+                                        action={`/event/${event.slug}/settings/participants/add-participant`}
+                                        userId={loaderData.userId}
+                                        eventId={event.id}
+                                        email={loaderData.userEmail}
+                                      />
+                                    </div>
+                                  )}
                                 {event.isOnWaitingList && !event.canceled && (
                                   <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                     <p>Wartend</p>
                                   </div>
                                 )}
-                                {canUserBeAddedToWaitingList(event) && (
-                                  <div className="flex items-center ml-auto pr-4 py-6">
-                                    <AddToWaitingListButton
-                                      action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                      userId={loaderData.userId}
-                                      eventId={event.id}
-                                      email={loaderData.userEmail}
-                                    />
-                                  </div>
-                                )}
+                                {loaderData.mode !== "anon" &&
+                                  canUserBeAddedToWaitingList(event) && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <AddToWaitingListButton
+                                        action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                        userId={loaderData.userId}
+                                        eventId={event.id}
+                                        email={loaderData.userEmail}
+                                      />
+                                    </div>
+                                  )}
                                 {loaderData.mode !== "owner" &&
                                   !event.isParticipant &&
                                   !canUserParticipate(event) &&
@@ -818,6 +823,18 @@ export default function Index() {
                                         className="btn btn-primary"
                                       >
                                         Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                                {loaderData.mode === "anon" &&
+                                  event.canceled === false &&
+                                  event._count.childEvents === 0 && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        className="btn btn-primary"
+                                        to={`/login?event_slug=${event.slug}`}
+                                      >
+                                        Anmelden
                                       </Link>
                                     </div>
                                   )}
@@ -919,31 +936,33 @@ export default function Index() {
                                     <p>Angemeldet</p>
                                   </div>
                                 )}
-                                {canUserParticipate(event) && (
-                                  <div className="flex items-center ml-auto pr-4 py-6">
-                                    <AddParticipantButton
-                                      action={`/event/${event.slug}/settings/participants/add-participant`}
-                                      userId={loaderData.userId}
-                                      eventId={event.id}
-                                      email={loaderData.userEmail}
-                                    />
-                                  </div>
-                                )}
+                                {loaderData.mode !== "anon" &&
+                                  canUserParticipate(event) && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <AddParticipantButton
+                                        action={`/event/${event.slug}/settings/participants/add-participant`}
+                                        userId={loaderData.userId}
+                                        eventId={event.id}
+                                        email={loaderData.userEmail}
+                                      />
+                                    </div>
+                                  )}
                                 {event.isOnWaitingList && !event.canceled && (
                                   <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                     <p>Wartend</p>
                                   </div>
                                 )}
-                                {canUserBeAddedToWaitingList(event) && (
-                                  <div className="flex items-center ml-auto pr-4 py-6">
-                                    <AddToWaitingListButton
-                                      action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                      userId={loaderData.userId}
-                                      eventId={event.id}
-                                      email={loaderData.userEmail}
-                                    />
-                                  </div>
-                                )}
+                                {loaderData.mode !== "anon" &&
+                                  canUserBeAddedToWaitingList(event) && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <AddToWaitingListButton
+                                        action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                        userId={loaderData.userId}
+                                        eventId={event.id}
+                                        email={loaderData.userEmail}
+                                      />
+                                    </div>
+                                  )}
                                 {!event.isParticipant &&
                                   !canUserParticipate(event) &&
                                   !event.isOnWaitingList &&
@@ -958,6 +977,18 @@ export default function Index() {
                                       </Link>
                                     </div>
                                   )}
+                                {loaderData.mode === "anon" &&
+                                  event.canceled === false &&
+                                  event._count.childEvents === 0 && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        className="btn btn-primary"
+                                        to={`/login?event_slug=${event.slug}`}
+                                      >
+                                        Anmelden
+                                      </Link>
+                                    </div>
+                                  )}
                               </div>
                             );
                           }
@@ -965,7 +996,7 @@ export default function Index() {
                       </div>
                     </>
                   )}
-                {loaderData.events !== undefined &&
+                {loaderData.events.participatedEvents !== undefined &&
                   loaderData.events.participatedEvents.length > 0 && (
                     <>
                       <h6
