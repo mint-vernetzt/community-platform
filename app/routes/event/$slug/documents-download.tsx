@@ -2,7 +2,6 @@ import { LoaderFunction } from "remix";
 import { forbidden, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getDocumentById } from "~/document.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
@@ -11,8 +10,6 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "events");
 
   const currentUser = await getUserByRequest(request);
   const slug = getParamValueOrThrow(params, "slug");
