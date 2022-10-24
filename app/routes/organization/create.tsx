@@ -1,14 +1,27 @@
-import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
+import {
+  ActionFunction,
+  LoaderFunction,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction } from "remix-forms";
+import {
+  Form as RemixForm,
+  performMutation,
+  PerformMutation,
+} from "remix-forms";
 import { forbidden } from "remix-utils";
-import { z } from "zod";
+import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { createOrganizationOnProfile } from "~/profile.server";
 import { generateOrganizationSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
+import { getOrganizationByName } from "./$slug/settings/utils.server";
 
 const schema = z.object({
   csrf: z.string(),
@@ -36,10 +49,16 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   try {
     await createOrganizationOnProfile(values.id, values.organizationName, slug);
   } catch (error) {
-    throw "Es existiert bereits eine Organisation mit diesem Namen.";
+    throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
   }
   return values;
 });
+
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
+  alreadyExistingOrganization: Awaited<
+    ReturnType<typeof getOrganizationByName>
+  >;
+};
 
 export const action: ActionFunction = async ({ request, params }) => {
   const currentUser = await getUserByRequest(request);
@@ -59,71 +78,135 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (organizationName !== null) {
     slug = generateOrganizationSlug(organizationName as string);
   }
-  const formActionResult = formAction({
+  const result = await performMutation({
     request,
     schema,
     mutation,
-    successPath: `/organization/${slug}`,
   });
-  return formActionResult;
+  let alreadyExistingOrganization: Awaited<
+    ReturnType<typeof getOrganizationByName>
+  > = null;
+  if (result.success) {
+    return redirect(`/organization/${slug}`);
+  } else {
+    if (
+      result.errors._global !== undefined &&
+      result.errors._global.includes(
+        "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
+      )
+    ) {
+      alreadyExistingOrganization = await getOrganizationByName(
+        result.values.organizationName
+      );
+    }
+  }
+  return { ...result, alreadyExistingOrganization };
 };
 
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
   const { hiddenCSRFInput } = useCSRF();
+  const navigate = useNavigate();
 
   return (
     <>
-      <div className="container relative pb-44">
-        <h4 className="font-semibold">
-          Organisation, Netzwerk oder Projekt hinzufügen
-        </h4>
-        <div className="flex flex-col lg:flex-row pt-10 lg:pt-0">
-          <RemixForm method="post" schema={schema}>
-            {({ Field, Button, Errors, register }) => (
-              <>
-                <Field name="organizationName" className="mb-4">
-                  {({ Errors }) => (
-                    <>
-                      <Input
-                        id="organizationName"
-                        label="Name der Organisation"
-                        {...register("organizationName")}
-                      />
-                      <Errors />
-                    </>
+      <section className="container md:mt-2">
+        <div className="font-semi text-neutral-600 flex items-center">
+          {/* TODO: get back route from loader */}
+          <button onClick={() => navigate(-1)} className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              className="h-auto w-6"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+              />
+            </svg>
+            <span className="ml-2">Zurück</span>
+          </button>
+        </div>
+      </section>
+      <div className="container relative pt-20 pb-44">
+        <div className="flex -mx-4 justify-center">
+          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
+            <h4 className="font-semibold">
+              Organisation, Netzwerk oder Projekt hinzufügen
+            </h4>
+            <div className="pt-10 lg:pt-0">
+              <RemixForm
+                method="post"
+                schema={schema}
+                onTransition={({ reset, formState }) => {
+                  if (formState.isSubmitSuccessful) {
+                    reset();
+                  }
+                }}
+              >
+                {({ Field, Button, Errors, register }) => (
+                  <>
+                    <Field name="organizationName" className="mb-4">
+                      {({ Errors }) => (
+                        <>
+                          <Input
+                            id="organizationName"
+                            label="Name der Organisation"
+                            {...register("organizationName")}
+                          />
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <Field name="id">
+                      {({ Errors }) => (
+                        <>
+                          <input
+                            type="hidden"
+                            value={loaderData.id}
+                            {...register("id")}
+                          ></input>
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <Field name="csrf">
+                      {({ Errors }) => (
+                        <>
+                          {hiddenCSRFInput}
+                          <Errors />
+                        </>
+                      )}
+                    </Field>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-primary ml-auto btn-small mb-8"
+                    >
+                      Anlegen
+                    </button>
+                    <Errors />
+                  </>
+                )}
+              </RemixForm>
+              <div className="pt-4 -mx-4">
+                {actionData !== undefined &&
+                  !actionData.success &&
+                  actionData.alreadyExistingOrganization !== null && (
+                    <OrganizationCard
+                      id="already-existing-organization"
+                      link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
+                      name={actionData.alreadyExistingOrganization.name}
+                      types={actionData.alreadyExistingOrganization.types}
+                      image={actionData.alreadyExistingOrganization.logo}
+                    />
                   )}
-                </Field>
-                <Field name="id">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        value={loaderData.id}
-                        {...register("id")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <Field name="csrf">
-                  {({ Errors }) => (
-                    <>
-                      {hiddenCSRFInput}
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <button
-                  type="submit"
-                  className="btn btn-outline-primary ml-auto btn-small"
-                >
-                  Anlegen
-                </button>
-                <Errors />
-              </>
-            )}
-          </RemixForm>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
