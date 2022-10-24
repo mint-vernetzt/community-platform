@@ -18,9 +18,9 @@ export default function Imprint() {
         matrix Gesellschaft für Beratung in Wirtschaft, Politik und Verwaltung
         mbH &amp; Co. KG
       </p>
-      <p>Schloss Elbroich</p>
-      <p>Am Falder 4</p>
-      <p className="mb-4">40589 Düsseldorf</p>
+      <p>Rittergut Haus Morp</p>
+      <p>Düsseldorfer Straße 16</p>
+      <p className="mb-4">40699 Erkrath</p>
       <h6 className="mb-2">Vertretungsberechtigt:</h6>
       <p>Gregor Frankenstein-von der Beeck</p>
       <p>Guido Lohnherr</p>
