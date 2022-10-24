@@ -1,3 +1,4 @@
+import { isSameDay } from "date-fns";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -8,7 +9,7 @@ import {
 } from "~/lib/event/utils";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getFormattedDate, getTimeDuration } from "~/lib/utils/time";
+import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
@@ -119,9 +120,11 @@ function Events() {
                   </div>
                 )}
                 <div className="flex justify-between absolute p-2 left-0 right-0 bottom-0">
-                  <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
-                    {getTimeDuration(startTime, endTime)}
-                  </div>
+                  {isSameDay(startTime, endTime) && (
+                    <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
+                      {getTimeDuration(startTime, endTime)}
+                    </div>
+                  )}
                   {event._count.childEvents === 0 && (
                     <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
                       {event.participantLimit === null ? (
@@ -146,7 +149,9 @@ function Events() {
               </Link>
               <Link className="relative flex-auto" to={`/event/${event.slug}`}>
                 <div className="p-4 pb-0 flex justify-between ">
-                  <p className="text-xs">{getFormattedDate(startTime)}</p>
+                  <p className="text-xs">
+                    {getDateDuration(startTime, endTime)}
+                  </p>
                   <div className="flex items-center">
                     {event.stage !== null && event.stage.title === "vor Ort" && (
                       <svg
