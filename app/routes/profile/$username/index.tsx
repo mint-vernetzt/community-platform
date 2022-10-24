@@ -290,7 +290,6 @@ function hasWebsiteOrSocialService(
 
 function canViewEvents(loaderData: ProfileLoaderData) {
   return (
-    loaderData.abilities.events.hasAccess === true &&
     loaderData.events !== undefined &&
     (loaderData.events.teamMemberOfEvents.length > 0 ||
       loaderData.events.participatedEvents.length > 0 ||
@@ -654,7 +653,9 @@ export default function Index() {
                 </div>
               </>
             )}
-            {(canViewEvents(loaderData) || loaderData.mode === "owner") && (
+            {(canViewEvents(loaderData) ||
+              (loaderData.mode === "owner" &&
+                loaderData.abilities.events.hasAccess)) && (
               <>
                 <div
                   id="events"
@@ -663,16 +664,17 @@ export default function Index() {
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Veranstaltungen</h3>
                   </div>
-                  {loaderData.mode === "owner" && (
-                    <div className="flex-initial pl-4">
-                      <Link
-                        to="/event/create"
-                        className="btn btn-outline btn-primary"
-                      >
-                        Veranstaltung anlegen
-                      </Link>
-                    </div>
-                  )}
+                  {loaderData.mode === "owner" &&
+                    loaderData.abilities.events.hasAccess && (
+                      <div className="flex-initial pl-4">
+                        <Link
+                          to="/event/create"
+                          className="btn btn-outline btn-primary"
+                        >
+                          Veranstaltung anlegen
+                        </Link>
+                      </div>
+                    )}
                 </div>
                 {loaderData.events !== undefined &&
                   loaderData.events.teamMemberOfEvents.length > 0 && (

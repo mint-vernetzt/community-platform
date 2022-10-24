@@ -28,8 +28,6 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
-
   const currentUser = await getUserByRequest(request);
 
   const events = await await getEvents();
