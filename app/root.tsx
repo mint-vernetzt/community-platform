@@ -19,6 +19,7 @@ import { forbidden } from "remix-utils";
 import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
+import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
@@ -96,6 +97,7 @@ export const loader: LoaderFunction = async (args) => {
     currentUserInfo = {
       username: profile.username,
       initials: getInitials(profile),
+      name: getFullName(profile),
       avatar,
     };
   }
@@ -114,7 +116,7 @@ export const loader: LoaderFunction = async (args) => {
 
 function HeaderLogo() {
   return (
-    <div>
+    <div className="flex flex-row items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="56"
@@ -140,6 +142,9 @@ function HeaderLogo() {
           />
         </g>
       </svg>
+      <span className="hidden md:block font-bold text-primary ml-2">
+        Community
+      </span>
     </div>
   );
 }
@@ -152,6 +157,7 @@ type NavBarProps = {
 type CurrentUserInfo = {
   username: string;
   initials: string;
+  name?: string;
   avatar?: string;
 };
 
@@ -165,35 +171,69 @@ function NavBar(props: NavBarProps) {
   return (
     <header id="header" className="shadow-md mb-8">
       <div className="container relative z-10">
-        <div className="py-3 flex flex-row items-center">
-          <div>
+        <div className="pt-3 md:pb-3 flex flex-row flex-wrap lg:flex-nowrap md:items-center lg:justify-between">
+          <div className="flex-initial w-1/2 lg:w-1/4 lg:order-1">
             <Link to="/explore">
               <HeaderLogo />
             </Link>
           </div>
+
+          <div className="flex-initial w-full lg:w-1/2 order-last lg:order-2">
+            <ul className="flex -mx-5 pt-4 lg:pt-0 justify-between sm:justify-center">
+              <li className="px-5">
+                <Link
+                  to="/explore/profiles"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                >
+                  Akteur:innen
+                </Link>
+              </li>
+              <li className="px-5">
+                <Link
+                  to="/explore/organizations"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                >
+                  Organisationen
+                </Link>
+              </li>
+              {/* {loaderData.abilities.events.hasAccess && ( */}
+              <li className="px-5">
+                <Link
+                  to="/explore/events"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
+                >
+                  Veranstaltungen
+                </Link>
+              </li>
+              {/* })} */}
+            </ul>
+          </div>
+
           {/* TODO: link to login on anon*/}
           {props.currentUserInfo !== undefined ? (
-            <div className="ml-auto">
+            <div className="flex-initial h-10 w-1/2 lg:w-1/4 flex justify-end items-center lg:order-3">
               <div className="dropdown dropdown-end">
-                {props.currentUserInfo.avatar === undefined ? (
-                  <label
-                    tabIndex={0}
-                    className="cursor-pointer text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-full overflow-hidden"
-                  >
-                    {props.currentUserInfo.initials}
-                  </label>
-                ) : (
-                  <label
-                    tabIndex={0}
-                    className="cursor-pointer w-10 h-10 rounded-full"
-                  >
-                    <img
-                      src={props.currentUserInfo.avatar}
-                      alt={props.currentUserInfo.initials}
-                      className="w-10 h-10 rounded-full"
-                    />
-                  </label>
-                )}
+                <label
+                  tabIndex={0}
+                  className="flex items-center cursor-pointer nowrap"
+                >
+                  <span className="mr-4 font-semibold text-primary hidden md:block">
+                    {props.currentUserInfo.name}
+                  </span>
+                  {props.currentUserInfo.avatar === undefined ? (
+                    <div className="text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-full overflow-hidden">
+                      {props.currentUserInfo.initials}
+                    </div>
+                  ) : (
+                    <div className="cursor-pointer w-10 h-10 rounded-full">
+                      <img
+                        src={props.currentUserInfo.avatar}
+                        alt={props.currentUserInfo.initials}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    </div>
+                  )}
+                </label>
                 <ul
                   tabIndex={0}
                   className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4"
@@ -305,17 +345,17 @@ function NavBar(props: NavBarProps) {
               </div>
             </div>
           ) : (
-            <div className="ml-auto">
+            <div className="flex-initial h-10 w-1/2 lg:w-1/4 flex justify-end items-center lg:order-3">
               <Link
                 to="/login"
-                className="text-primary font-bold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Anmelden
               </Link>{" "}
               /{" "}
               <Link
                 to="/register"
-                className="text-primary font-bold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Registrieren
               </Link>

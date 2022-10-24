@@ -37,6 +37,10 @@ module.exports = {
       "1/2": "50%",
       "3/4": "75%",
     },
+    aspectRatio: {
+      ...defaultTheme.aspectRatio,
+      "4/3": "4 / 3",
+    },
     flex: {
       ...defaultTheme.flex,
       100: "0 0 100%",
