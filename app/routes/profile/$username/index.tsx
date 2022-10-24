@@ -522,7 +522,10 @@ export default function Index() {
           <div className="md:flex-1/2 lg:flex-7/12 px-4 pt-10 lg:pt-20 overflow-hidden">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
-                <h1 className="mb-0">Hi, ich bin {fullName}</h1>
+                <h1 className="mb-0">
+                  Hi, ich bin{" "}
+                  {getFullName(loaderData.data, { withAcademicTitle: false })}
+                </h1>
               </div>
               {loaderData.mode === "owner" && (
                 <div className="flex-initial lg:pl-4 pt-3 mb-6">
