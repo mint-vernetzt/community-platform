@@ -48,7 +48,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   try {
     await createOrganizationOnProfile(values.id, values.organizationName, slug);
   } catch (error) {
-    throw "Es existiert bereits eine Organisation mit diesem Namen.";
+    throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
   }
   return values;
 });
@@ -91,7 +91,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (
       result.errors._global !== undefined &&
       result.errors._global.includes(
-        "Es existiert bereits eine Organisation mit diesem Namen."
+        "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
       )
     ) {
       alreadyExistingOrganization = await getOrganizationByName(
