@@ -298,12 +298,7 @@ export default function Index() {
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke die Community</H1>
         <p className="">
-          Auf der Startseite findest Du eine Auswahl an persönlichen Profilen
-          sowie Organisationen, Netzwerke und Projekte aus der MINT-Community.
-          Über die Filterfunktion kannst Du herausfinden, welche weiteren
-          Organisationen, Netzwerke und Projekte es gibt. Wer ist in Deinem
-          Aktivitätsgebiet aktiv? Mit wem möchtest Du Dich vernetzen? Wo bieten
-          sich Kooperationen an?
+          Hier findest du die Profile von Akteur:innen der MINT-Community.
         </p>
       </section>
 

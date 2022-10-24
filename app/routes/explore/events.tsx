@@ -87,7 +87,8 @@ function Events() {
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Veranstaltungen</H1>
+        <H1 like="h0">Entdecke Veranstaltungen</H1>
+        <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
       <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {loaderData.events.map((event, index) => {
