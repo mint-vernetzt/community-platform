@@ -114,8 +114,6 @@ type LoaderData = Response;
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
-
   const currentUser = await getUserByRequest(request);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
