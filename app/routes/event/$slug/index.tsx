@@ -895,7 +895,8 @@ function Index() {
                         )}
                         {"isParticipant" in event &&
                           event.isParticipant &&
-                          !event.canceled && (
+                          !event.canceled &&
+                          loaderData.mode !== "owner" && (
                             <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                               <p>Angemeldet</p>
                             </div>
@@ -912,7 +913,8 @@ function Index() {
                         )}
                         {"isParticipant" in event &&
                           event.isOnWaitingList &&
-                          !event.canceled && (
+                          !event.canceled &&
+                          loaderData.mode !== "owner" && (
                             <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                               <p>Wartend</p>
                             </div>

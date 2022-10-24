@@ -779,11 +779,13 @@ export default function Index() {
                                     Abgesagt
                                   </div>
                                 )}
-                                {event.isParticipant && !event.canceled && (
-                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                    <p>Angemeldet</p>
-                                  </div>
-                                )}
+                                {event.isParticipant &&
+                                  !event.canceled &&
+                                  loaderData.mode !== "owner" && (
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                      <p>Angemeldet</p>
+                                    </div>
+                                  )}
                                 {loaderData.mode !== "anon" &&
                                   canUserParticipate(event) && (
                                     <div className="flex items-center ml-auto pr-4 py-6">
@@ -795,11 +797,13 @@ export default function Index() {
                                       />
                                     </div>
                                   )}
-                                {event.isOnWaitingList && !event.canceled && (
-                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                    <p>Wartend</p>
-                                  </div>
-                                )}
+                                {event.isOnWaitingList &&
+                                  !event.canceled &&
+                                  loaderData.mode !== "owner" && (
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                                      <p>Wartend</p>
+                                    </div>
+                                  )}
                                 {loaderData.mode !== "anon" &&
                                   canUserBeAddedToWaitingList(event) && (
                                     <div className="flex items-center ml-auto pr-4 py-6">
