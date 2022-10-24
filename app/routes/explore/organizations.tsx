@@ -262,8 +262,8 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const submit = useSubmit();
-  const areaOptions = createAreaOptionFromData(loaderData.areas);
+  // const submit = useSubmit();
+  // const areaOptions = createAreaOptionFromData(loaderData.areas);
 
   let organizations = loaderData.organizations;
 
@@ -271,92 +271,15 @@ export default function Index() {
     organizations = actionData.data.organizations;
   }
 
-  const handleChange = (event: FormEvent<HTMLFormElement>) => {
-    submit(event.currentTarget);
-  };
+  // const handleChange = (event: FormEvent<HTMLFormElement>) => {
+  //   submit(event.currentTarget);
+  // };
 
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Organisationen</H1>
       </section>
-
-      {loaderData.isLoggedIn ? (
-        <section className="container my-8">
-          <RemixForm method="post" schema={schema} onChange={handleChange}>
-            {({ Field, Button, Errors, register }) => (
-              <>
-                <div className="flex flex-wrap -mx-4">
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="areaId"
-                      label="Filtern nach Aktivitätsgebiet:"
-                      className=""
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Aktivitätsgebiet
-                          </label>
-                          <select
-                            {...register("areaId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {areaOptions.map((option, index) => (
-                              <React.Fragment key={index}>
-                                {"value" in option && (
-                                  <option
-                                    key={`area-${index}`}
-                                    value={option.value}
-                                  >
-                                    {option.label}
-                                  </option>
-                                )}
-
-                                {"options" in option && (
-                                  <optgroup
-                                    key={`area-group-${index}`}
-                                    label={option.label}
-                                  >
-                                    {option.options.map(
-                                      (groupOption, groupOptionIndex) => (
-                                        <option
-                                          key={`area-${index}-${groupOptionIndex}`}
-                                          value={groupOption.value}
-                                        >
-                                          {groupOption.label}
-                                        </option>
-                                      )
-                                    )}
-                                  </optgroup>
-                                )}
-                              </React.Fragment>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
-
-                  <Errors />
-                </div>
-                <div className="flex justify-end">
-                  <noscript>
-                    {/* TODO: selection not shown without javascript */}
-                    <button type="submit" className="btn btn-primary mr-2">
-                      Filter anwenden
-                    </button>
-                  </noscript>
-                  <Link to={"./"} reloadDocument>
-                    <div className="btn btn-primary">Filter zurücksetzen</div>
-                  </Link>
-                </div>
-              </>
-            )}
-          </RemixForm>
-        </section>
-      ) : null}
 
       <section
         className="container my-8 md:my-10 lg:my-20"
