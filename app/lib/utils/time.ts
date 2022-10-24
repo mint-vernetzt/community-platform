@@ -36,7 +36,7 @@ export function getDuration(startTime: Date, endTime: Date) {
     })} | ${startTime.toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
-    })} - ${endTime.toLocaleTimeString("de-DE", {
+    })} – ${endTime.toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
     })} Uhr`;
@@ -44,7 +44,7 @@ export function getDuration(startTime: Date, endTime: Date) {
     // 01. - 02. Januar 2022
     duration = `${startTime.toLocaleDateString("de-DE", {
       day: "2-digit",
-    })}. - ${endTime.toLocaleDateString("de-DE", {
+    })}. – ${endTime.toLocaleDateString("de-DE", {
       year: "numeric",
       month: "long",
       day: "2-digit",
@@ -54,7 +54,7 @@ export function getDuration(startTime: Date, endTime: Date) {
     duration = `${startTime.toLocaleDateString("de-DE", {
       day: "2-digit",
       month: "short",
-    })} - ${formattedEndDate}`;
+    })} – ${formattedEndDate}`;
   } else {
     // 01. Jan 2022 - 02. Feb 2023
     duration = `${formattedStartDate} - ${formattedEndDate}`;
@@ -100,10 +100,10 @@ export function getDateDuration(startTime: Date, endTime: Date) {
     duration = `${startTime.toLocaleDateString("de-DE", {
       day: "2-digit",
       month: "short",
-    })} - ${formattedEndDate}`;
+    })} – ${formattedEndDate}`;
   } else {
     // 01. Jan 2022 - 02. Feb 2023
-    duration = `${formattedStartDate} - ${formattedEndDate}`;
+    duration = `${formattedStartDate} – ${formattedEndDate}`;
   }
   return duration;
 }
@@ -129,7 +129,7 @@ export function getTimeDuration(startTime: Date, endTime: Date) {
     result = `${startTime.toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
-    })} - ${endTime.toLocaleTimeString("de-DE", {
+    })} – ${endTime.toLocaleTimeString("de-DE", {
       hour: "2-digit",
       minute: "2-digit",
     })} Uhr`;

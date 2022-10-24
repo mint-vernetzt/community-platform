@@ -85,7 +85,8 @@ function Events() {
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Veranstaltungen</H1>
+        <H1 like="h0">Entdecke Veranstaltungen</H1>
+        <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
       <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {loaderData.events.map((event, index) => {
@@ -160,11 +161,11 @@ function Events() {
                         viewBox="0 0 16 16"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"
                         />
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"
                         />
                       </svg>
@@ -190,11 +191,11 @@ function Events() {
                           viewBox="0 0 16 16"
                         >
                           <path
-                            fill-rule="evenodd"
+                            fillRule="evenodd"
                             d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"
                           />
                           <path
-                            fill-rule="evenodd"
+                            fillRule="evenodd"
                             d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"
                           />
                         </svg>
@@ -300,18 +301,32 @@ function Events() {
                       />
                     </div>
                   )}
-                {"isParticipant" in event &&
+                {(("isParticipant" in event &&
                   !event.isParticipant &&
                   !canUserParticipate(event) &&
                   !event.isOnWaitingList &&
                   !canUserBeAddedToWaitingList(event) &&
-                  !event.canceled && (
+                  !event.canceled) ||
+                  (loaderData.userId === undefined &&
+                    event._count.childEvents > 0)) && (
+                  <div className="ml-auto">
+                    <Link
+                      to={`/event/${event.slug}`}
+                      className="btn btn-primary"
+                    >
+                      Mehr erfahren
+                    </Link>
+                  </div>
+                )}
+                {loaderData.userId === undefined &&
+                  event.canceled === false &&
+                  event._count.childEvents === 0 && (
                     <div className="ml-auto">
                       <Link
-                        to={`/event/${event.slug}`}
                         className="btn btn-primary"
+                        to={`/login?event_slug=${event.slug}`}
                       >
-                        Mehr erfahren
+                        Anmelden
                       </Link>
                     </div>
                   )}

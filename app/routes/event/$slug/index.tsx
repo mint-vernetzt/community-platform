@@ -895,7 +895,8 @@ function Index() {
                         )}
                         {"isParticipant" in event &&
                           event.isParticipant &&
-                          !event.canceled && (
+                          !event.canceled &&
+                          loaderData.mode !== "owner" && (
                             <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                               <p>Angemeldet</p>
                             </div>
@@ -912,7 +913,8 @@ function Index() {
                         )}
                         {"isParticipant" in event &&
                           event.isOnWaitingList &&
-                          !event.canceled && (
+                          !event.canceled &&
+                          loaderData.mode !== "owner" && (
                             <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                               <p>Wartend</p>
                             </div>
@@ -928,18 +930,32 @@ function Index() {
                               />
                             </div>
                           )}
-                        {"isParticipant" in event &&
+                        {(("isParticipant" in event &&
                           !event.isParticipant &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
-                          !event.canceled && (
+                          !event.canceled) ||
+                          (loaderData.userId === undefined &&
+                            event._count.childEvents > 0)) && (
+                          <div className="flex items-center ml-auto pr-4 py-6">
+                            <Link
+                              to={`/event/${event.slug}`}
+                              className="btn btn-primary"
+                            >
+                              Mehr erfahren
+                            </Link>
+                          </div>
+                        )}
+                        {loaderData.mode === "anon" &&
+                          event.canceled === false &&
+                          event._count.childEvents === 0 && (
                             <div className="flex items-center ml-auto pr-4 py-6">
                               <Link
-                                to={`/event/${event.slug}`}
                                 className="btn btn-primary"
+                                to={`/login?event_slug=${event.slug}`}
                               >
-                                Mehr erfahren
+                                Anmelden
                               </Link>
                             </div>
                           )}

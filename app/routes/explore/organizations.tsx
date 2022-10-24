@@ -278,7 +278,8 @@ export default function Index() {
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Organisationen</H1>
+        <H1 like="h0">Entdecke Organisationen</H1>
+        <p className="">Hier findest du Organisationen und Projekte.</p>
       </section>
 
       <section

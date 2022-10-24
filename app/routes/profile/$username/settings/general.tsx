@@ -529,17 +529,15 @@ export default function Index() {
               Die Organisation, das Netzwerk oder das Projekt, in dem Du tätig
               bist, hat noch kein Profil? Füge es direkt hinzu, damit auch
               andere Mitglieder über darüber erfahren können.
+              <br />
+              <br />
+              Falls die Organisation bereits existiert, melde dich bei der
+              Person, die diese angelegt hat.
+              <br />
+              <br />
+              Zukünfig wirst du dich selbstständig zu Organisationen hinzufügen
+              können.
             </p>
-
-            <div className="mb-4">
-              <InputAdd
-                name="organizations"
-                label="Organisation, Netzwerk, Projekt hinzufügen"
-                readOnly
-                placeholder="Noch nicht implementiert"
-                entries={[]}
-              />
-            </div>
 
             <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
               <div className="container">
