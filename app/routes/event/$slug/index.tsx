@@ -20,7 +20,10 @@ import {
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
@@ -55,6 +58,7 @@ type LoaderData = {
   isTeamMember: boolean | undefined;
   userId?: string;
   email?: string;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
   // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
@@ -69,7 +73,7 @@ export const meta: MetaFunction = (args) => {
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
   const { slug } = params;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const abilities = await getFeatureAbilities(request, "events");
 
   if (slug === undefined || typeof slug !== "string") {
     throw badRequest({ message: '"slug" missing' });
@@ -231,6 +235,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     isOnWaitingList,
     isSpeaker,
     isTeamMember,
+    abilities,
   };
 };
 
@@ -390,36 +395,37 @@ function Index() {
                 />
               )}
             </div>
-            {loaderData.mode === "owner" && (
-              <div className="absolute bottom-6 right-6">
-                <label
-                  htmlFor="modal-background-upload"
-                  className="btn btn-primary modal-button"
-                >
-                  Bild ändern
-                </label>
-
-                <Modal id="modal-background-upload">
-                  <ImageCropper
-                    headline="Hintergrundbild"
-                    subject="event"
-                    id="modal-background-upload"
-                    uploadKey="background"
-                    image={loaderData.event.background || undefined}
-                    aspect={31 / 10}
-                    minCropWidth={620}
-                    minCropHeight={62}
-                    maxTargetWidth={1488}
-                    maxTargetHeight={480}
-                    slug={loaderData.event.slug}
-                    csrfToken={"92014sijdaf02"}
-                    redirect={`/event/${loaderData.event.slug}`}
+            {loaderData.mode === "owner" &&
+              loaderData.abilities.events.hasAccess && (
+                <div className="absolute bottom-6 right-6">
+                  <label
+                    htmlFor="modal-background-upload"
+                    className="btn btn-primary modal-button"
                   >
-                    <Background />
-                  </ImageCropper>
-                </Modal>
-              </div>
-            )}
+                    Bild ändern
+                  </label>
+
+                  <Modal id="modal-background-upload">
+                    <ImageCropper
+                      headline="Hintergrundbild"
+                      subject="event"
+                      id="modal-background-upload"
+                      uploadKey="background"
+                      image={loaderData.event.background || undefined}
+                      aspect={31 / 10}
+                      minCropWidth={620}
+                      minCropHeight={62}
+                      maxTargetWidth={1488}
+                      maxTargetHeight={480}
+                      slug={loaderData.event.slug}
+                      csrfToken={"92014sijdaf02"}
+                      redirect={`/event/${loaderData.event.slug}`}
+                    >
+                      <Background />
+                    </ImageCropper>
+                  </Modal>
+                </div>
+              )}
           </div>
           {loaderData.mode === "owner" && (
             <>
@@ -497,7 +503,7 @@ function Index() {
             </>
           )}
         </div>
-        {loaderData.mode === "owner" && (
+        {loaderData.mode === "owner" && loaderData.abilities.events.hasAccess && (
           <>
             <div className="bg-accent-white p-8 pb-0">
               <p className="font-bold text-right">

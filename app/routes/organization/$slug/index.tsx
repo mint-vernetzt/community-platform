@@ -21,7 +21,6 @@ import { getOrganizationInitials } from "~/lib/organization/getOrganizationIniti
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
@@ -60,7 +59,6 @@ type LoaderData = {
     logo?: string;
     background?: string;
   };
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   events: {
     responsibleForEvents: Awaited<
       ReturnType<typeof getEnhancedResponsibleForEvents>
@@ -77,8 +75,6 @@ export const loader: LoaderFunction = async (args) => {
     throw badRequest({ message: "organization slug must be provided" });
   }
   const sessionUser = await getUserByRequest(request);
-
-  const abilities = await getFeatureAbilities(request, "events");
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -222,7 +218,6 @@ export const loader: LoaderFunction = async (args) => {
     organization,
     userIsPrivileged,
     images,
-    abilities,
     events: enhancedEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
@@ -683,136 +678,135 @@ export default function Index() {
                   </div>
                 </>
               )}
-            {loaderData.abilities.events.hasAccess === true &&
-              loaderData.events.responsibleForEvents.length > 0 && (
-                <>
-                  <h3 id="team-member-events" className="mt-16 mb-8 font-bold">
-                    Organisierte Veranstaltungen
-                  </h3>
-                  <div className="mb-16">
-                    {loaderData.events.responsibleForEvents.map(
-                      ({ event }, index) => {
-                        const startTime = new Date(event.startTime);
-                        const endTime = new Date(event.endTime);
-                        return (
-                          <div
-                            key={`child-event-${index}`}
-                            className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
-                          >
-                            <Link className="flex" to={`/event/${event.slug}`}>
-                              <div className="w-40 shrink-0">
-                                {event.background !== undefined && (
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+            {loaderData.events.responsibleForEvents.length > 0 && (
+              <>
+                <h3 id="team-member-events" className="mt-16 mb-8 font-bold">
+                  Organisierte Veranstaltungen
+                </h3>
+                <div className="mb-16">
+                  {loaderData.events.responsibleForEvents.map(
+                    ({ event }, index) => {
+                      const startTime = new Date(event.startTime);
+                      const endTime = new Date(event.endTime);
+                      return (
+                        <div
+                          key={`child-event-${index}`}
+                          className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                        >
+                          <Link className="flex" to={`/event/${event.slug}`}>
+                            <div className="w-40 shrink-0">
+                              {event.background !== undefined && (
+                                <img
+                                  src={
+                                    event.background ||
+                                    "/images/default-event-background.jpg"
+                                  }
+                                  alt={event.name}
+                                  className="object-cover w-full h-full"
+                                />
+                              )}
+                            </div>
+                            <div className="px-4 py-6">
+                              <p className="text-xs mb-1">
+                                {/* TODO: Display icons (see figma) */}
+                                {event.stage !== null &&
+                                  event.stage.title + " | "}
+                                {getDuration(startTime, endTime)}
+                                {event._count.childEvents === 0 && (
+                                  <>
+                                    {event.participantLimit === null
+                                      ? " | Unbegrenzte Plätze"
+                                      : ` | ${
+                                          event.participantLimit -
+                                          event._count.participants
+                                        } / ${
+                                          event.participantLimit
+                                        } Plätzen frei`}
+                                  </>
                                 )}
-                              </div>
-                              <div className="px-4 py-6">
-                                <p className="text-xs mb-1">
-                                  {/* TODO: Display icons (see figma) */}
-                                  {event.stage !== null &&
-                                    event.stage.title + " | "}
-                                  {getDuration(startTime, endTime)}
-                                  {event._count.childEvents === 0 && (
+                                {event.participantLimit !== null &&
+                                  event._count.participants >=
+                                    event.participantLimit && (
                                     <>
-                                      {event.participantLimit === null
-                                        ? " | Unbegrenzte Plätze"
-                                        : ` | ${
-                                            event.participantLimit -
-                                            event._count.participants
-                                          } / ${
-                                            event.participantLimit
-                                          } Plätzen frei`}
+                                      {" "}
+                                      |{" "}
+                                      <span>
+                                        {event._count.waitingList} auf der
+                                        Warteliste
+                                      </span>
                                     </>
                                   )}
-                                  {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit && (
-                                      <>
-                                        {" "}
-                                        |{" "}
-                                        <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
-                                        </span>
-                                      </>
-                                    )}
+                              </p>
+                              <h4 className="font-bold text-base m-0 line-clamp-1">
+                                {event.name}
+                              </h4>
+                              {event.subline !== null ? (
+                                <p className="text-xs mt-1 line-clamp-2">
+                                  {event.subline}
                                 </p>
-                                <h4 className="font-bold text-base m-0 line-clamp-1">
-                                  {event.name}
-                                </h4>
-                                {event.subline !== null ? (
-                                  <p className="text-xs mt-1 line-clamp-2">
-                                    {event.subline}
-                                  </p>
-                                ) : (
-                                  <p className="text-xs mt-1 line-clamp-2">
-                                    {event.description}
-                                  </p>
-                                )}
-                              </div>
-                            </Link>
-                            {event.canceled && (
-                              <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                Abgesagt
-                              </div>
-                            )}
-                            {event.isParticipant && !event.canceled && (
-                              <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                <p>Angemeldet</p>
-                              </div>
-                            )}
-                            {canUserParticipate(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddParticipantButton
-                                  action={`/event/${event.slug}/settings/participants/add-participant`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
-                            )}
-                            {event.isOnWaitingList && !event.canceled && (
-                              <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                <p>Wartend</p>
-                              </div>
-                            )}
-                            {canUserBeAddedToWaitingList(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddToWaitingListButton
-                                  action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
-                            )}
-                            {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled && (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    to={`/event/${event.slug}`}
-                                    className="btn btn-primary"
-                                  >
-                                    Mehr erfahren
-                                  </Link>
-                                </div>
+                              ) : (
+                                <p className="text-xs mt-1 line-clamp-2">
+                                  {event.description}
+                                </p>
                               )}
-                          </div>
-                        );
-                      }
-                    )}
-                  </div>
-                </>
-              )}
+                            </div>
+                          </Link>
+                          {event.canceled && (
+                            <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                              Abgesagt
+                            </div>
+                          )}
+                          {event.isParticipant && !event.canceled && (
+                            <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                              <p>Angemeldet</p>
+                            </div>
+                          )}
+                          {canUserParticipate(event) && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddParticipantButton
+                                action={`/event/${event.slug}/settings/participants/add-participant`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.userEmail}
+                              />
+                            </div>
+                          )}
+                          {event.isOnWaitingList && !event.canceled && (
+                            <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                              <p>Wartend</p>
+                            </div>
+                          )}
+                          {canUserBeAddedToWaitingList(event) && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddToWaitingListButton
+                                action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.userEmail}
+                              />
+                            </div>
+                          )}
+                          {!event.isParticipant &&
+                            !canUserParticipate(event) &&
+                            !event.isOnWaitingList &&
+                            !canUserBeAddedToWaitingList(event) &&
+                            !event.canceled && (
+                              <div className="flex items-center ml-auto pr-4 py-6">
+                                <Link
+                                  to={`/event/${event.slug}`}
+                                  className="btn btn-primary"
+                                >
+                                  Mehr erfahren
+                                </Link>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
