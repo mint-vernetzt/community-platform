@@ -762,7 +762,7 @@ function Index() {
               loaderData.event.speakers.length > 0 && (
                 <>
                   <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-16">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
                     {loaderData.event.speakers.map((speaker) => {
                       const { profile } = speaker;
                       return (
@@ -973,7 +973,7 @@ function Index() {
             {loaderData.event.teamMembers.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Team</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member, index) => {
                     return (
                       <div key={`team-member-${index}`}>
@@ -1017,7 +1017,7 @@ function Index() {
             {loaderData.event.responsibleOrganizations.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map(
                     (item, index) => {
                       return (
