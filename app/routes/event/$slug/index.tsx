@@ -20,10 +20,7 @@ import {
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/lib/utils/application";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
