@@ -183,7 +183,7 @@ function NavBar(props: NavBarProps) {
               <li className="px-5">
                 <Link
                   to="/explore/profiles"
-                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7 mb-2 md:mb-0"
                 >
                   Akteur:innen
                 </Link>
@@ -191,7 +191,7 @@ function NavBar(props: NavBarProps) {
               <li className="px-5">
                 <Link
                   to="/explore/organizations"
-                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7 mb-2 md:mb-0"
                 >
                   Organisationen
                 </Link>
@@ -200,7 +200,7 @@ function NavBar(props: NavBarProps) {
               <li className="px-5">
                 <Link
                   to="/explore/events"
-                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary leading-7 mb-2 md:mb-0"
                 >
                   Veranstaltungen
                 </Link>
