@@ -766,7 +766,7 @@ function Index() {
               loaderData.event.speakers.length > 0 && (
                 <>
                   <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
                     {loaderData.event.speakers.map((speaker) => {
                       const { profile } = speaker;
                       return (
@@ -825,7 +825,7 @@ function Index() {
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
                         <Link className="flex" to={`/event/${event.slug}`}>
-                          <div className="hidden md:block w-40 shrink-0">
+                          <div className="hidden xl:block w-40 shrink-0">
                             {event.background !== undefined && (
                               <img
                                 src={
@@ -868,15 +868,15 @@ function Index() {
                                   </>
                                 )}
                             </p>
-                            <h4 className="font-bold text-base m-0 line-clamp-1">
+                            <h4 className="font-bold text-base m-0 md:line-clamp-1">
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="text-xs mt-1 line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="text-xs mt-1 line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
                                 {event.description}
                               </p>
                             )}
@@ -977,7 +977,7 @@ function Index() {
             {loaderData.event.teamMembers.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Team</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member, index) => {
                     return (
                       <div key={`team-member-${index}`}>
@@ -1021,7 +1021,7 @@ function Index() {
             {loaderData.event.responsibleOrganizations.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map(
                     (item, index) => {
                       return (
@@ -1069,7 +1069,7 @@ function Index() {
               loaderData.event.participants.length > 0 && (
                 <>
                   <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {loaderData.event.participants.map((participant) => {
                       const { profile } = participant;
                       return (

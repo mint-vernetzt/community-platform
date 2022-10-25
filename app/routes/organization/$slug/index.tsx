@@ -361,8 +361,8 @@ export default function Index() {
         </div>
       </section>
       <div className="container relative pb-44">
-        <div className="flex flex-col md:flex-row -mx-4">
-          <div className="flex-gridcol md:w-1/2 lg:w-5/12 px-4 pt-10 lg:pt-0">
+        <div className="flex flex-col lg:flex-row -mx-4">
+          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
             <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44">
               <div className="flex items-center flex-col">
                 <Avatar />
@@ -555,7 +555,7 @@ export default function Index() {
               )}
           </div>
 
-          <div className="flex-gridcol md:w-1/2 lg:w-7/12 px-4 pt-10 lg:pt-20">
+          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">{loaderData.organization.name || ""}</h1>
@@ -702,7 +702,7 @@ export default function Index() {
                           className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                         >
                           <Link className="flex" to={`/event/${event.slug}`}>
-                            <div className="w-40 shrink-0">
+                            <div className="hidden xl:block w-40 shrink-0">
                               {event.background !== undefined && (
                                 <img
                                   src={
@@ -745,15 +745,15 @@ export default function Index() {
                                     </>
                                   )}
                               </p>
-                              <h4 className="font-bold text-base m-0 line-clamp-1">
+                              <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                 {event.name}
                               </h4>
                               {event.subline !== null ? (
-                                <p className="text-xs mt-1 line-clamp-2">
+                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
                                   {event.subline}
                                 </p>
                               ) : (
-                                <p className="text-xs mt-1 line-clamp-2">
+                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
                                   {event.description}
                                 </p>
                               )}
