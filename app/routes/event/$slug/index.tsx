@@ -331,7 +331,7 @@ function Index() {
   return (
     <>
       <section className="container md:mt-2">
-        <div className="font-semi text-neutral-500 flex items-center mb-4">
+        <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
           {loaderData.event.parentEvent !== null && (
             <>
               <Link
@@ -356,7 +356,7 @@ function Index() {
               </span>
             </>
           )}
-          {loaderData.event.name}
+          <span className="w-full md:w-auto">{loaderData.event.name}</span>
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
           {/* TODO: get back route from loader */}
@@ -521,9 +521,9 @@ function Index() {
           </>
         )}
       </section>
-      <div className="container relative pt-20 pb-44">
+      <div className="container relative pt-8 lg:pt-16 pb-20 lg:pb-44">
         <div className="flex -mx-4 justify-center">
-          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
+          <div className="lg:flex-1/2 px-4">
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
@@ -542,11 +542,11 @@ function Index() {
               />
             )}
 
-            <div className="grid grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">
               {loaderData.event.types.length > 0 && (
                 <>
                   <div className="text-xs leading-6">Veranstaltungsart</div>
-                  <div>
+                  <div className="pb-3 md:pb-0">
                     {loaderData.event.types
                       .map((item) => item.eventType.title)
                       .join(" / ")}
@@ -555,7 +555,7 @@ function Index() {
               )}
 
               <div className="text-xs leading-6">Veranstaltungsort</div>
-              <div>
+              <div className="pb-3 md:pb-0">
                 {loaderData.event.venueName !== null ? (
                   <p>
                     {loaderData.event.venueName}, {loaderData.event.venueStreet}{" "}
@@ -566,7 +566,6 @@ function Index() {
                   <p>Online</p>
                 )}
               </div>
-
               {loaderData.mode !== "anon" &&
                 ((loaderData.event.conferenceLink !== null &&
                   loaderData.event.conferenceLink !== "") ||
@@ -577,7 +576,7 @@ function Index() {
                       loaderData.event.stage.title === "Online"))) && (
                   <>
                     <div className="text-xs leading-6">Konferenzlink</div>
-                    <div>
+                    <div className="pb-3 md:pb-0">
                       {loaderData.event.conferenceLink !== null &&
                       loaderData.event.conferenceLink !== "" ? (
                         <a
@@ -597,27 +596,31 @@ function Index() {
               {loaderData.mode !== "anon" && loaderData.event.conferenceCode && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
-                  <div>{loaderData.event.conferenceCode}</div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event.conferenceCode}
+                  </div>
                 </>
               )}
 
               {loaderData.event.startTime && (
                 <>
                   <div className="text-xs leading-6">Start</div>
-                  <div>{formatDateTime(startTime)}</div>
+                  <div className="pb-3 md:pb-0">
+                    {formatDateTime(startTime)}
+                  </div>
                 </>
               )}
               {loaderData.event.endTime && (
                 <>
                   <div className="text-xs leading-6">Ende</div>
-                  <div>{formatDateTime(endTime)}</div>
+                  <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
                 </>
               )}
 
               {loaderData.event.participationUntil && (
                 <>
                   <div className="text-xs leading-6">Registrierung bis</div>
-                  <div>
+                  <div className="pb-3 md:pb-0">
                     {formatDateTime(
                       new Date(loaderData.event.participationUntil)
                     )}
@@ -628,7 +631,7 @@ function Index() {
               {loaderData.event.participationUntil && (
                 <>
                   <div className="text-xs leading-6">Verfügbare Plätze</div>
-                  <div>
+                  <div className="pb-3 md:pb-0">
                     {loaderData.event.participantLimit === null ? (
                       "ohne Beschränkung"
                     ) : (
@@ -645,7 +648,7 @@ function Index() {
               {loaderData.mode !== "anon" && (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
-                  <div>
+                  <div className="pb-3 md:pb-0">
                     <Link
                       className="btn btn-outline btn-primary btn-small"
                       to="ics-download"
@@ -661,7 +664,7 @@ function Index() {
                 loaderData.event.documents.length > 0 && (
                   <>
                     <div className="text-xs leading-6">Downloads</div>
-                    <div>
+                    <div className="pb-3 md:pb-0">
                       {loaderData.event.documents.map((item, index) => {
                         return (
                           <div key={`document-${index}`} className="">
@@ -696,7 +699,7 @@ function Index() {
               {loaderData.event.focuses.length > 0 && (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Schwerpunkte</div>
-                  <div className="event-tags -m-1">
+                  <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.focuses.map((item, index) => {
                       return (
                         <div key={`focus-${index}`} className="badge">
@@ -711,7 +714,7 @@ function Index() {
               {loaderData.event.targetGroups.length > 0 && (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
-                  <div className="event-tags -m-1">
+                  <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.targetGroups.map((item, index) => {
                       return (
                         <div key={`targetGroups-${index}`} className="badge">
@@ -728,7 +731,7 @@ function Index() {
                   <div className="text-xs leading-5 pt-[7px]">
                     Erfahrunsglevel
                   </div>
-                  <div className="event-tags -m-1">
+                  <div className="event-tags -m-1 pb-3 md:pb-0">
                     <div className="badge">
                       {loaderData.event.experienceLevel.title}
                     </div>
@@ -739,7 +742,7 @@ function Index() {
               {loaderData.event.tags.length > 0 && (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Tags</div>
-                  <div className="event-tags -m-1">
+                  <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.tags.map((item, index) => {
                       return (
                         <div key={`tags-${index}`} className="badge">
@@ -754,7 +757,7 @@ function Index() {
               {loaderData.event.areas.length > 0 && (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Gebiete</div>
-                  <div className="event-tags -m-1">
+                  <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.areas.map((item, index) => {
                       return (
                         <div key={`areas-${index}`} className="badge">
@@ -771,7 +774,7 @@ function Index() {
               loaderData.event.speakers.length > 0 && (
                 <>
                   <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-16">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
                     {loaderData.event.speakers.map((speaker) => {
                       const { profile } = speaker;
                       return (
@@ -830,7 +833,7 @@ function Index() {
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
                         <Link className="flex" to={`/event/${event.slug}`}>
-                          <div className="w-40 shrink-0">
+                          <div className="hidden xl:block w-40 shrink-0">
                             {event.background !== undefined && (
                               <img
                                 src={
@@ -873,15 +876,15 @@ function Index() {
                                   </>
                                 )}
                             </p>
-                            <h4 className="font-bold text-base m-0 line-clamp-1">
+                            <h4 className="font-bold text-base m-0 md:line-clamp-1">
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="text-xs mt-1 line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="text-xs mt-1 line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
                                 {event.description}
                               </p>
                             )}
@@ -982,7 +985,7 @@ function Index() {
             {loaderData.event.teamMembers.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Team</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member, index) => {
                     return (
                       <div key={`team-member-${index}`}>
@@ -1026,7 +1029,7 @@ function Index() {
             {loaderData.event.responsibleOrganizations.length > 0 && (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map(
                     (item, index) => {
                       return (
@@ -1074,7 +1077,7 @@ function Index() {
               loaderData.event.participants.length > 0 && (
                 <>
                   <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {loaderData.event.participants.map((participant) => {
                       const { profile } = participant;
                       return (
