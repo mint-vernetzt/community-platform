@@ -46,7 +46,7 @@ export const loader: LoaderFunction = async (args) => {
       const publicURL = getPublicURL(item.background);
       if (publicURL) {
         item.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
+          resize: { type: "fit", width: 400, height: 280 },
         });
       }
     }
