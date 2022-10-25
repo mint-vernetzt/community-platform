@@ -1,26 +1,20 @@
 import { Area } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
-import React, { FormEvent } from "react";
+import React from "react";
 import {
   ActionFunction,
   Link,
   LoaderFunction,
   useActionData,
   useLoaderData,
-  useSubmit,
 } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
+import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
-import { createAreaOptionFromData } from "~/lib/utils/components";
 import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
