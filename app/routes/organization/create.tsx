@@ -1,3 +1,4 @@
+import { GravityType } from "imgproxy/dist/types";
 import {
   ActionFunction,
   LoaderFunction,
@@ -17,8 +18,10 @@ import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import { getImageURL } from "~/images.server";
 import useCSRF from "~/lib/hooks/useCSRF";
 import { createOrganizationOnProfile } from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils";
 import { validateCSRFToken } from "~/utils.server";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
@@ -98,6 +101,18 @@ export const action: ActionFunction = async ({ request, params }) => {
       alreadyExistingOrganization = await getOrganizationByName(
         result.values.organizationName
       );
+      if (
+        alreadyExistingOrganization !== null &&
+        alreadyExistingOrganization.logo !== null
+      ) {
+        const publicURL = getPublicURL(alreadyExistingOrganization.logo);
+        if (publicURL) {
+          alreadyExistingOrganization.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
     }
   }
   return { ...result, alreadyExistingOrganization };
