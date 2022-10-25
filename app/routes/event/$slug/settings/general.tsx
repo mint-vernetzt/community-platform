@@ -136,7 +136,7 @@ const schema = object({
   stage: nullOrString(string()),
   types: array(string().required()).required(),
   tags: array(string().required()).required(),
-  conferenceLink: website(),
+  conferenceLink: nullOrString(string()),
   conferenceCode: string(),
   participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
     .test((value) => {
