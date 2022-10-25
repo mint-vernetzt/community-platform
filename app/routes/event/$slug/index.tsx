@@ -524,7 +524,7 @@ function Index() {
           </>
         )}
       </section>
-      <div className="container relative pt-20 pb-44">
+      <div className="container relative md:mt-8 lg:mt-20">
         <div className="flex -mx-4 justify-center">
           <div className="md:flex-2/3 xl:flex-3/4 2xl:flex-1/2 px-4 pt-10 lg:pt-0">
             <p className="font-bold text-xl mb-8">{duration}</p>
