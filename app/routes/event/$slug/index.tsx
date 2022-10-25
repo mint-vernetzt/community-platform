@@ -567,20 +567,32 @@ function Index() {
                 )}
               </div>
 
-              {loaderData.mode !== "anon" && loaderData.event.conferenceLink && (
-                <>
-                  <div className="text-xs leading-6">Konferenzlink</div>
-                  <div>
-                    <a
-                      href={loaderData.event.conferenceLink}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {loaderData.event.conferenceLink}
-                    </a>
-                  </div>
-                </>
-              )}
+              {loaderData.mode !== "anon" &&
+                ((loaderData.event.conferenceLink !== null &&
+                  loaderData.event.conferenceLink !== "") ||
+                  ((loaderData.event.conferenceLink === null ||
+                    loaderData.event.conferenceLink === "") &&
+                    loaderData.event.stage !== null &&
+                    (loaderData.event.stage.title === "Hybrid" ||
+                      loaderData.event.stage.title === "Online"))) && (
+                  <>
+                    <div className="text-xs leading-6">Konferenzlink</div>
+                    <div>
+                      {loaderData.event.conferenceLink !== null &&
+                      loaderData.event.conferenceLink !== "" ? (
+                        <a
+                          href={loaderData.event.conferenceLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {loaderData.event.conferenceLink}
+                        </a>
+                      ) : (
+                        "Konferenzlink noch nicht bekannt."
+                      )}
+                    </div>
+                  </>
+                )}
 
               {loaderData.mode !== "anon" && loaderData.event.conferenceCode && (
                 <>
