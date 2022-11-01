@@ -554,19 +554,22 @@ function Index() {
                 </>
               )}
 
-              <div className="text-xs leading-6">Veranstaltungsort</div>
-              <div className="pb-3 md:pb-0">
-                {loaderData.event.venueName !== null ? (
-                  <p>
-                    {loaderData.event.venueName}, {loaderData.event.venueStreet}{" "}
-                    {loaderData.event.venueStreetNumber},{" "}
-                    {loaderData.event.venueZipCode} {loaderData.event.venueCity}
-                  </p>
-                ) : (
-                  <p>Online</p>
-                )}
-              </div>
+              {loaderData.event.venueName !== null && (
+                <>
+                  <div className="text-xs leading-6">Veranstaltungsort</div>
+                  <div className="pb-3 md:pb-0">
+                    <p>
+                      {loaderData.event.venueName},{" "}
+                      {loaderData.event.venueStreet}{" "}
+                      {loaderData.event.venueStreetNumber},{" "}
+                      {loaderData.event.venueZipCode}{" "}
+                      {loaderData.event.venueCity}
+                    </p>
+                  </div>
+                </>
+              )}
               {loaderData.mode !== "anon" &&
+                loaderData.event.childEvents.length === 0 &&
                 ((loaderData.event.conferenceLink !== null &&
                   loaderData.event.conferenceLink !== "") ||
                   ((loaderData.event.conferenceLink === null ||
@@ -587,7 +590,7 @@ function Index() {
                           {loaderData.event.conferenceLink}
                         </a>
                       ) : (
-                        "Konferenzlink noch nicht bekannt."
+                        "noch nicht bekannt"
                       )}
                     </div>
                   </>
