@@ -567,6 +567,7 @@ function Index() {
                 )}
               </div>
               {loaderData.mode !== "anon" &&
+                loaderData.event.childEvents.length === 0 &&
                 ((loaderData.event.conferenceLink !== null &&
                   loaderData.event.conferenceLink !== "") ||
                   ((loaderData.event.conferenceLink === null ||
@@ -587,7 +588,7 @@ function Index() {
                           {loaderData.event.conferenceLink}
                         </a>
                       ) : (
-                        "Konferenzlink noch nicht bekannt."
+                        "noch nicht bekannt"
                       )}
                     </div>
                   </>
