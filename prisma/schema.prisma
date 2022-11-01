@@ -8,39 +8,40 @@ datasource db {
 }
 
 model Profile {
-  id                 String                      @id @default(uuid())
-  username           String                      @unique
-  firstName          String                      @map("first_name")
-  lastName           String                      @map("last_name")
-  academicTitle      String?                     @map("academic_title")
-  position           String?
-  email              String
-  phone              String?
-  website            String?
-  avatar             String?
-  background         String?
-  facebook           String?
-  linkedin           String?
-  twitter            String?
-  youtube            String?
-  instagram          String?
-  xing               String?
-  bio                String?
-  skills             String[]
-  interests          String[]
-  publicFields       String[]                    @map("public_fields")
-  memberOf           MemberOfOrganization[]
-  createdAt          DateTime                    @default(now()) @map("created_at")
-  updatedAt          DateTime                    @default(now()) @map("updated_at")
-  termsAccepted      Boolean                     @map("terms_accepted")
-  termsAcceptedAt    DateTime                    @default(now()) @map("terms_accepted_at")
-  areas              AreasOnProfiles[]
-  seekings           SeekingsOnProfiles[]
-  offers             OffersOnProfiles[]
-  participatedEvents ParticipantOfEvent[]
-  contributedEvents  SpeakerOfEvent[]
-  waitingForEvents   WaitingParticipantOfEvent[]
-  teamMemberOfEvents TeamMemberOfEvent[]
+  id                   String                      @id @default(uuid())
+  username             String                      @unique
+  firstName            String                      @map("first_name")
+  lastName             String                      @map("last_name")
+  academicTitle        String?                     @map("academic_title")
+  position             String?
+  email                String
+  phone                String?
+  website              String?
+  avatar               String?
+  background           String?
+  facebook             String?
+  linkedin             String?
+  twitter              String?
+  youtube              String?
+  instagram            String?
+  xing                 String?
+  bio                  String?
+  skills               String[]
+  interests            String[]
+  publicFields         String[]                    @map("public_fields")
+  memberOf             MemberOfOrganization[]
+  createdAt            DateTime                    @default(now()) @map("created_at")
+  updatedAt            DateTime                    @default(now()) @map("updated_at")
+  termsAccepted        Boolean                     @map("terms_accepted")
+  termsAcceptedAt      DateTime                    @default(now()) @map("terms_accepted_at")
+  areas                AreasOnProfiles[]
+  seekings             SeekingsOnProfiles[]
+  offers               OffersOnProfiles[]
+  participatedEvents   ParticipantOfEvent[]
+  contributedEvents    SpeakerOfEvent[]
+  waitingForEvents     WaitingParticipantOfEvent[]
+  teamMemberOfEvents   TeamMemberOfEvent[]
+  teamMemberOfProjects TeamMemberOfProject[]
 
   @@map("profiles")
 }
@@ -113,6 +114,7 @@ model Organization {
   updatedAt              DateTime                           @default(now()) @map("updated_at")
   areas                  AreasOnOrganizations[]
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
+  responsibleForProject  ResponsibleOrganizationOfProject[]
 
   @@map("organizations")
 }
@@ -406,11 +408,12 @@ model Focus {
 }
 
 model TargetGroup {
-  id          String               @id @default(uuid())
-  referenceId Int                  @unique
-  title       String               @unique
-  slug        String               @unique
+  id          String                 @id @default(uuid())
+  referenceId Int                    @unique
+  title       String                 @unique
+  slug        String                 @unique
   events      TargetGroupOfEvent[]
+  projects    TargetGroupOfProject[]
 
   @@map("target_groups")
 }
@@ -468,4 +471,112 @@ model Document {
   events      DocumentOfEvent[]
 
   @@map("documents")
+}
+
+model Project {
+  id                       String                             @id @default(uuid())
+  name                     String
+  slug                     String                             @unique
+  logo                     String?
+  background               String?
+  headline                 String?
+  excerpt                  String?
+  description              String?
+  email                    String?
+  phone                    String?
+  website                  String?
+  street                   String?
+  streetNumber             String?                            @map("street_number")
+  zipCode                  String?                            @map("zip_code")
+  facebook                 String?
+  linkedin                 String?
+  twitter                  String?
+  youtube                  String?
+  instagram                String?
+  xing                     String?
+  targetGroups             TargetGroupOfProject[]
+  disciplines              DisciplineOfProject[]
+  responsibleOrganizations ResponsibleOrganizationOfProject[]
+  teamMembers              TeamMemberOfProject[]
+  awards                   AwardOfProject[]
+  createdAt                DateTime                           @default(now()) @map("created_at")
+  updatedAt                DateTime                           @default(now()) @map("updated_at")
+
+  @@map("projects")
+}
+
+model Discipline {
+  id          String                @id @default(uuid())
+  referenceId Int                   @unique
+  title       String                @unique
+  slug        String                @unique
+  projects    DisciplineOfProject[]
+
+  @@map("disciplines")
+}
+
+model Award {
+  id       String           @id @default(uuid())
+  title    String           @unique
+  slug     String           @unique
+  logo     String
+  projects AwardOfProject[]
+
+  @@map("awards")
+}
+
+model TargetGroupOfProject {
+  targetGroup   TargetGroup @relation(fields: [targetGroupId], references: [id], onDelete: Cascade)
+  targetGroupId String      @map("target_group_id")
+  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String      @map("project_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@id([targetGroupId, projectId])
+  @@map("target_groups_of_projects")
+}
+
+model DisciplineOfProject {
+  discipline   Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+  disciplineId String     @map("discipline_id")
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String     @map("project_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@id([disciplineId, projectId])
+  @@map("disciplines_of_projects")
+}
+
+model AwardOfProject {
+  award     Award    @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  awardId   String   @map("award_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([awardId, projectId])
+  @@map("awards_of_projects")
+}
+
+model ResponsibleOrganizationOfProject {
+  project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String       @map("project_id")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@id([projectId, organizationId])
+  @@map("responsible_organizations_of_projects")
+}
+
+model TeamMemberOfProject {
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId    String   @map("pprofile_id")
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String   @map("project_id")
+  isPrivileged Boolean  @default(false) @map("is_privileged")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@id([profileId, projectId])
+  @@map("team_members_of_projects")
 }
