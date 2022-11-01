@@ -16,12 +16,15 @@ import {
   useLocation,
 } from "remix";
 import { forbidden } from "remix-utils";
+import { getFullName } from "~/lib/profile/getFullName";
 import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
-import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "./lib/profile/getInitials";
-import { getFeatureAbilities } from "./lib/utils/application";
+import {
+  getFeatureAbilities,
+  validateFeatureAccess,
+} from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
@@ -39,7 +42,10 @@ export type RootRouteData = {
   matomoSiteId: string | undefined;
   csrf: string | undefined;
   currentUserInfo?: CurrentUserInfo;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+  abilities: Pick<
+    Awaited<ReturnType<typeof validateFeatureAccess>>,
+    "abilities"
+  >;
 };
 
 type LoaderData = RootRouteData;
@@ -51,7 +57,10 @@ export const loader: LoaderFunction = async (args) => {
     request.headers.get("Cookie")
   );
 
-  const abilities = await getFeatureAbilities(request, "events");
+  const { abilities } = await validateFeatureAccess(request, [
+    "events",
+    "projects",
+  ]);
 
   let csrf;
   if (session !== null) {
@@ -108,7 +117,7 @@ export const loader: LoaderFunction = async (args) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       currentUserInfo,
-      abilities,
+      abilities, // TODO: fix type issue
     },
     { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
   );
@@ -323,6 +332,36 @@ function NavBar(props: NavBarProps) {
                           onClick={closeDropdown}
                         >
                           Veranstaltungen anlegen
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                  {props.abilities.projects.hasAccess === true && (
+                    <>
+                      <li className="p-4 pb-6">
+                        <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                      </li>
+                      <li>
+                        <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                          Meine Projekte
+                        </h5>
+                      </li>
+                      {/* <li>
+                        <Link
+                          to={`/profile/${props.currentUserInfo.username}#projects`}
+                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
+                        >
+                          Projekte anzeigen
+                        </Link>
+                      </li> */}
+                      <li>
+                        <Link
+                          to={`/project/create`}
+                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                          onClick={closeDropdown}
+                        >
+                          Projekt anlegen
                         </Link>
                       </li>
                     </>
