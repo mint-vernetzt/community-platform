@@ -29,6 +29,13 @@ export function generateEventSlug(name: string, timestamp: number) {
   return `${nameSlug}-${stringFromTimestamp}`;
 }
 
+export function generateProjectSlug(name: string) {
+  const nameSlug = generateValidSlug(name);
+  const timestamp = Date.now();
+  const stringFromTimestamp = timestamp.toString(36);
+  return `${nameSlug}-${stringFromTimestamp}`;
+}
+
 function generateValidSlug(string: string) {
   return string
     .toLowerCase()
