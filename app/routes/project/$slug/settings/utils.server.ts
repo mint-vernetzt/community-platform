@@ -48,3 +48,12 @@ export function transformProjectToForm(
     disciplines: project.disciplines.map((item) => item.disciplineId) ?? [],
   };
 }
+
+export function getResponsibleOrganizationDataFromProject(
+  project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>
+) {
+  const organizationData = project.responsibleOrganizations.map((item) => {
+    return item.organization;
+  });
+  return organizationData;
+}
