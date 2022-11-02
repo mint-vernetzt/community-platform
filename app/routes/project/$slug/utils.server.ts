@@ -29,6 +29,39 @@ export async function getProjectByIdOrThrow(id: string) {
 export async function getProjectByField(field: string, value: string) {
   const result = await prismaClient.project.findFirst({
     where: { [field]: value },
+    include: {
+      targetGroups: {
+        select: {
+          targetGroupId: true,
+          targetGroup: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      disciplines: {
+        select: {
+          disciplineId: true,
+          discipline: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
   });
   return result;
 }

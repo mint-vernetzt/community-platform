@@ -109,3 +109,8 @@ export async function getAreas() {
     },
   });
 }
+
+export async function getDisciplines() {
+  const result = await prismaClient.discipline.findMany();
+  return result;
+}
