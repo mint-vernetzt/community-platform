@@ -12,10 +12,10 @@ const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
 jest.mock("~/prisma", () => {
   return {
     prismaClient: {
-      event: {
+      project: {
         findFirst: jest.fn(),
       },
-      teamMemberOfEvent: {
+      teamMemberOfProject: {
         findFirst: jest.fn(),
         delete: jest.fn(),
       },
@@ -26,7 +26,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/remove-member", () => {
+describe("/project/$slug/settings/team/remove-member", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -53,14 +53,14 @@ describe("/event/$slug/settings/team/remove-member", () => {
     }
   });
 
-  test("event not found", async () => {
+  test("project not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
     });
 
     expect.assertions(2);
 
-    (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -71,7 +71,7 @@ describe("/event/$slug/settings/team/remove-member", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("Event not found");
+      expect(json.message).toBe("Project not found");
     }
   });
 
@@ -84,11 +84,11 @@ describe("/event/$slug/settings/team/remove-member", () => {
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
     });
     (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      prismaClient.teamMemberOfProject.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
     });
@@ -117,11 +117,11 @@ describe("/event/$slug/settings/team/remove-member", () => {
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
     });
     (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      prismaClient.teamMemberOfProject.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
     });
@@ -163,20 +163,20 @@ describe("/event/$slug/settings/team/remove-member", () => {
     }
   });
 
-  test("different event id", async () => {
+  test("different project id", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      eventId: "some-event-id",
+      projectId: "some-project-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "another-event-id" };
+    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "another-project-id" };
     });
     (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      prismaClient.teamMemberOfProject.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
     });
@@ -192,27 +192,27 @@ describe("/event/$slug/settings/team/remove-member", () => {
       expect(response.status).toBe(400);
 
       const json = await response.json();
-      expect(json.message).toBe("Event IDs differ");
+      expect(json.message).toBe("Project IDs differ");
     }
   });
 
-  test("remove event team member", async () => {
+  test("remove project team member", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      eventId: "some-event-id",
+      projectId: "some-project-id",
       teamMemberId: "another-user-id",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
-        id: "some-event-id",
+        id: "some-project-id",
       };
     });
     (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      prismaClient.teamMemberOfProject.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
     });
@@ -223,11 +223,11 @@ describe("/event/$slug/settings/team/remove-member", () => {
         context: {},
         params: {},
       });
-      expect(prismaClient.teamMemberOfEvent.delete).toHaveBeenLastCalledWith({
+      expect(prismaClient.teamMemberOfProject.delete).toHaveBeenLastCalledWith({
         where: {
-          eventId_profileId: {
-            eventId: "some-event-id",
+          profileId_projectId: {
             profileId: "another-user-id",
+            projectId: "some-project-id",
           },
         },
       });

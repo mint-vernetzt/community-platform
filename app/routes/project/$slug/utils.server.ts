@@ -61,6 +61,19 @@ export async function getProjectByField(field: string, value: string) {
           },
         },
       },
+      teamMembers: {
+        select: {
+          isPrivileged: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
   return result;

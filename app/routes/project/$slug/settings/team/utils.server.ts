@@ -1,41 +1,41 @@
 import { prismaClient } from "~/prisma";
 
-export async function connectProfileToEvent(
-  eventId: string,
+export async function connectProfileToProject(
+  projectId: string,
   profileId: string
 ) {
-  await prismaClient.teamMemberOfEvent.create({
+  await prismaClient.teamMemberOfProject.create({
     data: {
-      eventId,
+      projectId,
       profileId,
     },
   });
 }
 
-export async function disconnectProfileFromEvent(
-  eventId: string,
+export async function disconnectProfileFromProject(
+  projectId: string,
   profileId: string
 ) {
-  await prismaClient.teamMemberOfEvent.delete({
+  await prismaClient.teamMemberOfProject.delete({
     where: {
-      eventId_profileId: {
-        eventId,
+      profileId_projectId: {
         profileId,
+        projectId,
       },
     },
   });
 }
 
-export async function updateEventTeamMemberPrivilege(
-  eventId: string,
+export async function updateProjectTeamMemberPrivilege(
+  projectId: string,
   teamMemberId: string,
   isPrivileged: boolean
 ) {
-  await prismaClient.teamMemberOfEvent.update({
+  await prismaClient.teamMemberOfProject.update({
     where: {
-      eventId_profileId: {
-        eventId,
+      profileId_projectId: {
         profileId: teamMemberId,
+        projectId,
       },
     },
     data: {
