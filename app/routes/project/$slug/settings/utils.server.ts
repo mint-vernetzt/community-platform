@@ -1,6 +1,6 @@
 import { Project } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
-import { unauthorized } from "remix-utils";
+import { badRequest, unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getProjectBySlugOrThrow } from "../utils.server";
 
@@ -56,4 +56,17 @@ export function getResponsibleOrganizationDataFromProject(
     return item.organization;
   });
   return organizationData;
+}
+
+export async function checkSameProjectOrThrow(
+  request: Request,
+  projectId: string
+) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const value = formData.get("projectId") as string | null;
+
+  if (value === null || value !== projectId) {
+    throw badRequest({ message: "Project IDs differ" });
+  }
 }

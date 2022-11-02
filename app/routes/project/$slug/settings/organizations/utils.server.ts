@@ -1,25 +1,25 @@
 import { prismaClient } from "~/prisma";
 
-export async function connectOrganizationToEvent(
-  eventId: string,
+export async function connectOrganizationToProject(
+  projectId: string,
   organizationId: string
 ) {
-  await prismaClient.responsibleOrganizationOfEvent.create({
+  await prismaClient.responsibleOrganizationOfProject.create({
     data: {
-      eventId,
+      projectId,
       organizationId,
     },
   });
 }
 
 export async function disconnectOrganizationFromEvent(
-  eventId: string,
+  projectId: string,
   organizationId: string
 ) {
-  await prismaClient.responsibleOrganizationOfEvent.delete({
+  await prismaClient.responsibleOrganizationOfProject.delete({
     where: {
-      eventId_organizationId: {
-        eventId,
+      projectId_organizationId: {
+        projectId,
         organizationId,
       },
     },

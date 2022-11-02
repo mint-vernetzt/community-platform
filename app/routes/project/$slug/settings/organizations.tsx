@@ -116,7 +116,7 @@ function Organizations() {
         fetcher={addOrganizationFetcher}
         action={`/project/${slug}/settings/organizations/add-organization`}
         hiddenFields={["projectId", "userId"]}
-        values={{ eventId: loaderData.projectId, userId: loaderData.userId }}
+        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
         onTransition={({ reset, formState }) => {
           if (formState.isSubmitSuccessful) {
             reset();
