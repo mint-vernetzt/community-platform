@@ -11,9 +11,18 @@ import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { addMemberSchema } from "./team/add-member";
-import { removeMemberSchema } from "./team/remove-member";
-import { setPrivilegeSchema } from "./team/set-privilege";
+import {
+  ActionData as AddMemberActionData,
+  addMemberSchema,
+} from "./team/add-member";
+import {
+  ActionData as RemoveMemberActionData,
+  removeMemberSchema,
+} from "./team/remove-member";
+import {
+  ActionData as SetPrivilegeActionData,
+  setPrivilegeSchema,
+} from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
   getTeamMemberProfileDataFromEvent,
@@ -41,9 +50,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 function Team() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const addMemberFetcher = useFetcher();
-  const removeMemberFetcher = useFetcher();
-  const setPrivilegeFetcher = useFetcher();
+  const addMemberFetcher = useFetcher<AddMemberActionData>();
+  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
+  const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
 
   return (
     <>
@@ -159,16 +168,6 @@ function Team() {
           })}
         </ul>
       </div>
-      {setPrivilegeFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {setPrivilegeFetcher.data.message}
-        </div>
-      )}
-      {removeMemberFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {removeMemberFetcher.data.message}
-        </div>
-      )}
       <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
@@ -228,11 +227,6 @@ function Team() {
           );
         }}
       </Form>
-      {addMemberFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {addMemberFetcher.data.message}
-        </div>
-      )}
     </>
   );
 }
