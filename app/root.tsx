@@ -57,10 +57,11 @@ export const loader: LoaderFunction = async (args) => {
     request.headers.get("Cookie")
   );
 
-  const { abilities } = await validateFeatureAccess(request, [
-    "events",
-    "projects",
-  ]);
+  const { abilities } = await validateFeatureAccess(
+    request,
+    ["events", "projects"],
+    { throw: false }
+  );
 
   let csrf;
   if (session !== null) {
