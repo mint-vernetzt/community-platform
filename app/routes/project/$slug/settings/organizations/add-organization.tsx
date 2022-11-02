@@ -1,5 +1,5 @@
 import { ActionFunction } from "remix";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
@@ -22,6 +22,22 @@ const schema = z.object({
 export const addOrganizationSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  const organization = await getOrganizationByName(values.organizationName);
+  if (organization === null) {
+    throw new InputError(
+      "Es existiert noch keine Organisation mit diesem Namen.",
+      "organizationName"
+    );
+  }
+  const alreadyMember = organization.responsibleForProject.some((entry) => {
+    return entry.project.id === values.projectId;
+  });
+  if (alreadyMember) {
+    throw new InputError(
+      "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
+      "organizationName"
+    );
+  }
   return values;
 });
 

@@ -38,6 +38,33 @@ export async function getProfileByEmail(email: string) {
           },
         },
       },
+      contributedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      participatedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      waitingForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return profile;
@@ -100,6 +127,24 @@ export async function getOrganizationByName(name: string) {
           organizationType: {
             select: {
               title: true,
+            },
+          },
+        },
+      },
+      responsibleForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      responsibleForProject: {
+        select: {
+          project: {
+            select: {
+              id: true,
             },
           },
         },
