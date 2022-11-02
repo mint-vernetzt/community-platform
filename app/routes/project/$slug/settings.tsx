@@ -23,6 +23,14 @@ function Settings() {
                       Allgemein
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="organizations"
+                      className={({ isActive }) => getClassName(isActive)}
+                    >
+                      Verantwortliche Organisationen
+                    </NavLink>
+                  </li>
                 </ul>
                 <hr className="border-neutral-400 my-4 lg:my-8" />
                 <div>
