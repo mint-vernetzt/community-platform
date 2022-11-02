@@ -12,7 +12,7 @@ export async function connectOrganizationToProject(
   });
 }
 
-export async function disconnectOrganizationFromEvent(
+export async function disconnectOrganizationFromProject(
   projectId: string,
   organizationId: string
 ) {
