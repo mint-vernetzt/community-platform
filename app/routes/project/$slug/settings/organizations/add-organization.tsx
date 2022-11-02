@@ -1,7 +1,8 @@
+import { User } from "@supabase/supabase-js";
 import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
-import { z } from "zod";
+import { PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
@@ -24,6 +25,11 @@ export const addOrganizationSchema = schema;
 const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
+
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;

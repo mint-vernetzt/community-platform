@@ -11,8 +11,14 @@ import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProjectBySlugOrThrow } from "../utils.server";
-import { addOrganizationSchema } from "./organizations/add-organization";
-import { removeOrganizationSchema } from "./organizations/remove-organization";
+import {
+  ActionData as AddOrganizationActionData,
+  addOrganizationSchema,
+} from "./organizations/add-organization";
+import {
+  ActionData as RemoveOrganizationActionData,
+  removeOrganizationSchema,
+} from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
@@ -41,8 +47,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const addOrganizationFetcher = useFetcher();
-  const removeOrganizationFetcher = useFetcher();
+  const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
+  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
+
+  console.log(addOrganizationFetcher.data);
 
   return (
     <>
@@ -166,11 +174,6 @@ function Organizations() {
           );
         }}
       </Form>
-      {addOrganizationFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {addOrganizationFetcher.data.message}
-        </div>
-      )}
     </>
   );
 }
