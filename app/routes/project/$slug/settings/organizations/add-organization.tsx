@@ -1,4 +1,3 @@
-import { User } from "@supabase/supabase-js";
 import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
