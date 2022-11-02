@@ -73,6 +73,11 @@ export async function getProjectByField(field: string, value: string) {
             },
           },
         },
+        orderBy: {
+          profile: {
+            firstName: "asc",
+          },
+        },
       },
     },
   });
