@@ -1,5 +1,5 @@
 import { ActionFunction } from "remix";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
@@ -22,6 +22,22 @@ const schema = z.object({
 export const addMemberSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  const profile = await getProfileByEmail(values.email);
+  if (profile === null) {
+    throw new InputError(
+      "Es existiert noch kein Profil unter dieser E-Mail.",
+      "email"
+    );
+  }
+  const alreadyMember = profile.teamMemberOfProjects.some((entry) => {
+    return entry.project.id === values.projectId;
+  });
+  if (alreadyMember) {
+    throw new InputError(
+      "Das Profil unter dieser E-Mail ist bereits Mitglied Eures Projektes.",
+      "email"
+    );
+  }
   return values;
 });
 

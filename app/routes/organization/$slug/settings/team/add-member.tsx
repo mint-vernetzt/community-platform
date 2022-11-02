@@ -43,11 +43,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     );
   }
 
-  const stillMember = profile.memberOf.some((entry) => {
+  const alreadyMember = profile.memberOf.some((entry) => {
     return entry.organization.slug === slug;
   });
 
-  if (stillMember) {
+  if (alreadyMember) {
     throw new InputError(
       "Das Profil unter dieser E-Mail ist bereits Mitglied Eurer Organisation.",
       "email"

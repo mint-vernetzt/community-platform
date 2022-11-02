@@ -20,6 +20,24 @@ export async function getProfileByEmail(email: string) {
           },
         },
       },
+      teamMemberOfEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      teamMemberOfProjects: {
+        select: {
+          project: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return profile;
