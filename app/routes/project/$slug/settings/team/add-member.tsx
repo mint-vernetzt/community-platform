@@ -33,6 +33,7 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request } = args;
   await checkFeatureAbilitiesOrThrow(request, "projects");
+
   const currentUser = await getUserByRequestOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
 

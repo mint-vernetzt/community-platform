@@ -28,7 +28,7 @@ jest.mock("~/prisma", () => {
 
 describe("/project/$slug/settings/team/remove-member", () => {
   beforeAll(() => {
-    process.env.FEATURES = "events";
+    process.env.FEATURES = "projects";
   });
 
   test("anon user", async () => {
