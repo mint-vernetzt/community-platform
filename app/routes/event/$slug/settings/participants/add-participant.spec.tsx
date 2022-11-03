@@ -58,6 +58,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -66,6 +67,10 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { participatedEvents: [] };
+    });
 
     try {
       await action({ request, context: {}, params: {} });
@@ -91,6 +96,9 @@ describe("/event/$slug/settings/participants/add-participant", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { participatedEvents: [] };
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -148,6 +156,9 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { participatedEvents: [] };
+    });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
@@ -169,6 +180,51 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     }
   });
 
+  test("already participant", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "anotheruser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-event-id" };
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        participatedEvents: [
+          {
+            event: {
+              id: "some-event-id",
+            },
+          },
+        ],
+      };
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+
+    try {
+      const response = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      console.log(response);
+
+      expect(response.success).toBe(false);
+      expect(response.errors.email).toContain(
+        "Das Profil unter dieser E-Mail nimmt bereits an Eurer Veranstaltung teil."
+      );
+    } catch (error) {}
+  });
+
   test("add participant (owner)", async () => {
     expect.assertions(2);
 
@@ -183,6 +239,10 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       return {
         id: "some-event-id",
       };
+    });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { participatedEvents: [] };
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
@@ -204,13 +264,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   test("add participant (self)", async () => {
@@ -240,6 +294,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "another-user-id",
+        participatedEvents: [],
       };
     });
 
@@ -256,13 +311,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   afterAll(() => {
