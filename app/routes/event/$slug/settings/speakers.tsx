@@ -49,10 +49,10 @@ function Speakers() {
       <div className="mb-8">
         <h3>Vortragende</h3>
         <ul>
-          {loaderData.speakers.map((profile, index) => {
+          {loaderData.speakers.map((profile) => {
             return (
               <div
-                key={`team-member-${index}`}
+                key={`team-member-${profile.id}`}
                 className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
               >
                 <div className="pl-4">
@@ -67,7 +67,6 @@ function Speakers() {
                 </div>
 
                 <Form
-                  key={`remove-child-${index}`}
                   schema={removeSpeakerSchema}
                   fetcher={removeSpeakerFetcher}
                   action={`/event/${slug}/settings/speakers/remove-speaker`}

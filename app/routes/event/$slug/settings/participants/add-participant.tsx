@@ -1,5 +1,5 @@
 import { ActionFunction, useFetcher } from "remix";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
@@ -17,6 +17,22 @@ const schema = z.object({
 export const addParticipantSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  const profile = await getProfileByEmail(values.email);
+  if (profile === null) {
+    throw new InputError(
+      "Es existiert noch kein Profil unter dieser E-Mail.",
+      "email"
+    );
+  }
+  const alreadyMember = profile.participatedEvents.some((entry) => {
+    return entry.event.id === values.eventId;
+  });
+  if (alreadyMember) {
+    throw new InputError(
+      "Das Profil unter dieser E-Mail nimmt bereits an Eurer Veranstaltung teil.",
+      "email"
+    );
+  }
   return values;
 });
 

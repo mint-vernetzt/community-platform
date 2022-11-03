@@ -58,6 +58,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -66,6 +67,10 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { contributedEvents: [] };
+    });
 
     try {
       await action({ request, context: {}, params: {} });
@@ -81,6 +86,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -95,6 +101,9 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { contributedEvents: [] };
     });
 
     try {
@@ -153,6 +162,10 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
       return { isPrivileged: true };
     });
 
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { contributedEvents: [] };
+    });
+
     try {
       await action({
         request,
@@ -168,7 +181,52 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     }
   });
 
-  test("add event team member", async () => {
+  test("already speaker", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "anotheruser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-event-id" };
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        contributedEvents: [
+          {
+            event: {
+              id: "some-event-id",
+            },
+          },
+        ],
+      };
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+
+    try {
+      const response = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      console.log(response);
+
+      expect(response.success).toBe(false);
+      expect(response.errors.email).toContain([
+        "Das Profil unter dieser E-Mail ist bereits Speaker Eurer Veranstaltung.",
+      ]);
+    } catch (error) {}
+  });
+
+  test("add event speaker", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -190,6 +248,10 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { contributedEvents: [] };
+    });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "another-user-id",
       };
@@ -208,13 +270,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   afterAll(() => {

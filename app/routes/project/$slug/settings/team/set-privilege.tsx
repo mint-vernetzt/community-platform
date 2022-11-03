@@ -1,43 +1,28 @@
 import { ActionFunction } from "remix";
-import { InputError, makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
+import { getProfileByUserId } from "~/profile.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
 import {
   checkOwnershipOrThrow,
   checkSameProjectOrThrow,
 } from "../utils.server";
-import { connectOrganizationToProject } from "./utils.server";
+import { updateProjectTeamMemberPrivilege } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   projectId: z.string(),
-  organizationName: z.string(),
+  teamMemberId: z.string().min(1),
+  isPrivileged: z.boolean(),
 });
 
-export const addOrganizationSchema = schema;
+export const setPrivilegeSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationByName(values.organizationName);
-  if (organization === null) {
-    throw new InputError(
-      "Es existiert noch keine Organisation mit diesem Namen.",
-      "organizationName"
-    );
-  }
-  const alreadyMember = organization.responsibleForProject.some((entry) => {
-    return entry.project.id === values.projectId;
-  });
-  if (alreadyMember) {
-    throw new InputError(
-      "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
-      "organizationName"
-    );
-  }
   return values;
 });
 
@@ -58,11 +43,15 @@ export const action: ActionFunction = async (args) => {
     const project = await getProjectByIdOrThrow(result.data.projectId);
     await checkOwnershipOrThrow(project, currentUser);
     await checkSameProjectOrThrow(request, project.id);
-    const organization = await getOrganizationByName(
-      result.data.organizationName
+    const teamMemberProfile = await getProfileByUserId(
+      result.data.teamMemberId
     );
-    if (organization !== null) {
-      await connectOrganizationToProject(project.id, organization.id);
+    if (teamMemberProfile !== null) {
+      await updateProjectTeamMemberPrivilege(
+        project.id,
+        result.data.teamMemberId,
+        result.data.isPrivileged
+      );
     }
   }
   return result;

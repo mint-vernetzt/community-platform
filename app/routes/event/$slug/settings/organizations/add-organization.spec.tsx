@@ -60,11 +60,15 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       email: "anotheruser@mail.com",
+      organizationName: "some-organization",
     });
 
     expect.assertions(2);
 
-    (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      responsibleForEvents: [],
+    });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -83,6 +87,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       email: "anotheruser@mail.com",
+      organizationName: "some-organization",
     });
 
     expect.assertions(2);
@@ -91,6 +96,9 @@ describe("/event/$slug/settings/organization/add-organization", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
+    });
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      responsibleForEvents: [],
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -142,11 +150,15 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       userId: "some-user-id",
       eventId: "some-event-id",
       email: "anotheruser@mail.com",
+      organizationName: "some-organization",
     });
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
+    });
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      responsibleForEvents: [],
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -167,6 +179,49 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       const json = await response.json();
       expect(json.message).toBe("Event IDs differ");
     }
+  });
+
+  test("already member", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "anotheruser@mail.com",
+      organizationName: "some-organization",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-event-id" };
+    });
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      responsibleForEvents: [
+        {
+          event: {
+            id: "some-event-id",
+          },
+        },
+      ],
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+
+    try {
+      const response = await action({
+        request,
+        context: {},
+        params: {},
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.errors.organizationName).toContain(
+        "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich."
+      );
+    } catch (error) {}
   });
 
   test("add responsible organization to event", async () => {
@@ -190,10 +245,11 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       return { isPrivileged: true };
     });
 
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
+    (prismaClient.organization.findFirst as jest.Mock).mockImplementation(
       () => {
         return {
           id: "some-organization-id",
+          responsibleForEvents: [],
         };
       }
     );
@@ -213,13 +269,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   afterAll(() => {

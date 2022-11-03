@@ -1,18 +1,23 @@
 import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
+import { notFound } from "remix-utils";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getOrganizationBySlug } from "~/organization.server";
 import { getProfileByUserId } from "~/profile.server";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { updateEventTeamMemberPrivilege } from "./utils.server";
+import {
+  checkIdentityOrThrow,
+  checkSameOrganizationOrThrow,
+} from "../../utils.server";
+import { handleAuthorization } from "../utils.server";
+import { updateOrganizationTeamMemberPrivilege } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  teamMemberId: z.string().min(1),
+  userId: z.string().uuid(),
+  slug: z.string(),
+  teamMemberId: z.string().uuid(),
+  organizationId: z.string().uuid(),
   isPrivileged: z.boolean(),
 });
 
@@ -29,22 +34,25 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+
   const currentUser = await getUserByRequestOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
+  const { organization } = await handleAuthorization(args);
+  await checkSameOrganizationOrThrow(request, organization.id);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
-    await checkSameEventOrThrow(request, event.id);
+    const organization = await getOrganizationBySlug(result.data.slug);
+    if (organization === null) {
+      throw notFound({ message: "Organization not found" });
+    }
     const teamMemberProfile = await getProfileByUserId(
       result.data.teamMemberId
     );
     if (teamMemberProfile !== null) {
-      await updateEventTeamMemberPrivilege(
-        event.id,
+      await updateOrganizationTeamMemberPrivilege(
+        organization.id,
         result.data.teamMemberId,
         result.data.isPrivileged
       );

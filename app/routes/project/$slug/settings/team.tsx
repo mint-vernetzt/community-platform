@@ -10,7 +10,7 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
+import { getProjectBySlugOrThrow } from "../utils.server";
 import {
   ActionData as AddMemberActionData,
   addMemberSchema,
@@ -25,26 +25,29 @@ import {
 } from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
-  getTeamMemberProfileDataFromEvent,
+  getTeamMemberProfileDataFromProject,
 } from "./utils.server";
 
 type LoaderData = {
   userId: string;
-  eventId: string;
-  teamMembers: ReturnType<typeof getTeamMemberProfileDataFromEvent>;
+  projectId: string;
+  teamMembers: ReturnType<typeof getTeamMemberProfileDataFromProject>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(request, "projects");
   const slug = getParamValueOrThrow(params, "slug");
   const currentUser = await getUserByRequestOrThrow(request);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  const project = await getProjectBySlugOrThrow(slug);
+  await checkOwnershipOrThrow(project, currentUser);
 
-  const teamMembers = getTeamMemberProfileDataFromEvent(event, currentUser.id);
+  const teamMembers = getTeamMemberProfileDataFromProject(
+    project,
+    currentUser.id
+  );
 
-  return { userId: currentUser.id, eventId: event.id, teamMembers };
+  return { userId: currentUser.id, projectId: project.id, teamMembers };
 };
 
 function Team() {
@@ -78,16 +81,16 @@ function Team() {
                 <Form
                   schema={setPrivilegeSchema}
                   fetcher={setPrivilegeFetcher}
-                  action={`/event/${slug}/settings/team/set-privilege`}
+                  action={`/project/${slug}/settings/team/set-privilege`}
                   hiddenFields={[
                     "userId",
-                    "eventId",
+                    "projectId",
                     "teamMemberId",
                     "isPrivileged",
                   ]}
                   values={{
                     userId: loaderData.userId,
-                    eventId: loaderData.eventId,
+                    projectId: loaderData.projectId,
                     teamMemberId: teamMember.id,
                     isPrivileged: !teamMember.isPrivileged,
                   }}
@@ -97,7 +100,7 @@ function Team() {
                     return (
                       <>
                         <Field name="userId" />
-                        <Field name="eventId" />
+                        <Field name="projectId" />
                         <Field name="teamMemberId" />
                         <Field name="isPrivileged" />
                         {teamMember.isCurrentUser === false && (
@@ -123,11 +126,11 @@ function Team() {
                 <Form
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
-                  action={`/event/${slug}/settings/team/remove-member`}
-                  hiddenFields={["userId", "eventId", "teamMemberId"]}
+                  action={`/project/${slug}/settings/team/remove-member`}
+                  hiddenFields={["userId", "projectId", "teamMemberId"]}
                   values={{
                     userId: loaderData.userId,
-                    eventId: loaderData.eventId,
+                    projectId: loaderData.projectId,
                     teamMemberId: teamMember.id,
                   }}
                 >
@@ -136,7 +139,7 @@ function Team() {
                     return (
                       <>
                         <Field name="userId" />
-                        <Field name="eventId" />
+                        <Field name="projectId" />
                         <Field name="teamMemberId" />
                         {teamMember.isCurrentUser === false && (
                           <Button
@@ -173,9 +176,9 @@ function Team() {
       <Form
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
-        action={`/event/${slug}/settings/team/add-member`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        action={`/project/${slug}/settings/team/add-member`}
+        hiddenFields={["projectId", "userId"]}
+        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
         onTransition={({ reset, formState }) => {
           if (formState.isSubmitSuccessful) {
             reset();
@@ -185,7 +188,7 @@ function Team() {
         {({ Field, Errors, Button }) => {
           return (
             <>
-              <Field name="eventId" />
+              <Field name="projectId" />
               <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">

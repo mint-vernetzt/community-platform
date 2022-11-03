@@ -1,4 +1,4 @@
-import { Event, Organization, Profile } from "@prisma/client";
+import { Organization, Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -116,6 +116,11 @@ export async function getEventByField(field: string, value: string) {
               lastName: true,
               username: true,
             },
+          },
+        },
+        orderBy: {
+          profile: {
+            firstName: "asc",
           },
         },
       },

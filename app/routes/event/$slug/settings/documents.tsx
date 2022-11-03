@@ -45,9 +45,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   };
 };
 
-function closeModal(index: number) {
+function closeModal(id: string) {
   const $modalToggle = document.getElementById(
-    `modal-edit-document-${index}`
+    `modal-edit-document-${id}`
   ) as HTMLInputElement | null;
   if ($modalToggle) {
     $modalToggle.checked = false;
@@ -84,10 +84,10 @@ function Documents() {
         <div className="mb-8">
           <h3>Aktuelle Dokumente</h3>
           <ul>
-            {loaderData.event.documents.map((item, index) => {
+            {loaderData.event.documents.map((item) => {
               return (
                 <div
-                  key={`document-${index}`}
+                  key={`document-${item.document.id}`}
                   className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
                 >
                   <p>{item.document.title || item.document.filename}</p>
@@ -100,19 +100,19 @@ function Documents() {
                     Herunterladen
                   </Link>
                   <label
-                    htmlFor={`modal-edit-document-${index}`}
+                    htmlFor={`modal-edit-document-${item.document.id}`}
                     className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
                   >
                     Editieren
                   </label>
-                  <Modal id={`modal-edit-document-${index}`}>
+                  <Modal id={`modal-edit-document-${item.document.id}`}>
                     <RemixForm
                       method="post"
                       fetcher={editDocumentFetcher}
                       action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
                       schema={editDocumentSchema}
                       onSubmit={(event) => {
-                        closeModal(index);
+                        closeModal(item.document.id);
                         // @ts-ignore
                         if (event.nativeEvent.submitter.name === "cancel") {
                           event.preventDefault();

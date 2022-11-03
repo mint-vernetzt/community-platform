@@ -20,6 +20,51 @@ export async function getProfileByEmail(email: string) {
           },
         },
       },
+      teamMemberOfEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      teamMemberOfProjects: {
+        select: {
+          project: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      contributedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      participatedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      waitingForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return profile;
@@ -82,6 +127,24 @@ export async function getOrganizationByName(name: string) {
           organizationType: {
             select: {
               title: true,
+            },
+          },
+        },
+      },
+      responsibleForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      responsibleForProject: {
+        select: {
+          project: {
+            select: {
+              id: true,
             },
           },
         },
@@ -261,6 +324,11 @@ export async function getMembersOfOrganization(organizationId: string) {
     where: {
       organizationId: organizationId,
     },
+    orderBy: {
+      profile: {
+        firstName: "asc",
+      },
+    },
   });
 
   const enhancedMembers = members.map((item) => {
@@ -281,6 +349,18 @@ export async function getMembersOfOrganization(organizationId: string) {
   });
 
   return enhancedMembers;
+}
+
+export function getTeamMemberProfileDataFromOrganization(
+  members: Awaited<ReturnType<typeof getMembersOfOrganization>>,
+  currentUserId: string
+) {
+  const profileData = members.map((teamMember) => {
+    const { isPrivileged, profile } = teamMember;
+    const isCurrentUser = profile.id === currentUserId;
+    return { isPrivileged, ...profile, isCurrentUser };
+  });
+  return profileData;
 }
 
 export async function getNetworkMembersOfOrganization(organizationId: string) {
@@ -332,7 +412,6 @@ export async function getNetworkMembersOfOrganization(organizationId: string) {
 
 export async function handleAuthorization(args: DataFunctionArgs) {
   const { params, request } = args;
-
   const { slug } = params;
 
   if (slug === undefined) {
