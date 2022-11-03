@@ -58,6 +58,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -66,6 +67,10 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { waitingForEvents: [] };
+    });
 
     try {
       await action({ request, context: {}, params: {} });
@@ -96,6 +101,10 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
+    });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { waitingForEvents: [] };
     });
 
     try {
@@ -154,6 +163,10 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       return { isPrivileged: true };
     });
 
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { waitingForEvents: [] };
+    });
+
     try {
       await action({
         request,
@@ -167,6 +180,51 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       const json = await response.json();
       expect(json.message).toBe("Event IDs differ");
     }
+  });
+
+  test("already member", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "anotheruser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-event-id" };
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        waitingForEvents: [
+          {
+            event: {
+              id: "some-event-id",
+            },
+          },
+        ],
+      };
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+
+    try {
+      const response = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      console.log(response);
+
+      expect(response.success).toBe(false);
+      expect(response.errors.email).toContain(
+        "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung."
+      );
+    } catch (error) {}
   });
 
   test("add to waiting list (privileged user)", async () => {
@@ -191,6 +249,10 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { waitingForEvents: [] };
+    });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "another-user-id",
       };
@@ -211,13 +273,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   test("add to waiting list (self)", async () => {
@@ -238,6 +294,9 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         id: "some-event-id",
       };
     });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { waitingForEvents: [] };
+    });
 
     try {
       const result = await action({
@@ -254,13 +313,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   afterAll(() => {
