@@ -49,6 +49,56 @@ export function transformProjectToForm(
   };
 }
 
+export function transformFormToProject(form: any) {
+  const { userId: _userId, submit: _submit, ...project } = form;
+
+  return {
+    ...project,
+  };
+}
+
+export async function updateProjectById(id: string, data: any) {
+  await prismaClient.project.update({
+    where: { id },
+    data: {
+      ...data,
+      updatedAt: new Date(),
+      targetGroups: {
+        deleteMany: {},
+        connectOrCreate: data.targetGroups.map((targetGroupId: string) => {
+          return {
+            where: {
+              targetGroupId_projectId: {
+                targetGroupId,
+                projectId: id,
+              },
+            },
+            create: {
+              targetGroupId,
+            },
+          };
+        }),
+      },
+      disciplines: {
+        deleteMany: {},
+        connectOrCreate: data.disciplines.map((itemId: string) => {
+          return {
+            where: {
+              disciplineId_projectId: {
+                disciplineId: itemId,
+                projectId: id,
+              },
+            },
+            create: {
+              disciplineId: itemId,
+            },
+          };
+        }),
+      },
+    },
+  });
+}
+
 export function getResponsibleOrganizationDataFromProject(
   project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>
 ) {
