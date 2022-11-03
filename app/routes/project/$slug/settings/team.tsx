@@ -62,10 +62,10 @@ function Team() {
       <div className="mb-8">
         <h3>Teammitglieder</h3>
         <ul>
-          {loaderData.teamMembers.map((teamMember, index) => {
+          {loaderData.teamMembers.map((teamMember) => {
             return (
               <div
-                key={`team-member-${index}`}
+                key={`team-member-${teamMember.id}`}
                 className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
               >
                 <div className="pl-4">
@@ -79,7 +79,6 @@ function Team() {
                   </H3>
                 </div>
                 <Form
-                  key={`set-privilege-${index}`}
                   schema={setPrivilegeSchema}
                   fetcher={setPrivilegeFetcher}
                   action={`/project/${slug}/settings/team/set-privilege`}
@@ -125,7 +124,6 @@ function Team() {
                   }}
                 </Form>
                 <Form
-                  key={`remove-child-${index}`}
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/project/${slug}/settings/team/remove-member`}

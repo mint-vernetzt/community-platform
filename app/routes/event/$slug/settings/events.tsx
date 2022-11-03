@@ -147,10 +147,10 @@ function Events() {
         <div className="mb-8">
           <h3>Zugehörige Veranstaltungen</h3>
           <ul>
-            {loaderData.childEvents.map((childEvent, index) => {
+            {loaderData.childEvents.map((childEvent) => {
               return (
                 <Form
-                  key={`remove-child-${index}`}
+                  key={`remove-child-${childEvent.id}`}
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
                   action={`/event/${slug}/settings/events/remove-child`}

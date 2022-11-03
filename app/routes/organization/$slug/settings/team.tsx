@@ -65,11 +65,11 @@ function Index() {
         oder entferne sie.
       </p>
       <div className="mb-8">
-        {loaderData.members.map((profile, index) => {
+        {loaderData.members.map((profile) => {
           const initials = getInitials(profile);
           return (
             <div
-              key={`team-member-${index}`}
+              key={`team-member-${profile.id}`}
               className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
@@ -88,7 +88,6 @@ function Index() {
                 )}
               </div>
               <Form
-                key={`set-privilege-${index}`}
                 schema={setPrivilegeSchema}
                 fetcher={setPrivilegeFetcher}
                 action={`/organization/${slug}/settings/team/set-privilege`}
@@ -138,7 +137,6 @@ function Index() {
               </Form>
               <Form
                 method="post"
-                key={`${profile.username}`}
                 action={`/organization/${slug}/settings/team/remove-member`}
                 schema={removeMemberSchema}
                 hiddenFields={["teamMemberId", "organizationId", "userId"]}
