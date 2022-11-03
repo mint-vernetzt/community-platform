@@ -5,13 +5,17 @@ import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { connectProfileToEvent } from "./utils.server";
+import { checkIdentityOrThrow } from "~/routes/project/utils.server";
+import { getProjectByIdOrThrow } from "../../utils.server";
+import {
+  checkOwnershipOrThrow,
+  checkSameProjectOrThrow,
+} from "../utils.server";
+import { connectProfileToProject } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
-  eventId: z.string(),
+  projectId: z.string(),
   email: z.string().email(),
 });
 
@@ -25,12 +29,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       "email"
     );
   }
-  const alreadyMember = profile.teamMemberOfEvents.some((entry) => {
-    return entry.event.id === values.eventId;
+  const alreadyMember = profile.teamMemberOfProjects.some((entry) => {
+    return entry.project.id === values.projectId;
   });
   if (alreadyMember) {
     throw new InputError(
-      "Das Profil unter dieser E-Mail ist bereits Mitglied Eurer Veranstaltung.",
+      "Das Profil unter dieser E-Mail ist bereits Mitglied Eures Projektes.",
       "email"
     );
   }
@@ -44,19 +48,20 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(request, "projects");
+
   const currentUser = await getUserByRequestOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
-    await checkSameEventOrThrow(request, event.id);
+    const project = await getProjectByIdOrThrow(result.data.projectId);
+    await checkOwnershipOrThrow(project, currentUser);
+    await checkSameProjectOrThrow(request, project.id);
     const teamMemberProfile = await getProfileByEmail(result.data.email);
     if (teamMemberProfile !== null) {
-      await connectProfileToEvent(event.id, teamMemberProfile.id);
+      await connectProfileToProject(project.id, teamMemberProfile.id);
     }
   }
   return result;

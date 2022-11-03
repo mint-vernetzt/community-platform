@@ -50,6 +50,35 @@ export async function getProjectByField(field: string, value: string) {
           },
         },
       },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      teamMembers: {
+        select: {
+          isPrivileged: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          profile: {
+            firstName: "asc",
+          },
+        },
+      },
     },
   });
   return result;

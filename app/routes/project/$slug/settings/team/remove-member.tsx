@@ -4,13 +4,17 @@ import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { disconnectProfileFromEvent } from "./utils.server";
+import { checkIdentityOrThrow } from "~/routes/project/utils.server";
+import { getProjectByIdOrThrow } from "../../utils.server";
+import {
+  checkOwnershipOrThrow,
+  checkSameProjectOrThrow,
+} from "../utils.server";
+import { disconnectProfileFromProject } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
-  eventId: z.string(),
+  projectId: z.string(),
   teamMemberId: z.string(),
 });
 
@@ -27,17 +31,17 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(request, "projects");
   const currentUser = await getUserByRequestOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
-    await checkSameEventOrThrow(request, event.id);
-    await disconnectProfileFromEvent(event.id, result.data.teamMemberId);
+    const project = await getProjectByIdOrThrow(result.data.projectId);
+    await checkOwnershipOrThrow(project, currentUser);
+    await checkSameProjectOrThrow(request, project.id);
+    await disconnectProfileFromProject(project.id, result.data.teamMemberId);
   }
   return result;
 };

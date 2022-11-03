@@ -10,71 +10,78 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
-import { addSpeakerSchema } from "./speakers/add-speaker";
-import { removeSpeakerSchema } from "./speakers/remove-speaker";
+import { getProjectBySlugOrThrow } from "../utils.server";
+import {
+  ActionData as AddOrganizationActionData,
+  addOrganizationSchema,
+} from "./organizations/add-organization";
+import {
+  ActionData as RemoveOrganizationActionData,
+  removeOrganizationSchema,
+} from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
-  getSpeakerProfileDataFromEvent,
+  getResponsibleOrganizationDataFromProject,
 } from "./utils.server";
 
 type LoaderData = {
   userId: string;
-  eventId: string;
-  speakers: ReturnType<typeof getSpeakerProfileDataFromEvent>;
+  projectId: string;
+  organizations: ReturnType<typeof getResponsibleOrganizationDataFromProject>;
 };
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
-  const slug = await getParamValueOrThrow(params, "slug");
+  await checkFeatureAbilitiesOrThrow(request, "projects");
+  const slug = getParamValueOrThrow(params, "slug");
   const currentUser = await getUserByRequestOrThrow(request);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
 
-  const speakers = getSpeakerProfileDataFromEvent(event);
+  const project = await getProjectBySlugOrThrow(slug);
 
-  return { userId: currentUser.id, eventId: event.id, speakers };
+  await checkOwnershipOrThrow(project, currentUser);
+
+  const organizations = getResponsibleOrganizationDataFromProject(project);
+  return { userId: currentUser.id, projectId: project.id, organizations };
 };
 
-function Speakers() {
+function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
+  const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
+  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
 
-  const addSpeakerFetcher = useFetcher();
-  const removeSpeakerFetcher = useFetcher();
+  console.log(addOrganizationFetcher.data);
 
   return (
     <>
       <div className="mb-8">
-        <h3>Vortragende</h3>
+        <h1>Verantwortliche Organisationen</h1>
         <ul>
-          {loaderData.speakers.map((profile) => {
+          {loaderData.organizations.map((item) => {
             return (
-              <div
-                key={`team-member-${profile.id}`}
+              <li
                 className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+                key={item.id}
               >
                 <div className="pl-4">
                   <H3 like="h4" className="text-xl mb-1">
                     <Link
                       className="underline hover:no-underline"
-                      to={`/profile/${profile.username}`}
+                      to={`/organization/${item.slug}`}
                     >
-                      {profile.firstName} {profile.lastName}
+                      {item.name}
                     </Link>
                   </H3>
                 </div>
-
                 <Form
-                  schema={removeSpeakerSchema}
-                  fetcher={removeSpeakerFetcher}
-                  action={`/event/${slug}/settings/speakers/remove-speaker`}
-                  hiddenFields={["userId", "eventId", "speakerId"]}
+                  schema={removeOrganizationSchema}
+                  fetcher={removeOrganizationFetcher}
+                  action={`/project/${slug}/settings/organizations/remove-organization`}
+                  hiddenFields={["userId", "projectId", "organizationId"]}
                   values={{
                     userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    speakerId: profile.id,
+                    projectId: loaderData.projectId,
+                    organizationId: item.id,
                   }}
                 >
                   {(props) => {
@@ -82,8 +89,8 @@ function Speakers() {
                     return (
                       <>
                         <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="speakerId" />
+                        <Field name="projectId" />
+                        <Field name="organizationId" />
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
                             viewBox="0 0 10 10"
@@ -102,26 +109,22 @@ function Speakers() {
                     );
                   }}
                 </Form>
-              </div>
+              </li>
             );
           })}
         </ul>
       </div>
-      {removeSpeakerFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {removeSpeakerFetcher.data.message}
-        </div>
-      )}
-      <h4 className="mb-4 font-semibold">Vortragende hinzufügen</h4>
+      <h4 className="mb-4 font-semibold">Organisation hinzufügen</h4>
       <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
+        Füge hier Deiner Veranstaltung eine bereits bestehende Organisation
+        hinzu.
       </p>
       <Form
-        schema={addSpeakerSchema}
-        fetcher={addSpeakerFetcher}
-        action={`/event/${slug}/settings/speakers/add-speaker`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        schema={addOrganizationSchema}
+        fetcher={addOrganizationFetcher}
+        action={`/project/${slug}/settings/organizations/add-organization`}
+        hiddenFields={["projectId", "userId"]}
+        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
         onTransition={({ reset, formState }) => {
           if (formState.isSubmitSuccessful) {
             reset();
@@ -131,7 +134,7 @@ function Speakers() {
         {({ Field, Errors, Button }) => {
           return (
             <>
-              <Field name="eventId" />
+              <Field name="projectId" />
               <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
@@ -141,18 +144,18 @@ function Speakers() {
                       htmlFor="Email"
                       className="label"
                     >
-                      E-Mail
+                      Name der Organisation
                     </label>
                   </div>
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="email" className="flex-auto">
+                  <Field name="organizationName" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <input
-                          id="email"
-                          name="email"
+                          id="organizationName"
+                          name="organizationName"
                           className="input input-bordered w-full"
                         />
                         <Errors />
@@ -171,13 +174,8 @@ function Speakers() {
           );
         }}
       </Form>
-      {addSpeakerFetcher.data?.message && (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {addSpeakerFetcher.data.message}
-        </div>
-      )}
     </>
   );
 }
 
-export default Speakers;
+export default Organizations;

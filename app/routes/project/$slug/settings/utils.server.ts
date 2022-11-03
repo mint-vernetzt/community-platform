@@ -1,6 +1,6 @@
 import { Project } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
-import { unauthorized } from "remix-utils";
+import { badRequest, unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getProjectBySlugOrThrow } from "../utils.server";
 
@@ -97,4 +97,38 @@ export async function updateProjectById(id: string, data: any) {
       },
     },
   });
+}
+
+export function getResponsibleOrganizationDataFromProject(
+  project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>
+) {
+  const organizationData = project.responsibleOrganizations.map((item) => {
+    return item.organization;
+  });
+  return organizationData;
+}
+
+export async function checkSameProjectOrThrow(
+  request: Request,
+  projectId: string
+) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const value = formData.get("projectId") as string | null;
+
+  if (value === null || value !== projectId) {
+    throw badRequest({ message: "Project IDs differ" });
+  }
+}
+
+export function getTeamMemberProfileDataFromProject(
+  project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>,
+  currentUserId: string
+) {
+  const profileData = project.teamMembers.map((teamMember) => {
+    const { isPrivileged, profile } = teamMember;
+    const isCurrentUser = profile.id === currentUserId;
+    return { isPrivileged, ...profile, isCurrentUser };
+  });
+  return profileData;
 }

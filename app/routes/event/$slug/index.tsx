@@ -378,66 +378,68 @@ function Index() {
           </button>
         </div>
       </section>
-      <section className="hidden md:block container mt-6">
+      <section className="container mt-6">
         <div className="rounded-3xl overflow-hidden w-full relative">
-          <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
-            <div className="w-full h-full">
-              {loaderData.event.background !== undefined && (
-                <img
-                  src={
-                    loaderData.event.background ||
-                    "/images/default-event-background.jpg"
-                  }
-                  alt={loaderData.event.name}
-                />
-              )}
-            </div>
-            {loaderData.mode === "owner" &&
-              loaderData.abilities.events.hasAccess && (
-                <div className="absolute bottom-6 right-6">
-                  <label
-                    htmlFor="modal-background-upload"
-                    className="btn btn-primary modal-button"
-                  >
-                    Bild ändern
-                  </label>
-
-                  <Modal id="modal-background-upload">
-                    <ImageCropper
-                      headline="Hintergrundbild"
-                      subject="event"
-                      id="modal-background-upload"
-                      uploadKey="background"
-                      image={loaderData.event.background || undefined}
-                      aspect={31 / 10}
-                      minCropWidth={620}
-                      minCropHeight={62}
-                      maxTargetWidth={1488}
-                      maxTargetHeight={480}
-                      slug={loaderData.event.slug}
-                      csrfToken={"92014sijdaf02"}
-                      redirect={`/event/${loaderData.event.slug}`}
+          <div className="hidden md:block">
+            <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
+              <div className="w-full h-full">
+                {loaderData.event.background !== undefined && (
+                  <img
+                    src={
+                      loaderData.event.background ||
+                      "/images/default-event-background.jpg"
+                    }
+                    alt={loaderData.event.name}
+                  />
+                )}
+              </div>
+              {loaderData.mode === "owner" &&
+                loaderData.abilities.events.hasAccess && (
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="modal-background-upload"
+                      className="btn btn-primary modal-button"
                     >
-                      <Background />
-                    </ImageCropper>
-                  </Modal>
-                </div>
-              )}
+                      Bild ändern
+                    </label>
+
+                    <Modal id="modal-background-upload">
+                      <ImageCropper
+                        headline="Hintergrundbild"
+                        subject="event"
+                        id="modal-background-upload"
+                        uploadKey="background"
+                        image={loaderData.event.background || undefined}
+                        aspect={31 / 10}
+                        minCropWidth={620}
+                        minCropHeight={62}
+                        maxTargetWidth={1488}
+                        maxTargetHeight={480}
+                        slug={loaderData.event.slug}
+                        csrfToken={"92014sijdaf02"}
+                        redirect={`/event/${loaderData.event.slug}`}
+                      >
+                        <Background />
+                      </ImageCropper>
+                    </Modal>
+                  </div>
+                )}
+            </div>
           </div>
           {loaderData.mode === "owner" && (
             <>
               {loaderData.event.canceled ? (
-                <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+                <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
                   Abgesagt
                 </div>
               ) : (
                 <>
                   {loaderData.event.published ? (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
+                    <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
                       Veröffentlicht
                     </div>
                   ) : (
-                    <div className="absolute top-0 inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
+                    <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
                       Entwurf
                     </div>
                   )}
@@ -445,8 +447,9 @@ function Index() {
               )}
             </>
           )}
+
           {loaderData.mode !== "owner" && loaderData.event.canceled && (
-            <div className="absolute top-0 inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+            <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
               Abgesagt
             </div>
           )}
@@ -463,9 +466,9 @@ function Index() {
                   {loaderData.mode === "anon" &&
                     loaderData.event.canceled === false &&
                     loaderData.event.childEvents.length === 0 && (
-                      <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                      <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
                         <Link
-                          className="btn btn-outline btn-primary"
+                          className="btn btn-primary"
                           to={`/login?event_slug=${loaderData.event.slug}`}
                         >
                           Anmelden um teilzunehmen
@@ -475,28 +478,30 @@ function Index() {
                   {loaderData.mode !== "anon" &&
                     loaderData.event.canceled === false &&
                     loaderData.event.childEvents.length === 0 && (
-                      <div className="bg-white border border-neutral-500 rounded-b-3xl px-8 py-6 text-right">
+                      <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
                         {Form}
                       </div>
                     )}
                 </>
               )}
-              {loaderData.event.childEvents.length > 0 && (
-                <>
-                  <div className="bg-accent-300 p-8">
-                    <p className="font-bold text-center">
-                      Wähle{" "}
-                      <a
-                        href="#child-events"
-                        className="underline hover:no-underline"
-                      >
-                        zugehörige Veranstaltungen
-                      </a>{" "}
-                      aus, an denen Du teilnehmen möchtest.
-                    </p>
-                  </div>
-                </>
-              )}
+              <div className="hidden md:block">
+                {loaderData.event.childEvents.length > 0 && (
+                  <>
+                    <div className="bg-accent-300 p-8">
+                      <p className="font-bold text-center">
+                        Wähle{" "}
+                        <a
+                          href="#child-events"
+                          className="underline hover:no-underline"
+                        >
+                          zugehörige Veranstaltungen
+                        </a>{" "}
+                        aus, an denen Du teilnehmen möchtest.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -505,7 +510,7 @@ function Index() {
             <div className="bg-accent-white p-8 pb-0">
               <p className="font-bold text-right">
                 <Link
-                  className="btn btn-outline btn-primary ml-4"
+                  className="btn btn-outline btn-primary ml-4 mb-2 md:mb-0"
                   to={`/event/${loaderData.event.slug}/settings`}
                 >
                   Veranstaltung bearbeiten
