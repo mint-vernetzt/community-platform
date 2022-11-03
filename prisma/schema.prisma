@@ -488,6 +488,7 @@ model Project {
   street                   String?
   streetNumber             String?                            @map("street_number")
   zipCode                  String?                            @map("zip_code")
+  city                     String?
   facebook                 String?
   linkedin                 String?
   twitter                  String?
