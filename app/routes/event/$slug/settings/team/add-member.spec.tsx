@@ -56,6 +56,7 @@ describe("/event/$slug/settings/team/add-member", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -64,6 +65,10 @@ describe("/event/$slug/settings/team/add-member", () => {
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
     getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { teamMemberOfEvents: [] };
+    });
 
     try {
       await action({ request, context: {}, params: {} });
@@ -79,6 +84,7 @@ describe("/event/$slug/settings/team/add-member", () => {
   test("authenticated user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -93,6 +99,9 @@ describe("/event/$slug/settings/team/add-member", () => {
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { teamMemberOfEvents: [] };
     });
 
     try {
@@ -113,6 +122,7 @@ describe("/event/$slug/settings/team/add-member", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
+      eventId: "some-event-id",
       email: "anotheruser@mail.com",
     });
 
@@ -127,6 +137,9 @@ describe("/event/$slug/settings/team/add-member", () => {
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { teamMemberOfEvents: [] };
     });
 
     try {
@@ -184,6 +197,9 @@ describe("/event/$slug/settings/team/add-member", () => {
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
     });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { teamMemberOfEvents: [] };
+    });
 
     try {
       await action({
@@ -198,6 +214,51 @@ describe("/event/$slug/settings/team/add-member", () => {
       const json = await response.json();
       expect(json.message).toBe("Event IDs differ");
     }
+  });
+
+  test("already member", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      eventId: "some-event-id",
+      email: "anotheruser@mail.com",
+    });
+
+    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-event-id" };
+    });
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        teamMemberOfEvents: [
+          {
+            event: {
+              id: "some-event-id",
+            },
+          },
+        ],
+      };
+    });
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return { isPrivileged: true };
+    });
+
+    try {
+      const response = await action({
+        request,
+        context: {},
+        params: {},
+      });
+      console.log(response);
+
+      expect(response.success).toBe(false);
+      expect(response.errors.email).toContain([
+        "Das Profil unter dieser E-Mail ist bereits Mitglied Eurer Veranstaltung.",
+      ]);
+    } catch (error) {}
   });
 
   test("add event team member", async () => {
@@ -221,9 +282,10 @@ describe("/event/$slug/settings/team/add-member", () => {
       return { isPrivileged: true };
     });
 
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(() => {
       return {
         id: "another-user-id",
+        teamMemberOfEvents: [],
       };
     });
 
@@ -240,13 +302,7 @@ describe("/event/$slug/settings/team/add-member", () => {
         },
       });
       expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    } catch (error) {}
   });
 
   afterAll(() => {
