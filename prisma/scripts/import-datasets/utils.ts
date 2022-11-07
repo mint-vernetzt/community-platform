@@ -1,4 +1,5 @@
 import type {
+  Discipline,
   EventType,
   ExperienceLevel,
   Focus,
@@ -16,6 +17,7 @@ export type GenericEntry =
   | Tag
   | TargetGroup
   | EventType
+  | Discipline
   | ExperienceLevel;
 
 export type TableName =
@@ -26,6 +28,7 @@ export type TableName =
   | "targetGroup"
   | "eventType"
   | "experienceLevel"
+  | "discipline"
   | "stage";
 
 type Lookup = {
