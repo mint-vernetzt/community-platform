@@ -12,6 +12,7 @@ import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
+  canUserSeeConferenceLink,
   getIsOnWaitingList,
   getIsParticipant,
   getIsSpeaker,
@@ -573,40 +574,38 @@ function Index() {
                   </div>
                 </>
               )}
-              {loaderData.mode !== "anon" &&
-                loaderData.event.childEvents.length === 0 &&
-                ((loaderData.event.conferenceLink !== null &&
-                  loaderData.event.conferenceLink !== "") ||
-                  ((loaderData.event.conferenceLink === null ||
-                    loaderData.event.conferenceLink === "") &&
-                    loaderData.event.stage !== null &&
-                    (loaderData.event.stage.title === "Hybrid" ||
-                      loaderData.event.stage.title === "Online"))) && (
-                  <>
-                    <div className="text-xs leading-6">Konferenzlink</div>
-                    <div className="pb-3 md:pb-0">
-                      {loaderData.event.conferenceLink !== null &&
-                      loaderData.event.conferenceLink !== "" ? (
-                        <a
-                          href={loaderData.event.conferenceLink}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {loaderData.event.conferenceLink}
-                        </a>
-                      ) : (
-                        "noch nicht bekannt"
-                      )}
-                    </div>
-                  </>
-                )}
 
-              {loaderData.mode !== "anon" && loaderData.event.conferenceCode && (
+              {canUserSeeConferenceLink(
+                loaderData.event,
+                loaderData.isParticipant,
+                loaderData.isSpeaker,
+                loaderData.isTeamMember
+              ) && (
                 <>
                   <div className="text-xs leading-6">Konferenzlink</div>
                   <div className="pb-3 md:pb-0">
-                    {loaderData.event.conferenceCode}
+                    {loaderData.event.conferenceLink !== null &&
+                    loaderData.event.conferenceLink !== "" ? (
+                      <a
+                        href={loaderData.event.conferenceLink}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {loaderData.event.conferenceLink}
+                      </a>
+                    ) : (
+                      "noch nicht bekannt"
+                    )}
                   </div>
+                  {loaderData.event.conferenceCode !== null &&
+                    loaderData.event.conferenceCode !== "" && (
+                      <>
+                        <div className="text-xs leading-6">Konferenz-Code</div>
+                        <div className="pb-3 md:pb-0">
+                          {loaderData.event.conferenceCode}
+                        </div>
+                      </>
+                    )}
                 </>
               )}
 
