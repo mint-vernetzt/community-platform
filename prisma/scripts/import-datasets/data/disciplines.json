@@ -1,0 +1,32 @@
+[
+  {
+    "referenceId": 712,
+    "title": "Informatik",
+    "slug": "computer_science",
+    "id": "d81f9069-29df-4e7e-b52c-d42a882e32ac"
+  },
+  {
+    "referenceId": 716,
+    "title": "Mathe",
+    "slug": "math",
+    "id": "a5026d2c-17ab-4461-b6d1-7f4d519435f6"
+  },
+  {
+    "referenceId": 719,
+    "title": "MINT gesamt",
+    "slug": "all",
+    "id": "3bf288c6-0285-4829-8d2d-ad40a4197a20"
+  },
+  {
+    "referenceId": 721,
+    "title": "Naturwissenschaften",
+    "slug": "natural_sciences",
+    "id": "c2c1cd55-3a45-4b2f-89d2-ef4acfb98818"
+  },
+  {
+    "referenceId": 724,
+    "title": "Technik",
+    "slug": "technology",
+    "id": "35889e6b-5ec6-4d92-879b-3d3473b42aec"
+  }
+]
