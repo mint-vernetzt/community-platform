@@ -57,7 +57,22 @@ export async function getProjectByField(field: string, value: string) {
               id: true,
               name: true,
               slug: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
             },
+          },
+        },
+        orderBy: {
+          organization: {
+            name: "asc",
           },
         },
       },
@@ -70,12 +85,24 @@ export async function getProjectByField(field: string, value: string) {
               firstName: true,
               lastName: true,
               username: true,
+              position: true,
+              avatar: true,
             },
           },
         },
         orderBy: {
           profile: {
             firstName: "asc",
+          },
+        },
+      },
+      awards: {
+        select: {
+          award: {
+            select: {
+              title: true,
+              logo: true,
+            },
           },
         },
       },
