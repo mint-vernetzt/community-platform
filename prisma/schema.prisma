@@ -518,7 +518,8 @@ model Discipline {
 
 model Award {
   id       String           @id @default(uuid())
-  title    String           @unique
+  title    String
+  subline  String
   slug     String           @unique
   logo     String
   projects AwardOfProject[]
