@@ -236,3 +236,30 @@ export function canUserBeAddedToWaitingList(
     !isCanceled(event)
   );
 }
+
+export function conferenceLinkExists(event: Pick<Event, "conferenceLink">) {
+  return event.conferenceLink !== null && event.conferenceLink !== "";
+}
+
+function conferenceLinkToBeAnnounced(
+  event: Pick<EventWithRelations, "conferenceLink" | "stage">
+) {
+  return (
+    !conferenceLinkExists(event) &&
+    event.stage !== null &&
+    event.stage.slug !== "on-site"
+  );
+}
+
+export function canUserSeeConferenceLink(
+  event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
+  isParticipant: boolean | undefined,
+  isSpeaker: boolean | undefined,
+  isTeamMember: boolean | undefined
+) {
+  return (
+    (conferenceLinkExists(event) || conferenceLinkToBeAnnounced(event)) &&
+    event._count.childEvents === 0 &&
+    (isParticipant || isSpeaker || isTeamMember)
+  );
+}

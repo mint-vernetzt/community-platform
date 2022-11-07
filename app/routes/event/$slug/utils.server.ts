@@ -426,7 +426,9 @@ export async function getEvent(slug: string) {
       subline: true,
       stage: {
         select: {
+          id: true,
           title: true,
+          slug: true,
         },
       },
       canceled: true,
@@ -573,6 +575,7 @@ export async function getEvent(slug: string) {
       _count: {
         select: {
           participants: true,
+          childEvents: true,
         },
       },
     },
