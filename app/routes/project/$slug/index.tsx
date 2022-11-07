@@ -319,6 +319,7 @@ function Index() {
           </div>
         </>
       )}
+
       {loaderData.project.responsibleOrganizations.length > 0 ? (
         <>
           <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
@@ -362,6 +363,33 @@ function Index() {
         </>
       ) : (
         <p>no responsible organization</p>
+      )}
+
+      {loaderData.project.awards.length > 0 && (
+        <>
+          <h3 className="mt-16 mb-8 font-bold">Team</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {loaderData.project.awards.map((item) => {
+              return (
+                <div key={`award-${item.awardId}`}>
+                  <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                    {item.award.logo !== null && item.award.logo !== "" ? (
+                      <img src={item.award.logo} alt={item.award.title} />
+                    ) : (
+                      getOrganizationInitials(item.award.title)
+                    )}
+                  </div>
+
+                  <div className="pl-4">
+                    <h5 className="text-sm m-0 font-bold">
+                      {item.award.title}
+                    </h5>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {hasContactInformations(loaderData.project) ||
@@ -465,6 +493,40 @@ function Index() {
       ) : (
         <p>no address</p>
       )}
+
+      {loaderData.project.targetGroups.length > 0 && (
+        <>
+          <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
+          <div className="event-tags -m-1 pb-3 md:pb-0">
+            {loaderData.project.targetGroups.map((item) => {
+              return (
+                <div
+                  key={`targetGroups-${item.targetGroupId}`}
+                  className="badge"
+                >
+                  {item.targetGroup.title}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {loaderData.project.disciplines.length > 0 && (
+        <>
+          <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
+          <div className="event-tags -m-1 pb-3 md:pb-0">
+            {loaderData.project.disciplines.map((item) => {
+              return (
+                <div key={`discipline-${item.disciplineId}`} className="badge">
+                  {item.discipline.title}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       <H1>headline</H1>
       <p>{loaderData.project.headline || "no headline"}</p>
       <H1>excerpt</H1>

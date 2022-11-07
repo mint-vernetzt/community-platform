@@ -98,6 +98,7 @@ export async function getProjectByField(field: string, value: string) {
       },
       awards: {
         select: {
+          awardId: true,
           award: {
             select: {
               title: true,
