@@ -1,7 +1,176 @@
-import { H1 } from "~/components/Heading/Heading";
+import {
+  ActionFunction,
+  Link,
+  LoaderFunction,
+  redirect,
+  useLoaderData,
+} from "remix";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import { badRequest } from "remix-utils";
+import { z } from "zod";
+import { getUserByRequestOrThrow } from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProjectBySlugOrThrow } from "../utils.server";
+import { checkOwnershipOrThrow } from "./utils.server";
+
+const schema = z.object({
+  userId: z.string().optional(),
+  projectId: z.string().optional(),
+  projectName: z.string().optional(),
+});
+
+const environmentSchema = z.object({ id: z.string(), name: z.string() });
+
+type LoaderData = {
+  userId: string;
+  projectId: string;
+  projectName: string;
+};
+
+export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+  const { request, params } = args;
+
+  await checkFeatureAbilitiesOrThrow(request, "projects");
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const currentUser = await getUserByRequestOrThrow(request);
+  const project = await getProjectBySlugOrThrow(slug);
+
+  await checkOwnershipOrThrow(project, currentUser);
+
+  return {
+    userId: currentUser.id,
+    projectId: project.id,
+    projectName: project.name,
+  };
+};
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  if (values.eventId !== environment.id) {
+    throw new Error("Id nicht korrekt");
+  }
+  if (values.eventName !== environment.name) {
+    throw new InputError(
+      "Der Name der Veranstaltung ist nicht korrekt",
+      "eventName"
+    );
+  }
+  try {
+    await deleteEventById(values.eventId);
+  } catch (error) {
+    throw "Die Veranstaltung konnte nicht gelöscht werden.";
+  }
+});
+
+export const action: ActionFunction = async (args) => {
+  const { request, params } = args;
+
+  await checkFeatureAbilitiesOrThrow(request, "events");
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const currentUser = await getUserByRequestOrThrow(request);
+
+  await checkIdentityOrThrow(request, currentUser);
+
+  const event = await getEventBySlugOrThrow(slug);
+
+  await checkOwnershipOrThrow(event, currentUser);
+
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { id: event.id, name: event.name },
+  });
+
+  if (result.success === false) {
+    if (
+      result.errors._global !== undefined &&
+      result.errors._global.includes("Id nicht korrekt")
+    ) {
+      throw badRequest({ message: "Id nicht korrekt" });
+    }
+  } else {
+    return redirect(`/profile/${currentUser.user_metadata.username}`);
+  }
+
+  return result;
+};
 
 function Delete() {
-  return <H1 like="h0">Delete</H1>;
+  const loaderData = useLoaderData<LoaderData>();
+
+  return (
+    <>
+      <h1 className="mb-8">Veranstaltung löschen</h1>
+
+      <p className="mb-8">
+        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" an ein,
+        um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig
+        löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht.
+      </p>
+
+      {loaderData.childEvents.length > 0 && (
+        <>
+          <p className="mb-2">
+            Folgende Veranstaltung und zugehörige Veranstaltung werden auch
+            gelöscht:
+          </p>{" "}
+          <ul className="mb-8">
+            {loaderData.childEvents.map((childEvent, index) => {
+              return (
+                <li key={`child-event-${index}`}>
+                  -{" "}
+                  <Link
+                    className="underline hover:no-underline"
+                    to={`/event/${childEvent.slug}`}
+                  >
+                    {childEvent.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+
+      <RemixForm method="post" schema={schema}>
+        {({ Field, Errors, register }) => (
+          <>
+            <Field name="userId" hidden value={loaderData.userId} />
+            <Field name="eventId" hidden value={loaderData.eventId} />
+            <Field name="eventName" className="mb-4">
+              {({ Errors }) => (
+                <>
+                  <Input
+                    id="eventName"
+                    label="Löschung bestätigen"
+                    {...register("eventName")}
+                  />
+                  <Errors />
+                </>
+              )}
+            </Field>
+            <button
+              type="submit"
+              className="btn btn-outline-primary ml-auto btn-small"
+            >
+              Veranstaltung löschen
+            </button>
+            <Errors />
+          </>
+        )}
+      </RemixForm>
+    </>
+  );
 }
 
 export default Delete;
