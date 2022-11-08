@@ -14,7 +14,7 @@ import { Schema, z } from "zod";
 import { getUserByRequest } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
@@ -291,7 +291,7 @@ export default function Index() {
               slug = `/organization/${item.slug}`;
               image = item.logo;
               imageType = "logo";
-              initials = getOrganizationInitials(item.name);
+              initials = getInitialsOfName(item.name);
               name = item.name;
               subtitle = item.types
                 .map(({ organizationType }) => organizationType.title)

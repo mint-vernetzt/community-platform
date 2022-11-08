@@ -8,7 +8,7 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
@@ -143,9 +143,7 @@ function Index() {
     [loaderData.project.background]
   );
 
-  const initialsOfOrganization = getOrganizationInitials(
-    loaderData.project.name
-  );
+  const initialsOfOrganization = getInitialsOfName(loaderData.project.name);
 
   const Logo = React.useCallback(
     () => (
@@ -341,7 +339,7 @@ function Index() {
                       </div>
                     ) : (
                       <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                        {getOrganizationInitials(item.organization.name)}
+                        {getInitialsOfName(item.organization.name)}
                       </div>
                     )}
                     <div className="pl-4">
@@ -376,7 +374,7 @@ function Index() {
                     {item.award.logo !== null && item.award.logo !== "" ? (
                       <img src={item.award.logo} alt={item.award.title} />
                     ) : (
-                      getOrganizationInitials(item.award.title)
+                      getInitialsOfName(item.award.title)
                     )}
                   </div>
 

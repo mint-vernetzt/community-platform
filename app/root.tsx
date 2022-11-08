@@ -304,39 +304,40 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisationen anlegen
+                      Organisation anlegen
                     </Link>
                   </li>
-                  {props.abilities.events.hasAccess === true && (
-                    <>
-                      <li className="p-4 pb-6">
-                        <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
-                      </li>
-                      <li>
-                        <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                          Meine Veranstaltungen
-                        </h5>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/profile/${props.currentUserInfo.username}#events`}
-                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
-                          onClick={closeDropdown}
-                        >
-                          Veranstaltungen anzeigen
-                        </Link>
-                      </li>
+
+                  <>
+                    <li className="p-4 pb-6">
+                      <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                    </li>
+                    <li>
+                      <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                        Meine Veranstaltungen
+                      </h5>
+                    </li>
+                    <li>
+                      <Link
+                        to={`/profile/${props.currentUserInfo.username}#events`}
+                        className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                        onClick={closeDropdown}
+                      >
+                        Veranstaltungen anzeigen
+                      </Link>
+                    </li>
+                    {props.abilities.events.hasAccess === true && (
                       <li>
                         <Link
                           to={`/event/create`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                           onClick={closeDropdown}
                         >
-                          Veranstaltungen anlegen
+                          Veranstaltung anlegen
                         </Link>
                       </li>
-                    </>
-                  )}
+                    )}
+                  </>
                   {props.abilities.projects.hasAccess === true && (
                     <>
                       <li className="p-4 pb-6">
@@ -347,7 +348,7 @@ function NavBar(props: NavBarProps) {
                           Meine Projekte
                         </h5>
                       </li>
-                      {/* <li>
+                      <li>
                         <Link
                           to={`/profile/${props.currentUserInfo.username}#projects`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
@@ -355,7 +356,7 @@ function NavBar(props: NavBarProps) {
                         >
                           Projekte anzeigen
                         </Link>
-                      </li> */}
+                      </li>
                       <li>
                         <Link
                           to={`/project/create`}

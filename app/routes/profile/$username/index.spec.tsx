@@ -53,45 +53,14 @@ const profile = {
   avatar: null,
   background: null,
   memberOf: [],
+  teamMemberOfProjects: [],
 };
 
 const events = {
-  teamMemberOfEvents: [
-    {
-      event: {
-        published: true,
-        name: "teamMemberEvent",
-        startTime: new Date(),
-      },
-    },
-  ],
-  participatedEvents: [
-    {
-      event: {
-        published: true,
-        name: "participatedEvent",
-        startTime: new Date(),
-      },
-    },
-  ],
-  contributedEvents: [
-    {
-      event: {
-        published: true,
-        name: "contributedEvent",
-        startTime: new Date(),
-      },
-    },
-  ],
-  waitingForEvents: [
-    {
-      event: {
-        published: true,
-        name: "waitingForEvent",
-        startTime: new Date(),
-      },
-    },
-  ],
+  teamMemberOfEvents: [],
+  participatedEvents: [],
+  contributedEvents: [],
+  waitingForEvents: [],
 };
 
 test("deriveMode", () => {
