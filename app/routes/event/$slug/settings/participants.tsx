@@ -13,6 +13,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   getEventBySlugOrThrow,
   getFullDepthParticipants,
+  getFullDepthWaitingList,
 } from "../utils.server";
 import { addParticipantSchema } from "./participants/add-participant";
 import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
@@ -30,6 +31,7 @@ type LoaderData = {
   eventId: string;
   participantLimit: number | null;
   hasFullDepthParticipants: boolean;
+  hasFullDepthWaitingList: boolean;
 } & ReturnType<typeof getParticipantsDataFromEvent>;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -45,6 +47,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { participantLimit } = event;
 
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
+  const fullDepthWaitingList = await getFullDepthWaitingList(event.id);
 
   return {
     userId: currentUser.id,
@@ -54,6 +57,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     hasFullDepthParticipants:
       fullDepthParticipants !== null &&
       fullDepthParticipants.length > 0 &&
+      event._count.childEvents !== 0,
+    hasFullDepthWaitingList:
+      fullDepthWaitingList !== null &&
+      fullDepthWaitingList.length > 0 &&
       event._count.childEvents !== 0,
   };
 };
@@ -380,6 +387,10 @@ function Participants() {
             >
               Warteliste herunterladen
             </Link>
+          </>
+        )}
+        {loaderData.hasFullDepthWaitingList && (
+          <>
             <Link
               className="btn btn-outline btn-primary mt-4"
               to="csv-download?type=waitingList&amp;depth=full"

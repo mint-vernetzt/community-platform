@@ -274,7 +274,6 @@ export async function getFullDepthParticipants(id: string) {
     const profiles = result.map((profile) => {
       return { profile };
     });
-    console.log(profiles);
     return profiles;
   } catch (e) {
     console.error(e);
@@ -314,7 +313,7 @@ export async function getFullDepthWaitingList(id: string) {
           JOIN "waiting_participants_of_events"
           ON "profiles".id = "waiting_participants_of_events".profile_id
           JOIN "events"
-          ON "events".id = "participants_of_events".event_id
+          ON "events".id = "waiting_participants_of_events".event_id
           JOIN get_full_depth
           ON "waiting_participants_of_events".event_id = get_full_depth.id
       ;`;

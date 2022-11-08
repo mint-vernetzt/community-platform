@@ -22,7 +22,7 @@ async function getProfilesBySearchParams(
       profiles = await getFullDepthParticipants(event.id);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
-        return participant.profile;
+        return { ...participant.profile, eventName: event.name };
       });
     } else {
       throw badRequest({
@@ -35,7 +35,7 @@ async function getProfilesBySearchParams(
       profiles = await getFullDepthWaitingList(event.id);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
-        return waitingParticipant.profile;
+        return { ...waitingParticipant.profile, eventName: event.name };
       });
     } else {
       throw badRequest({
@@ -81,13 +81,13 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "";
+  let csv = "VERANSTALTUNG,VORNAME,NACHNAME,EMAIL\n";
 
   for (const profile of profiles) {
     if ("profile" in profile) {
-      csv += `${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email}\n`;
+      csv += `${profile.profile.eventName},${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email}\n`;
     } else {
-      csv += `${profile.firstName},${profile.lastName},${profile.email}\n`;
+      csv += `${profile.eventName},${profile.firstName},${profile.lastName},${profile.email}\n`;
     }
   }
 
