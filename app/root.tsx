@@ -304,7 +304,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisationen anlegen
+                      Organisation anlegen
                     </Link>
                   </li>
 
@@ -333,7 +333,7 @@ function NavBar(props: NavBarProps) {
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                           onClick={closeDropdown}
                         >
-                          Veranstaltungen anlegen
+                          Veranstaltung anlegen
                         </Link>
                       </li>
                     )}
