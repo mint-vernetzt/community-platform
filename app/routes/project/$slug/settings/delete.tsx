@@ -53,14 +53,14 @@ const mutation = makeDomainFunction(
   }
   if (values.projectName !== environment.name) {
     throw new InputError(
-      "Der Name der Veranstaltung ist nicht korrekt",
+      "Der Name des Projekts ist nicht korrekt",
       "projectName"
     );
   }
   try {
     await deleteProjectById(values.projectId);
   } catch (error) {
-    throw "Die Veranstaltung konnte nicht gelöscht werden.";
+    throw "Das Projekt konnte nicht gelöscht werden.";
   }
 });
 
