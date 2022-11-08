@@ -3,7 +3,7 @@ import { makeDomainFunction } from "remix-domains";
 import { Form, PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { H3 } from "~/components/Heading/Heading";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { NetworkMember } from ".";
 import {
   disconnectOrganizationFromNetwork,
@@ -69,7 +69,7 @@ export function NetworkMemberRemoveForm(
               </div>
             ) : (
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                {getOrganizationInitials(networkMember.name)}
+                {getInitialsOfName(networkMember.name)}
               </div>
             )}
             <div className="pl-4">

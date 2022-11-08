@@ -18,7 +18,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "~/lib/event/utils";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
@@ -1055,9 +1055,7 @@ function Index() {
                               </div>
                             ) : (
                               <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                                {getOrganizationInitials(
-                                  item.organization.name
-                                )}
+                                {getInitialsOfName(item.organization.name)}
                               </div>
                             )}
                             <div className="pl-4">

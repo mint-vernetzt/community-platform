@@ -1,6 +1,6 @@
 import { Link } from "remix";
 import { H3 } from "../Heading/Heading";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { OrganizationType } from "@prisma/client";
 
 export interface OrganizationCardProps {
@@ -35,7 +35,7 @@ function OrganizationCard(props: OrganizationCardProps) {
             </div>
           ) : (
             <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-              {getOrganizationInitials(props.name)}
+              {getInitialsOfName(props.name)}
             </div>
           )}
           <div className="pl-4">

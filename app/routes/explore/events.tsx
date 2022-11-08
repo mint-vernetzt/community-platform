@@ -7,8 +7,7 @@ import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
@@ -253,7 +252,7 @@ function Events() {
                       </div>
                     ) : (
                       <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                        {getOrganizationInitials(
+                        {getInitialsOfName(
                           event.responsibleOrganizations[0].organization.name
                         )}
                       </div>

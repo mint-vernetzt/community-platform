@@ -17,7 +17,7 @@ import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
-import { getOrganizationInitials } from "~/lib/organization/getOrganizationInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { nl2br } from "~/lib/string/nl2br";
@@ -271,7 +271,7 @@ function hasWebsiteOrSocialService(
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const initialsOfOrganization = loaderData.organization.name
-    ? getOrganizationInitials(loaderData.organization.name)
+    ? getInitialsOfName(loaderData.organization.name)
     : "";
   const organisationName = loaderData.organization.name ?? "";
 
