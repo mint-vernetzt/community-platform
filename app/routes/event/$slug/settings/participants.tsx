@@ -52,7 +52,9 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     ...participantsData,
     participantLimit,
     hasFullDepthParticipants:
-      fullDepthParticipants !== null && fullDepthParticipants.length > 0,
+      fullDepthParticipants !== null &&
+      fullDepthParticipants.length > 0 &&
+      event._count.childEvents !== 0,
   };
 };
 
@@ -203,7 +205,7 @@ function Participants() {
             to="csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            Teilnehmerliste als .csv herunterladen
+            Teilnehmerliste herunterladen
           </Link>
         )}
         {loaderData.hasFullDepthParticipants && (
@@ -212,8 +214,7 @@ function Participants() {
             to="csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            Teilnehmerliste inklusive zugehöriger Veranstaltungen als .csv
-            herunterladen
+            Teilnehmerliste aller Subveranstaltungen herunterladen
           </Link>
         )}
       </div>
@@ -377,15 +378,14 @@ function Participants() {
               to="csv-download?type=waitingList&amp;depth=single"
               reloadDocument
             >
-              Warteliste als .csv herunterladen
+              Warteliste herunterladen
             </Link>
             <Link
               className="btn btn-outline btn-primary mt-4"
               to="csv-download?type=waitingList&amp;depth=full"
               reloadDocument
             >
-              Warteliste inklusive zugehöriger Veranstaltungen als .csv
-              herunterladen
+              Warteliste aller Subveranstaltungen herunterladen
             </Link>
           </>
         )}
