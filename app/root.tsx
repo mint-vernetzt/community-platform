@@ -348,7 +348,7 @@ function NavBar(props: NavBarProps) {
                           Meine Projekte
                         </h5>
                       </li>
-                      {/* <li>
+                      <li>
                         <Link
                           to={`/profile/${props.currentUserInfo.username}#projects`}
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
@@ -356,7 +356,7 @@ function NavBar(props: NavBarProps) {
                         >
                           Projekte anzeigen
                         </Link>
-                      </li> */}
+                      </li>
                       <li>
                         <Link
                           to={`/project/create`}
