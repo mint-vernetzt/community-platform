@@ -160,6 +160,11 @@ export async function getEventByField(field: string, value: string) {
             },
           },
         },
+        orderBy: {
+          profile: {
+            firstName: "asc",
+          },
+        },
       },
       waitingList: {
         select: {
@@ -172,6 +177,11 @@ export async function getEventByField(field: string, value: string) {
               username: true,
               email: true,
             },
+          },
+        },
+        orderBy: {
+          profile: {
+            firstName: "asc",
           },
         },
       },
@@ -269,6 +279,7 @@ export async function getFullDepthParticipants(id: string) {
           ON "events".id = "participants_of_events".event_id
           JOIN get_full_depth
           ON "participants_of_events".event_id = get_full_depth.id
+        ORDER BY first_name ASC
       ;`;
 
     const profiles = result.map((profile) => {
@@ -316,6 +327,7 @@ export async function getFullDepthWaitingList(id: string) {
           ON "events".id = "waiting_participants_of_events".event_id
           JOIN get_full_depth
           ON "waiting_participants_of_events".event_id = get_full_depth.id
+        ORDER BY first_name ASC
       ;`;
     const profiles = result.map((profile) => {
       return { profile };

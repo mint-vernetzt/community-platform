@@ -81,13 +81,13 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "VERANSTALTUNG,VORNAME,NACHNAME,EMAIL\n";
+  let csv = "VORNAME,NACHNAME,EMAIL,VERANSTALTUNG\n";
 
   for (const profile of profiles) {
     if ("profile" in profile) {
-      csv += `${profile.profile.eventName},${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email}\n`;
+      csv += `${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email},${profile.profile.eventName}\n`;
     } else {
-      csv += `${profile.eventName},${profile.firstName},${profile.lastName},${profile.email}\n`;
+      csv += `${profile.firstName},${profile.lastName},${profile.email},${profile.eventName}\n`;
     }
   }
 
