@@ -85,9 +85,9 @@ function createCsvString(
 
   for (const profile of profiles) {
     if ("profile" in profile) {
-      csv += `${profile.profile.firstName},${profile.profile.lastName},${profile.profile.email},${profile.profile.eventName}\n`;
+      csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${profile.profile.email}","${profile.profile.eventName}"\n`;
     } else {
-      csv += `${profile.firstName},${profile.lastName},${profile.email},${profile.eventName}\n`;
+      csv += `"${profile.firstName}","${profile.lastName}","${profile.email}","${profile.eventName}"\n`;
     }
   }
 
@@ -111,12 +111,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const profiles = await getProfilesBySearchParams(event, depth, type);
   const filename = getFilenameBySearchParams(event, depth, type);
   const csv = createCsvString(profiles);
-
   return new Response(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `filename="${filename}"`,
+      "Content-Disposition": `filename=${filename}; filename*=UTF-8''${filename}`,
     },
   });
 };
