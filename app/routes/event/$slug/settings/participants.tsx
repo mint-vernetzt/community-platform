@@ -13,6 +13,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   getEventBySlugOrThrow,
   getFullDepthParticipants,
+  getFullDepthWaitingList,
 } from "../utils.server";
 import { addParticipantSchema } from "./participants/add-participant";
 import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
@@ -30,6 +31,7 @@ type LoaderData = {
   eventId: string;
   participantLimit: number | null;
   hasFullDepthParticipants: boolean;
+  hasFullDepthWaitingList: boolean;
 } & ReturnType<typeof getParticipantsDataFromEvent>;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
@@ -45,6 +47,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { participantLimit } = event;
 
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
+  const fullDepthWaitingList = await getFullDepthWaitingList(event.id);
 
   return {
     userId: currentUser.id,
@@ -52,7 +55,13 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     ...participantsData,
     participantLimit,
     hasFullDepthParticipants:
-      fullDepthParticipants !== null && fullDepthParticipants.length > 0,
+      fullDepthParticipants !== null &&
+      fullDepthParticipants.length > 0 &&
+      event._count.childEvents !== 0,
+    hasFullDepthWaitingList:
+      fullDepthWaitingList !== null &&
+      fullDepthWaitingList.length > 0 &&
+      event._count.childEvents !== 0,
   };
 };
 
@@ -203,7 +212,7 @@ function Participants() {
             to="csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            Teilnehmerliste als .csv herunterladen
+            Teilnehmerliste herunterladen
           </Link>
         )}
         {loaderData.hasFullDepthParticipants && (
@@ -212,8 +221,7 @@ function Participants() {
             to="csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            Teilnehmerliste inklusive zugehöriger Veranstaltungen als .csv
-            herunterladen
+            Teilnehmerliste aller Subveranstaltungen herunterladen
           </Link>
         )}
       </div>
@@ -377,15 +385,18 @@ function Participants() {
               to="csv-download?type=waitingList&amp;depth=single"
               reloadDocument
             >
-              Warteliste als .csv herunterladen
+              Warteliste herunterladen
             </Link>
+          </>
+        )}
+        {loaderData.hasFullDepthWaitingList && (
+          <>
             <Link
               className="btn btn-outline btn-primary mt-4"
               to="csv-download?type=waitingList&amp;depth=full"
               reloadDocument
             >
-              Warteliste inklusive zugehöriger Veranstaltungen als .csv
-              herunterladen
+              Warteliste aller Subveranstaltungen herunterladen
             </Link>
           </>
         )}

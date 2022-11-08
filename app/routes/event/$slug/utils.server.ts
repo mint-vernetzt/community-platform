@@ -190,6 +190,11 @@ export async function getEventByField(field: string, value: string) {
           },
         },
       },
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
   return event;
@@ -233,17 +238,19 @@ export async function getFullDepthParticipants(id: string) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const result: Pick<
-      Profile,
-      | "id"
-      | "academicTitle"
-      | "firstName"
-      | "lastName"
-      | "username"
-      | "email"
-      | "avatar"
-      | "position"
-    >[] = await prismaClient.$queryRaw`
+    const result: Array<
+      Pick<
+        Profile,
+        | "id"
+        | "academicTitle"
+        | "firstName"
+        | "lastName"
+        | "username"
+        | "email"
+        | "avatar"
+        | "position"
+      > & { eventName: string }
+    > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
           FROM "events"
@@ -254,10 +261,12 @@ export async function getFullDepthParticipants(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as academicTitle
+        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"
         FROM "profiles"
           JOIN "participants_of_events"
           ON "profiles".id = "participants_of_events".profile_id
+          JOIN "events"
+          ON "events".id = "participants_of_events".event_id
           JOIN get_full_depth
           ON "participants_of_events".event_id = get_full_depth.id
       ;`;
@@ -276,17 +285,19 @@ export async function getFullDepthWaitingList(id: string) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const result: Pick<
-      Profile,
-      | "id"
-      | "academicTitle"
-      | "firstName"
-      | "lastName"
-      | "username"
-      | "email"
-      | "avatar"
-      | "position"
-    >[] = await prismaClient.$queryRaw`
+    const result: Array<
+      Pick<
+        Profile,
+        | "id"
+        | "academicTitle"
+        | "firstName"
+        | "lastName"
+        | "username"
+        | "email"
+        | "avatar"
+        | "position"
+      > & { eventName: string }
+    > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
           FROM "events"
@@ -297,10 +308,12 @@ export async function getFullDepthWaitingList(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as academicTitle
+        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"
         FROM "profiles"
           JOIN "waiting_participants_of_events"
           ON "profiles".id = "waiting_participants_of_events".profile_id
+          JOIN "events"
+          ON "events".id = "waiting_participants_of_events".event_id
           JOIN get_full_depth
           ON "waiting_participants_of_events".event_id = get_full_depth.id
       ;`;
