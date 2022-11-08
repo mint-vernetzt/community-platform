@@ -43,12 +43,14 @@ export async function getProfileByUsername(username: string) {
             select: {
               slug: true,
               logo: true,
-              headline: true,
+              name: true,
               excerpt: true,
               awards: {
                 select: {
                   award: {
                     select: {
+                      id: true,
+                      title: true,
                       logo: true,
                     },
                   },
