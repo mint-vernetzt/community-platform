@@ -19,7 +19,7 @@ async function getProfilesBySearchParams(
 
   if (type === "participants") {
     if (depth === "full") {
-      profiles = await getFullDepthParticipants(event.id);
+      profiles = await getFullDepthParticipants(event.id, false);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
         return { ...participant.profile, eventName: event.name };
@@ -32,7 +32,7 @@ async function getProfilesBySearchParams(
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
-      profiles = await getFullDepthWaitingList(event.id);
+      profiles = await getFullDepthWaitingList(event.id, false);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
         return { ...waitingParticipant.profile, eventName: event.name };

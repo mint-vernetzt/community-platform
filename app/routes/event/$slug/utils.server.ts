@@ -1,4 +1,4 @@
-import { Organization, Profile } from "@prisma/client";
+import { Organization, Prisma, Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
@@ -244,10 +244,17 @@ export async function checkSameEventOrThrow(request: Request, eventId: string) {
   }
 }
 
-export async function getFullDepthParticipants(id: string) {
+export async function getFullDepthParticipants(
+  id: string,
+  selectDistinct = true
+) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
+    const select = selectDistinct
+      ? Prisma.sql`SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle"`
+      : Prisma.sql`SELECT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"`;
+
     const result: Array<
       Pick<
         Profile,
@@ -259,7 +266,7 @@ export async function getFullDepthParticipants(id: string) {
         | "email"
         | "avatar"
         | "position"
-      > & { eventName: string }
+      > & { eventName?: string }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
@@ -271,7 +278,7 @@ export async function getFullDepthParticipants(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"
+        ${select}
         FROM "profiles"
           JOIN "participants_of_events"
           ON "profiles".id = "participants_of_events".profile_id
@@ -292,10 +299,17 @@ export async function getFullDepthParticipants(id: string) {
   }
 }
 
-export async function getFullDepthWaitingList(id: string) {
+export async function getFullDepthWaitingList(
+  id: string,
+  selectDistinct = true
+) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
+    const select = selectDistinct
+      ? Prisma.sql`SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle"`
+      : Prisma.sql`SELECT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"`;
+
     const result: Array<
       Pick<
         Profile,
@@ -307,7 +321,7 @@ export async function getFullDepthWaitingList(id: string) {
         | "email"
         | "avatar"
         | "position"
-      > & { eventName: string }
+      > & { eventName?: string }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
@@ -319,7 +333,7 @@ export async function getFullDepthWaitingList(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"
+        ${select}
         FROM "profiles"
           JOIN "waiting_participants_of_events"
           ON "profiles".id = "waiting_participants_of_events".profile_id
@@ -339,21 +353,27 @@ export async function getFullDepthWaitingList(id: string) {
   }
 }
 
-export async function getFullDepthSpeakers(id: string) {
+export async function getFullDepthSpeakers(id: string, selectDistinct = true) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const result: Pick<
-      Profile,
-      | "id"
-      | "academicTitle"
-      | "firstName"
-      | "lastName"
-      | "username"
-      | "email"
-      | "avatar"
-      | "position"
-    >[] = await prismaClient.$queryRaw`
+    const select = selectDistinct
+      ? Prisma.sql`SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle"`
+      : Prisma.sql`SELECT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"`;
+
+    const result: Array<
+      Pick<
+        Profile,
+        | "id"
+        | "academicTitle"
+        | "firstName"
+        | "lastName"
+        | "username"
+        | "email"
+        | "avatar"
+        | "position"
+      > & { eventName?: string }
+    > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
           FROM "events"
@@ -364,10 +384,12 @@ export async function getFullDepthSpeakers(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as academicTitle
+      ${select}
         FROM "profiles"
           JOIN "speakers_of_events"
           ON "profiles".id = "speakers_of_events".profile_id
+          JOIN "events"
+          ON "events".id = "speakers_of_events".event_id
           JOIN get_full_depth
           ON "speakers_of_events".event_id = get_full_depth.id
       ;`;
@@ -382,10 +404,17 @@ export async function getFullDepthSpeakers(id: string) {
   }
 }
 
-export async function getFullDepthOrganizers(id: string) {
+export async function getFullDepthOrganizers(
+  id: string,
+  selectDistinct = true
+) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
+    const select = selectDistinct
+      ? Prisma.sql`SELECT DISTINCT "organizations".name, slug`
+      : Prisma.sql`SELECT "organizations".name, "events".name as "eventName"`;
+
     const result = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id
@@ -397,15 +426,19 @@ export async function getFullDepthOrganizers(id: string) {
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
-        SELECT DISTINCT name, slug
+        ${select}
         FROM "organizations"
           JOIN "responsible_organizations_of_events"
           ON "organizations".id = "responsible_organizations_of_events".organization_id
+          JOIN "events"
+          ON "events".id = "responsible_organizations_of_events".event_id
           JOIN get_full_depth
           ON "responsible_organizations_of_events".event_id = get_full_depth.id
       ;`;
 
-    return result as Pick<Organization, "slug" | "name">[];
+    return result as Array<
+      Pick<Organization, "slug" | "name"> & { eventName?: string }
+    >;
   } catch (e) {
     console.error(e);
     return null;
