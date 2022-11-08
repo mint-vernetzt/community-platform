@@ -1,10 +1,4 @@
-import {
-  ActionFunction,
-  Link,
-  LoaderFunction,
-  redirect,
-  useLoaderData,
-} from "remix";
+import { ActionFunction, LoaderFunction, redirect, useLoaderData } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
@@ -13,7 +7,6 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deleteEventById } from "~/routes/event/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "../../utils.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
 import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
@@ -112,50 +105,26 @@ function Delete() {
 
   return (
     <>
-      <h1 className="mb-8">Veranstaltung löschen</h1>
+      <h1 className="mb-8">Projekt löschen</h1>
 
       <p className="mb-8">
-        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" an ein,
-        um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig
-        löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht.
+        Bitte gib den Namen des Projekts "{loaderData.projectName}" ein, um das
+        Löschen zu bestätigen. Wenn Du danach auf "Projekt löschen” klickst,
+        wird Euer Projekt ohne erneute Abfrage gelöscht.
       </p>
-
-      {loaderData.childEvents.length > 0 && (
-        <>
-          <p className="mb-2">
-            Folgende Veranstaltung und zugehörige Veranstaltung werden auch
-            gelöscht:
-          </p>{" "}
-          <ul className="mb-8">
-            {loaderData.childEvents.map((childEvent, index) => {
-              return (
-                <li key={`child-event-${index}`}>
-                  -{" "}
-                  <Link
-                    className="underline hover:no-underline"
-                    to={`/event/${childEvent.slug}`}
-                  >
-                    {childEvent.name}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
 
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
             <Field name="userId" hidden value={loaderData.userId} />
-            <Field name="eventId" hidden value={loaderData.eventId} />
-            <Field name="eventName" className="mb-4">
+            <Field name="projectId" hidden value={loaderData.projectId} />
+            <Field name="projectName" className="mb-4">
               {({ Errors }) => (
                 <>
                   <Input
-                    id="eventName"
+                    id="projectName"
                     label="Löschung bestätigen"
-                    {...register("eventName")}
+                    {...register("projectName")}
                   />
                   <Errors />
                 </>
@@ -165,7 +134,7 @@ function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Veranstaltung löschen
+              Projekt löschen
             </button>
             <Errors />
           </>
