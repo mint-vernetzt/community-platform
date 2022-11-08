@@ -99,6 +99,10 @@ export async function updateProjectById(id: string, data: any) {
   });
 }
 
+export async function deleteProjectById(id: string) {
+  return await prismaClient.project.delete({ where: { id } });
+}
+
 export function getResponsibleOrganizationDataFromProject(
   project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>
 ) {

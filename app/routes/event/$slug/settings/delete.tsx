@@ -119,9 +119,9 @@ function Delete() {
       <h1 className="mb-8">Veranstaltung löschen</h1>
 
       <p className="mb-8">
-        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" an ein,
-        um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig
-        löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht.
+        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" ein, um
+        das Löschen zu bestätigen. Wenn Du danach auf "Veranstaltung löschen”
+        klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.
       </p>
 
       {loaderData.childEvents.length > 0 && (

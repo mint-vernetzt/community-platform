@@ -13,18 +13,12 @@ const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
 jest.mock("~/prisma", () => {
   return {
     prismaClient: {
-      event: {
+      project: {
         findFirst: jest.fn(),
         delete: jest.fn(),
       },
-      teamMemberOfEvent: {
+      teamMemberOfProject: {
         findFirst: jest.fn(),
-      },
-      focus: {
-        findMany: jest.fn(),
-      },
-      area: {
-        findMany: jest.fn(),
       },
     },
   };
@@ -35,7 +29,7 @@ const slug = "slug-test";
 describe("/event/$slug/settings/delete", () => {
   describe("loader", () => {
     beforeAll(() => {
-      process.env.FEATURES = "events";
+      process.env.FEATURES = "projects";
     });
 
     test("no params", async () => {
@@ -53,10 +47,10 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
-    test("event not found", async () => {
+    test("project not found", async () => {
       expect.assertions(2);
 
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+      (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -68,7 +62,7 @@ describe("/event/$slug/settings/delete", () => {
         expect(response.status).toBe(404);
 
         const json = await response.json();
-        expect(json.message).toBe("Event not found");
+        expect(json.message).toBe("Project not found");
       }
     });
 
@@ -97,11 +91,13 @@ describe("/event/$slug/settings/delete", () => {
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return { slug };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return null;
       });
@@ -124,14 +120,16 @@ describe("/event/$slug/settings/delete", () => {
     test("privileged user", async () => {
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return {
-          id: "some-event-id",
-          slug,
-        };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "some-project-id",
+            slug,
+          };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
       });
@@ -142,7 +140,7 @@ describe("/event/$slug/settings/delete", () => {
         params: { slug },
       });
       expect(response.userId).toBe("some-user-id");
-      expect(response.eventId).toBe("some-event-id");
+      expect(response.projectId).toBe("some-project-id");
     });
 
     afterAll(() => {
@@ -152,7 +150,7 @@ describe("/event/$slug/settings/delete", () => {
 
   describe("action", () => {
     beforeAll(() => {
-      process.env.FEATURES = "events";
+      process.env.FEATURES = "projects";
     });
 
     test("no params", async () => {
@@ -171,12 +169,12 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
-    test("event not found", async () => {
+    test("project not found", async () => {
       const request = createRequestWithFormData({ userId: "some-user-id" });
 
       expect.assertions(2);
 
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+      (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -187,7 +185,7 @@ describe("/event/$slug/settings/delete", () => {
         expect(response.status).toBe(404);
 
         const json = await response.json();
-        expect(json.message).toBe("Event not found");
+        expect(json.message).toBe("Project not found");
       }
     });
 
@@ -220,11 +218,13 @@ describe("/event/$slug/settings/delete", () => {
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return { slug };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return null;
       });
@@ -266,21 +266,27 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
-    test("different event id", async () => {
+    test("different project id", async () => {
       expect.assertions(2);
 
       const request = createRequestWithFormData({
         userId: "some-user-id",
-        eventId: "some-event-id",
-        eventName: "Some event name",
+        projectId: "some-project-id",
+        projectName: "Some project name",
       });
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { id: "another-event-id", name: "Some other event name", slug };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "another-project-id",
+            name: "Some other project name",
+            slug,
+          };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
       });
@@ -300,19 +306,25 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
-    test("different event name", async () => {
+    test("different project name", async () => {
       const request = createRequestWithFormData({
         userId: "some-user-id",
-        eventId: "some-event-id",
-        eventName: "Some event name",
+        projectId: "some-project-id",
+        projectName: "Some project name",
       });
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-event-id", name: "Some other event name", slug };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "some-project-id",
+            name: "Some other project name",
+            slug,
+          };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
       });
@@ -323,28 +335,30 @@ describe("/event/$slug/settings/delete", () => {
         params: { slug },
       });
 
-      expect(response.errors.eventName).toBeDefined();
-      expect(response.errors.eventName[0]).toBe(
-        "Der Name der Veranstaltung ist nicht korrekt"
+      expect(response.errors.projectName).toBeDefined();
+      expect(response.errors.projectName[0]).toBe(
+        "Der Name des Projekts ist nicht korrekt"
       );
     });
 
     test("delete", async () => {
       const request = createRequestWithFormData({
         userId: "some-user-id",
-        eventId: "some-event-id",
-        eventName: "Some event name",
+        projectId: "some-project-id",
+        projectName: "Some project name",
       });
 
       getUserByRequest.mockResolvedValue({
         id: "some-user-id",
         user_metadata: { username: "someuser" },
       } as unknown as User);
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-event-id", name: "Some event name", slug };
-      });
+      (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return { id: "some-project-id", name: "Some project name", slug };
+        }
+      );
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.teamMemberOfProject.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
       });
