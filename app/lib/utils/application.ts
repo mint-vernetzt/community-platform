@@ -3,9 +3,9 @@ import { getUserByRequest } from "~/auth.server";
 
 export async function getFeatureAbilities(
   request: Request,
-  featureName: string
+  featureNameOrNames: string | string[]
 ) {
-  const result = await validateFeatureAccess(request, featureName, {
+  const result = await validateFeatureAccess(request, featureNameOrNames, {
     throw: false,
   });
   return result.abilities;

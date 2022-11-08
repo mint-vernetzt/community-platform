@@ -131,7 +131,7 @@ export const loader: LoaderFunction = async (
 
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
-  const abilities = await getFeatureAbilities(request, "events");
+  const abilities = await getFeatureAbilities(request, ["events", "projects"]);
 
   let data = await filterProfileByMode(profile, mode);
 
