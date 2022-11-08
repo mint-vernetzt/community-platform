@@ -11,23 +11,55 @@ export type ProfileWithRelations = Profile & {
 type FieldType = keyof ProfileWithRelations;
 
 export async function getProfileByUsername(username: string) {
-  const where = { username };
-  const include = {
-    areas: { select: { area: { select: { name: true } } } },
-    offers: { select: { offer: { select: { title: true } } } },
-    seekings: { select: { offer: { select: { title: true } } } },
-    memberOf: {
-      select: {
-        organization: {
-          select: {
-            slug: true,
-            logo: true,
-            name: true,
-            types: {
-              select: {
-                organizationType: {
-                  select: {
-                    title: true,
+  const profile = await prismaClient.profile.findUnique({
+    where: { username },
+    include: {
+      areas: { select: { area: { select: { name: true } } } },
+      offers: { select: { offer: { select: { title: true } } } },
+      seekings: { select: { offer: { select: { title: true } } } },
+      memberOf: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
+              logo: true,
+              name: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      teamMemberOfProjects: {
+        select: {
+          project: {
+            select: {
+              slug: true,
+              logo: true,
+              headline: true,
+              excerpt: true,
+              awards: {
+                select: {
+                  award: {
+                    select: {
+                      logo: true,
+                    },
+                  },
+                },
+              },
+              responsibleOrganizations: {
+                select: {
+                  organization: {
+                    select: {
+                      name: true,
+                    },
                   },
                 },
               },
@@ -36,11 +68,6 @@ export async function getProfileByUsername(username: string) {
         },
       },
     },
-  };
-
-  const profile = await prismaClient.profile.findUnique({
-    where,
-    include,
   });
 
   return profile;

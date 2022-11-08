@@ -156,18 +156,45 @@ export const loader: LoaderFunction = async (
       });
     }
   }
-  profile.memberOf = profile.memberOf.map((member) => {
-    if (member.organization.logo !== null) {
-      const publicURL = getPublicURL(member.organization.logo);
+  profile.memberOf = profile.memberOf.map((relation) => {
+    if (relation.organization.logo !== null) {
+      const publicURL = getPublicURL(relation.organization.logo);
       if (publicURL !== null) {
-        member.organization.logo = getImageURL(publicURL, {
+        relation.organization.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
           gravity: GravityType.center,
         });
       }
     }
-    return member;
+    return relation;
   });
+  profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
+    (relation) => {
+      if (relation.project.logo !== null) {
+        const publicURL = getPublicURL(relation.project.logo);
+        if (publicURL !== null) {
+          relation.project.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      relation.project.awards = relation.project.awards.map((relation) => {
+        if (relation.award.logo !== null) {
+          const publicURL = getPublicURL(relation.award.logo);
+          if (publicURL !== null) {
+            relation.award.logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return relation;
+      });
+
+      return relation;
+    }
+  );
 
   const profileEvents = await getProfileEventsByMode(username, mode);
   if (profileEvents === null) {
