@@ -13,8 +13,10 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deleteEventById } from "~/routes/event/$slug/settings/utils.server";
+import { checkIdentityOrThrow } from "../../utils.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
-import { checkOwnershipOrThrow } from "./utils.server";
+import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -53,17 +55,17 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  if (values.eventId !== environment.id) {
+  if (values.projectId !== environment.id) {
     throw new Error("Id nicht korrekt");
   }
-  if (values.eventName !== environment.name) {
+  if (values.projectName !== environment.name) {
     throw new InputError(
       "Der Name der Veranstaltung ist nicht korrekt",
-      "eventName"
+      "projectName"
     );
   }
   try {
-    await deleteEventById(values.eventId);
+    await deleteProjectById(values.projectId);
   } catch (error) {
     throw "Die Veranstaltung konnte nicht gelöscht werden.";
   }
@@ -72,7 +74,7 @@ const mutation = makeDomainFunction(
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(request, "projects");
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -80,15 +82,15 @@ export const action: ActionFunction = async (args) => {
 
   await checkIdentityOrThrow(request, currentUser);
 
-  const event = await getEventBySlugOrThrow(slug);
+  const project = await getProjectBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(project, currentUser);
 
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { id: event.id, name: event.name },
+    environment: { id: project.id, name: project.name },
   });
 
   if (result.success === false) {
