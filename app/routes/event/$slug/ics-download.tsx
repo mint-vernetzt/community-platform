@@ -3,6 +3,7 @@ import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
 import { getUserByRequestOrThrow } from "~/auth.server";
+import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { fromUTF8Array, toUTF8Array } from "~/lib/string/toUTF8Array";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -141,14 +142,14 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const absoluteEventURL =
     url.protocol + "//" + url.host + `/event/${event.slug}`;
   const ics = createIcsString(event, absoluteEventURL);
-  const filename = event.name + ".ics";
+  const filename = escapeFilenameSpecialChars(event.name + ".ics");
 
   // TODO: Check for missing headers
   return new Response(ics, {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
-      "Content-Disposition": `filename=${filename}; filename*=utf-8''${filename}`,
+      "Content-Disposition": `filename=${filename}`,
     },
   });
 };
