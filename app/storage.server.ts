@@ -86,7 +86,7 @@ function validatePersistence(
   }
 }
 
-export const upload = async (request: Request, bucketName: string) => {
+export const parseMultipart = async (request: Request, bucketName: string) => {
   try {
     const formData = await unstable_parseMultipartFormData(
       request,
@@ -100,7 +100,7 @@ export const upload = async (request: Request, bucketName: string) => {
     if (uploadHandlerResponseJSON === null) {
       throw serverError({ message: "Something went wrong on upload." });
     }
-    const uploadHandlerResponse: {
+    let uploadHandlerResponse: {
       buffer: {
         type: "Buffer";
         data: number[];
@@ -117,19 +117,39 @@ export const upload = async (request: Request, bucketName: string) => {
       throw serverError({ message: "Cannot upload empty file." });
     }
 
-    const { data, error } = await persistUpload(
-      uploadHandlerResponse.path,
-      buffer,
-      bucketName,
-      uploadHandlerResponse.mimeType
-    );
-    validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
-
-    return formData;
-  } catch (exception) {
-    throw serverError({ message: "Something went wrong on upload." });
+    return {
+      uploadHandlerResponse: {
+        ...uploadHandlerResponse,
+        buffer,
+      },
+      formData,
+    };
+  } catch (e) {
+    throw "Error on upload document.";
   }
 };
+
+export async function doPersistUpload(
+  bucketName: string,
+  uploadHandlerResponse: {
+    buffer: Buffer;
+    path: string;
+    filename: string;
+    extension: string;
+    mimeType: string;
+    sizeInBytes: number;
+  }
+) {
+  const { data, error } = await persistUpload(
+    uploadHandlerResponse.path,
+    uploadHandlerResponse.buffer,
+    bucketName,
+    uploadHandlerResponse.mimeType
+  );
+  validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
+
+  return true;
+}
 
 export function getPublicURL(relativePath: string, bucket = "images") {
   const { publicURL, error } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
