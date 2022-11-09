@@ -2,15 +2,20 @@ import type { DateArray } from "ics";
 import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getUserByRequestOrThrow } from "~/auth.server";
+import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
+import { fromUTF8Array, toUTF8Array } from "~/lib/string/toUTF8Array";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import {
+  deriveMode,
+  getEventBySlugOrThrow,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
+} from "./utils.server";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
-// TODO: Add status (CONFIRMED/CANCELLED) to the ics file (see #437)
-// TODO: Maybe add attendees to the ics file (see #433)
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
 function createIcsString(
@@ -79,20 +84,19 @@ function createIcsString(
     location: location.join(", "),
     url: absoluteEventUrl,
     // TODO:
-    // status: "CONFIRMED" || "CANCELLED" || "TENTATIVE"
     // organizer: { name: "", email: "", dir: "any url (Maybe the community profile)"}
     categories: tagTitles,
     uid: event.id + event.slug,
     created: [
       event.createdAt.getFullYear(),
-      event.createdAt.getMonth(),
+      event.createdAt.getMonth() + 1,
       event.createdAt.getDate(),
       event.createdAt.getHours(),
       event.createdAt.getMinutes(),
     ] as DateArray,
     lastModified: [
       event.updatedAt.getFullYear(),
-      event.updatedAt.getMonth(),
+      event.updatedAt.getMonth() + 1,
       event.updatedAt.getDate(),
       event.updatedAt.getHours(),
       event.updatedAt.getMinutes(),
@@ -114,10 +118,21 @@ type LoaderData = Response;
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
 
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getUserByRequestOrThrow(request);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
   const mode = await deriveMode(event, currentUser);
+
+  const isTeamMember = await getIsTeamMember(event.id, currentUser.id);
+  const isSpeaker = await getIsSpeaker(event.id, currentUser.id);
+  const isParticipant = await getIsParticipant(event.id, currentUser.id);
+
+  if (!(isTeamMember || isSpeaker || isParticipant)) {
+    throw forbidden({
+      message:
+        "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
+    });
+  }
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
@@ -127,13 +142,14 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const absoluteEventURL =
     url.protocol + "//" + url.host + `/event/${event.slug}`;
   const ics = createIcsString(event, absoluteEventURL);
+  const filename = escapeFilenameSpecialChars(event.name + ".ics");
 
   // TODO: Check for missing headers
   return new Response(ics, {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
-      "Content-Disposition": `filename="${event.name}.ics"`,
+      "Content-Disposition": `filename=${filename}`,
     },
   });
 };

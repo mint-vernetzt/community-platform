@@ -1,6 +1,7 @@
 import { LoaderFunction } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequestOrThrow } from "~/auth.server";
+import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -109,13 +110,14 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const depth = url.searchParams.get("depth");
   const type = url.searchParams.get("type");
   const profiles = await getProfilesBySearchParams(event, depth, type);
-  const filename = getFilenameBySearchParams(event, depth, type);
+  const originalFilename = getFilenameBySearchParams(event, depth, type);
+  const filename = escapeFilenameSpecialChars(originalFilename);
   const csv = createCsvString(profiles);
   return new Response(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `filename=${filename}; filename*=UTF-8''${filename}`,
+      "Content-Disposition": `filename=${filename}`,
     },
   });
 };

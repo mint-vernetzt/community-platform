@@ -4,6 +4,7 @@ import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
 
 type Mode = "anon" | "authenticated" | "owner";
+
 export async function deriveMode(
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>,
   currentUser: User | null
@@ -752,4 +753,56 @@ export async function enhanceChildEventsWithParticipationStatus(
     };
   });
   return { ...event, childEvents: enhancedChildEvents };
+}
+
+export async function getIsParticipant(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.participantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function getIsOnWaitingList(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function getIsSpeaker(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.speakerOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+export async function getIsTeamMember(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.teamMemberOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
 }
