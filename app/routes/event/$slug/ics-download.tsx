@@ -3,14 +3,11 @@ import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
-// TODO: Add status (CONFIRMED/CANCELLED) to the ics file (see #437)
-// TODO: Maybe add attendees to the ics file (see #433)
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
 function createIcsString(
