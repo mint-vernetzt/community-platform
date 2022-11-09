@@ -146,7 +146,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
-      "Content-Disposition": `filename="${event.name}.ics"`,
+      "Content-Disposition": `filename=${event.name}.ics; filename*=UTF-8''${event.name}`,
     },
   });
 };
