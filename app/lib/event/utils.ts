@@ -251,7 +251,7 @@ function conferenceLinkToBeAnnounced(
   );
 }
 
-export function canUserSeeConferenceLink(
+export function canUserAccessConferenceLink(
   event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
   isParticipant: boolean | undefined,
   isSpeaker: boolean | undefined,
