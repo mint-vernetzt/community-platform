@@ -79,20 +79,19 @@ function createIcsString(
     location: location.join(", "),
     url: absoluteEventUrl,
     // TODO:
-    // status: "CONFIRMED" || "CANCELLED" || "TENTATIVE"
     // organizer: { name: "", email: "", dir: "any url (Maybe the community profile)"}
     categories: tagTitles,
     uid: event.id + event.slug,
     created: [
       event.createdAt.getFullYear(),
-      event.createdAt.getMonth(),
+      event.createdAt.getMonth() + 1,
       event.createdAt.getDate(),
       event.createdAt.getHours(),
       event.createdAt.getMinutes(),
     ] as DateArray,
     lastModified: [
       event.updatedAt.getFullYear(),
-      event.updatedAt.getMonth(),
+      event.updatedAt.getMonth() + 1,
       event.updatedAt.getDate(),
       event.updatedAt.getHours(),
       event.updatedAt.getMinutes(),
