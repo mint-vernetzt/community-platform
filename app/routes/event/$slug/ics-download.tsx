@@ -2,9 +2,15 @@ import type { DateArray } from "ics";
 import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getUserByRequestOrThrow } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import {
+  deriveMode,
+  getEventBySlugOrThrow,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
+} from "./utils.server";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
@@ -110,10 +116,21 @@ type LoaderData = Response;
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
 
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getUserByRequestOrThrow(request);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
   const mode = await deriveMode(event, currentUser);
+
+  const isTeamMember = await getIsTeamMember(event.id, currentUser.id);
+  const isSpeaker = await getIsSpeaker(event.id, currentUser.id);
+  const isParticipant = await getIsParticipant(event.id, currentUser.id);
+
+  if (!(isTeamMember || isSpeaker || isParticipant)) {
+    throw forbidden({
+      message:
+        "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
+    });
+  }
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
