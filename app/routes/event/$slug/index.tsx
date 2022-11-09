@@ -10,16 +10,12 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { getImageURL } from "~/images.server";
 import {
+  canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
   canUserParticipate,
-  canUserSeeConferenceLink,
-  getIsOnWaitingList,
-  getIsParticipant,
-  getIsSpeaker,
-  getIsTeamMember,
 } from "~/lib/event/utils";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
@@ -36,6 +32,10 @@ import {
   getEventSpeakers,
   getFullDepthParticipants,
   getFullDepthSpeakers,
+  getIsOnWaitingList,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
   MaybeEnhancedEvent,
 } from "./utils.server";
 
@@ -223,6 +223,26 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
       }
       return item;
     });
+
+  if (
+    !canUserAccessConferenceLink(
+      enhancedEvent,
+      isParticipant,
+      isSpeaker,
+      isTeamMember
+    )
+  ) {
+    enhancedEvent.conferenceLink = null;
+    enhancedEvent.conferenceCode = null;
+  } else {
+    if (
+      enhancedEvent.conferenceLink === null ||
+      enhancedEvent.conferenceLink === ""
+    ) {
+      enhancedEvent.conferenceLink = "noch nicht bekannt";
+      enhancedEvent.conferenceCode = null;
+    }
+  }
 
   return {
     mode,
@@ -575,17 +595,11 @@ function Index() {
                 </>
               )}
 
-              {canUserSeeConferenceLink(
-                loaderData.event,
-                loaderData.isParticipant,
-                loaderData.isSpeaker,
-                loaderData.isTeamMember
-              ) && (
-                <>
-                  <div className="text-xs leading-6">Konferenzlink</div>
-                  <div className="pb-3 md:pb-0">
-                    {loaderData.event.conferenceLink !== null &&
-                    loaderData.event.conferenceLink !== "" ? (
+              {loaderData.event.conferenceLink !== null &&
+                loaderData.event.conferenceLink !== "" && (
+                  <>
+                    <div className="text-xs leading-6">Konferenzlink</div>
+                    <div className="pb-3 md:pb-0">
                       <a
                         href={loaderData.event.conferenceLink}
                         target="_blank"
@@ -593,21 +607,18 @@ function Index() {
                       >
                         {loaderData.event.conferenceLink}
                       </a>
-                    ) : (
-                      "noch nicht bekannt"
-                    )}
-                  </div>
-                  {loaderData.event.conferenceCode !== null &&
-                    loaderData.event.conferenceCode !== "" && (
-                      <>
-                        <div className="text-xs leading-6">Konferenz-Code</div>
-                        <div className="pb-3 md:pb-0">
-                          {loaderData.event.conferenceCode}
-                        </div>
-                      </>
-                    )}
-                </>
-              )}
+                    </div>
+                  </>
+                )}
+              {loaderData.event.conferenceCode !== null &&
+                loaderData.event.conferenceCode !== "" && (
+                  <>
+                    <div className="text-xs leading-6">Konferenz-Code</div>
+                    <div className="pb-3 md:pb-0">
+                      {loaderData.event.conferenceCode}
+                    </div>
+                  </>
+                )}
 
               {loaderData.event.startTime && (
                 <>
@@ -652,7 +663,9 @@ function Index() {
                 </>
               )}
 
-              {loaderData.mode !== "anon" && (
+              {(loaderData.isParticipant ||
+                loaderData.isSpeaker ||
+                loaderData.isTeamMember) && (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div className="pb-3 md:pb-0">

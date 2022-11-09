@@ -4,6 +4,7 @@ import JSZip from "jszip";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { badRequest, serverError } from "remix-utils";
 import { createHashFromString, stream2buffer } from "~/utils.server";
+import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
 import { supabaseAdmin } from "./supabase";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
@@ -118,7 +119,7 @@ export const parseMultipart = async (request: Request, bucketName: string) => {
     }
 
     if (buffer.length > 5_000_000) {
-      throw serverError({ message: "File is to big." });
+      throw serverError({ message: "File is too big." });
     }
 
     return {
@@ -220,6 +221,8 @@ export async function getDownloadDocumentsResponse(
     contentType = "application/zip";
     filename = `${zipFilename}`;
   }
+
+  filename = escapeFilenameSpecialChars(filename);
 
   // TODO: Check for missing headers
   return new Response(file, {

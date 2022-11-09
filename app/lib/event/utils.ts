@@ -1,6 +1,11 @@
 import { Event, Prisma } from "@prisma/client";
 import { getRootEvent } from "~/event.server";
-import { prismaClient } from "~/prisma";
+import {
+  getIsOnWaitingList,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
+} from "~/routes/event/$slug/utils.server";
 import { ArrayElement } from "../utils/types";
 
 const eventRelations = Prisma.validator<Prisma.EventArgs>()({
@@ -71,58 +76,6 @@ export function combineEventsSortChronologically<
   ) {
     return a.event.startTime >= b.event.startTime ? 1 : -1;
   });
-}
-
-export async function getIsParticipant(eventId: string, profileId?: string) {
-  if (profileId === undefined) {
-    return false;
-  }
-  const result = await prismaClient.participantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsOnWaitingList(eventId: string, profileId?: string) {
-  if (profileId === undefined) {
-    return false;
-  }
-  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsSpeaker(eventId: string, profileId?: string) {
-  if (profileId === undefined) {
-    return false;
-  }
-  const result = await prismaClient.speakerOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
-}
-
-export async function getIsTeamMember(eventId: string, profileId?: string) {
-  if (profileId === undefined) {
-    return false;
-  }
-  const result = await prismaClient.teamMemberOfEvent.findFirst({
-    where: {
-      eventId,
-      profileId,
-    },
-  });
-  return result !== null;
 }
 
 export async function addUserParticipationStatus<
@@ -251,7 +204,7 @@ function conferenceLinkToBeAnnounced(
   );
 }
 
-export function canUserSeeConferenceLink(
+export function canUserAccessConferenceLink(
   event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
   isParticipant: boolean | undefined,
   isSpeaker: boolean | undefined,
