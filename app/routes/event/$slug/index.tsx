@@ -663,7 +663,9 @@ function Index() {
                 </>
               )}
 
-              {loaderData.mode !== "anon" && (
+              {(loaderData.isParticipant ||
+                loaderData.isSpeaker ||
+                loaderData.isTeamMember) && (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div className="pb-3 md:pb-0">
