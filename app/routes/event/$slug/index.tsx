@@ -13,10 +13,6 @@ import {
   canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
   canUserParticipate,
-  getIsOnWaitingList,
-  getIsParticipant,
-  getIsSpeaker,
-  getIsTeamMember,
 } from "~/lib/event/utils";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -36,6 +32,10 @@ import {
   getEventSpeakers,
   getFullDepthParticipants,
   getFullDepthSpeakers,
+  getIsOnWaitingList,
+  getIsParticipant,
+  getIsSpeaker,
+  getIsTeamMember,
   MaybeEnhancedEvent,
 } from "./utils.server";
 
