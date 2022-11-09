@@ -117,6 +117,10 @@ export const parseMultipart = async (request: Request, bucketName: string) => {
       throw serverError({ message: "Cannot upload empty file." });
     }
 
+    if (buffer.length > 5_000_000) {
+      throw serverError({ message: "File is to big." });
+    }
+
     return {
       uploadHandlerResponse: {
         ...uploadHandlerResponse,

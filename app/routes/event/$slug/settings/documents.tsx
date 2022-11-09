@@ -73,7 +73,13 @@ function Documents() {
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileSelected(true);
+      if (e.target.files[0].size > 5_000_000) {
+        alert("Die Datei ist zu groß. Maximal 5MB.");
+        clearFileInput();
+        setFileSelected(false);
+      } else {
+        setFileSelected(true);
+      }
     }
   };
 
