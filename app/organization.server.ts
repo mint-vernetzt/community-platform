@@ -143,6 +143,38 @@ export async function getOrganizationBySlug(slug: string) {
           },
         },
       },
+      responsibleForProject: {
+        select: {
+          project: {
+            select: {
+              slug: true,
+              logo: true,
+              name: true,
+              excerpt: true,
+              awards: {
+                select: {
+                  award: {
+                    select: {
+                      id: true,
+                      title: true,
+                      logo: true,
+                    },
+                  },
+                },
+              },
+              responsibleOrganizations: {
+                select: {
+                  organization: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 

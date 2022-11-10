@@ -134,6 +134,9 @@ export const loader: LoaderFunction = async (
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
   const abilities = await getFeatureAbilities(request, ["events", "projects"]);
+  if (!abilities.projects.hasAccess) {
+    profile.teamMemberOfProjects = [];
+  }
 
   let data = await filterProfileByMode(profile, mode);
 
@@ -692,8 +695,7 @@ export default function Index() {
             )}
             {((loaderData.data.teamMemberOfProjects &&
               loaderData.data.teamMemberOfProjects.length > 0) ||
-              (loaderData.mode === "owner" &&
-                loaderData.abilities.projects.hasAccess)) && (
+              loaderData.mode === "owner") && (
               <>
                 <div
                   id="projects"

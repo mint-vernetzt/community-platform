@@ -334,6 +334,7 @@ export async function filterProfileByMode(
     "avatar",
     "background",
     "memberOf",
+    "teamMemberOfProjects",
     ...profile.publicFields,
   ];
 
