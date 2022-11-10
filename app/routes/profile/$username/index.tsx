@@ -286,7 +286,7 @@ export default function Index() {
       <div className="container relative pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
           <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44">
+            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4">
               <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" && (
