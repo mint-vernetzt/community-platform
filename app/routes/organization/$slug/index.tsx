@@ -283,8 +283,6 @@ export default function Index() {
     : "";
   const organisationName = loaderData.organization.name ?? "";
 
-  console.log(loaderData.organization.responsibleForProject);
-
   const logo = loaderData.images.logo;
   const Avatar = React.useCallback(
     () => (
