@@ -1,8 +1,15 @@
 import { Profile } from "@prisma/client";
-import { badRequest, forbidden } from "remix-utils";
+import { User } from "@supabase/supabase-js";
+import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { getImageURL } from "~/images.server";
+import {
+  addUserParticipationStatus,
+  combineEventsSortChronologically,
+} from "~/lib/event/utils";
 import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
+import { getPublicURL } from "~/storage.server";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
@@ -108,22 +115,30 @@ export async function updateProfileById(
   });
 }
 
-export async function getProfileEventsByMode(username: string, mode: Mode) {
+export async function getProfileEventsByMode(
+  username: string,
+  mode: Mode,
+  inFuture: boolean
+) {
   let teamMemberWhere;
   if (mode === "owner") {
     teamMemberWhere = {
       event: {
-        startTime: {
-          gte: new Date(),
-        },
+        startTime: inFuture
+          ? {
+              gte: new Date(),
+            }
+          : { lte: new Date() },
       },
     };
   } else {
     teamMemberWhere = {
       event: {
-        startTime: {
-          gte: new Date(),
-        },
+        startTime: inFuture
+          ? {
+              gte: new Date(),
+            }
+          : { lte: new Date() },
         published: true,
       },
     };
@@ -315,6 +330,99 @@ export async function getProfileEventsByMode(username: string, mode: Mode) {
   });
 
   return profileEvents;
+}
+
+export async function prepareProfileEvents(
+  username: string,
+  mode: Mode,
+  sessionUser: User | null,
+  inFuture: boolean
+) {
+  const profileFutureEvents = await getProfileEventsByMode(
+    username,
+    mode,
+    inFuture
+  );
+  if (profileFutureEvents === null) {
+    throw notFound({ message: "Events not found" });
+  }
+
+  profileFutureEvents.teamMemberOfEvents =
+    profileFutureEvents.teamMemberOfEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  profileFutureEvents.contributedEvents =
+    profileFutureEvents.contributedEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  profileFutureEvents.participatedEvents =
+    profileFutureEvents.participatedEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  profileFutureEvents.waitingForEvents =
+    profileFutureEvents.waitingForEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  const combinedFutureEvents = combineEventsSortChronologically<
+    typeof profileFutureEvents.participatedEvents,
+    typeof profileFutureEvents.waitingForEvents
+  >(
+    profileFutureEvents.participatedEvents,
+    profileFutureEvents.waitingForEvents
+  );
+
+  const enhancedFutureEvents = {
+    teamMemberOfEvents: await addUserParticipationStatus<
+      typeof profileFutureEvents.teamMemberOfEvents
+    >(profileFutureEvents.teamMemberOfEvents, sessionUser?.id),
+    contributedEvents: await addUserParticipationStatus<
+      typeof profileFutureEvents.contributedEvents
+    >(profileFutureEvents.contributedEvents, sessionUser?.id),
+    participatedEvents:
+      mode !== "anon"
+        ? await addUserParticipationStatus<typeof combinedFutureEvents>(
+            combinedFutureEvents,
+            sessionUser?.id
+          )
+        : undefined,
+  };
+  return enhancedFutureEvents;
 }
 
 // TODO: Type issues, rework public fields

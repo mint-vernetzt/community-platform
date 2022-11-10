@@ -8,20 +8,19 @@ import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
+import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
-  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
-  combineEventsSortChronologically,
 } from "~/lib/event/utils";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
@@ -32,10 +31,9 @@ import { getPublicURL } from "~/storage.server";
 import {
   deriveMode,
   filterProfileByMode,
-  getProfileEventsByMode,
   Mode,
+  prepareProfileEvents,
 } from "./utils.server";
-import { H3 } from "~/components/Heading/Heading";
 
 export function links() {
   return [
@@ -43,57 +41,6 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
-
-// Type helper to extract return type of generic function with specific type as argument
-const getEnhancedTeamMemberOfEvents = async (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["teamMemberOfEvents"],
-  userId: string
-) =>
-  await addUserParticipationStatus<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["teamMemberOfEvents"]
-  >(events, userId);
-
-const getEnhancedContributedEvents = async (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["contributedEvents"],
-  userId: string
-) =>
-  await addUserParticipationStatus<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["contributedEvents"]
-  >(events, userId);
-
-const getCombinedEvents = (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["participatedEvents"],
-  eventsToAdd: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["waitingForEvents"]
-) =>
-  combineEventsSortChronologically<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["participatedEvents"],
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["waitingForEvents"]
-  >(events, eventsToAdd);
-
-const getEnhancedParticipatedEvents = async (
-  events: ReturnType<typeof getCombinedEvents>,
-  userId: string
-) =>
-  await addUserParticipationStatus<ReturnType<typeof getCombinedEvents>>(
-    events,
-    userId
-  );
 
 type ProfileLoaderData = {
   mode: Mode;
@@ -103,15 +50,8 @@ type ProfileLoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  futureEvents: {
-    teamMemberOfEvents: Awaited<
-      ReturnType<typeof getEnhancedTeamMemberOfEvents>
-    >;
-    contributedEvents: Awaited<ReturnType<typeof getEnhancedContributedEvents>>;
-    participatedEvents?: Awaited<
-      ReturnType<typeof getEnhancedParticipatedEvents>
-    >;
-  };
+  futureEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
+  pastEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
   userId?: string;
   userEmail?: string;
 };
@@ -201,93 +141,27 @@ export const loader: LoaderFunction = async (
     }
   );
 
-  const profileFutureEvents = await getProfileEventsByMode(username, mode);
-  if (profileFutureEvents === null) {
-    throw notFound({ message: "Events not found" });
-  }
-
-  profileFutureEvents.teamMemberOfEvents =
-    profileFutureEvents.teamMemberOfEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.contributedEvents =
-    profileFutureEvents.contributedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.participatedEvents =
-    profileFutureEvents.participatedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.waitingForEvents =
-    profileFutureEvents.waitingForEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  const combinedFutureEvents = combineEventsSortChronologically<
-    typeof profileFutureEvents.participatedEvents,
-    typeof profileFutureEvents.waitingForEvents
-  >(
-    profileFutureEvents.participatedEvents,
-    profileFutureEvents.waitingForEvents
+  const inFuture = true;
+  const profileFutureEvents = await prepareProfileEvents(
+    username,
+    mode,
+    sessionUser,
+    inFuture
   );
-
-  const enhancedFutureEvents = {
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.teamMemberOfEvents
-    >(profileFutureEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.contributedEvents
-    >(profileFutureEvents.contributedEvents, sessionUser?.id),
-    participatedEvents:
-      mode !== "anon"
-        ? await addUserParticipationStatus<typeof combinedFutureEvents>(
-            combinedFutureEvents,
-            sessionUser?.id
-          )
-        : undefined,
-  };
+  const profilePastEvents = await prepareProfileEvents(
+    username,
+    mode,
+    sessionUser,
+    !inFuture
+  );
 
   return json({
     mode,
     data,
     images,
     abilities,
-    futureEvents: enhancedFutureEvents,
+    futureEvents: profileFutureEvents,
+    pastEvents: profilePastEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
   });
