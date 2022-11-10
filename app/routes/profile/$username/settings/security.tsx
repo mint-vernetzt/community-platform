@@ -115,15 +115,18 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 */
 
-// Remove loader when issue #609 is resolved
+// Remove protocol and host from loader when issue #609 is resolved
 
 type LoaderData = {
   protocol: string;
   host: string;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const url = new URL(request.url);
+
+  const username = params.username ?? "";
+  await handleAuthorization(request, username);
 
   return {
     protocol: url.protocol,
