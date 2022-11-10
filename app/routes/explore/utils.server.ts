@@ -243,5 +243,5 @@ export async function prepareEvents(
     }
     return event;
   });
-  return enhancedEvents;
+  return enhancedEvents as MaybeEnhancedEvents;
 }
