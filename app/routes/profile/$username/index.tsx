@@ -196,7 +196,9 @@ function hasWebsiteOrSocialService(
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-function canViewEvents(events: ProfileLoaderData["futureEvents"]) {
+function canViewEvents(
+  events: ProfileLoaderData["futureEvents"] | ProfileLoaderData["pastEvents"]
+) {
   return (
     events.teamMemberOfEvents.length > 0 ||
     (events.participatedEvents !== undefined &&
@@ -674,7 +676,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Veranstaltungen</h3>
+                    <h3 className="mb-0 font-bold">
+                      Bevorstehende Veranstaltungen
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" &&
                     loaderData.abilities.events.hasAccess && (
@@ -1122,6 +1126,371 @@ export default function Index() {
                                       eventId={event.id}
                                       email={loaderData.userEmail}
                                     />
+                                  </div>
+                                )}
+                                {!event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+              </>
+            )}
+            {(canViewEvents(loaderData.pastEvents) ||
+              (loaderData.mode === "owner" &&
+                loaderData.abilities.events.hasAccess)) && (
+              <>
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
+                      Vergangene Veranstaltungen
+                    </h3>
+                  </div>
+                </div>
+                {loaderData.pastEvents !== undefined &&
+                  loaderData.pastEvents.teamMemberOfEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Organisation/Team
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.teamMemberOfEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+
+                                {loaderData.mode === "owner" &&
+                                  !event.canceled && (
+                                    <>
+                                      {event.published ? (
+                                        <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
+                                          Veröffentlicht
+                                        </div>
+                                      ) : (
+                                        <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
+                                          Entwurf
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant &&
+                                  !event.canceled &&
+                                  loaderData.mode !== "owner" && (
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                      <p>Teilgenommen</p>
+                                    </div>
+                                  )}
+                                {loaderData.mode !== "owner" &&
+                                  !event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                {loaderData.pastEvents !== undefined &&
+                  loaderData.pastEvents.contributedEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Speaker:in
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.contributedEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant && !event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                    <p>Teilgenommen</p>
+                                  </div>
+                                )}
+                                {!event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+                {loaderData.pastEvents.participatedEvents !== undefined &&
+                  loaderData.pastEvents.participatedEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Teilnahme
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.participatedEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant && !event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                    <p>Teilgenommen</p>
                                   </div>
                                 )}
                                 {!event.isParticipant &&
