@@ -689,9 +689,12 @@ function Index() {
                   <>
                     <div className="text-xs leading-6">Downloads</div>
                     <div className="pb-3 md:pb-0">
-                      {loaderData.event.documents.map((item, index) => {
+                      {loaderData.event.documents.map((item) => {
                         return (
-                          <div key={`document-${index}`} className="">
+                          <div
+                            key={`document-${item.document.id}`}
+                            className=""
+                          >
                             <Link
                               className="underline hover:no-underline"
                               to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
@@ -848,12 +851,12 @@ function Index() {
                   {loaderData.event.name}" statt.
                 </p>
                 <div className="mb-16">
-                  {loaderData.event.childEvents.map((event, index) => {
+                  {loaderData.event.childEvents.map((event) => {
                     const startTime = new Date(event.startTime);
                     const endTime = new Date(event.endTime);
                     return (
                       <div
-                        key={`child-event-${index}`}
+                        key={`child-event-${event.id}`}
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
                         <Link className="flex" to={`/event/${event.slug}`}>
@@ -1010,9 +1013,9 @@ function Index() {
               <>
                 <h3 className="mt-16 mb-8 font-bold">Team</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {loaderData.event.teamMembers.map((member, index) => {
+                  {loaderData.event.teamMembers.map((member) => {
                     return (
-                      <div key={`team-member-${index}`}>
+                      <div key={`team-member-${member.profile.id}`}>
                         <Link
                           className="flex flex-row"
                           to={`/profile/${member.profile.username}`}
@@ -1054,43 +1057,41 @@ function Index() {
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {loaderData.event.responsibleOrganizations.map(
-                    (item, index) => {
-                      return (
-                        <div key={`organizer-${index}`}>
-                          <Link
-                            className="flex flex-row"
-                            to={`/organization/${item.organization.slug}`}
-                          >
-                            {item.organization.logo !== null &&
-                            item.organization.logo !== "" ? (
-                              <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                                <img
-                                  src={item.organization.logo}
-                                  alt={item.organization.name}
-                                />
-                              </div>
-                            ) : (
-                              <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                                {getInitialsOfName(item.organization.name)}
-                              </div>
-                            )}
-                            <div className="pl-4">
-                              <h5 className="text-sm m-0 font-bold">
-                                {item.organization.name}
-                              </h5>
-
-                              <p className="text-sm m-0 line-clamp-2">
-                                {item.organization.types
-                                  .map((item) => item.organizationType.title)
-                                  .join(", ")}
-                              </p>
+                  {loaderData.event.responsibleOrganizations.map((item) => {
+                    return (
+                      <div key={`organizer-${item.organization.id}`}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/organization/${item.organization.slug}`}
+                        >
+                          {item.organization.logo !== null &&
+                          item.organization.logo !== "" ? (
+                            <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              <img
+                                src={item.organization.logo}
+                                alt={item.organization.name}
+                              />
                             </div>
-                          </Link>
-                        </div>
-                      );
-                    }
-                  )}
+                          ) : (
+                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                              {getInitialsOfName(item.organization.name)}
+                            </div>
+                          )}
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {item.organization.name}
+                            </h5>
+
+                            <p className="text-sm m-0 line-clamp-2">
+                              {item.organization.types
+                                .map((item) => item.organizationType.title)
+                                .join(", ")}
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}

@@ -43,12 +43,12 @@ function Events() {
         <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
       <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-        {loaderData.futureEvents.map((event, index) => {
+        {loaderData.futureEvents.map((event) => {
           const startTime = new Date(event.startTime);
           const endTime = new Date(event.endTime);
           return (
             <div
-              key={`child-event-${index}`}
+              key={`child-event-${event.id}`}
               className="rounded-2xl bg-white shadow-xl flex flex-col overflow-hidden"
             >
               <Link

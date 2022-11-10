@@ -285,21 +285,21 @@ export default function Index() {
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
           {organizations.length > 0 ? (
-            organizations.map((item, index) => {
+            organizations.map((organization) => {
               let slug, image, imageType, initials, name, subtitle;
 
-              slug = `/organization/${item.slug}`;
-              image = item.logo;
+              slug = `/organization/${organization.slug}`;
+              image = organization.logo;
               imageType = "logo";
-              initials = getInitialsOfName(item.name);
-              name = item.name;
-              subtitle = item.types
+              initials = getInitialsOfName(organization.name);
+              name = organization.name;
+              subtitle = organization.types
                 .map(({ organizationType }) => organizationType.title)
                 .join(" / ");
 
               return (
                 <div
-                  key={`profile-${index}`}
+                  key={`organization-${organization.id}`}
                   data-testid="gridcell"
                   className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                 >
@@ -335,24 +335,25 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {item.bio !== undefined && (
-                      <p className="mt-3 line-clamp-2">{item.bio}</p>
+                    {organization.bio !== undefined && (
+                      <p className="mt-3 line-clamp-2">{organization.bio}</p>
                     )}
 
-                    {item.areas !== undefined && item.areas.length > 0 && (
-                      <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
-                        <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                          Aktivitätsgebiete
+                    {organization.areas !== undefined &&
+                      organization.areas.length > 0 && (
+                        <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
+                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                            Aktivitätsgebiete
+                          </div>
+                          <div className="flex-auto line-clamp-3">
+                            <span>
+                              {organization.areas
+                                .map((area) => area.area.name)
+                                .join(" / ")}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex-auto line-clamp-3">
-                          <span>
-                            {item.areas
-                              .map((area) => area.area.name)
-                              .join(" / ")}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                      )}
                   </Link>
                 </div>
               );

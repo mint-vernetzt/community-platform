@@ -238,20 +238,18 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
   // Add avatars
   const profilesWithImages = sortedProfiles.map((item) => {
-    if ("username" in item) {
-      let { avatar, ...rest } = item;
+    let { avatar, ...rest } = item;
 
-      if (avatar !== null) {
-        const publicURL = getPublicURL(avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-          });
-        }
+    if (avatar !== null) {
+      const publicURL = getPublicURL(avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+        });
       }
-
-      return { ...rest, avatar };
     }
+
+    return { ...rest, avatar };
   });
 
   return {
@@ -375,8 +373,11 @@ export default function Index() {
                             className="select w-full select-bordered"
                           >
                             <option></option>
-                            {loaderData.offers.map((offer, index) => (
-                              <option key={`offer-${index}`} value={offer.id}>
+                            {loaderData.offers.map((offer) => (
+                              <option
+                                key={`offer-${offer.id}`}
+                                value={offer.id}
+                              >
                                 {offer.title}
                               </option>
                             ))}
@@ -401,8 +402,11 @@ export default function Index() {
                             className="select w-full select-bordered"
                           >
                             <option></option>
-                            {loaderData.offers.map((offer, index) => (
-                              <option key={`seeking-${index}`} value={offer.id}>
+                            {loaderData.offers.map((offer) => (
+                              <option
+                                key={`seeking-${offer.id}`}
+                                value={offer.id}
+                              >
                                 {offer.title}
                               </option>
                             ))}
@@ -439,17 +443,17 @@ export default function Index() {
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
           {profiles.length > 0 ? (
-            profiles.map((item, index) => {
+            profiles.map((profile) => {
               let slug, image, imageType, initials, name, subtitle;
-              slug = `/profile/${item.username}`;
-              image = item.avatar;
+              slug = `/profile/${profile.username}`;
+              image = profile.avatar;
               imageType = "avatar";
-              initials = getInitials(item);
-              name = getFullName(item);
-              subtitle = item.position;
+              initials = getInitials(profile);
+              name = getFullName(profile);
+              subtitle = profile.position;
               return (
                 <div
-                  key={`profile-${index}`}
+                  key={`profile-${profile.id}`}
                   data-testid="gridcell"
                   className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                 >
@@ -477,18 +481,18 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {item.bio !== undefined && (
-                      <p className="mt-3 line-clamp-2">{item.bio}</p>
+                    {profile.bio !== undefined && (
+                      <p className="mt-3 line-clamp-2">{profile.bio}</p>
                     )}
 
-                    {item.areas !== undefined && item.areas.length > 0 && (
+                    {profile.areas !== undefined && profile.areas.length > 0 && (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
                         </div>
                         <div className="flex-auto line-clamp-3">
                           <span>
-                            {item.areas
+                            {profile.areas
                               .map((area) => area.area.name)
                               .join(" / ")}
                           </span>

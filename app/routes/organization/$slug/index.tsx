@@ -634,18 +634,16 @@ export default function Index() {
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.organization.memberOf &&
                       loaderData.organization.memberOf.length > 0 &&
-                      loaderData.organization.memberOf.map(
-                        ({ network }, index) => (
-                          <OrganizationCard
-                            id={`profile-${index}`}
-                            key={`profile-${index}`}
-                            link={`/organization/${network.slug}`}
-                            name={network.name}
-                            types={network.types}
-                            image={network.logo}
-                          />
-                        )
-                      )}
+                      loaderData.organization.memberOf.map(({ network }) => (
+                        <OrganizationCard
+                          id={`organization-${network.slug}`}
+                          key={`organization-${network.slug}`}
+                          link={`/organization/${network.slug}`}
+                          name={network.name}
+                          types={network.types}
+                          image={network.logo}
+                        />
+                      ))}
                   </div>
                 </>
               )}
@@ -659,10 +657,10 @@ export default function Index() {
                     {loaderData.organization.networkMembers &&
                       loaderData.organization.networkMembers.length > 0 &&
                       loaderData.organization.networkMembers.map(
-                        ({ networkMember }, index) => (
+                        ({ networkMember }) => (
                           <OrganizationCard
-                            id={`profile-${index}`}
-                            key={`profile-${index}`}
+                            id={`organization-${networkMember.slug}`}
+                            key={`organization-${networkMember.slug}`}
                             link={`/organization/${networkMember.slug}`}
                             name={networkMember.name}
                             types={networkMember.types}
@@ -678,19 +676,17 @@ export default function Index() {
                 <>
                   <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
                   <div className="flex flex-wrap -mx-3 lg:items-stretch">
-                    {loaderData.organization.teamMembers.map(
-                      ({ profile }, index) => (
-                        <ProfileCard
-                          id={`profile-${index}`}
-                          key={`profile-${index}`}
-                          link={`/profile/${profile.username}`}
-                          name={getFullName(profile)}
-                          initials={getInitials(profile)}
-                          position={profile.position}
-                          avatar={profile.avatar}
-                        />
-                      )
-                    )}
+                    {loaderData.organization.teamMembers.map(({ profile }) => (
+                      <ProfileCard
+                        id={`profile-${profile.username}`}
+                        key={`profile-${profile.username}`}
+                        link={`/profile/${profile.username}`}
+                        name={getFullName(profile)}
+                        initials={getInitials(profile)}
+                        position={profile.position}
+                        avatar={profile.avatar}
+                      />
+                    ))}
                   </div>
                 </>
               )}
@@ -788,140 +784,138 @@ export default function Index() {
                   Organisierte Veranstaltungen
                 </h3>
                 <div className="mb-16">
-                  {loaderData.events.responsibleForEvents.map(
-                    ({ event }, index) => {
-                      const startTime = new Date(event.startTime);
-                      const endTime = new Date(event.endTime);
-                      return (
-                        <div
-                          key={`child-event-${index}`}
-                          className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
-                        >
-                          <Link className="flex" to={`/event/${event.slug}`}>
-                            <div className="hidden xl:block w-40 shrink-0">
-                              {event.background !== undefined && (
-                                <img
-                                  src={
-                                    event.background ||
-                                    "/images/default-event-background.jpg"
-                                  }
-                                  alt={event.name}
-                                  className="object-cover w-full h-full"
-                                />
+                  {loaderData.events.responsibleForEvents.map(({ event }) => {
+                    const startTime = new Date(event.startTime);
+                    const endTime = new Date(event.endTime);
+                    return (
+                      <div
+                        key={`event-${event.id}`}
+                        className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                      >
+                        <Link className="flex" to={`/event/${event.slug}`}>
+                          <div className="hidden xl:block w-40 shrink-0">
+                            {event.background !== undefined && (
+                              <img
+                                src={
+                                  event.background ||
+                                  "/images/default-event-background.jpg"
+                                }
+                                alt={event.name}
+                                className="object-cover w-full h-full"
+                              />
+                            )}
+                          </div>
+                          <div className="px-4 py-6">
+                            <p className="text-xs mb-1">
+                              {/* TODO: Display icons (see figma) */}
+                              {event.stage !== null &&
+                                event.stage.title + " | "}
+                              {getDuration(startTime, endTime)}
+                              {event._count.childEvents === 0 && (
+                                <>
+                                  {event.participantLimit === null
+                                    ? " | Unbegrenzte Plätze"
+                                    : ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${
+                                        event.participantLimit
+                                      } Plätzen frei`}
+                                </>
                               )}
-                            </div>
-                            <div className="px-4 py-6">
-                              <p className="text-xs mb-1">
-                                {/* TODO: Display icons (see figma) */}
-                                {event.stage !== null &&
-                                  event.stage.title + " | "}
-                                {getDuration(startTime, endTime)}
-                                {event._count.childEvents === 0 && (
+                              {event.participantLimit !== null &&
+                                event._count.participants >=
+                                  event.participantLimit && (
                                   <>
-                                    {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                    {" "}
+                                    |{" "}
+                                    <span>
+                                      {event._count.waitingList} auf der
+                                      Warteliste
+                                    </span>
                                   </>
                                 )}
-                                {event.participantLimit !== null &&
-                                  event._count.participants >=
-                                    event.participantLimit && (
-                                    <>
-                                      {" "}
-                                      |{" "}
-                                      <span>
-                                        {event._count.waitingList} auf der
-                                        Warteliste
-                                      </span>
-                                    </>
-                                  )}
+                            </p>
+                            <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                              {event.name}
+                            </h4>
+                            {event.subline !== null ? (
+                              <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                {event.subline}
                               </p>
-                              <h4 className="font-bold text-base m-0 lg:line-clamp-1">
-                                {event.name}
-                              </h4>
-                              {event.subline !== null ? (
-                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                  {event.subline}
-                                </p>
-                              ) : (
-                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                  {event.description}
-                                </p>
-                              )}
-                            </div>
-                          </Link>
-                          {event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                              Abgesagt
-                            </div>
-                          )}
-                          {event.isParticipant && !event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                              <p>Angemeldet</p>
-                            </div>
-                          )}
-                          {loaderData.mode !== "anon" &&
-                            canUserParticipate(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddParticipantButton
-                                  action={`/event/${event.slug}/settings/participants/add-participant`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
+                            ) : (
+                              <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                {event.description}
+                              </p>
                             )}
-                          {event.isOnWaitingList && !event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                              <p>Wartend</p>
+                          </div>
+                        </Link>
+                        {event.canceled && (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                            Abgesagt
+                          </div>
+                        )}
+                        {event.isParticipant && !event.canceled && (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                            <p>Angemeldet</p>
+                          </div>
+                        )}
+                        {loaderData.mode !== "anon" &&
+                          canUserParticipate(event) && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddParticipantButton
+                                action={`/event/${event.slug}/settings/participants/add-participant`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.userEmail}
+                              />
                             </div>
                           )}
-                          {loaderData.mode !== "anon" &&
-                            canUserBeAddedToWaitingList(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddToWaitingListButton
-                                  action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
-                            )}
-                          {!event.isParticipant &&
-                            !canUserParticipate(event) &&
-                            !event.isOnWaitingList &&
-                            !canUserBeAddedToWaitingList(event) &&
-                            !event.canceled && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="btn btn-primary"
-                                >
-                                  Mehr erfahren
-                                </Link>
-                              </div>
-                            )}
-                          {loaderData.mode === "anon" &&
-                            event.canceled === false &&
-                            event._count.childEvents === 0 && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <Link
-                                  className="btn btn-primary"
-                                  to={`/login?event_slug=${event.slug}`}
-                                >
-                                  Anmelden
-                                </Link>
-                              </div>
-                            )}
-                        </div>
-                      );
-                    }
-                  )}
+                        {event.isOnWaitingList && !event.canceled && (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                            <p>Wartend</p>
+                          </div>
+                        )}
+                        {loaderData.mode !== "anon" &&
+                          canUserBeAddedToWaitingList(event) && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <AddToWaitingListButton
+                                action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                userId={loaderData.userId}
+                                eventId={event.id}
+                                email={loaderData.userEmail}
+                              />
+                            </div>
+                          )}
+                        {!event.isParticipant &&
+                          !canUserParticipate(event) &&
+                          !event.isOnWaitingList &&
+                          !canUserBeAddedToWaitingList(event) &&
+                          !event.canceled && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <Link
+                                to={`/event/${event.slug}`}
+                                className="btn btn-primary"
+                              >
+                                Mehr erfahren
+                              </Link>
+                            </div>
+                          )}
+                        {loaderData.mode === "anon" &&
+                          event.canceled === false &&
+                          event._count.childEvents === 0 && (
+                            <div className="flex items-center ml-auto pr-4 py-6">
+                              <Link
+                                className="btn btn-primary"
+                                to={`/login?event_slug=${event.slug}`}
+                              >
+                                Anmelden
+                              </Link>
+                            </div>
+                          )}
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
