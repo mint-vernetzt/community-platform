@@ -2,24 +2,18 @@ import { isSameDay } from "date-fns";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { getUserByRequest } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
-import {
-  enhanceEventsWithParticipationStatus,
-  getEvents,
-  MaybeEnhancedEvents,
-} from "./utils.server";
+import { MaybeEnhancedEvents, prepareEvents } from "./utils.server";
 
 type LoaderData = {
-  events: MaybeEnhancedEvents;
+  futureEvents: MaybeEnhancedEvents;
   userId?: string;
   email?: string;
 };
@@ -27,54 +21,15 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getUserByRequest(request);
 
-  const events = await getEvents();
-
-  let enhancedEvents: MaybeEnhancedEvents = events;
-
-  if (currentUser !== null) {
-    enhancedEvents = await enhanceEventsWithParticipationStatus(
-      currentUser.id,
-      events
-    );
-  }
-
-  enhancedEvents = enhancedEvents.map((item) => {
-    if (item.background !== null) {
-      const publicURL = getPublicURL(item.background);
-      if (publicURL) {
-        item.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
-        });
-      }
-    }
-    return item;
-  });
-
-  enhancedEvents = enhancedEvents.map((event) => {
-    if (event.responsibleOrganizations.length > 0) {
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (item) => {
-          if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(item.organization.logo);
-            if (publicURL) {
-              item.organization.logo = getImageURL(publicURL, {
-                resize: { type: "fit", width: 144, height: 144 },
-              });
-            }
-          }
-          return item;
-        }
-      );
-    }
-    return event;
-  });
+  const inFuture = true;
+  const futureEvents = await prepareEvents(sessionUser, inFuture);
 
   return {
-    events: enhancedEvents,
-    userId: currentUser?.id || undefined,
-    email: currentUser?.email || undefined,
+    futureEvents: futureEvents,
+    userId: sessionUser?.id || undefined,
+    email: sessionUser?.email || undefined,
   };
 };
 
@@ -88,7 +43,7 @@ function Events() {
         <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
       <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-        {loaderData.events.map((event, index) => {
+        {loaderData.futureEvents.map((event, index) => {
           const startTime = new Date(event.startTime);
           const endTime = new Date(event.endTime);
           return (
