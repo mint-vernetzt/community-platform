@@ -1,7 +1,9 @@
 import {
   ActionFunction,
+  Link,
   LoaderFunction,
   useActionData,
+  useLoaderData,
   useTransition,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
@@ -16,6 +18,8 @@ import InputPassword from "~/components/FormElements/InputPassword/InputPassword
 import useCSRF from "~/lib/hooks/useCSRF";
 import { validateCSRFToken } from "~/utils.server";
 import { handleAuthorization } from "../utils.server";
+
+/* Disabled until issue #609 is resolved
 
 const emailSchema = z.object({
   csrf: z.string(),
@@ -83,6 +87,8 @@ export const loader: LoaderFunction = async (args) => {
   return null;
 };
 
+
+
 export const action: ActionFunction = async ({ request, params }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
@@ -107,30 +113,83 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
   return result;
 };
+*/
+
+// Remove loader when issue #609 is resolved
+
+type LoaderData = {
+  protocol: string;
+  host: string;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+
+  return {
+    protocol: url.protocol,
+    host: url.host,
+  };
+};
 
 export default function Security() {
-  const transition = useTransition();
+  // Remove useLoaderData when issue #609 is resolved
+  const loaderData = useLoaderData<LoaderData>();
 
-  const { hiddenCSRFInput } = useCSRF();
+  // Disabled until issue #609 is resolved
 
-  // TODO: Declare type
-  const actionData = useActionData();
+  // const transition = useTransition();
 
-  let showPasswordFeedback = false,
-    showEmailFeedback = false;
-  if (actionData !== undefined) {
-    showPasswordFeedback =
-      actionData.success && actionData.data.password !== undefined;
-    showEmailFeedback =
-      actionData.success && actionData.data.email !== undefined;
-  }
+  // const { hiddenCSRFInput } = useCSRF();
+
+  // // TODO: Declare type
+  // const actionData = useActionData();
+
+  // let showPasswordFeedback = false,
+  //   showEmailFeedback = false;
+  // if (actionData !== undefined) {
+  //   showPasswordFeedback =
+  //     actionData.success && actionData.data.password !== undefined;
+  //   showEmailFeedback =
+  //     actionData.success && actionData.data.email !== undefined;
+  // }
 
   return (
     <>
-      <fieldset disabled={transition.state === "submitting"}>
-        <h1 className="mb-8">Login und Sicherheit</h1>
+      {/* Disabled until issue #609 is resolved */}
 
-        <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+      {/* <fieldset disabled={transition.state === "submitting"}> */}
+      <h1 className="mb-8">Login und Sicherheit</h1>
+      <p className="mb-4">
+        Bald stehen folgende Funktionen über ein automatisiertes Formular zur
+        Verfügung.
+      </p>
+      <h4 className="mb-4 font-semibold">E-Mail-Adresse ändern</h4>
+      <p className="mb-8">
+        Falls du die E-Mail-Adresse deines Accounts ändern möchtest, melde dich
+        bitte bei{" "}
+        <a
+          href="mailto:support@mint-vernetzt.de"
+          className="hover:underline font-bold text-primary"
+        >
+          support@mint-vernetzt.de
+        </a>
+        .
+      </p>
+      <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+      <p>
+        Um dein Passwort zu ändern, folge bitte diesem Link:{" "}
+        <Link
+          to={`/reset?redirect_to=${loaderData.protocol}//${loaderData.host}/reset/set-password?redirect_to=${loaderData.protocol}//${loaderData.host}/login`}
+          className="hover:underline font-bold text-primary"
+        >
+          Passwort zurücksetzen
+        </Link>
+        .
+      </p>
+
+      {/* Disabled until issue #609 is resolved */}
+
+      {/* <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
         <p className="mb-8">
           Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang
@@ -275,8 +334,9 @@ export default function Security() {
               <Errors />
             </>
           )}
-        </RemixForm>
+        </RemixForm> 
       </fieldset>
+      */}
     </>
   );
 }
