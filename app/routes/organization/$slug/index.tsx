@@ -31,6 +31,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, Mode } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 export function links() {
   return [
@@ -68,6 +69,7 @@ type LoaderData = {
   userId?: string;
   userEmail?: string;
   mode: Mode;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -77,6 +79,8 @@ export const loader: LoaderFunction = async (args) => {
     throw badRequest({ message: "organization slug must be provided" });
   }
   const sessionUser = await getUserByRequest(request);
+
+  const abilities = await getFeatureAbilities(request, ["projects"]);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -229,6 +233,7 @@ export const loader: LoaderFunction = async (args) => {
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
     mode,
+    abilities,
   };
 };
 
