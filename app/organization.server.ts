@@ -1,6 +1,11 @@
 import { Organization } from ".prisma/client";
 import { AreaType } from "@prisma/client";
+import { User } from "@supabase/supabase-js";
+import { notFound } from "remix-utils";
+import { getImageURL } from "./images.server";
 import { prismaClient } from "./prisma";
+import { getPublicURL } from "./storage.server";
+import { addUserParticipationStatus } from "~/lib/event/utils";
 
 export type OrganizationWithRelations = Organization & {
   types: {
@@ -181,7 +186,7 @@ export async function getOrganizationBySlug(slug: string) {
   return organization;
 }
 
-export async function getOrganizationEvents(slug: string) {
+export async function getOrganizationEvents(slug: string, inFuture: boolean) {
   const organizationEvents = await prismaClient.organization.findFirst({
     select: {
       responsibleForEvents: {
@@ -218,9 +223,11 @@ export async function getOrganizationEvents(slug: string) {
         },
         where: {
           event: {
-            startTime: {
-              gte: new Date(),
-            },
+            startTime: inFuture
+              ? {
+                  gte: new Date(),
+                }
+              : { lte: new Date() },
             published: true,
           },
         },
@@ -237,6 +244,38 @@ export async function getOrganizationEvents(slug: string) {
   });
 
   return organizationEvents;
+}
+
+export async function prepareOrganizationEvents(
+  slug: string,
+  sessionUser: User | null,
+  inFuture: boolean
+) {
+  const organizationEvents = await getOrganizationEvents(slug, inFuture);
+
+  if (organizationEvents === null) {
+    throw notFound({ message: "Events not found" });
+  }
+
+  organizationEvents.responsibleForEvents =
+    organizationEvents.responsibleForEvents.map((item) => {
+      if (item.event.background !== null) {
+        const publicURL = getPublicURL(item.event.background);
+        if (publicURL) {
+          item.event.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return item;
+    });
+
+  const enhancedEvents = {
+    responsibleForEvents: await addUserParticipationStatus<
+      typeof organizationEvents.responsibleForEvents
+    >(organizationEvents.responsibleForEvents, sessionUser?.id),
+  };
+  return enhancedEvents;
 }
 
 export async function getOrganizationMembersBySlug(slug: string) {

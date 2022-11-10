@@ -6,6 +6,7 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
+import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
@@ -13,26 +14,24 @@ import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
-  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
-  getOrganizationEvents,
   OrganizationWithRelations,
+  prepareOrganizationEvents,
 } from "~/organization.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, Mode } from "./utils.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { H3 } from "~/components/Heading/Heading";
 
 export function links() {
   return [
@@ -40,18 +39,6 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
-
-const getEnhancedResponsibleForEvents = async (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getOrganizationEvents>>
-  >["responsibleForEvents"],
-  userId: string
-) =>
-  await addUserParticipationStatus<
-    NonNullable<
-      Awaited<ReturnType<typeof getOrganizationEvents>>
-    >["responsibleForEvents"]
-  >(events, userId);
 
 type LoaderData = {
   organization: Partial<
@@ -62,11 +49,8 @@ type LoaderData = {
     logo?: string;
     background?: string;
   };
-  events: {
-    responsibleForEvents: Awaited<
-      ReturnType<typeof getEnhancedResponsibleForEvents>
-    >;
-  };
+  futureEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
+  pastEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
   userId?: string;
   userEmail?: string;
   mode: Mode;
@@ -205,35 +189,24 @@ export const loader: LoaderFunction = async (args) => {
     userIsPrivileged
   );
 
-  const organizationEvents = await getOrganizationEvents(slug);
-  if (organizationEvents === null) {
-    throw notFound({ message: "Events not found" });
-  }
-
-  organizationEvents.responsibleForEvents =
-    organizationEvents.responsibleForEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  const enhancedEvents = {
-    responsibleForEvents: await addUserParticipationStatus<
-      typeof organizationEvents.responsibleForEvents
-    >(organizationEvents.responsibleForEvents, sessionUser?.id),
-  };
+  const inFuture = true;
+  const organizationFutureEvents = await prepareOrganizationEvents(
+    slug,
+    sessionUser,
+    inFuture
+  );
+  const organizationPastEvents = await prepareOrganizationEvents(
+    slug,
+    sessionUser,
+    !inFuture
+  );
 
   return {
     organization,
     userIsPrivileged,
     images,
-    events: enhancedEvents,
+    futureEvents: organizationFutureEvents,
+    pastEvents: organizationPastEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
     mode,
@@ -778,145 +751,242 @@ export default function Index() {
                   )}
               </>
             )}
-            {loaderData.events.responsibleForEvents.length > 0 && (
+            {(loaderData.futureEvents.responsibleForEvents.length > 0 ||
+              loaderData.pastEvents.responsibleForEvents.length > 0) && (
               <>
-                <h3 id="team-member-events" className="mt-16 mb-8 font-bold">
+                <h3 id="organized-events" className="mt-14 mb-6 font-bold">
                   Organisierte Veranstaltungen
                 </h3>
-                <div className="mb-16">
-                  {loaderData.events.responsibleForEvents.map(({ event }) => {
-                    const startTime = new Date(event.startTime);
-                    const endTime = new Date(event.endTime);
-                    return (
-                      <div
-                        key={`event-${event.id}`}
-                        className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
-                      >
-                        <Link className="flex" to={`/event/${event.slug}`}>
-                          <div className="hidden xl:block w-40 shrink-0">
-                            {event.background !== undefined && (
-                              <img
-                                src={
-                                  event.background ||
-                                  "/images/default-event-background.jpg"
-                                }
-                                alt={event.name}
-                                className="object-cover w-full h-full"
-                              />
-                            )}
-                          </div>
-                          <div className="px-4 py-6">
-                            <p className="text-xs mb-1">
-                              {/* TODO: Display icons (see figma) */}
-                              {event.stage !== null &&
-                                event.stage.title + " | "}
-                              {getDuration(startTime, endTime)}
-                              {event._count.childEvents === 0 && (
-                                <>
-                                  {event.participantLimit === null
-                                    ? " | Unbegrenzte Plätze"
-                                    : ` | ${
-                                        event.participantLimit -
-                                        event._count.participants
-                                      } / ${
-                                        event.participantLimit
-                                      } Plätzen frei`}
-                                </>
-                              )}
-                              {event.participantLimit !== null &&
-                                event._count.participants >=
-                                  event.participantLimit && (
-                                  <>
-                                    {" "}
-                                    |{" "}
-                                    <span>
-                                      {event._count.waitingList} auf der
-                                      Warteliste
-                                    </span>
-                                  </>
-                                )}
-                            </p>
-                            <h4 className="font-bold text-base m-0 lg:line-clamp-1">
-                              {event.name}
-                            </h4>
-                            {event.subline !== null ? (
-                              <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                {event.subline}
-                              </p>
-                            ) : (
-                              <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                {event.description}
-                              </p>
-                            )}
-                          </div>
-                        </Link>
-                        {event.canceled && (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                            Abgesagt
-                          </div>
-                        )}
-                        {event.isParticipant && !event.canceled && (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                            <p>Angemeldet</p>
-                          </div>
-                        )}
-                        {loaderData.mode !== "anon" &&
-                          canUserParticipate(event) && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <AddParticipantButton
-                                action={`/event/${event.slug}/settings/participants/add-participant`}
-                                userId={loaderData.userId}
-                                eventId={event.id}
-                                email={loaderData.userEmail}
-                              />
-                            </div>
-                          )}
-                        {event.isOnWaitingList && !event.canceled && (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                            <p>Wartend</p>
-                          </div>
-                        )}
-                        {loaderData.mode !== "anon" &&
-                          canUserBeAddedToWaitingList(event) && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <AddToWaitingListButton
-                                action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                userId={loaderData.userId}
-                                eventId={event.id}
-                                email={loaderData.userEmail}
-                              />
-                            </div>
-                          )}
-                        {!event.isParticipant &&
-                          !canUserParticipate(event) &&
-                          !event.isOnWaitingList &&
-                          !canUserBeAddedToWaitingList(event) &&
-                          !event.canceled && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
+                {loaderData.futureEvents.responsibleForEvents.length > 0 && (
+                  <>
+                    <h6 id="organized-future-events" className="mb-4 font-bold">
+                      Anstehende Veranstaltungen
+                    </h6>
+                    <div className="mb-6">
+                      {loaderData.futureEvents.responsibleForEvents.map(
+                        ({ event }) => {
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
+                          return (
+                            <div
+                              key={`future-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
                               <Link
+                                className="flex"
                                 to={`/event/${event.slug}`}
-                                className="btn btn-primary"
                               >
-                                Mehr erfahren
+                                <div className="hidden xl:block w-40 shrink-0">
+                                  {event.background !== undefined && (
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="px-4 py-6">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
+                                    {getDuration(startTime, endTime)}
+                                    {event._count.childEvents === 0 && (
+                                      <>
+                                        {event.participantLimit === null
+                                          ? " | Unbegrenzte Plätze"
+                                          : ` | ${
+                                              event.participantLimit -
+                                              event._count.participants
+                                            } / ${
+                                              event.participantLimit
+                                            } Plätzen frei`}
+                                      </>
+                                    )}
+                                    {event.participantLimit !== null &&
+                                      event._count.participants >=
+                                        event.participantLimit && (
+                                        <>
+                                          {" "}
+                                          |{" "}
+                                          <span>
+                                            {event._count.waitingList} auf der
+                                            Warteliste
+                                          </span>
+                                        </>
+                                      )}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.description}
+                                    </p>
+                                  )}
+                                </div>
                               </Link>
+                              {event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  Abgesagt
+                                </div>
+                              )}
+                              {event.isParticipant && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>Angemeldet</p>
+                                </div>
+                              )}
+                              {loaderData.mode !== "anon" &&
+                                canUserParticipate(event) && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <AddParticipantButton
+                                      action={`/event/${event.slug}/settings/participants/add-participant`}
+                                      userId={loaderData.userId}
+                                      eventId={event.id}
+                                      email={loaderData.userEmail}
+                                    />
+                                  </div>
+                                )}
+                              {event.isOnWaitingList && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                                  <p>Wartend</p>
+                                </div>
+                              )}
+                              {loaderData.mode !== "anon" &&
+                                canUserBeAddedToWaitingList(event) && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <AddToWaitingListButton
+                                      action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                      userId={loaderData.userId}
+                                      eventId={event.id}
+                                      email={loaderData.userEmail}
+                                    />
+                                  </div>
+                                )}
+                              {!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      to={`/event/${event.slug}`}
+                                      className="btn btn-primary"
+                                    >
+                                      Mehr erfahren
+                                    </Link>
+                                  </div>
+                                )}
+                              {loaderData.mode === "anon" &&
+                                event.canceled === false &&
+                                event._count.childEvents === 0 && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      className="btn btn-primary"
+                                      to={`/login?event_slug=${event.slug}`}
+                                    >
+                                      Anmelden
+                                    </Link>
+                                  </div>
+                                )}
                             </div>
-                          )}
-                        {loaderData.mode === "anon" &&
-                          event.canceled === false &&
-                          event._count.childEvents === 0 && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
+                {loaderData.pastEvents.responsibleForEvents.length > 0 && (
+                  <>
+                    <h6 id="organized-past-events" className="mb-4 font-bold">
+                      Vergangene Veranstaltungen
+                    </h6>
+                    <div className="mb-16">
+                      {loaderData.pastEvents.responsibleForEvents.map(
+                        ({ event }) => {
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
+                          return (
+                            <div
+                              key={`past-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
                               <Link
-                                className="btn btn-primary"
-                                to={`/login?event_slug=${event.slug}`}
+                                className="flex"
+                                to={`/event/${event.slug}`}
                               >
-                                Anmelden
+                                <div className="hidden xl:block w-40 shrink-0">
+                                  {event.background !== undefined && (
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="px-4 py-6">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
+                                    {getDuration(startTime, endTime)}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.description}
+                                    </p>
+                                  )}
+                                </div>
                               </Link>
+                              {event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  Wurde abgesagt
+                                </div>
+                              )}
+                              {event.isParticipant && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>Teilgenommen</p>
+                                </div>
+                              )}
+
+                              {!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      to={`/event/${event.slug}`}
+                                      className="btn btn-primary"
+                                    >
+                                      Mehr erfahren
+                                    </Link>
+                                  </div>
+                                )}
                             </div>
-                          )}
-                      </div>
-                    );
-                  })}
-                </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

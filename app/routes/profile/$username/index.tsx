@@ -1203,30 +1203,6 @@ export default function Index() {
                                       {event.stage !== null &&
                                         event.stage.title + " | "}
                                       {getDuration(startTime, endTime)}
-                                      {event._count.childEvents === 0 && (
-                                        <>
-                                          {event.participantLimit === null
-                                            ? " | Unbegrenzte Plätze"
-                                            : ` | ${
-                                                event.participantLimit -
-                                                event._count.participants
-                                              } / ${
-                                                event.participantLimit
-                                              } Plätzen frei`}
-                                        </>
-                                      )}
-                                      {event.participantLimit !== null &&
-                                        event._count.participants >=
-                                          event.participantLimit && (
-                                          <>
-                                            {" "}
-                                            |{" "}
-                                            <span>
-                                              {event._count.waitingList} auf der
-                                              Warteliste
-                                            </span>
-                                          </>
-                                        )}
                                     </p>
                                     <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                       {event.name}
@@ -1333,30 +1309,6 @@ export default function Index() {
                                       {event.stage !== null &&
                                         event.stage.title + " | "}
                                       {getDuration(startTime, endTime)}
-                                      {event._count.childEvents === 0 && (
-                                        <>
-                                          {event.participantLimit === null
-                                            ? " | Unbegrenzte Plätze"
-                                            : ` | ${
-                                                event.participantLimit -
-                                                event._count.participants
-                                              } / ${
-                                                event.participantLimit
-                                              } Plätzen frei`}
-                                        </>
-                                      )}
-                                      {event.participantLimit !== null &&
-                                        event._count.participants >=
-                                          event.participantLimit && (
-                                          <>
-                                            {" "}
-                                            |{" "}
-                                            <span>
-                                              {event._count.waitingList} auf der
-                                              Warteliste
-                                            </span>
-                                          </>
-                                        )}
                                     </p>
                                     <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                       {event.name}
@@ -1444,30 +1396,6 @@ export default function Index() {
                                       {event.stage !== null &&
                                         event.stage.title + " | "}
                                       {getDuration(startTime, endTime)}
-                                      {event._count.childEvents === 0 && (
-                                        <>
-                                          {event.participantLimit === null
-                                            ? " | Unbegrenzte Plätze"
-                                            : ` | ${
-                                                event.participantLimit -
-                                                event._count.participants
-                                              } / ${
-                                                event.participantLimit
-                                              } Plätzen frei`}
-                                        </>
-                                      )}
-                                      {event.participantLimit !== null &&
-                                        event._count.participants >=
-                                          event.participantLimit && (
-                                          <>
-                                            {" "}
-                                            |{" "}
-                                            <span>
-                                              {event._count.waitingList} auf der
-                                              Warteliste
-                                            </span>
-                                          </>
-                                        )}
                                     </p>
                                     <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                       {event.name}
