@@ -70,7 +70,6 @@ type LoaderData = {
   userId?: string;
   userEmail?: string;
   mode: Mode;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -238,7 +237,6 @@ export const loader: LoaderFunction = async (args) => {
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
     mode,
-    abilities,
   };
 };
 
@@ -709,17 +707,6 @@ export default function Index() {
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Projekte</h3>
                   </div>
-                  {loaderData.mode === "owner" &&
-                    loaderData.abilities.projects.hasAccess && (
-                      <div className="flex-initial pl-4">
-                        <Link
-                          to="/project/create"
-                          className="btn btn-outline btn-primary"
-                        >
-                          Projekt anlegen
-                        </Link>
-                      </div>
-                    )}
                 </div>
                 {loaderData.organization.responsibleForProject &&
                   loaderData.organization.responsibleForProject.length > 0 && (
