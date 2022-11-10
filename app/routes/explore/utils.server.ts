@@ -1,4 +1,7 @@
+import { User } from "@supabase/supabase-js";
+import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
+import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles() {
   const profiles = await prismaClient.profile.findMany({
@@ -73,12 +76,14 @@ export function getScoreOfEntity(entity: any) {
   return score;
 }
 
-export async function getEvents() {
+export async function getEvents(inFuture: boolean) {
   const result = await prismaClient.event.findMany({
     where: {
-      startTime: {
-        gte: new Date(),
-      },
+      startTime: inFuture
+        ? {
+            gte: new Date(),
+          }
+        : { lte: new Date() },
       published: true,
     },
     select: {
@@ -191,4 +196,52 @@ export async function enhanceEventsWithParticipationStatus(
     };
   });
   return enhancedEvents;
+}
+
+export async function prepareEvents(
+  sessionUser: User | null,
+  inFuture: boolean
+) {
+  const events = await getEvents(inFuture);
+
+  let enhancedEvents: MaybeEnhancedEvents = events;
+
+  if (sessionUser !== null) {
+    enhancedEvents = await enhanceEventsWithParticipationStatus(
+      sessionUser.id,
+      events
+    );
+  }
+
+  enhancedEvents = enhancedEvents.map((item) => {
+    if (item.background !== null) {
+      const publicURL = getPublicURL(item.background);
+      if (publicURL) {
+        item.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 400, height: 280 },
+        });
+      }
+    }
+    return item;
+  });
+
+  enhancedEvents = enhancedEvents.map((event) => {
+    if (event.responsibleOrganizations.length > 0) {
+      event.responsibleOrganizations = event.responsibleOrganizations.map(
+        (item) => {
+          if (item.organization.logo !== null) {
+            const publicURL = getPublicURL(item.organization.logo);
+            if (publicURL) {
+              item.organization.logo = getImageURL(publicURL, {
+                resize: { type: "fit", width: 144, height: 144 },
+              });
+            }
+          }
+          return item;
+        }
+      );
+    }
+    return event;
+  });
+  return enhancedEvents as MaybeEnhancedEvents;
 }

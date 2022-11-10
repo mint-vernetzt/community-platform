@@ -131,9 +131,9 @@ function Delete() {
             gelöscht:
           </p>{" "}
           <ul className="mb-8">
-            {loaderData.childEvents.map((childEvent, index) => {
+            {loaderData.childEvents.map((childEvent) => {
               return (
-                <li key={`child-event-${index}`}>
+                <li key={`child-event-${childEvent.id}`}>
                   -{" "}
                   <Link
                     className="underline hover:no-underline"

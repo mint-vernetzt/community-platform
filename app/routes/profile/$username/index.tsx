@@ -696,19 +696,19 @@ export default function Index() {
                   loaderData.futureEvents.teamMemberOfEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="team-member-future-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Organisation/Team
                       </h6>
                       <div className="mb-16">
                         {loaderData.futureEvents.teamMemberOfEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`future-team-member-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
@@ -867,19 +867,19 @@ export default function Index() {
                   loaderData.futureEvents.contributedEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="future-contributed-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Speaker:in
                       </h6>
                       <div className="mb-16">
                         {loaderData.futureEvents.contributedEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`future-contributed-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
@@ -1017,19 +1017,19 @@ export default function Index() {
                   loaderData.futureEvents.participatedEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="future-participated-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Teilnahme
                       </h6>
                       <div className="mb-16">
                         {loaderData.futureEvents.participatedEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`future-participated-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
@@ -1166,19 +1166,19 @@ export default function Index() {
                   loaderData.pastEvents.teamMemberOfEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="past-team-member-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Organisation/Team
                       </h6>
                       <div className="mb-16">
                         {loaderData.pastEvents.teamMemberOfEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`past-team-member-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
@@ -1296,19 +1296,19 @@ export default function Index() {
                   loaderData.pastEvents.contributedEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="past-contributed-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Speaker:in
                       </h6>
                       <div className="mb-16">
                         {loaderData.pastEvents.contributedEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`past-contributed-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
@@ -1407,19 +1407,19 @@ export default function Index() {
                   loaderData.pastEvents.participatedEvents.length > 0 && (
                     <>
                       <h6
-                        id="team-member-events"
+                        id="past-participated-events"
                         className="mt-16 mb-8 font-bold"
                       >
                         Teilnahme
                       </h6>
                       <div className="mb-16">
                         {loaderData.pastEvents.participatedEvents.map(
-                          ({ event }, index) => {
+                          ({ event }) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
                             return (
                               <div
-                                key={`child-event-${index}`}
+                                key={`past-participated-event-${event.id}`}
                                 className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                               >
                                 <Link
