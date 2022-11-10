@@ -103,7 +103,7 @@ type ProfileLoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  events: {
+  futureEvents: {
     teamMemberOfEvents: Awaited<
       ReturnType<typeof getEnhancedTeamMemberOfEvents>
     >;
@@ -201,13 +201,13 @@ export const loader: LoaderFunction = async (
     }
   );
 
-  const profileEvents = await getProfileEventsByMode(username, mode);
-  if (profileEvents === null) {
+  const profileFutureEvents = await getProfileEventsByMode(username, mode);
+  if (profileFutureEvents === null) {
     throw notFound({ message: "Events not found" });
   }
 
-  profileEvents.teamMemberOfEvents = profileEvents.teamMemberOfEvents.map(
-    (item) => {
+  profileFutureEvents.teamMemberOfEvents =
+    profileFutureEvents.teamMemberOfEvents.map((item) => {
       if (item.event.background !== null) {
         const publicURL = getPublicURL(item.event.background);
         if (publicURL) {
@@ -217,11 +217,10 @@ export const loader: LoaderFunction = async (
         }
       }
       return item;
-    }
-  );
+    });
 
-  profileEvents.contributedEvents = profileEvents.contributedEvents.map(
-    (item) => {
+  profileFutureEvents.contributedEvents =
+    profileFutureEvents.contributedEvents.map((item) => {
       if (item.event.background !== null) {
         const publicURL = getPublicURL(item.event.background);
         if (publicURL) {
@@ -231,11 +230,10 @@ export const loader: LoaderFunction = async (
         }
       }
       return item;
-    }
-  );
+    });
 
-  profileEvents.participatedEvents = profileEvents.participatedEvents.map(
-    (item) => {
+  profileFutureEvents.participatedEvents =
+    profileFutureEvents.participatedEvents.map((item) => {
       if (item.event.background !== null) {
         const publicURL = getPublicURL(item.event.background);
         if (publicURL) {
@@ -245,11 +243,10 @@ export const loader: LoaderFunction = async (
         }
       }
       return item;
-    }
-  );
+    });
 
-  profileEvents.waitingForEvents = profileEvents.waitingForEvents.map(
-    (item) => {
+  profileFutureEvents.waitingForEvents =
+    profileFutureEvents.waitingForEvents.map((item) => {
       if (item.event.background !== null) {
         const publicURL = getPublicURL(item.event.background);
         if (publicURL) {
@@ -259,25 +256,27 @@ export const loader: LoaderFunction = async (
         }
       }
       return item;
-    }
+    });
+
+  const combinedFutureEvents = combineEventsSortChronologically<
+    typeof profileFutureEvents.participatedEvents,
+    typeof profileFutureEvents.waitingForEvents
+  >(
+    profileFutureEvents.participatedEvents,
+    profileFutureEvents.waitingForEvents
   );
 
-  const combinedEvents = combineEventsSortChronologically<
-    typeof profileEvents.participatedEvents,
-    typeof profileEvents.waitingForEvents
-  >(profileEvents.participatedEvents, profileEvents.waitingForEvents);
-
-  const enhancedEvents = {
+  const enhancedFutureEvents = {
     teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profileEvents.teamMemberOfEvents
-    >(profileEvents.teamMemberOfEvents, sessionUser?.id),
+      typeof profileFutureEvents.teamMemberOfEvents
+    >(profileFutureEvents.teamMemberOfEvents, sessionUser?.id),
     contributedEvents: await addUserParticipationStatus<
-      typeof profileEvents.contributedEvents
-    >(profileEvents.contributedEvents, sessionUser?.id),
+      typeof profileFutureEvents.contributedEvents
+    >(profileFutureEvents.contributedEvents, sessionUser?.id),
     participatedEvents:
       mode !== "anon"
-        ? await addUserParticipationStatus<typeof combinedEvents>(
-            combinedEvents,
+        ? await addUserParticipationStatus<typeof combinedFutureEvents>(
+            combinedFutureEvents,
             sessionUser?.id
           )
         : undefined,
@@ -288,7 +287,7 @@ export const loader: LoaderFunction = async (
     data,
     images,
     abilities,
-    events: enhancedEvents,
+    futureEvents: enhancedFutureEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
   });
@@ -323,12 +322,12 @@ function hasWebsiteOrSocialService(
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-function canViewEvents(loaderData: ProfileLoaderData) {
+function canViewEvents(events: ProfileLoaderData["futureEvents"]) {
   return (
-    loaderData.events.teamMemberOfEvents.length > 0 ||
-    (loaderData.events.participatedEvents !== undefined &&
-      loaderData.events.participatedEvents.length > 0) ||
-    loaderData.events.contributedEvents.length > 0
+    events.teamMemberOfEvents.length > 0 ||
+    (events.participatedEvents !== undefined &&
+      events.participatedEvents.length > 0) ||
+    events.contributedEvents.length > 0
   );
 }
 
@@ -792,7 +791,7 @@ export default function Index() {
                   )}
               </>
             )}
-            {(canViewEvents(loaderData) ||
+            {(canViewEvents(loaderData.futureEvents) ||
               (loaderData.mode === "owner" &&
                 loaderData.abilities.events.hasAccess)) && (
               <>
@@ -815,8 +814,8 @@ export default function Index() {
                       </div>
                     )}
                 </div>
-                {loaderData.events !== undefined &&
-                  loaderData.events.teamMemberOfEvents.length > 0 && (
+                {loaderData.futureEvents !== undefined &&
+                  loaderData.futureEvents.teamMemberOfEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -825,7 +824,7 @@ export default function Index() {
                         Organisation/Team
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.teamMemberOfEvents.map(
+                        {loaderData.futureEvents.teamMemberOfEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
@@ -986,8 +985,8 @@ export default function Index() {
                     </>
                   )}
 
-                {loaderData.events !== undefined &&
-                  loaderData.events.contributedEvents.length > 0 && (
+                {loaderData.futureEvents !== undefined &&
+                  loaderData.futureEvents.contributedEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -996,7 +995,7 @@ export default function Index() {
                         Speaker:in
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.contributedEvents.map(
+                        {loaderData.futureEvents.contributedEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
@@ -1136,8 +1135,8 @@ export default function Index() {
                       </div>
                     </>
                   )}
-                {loaderData.events.participatedEvents !== undefined &&
-                  loaderData.events.participatedEvents.length > 0 && (
+                {loaderData.futureEvents.participatedEvents !== undefined &&
+                  loaderData.futureEvents.participatedEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -1146,7 +1145,7 @@ export default function Index() {
                         Teilnahme
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.participatedEvents.map(
+                        {loaderData.futureEvents.participatedEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
