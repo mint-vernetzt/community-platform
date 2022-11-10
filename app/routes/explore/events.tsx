@@ -29,7 +29,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const currentUser = await getUserByRequest(request);
 
-  const events = await await getEvents();
+  const events = await getEvents();
 
   let enhancedEvents: MaybeEnhancedEvents = events;
 
