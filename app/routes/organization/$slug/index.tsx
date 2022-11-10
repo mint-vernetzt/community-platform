@@ -50,6 +50,7 @@ type LoaderData = {
     background?: string;
   };
   futureEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
+  pastEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
   userId?: string;
   userEmail?: string;
   mode: Mode;
@@ -194,12 +195,18 @@ export const loader: LoaderFunction = async (args) => {
     sessionUser,
     inFuture
   );
+  const organizationPastEvents = await prepareOrganizationEvents(
+    slug,
+    sessionUser,
+    !inFuture
+  );
 
   return {
     organization,
     userIsPrivileged,
     images,
     futureEvents: organizationFutureEvents,
+    pastEvents: organizationPastEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
     mode,
@@ -744,147 +751,242 @@ export default function Index() {
                   )}
               </>
             )}
-            {loaderData.futureEvents.responsibleForEvents.length > 0 && (
+            {(loaderData.futureEvents.responsibleForEvents.length > 0 ||
+              loaderData.pastEvents.responsibleForEvents.length > 0) && (
               <>
-                <h3 id="organized-events" className="mt-16 mb-8 font-bold">
+                <h3 id="organized-events" className="mt-14 mb-6 font-bold">
                   Organisierte Veranstaltungen
                 </h3>
-                <div className="mb-16">
-                  {loaderData.futureEvents.responsibleForEvents.map(
-                    ({ event }) => {
-                      const startTime = new Date(event.startTime);
-                      const endTime = new Date(event.endTime);
-                      return (
-                        <div
-                          key={`future-event-${event.id}`}
-                          className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
-                        >
-                          <Link className="flex" to={`/event/${event.slug}`}>
-                            <div className="hidden xl:block w-40 shrink-0">
-                              {event.background !== undefined && (
-                                <img
-                                  src={
-                                    event.background ||
-                                    "/images/default-event-background.jpg"
-                                  }
-                                  alt={event.name}
-                                  className="object-cover w-full h-full"
-                                />
-                              )}
-                            </div>
-                            <div className="px-4 py-6">
-                              <p className="text-xs mb-1">
-                                {/* TODO: Display icons (see figma) */}
-                                {event.stage !== null &&
-                                  event.stage.title + " | "}
-                                {getDuration(startTime, endTime)}
-                                {event._count.childEvents === 0 && (
-                                  <>
-                                    {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
-                                  </>
-                                )}
-                                {event.participantLimit !== null &&
-                                  event._count.participants >=
-                                    event.participantLimit && (
-                                    <>
-                                      {" "}
-                                      |{" "}
-                                      <span>
-                                        {event._count.waitingList} auf der
-                                        Warteliste
-                                      </span>
-                                    </>
+                {loaderData.futureEvents.responsibleForEvents.length > 0 && (
+                  <>
+                    <h6 id="organized-future-events" className="mb-4 font-bold">
+                      Anstehende Veranstaltungen
+                    </h6>
+                    <div className="mb-6">
+                      {loaderData.futureEvents.responsibleForEvents.map(
+                        ({ event }) => {
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
+                          return (
+                            <div
+                              key={`future-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
+                              <Link
+                                className="flex"
+                                to={`/event/${event.slug}`}
+                              >
+                                <div className="hidden xl:block w-40 shrink-0">
+                                  {event.background !== undefined && (
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className="object-cover w-full h-full"
+                                    />
                                   )}
-                              </p>
-                              <h4 className="font-bold text-base m-0 lg:line-clamp-1">
-                                {event.name}
-                              </h4>
-                              {event.subline !== null ? (
-                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                  {event.subline}
-                                </p>
-                              ) : (
-                                <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                  {event.description}
-                                </p>
+                                </div>
+                                <div className="px-4 py-6">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
+                                    {getDuration(startTime, endTime)}
+                                    {event._count.childEvents === 0 && (
+                                      <>
+                                        {event.participantLimit === null
+                                          ? " | Unbegrenzte Plätze"
+                                          : ` | ${
+                                              event.participantLimit -
+                                              event._count.participants
+                                            } / ${
+                                              event.participantLimit
+                                            } Plätzen frei`}
+                                      </>
+                                    )}
+                                    {event.participantLimit !== null &&
+                                      event._count.participants >=
+                                        event.participantLimit && (
+                                        <>
+                                          {" "}
+                                          |{" "}
+                                          <span>
+                                            {event._count.waitingList} auf der
+                                            Warteliste
+                                          </span>
+                                        </>
+                                      )}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+                              {event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  Abgesagt
+                                </div>
                               )}
+                              {event.isParticipant && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>Angemeldet</p>
+                                </div>
+                              )}
+                              {loaderData.mode !== "anon" &&
+                                canUserParticipate(event) && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <AddParticipantButton
+                                      action={`/event/${event.slug}/settings/participants/add-participant`}
+                                      userId={loaderData.userId}
+                                      eventId={event.id}
+                                      email={loaderData.userEmail}
+                                    />
+                                  </div>
+                                )}
+                              {event.isOnWaitingList && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                                  <p>Wartend</p>
+                                </div>
+                              )}
+                              {loaderData.mode !== "anon" &&
+                                canUserBeAddedToWaitingList(event) && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <AddToWaitingListButton
+                                      action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                      userId={loaderData.userId}
+                                      eventId={event.id}
+                                      email={loaderData.userEmail}
+                                    />
+                                  </div>
+                                )}
+                              {!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      to={`/event/${event.slug}`}
+                                      className="btn btn-primary"
+                                    >
+                                      Mehr erfahren
+                                    </Link>
+                                  </div>
+                                )}
+                              {loaderData.mode === "anon" &&
+                                event.canceled === false &&
+                                event._count.childEvents === 0 && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      className="btn btn-primary"
+                                      to={`/login?event_slug=${event.slug}`}
+                                    >
+                                      Anmelden
+                                    </Link>
+                                  </div>
+                                )}
                             </div>
-                          </Link>
-                          {event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                              Abgesagt
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
+                {loaderData.pastEvents.responsibleForEvents.length > 0 && (
+                  <>
+                    <h6 id="organized-past-events" className="mb-4 font-bold">
+                      Vergangene Veranstaltungen
+                    </h6>
+                    <div className="mb-16">
+                      {loaderData.pastEvents.responsibleForEvents.map(
+                        ({ event }) => {
+                          const startTime = new Date(event.startTime);
+                          const endTime = new Date(event.endTime);
+                          return (
+                            <div
+                              key={`past-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
+                              <Link
+                                className="flex"
+                                to={`/event/${event.slug}`}
+                              >
+                                <div className="hidden xl:block w-40 shrink-0">
+                                  {event.background !== undefined && (
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  )}
+                                </div>
+                                <div className="px-4 py-6">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null &&
+                                      event.stage.title + " | "}
+                                    {getDuration(startTime, endTime)}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                      {event.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+                              {event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  Wurde abgesagt
+                                </div>
+                              )}
+                              {event.isParticipant && !event.canceled && (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>Teilgenommen</p>
+                                </div>
+                              )}
+
+                              {!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled && (
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      to={`/event/${event.slug}`}
+                                      className="btn btn-primary"
+                                    >
+                                      Mehr erfahren
+                                    </Link>
+                                  </div>
+                                )}
                             </div>
-                          )}
-                          {event.isParticipant && !event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                              <p>Angemeldet</p>
-                            </div>
-                          )}
-                          {loaderData.mode !== "anon" &&
-                            canUserParticipate(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddParticipantButton
-                                  action={`/event/${event.slug}/settings/participants/add-participant`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
-                            )}
-                          {event.isOnWaitingList && !event.canceled && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                              <p>Wartend</p>
-                            </div>
-                          )}
-                          {loaderData.mode !== "anon" &&
-                            canUserBeAddedToWaitingList(event) && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <AddToWaitingListButton
-                                  action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                  userId={loaderData.userId}
-                                  eventId={event.id}
-                                  email={loaderData.userEmail}
-                                />
-                              </div>
-                            )}
-                          {!event.isParticipant &&
-                            !canUserParticipate(event) &&
-                            !event.isOnWaitingList &&
-                            !canUserBeAddedToWaitingList(event) &&
-                            !event.canceled && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <Link
-                                  to={`/event/${event.slug}`}
-                                  className="btn btn-primary"
-                                >
-                                  Mehr erfahren
-                                </Link>
-                              </div>
-                            )}
-                          {loaderData.mode === "anon" &&
-                            event.canceled === false &&
-                            event._count.childEvents === 0 && (
-                              <div className="flex items-center ml-auto pr-4 py-6">
-                                <Link
-                                  className="btn btn-primary"
-                                  to={`/login?event_slug=${event.slug}`}
-                                >
-                                  Anmelden
-                                </Link>
-                              </div>
-                            )}
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

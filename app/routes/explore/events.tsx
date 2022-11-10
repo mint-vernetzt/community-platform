@@ -330,27 +330,6 @@ function Events() {
                         {getTimeDuration(startTime, endTime)}
                       </div>
                     )}
-                    {event._count.childEvents === 0 && (
-                      <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
-                        {event.participantLimit === null ? (
-                          "Unbegrenzte Plätze"
-                        ) : (
-                          <>
-                            {event._count.participants >=
-                            event.participantLimit ? (
-                              <span>
-                                {event._count.waitingList} auf der Warteliste
-                              </span>
-                            ) : (
-                              `${
-                                event.participantLimit -
-                                event._count.participants
-                              } / ${event.participantLimit} Plätzen frei`
-                            )}
-                          </>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </Link>
                 <Link
