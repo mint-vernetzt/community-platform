@@ -328,6 +328,8 @@ function Index() {
   const reachedParticipationDeadline =
     new Date() > new Date(loaderData.event.participationUntil);
 
+  const laysInThePast = new Date() > new Date(loaderData.event.endTime);
+
   const Form = getForm(loaderData);
 
   const startTime = new Date(loaderData.event.startTime);
@@ -479,7 +481,9 @@ function Index() {
               {reachedParticipationDeadline ? (
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
-                    Teilnahmefrist bereits abgelaufen.
+                    {laysInThePast
+                      ? "Veranstaltung hat bereits stattgefunden."
+                      : "Teilnahmefrist bereits abgelaufen."}
                   </p>
                 </div>
               ) : (
