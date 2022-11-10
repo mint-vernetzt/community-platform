@@ -2,7 +2,7 @@ import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
-import { deriveMode, getProfileEventsByMode } from "./utils.server";
+import { deriveMode } from "./utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
@@ -21,7 +21,7 @@ jest.mock("./utils.server", () => {
   return {
     ...jest.requireActual("./utils.server"),
     // eslint-disable-next-line
-    getProfileEventsByMode: jest.fn(),
+    prepareProfileEvents: jest.fn(),
   };
 });
 
@@ -54,13 +54,6 @@ const profile = {
   background: null,
   memberOf: [],
   teamMemberOfProjects: [],
-};
-
-const events = {
-  teamMemberOfEvents: [],
-  participatedEvents: [],
-  contributedEvents: [],
-  waitingForEvents: [],
 };
 
 test("deriveMode", () => {
@@ -128,7 +121,6 @@ describe("get profile (anon)", () => {
   beforeAll(() => {
     (getUserByRequest as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
-    (getProfileEventsByMode as jest.Mock).mockImplementation(() => events);
   });
 
   test("receive only public data", async () => {
@@ -161,7 +153,6 @@ describe("get profile (anon)", () => {
   afterAll(() => {
     (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
-    (getProfileEventsByMode as jest.Mock).mockReset();
   });
 });
 
@@ -178,7 +169,6 @@ describe("get profile (authenticated)", () => {
         username: sessionUsername,
       };
     });
-    (getProfileEventsByMode as jest.Mock).mockImplementation(() => events);
   });
   test("can read all fields", async () => {
     const res = await loader({
@@ -203,7 +193,6 @@ describe("get profile (authenticated)", () => {
     (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
-    (getProfileEventsByMode as jest.Mock).mockReset();
   });
 });
 
@@ -214,7 +203,6 @@ describe("get profile (owner)", () => {
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
     (getProfileByUserId as jest.Mock).mockImplementation(() => profile);
-    (getProfileEventsByMode as jest.Mock).mockImplementation(() => events);
   });
 
   test("can read all fields", async () => {
@@ -240,6 +228,5 @@ describe("get profile (owner)", () => {
     (getUserByRequest as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
-    (getProfileEventsByMode as jest.Mock).mockReset();
   });
 });

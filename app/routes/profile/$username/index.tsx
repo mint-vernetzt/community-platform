@@ -8,20 +8,19 @@ import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
+import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
-  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
-  combineEventsSortChronologically,
 } from "~/lib/event/utils";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
@@ -32,10 +31,9 @@ import { getPublicURL } from "~/storage.server";
 import {
   deriveMode,
   filterProfileByMode,
-  getProfileEventsByMode,
   Mode,
+  prepareProfileEvents,
 } from "./utils.server";
-import { H3 } from "~/components/Heading/Heading";
 
 export function links() {
   return [
@@ -43,57 +41,6 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
-
-// Type helper to extract return type of generic function with specific type as argument
-const getEnhancedTeamMemberOfEvents = async (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["teamMemberOfEvents"],
-  userId: string
-) =>
-  await addUserParticipationStatus<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["teamMemberOfEvents"]
-  >(events, userId);
-
-const getEnhancedContributedEvents = async (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["contributedEvents"],
-  userId: string
-) =>
-  await addUserParticipationStatus<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["contributedEvents"]
-  >(events, userId);
-
-const getCombinedEvents = (
-  events: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["participatedEvents"],
-  eventsToAdd: NonNullable<
-    Awaited<ReturnType<typeof getProfileEventsByMode>>
-  >["waitingForEvents"]
-) =>
-  combineEventsSortChronologically<
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["participatedEvents"],
-    NonNullable<
-      Awaited<ReturnType<typeof getProfileEventsByMode>>
-    >["waitingForEvents"]
-  >(events, eventsToAdd);
-
-const getEnhancedParticipatedEvents = async (
-  events: ReturnType<typeof getCombinedEvents>,
-  userId: string
-) =>
-  await addUserParticipationStatus<ReturnType<typeof getCombinedEvents>>(
-    events,
-    userId
-  );
 
 type ProfileLoaderData = {
   mode: Mode;
@@ -103,15 +50,8 @@ type ProfileLoaderData = {
     background?: string;
   };
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  events: {
-    teamMemberOfEvents: Awaited<
-      ReturnType<typeof getEnhancedTeamMemberOfEvents>
-    >;
-    contributedEvents: Awaited<ReturnType<typeof getEnhancedContributedEvents>>;
-    participatedEvents?: Awaited<
-      ReturnType<typeof getEnhancedParticipatedEvents>
-    >;
-  };
+  futureEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
+  pastEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
   userId?: string;
   userEmail?: string;
 };
@@ -201,94 +141,27 @@ export const loader: LoaderFunction = async (
     }
   );
 
-  const profileEvents = await getProfileEventsByMode(username, mode);
-  if (profileEvents === null) {
-    throw notFound({ message: "Events not found" });
-  }
-
-  profileEvents.teamMemberOfEvents = profileEvents.teamMemberOfEvents.map(
-    (item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    }
+  const inFuture = true;
+  const profileFutureEvents = await prepareProfileEvents(
+    username,
+    mode,
+    sessionUser,
+    inFuture
   );
-
-  profileEvents.contributedEvents = profileEvents.contributedEvents.map(
-    (item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    }
+  const profilePastEvents = await prepareProfileEvents(
+    username,
+    mode,
+    sessionUser,
+    !inFuture
   );
-
-  profileEvents.participatedEvents = profileEvents.participatedEvents.map(
-    (item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    }
-  );
-
-  profileEvents.waitingForEvents = profileEvents.waitingForEvents.map(
-    (item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    }
-  );
-
-  const combinedEvents = combineEventsSortChronologically<
-    typeof profileEvents.participatedEvents,
-    typeof profileEvents.waitingForEvents
-  >(profileEvents.participatedEvents, profileEvents.waitingForEvents);
-
-  const enhancedEvents = {
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profileEvents.teamMemberOfEvents
-    >(profileEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof profileEvents.contributedEvents
-    >(profileEvents.contributedEvents, sessionUser?.id),
-    participatedEvents:
-      mode !== "anon"
-        ? await addUserParticipationStatus<typeof combinedEvents>(
-            combinedEvents,
-            sessionUser?.id
-          )
-        : undefined,
-  };
 
   return json({
     mode,
     data,
     images,
     abilities,
-    events: enhancedEvents,
+    futureEvents: profileFutureEvents,
+    pastEvents: profilePastEvents,
     userId: sessionUser?.id,
     userEmail: sessionUser?.email,
   });
@@ -323,12 +196,14 @@ function hasWebsiteOrSocialService(
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-function canViewEvents(loaderData: ProfileLoaderData) {
+function canViewEvents(
+  events: ProfileLoaderData["futureEvents"] | ProfileLoaderData["pastEvents"]
+) {
   return (
-    loaderData.events.teamMemberOfEvents.length > 0 ||
-    (loaderData.events.participatedEvents !== undefined &&
-      loaderData.events.participatedEvents.length > 0) ||
-    loaderData.events.contributedEvents.length > 0
+    events.teamMemberOfEvents.length > 0 ||
+    (events.participatedEvents !== undefined &&
+      events.participatedEvents.length > 0) ||
+    events.contributedEvents.length > 0
   );
 }
 
@@ -411,7 +286,7 @@ export default function Index() {
       <div className="container relative pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
           <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44">
+            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4">
               <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" && (
@@ -792,7 +667,7 @@ export default function Index() {
                   )}
               </>
             )}
-            {(canViewEvents(loaderData) ||
+            {(canViewEvents(loaderData.futureEvents) ||
               (loaderData.mode === "owner" &&
                 loaderData.abilities.events.hasAccess)) && (
               <>
@@ -801,7 +676,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Veranstaltungen</h3>
+                    <h3 className="mb-0 font-bold">
+                      Bevorstehende Veranstaltungen
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" &&
                     loaderData.abilities.events.hasAccess && (
@@ -815,8 +692,8 @@ export default function Index() {
                       </div>
                     )}
                 </div>
-                {loaderData.events !== undefined &&
-                  loaderData.events.teamMemberOfEvents.length > 0 && (
+                {loaderData.futureEvents !== undefined &&
+                  loaderData.futureEvents.teamMemberOfEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -825,7 +702,7 @@ export default function Index() {
                         Organisation/Team
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.teamMemberOfEvents.map(
+                        {loaderData.futureEvents.teamMemberOfEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
@@ -986,8 +863,8 @@ export default function Index() {
                     </>
                   )}
 
-                {loaderData.events !== undefined &&
-                  loaderData.events.contributedEvents.length > 0 && (
+                {loaderData.futureEvents !== undefined &&
+                  loaderData.futureEvents.contributedEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -996,7 +873,7 @@ export default function Index() {
                         Speaker:in
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.contributedEvents.map(
+                        {loaderData.futureEvents.contributedEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
@@ -1136,8 +1013,8 @@ export default function Index() {
                       </div>
                     </>
                   )}
-                {loaderData.events.participatedEvents !== undefined &&
-                  loaderData.events.participatedEvents.length > 0 && (
+                {loaderData.futureEvents.participatedEvents !== undefined &&
+                  loaderData.futureEvents.participatedEvents.length > 0 && (
                     <>
                       <h6
                         id="team-member-events"
@@ -1146,7 +1023,7 @@ export default function Index() {
                         Teilnahme
                       </h6>
                       <div className="mb-16">
-                        {loaderData.events.participatedEvents.map(
+                        {loaderData.futureEvents.participatedEvents.map(
                           ({ event }, index) => {
                             const startTime = new Date(event.startTime);
                             const endTime = new Date(event.endTime);
@@ -1249,6 +1126,371 @@ export default function Index() {
                                       eventId={event.id}
                                       email={loaderData.userEmail}
                                     />
+                                  </div>
+                                )}
+                                {!event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+              </>
+            )}
+            {(canViewEvents(loaderData.pastEvents) ||
+              (loaderData.mode === "owner" &&
+                loaderData.abilities.events.hasAccess)) && (
+              <>
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
+                      Vergangene Veranstaltungen
+                    </h3>
+                  </div>
+                </div>
+                {loaderData.pastEvents !== undefined &&
+                  loaderData.pastEvents.teamMemberOfEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Organisation/Team
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.teamMemberOfEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+
+                                {loaderData.mode === "owner" &&
+                                  !event.canceled && (
+                                    <>
+                                      {event.published ? (
+                                        <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
+                                          Veröffentlicht
+                                        </div>
+                                      ) : (
+                                        <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
+                                          Entwurf
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant &&
+                                  !event.canceled &&
+                                  loaderData.mode !== "owner" && (
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                      <p>Teilgenommen</p>
+                                    </div>
+                                  )}
+                                {loaderData.mode !== "owner" &&
+                                  !event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                {loaderData.pastEvents !== undefined &&
+                  loaderData.pastEvents.contributedEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Speaker:in
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.contributedEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant && !event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                    <p>Teilgenommen</p>
+                                  </div>
+                                )}
+                                {!event.isParticipant &&
+                                  !canUserParticipate(event) &&
+                                  !event.isOnWaitingList &&
+                                  !canUserBeAddedToWaitingList(event) &&
+                                  !event.canceled && (
+                                    <div className="flex items-center ml-auto pr-4 py-6">
+                                      <Link
+                                        to={`/event/${event.slug}`}
+                                        className="btn btn-primary"
+                                      >
+                                        Mehr erfahren
+                                      </Link>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </>
+                  )}
+                {loaderData.pastEvents.participatedEvents !== undefined &&
+                  loaderData.pastEvents.participatedEvents.length > 0 && (
+                    <>
+                      <h6
+                        id="team-member-events"
+                        className="mt-16 mb-8 font-bold"
+                      >
+                        Teilnahme
+                      </h6>
+                      <div className="mb-16">
+                        {loaderData.pastEvents.participatedEvents.map(
+                          ({ event }, index) => {
+                            const startTime = new Date(event.startTime);
+                            const endTime = new Date(event.endTime);
+                            return (
+                              <div
+                                key={`child-event-${index}`}
+                                className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
+                              >
+                                <Link
+                                  className="flex"
+                                  to={`/event/${event.slug}`}
+                                >
+                                  <div className="hidden xl:block w-40 shrink-0">
+                                    {event.background !== undefined && (
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="px-4 py-6">
+                                    <p className="text-xs mb-1">
+                                      {/* TODO: Display icons (see figma) */}
+                                      {event.stage !== null &&
+                                        event.stage.title + " | "}
+                                      {getDuration(startTime, endTime)}
+                                      {event._count.childEvents === 0 && (
+                                        <>
+                                          {event.participantLimit === null
+                                            ? " | Unbegrenzte Plätze"
+                                            : ` | ${
+                                                event.participantLimit -
+                                                event._count.participants
+                                              } / ${
+                                                event.participantLimit
+                                              } Plätzen frei`}
+                                        </>
+                                      )}
+                                      {event.participantLimit !== null &&
+                                        event._count.participants >=
+                                          event.participantLimit && (
+                                          <>
+                                            {" "}
+                                            |{" "}
+                                            <span>
+                                              {event._count.waitingList} auf der
+                                              Warteliste
+                                            </span>
+                                          </>
+                                        )}
+                                    </p>
+                                    <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                      {event.name}
+                                    </h4>
+                                    {event.subline !== null ? (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.subline}
+                                      </p>
+                                    ) : (
+                                      <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                        {event.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+                                {event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                    Wurde abgesagt
+                                  </div>
+                                )}
+                                {event.isParticipant && !event.canceled && (
+                                  <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                    <p>Teilgenommen</p>
                                   </div>
                                 )}
                                 {!event.isParticipant &&
