@@ -692,104 +692,104 @@ export default function Index() {
             )}
             {((loaderData.data.teamMemberOfProjects &&
               loaderData.data.teamMemberOfProjects.length > 0) ||
-              (loaderData.mode === "owner" &&
-                loaderData.abilities.projects.hasAccess)) && (
-              <>
-                <div
-                  id="projects"
-                  className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
-                >
-                  <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Projekte</h3>
-                  </div>
-                  {loaderData.mode === "owner" &&
-                    loaderData.abilities.projects.hasAccess && (
-                      <div className="flex-initial pl-4">
-                        <Link
-                          to="/project/create"
-                          className="btn btn-outline btn-primary"
-                        >
-                          Projekt anlegen
-                        </Link>
-                      </div>
-                    )}
-                </div>
-                {loaderData.data.teamMemberOfProjects &&
-                  loaderData.data.teamMemberOfProjects.length > 0 && (
-                    <div className="flex flex-wrap -mx-3 items-stretch">
-                      {loaderData.data.teamMemberOfProjects.map(
-                        ({ project }) => (
-                          // TODO: Project Card
-                          <div
-                            key={project.slug}
-                            data-testid="gridcell"
-                            className="flex-100 px-3 mb-4"
+              loaderData.mode === "owner") &&
+              loaderData.abilities.projects.hasAccess && (
+                <>
+                  <div
+                    id="projects"
+                    className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
+                  >
+                    <div className="flex-auto pr-4">
+                      <h3 className="mb-0 font-bold">Projekte</h3>
+                    </div>
+                    {loaderData.mode === "owner" &&
+                      loaderData.abilities.projects.hasAccess && (
+                        <div className="flex-initial pl-4">
+                          <Link
+                            to="/project/create"
+                            className="btn btn-outline btn-primary"
                           >
-                            <Link
-                              to={`/project/${project.slug}`}
-                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                            Projekt anlegen
+                          </Link>
+                        </div>
+                      )}
+                  </div>
+                  {loaderData.data.teamMemberOfProjects &&
+                    loaderData.data.teamMemberOfProjects.length > 0 && (
+                      <div className="flex flex-wrap -mx-3 items-stretch">
+                        {loaderData.data.teamMemberOfProjects.map(
+                          ({ project }) => (
+                            // TODO: Project Card
+                            <div
+                              key={project.slug}
+                              data-testid="gridcell"
+                              className="flex-100 px-3 mb-4"
                             >
-                              <div className="w-full flex items-center flex-row">
-                                {project.logo !== "" &&
-                                project.logo !== null ? (
-                                  <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                    <img
-                                      className="max-w-full w-auto max-h-16 h-auto"
-                                      src={project.logo}
-                                      alt={project.name}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                                    {getInitialsOfName(project.name)}
-                                  </div>
-                                )}
-                                <div className="pl-4">
-                                  <H3 like="h4" className="text-xl mb-1">
-                                    {project.name}
-                                  </H3>
-                                  {project.responsibleOrganizations &&
-                                    project.responsibleOrganizations.length >
-                                      0 && (
-                                      <p className="font-bold text-sm">
-                                        {project.responsibleOrganizations
-                                          .map(
-                                            ({ organization }) =>
-                                              organization.name
-                                          )
-                                          .join(" / ")}
-                                      </p>
-                                    )}
-                                </div>
-                                {project.awards &&
-                                  project.awards.length > 0 &&
-                                  project.awards.map(({ award }) => (
-                                    <div
-                                      key={award.id}
-                                      className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border"
-                                    >
+                              <Link
+                                to={`/project/${project.slug}`}
+                                className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                              >
+                                <div className="w-full flex items-center flex-row">
+                                  {project.logo !== "" &&
+                                  project.logo !== null ? (
+                                    <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                       <img
-                                        className="max-w-full w-auto max-h-8 h-auto"
-                                        src={award.logo}
-                                        alt={award.title}
+                                        className="max-w-full w-auto max-h-16 h-auto"
+                                        src={project.logo}
+                                        alt={project.name}
                                       />
                                     </div>
-                                  ))}
-                              </div>
-                              {project.excerpt !== null &&
-                                project.excerpt !== "" && (
-                                  <div className="mt-2 line-clamp-2">
-                                    {project.excerpt}
+                                  ) : (
+                                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                                      {getInitialsOfName(project.name)}
+                                    </div>
+                                  )}
+                                  <div className="pl-4">
+                                    <H3 like="h4" className="text-xl mb-1">
+                                      {project.name}
+                                    </H3>
+                                    {project.responsibleOrganizations &&
+                                      project.responsibleOrganizations.length >
+                                        0 && (
+                                        <p className="font-bold text-sm">
+                                          {project.responsibleOrganizations
+                                            .map(
+                                              ({ organization }) =>
+                                                organization.name
+                                            )
+                                            .join(" / ")}
+                                        </p>
+                                      )}
                                   </div>
-                                )}
-                            </Link>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-              </>
-            )}
+                                  {project.awards &&
+                                    project.awards.length > 0 &&
+                                    project.awards.map(({ award }) => (
+                                      <div
+                                        key={award.id}
+                                        className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border"
+                                      >
+                                        <img
+                                          className="max-w-full w-auto max-h-8 h-auto"
+                                          src={award.logo}
+                                          alt={award.title}
+                                        />
+                                      </div>
+                                    ))}
+                                </div>
+                                {project.excerpt !== null &&
+                                  project.excerpt !== "" && (
+                                    <div className="mt-2 line-clamp-2">
+                                      {project.excerpt}
+                                    </div>
+                                  )}
+                              </Link>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
+                </>
+              )}
             {(canViewEvents(loaderData) ||
               (loaderData.mode === "owner" &&
                 loaderData.abilities.events.hasAccess)) && (
