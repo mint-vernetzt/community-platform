@@ -1,38 +1,64 @@
 import { isSameDay } from "date-fns";
 import { Link, LoaderFunction, useLoaderData } from "remix";
-import { getUserByRequest } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
+import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
-import { prepareEvents } from "./utils.server";
+import { getAllProjects } from "./utils.server";
 
 type LoaderData = {
-  futureEvents: Awaited<ReturnType<typeof prepareEvents>>;
-  pastEvents: Awaited<ReturnType<typeof prepareEvents>>;
-  userId?: string;
-  email?: string;
+  projects: Awaited<ReturnType<typeof getAllProjects>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const sessionUser = await getUserByRequest(request);
+  await checkFeatureAbilitiesOrThrow(request, "projects");
 
-  const inFuture = true;
-  const futureEvents = await prepareEvents(sessionUser, inFuture);
-  const pastEvents = await prepareEvents(sessionUser, !inFuture);
+  const projects = await getAllProjects();
+
+  const enhancedProjects = projects.map((project) => {
+    let enhancedProject = project;
+    if (enhancedProject.background !== null) {
+      const publicURL = getPublicURL(enhancedProject.background);
+      if (publicURL) {
+        enhancedProject.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 400, height: 280 },
+        });
+      }
+    }
+    if (enhancedProject.logo !== null) {
+      const publicURL = getPublicURL(enhancedProject.logo);
+      if (publicURL) {
+        enhancedProject.logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 144, height: 144 },
+        });
+      }
+    }
+    enhancedProject.awards = enhancedProject.awards.map((relation) => {
+      if (relation.award.logo !== null) {
+        const publicURL = getPublicURL(relation.award.logo);
+        if (publicURL) {
+          relation.award.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 144, height: 144 },
+          });
+        }
+      }
+      return relation;
+    });
+    return enhancedProject;
+  });
 
   return {
-    futureEvents: futureEvents,
-    pastEvents: pastEvents,
-    userId: sessionUser?.id || undefined,
-    email: sessionUser?.email || undefined,
+    projects: enhancedProjects,
   };
 };
 
