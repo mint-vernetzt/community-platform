@@ -221,9 +221,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: {
-              gte: new Date(),
-            },
+            startTime: inFuture
+              ? {
+                  gte: new Date(),
+                }
+              : { lte: new Date() },
             published: true,
           },
         },
@@ -269,9 +271,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: {
-              gte: new Date(),
-            },
+            startTime: inFuture
+              ? {
+                  gte: new Date(),
+                }
+              : { lte: new Date() },
             published: true,
           },
         },
@@ -317,9 +321,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: {
-              gte: new Date(),
-            },
+            startTime: inFuture
+              ? {
+                  gte: new Date(),
+                }
+              : { lte: new Date() },
             published: true,
           },
         },
