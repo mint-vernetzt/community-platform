@@ -26,6 +26,42 @@ export async function getAllOrganizations() {
   return organizations;
 }
 
+export async function getAllProjects() {
+  const projects = await prismaClient.project.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      background: true,
+      excerpt: true,
+      awards: {
+        select: {
+          award: {
+            select: {
+              id: true,
+              title: true,
+              subline: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return projects;
+}
+
 export function getScoreOfEntity(entity: any) {
   const hasAvatar = entity.avatar !== undefined && entity.avatar !== null;
   const hasLogo = entity.logo !== undefined && entity.logo !== null;

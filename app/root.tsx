@@ -195,7 +195,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/profiles"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Akteur:innen
+                  Profile
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -206,7 +206,6 @@ function NavBar(props: NavBarProps) {
                   Organisationen
                 </Link>
               </li>
-              {/* {loaderData.abilities.events.hasAccess && ( */}
               <li className="px-2 md:px-5">
                 <Link
                   to="/explore/events"
@@ -215,7 +214,16 @@ function NavBar(props: NavBarProps) {
                   Veranstaltungen
                 </Link>
               </li>
-              {/* })} */}
+              {props.abilities.projects.hasAccess && (
+                <li className="px-2 md:px-5">
+                  <Link
+                    to="/explore/projects"
+                    className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
+                  >
+                    Projekte
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
