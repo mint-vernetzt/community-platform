@@ -161,9 +161,11 @@ export async function getEvents(inFuture: boolean) {
         },
       },
     },
-    orderBy: {
-      startTime: "asc",
-    },
+    orderBy: inFuture
+      ? {
+          startTime: "asc",
+        }
+      : { startTime: "desc" },
   });
   return result;
 }
