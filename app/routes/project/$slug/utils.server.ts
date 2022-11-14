@@ -102,6 +102,7 @@ export async function getProjectByField(field: string, value: string) {
           award: {
             select: {
               title: true,
+              subline: true,
               logo: true,
             },
           },
