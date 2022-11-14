@@ -3,18 +3,18 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H1, H4 } from "~/components/Heading/Heading";
+import { H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
-import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
-import ProfileCard from "~/components/ProfileCard/ProfileCard";
 
 function hasContactInformations(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
@@ -305,13 +305,14 @@ function Index() {
                     {loaderData.project.responsibleOrganizations.length > 0 && (
                       <p className="font-bold text-sm mb-0">
                         {loaderData.project.responsibleOrganizations.map(
-                          (item) => {
+                          (relation) => {
                             return (
                               <Link
+                                key={relation.organization.id}
                                 className="inline-block"
-                                to={`/organization/${item.organization.slug}`}
+                                to={`/organization/${relation.organization.slug}`}
                               >
-                                {item.organization.name}
+                                {relation.organization.name}
                               </Link>
                             );
                           }
@@ -321,15 +322,16 @@ function Index() {
                   </div>
                   {loaderData.project.teamMembers.length > 0 && (
                     <div className="text-4xl text-primary font-semibold text-center mb-6">
-                      {loaderData.project.teamMembers.map((item) => {
+                      {loaderData.project.teamMembers.map((relation) => {
                         return (
                           <Link
-                            to={`/profile/${item.profile.username}`}
+                            key={relation.profile.id}
+                            to={`/profile/${relation.profile.username}`}
                             className="inline-block mx-1"
                           >
-                            {item.profile.firstName +
+                            {relation.profile.firstName +
                               " " +
-                              item.profile.lastName}
+                              relation.profile.lastName}
                           </Link>
                         );
                       })}
