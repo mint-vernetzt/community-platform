@@ -303,35 +303,34 @@ function Index() {
                   </h3>
                   <div className="mb-8">
                     {loaderData.project.responsibleOrganizations.length > 0 && (
-                      <>
+                      <p className="font-bold text-sm mb-0">
                         {loaderData.project.responsibleOrganizations.map(
                           (item) => {
                             return (
-                              <p className="font-bold text-sm mb-0">
-                                <Link
-                                  className="flex flex-row"
-                                  to={`/organization/${item.organization.slug}`}
-                                >
-                                  {item.organization.name}
-                                </Link>
-                              </p>
+                              <Link
+                                className="inline-block"
+                                to={`/organization/${item.organization.slug}`}
+                              >
+                                {item.organization.name}
+                              </Link>
                             );
                           }
                         )}
-                      </>
+                      </p>
                     )}
                   </div>
                   {loaderData.project.teamMembers.length > 0 && (
                     <div className="text-4xl text-primary font-semibold text-center mb-6">
                       {loaderData.project.teamMembers.map((item) => {
                         return (
-                          <div key={`team-member-${item.profile.username}`}>
-                            <Link to={`/profile/${item.profile.username}`}>
-                              {item.profile.firstName +
-                                " " +
-                                item.profile.lastName}
-                            </Link>
-                          </div>
+                          <Link
+                            to={`/profile/${item.profile.username}`}
+                            className="inline-block mx-1"
+                          >
+                            {item.profile.firstName +
+                              " " +
+                              item.profile.lastName}
+                          </Link>
                         );
                       })}
                     </div>
