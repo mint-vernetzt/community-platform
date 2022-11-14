@@ -697,11 +697,11 @@ export default function Index() {
                     <>
                       <h6
                         id="team-member-future-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4 font-bold"
                       >
                         Organisation/Team
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.futureEvents.teamMemberOfEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
@@ -868,11 +868,11 @@ export default function Index() {
                     <>
                       <h6
                         id="future-contributed-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4 font-bold"
                       >
                         Speaker:in
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.futureEvents.contributedEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
@@ -1018,11 +1018,11 @@ export default function Index() {
                     <>
                       <h6
                         id="future-participated-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4 font-bold"
                       >
                         Teilnahme
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.futureEvents.participatedEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
@@ -1167,11 +1167,11 @@ export default function Index() {
                     <>
                       <h6
                         id="past-team-member-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4 font-bold"
                       >
                         Organisation/Team
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.pastEvents.teamMemberOfEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
@@ -1273,11 +1273,11 @@ export default function Index() {
                     <>
                       <h6
                         id="past-contributed-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4 font-bold"
                       >
                         Speaker:in
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.pastEvents.contributedEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
@@ -1360,11 +1360,11 @@ export default function Index() {
                     <>
                       <h6
                         id="past-participated-events"
-                        className="mt-16 mb-8 font-bold"
+                        className="mb-4font-bold"
                       >
                         Teilnahme
                       </h6>
-                      <div className="mb-16">
+                      <div className="mb-6">
                         {loaderData.pastEvents.participatedEvents.map(
                           ({ event }) => {
                             const startTime = new Date(event.startTime);
