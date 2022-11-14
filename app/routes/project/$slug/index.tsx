@@ -305,14 +305,21 @@ function Index() {
                     {loaderData.project.responsibleOrganizations.length > 0 && (
                       <p className="font-bold text-sm mb-0">
                         {loaderData.project.responsibleOrganizations.map(
-                          (relation) => {
+                          (relation, index) => {
                             return (
                               <Link
                                 key={relation.organization.id}
                                 className="inline-block"
                                 to={`/organization/${relation.organization.slug}`}
                               >
+                                {index !== 0 ? "/ " : ""}
                                 {relation.organization.name}
+                                {index !==
+                                loaderData.project.responsibleOrganizations
+                                  .length -
+                                  1
+                                  ? " /"
+                                  : ""}
                               </Link>
                             );
                           }
@@ -322,7 +329,7 @@ function Index() {
                   </div>
                   {loaderData.project.teamMembers.length > 0 && (
                     <div className="text-4xl text-primary font-semibold text-center mb-6">
-                      {loaderData.project.teamMembers.map((relation) => {
+                      {loaderData.project.teamMembers.map((relation, index) => {
                         return (
                           <Link
                             key={relation.profile.id}
@@ -332,6 +339,9 @@ function Index() {
                             {relation.profile.firstName +
                               " " +
                               relation.profile.lastName}
+                            {index !== loaderData.project.teamMembers.length - 1
+                              ? ", "
+                              : ""}
                           </Link>
                         );
                       })}
