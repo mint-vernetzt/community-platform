@@ -232,9 +232,11 @@ export async function getOrganizationEvents(slug: string, inFuture: boolean) {
           },
         },
         orderBy: {
-          event: {
-            startTime: "asc",
-          },
+          event: inFuture
+            ? {
+                startTime: "asc",
+              }
+            : { startTime: "desc" },
         },
       },
     },

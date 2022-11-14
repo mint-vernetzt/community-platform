@@ -180,9 +180,11 @@ export async function getProfileEventsByMode(
         },
         where: teamMemberWhere,
         orderBy: {
-          event: {
-            startTime: "asc",
-          },
+          event: inFuture
+            ? {
+                startTime: "asc",
+              }
+            : { startTime: "desc" },
         },
       },
       participatedEvents: {
@@ -226,9 +228,11 @@ export async function getProfileEventsByMode(
           },
         },
         orderBy: {
-          event: {
-            startTime: "asc",
-          },
+          event: inFuture
+            ? {
+                startTime: "asc",
+              }
+            : { startTime: "desc" },
         },
       },
       contributedEvents: {
@@ -272,9 +276,11 @@ export async function getProfileEventsByMode(
           },
         },
         orderBy: {
-          event: {
-            startTime: "asc",
-          },
+          event: inFuture
+            ? {
+                startTime: "asc",
+              }
+            : { startTime: "desc" },
         },
       },
       waitingForEvents: {
@@ -318,9 +324,11 @@ export async function getProfileEventsByMode(
           },
         },
         orderBy: {
-          event: {
-            startTime: "asc",
-          },
+          event: inFuture
+            ? {
+                startTime: "asc",
+              }
+            : { startTime: "desc" },
         },
       },
     },
