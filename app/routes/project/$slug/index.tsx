@@ -242,7 +242,7 @@ function Index() {
                             {item.award.title}
                           </H4>
                           <p className="text-sm text-center">
-                            Didaktik als Schlüssel
+                            {item.award.subline}
                           </p>
                         </div>
                       </div>
@@ -551,6 +551,7 @@ function Index() {
                           >
                             {item.award.title}
                           </H4>
+                          <p className="text-sm">{item.award.subline}</p>
                         </div>
                       </div>
                     );
