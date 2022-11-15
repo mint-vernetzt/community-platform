@@ -517,12 +517,14 @@ model Discipline {
 }
 
 model Award {
-  id       String           @id @default(uuid())
-  title    String
-  subline  String
-  slug     String           @unique
-  logo     String
-  projects AwardOfProject[]
+  id         String           @id @default(uuid())
+  title      String
+  shortTitle String           @default("Kurztitel") @map("short_title")
+  subline    String
+  date       DateTime         @default(now())
+  slug       String           @unique
+  logo       String
+  projects   AwardOfProject[]
 
   @@map("awards")
 }
