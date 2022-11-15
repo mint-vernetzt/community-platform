@@ -114,6 +114,21 @@ export async function updateEventBackgroundImage(
   });
 }
 
+export async function updateProjectBackgroundImage(
+  slug: string,
+  name: string,
+  path: string
+) {
+  return await prismaClient.project.update({
+    where: {
+      slug: slug,
+    },
+    data: {
+      [name]: path,
+    },
+  });
+}
+
 export const upload = async (request: Request, bucketName: string) => {
   try {
     const formData = await unstable_parseMultipartFormData(

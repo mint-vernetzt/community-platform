@@ -1,4 +1,6 @@
+import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
@@ -15,6 +17,13 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 function hasContactInformations(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
@@ -193,7 +202,7 @@ function Index() {
               <Modal id="modal-background-upload">
                 <ImageCropper
                   headline="Hintergrundbild"
-                  subject="event"
+                  subject="project"
                   id="modal-background-upload"
                   uploadKey="background"
                   image={loaderData.project.background || undefined}
@@ -278,7 +287,7 @@ function Index() {
                         <Modal id="modal-avatar">
                           <ImageCropper
                             id="modal-avatar"
-                            subject="organization"
+                            subject="project"
                             slug={loaderData.project.slug}
                             uploadKey="logo"
                             headline="Logo"

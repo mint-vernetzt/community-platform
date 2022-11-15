@@ -7,10 +7,15 @@ import {
   deriveMode as deriveEventMode,
   getEvent,
 } from "../event/$slug/utils.server";
+import {
+  deriveMode as deriveProjectMode,
+  getProjectBySlugOrThrow,
+} from "../project/$slug/utils.server";
 import { Subject, uploadKeys } from "./schema";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,
+  updateProjectBackgroundImage,
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
@@ -55,6 +60,13 @@ async function handleAuth(
       throw notFound({ message: `Event not found` });
     }
     const mode = await deriveEventMode(event, sessionUser);
+    if (mode !== "owner") {
+      throw serverError({ message: "Not allowed." });
+    }
+  }
+  if (subject === "project") {
+    const project = await getProjectBySlugOrThrow(slug);
+    const mode = await deriveProjectMode(project, sessionUser);
     if (mode !== "owner") {
       throw serverError({ message: "Not allowed." });
     }
@@ -107,6 +119,14 @@ export const action: ActionFunction = async ({ request }) => {
 
     if (subject === "event") {
       await updateEventBackgroundImage(slug, name, uploadHandlerResponse.path);
+    }
+
+    if (subject === "project") {
+      await updateProjectBackgroundImage(
+        slug,
+        name,
+        uploadHandlerResponse.path
+      );
     }
   }
 
