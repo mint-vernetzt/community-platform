@@ -334,7 +334,6 @@ function General() {
             defaultValue={project.excerpt || ""}
             label="Kurzbeschreibung"
             errorMessage={errors?.excerpt?.message}
-            maxCharacters={300}
           />
         </div>
         <div className="mb-4">
@@ -344,7 +343,6 @@ function General() {
             defaultValue={project.description || ""}
             label="ausführliche Beschreibung"
             errorMessage={errors?.description?.message}
-            maxCharacters={1500}
           />
         </div>
         <div className="mb-4">
