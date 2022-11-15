@@ -519,7 +519,7 @@ model Discipline {
 model Award {
   id         String           @id @default(uuid())
   title      String
-  shortTitle String           @default("Kurztitel") @map("short_title")
+  shortTitle String?          @map("short_title")
   subline    String
   date       DateTime         @default(now())
   slug       String           @unique
