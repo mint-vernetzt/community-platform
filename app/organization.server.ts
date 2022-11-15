@@ -161,7 +161,8 @@ export async function getOrganizationBySlug(slug: string) {
                   award: {
                     select: {
                       id: true,
-                      title: true,
+                      shortTitle: true,
+                      date: true,
                       logo: true,
                     },
                   },
