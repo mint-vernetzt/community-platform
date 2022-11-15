@@ -103,6 +103,8 @@ function Projects() {
                       </div>
                       <p>{award.title}</p>
                       <p>{award.subline}</p>
+                      <p className="text-sm">{award.shortTitle}</p>
+                      <p className="text-sm">{award.date.getFullYear()}</p>
                     </div>
                   ))}
               </Link>
