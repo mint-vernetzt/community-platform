@@ -3,7 +3,7 @@ import Counter from "../../Counter/Counter";
 import TextArea, { TextAreaProps } from "../TextArea/TextArea";
 
 export interface TextAreaWithCounterProps {
-  maxCharacters: number;
+  maxCharacters?: number;
 }
 
 const TextAreaWithCounter = React.forwardRef(
@@ -31,7 +31,10 @@ const TextAreaWithCounter = React.forwardRef(
       if (defaultOnChange) {
         defaultOnChange(event);
       }
-      if (event.currentTarget.value.length > maxCharacters) {
+      if (
+        maxCharacters !== undefined &&
+        event.currentTarget.value.length > maxCharacters
+      ) {
         event.currentTarget.value = event.currentTarget.value.substring(
           0,
           maxCharacters
@@ -48,7 +51,9 @@ const TextAreaWithCounter = React.forwardRef(
           ref={ref}
           onChange={handleTextAreaChange}
         />
-        <Counter currentCount={characterCount} maxCount={maxCharacters} />
+        {maxCharacters !== undefined && (
+          <Counter currentCount={characterCount} maxCount={maxCharacters} />
+        )}
       </>
     );
   }
