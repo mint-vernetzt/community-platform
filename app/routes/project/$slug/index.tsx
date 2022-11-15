@@ -572,6 +572,10 @@ function Index() {
                             {item.award.title}
                           </H4>
                           <p className="text-sm">{item.award.subline}</p>
+                          <p className="text-sm">{item.award.shortTitle}</p>
+                          <p className="text-sm">
+                            {item.award.date.getFullYear()}
+                          </p>
                         </div>
                       </div>
                     );

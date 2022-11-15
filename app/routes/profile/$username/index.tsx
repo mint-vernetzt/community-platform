@@ -645,11 +645,19 @@ export default function Index() {
                                       key={award.id}
                                       className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border"
                                     >
-                                      <img
-                                        className="max-w-full w-auto max-h-8 h-auto"
-                                        src={award.logo}
-                                        alt={award.title}
-                                      />
+                                      <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                        <img
+                                          className="max-w-full w-auto max-h-8 h-auto"
+                                          src={award.logo}
+                                          alt={award.shortTitle}
+                                        />
+                                      </div>
+                                      <p className="text-sm">
+                                        {award.shortTitle}
+                                      </p>
+                                      <p className="text-sm">
+                                        {award.date.getFullYear()}
+                                      </p>
                                     </div>
                                   ))}
                               </div>

@@ -41,7 +41,9 @@ export async function getAllProjects() {
             select: {
               id: true,
               title: true,
+              shortTitle: true,
               subline: true,
+              date: true,
               logo: true,
             },
           },

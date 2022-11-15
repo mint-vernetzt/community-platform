@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "awards" ADD COLUMN     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "short_title" TEXT NOT NULL DEFAULT E'Kurztitel';

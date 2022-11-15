@@ -50,7 +50,8 @@ export async function getProfileByUsername(username: string) {
                   award: {
                     select: {
                       id: true,
-                      title: true,
+                      shortTitle: true,
+                      date: true,
                       logo: true,
                     },
                   },
