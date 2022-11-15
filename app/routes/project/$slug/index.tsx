@@ -12,6 +12,7 @@ import { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { nl2br } from "~/lib/string/nl2br";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
@@ -478,7 +479,12 @@ function Index() {
 
             {loaderData.project.excerpt !== null &&
               loaderData.project.excerpt !== "" && (
-                <p className="mb-8">{loaderData.project.excerpt}</p>
+                <p
+                  className="mb-8"
+                  dangerouslySetInnerHTML={{
+                    __html: nl2br(loaderData.project.excerpt, true),
+                  }}
+                />
               )}
 
             {loaderData.project.targetGroups.length > 0 && (
@@ -521,7 +527,12 @@ function Index() {
               loaderData.project.description !== "" && (
                 <>
                   <H4 className="font-bold mb-4">Beschreibung</H4>
-                  <p className="mb-8">{loaderData.project.description}</p>
+                  <p
+                    className="mb-8"
+                    dangerouslySetInnerHTML={{
+                      __html: nl2br(loaderData.project.description, true),
+                    }}
+                  />
                 </>
               )}
 
