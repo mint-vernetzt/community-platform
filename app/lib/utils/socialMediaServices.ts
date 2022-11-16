@@ -37,8 +37,8 @@ export const socialMediaServices: SocialMediaService[] = [
   {
     id: "youtube",
     label: "YouTube",
-    placeholder: "youtube.com/channel/<Nutzername>",
-    organizationPlaceholder: "youtube.com/channel/<Organisationsname>",
+    placeholder: "youtube.com/<Nutzername>",
+    organizationPlaceholder: "youtube.com/<Organisationsname>",
   },
   {
     id: "instagram",
