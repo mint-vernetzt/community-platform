@@ -12,6 +12,12 @@
     "id": "646c5323-2b9f-40be-a284-9b13d673bc1c"
   },
   {
+    "referenceId": 1297,
+    "title": "Hochschulbildung",
+    "slug": "hochschulbildung",
+    "id": "ecaeedf1-f5ed-4456-9963-927f3e0dfa42"
+  },
+  {
     "referenceId": 776,
     "title": "Lehrkräfte",
     "slug": "teachers",
@@ -28,6 +34,12 @@
     "title": "Pädagogische Fachkräfte",
     "slug": "paedagogische-fachkraefte",
     "id": "aaf67d09-0a47-4070-9a3b-6109efaf1438"
+  },
+  {
+    "referenceId": 1294,
+    "title": "Primarbereich",
+    "slug": "primarbereich",
+    "id": "cbbc8772-8de9-41d5-ac13-b46bf9daafed"
   },
   {
     "referenceId": 731,
