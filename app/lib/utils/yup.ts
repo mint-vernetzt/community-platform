@@ -43,9 +43,9 @@ const socialValidation = {
       "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
   },
   youtube: {
-    match: /(https?:\/\/)?(.*\.)?youtube.com\/channel\/.+$|^$/,
+    match: /(https?:\/\/)?(.*\.)?youtube.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Youtube Kanals (youtube.com/channel/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format eines Youtube Kanals (youtube.com/<Nutzername>).",
   },
   instagram: {
     match: /(https?:\/\/)?(.*\.)?instagram.com\/.+$|^$/,
