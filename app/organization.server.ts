@@ -155,12 +155,12 @@ export async function getOrganizationBySlug(slug: string) {
               slug: true,
               logo: true,
               name: true,
-              excerpt: true,
               awards: {
                 select: {
                   award: {
                     select: {
                       id: true,
+                      title: true,
                       shortTitle: true,
                       date: true,
                       logo: true,

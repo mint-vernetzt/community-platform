@@ -92,21 +92,27 @@ function Projects() {
                   )}
                 </div>
                 {project.awards.length > 0 &&
-                  project.awards.map(({ award }) => (
-                    <div key={award.id}>
-                      <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                        <img
-                          className="max-w-full w-auto max-h-8 h-auto"
-                          src={award.logo}
-                          alt={award.title}
-                        />
+                  project.awards.map(({ award }) => {
+                    award.date = new Date(award.date);
+                    return (
+                      <div key={award.id}>
+                        <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                          <img
+                            className="max-w-full w-auto max-h-8 h-auto"
+                            src={award.logo}
+                            alt={award.title}
+                          />
+                        </div>
+                        <p>{award.title}</p>
+                        <p>{award.subline}</p>
+                        {award.shortTitle !== null &&
+                          award.shortTitle !== "" && (
+                            <p className="text-sm">{award.shortTitle}</p>
+                          )}
+                        <p className="text-sm">{award.date.getFullYear()}</p>
                       </div>
-                      <p>{award.title}</p>
-                      <p>{award.subline}</p>
-                      <p className="text-sm">{award.shortTitle}</p>
-                      <p className="text-sm">{award.date.getFullYear()}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
               </Link>
               <Link
                 to={`/project/${project.slug}`}
