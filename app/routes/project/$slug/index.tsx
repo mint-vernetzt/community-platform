@@ -591,7 +591,7 @@ function Index() {
             {loaderData.project.responsibleOrganizations.length > 0 && (
               <>
                 <H4 className="font-bold mb-4 mt-8 lg:mt-16">
-                  Veranstaltet von
+                  Ein Projekt von
                 </H4>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.project.responsibleOrganizations.map((item) => {
