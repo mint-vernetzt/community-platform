@@ -103,8 +103,7 @@ function Projects() {
                             alt={award.title}
                           />
                         </div>
-                        <p>{award.title}</p>
-                        <p>{award.subline}</p>
+
                         {award.shortTitle !== null &&
                           award.shortTitle !== "" && (
                             <p className="text-sm">{award.shortTitle}</p>
