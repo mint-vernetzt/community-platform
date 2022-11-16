@@ -42,7 +42,6 @@ export async function getAllProjects() {
               id: true,
               title: true,
               shortTitle: true,
-              subline: true,
               date: true,
               logo: true,
             },
