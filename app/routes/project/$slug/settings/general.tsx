@@ -263,6 +263,7 @@ function General() {
               {...register("email")}
               id="email"
               label="E-Mail"
+              defaultValue={project.email || ""}
               errorMessage={errors?.email?.message}
             />
           </div>
@@ -271,6 +272,7 @@ function General() {
               {...register("phone")}
               id="phone"
               label="Telefon"
+              defaultValue={project.phone || ""}
               errorMessage={errors?.phone?.message}
             />
           </div>
@@ -282,6 +284,7 @@ function General() {
               {...register("street")}
               id="street"
               label="Straßenname"
+              defaultValue={project.street || ""}
               errorMessage={errors?.street?.message}
             />
           </div>
@@ -290,6 +293,7 @@ function General() {
               {...register("streetNumber")}
               id="streetNumber"
               label="Hausnummer"
+              defaultValue={project.streetNumber || ""}
               errorMessage={errors?.streetNumber?.message}
             />
           </div>
@@ -300,6 +304,7 @@ function General() {
               {...register("zipCode")}
               id="zipCode"
               label="PLZ"
+              defaultValue={project.zipCode || ""}
               errorMessage={errors?.zipCode?.message}
             />
           </div>
@@ -308,6 +313,7 @@ function General() {
               {...register("city")}
               id="city"
               label="Stadt"
+              defaultValue={project.city || ""}
               errorMessage={errors?.city?.message}
             />
           </div>
@@ -341,7 +347,7 @@ function General() {
             {...register("description")}
             id="description"
             defaultValue={project.description || ""}
-            label="ausführliche Beschreibung"
+            label="Ausführliche Beschreibung"
             errorMessage={errors?.description?.message}
           />
         </div>
@@ -385,6 +391,7 @@ function General() {
             {...register("website")}
             id="website"
             label="Website"
+            defaultValue={project.website || ""}
             placeholder="domainname.tld"
             errorMessage={errors?.website?.message}
             withClearButton
@@ -399,18 +406,21 @@ function General() {
           In welchen Netzwerken ist Dein Projekt vertreten?
         </p>
 
-        {socialMediaServices.map((service) => (
-          <div className="w-full mb-4" key={service.id}>
-            <InputText
-              {...register(service.id)}
-              id={service.id}
-              label={service.label}
-              placeholder={service.organizationPlaceholder}
-              errorMessage={errors?.[service.id]?.message}
-              withClearButton
-            />
-          </div>
-        ))}
+        {socialMediaServices.map((service) => {
+          return (
+            <div className="w-full mb-4" key={service.id}>
+              <InputText
+                {...register(service.id)}
+                id={service.id}
+                label={service.label}
+                defaultValue={project[service.id] || ""}
+                placeholder={service.organizationPlaceholder}
+                errorMessage={errors?.[service.id]?.message}
+                withClearButton
+              />
+            </div>
+          );
+        })}
 
         <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
           <div className="container">
