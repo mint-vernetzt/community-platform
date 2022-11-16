@@ -341,7 +341,7 @@ function General() {
             {...register("description")}
             id="description"
             defaultValue={project.description || ""}
-            label="ausführliche Beschreibung"
+            label="Ausführliche Beschreibung"
             errorMessage={errors?.description?.message}
           />
         </div>
