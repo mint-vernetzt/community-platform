@@ -550,6 +550,7 @@ function Index() {
                 <H4 className="font-bold mb-4 mt-8 lg:mt-16">Auszeichnungen</H4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {loaderData.project.awards.map((item) => {
+                    item.award.date = new Date(item.award.date);
                     return (
                       <div
                         key={`award-${item.awardId}`}
@@ -572,7 +573,10 @@ function Index() {
                             {item.award.title}
                           </H4>
                           <p className="text-sm">{item.award.subline}</p>
-                          <p className="text-sm">{item.award.shortTitle}</p>
+                          {item.award.shortTitle !== null &&
+                            item.award.shortTitle !== "" && (
+                              <p className="text-sm">{item.award.shortTitle}</p>
+                            )}
                           <p className="text-sm">
                             {item.award.date.getFullYear()}
                           </p>

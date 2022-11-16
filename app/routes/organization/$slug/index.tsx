@@ -145,6 +145,33 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
+  unfilteredOrganization.responsibleForProject =
+    unfilteredOrganization.responsibleForProject.map((relation) => {
+      if (relation.project.logo !== null) {
+        const publicURL = getPublicURL(relation.project.logo);
+        if (publicURL !== null) {
+          relation.project.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      relation.project.awards = relation.project.awards.map((relation) => {
+        if (relation.award.logo !== null) {
+          const publicURL = getPublicURL(relation.award.logo);
+          if (publicURL !== null) {
+            relation.award.logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return relation;
+      });
+
+      return relation;
+    });
+
   if (sessionUser === null) {
     let key: keyof Partial<
       NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
@@ -728,30 +755,38 @@ export default function Index() {
                                   </div>
                                   {project.awards &&
                                     project.awards.length > 0 &&
-                                    project.awards.map(({ award }) => (
-                                      <div key={award.id}>
-                                        <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          <img
-                                            className="max-w-full w-auto max-h-8 h-auto"
-                                            src={award.logo}
-                                            alt={award.shortTitle}
-                                          />
+                                    project.awards.map(({ award }) => {
+                                      award.date = new Date(award.date);
+                                      return (
+                                        <div key={award.id}>
+                                          <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                            <img
+                                              className="max-w-full w-auto max-h-8 h-auto"
+                                              src={award.logo}
+                                              alt={award.title}
+                                            />
+                                          </div>
+                                          {award.shortTitle !== null &&
+                                            award.shortTitle !== "" && (
+                                              <p className="text-sm">
+                                                {award.shortTitle}
+                                              </p>
+                                            )}
+                                          <p className="text-sm">
+                                            {award.date.getFullYear()}
+                                          </p>
                                         </div>
-                                        <p className="text-sm">
-                                          {award.shortTitle}
-                                        </p>
-                                        <p className="text-sm">
-                                          {award.date.getFullYear()}
-                                        </p>
-                                      </div>
-                                    ))}
+                                      );
+                                    })}
+                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                    <Link
+                                      to={`/project/${project.slug}`}
+                                      className="btn btn-primary"
+                                    >
+                                      Zum Projekt
+                                    </Link>
+                                  </div>
                                 </div>
-                                {project.excerpt !== null &&
-                                  project.excerpt !== "" && (
-                                    <div className="mt-2 line-clamp-2">
-                                      {project.excerpt}
-                                    </div>
-                                  )}
                               </Link>
                             </div>
                           )
