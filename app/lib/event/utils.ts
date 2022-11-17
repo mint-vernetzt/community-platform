@@ -101,9 +101,13 @@ export async function addUserParticipationStatus<
   >;
 }
 
-function reachedParticipateDeadline(event: Pick<Event, "participationUntil">) {
+function reachedParticipateDeadline(
+  event: Pick<Event, "participationUntil" | "participationFrom">
+) {
   const participationUntil = new Date(event.participationUntil).getTime();
-  return Date.now() > participationUntil;
+  const participationFrom = new Date(event.participationFrom).getTime();
+  const now = Date.now();
+  return now > participationUntil || now < participationFrom;
 }
 
 function reachedParticipantLimit(
@@ -131,6 +135,7 @@ function isCanceled(event: Pick<Event, "canceled">) {
 export function canUserParticipate(
   event: Pick<
     EventWithRelations,
+    | "participationFrom"
     | "participationUntil"
     | "participantLimit"
     | "published"

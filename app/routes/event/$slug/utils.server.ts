@@ -508,6 +508,7 @@ export async function getEvent(slug: string) {
         },
       },
       participationUntil: true,
+      participationFrom: true,
       participantLimit: true,
       types: {
         select: {

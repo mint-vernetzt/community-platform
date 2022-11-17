@@ -325,8 +325,11 @@ function Index() {
 
   const navigate = useNavigate();
 
+  const now = new Date();
+
   const reachedParticipationDeadline =
-    new Date() > new Date(loaderData.event.participationUntil);
+    now > new Date(loaderData.event.participationUntil) ||
+    now < new Date(loaderData.event.participationFrom);
 
   const laysInThePast = new Date() > new Date(loaderData.event.endTime);
 
@@ -483,7 +486,7 @@ function Index() {
                   <p className="font-bold text-center">
                     {laysInThePast
                       ? "Veranstaltung hat bereits stattgefunden."
-                      : "Teilnahmefrist bereits abgelaufen."}
+                      : "Anmeldefrist hat noch nicht begonnen oder ist bereits abgelaufen."}
                   </p>
                 </div>
               ) : (
@@ -640,33 +643,45 @@ function Index() {
                 </>
               )}
 
-              {loaderData.event.participationUntil && (
-                <>
-                  <div className="text-xs leading-6">Registrierung bis</div>
-                  <div className="pb-3 md:pb-0">
-                    {formatDateTime(
-                      new Date(loaderData.event.participationUntil)
-                    )}
-                  </div>
-                </>
-              )}
+              {loaderData.event.participationFrom &&
+                new Date(loaderData.event.participationFrom) > new Date() && (
+                  <>
+                    <div className="text-xs leading-6">
+                      Registrierungsbeginn
+                    </div>
+                    <div className="pb-3 md:pb-0">
+                      {formatDateTime(
+                        new Date(loaderData.event.participationFrom)
+                      )}
+                    </div>
+                  </>
+                )}
+              {loaderData.event.participationUntil &&
+                new Date(loaderData.event.participationUntil) > new Date() && (
+                  <>
+                    <div className="text-xs leading-6">Registrierungsende</div>
+                    <div className="pb-3 md:pb-0">
+                      {formatDateTime(
+                        new Date(loaderData.event.participationUntil)
+                      )}
+                    </div>
+                  </>
+                )}
 
-              {loaderData.event.participationUntil && (
-                <>
-                  <div className="text-xs leading-6">Verfügbare Plätze</div>
-                  <div className="pb-3 md:pb-0">
-                    {loaderData.event.participantLimit === null ? (
-                      "ohne Beschränkung"
-                    ) : (
-                      <>
-                        {loaderData.event.participantLimit -
-                          loaderData.event._count.participants}{" "}
-                        / {loaderData.event.participantLimit}
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
+              <>
+                <div className="text-xs leading-6">Verfügbare Plätze</div>
+                <div className="pb-3 md:pb-0">
+                  {loaderData.event.participantLimit === null ? (
+                    "ohne Beschränkung"
+                  ) : (
+                    <>
+                      {loaderData.event.participantLimit -
+                        loaderData.event._count.participants}{" "}
+                      / {loaderData.event.participantLimit}
+                    </>
+                  )}
+                </div>
+              </>
 
               {(loaderData.isParticipant ||
                 loaderData.isSpeaker ||
