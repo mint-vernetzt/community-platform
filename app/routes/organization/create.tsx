@@ -151,7 +151,7 @@ export default function Create() {
         <div className="flex -mx-4 justify-center">
           <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
             <h4 className="font-semibold">
-              Organisation, Netzwerk oder Projekt hinzufügen
+              Organisation oder Netzwerk hinzufügen
             </h4>
             <div className="pt-10 lg:pt-0">
               <RemixForm
