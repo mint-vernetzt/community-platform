@@ -186,9 +186,9 @@ function Index() {
               return (
                 <div
                   key={`award-${item.awardId}`}
-                  className="bg-[url('/images/award_bg.svg')] -mt-px bg-contain bg-no-repeat bg-left-top drop-shadow-lg"
+                  className="bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
                 >
-                  <div className="flex flex-col items-center w-[57px] h-[90px] pt-2 md:w-[77px] md:h-[119px] md:pt-3">
+                  <div className="flex flex-col items-center justify-center min-w-[57px] h-full pt-2 md:min-w-[77px] md:pt-3">
                     <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                       {item.award.logo !== null && item.award.logo !== "" ? (
                         <img src={item.award.logo} alt={item.award.title} />
@@ -196,14 +196,14 @@ function Index() {
                         getInitialsOfName(item.award.title)
                       )}
                     </div>
-                    <div className="px-2 pt-1">
+                    <div className="px-2 md:px-3 pt-1">
                       <H4
                         like="h4"
-                        className="text-xs md:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
+                        className="text-xxs lg:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
                       >
                         {item.award.shortTitle}
                       </H4>
-                      <p className="text-xs md:text-sm text-center leading-none">
+                      <p className="text-xxs lg:text-sm text-center leading-none">
                         {item.award.date.getFullYear()}
                       </p>
                     </div>
@@ -560,9 +560,9 @@ function Index() {
                             return (
                               <div
                                 key={`award-${item.awardId}`}
-                                className="bg-[url('/images/award_bg.svg')] bg-contain bg-no-repeat bg-left-top drop-shadow-lg"
+                                className="bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
                               >
-                                <div className="flex flex-col w-[57px] h-[90px] items-center pt-2">
+                                <div className="flex flex-col min-w-[57px] h-full items-center justify-center pt-2">
                                   <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                     {item.award.logo !== null &&
                                     item.award.logo !== "" ? (
@@ -577,11 +577,11 @@ function Index() {
                                   <div className="px-2 pt-1">
                                     <H4
                                       like="h4"
-                                      className="text-xs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                      className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
                                     >
                                       {item.award.shortTitle}
                                     </H4>
-                                    <p className="text-xs text-center leading-none">
+                                    <p className="text-xxs text-center leading-none">
                                       {item.award.date.getFullYear()}
                                     </p>
                                   </div>
