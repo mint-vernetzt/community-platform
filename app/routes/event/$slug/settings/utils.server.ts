@@ -80,6 +80,10 @@ export function transformEventToForm(
     event.participationUntil,
     "Europe/Berlin"
   );
+  const participationFromZoned = utcToZonedTime(
+    event.participationFrom,
+    "Europe/Berlin"
+  );
 
   const dateFormat = "yyyy-MM-dd";
   const timeFormat = "HH:mm";
@@ -90,6 +94,8 @@ export function transformEventToForm(
   const endTime = format(endTimeZoned, timeFormat);
   const participationUntilDate = format(participationUntilZoned, dateFormat);
   const participationUntilTime = format(participationUntilZoned, timeFormat);
+  const participationFromDate = format(participationFromZoned, dateFormat);
+  const participationFromTime = format(participationFromZoned, timeFormat);
 
   return {
     ...event,
@@ -99,6 +105,8 @@ export function transformEventToForm(
     endTime,
     participationUntilDate,
     participationUntilTime,
+    participationFromDate,
+    participationFromTime,
     focuses: event.focuses.map((focus) => focus.focusId) ?? [],
     tags: event.tags.map((tag) => tag.tagId) ?? [],
     targetGroups:
@@ -120,6 +128,8 @@ export function transformFormToEvent(form: any) {
     endDate,
     participationUntilDate,
     participationUntilTime,
+    participationFromDate,
+    participationFromTime,
     ...event
   } = form;
 
@@ -135,12 +145,17 @@ export function transformFormToEvent(form: any) {
     `${participationUntilDate} ${participationUntilTime}`,
     "Europe/Berlin"
   );
+  const participationFrom = zonedTimeToUtc(
+    `${participationFromDate} ${participationFromTime}`,
+    "Europe/Berlin"
+  );
 
   return {
     ...event,
     startTime,
     endTime,
     participationUntil,
+    participationFrom,
   };
 }
 
