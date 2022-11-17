@@ -202,6 +202,7 @@ model Event {
   conferenceCode           String?                          @map("conference_code")
   participantLimit         Int?                             @map("participant_limit")
   participationUntil       DateTime                         @map("participation_until") // default: startTime
+  participationFrom        DateTime                         @default(now()) @map("participation_from")
   waitingList              WaitingParticipantOfEvent[]
   areas                    AreaOfEvent[]
   venueName                String?                          @map("venue_name")
