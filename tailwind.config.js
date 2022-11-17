@@ -30,6 +30,7 @@ module.exports = {
     },
     fontSize: {
       ...fontSizes,
+      xxs: "0.625rem",
     },
     maxWidth: {
       ...defaultTheme.maxWidth,
@@ -40,6 +41,7 @@ module.exports = {
     aspectRatio: {
       ...defaultTheme.aspectRatio,
       "4/3": "4 / 3",
+      awardbanner: "7 / 11",
     },
     flex: {
       ...defaultTheme.flex,

@@ -6,7 +6,7 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H3 } from "~/components/Heading/Heading";
+import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
@@ -736,7 +736,7 @@ export default function Index() {
                                       {getInitialsOfName(project.name)}
                                     </div>
                                   )}
-                                  <div className="pl-4">
+                                  <div className="px-4 flex-auto">
                                     <H3 like="h4" className="text-xl mb-1">
                                       {project.name}
                                     </H3>
@@ -753,32 +753,45 @@ export default function Index() {
                                         </p>
                                       )}
                                   </div>
-                                  {project.awards &&
-                                    project.awards.length > 0 &&
-                                    project.awards.map(({ award }) => {
-                                      award.date = new Date(award.date);
-                                      return (
-                                        <div key={award.id}>
-                                          <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                            <img
-                                              className="max-w-full w-auto max-h-8 h-auto"
-                                              src={award.logo}
-                                              alt={award.title}
-                                            />
+                                  {project.awards && project.awards.length > 0 && (
+                                    <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
+                                      {project.awards.map(({ award }) => {
+                                        award.date = new Date(award.date);
+                                        return (
+                                          <div
+                                            key={`award-${award.id}`}
+                                            className="bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
+                                          >
+                                            <div className="flex flex-col items-center justify-center min-w-[57px] h-full pt-2">
+                                              <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                                {award.logo !== null &&
+                                                award.logo !== "" ? (
+                                                  <img
+                                                    src={award.logo}
+                                                    alt={award.title}
+                                                  />
+                                                ) : (
+                                                  getInitialsOfName(award.title)
+                                                )}
+                                              </div>
+                                              <div className="px-2 pt-1">
+                                                <H4
+                                                  like="h4"
+                                                  className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                                >
+                                                  {award.shortTitle}
+                                                </H4>
+                                                <p className="text-xxs text-center leading-none">
+                                                  {award.date.getFullYear()}
+                                                </p>
+                                              </div>
+                                            </div>
                                           </div>
-                                          {award.shortTitle !== null &&
-                                            award.shortTitle !== "" && (
-                                              <p className="text-sm">
-                                                {award.shortTitle}
-                                              </p>
-                                            )}
-                                          <p className="text-sm">
-                                            {award.date.getFullYear()}
-                                          </p>
-                                        </div>
-                                      );
-                                    })}
-                                  <div className="flex items-center ml-auto pr-4 py-6">
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                  <div className="hidden md:flex items-center flex-initial">
                                     <Link
                                       to={`/project/${project.slug}`}
                                       className="btn btn-primary"
