@@ -178,8 +178,42 @@ function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
-        <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
+      <section className="container mt-8 md:mt-10 lg:mt-20 relative px-0 sm:px-4 lg:px-6">
+        {loaderData.project.awards.length > 0 && (
+          <div className="absolute z-30 -top-0.5 right-14 flex gap-4">
+            {loaderData.project.awards.map((item) => {
+              item.award.date = new Date(item.award.date);
+              return (
+                <div
+                  key={`award-${item.awardId}`}
+                  className="bg-[url('/images/award_bg.svg')] -mt-px bg-contain bg-no-repeat bg-left-top drop-shadow-lg"
+                >
+                  <div className="flex flex-col items-center w-[57px] h-[90px] pt-2 md:w-[77px] md:h-[119px] md:pt-3">
+                    <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                      {item.award.logo !== null && item.award.logo !== "" ? (
+                        <img src={item.award.logo} alt={item.award.title} />
+                      ) : (
+                        getInitialsOfName(item.award.title)
+                      )}
+                    </div>
+                    <div className="px-2 pt-1">
+                      <H4
+                        like="h4"
+                        className="text-xs md:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
+                      >
+                        {item.award.shortTitle}
+                      </H4>
+                      <p className="text-xs md:text-sm text-center leading-none">
+                        {item.award.date.getFullYear()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div className="rounded-t-2xl lg:rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
           <div className="w-full h-full">
             {loaderData.project.background !== undefined && (
               <img
@@ -224,47 +258,11 @@ function Index() {
         </div>
       </section>
 
-      <div className="container relative pb-44">
+      <div className="container relative pb-44 z-20">
         <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4 overflow-hidden">
-              {loaderData.project.awards.length > 0 && (
-                <div className="grid grid-cols-1 gap-4">
-                  {loaderData.project.awards.map((item) => {
-                    return (
-                      <div
-                        key={`award-${item.awardId}`}
-                        className="w-full flex items-center flex-row bg-beige-300 p-2"
-                      >
-                        <div className="h-14 w-14 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                          {item.award.logo !== null &&
-                          item.award.logo !== "" ? (
-                            <img src={item.award.logo} alt={item.award.title} />
-                          ) : (
-                            getInitialsOfName(item.award.title)
-                          )}
-                        </div>
-                        <div className="px-4 flex-auto mr-14">
-                          <H4
-                            like="h4"
-                            className="text-base mb-0 text-center text-neutral-600 font-bold"
-                          >
-                            {item.award.title}
-                          </H4>
-                          <p className="text-sm text-center">
-                            {item.award.subline}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              <div
-                className={`px-4 py-8 lg:p-8 pb-15 md:pb-5 ${
-                  loaderData.project.awards.length > 0 ? "pt-4 lg:pt-4" : ""
-                }`}
-              >
+          <div className="flex-gridcol lg:w-5/12 px-4 mt-[-72px] lg:mt-0 lg:pt-0">
+            <div className="lg:rounded-3xl lg:border lg:border-neutral-400 lg:bg-neutral-200 lg:shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4 overflow-hidden">
+              <div className="lg:p-8 pb-15 md:pb-5">
                 <div className="flex items-center flex-col">
                   <Logo />
                   {loaderData.mode === "owner" &&
@@ -554,32 +552,53 @@ function Index() {
                     return (
                       <div
                         key={`award-${item.awardId}`}
-                        className="w-full flex items-center flex-row"
+                        className="w-full flex flex-row"
                       >
-                        <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                          {item.award.logo !== null &&
-                          item.award.logo !== "" ? (
-                            <img src={item.award.logo} alt={item.award.title} />
-                          ) : (
-                            getInitialsOfName(item.award.title)
-                          )}
+                        <div className="">
+                          {loaderData.project.awards.map((item) => {
+                            item.award.date = new Date(item.award.date);
+                            return (
+                              <div
+                                key={`award-${item.awardId}`}
+                                className="bg-[url('/images/award_bg.svg')] bg-contain bg-no-repeat bg-left-top drop-shadow-lg"
+                              >
+                                <div className="flex flex-col w-[57px] h-[90px] items-center pt-2">
+                                  <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                    {item.award.logo !== null &&
+                                    item.award.logo !== "" ? (
+                                      <img
+                                        src={item.award.logo}
+                                        alt={item.award.title}
+                                      />
+                                    ) : (
+                                      getInitialsOfName(item.award.title)
+                                    )}
+                                  </div>
+                                  <div className="px-2 pt-1">
+                                    <H4
+                                      like="h4"
+                                      className="text-xs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                    >
+                                      {item.award.shortTitle}
+                                    </H4>
+                                    <p className="text-xs text-center leading-none">
+                                      {item.award.date.getFullYear()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         <div className="pl-4">
                           <H4
                             like="h4"
-                            className="text-xl mb-0 text-neutral-600 font-semibold"
+                            className="text-xl mb-0 text-neutral-primary font-semibold"
                           >
                             {item.award.title}
                           </H4>
-                          <p className="text-sm">{item.award.subline}</p>
-                          {item.award.shortTitle !== null &&
-                            item.award.shortTitle !== "" && (
-                              <p className="text-sm">{item.award.shortTitle}</p>
-                            )}
-                          <p className="text-sm">
-                            {item.award.date.getFullYear()}
-                          </p>
+                          <p className="">{item.award.subline}</p>
                         </div>
                       </div>
                     );

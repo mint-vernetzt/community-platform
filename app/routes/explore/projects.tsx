@@ -1,6 +1,6 @@
 import { GravityType } from "imgproxy/dist/types";
 import { Link, LoaderFunction, useLoaderData } from "remix";
-import { H1, H3 } from "~/components/Heading/Heading";
+import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -68,18 +68,52 @@ function Projects() {
           MINT-Community werfen.
         </p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
         {loaderData.projects.map((project) => {
           return (
             <div
               key={`project-${project.id}`}
-              className="rounded-2xl bg-white shadow-xl flex flex-col overflow-hidden"
+              className="rounded-2xl bg-white shadow-xl flex flex-col border"
             >
               <Link
                 className="relative flex-initial"
                 to={`/project/${project.slug}`}
               >
-                <div className="w-full aspect-4/3 lg:aspect-video">
+                {project.awards.length > 0 && (
+                  <div className="absolute z-30 -top-0.5 right-4 flex gap-4">
+                    {project.awards.map(({ award }) => {
+                      award.date = new Date(award.date);
+                      return (
+                        <div
+                          key={`award-${award.id}`}
+                          className="bg-[url('/images/award_bg.svg')] -mt-px bg-contain bg-no-repeat bg-left-top drop-shadow-lg"
+                        >
+                          <div className="flex flex-col items-center w-[57px] h-[90px] pt-2">
+                            <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                              {award.logo !== null && award.logo !== "" ? (
+                                <img src={award.logo} alt={award.title} />
+                              ) : (
+                                getInitialsOfName(award.title)
+                              )}
+                            </div>
+                            <div className="px-2 pt-1">
+                              <H4
+                                like="h4"
+                                className="text-xs mb-0 text-center text-neutral-600 font-bold leading-none"
+                              >
+                                {award.shortTitle}
+                              </H4>
+                              <p className="text-xs text-center leading-none">
+                                {award.date.getFullYear()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="w-full aspect-4/3 lg:aspect-video rounded-t-2xl hidden">
                   {project.background !== undefined && (
                     <img
                       src={
@@ -91,35 +125,14 @@ function Projects() {
                     />
                   )}
                 </div>
-                {project.awards.length > 0 &&
-                  project.awards.map(({ award }) => {
-                    award.date = new Date(award.date);
-                    return (
-                      <div key={award.id}>
-                        <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                          <img
-                            className="max-w-full w-auto max-h-8 h-auto"
-                            src={award.logo}
-                            alt={award.title}
-                          />
-                        </div>
-
-                        {award.shortTitle !== null &&
-                          award.shortTitle !== "" && (
-                            <p className="text-sm">{award.shortTitle}</p>
-                          )}
-                        <p className="text-sm">{award.date.getFullYear()}</p>
-                      </div>
-                    );
-                  })}
               </Link>
               <Link
                 to={`/project/${project.slug}`}
                 className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200"
               >
-                <div className="w-full flex items-center flex-row">
+                <div className="w-full flex items-center flex-row mr-16">
                   {project.logo !== "" && project.logo !== null ? (
-                    <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                    <div className="h-11 w-11 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                       <img
                         className="max-w-full w-auto max-h-16 h-auto"
                         src={project.logo}
@@ -127,12 +140,12 @@ function Projects() {
                       />
                     </div>
                   ) : (
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                    <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                       {getInitialsOfName(project.name)}
                     </div>
                   )}
                   <div className="pl-4">
-                    <H3 like="h4" className="text-xl mb-1">
+                    <H3 like="h4" className="text-base mb-0 font-bold">
                       {project.name}
                     </H3>
                     {project.responsibleOrganizations &&
@@ -146,15 +159,17 @@ function Projects() {
                   </div>
                 </div>
                 {project.excerpt !== null && project.excerpt !== "" && (
-                  <div className="mt-2 line-clamp-3">{project.excerpt}</div>
+                  <div className="mt-2 line-clamp-3 text-sm  mr-16">
+                    {project.excerpt}
+                  </div>
                 )}
               </Link>
 
-              <div className="flex flex-initial items-center p-4">
-                <div className="ml-auto">
+              <div className="items-end px-4">
+                <div className="py-4 border-t text-right">
                   <Link
                     to={`/project/${project.slug}`}
-                    className="btn btn-outline btn-primary"
+                    className="btn btn-primary btn-small"
                   >
                     Zum Projekt
                   </Link>
