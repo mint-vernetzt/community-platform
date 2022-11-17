@@ -510,22 +510,23 @@ function Index() {
                 </>
               )}
               <div className="hidden md:block">
-                {loaderData.event.childEvents.length > 0 && (
-                  <>
-                    <div className="bg-accent-300 p-8">
-                      <p className="font-bold text-center">
-                        Wähle{" "}
-                        <a
-                          href="#child-events"
-                          className="underline hover:no-underline"
-                        >
-                          zugehörige Veranstaltungen
-                        </a>{" "}
-                        aus, an denen Du teilnehmen möchtest.
-                      </p>
-                    </div>
-                  </>
-                )}
+                {loaderData.event.childEvents.length > 0 &&
+                  laysInThePast === false && (
+                    <>
+                      <div className="bg-accent-300 p-8">
+                        <p className="font-bold text-center">
+                          Wähle{" "}
+                          <a
+                            href="#child-events"
+                            className="underline hover:no-underline"
+                          >
+                            zugehörige Veranstaltungen
+                          </a>{" "}
+                          aus, an denen Du teilnehmen möchtest.
+                        </p>
+                      </div>
+                    </>
+                  )}
               </div>
             </>
           )}
