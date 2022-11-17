@@ -172,9 +172,8 @@ export default function Register() {
                   <>
                     <p className="mb-4">
                       Hier kannst Du Dein persönliches Profil anlegen. Die
-                      Organisation oder das Unternehmen, in dem Du tätig bist,
-                      sowie Projekte und Netzwerke können im nächsten Schritt
-                      angelegt werden.
+                      Organisationen, Netzwerke oder Unternehmen, in denen Du
+                      tätig bist, können im nächsten Schritt angelegt werden.
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">

@@ -370,8 +370,7 @@ function Index() {
           <h4 className="font-semibold mb-4">Über uns</h4>
 
           <p className="mb-8">
-            Teile der Community mehr über Deine Organisation oder Dein Projekt
-            mit.
+            Teile der Community mehr über Deine Organisation mit.
           </p>
 
           <div className="mb-4">
@@ -489,8 +488,7 @@ function Index() {
           <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
 
           <p className="mb-8">
-            In welchen Netzwerken ist Deine Organisation oder Dein Projekt
-            vertreten?
+            In welchen Netzwerken ist Deine Organisation vertreten?
           </p>
 
           {socialMediaServices.map((service) => (

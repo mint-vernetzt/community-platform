@@ -516,7 +516,7 @@ export default function Index() {
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">
-                Organisation, Netzwerk oder Projekt hinzufügen
+                Organisation oder Netzwerk hinzufügen
               </h4>
               <Link
                 to="/organization/create"
@@ -526,9 +526,9 @@ export default function Index() {
               </Link>
             </div>
             <p className="mb-8">
-              Die Organisation, das Netzwerk oder das Projekt, in dem Du tätig
-              bist, hat noch kein Profil? Füge es direkt hinzu, damit auch
-              andere Mitglieder über darüber erfahren können.
+              Die Organisation oder das Netzwerk, in dem Du tätig bist, hat noch
+              kein Profil? Füge es direkt hinzu, damit auch andere Mitglieder
+              über darüber erfahren können.
               <br />
               <br />
               Falls die Organisation bereits existiert, melde dich bei der
