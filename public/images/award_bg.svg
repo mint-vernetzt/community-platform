@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="77px" height="119px" viewBox="0 0 77 119" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>award_bg</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="award_bg">
+            <polygon id="Path" fill="#FDD670" fill-rule="nonzero" points="0 0 77 0 77 96.652 37.663 119 0 96.652"></polygon>
+            <polygon id="Path" stroke="#FFFFFF" stroke-width="2.5" points="4.25 4.25 72.75 4.25 72.75 91.393 37.7419 111.282 4.25 91.409"></polygon>
+        </g>
+    </g>
+</svg>
