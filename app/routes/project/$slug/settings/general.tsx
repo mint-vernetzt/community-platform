@@ -15,7 +15,6 @@ import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
@@ -77,8 +76,6 @@ export const loader: LoaderFunction = async (args) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await checkFeatureAbilitiesOrThrow(request, "projects");
-
   const currentUser = await getUserByRequestOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);
 
@@ -97,8 +94,6 @@ export const loader: LoaderFunction = async (args) => {
 
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "projects");
 
   const slug = getParamValueOrThrow(params, "slug");
   const currentUser = await getUserByRequestOrThrow(request);
