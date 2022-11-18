@@ -15,7 +15,6 @@ import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
 
@@ -64,7 +63,6 @@ function hasWebsiteOrSocialService(
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>;
-  abilities: Awaited<ReturnType<typeof checkFeatureAbilitiesOrThrow>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -84,8 +82,6 @@ export const loader: LoaderFunction = async (args) => {
   const currentUser = await getUserByRequest(request);
 
   const mode = await deriveMode(project, currentUser);
-
-  const abilities = await checkFeatureAbilitiesOrThrow(request, "projects");
 
   if (project.logo !== null) {
     const publicURL = getPublicURL(project.logo);
@@ -133,7 +129,7 @@ export const loader: LoaderFunction = async (args) => {
     return item;
   });
 
-  return { mode, slug, project, abilities };
+  return { mode, slug, project };
 };
 
 function Index() {
@@ -265,46 +261,45 @@ function Index() {
               <div className="lg:p-8 pb-15 md:pb-5">
                 <div className="flex items-center flex-col">
                   <Logo />
-                  {loaderData.mode === "owner" &&
-                    loaderData.abilities.projects.hasAccess && (
-                      <>
-                        <label
-                          htmlFor="modal-avatar"
-                          className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                  {loaderData.mode === "owner" && (
+                    <>
+                      <label
+                        htmlFor="modal-avatar"
+                        className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                      >
+                        <svg
+                          width="17"
+                          height="16"
+                          viewBox="0 0 17 16"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="fill-neutral-600"
                         >
-                          <svg
-                            width="17"
-                            height="16"
-                            viewBox="0 0 17 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="fill-neutral-600"
-                          >
-                            <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                          </svg>
-                          <span className="ml-2 mr-4">Logo ändern</span>
-                        </label>
-                        <Modal id="modal-avatar">
-                          <ImageCropper
-                            id="modal-avatar"
-                            subject="project"
-                            slug={loaderData.project.slug}
-                            uploadKey="logo"
-                            headline="Logo"
-                            image={loaderData.project.logo || undefined}
-                            aspect={1 / 1}
-                            minCropWidth={100}
-                            minCropHeight={100}
-                            maxTargetHeight={1488}
-                            maxTargetWidth={1488}
-                            csrfToken={"034u9nsq0unun"}
-                            redirect={`/project/${loaderData.project.slug}`}
-                            circularCrop={true}
-                          >
-                            <Logo />
-                          </ImageCropper>
-                        </Modal>
-                      </>
-                    )}
+                          <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                        </svg>
+                        <span className="ml-2 mr-4">Logo ändern</span>
+                      </label>
+                      <Modal id="modal-avatar">
+                        <ImageCropper
+                          id="modal-avatar"
+                          subject="project"
+                          slug={loaderData.project.slug}
+                          uploadKey="logo"
+                          headline="Logo"
+                          image={loaderData.project.logo || undefined}
+                          aspect={1 / 1}
+                          minCropWidth={100}
+                          minCropHeight={100}
+                          maxTargetHeight={1488}
+                          maxTargetWidth={1488}
+                          csrfToken={"034u9nsq0unun"}
+                          redirect={`/project/${loaderData.project.slug}`}
+                          circularCrop={true}
+                        >
+                          <Logo />
+                        </ImageCropper>
+                      </Modal>
+                    </>
+                  )}
 
                   <h3 className="mt-6 text-5xl mb-1 font-bold">
                     {loaderData.project.name}
@@ -471,17 +466,16 @@ function Index() {
                   {loaderData.project.headline || loaderData.project.name}
                 </h1>
               </div>
-              {loaderData.mode === "owner" &&
-                loaderData.abilities.projects.hasAccess && (
-                  <div className="flex-initial lg:pl-4 pt-3 mb-6">
-                    <Link
-                      className="btn btn-outline btn-primary"
-                      to={`/project/${loaderData.project.slug}/settings`}
-                    >
-                      Projekt bearbeiten
-                    </Link>
-                  </div>
-                )}
+              {loaderData.mode === "owner" && (
+                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                  <Link
+                    className="btn btn-outline btn-primary"
+                    to={`/project/${loaderData.project.slug}/settings`}
+                  >
+                    Projekt bearbeiten
+                  </Link>
+                </div>
+              )}
             </div>
 
             {loaderData.project.excerpt !== null &&

@@ -21,7 +21,6 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
@@ -67,10 +66,6 @@ export const loader: LoaderFunction = async (args) => {
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
     throw notFound({ message: "Not found" });
-  }
-  const abilities = await getFeatureAbilities(request, ["projects"]);
-  if (!abilities.projects.hasAccess) {
-    unfilteredOrganization.responsibleForProject = [];
   }
 
   let organization: Partial<

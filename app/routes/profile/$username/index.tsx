@@ -74,9 +74,6 @@ export const loader: LoaderFunction = async (
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
   const abilities = await getFeatureAbilities(request, ["events", "projects"]);
-  if (!abilities.projects.hasAccess) {
-    profile.teamMemberOfProjects = [];
-  }
 
   let data = await filterProfileByMode(profile, mode);
 
