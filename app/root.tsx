@@ -214,16 +214,14 @@ function NavBar(props: NavBarProps) {
                   Veranstaltungen
                 </Link>
               </li>
-              {props.abilities.projects.hasAccess && (
-                <li className="px-2 md:px-5">
-                  <Link
-                    to="/explore/projects"
-                    className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
-                  >
-                    Projekte
-                  </Link>
-                </li>
-              )}
+              <li className="px-2 md:px-5">
+                <Link
+                  to="/explore/projects"
+                  className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
+                >
+                  Projekte
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -346,35 +344,33 @@ function NavBar(props: NavBarProps) {
                       </li>
                     )}
                   </>
+                  <li className="p-4 pb-6">
+                    <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
+                  </li>
+                  <li>
+                    <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
+                      Meine Projekte
+                    </h5>
+                  </li>
+                  <li>
+                    <Link
+                      to={`/profile/${props.currentUserInfo.username}#projects`}
+                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                      onClick={closeDropdown}
+                    >
+                      Projekte anzeigen
+                    </Link>
+                  </li>
                   {props.abilities.projects.hasAccess === true && (
-                    <>
-                      <li className="p-4 pb-6">
-                        <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
-                      </li>
-                      <li>
-                        <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                          Meine Projekte
-                        </h5>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/profile/${props.currentUserInfo.username}#projects`}
-                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
-                          onClick={closeDropdown}
-                        >
-                          Projekte anzeigen
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/project/create`}
-                          className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
-                          onClick={closeDropdown}
-                        >
-                          Projekt anlegen
-                        </Link>
-                      </li>
-                    </>
+                    <li>
+                      <Link
+                        to={`/project/create`}
+                        className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
+                        onClick={closeDropdown}
+                      >
+                        Projekt anlegen
+                      </Link>
+                    </li>
                   )}
                   <li className="p-4">
                     <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
