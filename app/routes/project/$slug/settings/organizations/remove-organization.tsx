@@ -3,7 +3,6 @@ import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
 import {
@@ -31,7 +30,6 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "projects");
   const currentUser = await getUserByRequestOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
 

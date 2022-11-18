@@ -3,7 +3,6 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects } from "./utils.server";
 
@@ -11,11 +10,7 @@ type LoaderData = {
   projects: Awaited<ReturnType<typeof getAllProjects>>;
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const { request } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "projects");
-
+export const loader: LoaderFunction = async (_args) => {
   const projects = await getAllProjects();
 
   const enhancedProjects = projects.map((project) => {
