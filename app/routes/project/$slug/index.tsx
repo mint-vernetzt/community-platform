@@ -180,15 +180,15 @@ function Index() {
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 relative px-0 sm:px-4 lg:px-6">
         {loaderData.project.awards.length > 0 && (
-          <div className="absolute z-30 -top-0.5 right-14 flex gap-4">
+          <div className="mv-awards absolute z-30 -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
             {loaderData.project.awards.map((item) => {
               item.award.date = new Date(item.award.date);
               return (
                 <div
                   key={`award-${item.awardId}`}
-                  className="bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
+                  className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                 >
-                  <div className="flex flex-col items-center justify-center min-w-[57px] h-full pt-2 md:min-w-[77px] md:pt-3">
+                  <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
                     <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                       {item.award.logo !== null && item.award.logo !== "" ? (
                         <img src={item.award.logo} alt={item.award.title} />
@@ -196,7 +196,7 @@ function Index() {
                         getInitialsOfName(item.award.title)
                       )}
                     </div>
-                    <div className="px-2 md:px-3 pt-1">
+                    <div className="px-2 mb-4 md:px-3 pt-1">
                       <H4
                         like="h4"
                         className="text-xxs lg:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
@@ -226,10 +226,10 @@ function Index() {
             )}
           </div>
           {loaderData.mode === "owner" && (
-            <div className="absolute bottom-6 right-6">
+            <div className="absolute bottom-2 right-2 lg:bottom-6 lg:right-6">
               <label
                 htmlFor="modal-background-upload"
-                className="btn btn-primary modal-button"
+                className="btn btn-primary btn-small modal-button"
               >
                 Bild ändern
               </label>
@@ -464,7 +464,7 @@ function Index() {
             </div>
           </div>
 
-          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20 overflow-hidden">
+          <div className="flex-gridcol lg:w-7/12 p-4 pt-10 lg:pt-20 overflow-hidden">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
@@ -560,9 +560,9 @@ function Index() {
                             return (
                               <div
                                 key={`award-${item.awardId}`}
-                                className="bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
+                                className="mv-awards-bg bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                               >
-                                <div className="flex flex-col min-w-[57px] h-full items-center justify-center pt-2">
+                                <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
                                   <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                     {item.award.logo !== null &&
                                     item.award.logo !== "" ? (
@@ -574,7 +574,7 @@ function Index() {
                                       getInitialsOfName(item.award.title)
                                     )}
                                   </div>
-                                  <div className="px-2 pt-1">
+                                  <div className="px-2 mb-4 pt-1">
                                     <H4
                                       like="h4"
                                       className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"

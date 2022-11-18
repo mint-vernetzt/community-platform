@@ -108,6 +108,12 @@
   .form-control .textarea {
     @apply h-24 py-2 leading-5;
   }
+
+  .mv-awards-bg {
+    @supports not (aspect-ratio: auto) {
+      background-size: 100% 100% !important;
+    }
+  }
 }
 
 .btn {

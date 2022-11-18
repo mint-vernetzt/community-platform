@@ -760,9 +760,9 @@ export default function Index() {
                                         return (
                                           <div
                                             key={`award-${award.id}`}
-                                            className="bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17] pb-[25%]"
+                                            className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                                           >
-                                            <div className="flex flex-col items-center justify-center min-w-[57px] h-full pt-2">
+                                            <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                                               <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                                 {award.logo !== null &&
                                                 award.logo !== "" ? (
@@ -774,7 +774,7 @@ export default function Index() {
                                                   getInitialsOfName(award.title)
                                                 )}
                                               </div>
-                                              <div className="px-2 pt-1">
+                                              <div className="px-2 mb-4 pt-1">
                                                 <H4
                                                   like="h4"
                                                   className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
