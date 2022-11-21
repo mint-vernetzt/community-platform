@@ -5,7 +5,6 @@ import { badRequest } from "remix-utils";
 import { z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { checkIdentityOrThrow } from "../../utils.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
@@ -27,8 +26,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "projects");
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -66,8 +63,6 @@ const mutation = makeDomainFunction(
 
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
-
-  await checkFeatureAbilitiesOrThrow(request, "projects");
 
   const slug = getParamValueOrThrow(params, "slug");
 

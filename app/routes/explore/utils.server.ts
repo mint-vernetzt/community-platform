@@ -116,7 +116,7 @@ export function getScoreOfEntity(entity: any) {
 export async function getEvents(inFuture: boolean) {
   const result = await prismaClient.event.findMany({
     where: {
-      startTime: inFuture
+      endTime: inFuture
         ? {
             gte: new Date(),
           }

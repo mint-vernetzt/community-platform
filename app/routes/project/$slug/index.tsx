@@ -15,7 +15,6 @@ import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
 
@@ -64,7 +63,6 @@ function hasWebsiteOrSocialService(
 type LoaderData = {
   mode: Awaited<ReturnType<typeof deriveMode>>;
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>;
-  abilities: Awaited<ReturnType<typeof checkFeatureAbilitiesOrThrow>>;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -84,8 +82,6 @@ export const loader: LoaderFunction = async (args) => {
   const currentUser = await getUserByRequest(request);
 
   const mode = await deriveMode(project, currentUser);
-
-  const abilities = await checkFeatureAbilitiesOrThrow(request, "projects");
 
   if (project.logo !== null) {
     const publicURL = getPublicURL(project.logo);
@@ -133,7 +129,7 @@ export const loader: LoaderFunction = async (args) => {
     return item;
   });
 
-  return { mode, slug, project, abilities };
+  return { mode, slug, project };
 };
 
 function Index() {
@@ -178,8 +174,8 @@ function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
-        <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
+      <section className="container mt-8 md:mt-10 lg:mt-20 relative px-0 sm:px-4 lg:px-6">
+        <div className="rounded-t-2xl lg:rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {loaderData.project.background !== undefined && (
               <img
@@ -192,10 +188,10 @@ function Index() {
             )}
           </div>
           {loaderData.mode === "owner" && (
-            <div className="absolute bottom-6 right-6">
+            <div className="absolute bottom-2 right-2 lg:bottom-6 lg:right-6">
               <label
                 htmlFor="modal-background-upload"
-                className="btn btn-primary modal-button"
+                className="btn btn-primary btn-small modal-button"
               >
                 Bild ändern
               </label>
@@ -222,91 +218,88 @@ function Index() {
             </div>
           )}
         </div>
+        {loaderData.project.awards.length > 0 && (
+          <div className="mv-awards absolute -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
+            {loaderData.project.awards.map((item) => {
+              item.award.date = new Date(item.award.date);
+              return (
+                <div
+                  key={`award-${item.awardId}`}
+                  className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
+                >
+                  <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
+                    <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                      {item.award.logo !== null && item.award.logo !== "" ? (
+                        <img src={item.award.logo} alt={item.award.title} />
+                      ) : (
+                        getInitialsOfName(item.award.title)
+                      )}
+                    </div>
+                    <div className="px-2 mb-4 md:px-3 pt-1">
+                      <H4
+                        like="h4"
+                        className="text-xxs lg:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
+                      >
+                        {item.award.shortTitle}
+                      </H4>
+                      <p className="text-xxs lg:text-sm text-center leading-none">
+                        {item.award.date.getFullYear()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <div className="container relative pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4 overflow-hidden">
-              {loaderData.project.awards.length > 0 && (
-                <div className="grid grid-cols-1 gap-4">
-                  {loaderData.project.awards.map((item) => {
-                    return (
-                      <div
-                        key={`award-${item.awardId}`}
-                        className="w-full flex items-center flex-row bg-beige-300 p-2"
-                      >
-                        <div className="h-14 w-14 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                          {item.award.logo !== null &&
-                          item.award.logo !== "" ? (
-                            <img src={item.award.logo} alt={item.award.title} />
-                          ) : (
-                            getInitialsOfName(item.award.title)
-                          )}
-                        </div>
-                        <div className="px-4 flex-auto mr-14">
-                          <H4
-                            like="h4"
-                            className="text-base mb-0 text-center text-neutral-600 font-bold"
-                          >
-                            {item.award.title}
-                          </H4>
-                          <p className="text-sm text-center">
-                            {item.award.subline}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              <div
-                className={`px-4 py-8 lg:p-8 pb-15 md:pb-5 ${
-                  loaderData.project.awards.length > 0 ? "pt-4 lg:pt-4" : ""
-                }`}
-              >
+          <div className="flex-gridcol lg:w-5/12 px-4 mt-[-72px] lg:mt-0 lg:pt-0">
+            <div className="lg:rounded-3xl lg:border lg:border-neutral-400 lg:bg-neutral-200 lg:shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4 overflow-hidden">
+              <div className="lg:p-8 pb-15 md:pb-5">
                 <div className="flex items-center flex-col">
                   <Logo />
-                  {loaderData.mode === "owner" &&
-                    loaderData.abilities.projects.hasAccess && (
-                      <>
-                        <label
-                          htmlFor="modal-avatar"
-                          className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                  {loaderData.mode === "owner" && (
+                    <>
+                      <label
+                        htmlFor="modal-avatar"
+                        className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
+                      >
+                        <svg
+                          width="17"
+                          height="16"
+                          viewBox="0 0 17 16"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="fill-neutral-600"
                         >
-                          <svg
-                            width="17"
-                            height="16"
-                            viewBox="0 0 17 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="fill-neutral-600"
-                          >
-                            <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                          </svg>
-                          <span className="ml-2 mr-4">Logo ändern</span>
-                        </label>
-                        <Modal id="modal-avatar">
-                          <ImageCropper
-                            id="modal-avatar"
-                            subject="project"
-                            slug={loaderData.project.slug}
-                            uploadKey="logo"
-                            headline="Logo"
-                            image={loaderData.project.logo || undefined}
-                            aspect={1 / 1}
-                            minCropWidth={100}
-                            minCropHeight={100}
-                            maxTargetHeight={1488}
-                            maxTargetWidth={1488}
-                            csrfToken={"034u9nsq0unun"}
-                            redirect={`/project/${loaderData.project.slug}`}
-                            circularCrop={true}
-                          >
-                            <Logo />
-                          </ImageCropper>
-                        </Modal>
-                      </>
-                    )}
+                          <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                        </svg>
+                        <span className="ml-2 mr-4">Logo ändern</span>
+                      </label>
+                      <Modal id="modal-avatar">
+                        <ImageCropper
+                          id="modal-avatar"
+                          subject="project"
+                          slug={loaderData.project.slug}
+                          uploadKey="logo"
+                          headline="Logo"
+                          image={loaderData.project.logo || undefined}
+                          aspect={1 / 1}
+                          minCropWidth={100}
+                          minCropHeight={100}
+                          maxTargetHeight={1488}
+                          maxTargetWidth={1488}
+                          csrfToken={"034u9nsq0unun"}
+                          redirect={`/project/${loaderData.project.slug}`}
+                          circularCrop={true}
+                        >
+                          <Logo />
+                        </ImageCropper>
+                      </Modal>
+                    </>
+                  )}
 
                   <h3 className="mt-6 text-5xl mb-1 font-bold">
                     {loaderData.project.name}
@@ -466,24 +459,23 @@ function Index() {
             </div>
           </div>
 
-          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20 overflow-hidden">
+          <div className="flex-gridcol lg:w-7/12 p-4 pt-10 lg:pt-20 overflow-hidden">
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
                   {loaderData.project.headline || loaderData.project.name}
                 </h1>
               </div>
-              {loaderData.mode === "owner" &&
-                loaderData.abilities.projects.hasAccess && (
-                  <div className="flex-initial lg:pl-4 pt-3 mb-6">
-                    <Link
-                      className="btn btn-outline btn-primary"
-                      to={`/project/${loaderData.project.slug}/settings`}
-                    >
-                      Projekt bearbeiten
-                    </Link>
-                  </div>
-                )}
+              {loaderData.mode === "owner" && (
+                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                  <Link
+                    className="btn btn-outline btn-primary"
+                    to={`/project/${loaderData.project.slug}/settings`}
+                  >
+                    Projekt bearbeiten
+                  </Link>
+                </div>
+              )}
             </div>
 
             {loaderData.project.excerpt !== null &&
@@ -554,32 +546,53 @@ function Index() {
                     return (
                       <div
                         key={`award-${item.awardId}`}
-                        className="w-full flex items-center flex-row"
+                        className="w-full flex flex-row"
                       >
-                        <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                          {item.award.logo !== null &&
-                          item.award.logo !== "" ? (
-                            <img src={item.award.logo} alt={item.award.title} />
-                          ) : (
-                            getInitialsOfName(item.award.title)
-                          )}
+                        <div className="">
+                          {loaderData.project.awards.map((item) => {
+                            item.award.date = new Date(item.award.date);
+                            return (
+                              <div
+                                key={`award-${item.awardId}`}
+                                className="mv-awards-bg bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
+                              >
+                                <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
+                                  <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                    {item.award.logo !== null &&
+                                    item.award.logo !== "" ? (
+                                      <img
+                                        src={item.award.logo}
+                                        alt={item.award.title}
+                                      />
+                                    ) : (
+                                      getInitialsOfName(item.award.title)
+                                    )}
+                                  </div>
+                                  <div className="px-2 mb-4 pt-1">
+                                    <H4
+                                      like="h4"
+                                      className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                    >
+                                      {item.award.shortTitle}
+                                    </H4>
+                                    <p className="text-xxs text-center leading-none">
+                                      {item.award.date.getFullYear()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         <div className="pl-4">
                           <H4
                             like="h4"
-                            className="text-xl mb-0 text-neutral-600 font-semibold"
+                            className="text-xl mb-0 text-neutral-primary font-semibold"
                           >
                             {item.award.title}
                           </H4>
-                          <p className="text-sm">{item.award.subline}</p>
-                          {item.award.shortTitle !== null &&
-                            item.award.shortTitle !== "" && (
-                              <p className="text-sm">{item.award.shortTitle}</p>
-                            )}
-                          <p className="text-sm">
-                            {item.award.date.getFullYear()}
-                          </p>
+                          <p className="">{item.award.subline}</p>
                         </div>
                       </div>
                     );

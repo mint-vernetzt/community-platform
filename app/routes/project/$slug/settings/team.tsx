@@ -8,7 +8,6 @@ import {
 import { Form } from "remix-forms";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProjectBySlugOrThrow } from "../utils.server";
 import {
@@ -36,7 +35,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "projects");
   const slug = getParamValueOrThrow(params, "slug");
   const currentUser = await getUserByRequestOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);

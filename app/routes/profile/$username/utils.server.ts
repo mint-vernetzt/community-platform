@@ -124,7 +124,7 @@ export async function getProfileEventsByMode(
   if (mode === "owner") {
     teamMemberWhere = {
       event: {
-        startTime: inFuture
+        endTime: inFuture
           ? {
               gte: new Date(),
             }
@@ -134,7 +134,7 @@ export async function getProfileEventsByMode(
   } else {
     teamMemberWhere = {
       event: {
-        startTime: inFuture
+        endTime: inFuture
           ? {
               gte: new Date(),
             }
@@ -221,7 +221,7 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
                   gte: new Date(),
                 }
@@ -271,7 +271,7 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
                   gte: new Date(),
                 }
@@ -321,7 +321,7 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
                   gte: new Date(),
                 }

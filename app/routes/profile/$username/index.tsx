@@ -8,7 +8,7 @@ import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H3 } from "~/components/Heading/Heading";
+import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
@@ -74,9 +74,6 @@ export const loader: LoaderFunction = async (
   const sessionUser = await getUserByRequest(request);
   const mode = deriveMode(username, sessionUser?.user_metadata?.username);
   const abilities = await getFeatureAbilities(request, ["events", "projects"]);
-  if (!abilities.projects.hasAccess) {
-    profile.teamMemberOfProjects = [];
-  }
 
   let data = await filterProfileByMode(profile, mode);
 
@@ -604,12 +601,12 @@ export default function Index() {
                           >
                             <Link
                               to={`/project/${project.slug}`}
-                              className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+                              className="flex flex-wrap content-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                             >
-                              <div className="w-full flex items-center flex-row">
+                              <div className="w-full flex items-center flex-row items-end">
                                 {project.logo !== "" &&
                                 project.logo !== null ? (
-                                  <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                  <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                     <img
                                       className="max-w-full w-auto max-h-16 h-auto"
                                       src={project.logo}
@@ -621,7 +618,7 @@ export default function Index() {
                                     {getInitialsOfName(project.name)}
                                   </div>
                                 )}
-                                <div className="pl-4">
+                                <div className="pl-4 flex-auto">
                                   <H3 like="h4" className="text-xl mb-1">
                                     {project.name}
                                   </H3>
@@ -638,32 +635,46 @@ export default function Index() {
                                       </p>
                                     )}
                                 </div>
-                                {project.awards &&
-                                  project.awards.length > 0 &&
-                                  project.awards.map(({ award }) => {
-                                    award.date = new Date(award.date);
-                                    return (
-                                      <div key={award.id}>
-                                        <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          <img
-                                            className="max-w-full w-auto max-h-8 h-auto"
-                                            src={award.logo}
-                                            alt={award.title}
-                                          />
+
+                                {project.awards && project.awards.length > 0 && (
+                                  <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
+                                    {project.awards.map(({ award }) => {
+                                      award.date = new Date(award.date);
+                                      return (
+                                        <div
+                                          key={`award-${award.id}`}
+                                          className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
+                                        >
+                                          <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
+                                            <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                                              {award.logo !== null &&
+                                              award.logo !== "" ? (
+                                                <img
+                                                  src={award.logo}
+                                                  alt={award.title}
+                                                />
+                                              ) : (
+                                                getInitialsOfName(award.title)
+                                              )}
+                                            </div>
+                                            <div className="px-2 pt-1 mb-4">
+                                              <H4
+                                                like="h4"
+                                                className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                              >
+                                                {award.shortTitle}
+                                              </H4>
+                                              <p className="text-xxs text-center leading-none">
+                                                {award.date.getFullYear()}
+                                              </p>
+                                            </div>
+                                          </div>
                                         </div>
-                                        {award.shortTitle !== null &&
-                                          award.shortTitle !== "" && (
-                                            <p className="text-sm">
-                                              {award.shortTitle}
-                                            </p>
-                                          )}
-                                        <p className="text-sm">
-                                          {award.date.getFullYear()}
-                                        </p>
-                                      </div>
-                                    );
-                                  })}
-                                <div className="flex items-center ml-auto pr-4 py-6">
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                                <div className="hidden md:flex items-center flex-initial">
                                   <Link
                                     to={`/project/${project.slug}`}
                                     className="btn btn-primary"

@@ -224,7 +224,7 @@ export async function getOrganizationEvents(slug: string, inFuture: boolean) {
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
                   gte: new Date(),
                 }
