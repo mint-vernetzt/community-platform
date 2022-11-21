@@ -607,6 +607,7 @@ export async function getEvent(slug: string) {
           published: true,
           subline: true,
           participationUntil: true,
+          participationFrom: true,
 
           _count: {
             select: {
