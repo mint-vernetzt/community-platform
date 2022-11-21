@@ -4,7 +4,6 @@ import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
-import { fromUTF8Array, toUTF8Array } from "~/lib/string/toUTF8Array";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   deriveMode,
