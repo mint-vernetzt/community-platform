@@ -167,6 +167,7 @@ export function canUserParticipate(
 export function canUserBeAddedToWaitingList(
   event: Pick<
     EventWithRelations,
+    | "participationFrom"
     | "participationUntil"
     | "participantLimit"
     | "published"

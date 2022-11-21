@@ -202,6 +202,7 @@ export async function getOrganizationEvents(slug: string, inFuture: boolean) {
               startTime: true,
               endTime: true,
               participationUntil: true,
+              participationFrom: true,
               participantLimit: true,
               stage: {
                 select: {

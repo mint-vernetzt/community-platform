@@ -158,6 +158,7 @@ export async function getProfileEventsByMode(
               startTime: true,
               endTime: true,
               participationUntil: true,
+              participationFrom: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -199,6 +200,7 @@ export async function getProfileEventsByMode(
               startTime: true,
               endTime: true,
               participationUntil: true,
+              participationFrom: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -249,6 +251,7 @@ export async function getProfileEventsByMode(
               startTime: true,
               endTime: true,
               participationUntil: true,
+              participationFrom: true,
               participantLimit: true,
               stage: {
                 select: {
@@ -299,6 +302,7 @@ export async function getProfileEventsByMode(
               startTime: true,
               endTime: true,
               participationUntil: true,
+              participationFrom: true,
               participantLimit: true,
               stage: {
                 select: {

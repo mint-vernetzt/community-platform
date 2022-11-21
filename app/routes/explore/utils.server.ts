@@ -131,6 +131,7 @@ export async function getEvents(inFuture: boolean) {
       startTime: true,
       endTime: true,
       participationUntil: true,
+      participationFrom: true,
       participantLimit: true,
       background: true,
       published: true,
