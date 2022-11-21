@@ -174,6 +174,7 @@ describe("/event/$slug/settings/general", () => {
           slug,
           startTime: date,
           endTime: date,
+          participationFrom: date,
           participationUntil: date,
           focuses: [],
           targetGroups: [],
@@ -378,6 +379,8 @@ describe("/event/$slug/settings/general", () => {
         participantLimit: "",
         participationUntilDate: "",
         participationUntilTime: "",
+        participationFromDate: "",
+        participationFromTime: "",
         areas: [],
         venueName: "",
         venueStreet: "",
@@ -443,6 +446,10 @@ describe("/event/$slug/settings/general", () => {
         expect(response.errors.participationUntilDate.message).toBe(
           "Bitte gib das Ende für die Registrierung an"
         );
+        expect(response.errors.participationFromDate).toBeDefined();
+        expect(response.errors.participationFromDate.message).toBe(
+          "Bitte gib den Beginn für die Registrierung an"
+        );
         expect(response.errors.submit).toBeDefined();
         // expect(Object.keys(response.errors).length).toBe(3);
       });
@@ -457,6 +464,8 @@ describe("/event/$slug/settings/general", () => {
           endTime: "18:00:01",
           participationUntilDate: "2022|09|12",
           participationUntilTime: "11:59pm",
+          participationFromDate: "2022|09|12",
+          participationFromTime: "11:59pm",
         });
 
         const responseInvalidDateTimeValues = await action({
@@ -475,9 +484,15 @@ describe("/event/$slug/settings/general", () => {
         expect(
           responseInvalidDateTimeValues.errors.participationUntilTime
         ).toBeDefined();
+        expect(
+          responseInvalidDateTimeValues.errors.participationFromDate
+        ).toBeDefined();
+        expect(
+          responseInvalidDateTimeValues.errors.participationFromTime
+        ).toBeDefined();
         expect(responseInvalidDateTimeValues.errors.submit).toBeDefined();
         expect(Object.keys(responseInvalidDateTimeValues.errors).length).toBe(
-          7
+          9
         );
 
         const requestWithValidDateTimeValues = createRequestWithFormData({
@@ -489,6 +504,8 @@ describe("/event/$slug/settings/general", () => {
           endTime: "18:00",
           participationUntilDate: "2022-09-12",
           participationUntilTime: "23:59",
+          participationFromDate: "2022-09-12",
+          participationFromTime: "23:59",
         });
         const responseValidDateTimeValues = await action({
           request: requestWithValidDateTimeValues,
@@ -514,6 +531,8 @@ describe("/event/$slug/settings/general", () => {
           endTime: "18:00",
           participationUntilDate: "2022-09-12",
           participationUntilTime: "23:59",
+          participationFromDate: "2022-09-12",
+          participationFromTime: "23:59",
           [listAction]: listActionItemId,
         });
         const response = await action({

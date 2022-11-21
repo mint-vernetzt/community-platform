@@ -508,6 +508,7 @@ export async function getEvent(slug: string) {
         },
       },
       participationUntil: true,
+      participationFrom: true,
       participantLimit: true,
       types: {
         select: {
@@ -606,6 +607,7 @@ export async function getEvent(slug: string) {
           published: true,
           subline: true,
           participationUntil: true,
+          participationFrom: true,
 
           _count: {
             select: {

@@ -111,6 +111,25 @@ const schema = object({
       }
       return "";
     })
+    .required("Bitte gib das Ende für die Registrierung an"),
+  participationFromDate: string()
+    .transform((value) => {
+      try {
+        const date = new Date(value);
+        return format(date, "yyyy-MM-dd");
+      } catch (error) {
+        console.log(error);
+      }
+      return "";
+    })
+    .required("Bitte gib den Beginn für die Registrierung an"),
+  participationFromTime: string()
+    .transform((value) => {
+      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+        return value;
+      }
+      return "";
+    })
     .required("Bitte gib den Beginn für die Registrierung an"),
 
   subline: nullOrString(multiline()),
@@ -641,6 +660,28 @@ function General() {
           <h4 className="mb-4 font-semibold">Registrierung</h4>
 
           <p className="mb-8">Lorem Ipsum</p>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromDate")}
+                id="participationFromDate"
+                label="Registrierung startet am"
+                defaultValue={event.participationFromDate}
+                errorMessage={errors?.participationFromDate?.message}
+                type="date"
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromTime")}
+                id="participationFromTime"
+                label="Registrierung startet um"
+                defaultValue={event.participationFromTime}
+                errorMessage={errors?.participationFromTime?.message}
+                type="time"
+              />
+            </div>
+          </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
