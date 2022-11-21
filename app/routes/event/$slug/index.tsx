@@ -668,20 +668,26 @@ function Index() {
                   </>
                 )}
 
-              <>
-                <div className="text-xs leading-6">Verfügbare Plätze</div>
-                <div className="pb-3 md:pb-0">
-                  {loaderData.event.participantLimit === null ? (
-                    "ohne Beschränkung"
-                  ) : (
-                    <>
-                      {loaderData.event.participantLimit -
-                        loaderData.event._count.participants}{" "}
-                      / {loaderData.event.participantLimit}
-                    </>
-                  )}
-                </div>
-              </>
+              {loaderData.event.participantLimit !== null && (
+                <>
+                  <div className="text-xs leading-6">Verfügbare Plätze</div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event.participantLimit === null ? (
+                      "ohne Beschränkung"
+                    ) : (
+                      <>
+                        {loaderData.event.participantLimit -
+                          loaderData.event._count.participants <
+                        0
+                          ? 0
+                          : loaderData.event.participantLimit -
+                            loaderData.event._count.participants}{" "}
+                        / {loaderData.event.participantLimit}
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
 
               {(loaderData.isParticipant ||
                 loaderData.isSpeaker ||
