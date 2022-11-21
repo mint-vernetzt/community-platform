@@ -175,41 +175,7 @@ function Index() {
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 relative px-0 sm:px-4 lg:px-6">
-        {loaderData.project.awards.length > 0 && (
-          <div className="mv-awards absolute z-30 -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
-            {loaderData.project.awards.map((item) => {
-              item.award.date = new Date(item.award.date);
-              return (
-                <div
-                  key={`award-${item.awardId}`}
-                  className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
-                >
-                  <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
-                    <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                      {item.award.logo !== null && item.award.logo !== "" ? (
-                        <img src={item.award.logo} alt={item.award.title} />
-                      ) : (
-                        getInitialsOfName(item.award.title)
-                      )}
-                    </div>
-                    <div className="px-2 mb-4 md:px-3 pt-1">
-                      <H4
-                        like="h4"
-                        className="text-xxs lg:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
-                      >
-                        {item.award.shortTitle}
-                      </H4>
-                      <p className="text-xxs lg:text-sm text-center leading-none">
-                        {item.award.date.getFullYear()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <div className="rounded-t-2xl lg:rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10] z-10">
+        <div className="rounded-t-2xl lg:rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {loaderData.project.background !== undefined && (
               <img
@@ -252,9 +218,43 @@ function Index() {
             </div>
           )}
         </div>
+        {loaderData.project.awards.length > 0 && (
+          <div className="mv-awards absolute -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
+            {loaderData.project.awards.map((item) => {
+              item.award.date = new Date(item.award.date);
+              return (
+                <div
+                  key={`award-${item.awardId}`}
+                  className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
+                >
+                  <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
+                    <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                      {item.award.logo !== null && item.award.logo !== "" ? (
+                        <img src={item.award.logo} alt={item.award.title} />
+                      ) : (
+                        getInitialsOfName(item.award.title)
+                      )}
+                    </div>
+                    <div className="px-2 mb-4 md:px-3 pt-1">
+                      <H4
+                        like="h4"
+                        className="text-xxs lg:text-sm mb-0 text-center text-neutral-600 font-bold leading-none"
+                      >
+                        {item.award.shortTitle}
+                      </H4>
+                      <p className="text-xxs lg:text-sm text-center leading-none">
+                        {item.award.date.getFullYear()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      <div className="container relative pb-44 z-20">
+      <div className="container relative pb-44">
         <div className="flex flex-col lg:flex-row -mx-4">
           <div className="flex-gridcol lg:w-5/12 px-4 mt-[-72px] lg:mt-0 lg:pt-0">
             <div className="lg:rounded-3xl lg:border lg:border-neutral-400 lg:bg-neutral-200 lg:shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4 overflow-hidden">
