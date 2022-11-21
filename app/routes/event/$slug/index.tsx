@@ -659,7 +659,11 @@ function Index() {
                     ) : (
                       <>
                         {loaderData.event.participantLimit -
-                          loaderData.event._count.participants}{" "}
+                          loaderData.event._count.participants <
+                        0
+                          ? 0
+                          : loaderData.event.participantLimit -
+                            loaderData.event._count.participants}{" "}
                         / {loaderData.event.participantLimit}
                       </>
                     )}
