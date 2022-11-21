@@ -120,25 +120,27 @@ export async function getProfileEventsByMode(
   mode: Mode,
   inFuture: boolean
 ) {
+  let endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59);
   let teamMemberWhere;
   if (mode === "owner") {
     teamMemberWhere = {
       event: {
-        startTime: inFuture
+        endTime: inFuture
           ? {
-              gte: new Date(),
+              gte: endOfToday,
             }
-          : { lte: new Date() },
+          : { lte: endOfToday },
       },
     };
   } else {
     teamMemberWhere = {
       event: {
-        startTime: inFuture
+        endTime: inFuture
           ? {
-              gte: new Date(),
+              gte: endOfToday,
             }
-          : { lte: new Date() },
+          : { lte: endOfToday },
         published: true,
       },
     };
@@ -221,11 +223,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
-                  gte: new Date(),
+                  gte: endOfToday,
                 }
-              : { lte: new Date() },
+              : { lte: endOfToday },
             published: true,
           },
         },
@@ -271,11 +273,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
-                  gte: new Date(),
+                  gte: endOfToday,
                 }
-              : { lte: new Date() },
+              : { lte: endOfToday },
             published: true,
           },
         },
@@ -321,11 +323,11 @@ export async function getProfileEventsByMode(
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
-                  gte: new Date(),
+                  gte: endOfToday,
                 }
-              : { lte: new Date() },
+              : { lte: endOfToday },
             published: true,
           },
         },

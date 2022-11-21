@@ -114,13 +114,16 @@ export function getScoreOfEntity(entity: any) {
 }
 
 export async function getEvents(inFuture: boolean) {
+  let endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59);
+
   const result = await prismaClient.event.findMany({
     where: {
-      startTime: inFuture
+      endTime: inFuture
         ? {
-            gte: new Date(),
+            gte: endOfToday,
           }
-        : { lte: new Date() },
+        : { lte: endOfToday },
       published: true,
     },
     select: {

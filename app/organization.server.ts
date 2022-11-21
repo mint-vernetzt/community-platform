@@ -188,6 +188,9 @@ export async function getOrganizationBySlug(slug: string) {
 }
 
 export async function getOrganizationEvents(slug: string, inFuture: boolean) {
+  let endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59);
+
   const organizationEvents = await prismaClient.organization.findFirst({
     select: {
       responsibleForEvents: {
@@ -224,11 +227,11 @@ export async function getOrganizationEvents(slug: string, inFuture: boolean) {
         },
         where: {
           event: {
-            startTime: inFuture
+            endTime: inFuture
               ? {
-                  gte: new Date(),
+                  gte: endOfToday,
                 }
-              : { lte: new Date() },
+              : { lte: endOfToday },
             published: true,
           },
         },
