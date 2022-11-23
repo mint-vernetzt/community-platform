@@ -327,9 +327,11 @@ function Index() {
 
   const now = new Date();
 
-  const reachedParticipationDeadline =
-    now > new Date(loaderData.event.participationUntil) ||
+  const beforeParticipationPeriod =
     now < new Date(loaderData.event.participationFrom);
+
+  const afterParticipationPeriod =
+    now > new Date(loaderData.event.participationUntil);
 
   const laysInThePast = new Date() > new Date(loaderData.event.endTime);
 
@@ -481,12 +483,14 @@ function Index() {
           )}
           {loaderData.mode !== "owner" && (
             <>
-              {reachedParticipationDeadline ? (
+              {beforeParticipationPeriod || afterParticipationPeriod ? (
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast
                       ? "Veranstaltung hat bereits stattgefunden."
-                      : "Anmeldefrist hat noch nicht begonnen oder ist bereits abgelaufen."}
+                      : beforeParticipationPeriod
+                      ? "Anmeldefrist hat noch nicht begonnen."
+                      : "Anmeldefrist ist bereits abgelaufen."}
                   </p>
                 </div>
               ) : (
@@ -514,7 +518,9 @@ function Index() {
               )}
               <div className="hidden md:block">
                 {loaderData.event.childEvents.length > 0 &&
-                  laysInThePast === false && (
+                  laysInThePast === false &&
+                  !beforeParticipationPeriod &&
+                  !afterParticipationPeriod && (
                     <>
                       <div className="bg-accent-300 p-8">
                         <p className="font-bold text-center">
