@@ -135,6 +135,11 @@ export async function getEventByField(field: string, value: string) {
             },
           },
         },
+        orderBy: {
+          organization: {
+            name: "asc",
+          },
+        },
       },
       speakers: {
         select: {
@@ -145,6 +150,11 @@ export async function getEventByField(field: string, value: string) {
               lastName: true,
               username: true,
             },
+          },
+        },
+        orderBy: {
+          profile: {
+            firstName: "asc",
           },
         },
       },
@@ -393,6 +403,7 @@ export async function getFullDepthSpeakers(id: string, selectDistinct = true) {
           ON "events".id = "speakers_of_events".event_id
           JOIN get_full_depth
           ON "speakers_of_events".event_id = get_full_depth.id
+        ORDER BY first_name ASC
       ;`;
 
     const profiles = result.map((profile) => {
@@ -572,6 +583,11 @@ export async function getEvent(slug: string) {
             },
           },
         },
+        orderBy: {
+          organization: {
+            name: "asc",
+          },
+        },
       },
       teamMembers: {
         select: {
@@ -585,6 +601,11 @@ export async function getEvent(slug: string) {
               username: true,
               position: true,
             },
+          },
+        },
+        orderBy: {
+          profile: {
+            firstName: "asc",
           },
         },
       },
@@ -662,6 +683,11 @@ export async function getEventParticipants(currentEventId: string) {
         },
       },
     },
+    orderBy: {
+      profile: {
+        firstName: "asc",
+      },
+    },
   });
   return result;
 }
@@ -682,6 +708,11 @@ export async function getEventSpeakers(currentEventId: string) {
           username: true,
           avatar: true,
         },
+      },
+    },
+    orderBy: {
+      profile: {
+        firstName: "asc",
       },
     },
   });
