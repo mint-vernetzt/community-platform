@@ -36,6 +36,11 @@ export async function getProfileByUsername(username: string) {
             },
           },
         },
+        orderBy: {
+          organization: {
+            name: "asc",
+          },
+        },
       },
       teamMemberOfProjects: {
         select: {
@@ -67,6 +72,11 @@ export async function getProfileByUsername(username: string) {
                 },
               },
             },
+          },
+        },
+        orderBy: {
+          project: {
+            name: "asc",
           },
         },
       },
