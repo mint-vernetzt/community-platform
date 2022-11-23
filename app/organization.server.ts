@@ -98,6 +98,11 @@ export async function getOrganizationBySlug(slug: string) {
             },
           },
         },
+        orderBy: {
+          profile: {
+            firstName: "asc",
+          },
+        },
       },
       memberOf: {
         select: {
@@ -118,6 +123,11 @@ export async function getOrganizationBySlug(slug: string) {
             },
           },
         },
+        orderBy: {
+          network: {
+            name: "asc",
+          },
+        },
       },
       networkMembers: {
         select: {
@@ -136,6 +146,11 @@ export async function getOrganizationBySlug(slug: string) {
                 },
               },
             },
+          },
+        },
+        orderBy: {
+          networkMember: {
+            name: "asc",
           },
         },
       },
@@ -178,6 +193,11 @@ export async function getOrganizationBySlug(slug: string) {
                 },
               },
             },
+          },
+        },
+        orderBy: {
+          project: {
+            name: "asc",
           },
         },
       },

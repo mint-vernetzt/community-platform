@@ -388,6 +388,11 @@ export async function getNetworkMembersOfOrganization(organizationId: string) {
     where: {
       networkId: organizationId,
     },
+    orderBy: {
+      networkMember: {
+        name: "asc",
+      },
+    },
   });
 
   const enhancedNetworkMembers = networkMembers.map((item) => {
