@@ -56,6 +56,7 @@
     "remix-domains": "^0.2.0",
     "remix-forms": "^0.16.1",
     "remix-utils": "^2.11.1",
+    "simple-git": "^3.15.0",
     "ts-node": "^10.7.0",
     "yup": "^0.32.11",
     "zod": "^3.17.3"
