@@ -117,7 +117,7 @@ export const action: ActionFunction = async ({
   request,
   params,
 }): Promise<ActionData> => {
-  await validateCSRFToken(request);
+  // await validateCSRFToken(request);
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.clone().formData();

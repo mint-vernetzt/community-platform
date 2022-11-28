@@ -70,7 +70,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await requestClone.formData();
   const formUserId = formData.get("id");
 
-  await validateCSRFToken(request);
+  // await validateCSRFToken(request);
 
   if (currentUser === null || formUserId !== currentUser.id) {
     throw forbidden({ message: "not allowed" });
