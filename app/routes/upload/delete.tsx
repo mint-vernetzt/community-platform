@@ -1,4 +1,4 @@
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { notFound, serverError } from "remix-utils";

@@ -1,4 +1,4 @@
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 import { H3 } from "../Heading/Heading";
 
 export interface ProfileCardProps {

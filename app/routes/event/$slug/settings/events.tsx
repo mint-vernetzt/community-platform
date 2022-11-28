@@ -1,10 +1,5 @@
-import {
-  Link,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData,
-  useParams,
-} from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";

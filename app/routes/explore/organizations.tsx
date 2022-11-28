@@ -1,13 +1,8 @@
 import { Area } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
-import {
-  ActionFunction,
-  Link,
-  LoaderFunction,
-  useActionData,
-  useLoaderData,
-} from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";

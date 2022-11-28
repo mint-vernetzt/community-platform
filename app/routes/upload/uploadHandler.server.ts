@@ -1,5 +1,8 @@
 import { fromBuffer } from "file-type";
-import { unstable_parseMultipartFormData, UploadHandler } from "remix";
+import {
+  unstable_parseMultipartFormData,
+  UploadHandler,
+} from "@remix-run/node";
 import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";

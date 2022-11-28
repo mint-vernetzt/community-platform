@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "remix";
+import { NavLink, Outlet } from "@remix-run/react";
 
 function Settings() {
   const getClassName = (active: boolean) =>

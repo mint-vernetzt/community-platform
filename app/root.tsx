@@ -1,20 +1,24 @@
 import * as React from "react";
 import {
-  Form,
   json,
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
+
+import {
+  Form,
   Link,
   Links,
-  LinksFunction,
   LiveReload,
-  LoaderFunction,
   Meta,
-  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
   useLocation,
-} from "remix";
+} from "@remix-run/react";
+
 import { forbidden } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";

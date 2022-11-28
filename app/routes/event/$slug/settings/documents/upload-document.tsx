@@ -1,5 +1,5 @@
 import { Document } from "@prisma/client";
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { PerformMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getUserByRequestOrThrow } from "~/auth.server";

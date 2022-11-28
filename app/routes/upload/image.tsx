@@ -1,5 +1,5 @@
 import { User } from "@supabase/supabase-js";
-import { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";

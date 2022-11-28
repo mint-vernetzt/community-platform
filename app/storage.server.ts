@@ -1,7 +1,10 @@
 import { Document } from "@prisma/client";
 import { fromBuffer } from "file-type";
 import JSZip from "jszip";
-import { unstable_parseMultipartFormData, UploadHandler } from "remix";
+import {
+  unstable_parseMultipartFormData,
+  UploadHandler,
+} from "@remix-run/node";
 import { badRequest, serverError } from "remix-utils";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";

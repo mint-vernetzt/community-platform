@@ -1,5 +1,6 @@
 import { Profile } from "@prisma/client";
-import { ActionFunction, LoaderFunction, useLoaderData } from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, formAction } from "remix-forms";
 import { forbidden } from "remix-utils";

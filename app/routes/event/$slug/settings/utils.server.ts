@@ -2,7 +2,10 @@ import { Event } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
-import { unstable_parseMultipartFormData, UploadHandler } from "remix";
+import {
+  unstable_parseMultipartFormData,
+  UploadHandler,
+} from "@remix-run/node";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getEventBySlugOrThrow } from "../utils.server";

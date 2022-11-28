@@ -1,5 +1,5 @@
 import type { ApiError, User } from "@supabase/supabase-js";
-import { createCookieSessionStorage } from "remix";
+import { createCookieSessionStorage } from "@remix-run/node";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { SupabaseStrategy } from "remix-auth-supabase";
 import { unauthorized } from "remix-utils";

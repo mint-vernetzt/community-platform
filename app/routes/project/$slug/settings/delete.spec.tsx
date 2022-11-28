@@ -1,5 +1,5 @@
 import { User } from "@supabase/supabase-js";
-import { redirect } from "remix";
+import { redirect } from "@remix-run/node";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";

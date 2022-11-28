@@ -1,4 +1,4 @@
-import { redirect } from "remix";
+import { redirect } from "@remix-run/node";
 import { getUserByRequest } from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { generateEventSlug } from "~/utils";
