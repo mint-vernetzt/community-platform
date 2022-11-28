@@ -63,24 +63,24 @@ export const loader: LoaderFunction = async (args) => {
     { throw: false }
   );
 
-  let csrf;
-  if (session !== null) {
-    csrf = createCSRFToken();
-    session.set("csrf", csrf);
-  }
+  // let csrf;
+  // if (session !== null) {
+  //   csrf = createCSRFToken();
+  //   session.set("csrf", csrf);
+  // }
 
-  const sessionValue = session.get(authenticator.sessionKey);
-  const hasSession = sessionValue !== undefined;
+  // const sessionValue = session.get(authenticator.sessionKey);
+  // const hasSession = sessionValue !== undefined;
 
-  if (hasSession) {
-    const accessToken = sessionValue.access_token;
+  // if (hasSession) {
+  //   const accessToken = sessionValue.access_token;
 
-    if (!accessToken) {
-      throw forbidden({ message: "not allowed" }); // TODO: maybe other message
-    }
+  //   if (!accessToken) {
+  //     throw forbidden({ message: "not allowed" }); // TODO: maybe other message
+  //   }
 
-    supabaseClient.auth.setAuth(accessToken);
-  }
+  //   // supabaseClient.auth.setAuth(accessToken);
+  // }
 
   const currentUser = await getUserByRequest(request);
 
@@ -114,7 +114,7 @@ export const loader: LoaderFunction = async (args) => {
 
   return json<LoaderData>(
     {
-      csrf,
+      // csrf,
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       currentUserInfo,
