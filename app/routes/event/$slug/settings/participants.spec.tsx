@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { prismaClient } from "~/prisma";
 import { loader } from "./participants";

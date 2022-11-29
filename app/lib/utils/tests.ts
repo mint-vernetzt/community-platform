@@ -13,6 +13,8 @@ function createFormDataEntry(args: {
   return arr;
 }
 
+export const testURL = "https://test.com";
+
 export function createRequestWithFormData(keyValuePairs: {
   [key: string]: string | string[];
 }) {
@@ -47,7 +49,7 @@ export function createRequestWithFormData(keyValuePairs: {
     "Content-Type": `multipart/form-data; boundary=${boundary}`,
   };
 
-  const request = new Request("", { method: "POST", body, headers }); // TODO: investigate type issue
+  const request = new Request(testURL, { method: "POST", body, headers }); // TODO: investigate type issue
 
   return request;
 }

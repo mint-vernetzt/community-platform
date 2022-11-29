@@ -20,8 +20,8 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import type { FormError } from "~/lib/utils/yup";
 import {
-  FormError,
   getFormValues,
   multiline,
   nullOrString,

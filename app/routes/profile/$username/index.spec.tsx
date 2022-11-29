@@ -1,5 +1,6 @@
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { testURL } from "~/lib/utils/tests";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
@@ -72,11 +73,12 @@ describe("errors", () => {
 
     try {
       await loader({
-        request: new Request(path),
+        request: new Request(`${testURL}/${path}`),
         params: {},
         context: {},
       });
     } catch (error) {
+      console.log(error);
       expect(error instanceof Response).toBe(true);
       expect(error).toStrictEqual(
         badRequest({ message: "Username must be provided" })
