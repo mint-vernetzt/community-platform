@@ -270,7 +270,6 @@ export default function Index() {
                   minCropHeight={50}
                   maxTargetWidth={1488}
                   maxTargetHeight={480}
-                  csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
                 >
                   <Background />
@@ -317,7 +316,6 @@ export default function Index() {
                         minCropHeight={100}
                         maxTargetWidth={288}
                         maxTargetHeight={288}
-                        csrfToken={"034u9nsq0unun"}
                         redirect={uploadRedirect}
                         circularCrop={true}
                       >
