@@ -1,18 +1,15 @@
 import React, { useState, useRef } from "react";
 import Pica from "pica";
 
-import ReactCrop, {
-  centerCrop,
-  makeAspectCrop,
-  Crop,
-  PixelCrop,
-} from "react-image-crop";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import type { Crop, PixelCrop } from "react-image-crop";
 import { Form } from "remix-forms";
 
 import { canvasPreview } from "./canvasPreview";
 import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
-import { schema, UploadKey, Subject } from "~/routes/upload/schema";
+import type { UploadKey, Subject } from "~/routes/upload/schema";
+import { schema } from "~/routes/upload/schema";
 import Slider from "rc-slider";
 
 export interface ImageCropperProps {
@@ -216,6 +213,8 @@ function ImageCropper(props: ImageCropperProps) {
                 setIsSaving(false);
                 closeModal();
 
+                console.error({ err });
+
                 alert("Es ist leider ein Fehler aufgetreten.");
               });
           },
@@ -224,6 +223,7 @@ function ImageCropper(props: ImageCropperProps) {
         );
       }
     } catch (exception) {
+      console.log({ exception });
       alert("Es ist leider ein Fehler aufgetreten.");
       setIsSaving(false);
     }
