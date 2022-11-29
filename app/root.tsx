@@ -15,9 +15,8 @@ import {
   useLoaderData,
   useLocation,
 } from "remix";
-import { forbidden } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
-import { authenticator, getUserByRequest, sessionStorage } from "./auth.server";
+import { getUserByRequest, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -28,8 +27,6 @@ import {
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
-import { supabaseClient } from "./supabase";
-import { createCSRFToken } from "./utils.server";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform" };
@@ -40,7 +37,6 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
-  csrf: string | undefined;
   currentUserInfo?: CurrentUserInfo;
   abilities: Pick<
     Awaited<ReturnType<typeof validateFeatureAccess>>,
@@ -62,25 +58,6 @@ export const loader: LoaderFunction = async (args) => {
     ["events", "projects"],
     { throw: false }
   );
-
-  // let csrf;
-  // if (session !== null) {
-  //   csrf = createCSRFToken();
-  //   session.set("csrf", csrf);
-  // }
-
-  // const sessionValue = session.get(authenticator.sessionKey);
-  // const hasSession = sessionValue !== undefined;
-
-  // if (hasSession) {
-  //   const accessToken = sessionValue.access_token;
-
-  //   if (!accessToken) {
-  //     throw forbidden({ message: "not allowed" }); // TODO: maybe other message
-  //   }
-
-  //   // supabaseClient.auth.setAuth(accessToken);
-  // }
 
   const currentUser = await getUserByRequest(request);
 
@@ -114,7 +91,6 @@ export const loader: LoaderFunction = async (args) => {
 
   return json<LoaderData>(
     {
-      // csrf,
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       currentUserInfo,
