@@ -788,12 +788,9 @@ export default function Index() {
                                     </div>
                                   )}
                                   <div className="hidden md:flex items-center flex-initial">
-                                    <Link
-                                      to={`/project/${project.slug}`}
-                                      className="btn btn-primary"
-                                    >
+                                    <button className="btn btn-primary">
                                       Zum Projekt
-                                    </Link>
+                                    </button>
                                   </div>
                                 </div>
                               </Link>
