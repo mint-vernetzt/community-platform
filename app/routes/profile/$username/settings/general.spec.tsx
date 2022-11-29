@@ -24,8 +24,6 @@ jest.mock("~/profile.server", () => {
 jest.mock("~/utils.server", () => {
   return {
     getAreas: jest.fn(),
-    // Insert mock when csrf token is implemented on profile settings
-    //validateCSRFToken: jest.fn(),
   };
 });
 
