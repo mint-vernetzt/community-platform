@@ -12,7 +12,6 @@ export const schema = z.object({
   slug: z.string().min(1),
   uploadKey: uploadKey,
   redirect: z.string(),
-  csrf: z.string().min(1),
 });
 
 export const environment = z.object({

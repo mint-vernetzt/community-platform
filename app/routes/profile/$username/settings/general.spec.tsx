@@ -24,7 +24,6 @@ jest.mock("~/profile.server", () => {
 jest.mock("~/utils.server", () => {
   return {
     getAreas: jest.fn(),
-    validateCSRFToken: jest.fn(),
   };
 });
 

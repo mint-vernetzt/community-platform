@@ -444,7 +444,6 @@ function Index() {
                         maxTargetWidth={1488}
                         maxTargetHeight={480}
                         slug={loaderData.event.slug}
-                        csrfToken={"92014sijdaf02"}
                         redirect={`/event/${loaderData.event.slug}`}
                       >
                         <Background />

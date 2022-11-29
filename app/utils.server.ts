@@ -28,6 +28,7 @@ export function createCSRFToken() {
   return randomBytes(100).toString("base64");
 }
 
+// TODO: Do we need user id in combination with csrf?
 export async function validateCSRFToken(request: Request) {
   const formData = await request.clone().formData();
   const session = await getSession(request);
