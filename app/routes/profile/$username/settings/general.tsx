@@ -17,7 +17,6 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import useCSRF from "~/lib/hooks/useCSRF";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -35,7 +34,7 @@ import {
 } from "~/lib/utils/yup";
 
 import { getAllOffers } from "~/profile.server";
-import { getAreas, validateCSRFToken } from "~/utils.server";
+import { getAreas } from "~/utils.server";
 import {
   getWholeProfileFromId,
   handleAuthorization,
@@ -117,7 +116,6 @@ export const action: ActionFunction = async ({
   request,
   params,
 }): Promise<ActionData> => {
-  // await validateCSRFToken(request);
   const username = params.username ?? "";
   const currentUser = await handleAuthorization(request, username);
   const formData = await request.clone().formData();
@@ -181,8 +179,6 @@ export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
   const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
-
-  const { hiddenCSRFInput } = useCSRF();
 
   const actionData = useActionData<ActionData>();
   const profile = actionData?.profile ?? dbProfile;
@@ -271,7 +267,6 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          {hiddenCSRFInput}
           <fieldset disabled={transition.state === "submitting"}>
             <h1 className="mb-8">Persönliche Daten</h1>
 
