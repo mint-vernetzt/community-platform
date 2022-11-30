@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
@@ -239,6 +239,7 @@ export async function enhanceEventsWithParticipationStatus(
 }
 
 export async function prepareEvents(
+  supabaseClient: SupabaseClient,
   sessionUser: User | null,
   inFuture: boolean
 ) {
@@ -255,7 +256,7 @@ export async function prepareEvents(
 
   enhancedEvents = enhancedEvents.map((item) => {
     if (item.background !== null) {
-      const publicURL = getPublicURL(item.background);
+      const publicURL = getPublicURL(supabaseClient, item.background);
       if (publicURL) {
         item.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
@@ -270,7 +271,10 @@ export async function prepareEvents(
       event.responsibleOrganizations = event.responsibleOrganizations.map(
         (item) => {
           if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(item.organization.logo);
+            const publicURL = getPublicURL(
+              supabaseClient,
+              item.organization.logo
+            );
             if (publicURL) {
               item.organization.logo = getImageURL(publicURL, {
                 resize: { type: "fit", width: 144, height: 144 },

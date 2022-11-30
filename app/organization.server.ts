@@ -1,6 +1,7 @@
 import { Organization } from ".prisma/client";
 import { AreaType } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "./images.server";
 import { prismaClient } from "./prisma";
@@ -271,6 +272,7 @@ export async function getOrganizationEvents(slug: string, inFuture: boolean) {
 }
 
 export async function prepareOrganizationEvents(
+  supabaseClient: SupabaseClient,
   slug: string,
   sessionUser: User | null,
   inFuture: boolean
@@ -284,7 +286,7 @@ export async function prepareOrganizationEvents(
   organizationEvents.responsibleForEvents =
     organizationEvents.responsibleForEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
+        const publicURL = getPublicURL(supabaseClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },

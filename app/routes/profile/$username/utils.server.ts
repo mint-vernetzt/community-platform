@@ -1,5 +1,5 @@
 import { Profile } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
@@ -21,13 +21,17 @@ export function deriveMode(profileId: string, sessionUser: User | null): Mode {
   return profileId === sessionUser.id ? "owner" : "authenticated";
 }
 
-export async function handleAuthorization(request: Request, username: string) {
+export async function handleAuthorization(
+  supabaseClient: SupabaseClient,
+  username: string,
+  profileId: string
+) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const currentUser = await getUser(request);
+  const currentUser = await getUser(supabaseClient);
 
-  if (currentUser?.user_metadata.username !== username) {
+  if (currentUser?.id !== profileId) {
     throw forbidden({ message: "not allowed" });
   }
 
@@ -348,6 +352,7 @@ export async function getProfileEventsByMode(
 }
 
 export async function prepareProfileEvents(
+  supabaseClient: SupabaseClient,
   username: string,
   mode: Mode,
   sessionUser: User | null,
@@ -365,7 +370,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.teamMemberOfEvents =
     profileFutureEvents.teamMemberOfEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
+        const publicURL = getPublicURL(supabaseClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -378,7 +383,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.contributedEvents =
     profileFutureEvents.contributedEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
+        const publicURL = getPublicURL(supabaseClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -391,7 +396,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.participatedEvents =
     profileFutureEvents.participatedEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
+        const publicURL = getPublicURL(supabaseClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -404,7 +409,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.waitingForEvents =
     profileFutureEvents.waitingForEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(item.event.background);
+        const publicURL = getPublicURL(supabaseClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
