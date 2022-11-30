@@ -62,14 +62,10 @@ export async function checkIdentityOrThrow(
       unstable_composeUploadHandlers(multipartFormDataProvider)
     );
   } else {
-    console.log("hello");
     formData = await clonedRequest.formData();
-    console.log("hello1");
   }
 
   const userId = formData.get("userId") as string | null;
-
-  console.log({ userId });
 
   if (userId === null || userId !== currentUser.id) {
     throw unauthorized({ message: "Identity check failed" });

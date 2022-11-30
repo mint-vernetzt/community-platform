@@ -38,7 +38,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, abilities } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         "a feature",
         { throw: false }
       );
@@ -63,7 +63,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), "another feature");
+        await validateFeatureAccess(new Request(testURL), "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -76,7 +76,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         "another feature",
         { throw: false }
       );
@@ -100,7 +100,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), "another feature");
+        await validateFeatureAccess(new Request(testURL), "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -113,7 +113,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         "another feature",
         { throw: false }
       );
@@ -139,7 +139,7 @@ describe("validateFeatureAccess()", () => {
 
       try {
         const result = await validateFeatureAccess(
-          new Request(""),
+          new Request(testURL),
           "a feature"
         );
         error = result.error;
@@ -167,7 +167,7 @@ describe("validateFeatureAccess()", () => {
 
       try {
         const result = await validateFeatureAccess(
-          new Request(""),
+          new Request(testURL),
           "another feature"
         );
         error = result.error;
@@ -199,7 +199,10 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(new Request(testURL), [
+          "feature1",
+          "feature2",
+        ]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -210,7 +213,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -237,7 +240,10 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(new Request(testURL), [
+          "feature1",
+          "feature2",
+        ]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -248,7 +254,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -273,7 +279,10 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(new Request(testURL), [
+          "feature1",
+          "feature2",
+        ]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -284,7 +293,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        new Request(testURL),
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -314,7 +323,7 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(new Request(""), [
+      const { abilities } = await validateFeatureAccess(new Request(testURL), [
         "feature1",
         "feature2",
       ]);
@@ -339,7 +348,7 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(new Request(""), [
+      const { abilities } = await validateFeatureAccess(new Request(testURL), [
         "feature1",
         "feature2",
       ]);
