@@ -1,7 +1,7 @@
 import { Profile } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -13,22 +13,19 @@ import { getPublicURL } from "~/storage.server";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
-export function deriveMode(
-  profileUsername: string,
-  sessionUsername: string
-): Mode {
-  if (sessionUsername === "" || sessionUsername === undefined) {
+export function deriveMode(profileId: string, sessionUser: User | null): Mode {
+  if (sessionUser === null) {
     return "anon";
   }
 
-  return profileUsername === sessionUsername ? "owner" : "authenticated";
+  return profileId === sessionUser.id ? "owner" : "authenticated";
 }
 
 export async function handleAuthorization(request: Request, username: string) {
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getUser(request);
 
   if (currentUser?.user_metadata.username !== username) {
     throw forbidden({ message: "not allowed" });

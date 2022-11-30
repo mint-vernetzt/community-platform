@@ -4,10 +4,10 @@ import { badRequest, unauthorized } from "remix-utils";
 export type Mode = "anon" | "authenticated" | "owner";
 
 export function deriveMode(
-  sessionUsername: string,
+  sessionUser: User | null,
   isPrivileged: boolean
 ): Mode {
-  if (sessionUsername === "" || sessionUsername === undefined) {
+  if (sessionUser === null) {
     return "anon";
   }
 
