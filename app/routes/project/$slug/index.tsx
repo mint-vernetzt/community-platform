@@ -210,7 +210,6 @@ function Index() {
                   maxTargetWidth={1488}
                   maxTargetHeight={480}
                   slug={loaderData.project.slug}
-                  csrfToken={"92014sijdaf02"}
                   redirect={`/project/${loaderData.project.slug}`}
                 >
                   <Background />
@@ -292,7 +291,6 @@ function Index() {
                           minCropHeight={100}
                           maxTargetHeight={1488}
                           maxTargetWidth={1488}
-                          csrfToken={"034u9nsq0unun"}
                           redirect={`/project/${loaderData.project.slug}`}
                           circularCrop={true}
                         >

@@ -3,7 +3,6 @@ import { Form, useLoaderData } from "@remix-run/react";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
 import { getUserByRequest } from "~/auth.server";
-// import useCSRF from "~/lib/hooks/useCSRF";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import {
   FormError,
@@ -84,9 +83,6 @@ function getDateTime(date: Date, time: string | null) {
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-
-  // TODO: Do we need user id in combination with csrf?
-  // await validateCSRFToken(request);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
 

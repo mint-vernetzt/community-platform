@@ -13,15 +13,12 @@ import { getUserByRequest } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
-import useCSRF from "~/lib/hooks/useCSRF";
 import { createOrganizationOnProfile } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils";
-import { validateCSRFToken } from "~/utils.server";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
 
 const schema = z.object({
-  csrf: z.string(),
   id: z.string().uuid(),
   organizationName: z
     .string()
@@ -63,8 +60,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   const requestClone = request.clone();
   const formData = await requestClone.formData();
   const formUserId = formData.get("id");
-
-  // await validateCSRFToken(request);
 
   if (currentUser === null || formUserId !== currentUser.id) {
     throw forbidden({ message: "not allowed" });
@@ -115,7 +110,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const { hiddenCSRFInput } = useCSRF();
   const navigate = useNavigate();
 
   return (
@@ -183,14 +177,7 @@ export default function Create() {
                         </>
                       )}
                     </Field>
-                    <Field name="csrf">
-                      {({ Errors }) => (
-                        <>
-                          {hiddenCSRFInput}
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
+
                     <button
                       type="submit"
                       className="btn btn-outline-primary ml-auto btn-small mb-8"

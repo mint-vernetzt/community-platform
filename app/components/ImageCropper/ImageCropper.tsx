@@ -27,7 +27,6 @@ export interface ImageCropperProps {
   redirect?: string;
   handleCancel?: () => void;
   children: React.ReactNode;
-  csrfToken: string;
   circularCrop?: boolean;
 }
 
@@ -183,7 +182,6 @@ function ImageCropper(props: ImageCropperProps) {
             formData.append(props.uploadKey, blob ?? "");
             formData.append("subject", props.subject);
             formData.append("uploadKey", props.uploadKey);
-            formData.append("csrf", props.csrfToken);
 
             if (props.redirect) {
               formData.append("redirect", props.redirect);
@@ -252,18 +250,11 @@ function ImageCropper(props: ImageCropperProps) {
               method="post"
               reloadDocument
               schema={schema}
-              hiddenFields={[
-                "subject",
-                "slug",
-                "uploadKey",
-                "csrf",
-                "redirect",
-              ]}
+              hiddenFields={["subject", "slug", "uploadKey", "redirect"]}
               values={{
                 subject: props.subject,
                 slug: props.slug,
                 uploadKey: props.uploadKey,
-                csrf: props.csrfToken,
                 redirect: props.redirect,
               }}
             >
@@ -271,7 +262,6 @@ function ImageCropper(props: ImageCropperProps) {
                 <>
                   <Field name="subject" />
                   <Field name="slug" />
-                  <Field name="csrf" />
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button

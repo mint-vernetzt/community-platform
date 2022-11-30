@@ -95,13 +95,6 @@ describe("loader", () => {
   });
 });
 
-// Insert mock when csrf token is implemented on organization settings
-// jest.mock("~/utils.server", () => {
-//   return {
-//     validateCSRFToken: jest.fn(),
-//   };
-// });
-
 describe("action", () => {
   const formDefaults = {
     name: "",

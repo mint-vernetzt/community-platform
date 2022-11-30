@@ -354,7 +354,6 @@ export default function Index() {
                   maxTargetWidth={1488}
                   maxTargetHeight={480}
                   slug={loaderData.organization.slug}
-                  csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
                 >
                   <Background />
@@ -401,7 +400,6 @@ export default function Index() {
                           minCropHeight={100}
                           maxTargetHeight={1488}
                           maxTargetWidth={1488}
-                          csrfToken={"034u9nsq0unun"}
                           redirect={uploadRedirect}
                           circularCrop={true}
                         >
