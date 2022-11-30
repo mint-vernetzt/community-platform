@@ -1,38 +1,4 @@
-import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-
-declare global {
-  var __supabaseClient: SupabaseClient;
-}
-
-let client: SupabaseClient;
-
-if (process.env.NODE_ENV === "test") {
-  process.env.SUPABASE_URL = "https://test.com";
-  process.env.SUPABASE_ANON_KEY = "test";
-  process.env.SERVICE_ROLE_KEY = "test";
-}
-
-if (process.env.NODE_ENV === "production") {
-  client = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-  );
-} else {
-  if (global.__supabaseClient === undefined) {
-    global.__supabaseClient = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
-    );
-  }
-  client = global.__supabaseClient;
-}
-
-export const supabaseClient = client;
-export const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SERVICE_ROLE_KEY as string
-);
 
 // initialize buckets
 
@@ -41,6 +7,10 @@ async function initializeBuckets(buckets: string[]) {
   //   const {error} = await supabaseAdmin.storage.deleteBucket(buckets[i]);
   //   console.log(error);
   // }
+  const supabaseAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SERVICE_ROLE_KEY as string
+  );
 
   const { data, error } = await supabaseAdmin.storage.listBuckets();
 
@@ -78,4 +48,4 @@ initializeBuckets(buckets).finally(() =>
   console.log(`Bucket(s) "${buckets.join(", ")}" initialized.`)
 );
 
-export { Session };
+export {};

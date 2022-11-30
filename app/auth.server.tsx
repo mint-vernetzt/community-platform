@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
