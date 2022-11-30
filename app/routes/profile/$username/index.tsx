@@ -5,7 +5,7 @@ import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { json, Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -71,7 +71,7 @@ export const loader: LoaderFunction = async (
     throw notFound({ message: "Profile not found" });
   }
 
-  const sessionUser = await getUser(request);
+  const sessionUser = await getSessionUser(request);
   const mode = deriveMode(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(request, ["events", "projects"]);
 

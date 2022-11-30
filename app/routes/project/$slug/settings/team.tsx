@@ -6,7 +6,7 @@ import {
   useParams,
 } from "remix";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProjectBySlugOrThrow } from "../utils.server";
@@ -36,7 +36,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);
   await checkOwnershipOrThrow(project, currentUser);
 

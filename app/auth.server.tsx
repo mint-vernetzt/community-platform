@@ -19,7 +19,7 @@ export const getSessionOrThrow = async (supabaseClient: SupabaseClient) => {
   return session;
 };
 
-export const getUser = async (supabaseClient: SupabaseClient) => {
+export const getSessionUser = async (supabaseClient: SupabaseClient) => {
   const session = await getSession(supabaseClient);
   if (session !== null && session.user !== null) {
     return session.user;
@@ -27,8 +27,8 @@ export const getUser = async (supabaseClient: SupabaseClient) => {
   return null;
 };
 
-export const getUserOrThrow = async (supabaseClient: SupabaseClient) => {
-  const result = await getUser(supabaseClient);
+export const getSessionUserOrThrow = async (supabaseClient: SupabaseClient) => {
+  const result = await getSessionUser(supabaseClient);
   if (result === null) {
     throw unauthorized({
       message: "No session or session user found",

@@ -1,8 +1,9 @@
-import { ActionFunction } from "remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { ActionFunction, json } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
@@ -44,20 +45,29 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
+    await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     const teamMemberProfile = await getProfileByEmail(result.data.email);
     if (teamMemberProfile !== null) {
       await connectProfileToEvent(event.id, teamMemberProfile.id);
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

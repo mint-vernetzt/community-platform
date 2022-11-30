@@ -1,7 +1,7 @@
 import { Profile } from "@prisma/client";
 import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -29,7 +29,7 @@ export async function handleAuthorization(
   if (typeof username !== "string" || username === "") {
     throw badRequest({ message: "username must be provided" });
   }
-  const currentUser = await getUser(supabaseClient);
+  const currentUser = await getSessionUser(supabaseClient);
 
   if (currentUser?.id !== profileId) {
     throw forbidden({ message: "not allowed" });

@@ -1,6 +1,6 @@
 import { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
@@ -73,7 +73,7 @@ test("deriveMode", () => {
 
 describe("errors", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => null);
+    (getSessionUser as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => null);
   });
   test("empty username", async () => {
@@ -121,14 +121,14 @@ describe("errors", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
 
 describe("get profile (anon)", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => null);
+    (getSessionUser as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
   });
 
@@ -160,7 +160,7 @@ describe("get profile (anon)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
@@ -169,7 +169,7 @@ describe("get profile (authenticated)", () => {
   const sessionUsername = "anotherusername";
 
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getSessionUser as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: sessionUsername } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
@@ -199,7 +199,7 @@ describe("get profile (authenticated)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
   });
@@ -207,7 +207,7 @@ describe("get profile (authenticated)", () => {
 
 describe("get profile (owner)", () => {
   beforeAll(() => {
-    (getUser as jest.Mock).mockImplementation(() => {
+    (getSessionUser as jest.Mock).mockImplementation(() => {
       return { user_metadata: { username: profile.username } };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
@@ -234,7 +234,7 @@ describe("get profile (owner)", () => {
   });
 
   afterAll(() => {
-    (getUser as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
     (getProfileByUserId as jest.Mock).mockReset();
   });

@@ -3,7 +3,7 @@ import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { notFound } from "remix-utils";
 import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { getProfileByUserId } from "~/profile.server";
 import {
@@ -35,7 +35,7 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
   const { organization } = await handleAuthorization(args);
   await checkSameOrganizationOrThrow(request, organization.id);

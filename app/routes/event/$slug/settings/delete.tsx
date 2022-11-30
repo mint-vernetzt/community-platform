@@ -1,15 +1,21 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   ActionFunction,
+  json,
   Link,
   LoaderFunction,
   redirect,
   useLoaderData,
 } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
 import { badRequest } from "remix-utils";
-import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { Schema, z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -35,24 +41,36 @@ type LoaderData = {
   childEvents: { id: string; name: string; slug: string }[];
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
-  return {
-    userId: currentUser.id,
-    eventId: event.id,
-    eventName: event.name,
-    childEvents: event.childEvents,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      eventId: event.id,
+      eventName: event.name,
+      childEvents: event.childEvents,
+    },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(
@@ -75,20 +93,34 @@ const mutation = makeDomainFunction(
   }
 });
 
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
-  await checkIdentityOrThrow(request, currentUser);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const result = await performMutation({
     request,
@@ -105,10 +137,10 @@ export const action: ActionFunction = async (args) => {
       throw badRequest({ message: "Id nicht korrekt" });
     }
   } else {
-    return redirect(`/profile/${currentUser.user_metadata.username}`);
+    return redirect(`/profile/${sessionUser.user_metadata.username}`);
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 function Delete() {

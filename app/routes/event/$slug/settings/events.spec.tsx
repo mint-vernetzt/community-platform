@@ -6,7 +6,7 @@ import { loader } from "./events";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 const slug = "slug-test";
 
@@ -33,7 +33,7 @@ describe("/event/$slug/settings/events", () => {
     test("no other events where user is privileged", async () => {
       expect.assertions(1);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, parentEvent: null };
       });
@@ -66,7 +66,7 @@ describe("/event/$slug/settings/events", () => {
     test("user is privileged on other events", async () => {
       expect.assertions(1);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, parentEvent: null };
       });
@@ -125,7 +125,7 @@ describe("/event/$slug/settings/events", () => {
     test("event has still parent event", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,

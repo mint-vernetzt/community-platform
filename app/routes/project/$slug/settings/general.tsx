@@ -11,7 +11,7 @@ import {
   useTransition,
 } from "remix";
 import { array, InferType, object, string } from "yup";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -76,7 +76,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, currentUser);
@@ -96,7 +96,7 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
 
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);
   await checkOwnershipOrThrow(project, currentUser);
 

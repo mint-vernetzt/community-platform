@@ -7,7 +7,7 @@ import { action, loader } from "./general";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 jest.mock("~/prisma", () => {
   return {
@@ -71,7 +71,7 @@ describe("/event/$slug/settings/general", () => {
 
       (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       const request = new Request("");
       try {
@@ -88,7 +88,7 @@ describe("/event/$slug/settings/general", () => {
     test("anon user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue(null);
+      getSessionUser.mockResolvedValue(null);
 
       try {
         await loader({
@@ -108,7 +108,7 @@ describe("/event/$slug/settings/general", () => {
     test("authenticated user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -137,7 +137,7 @@ describe("/event/$slug/settings/general", () => {
     test("not privileged user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -167,7 +167,7 @@ describe("/event/$slug/settings/general", () => {
       const dateTime = "2022-09-19T09:00:00";
       const date = new Date(dateTime);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
@@ -235,7 +235,7 @@ describe("/event/$slug/settings/general", () => {
 
       (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       try {
         await action({ request, context: {}, params: { slug } });
@@ -253,7 +253,7 @@ describe("/event/$slug/settings/general", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue(null);
+      getSessionUser.mockResolvedValue(null);
 
       try {
         await action({
@@ -275,7 +275,7 @@ describe("/event/$slug/settings/general", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -306,7 +306,7 @@ describe("/event/$slug/settings/general", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -337,7 +337,7 @@ describe("/event/$slug/settings/general", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
 
       try {
         await action({
@@ -390,7 +390,7 @@ describe("/event/$slug/settings/general", () => {
       };
 
       beforeAll(() => {
-        getUserByRequest.mockResolvedValue({ id: userId } as User);
+        getSessionUser.mockResolvedValue({ id: userId } as User);
 
         (prismaClient.event.findFirst as jest.Mock).mockImplementation(() => {
           return { slug };
@@ -546,7 +546,7 @@ describe("/event/$slug/settings/general", () => {
       });
 
       afterAll(() => {
-        getUserByRequest.mockClear();
+        getSessionUser.mockClear();
         (prismaClient.event.findFirst as jest.Mock).mockClear();
         (prismaClient.teamMemberOfEvent.findFirst as jest.Mock).mockClear();
       });

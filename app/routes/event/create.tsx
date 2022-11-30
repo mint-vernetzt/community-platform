@@ -1,13 +1,15 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   ActionFunction,
   Form,
+  json,
   LoaderFunction,
   redirect,
   useLoaderData,
 } from "remix";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import {
   FormError,
@@ -54,10 +56,19 @@ type LoaderData = {
   parent: string;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null) {
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const sessionUser = await getSessionUser(supabaseClient);
+  if (sessionUser === null) {
     throw forbidden({ message: "Not allowed" });
   }
 
@@ -65,9 +76,12 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const child = url.searchParams.get("child") || "";
   const parent = url.searchParams.get("parent") || "";
 
-  await validateFeatureAccess(request, "events");
+  await validateFeatureAccess(supabaseClient, "events");
 
-  return { id: currentUser.id, child, parent };
+  return json<LoaderData>(
+    { id: sessionUser.id, child, parent },
+    { headers: response.headers }
+  );
 };
 
 function getDateTime(date: Date, time: string | null) {
@@ -86,13 +100,27 @@ function getDateTime(date: Date, time: string | null) {
   return new Date(year, month, day, hoursAndMinutes[0], hoursAndMinutes[1]);
 }
 
+type ActionData = {
+  data: FormType;
+  errors: FormError | null;
+};
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
 
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null || currentUser.id !== parsedFormData.id) {
+  const sessionUser = await getSessionUser(supabaseClient);
+  if (sessionUser === null || sessionUser.id !== parsedFormData.id) {
     throw forbidden({ message: "Not allowed" });
   }
 
@@ -119,7 +147,7 @@ export const action: ActionFunction = async (args) => {
     }
 
     await createEventOnProfile(
-      currentUser.id,
+      sessionUser.id,
       {
         slug,
         name: data.name,
@@ -129,10 +157,10 @@ export const action: ActionFunction = async (args) => {
       },
       { child: data.child, parent: data.parent }
     );
-    return redirect(`/event/${slug}`);
+    return redirect(`/event/${slug}`, { headers: response.headers });
   }
 
-  return { data, errors };
+  return json<ActionData>({ data, errors }, { headers: response.headers });
 };
 
 export default function Create() {

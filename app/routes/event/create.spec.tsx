@@ -1,5 +1,5 @@
 import { redirect } from "remix";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
@@ -12,7 +12,7 @@ const expect = global.expect as jest.Expect;
 const path = "/event/create";
 
 jest.mock("~/auth.server", () => {
-  return { getUserByRequest: jest.fn() };
+  return { getSessionUser: jest.fn() };
 });
 
 jest.mock("~/utils", () => {
@@ -31,7 +31,7 @@ describe("loader", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return null;
     });
 
@@ -47,7 +47,7 @@ describe("loader", () => {
   });
 
   test("logged in user", async () => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
+    (getSessionUser as jest.Mock).mockImplementation(() => {
       return { id: "some-user-id" };
     });
 
@@ -62,7 +62,7 @@ describe("loader", () => {
   });
 
   test("search parameters", async () => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
+    (getSessionUser as jest.Mock).mockImplementation(() => {
       return { id: "some-user-id" };
     });
 
@@ -100,7 +100,7 @@ describe("action", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return null;
     });
 
@@ -122,7 +122,7 @@ describe("action", () => {
   test("other user id", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-user-id" };
     });
 
@@ -142,7 +142,7 @@ describe("action", () => {
   });
 
   test("no values", async () => {
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-user-id" };
     });
 
@@ -163,7 +163,7 @@ describe("action", () => {
   test("required fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return { id: uuid };
     });
 
@@ -199,7 +199,7 @@ describe("action", () => {
   test("all fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return { id: uuid };
     });
 
@@ -239,7 +239,7 @@ describe("action", () => {
   test("all fields with relations", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
       return { id: uuid };
     });
 

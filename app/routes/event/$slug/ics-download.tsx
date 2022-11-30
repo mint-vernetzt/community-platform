@@ -1,8 +1,9 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import type { DateArray } from "ics";
 import * as ics from "ics";
 import { LoaderFunction } from "remix";
 import { forbidden } from "remix-utils";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -116,15 +117,24 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, currentUser);
+  const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
 
-  const isTeamMember = await getIsTeamMember(event.id, currentUser.id);
-  const isSpeaker = await getIsSpeaker(event.id, currentUser.id);
-  const isParticipant = await getIsParticipant(event.id, currentUser.id);
+  const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
+  const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);
+  const isParticipant = await getIsParticipant(event.id, sessionUser.id);
 
   if (!(isTeamMember || isSpeaker || isParticipant)) {
     throw forbidden({
@@ -147,6 +157,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   return new Response(ics, {
     status: 200,
     headers: {
+      ...response.headers,
       "Content-Type": "text/calendar",
       "Content-Disposition": `filename=${filename}`,
     },

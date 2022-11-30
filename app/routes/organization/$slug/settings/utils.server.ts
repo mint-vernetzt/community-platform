@@ -2,7 +2,7 @@ import { Organization } from "@prisma/client";
 import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
@@ -429,7 +429,7 @@ export async function handleAuthorization(
     throw badRequest({ message: "Organization slug missing" });
   }
 
-  const currentUser = await getUser(supabaseClient);
+  const currentUser = await getSessionUser(supabaseClient);
 
   if (currentUser === null) {
     throw forbidden({ message: "forbidden" });

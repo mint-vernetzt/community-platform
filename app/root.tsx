@@ -17,7 +17,7 @@ import {
   useLocation,
 } from "remix";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getUserByRequest, sessionStorage } from "./auth.server";
+import { getSessionUser, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -52,10 +52,14 @@ export const loader: LoaderFunction = async (args) => {
 
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
   const { abilities } = await validateFeatureAccess(
     request,
@@ -63,7 +67,7 @@ export const loader: LoaderFunction = async (args) => {
     { throw: false }
   );
 
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getSessionUser(request);
 
   let currentUserInfo;
 

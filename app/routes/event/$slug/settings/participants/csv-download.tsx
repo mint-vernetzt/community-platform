@@ -1,6 +1,7 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { LoaderFunction } from "remix";
 import { badRequest, notFound } from "remix-utils";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -99,12 +100,21 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");
@@ -116,6 +126,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   return new Response(csv, {
     status: 200,
     headers: {
+      ...response.headers,
       "Content-Type": "text/csv",
       "Content-Disposition": `filename=${filename}`,
     },

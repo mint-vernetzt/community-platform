@@ -8,7 +8,7 @@ import { action, loader } from "./delete";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 jest.mock("~/prisma", () => {
   return {
@@ -58,7 +58,7 @@ describe("/event/$slug/settings/delete", () => {
 
       (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       const request = new Request("");
       try {
@@ -75,7 +75,7 @@ describe("/event/$slug/settings/delete", () => {
     test("anon user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue(null);
+      getSessionUser.mockResolvedValue(null);
 
       try {
         await loader({
@@ -95,7 +95,7 @@ describe("/event/$slug/settings/delete", () => {
     test("not privileged user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -122,7 +122,7 @@ describe("/event/$slug/settings/delete", () => {
     });
 
     test("privileged user", async () => {
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
@@ -178,7 +178,7 @@ describe("/event/$slug/settings/delete", () => {
 
       (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       try {
         await action({ request, context: {}, params: { slug } });
@@ -196,7 +196,7 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue(null);
+      getSessionUser.mockResolvedValue(null);
 
       try {
         await action({
@@ -218,7 +218,7 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -249,7 +249,7 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
 
       try {
         await action({
@@ -275,7 +275,7 @@ describe("/event/$slug/settings/delete", () => {
         eventName: "Some event name",
       });
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { id: "another-event-id", name: "Some other event name", slug };
       });
@@ -307,7 +307,7 @@ describe("/event/$slug/settings/delete", () => {
         eventName: "Some event name",
       });
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-event-id", name: "Some other event name", slug };
       });
@@ -336,7 +336,7 @@ describe("/event/$slug/settings/delete", () => {
         eventName: "Some event name",
       });
 
-      getUserByRequest.mockResolvedValue({
+      getSessionUser.mockResolvedValue({
         id: "some-user-id",
         user_metadata: { username: "someuser" },
       } as unknown as User);

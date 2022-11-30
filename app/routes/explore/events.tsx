@@ -1,6 +1,6 @@
 import { isSameDay } from "date-fns";
 import { Link, LoaderFunction, useLoaderData } from "remix";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,
@@ -22,7 +22,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const sessionUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(request);
 
   const inFuture = true;
   const futureEvents = await prepareEvents(sessionUser, inFuture);

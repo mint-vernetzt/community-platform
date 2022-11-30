@@ -4,7 +4,7 @@ import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
-import { getUser } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -61,7 +61,7 @@ export const loader: LoaderFunction = async (args) => {
   if (slug === undefined || slug === "") {
     throw badRequest({ message: "organization slug must be provided" });
   }
-  const sessionUser = await getUser(request);
+  const sessionUser = await getSessionUser(request);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {

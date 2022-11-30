@@ -9,10 +9,7 @@ import {
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
-import {
-  updateEmailOfLoggedInUser,
-  updatePasswordOfLoggedInUser,
-} from "~/auth.server";
+import { updateEmail, updatePassword } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { handleAuthorization } from "../utils.server";

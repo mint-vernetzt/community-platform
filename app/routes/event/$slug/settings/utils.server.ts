@@ -37,20 +37,25 @@ export async function checkOwnership(
 
 export async function checkOwnershipOrThrow(
   event: Event,
-  currentUser: User | null
+  sessionUser: User | null
 ) {
-  return await checkOwnership(event, currentUser, { throw: true });
+  return await checkOwnership(event, sessionUser, { throw: true });
 }
 
 // Could be a top level function, as it's used in almost all actions
 export async function checkIdentityOrThrow(
   request: Request,
-  currentUser: User,
+  sessionUser: User,
   isMultipartFormData: boolean = false
 ) {
   const clonedRequest = request.clone();
   let formData: FormData;
 
+  // TODO: This should not be used anymore
+  // Instead when checking identity on a multipart form:
+  // First parse multipartFormData with parseMultipart() in storage.server.ts
+  // Then check identity (and do other authorization stuff)
+  // Then if authorization succeeded persist multipart in storage via doPersist() in storage.server.ts
   if (isMultipartFormData) {
     const multipartFormDataProvider: UploadHandler = async () => {
       // This upload handler only provides the multipart form data but does not upload anything
@@ -66,7 +71,7 @@ export async function checkIdentityOrThrow(
 
   const userId = formData.get("userId") as string | null;
 
-  if (userId === null || userId !== currentUser.id) {
+  if (userId === null || userId !== sessionUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
 }

@@ -11,7 +11,7 @@ import {
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -37,7 +37,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const sessionUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(request);
 
   const isLoggedIn = sessionUser !== null;
 

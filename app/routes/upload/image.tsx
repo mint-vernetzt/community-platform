@@ -1,7 +1,7 @@
 import { User } from "@supabase/supabase-js";
 import { ActionFunction, LoaderFunction } from "remix";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import {
   deriveMode as deriveEventMode,
@@ -74,7 +74,7 @@ async function handleAuth(
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const sessionUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(request);
   if (!sessionUser?.id) {
     throw serverError({ message: "You must be logged in." });
   }

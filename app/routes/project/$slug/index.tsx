@@ -3,7 +3,7 @@ import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { badRequest, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -79,7 +79,7 @@ export const loader: LoaderFunction = async (args) => {
     throw notFound({ message: `Project not found` });
   }
 
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getSessionUser(request);
 
   const mode = await deriveMode(project, currentUser);
 

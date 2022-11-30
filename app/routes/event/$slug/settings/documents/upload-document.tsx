@@ -1,8 +1,9 @@
 import { Document } from "@prisma/client";
-import { ActionFunction } from "remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { ActionFunction, json } from "remix";
 import { PerformMutation } from "remix-forms";
 import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
@@ -28,17 +29,28 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
-  const parsedData = await parseMultipart(request, "documents");
+  const parsedData = await parseMultipart(request);
 
   const { uploadHandlerResponse, formData } = parsedData;
   const eventId = formData.get("eventId") as string;
@@ -46,7 +58,7 @@ export const action: ActionFunction = async (args) => {
     throw "Event id nicht korrekt";
   }
 
-  await doPersistUpload("documents", uploadHandlerResponse);
+  await doPersistUpload(supabaseClient, "documents", uploadHandlerResponse);
 
   const document: Pick<
     Document,
@@ -66,5 +78,5 @@ export const action: ActionFunction = async (args) => {
     throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
   }
 
-  return null;
+  return json({ headers: response.headers });
 };

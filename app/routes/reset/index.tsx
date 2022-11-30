@@ -4,7 +4,7 @@ import {
   useActionData,
   useLoaderData,
 } from "remix";
-import { resetPassword } from "../../auth.server";
+import { sendResetPasswordLink } from "../../auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -50,7 +50,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { error } = await resetPassword(
+  const { error } = await sendResetPasswordLink(
     values.email,
     values.redirectToAfterResetPassword
   );

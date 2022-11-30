@@ -7,7 +7,7 @@ import { action } from "./add-organization";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 jest.mock("~/prisma", () => {
   return {
@@ -39,7 +39,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
+    getSessionUser.mockResolvedValue(null);
 
     try {
       await action({
@@ -70,7 +70,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       responsibleForEvents: [],
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -92,7 +92,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -126,7 +126,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -153,7 +153,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       organizationName: "some-organization",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -191,7 +191,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       organizationName: "some-organization",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
     });
@@ -233,7 +233,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       organizationName: "Some Organization",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",

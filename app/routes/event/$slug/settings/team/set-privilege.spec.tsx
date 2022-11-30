@@ -7,7 +7,7 @@ import { action } from "./set-privilege";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 jest.mock("~/prisma", () => {
   return {
@@ -37,7 +37,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
+    getSessionUser.mockResolvedValue(null);
 
     try {
       await action({
@@ -64,7 +64,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -85,7 +85,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -119,7 +119,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -150,7 +150,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -176,7 +176,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
       teamMemberId: "another-user-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -211,7 +211,7 @@ describe("/event/$slug/settings/team/set-privileged", () => {
       isPrivileged: "on",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",

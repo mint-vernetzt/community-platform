@@ -1,8 +1,9 @@
-import { ActionFunction, useFetcher } from "remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { ActionFunction, json, useFetcher } from "remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
-import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { Form, PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
@@ -36,27 +37,41 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkSameEventOrThrow(request, event.id);
-    if (currentUser.email !== result.data.email) {
-      await checkOwnershipOrThrow(event, currentUser);
+    if (sessionUser.email !== result.data.email) {
+      await checkOwnershipOrThrow(event, sessionUser);
       const profile = await getProfileByEmail(result.data.email);
       if (profile !== null) {
         await connectToWaitingListOfEvent(event.id, profile.id);
       }
     } else {
-      await connectToWaitingListOfEvent(event.id, currentUser.id);
+      await connectToWaitingListOfEvent(event.id, sessionUser.id);
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 type AddToWaitingListButtonProps = {

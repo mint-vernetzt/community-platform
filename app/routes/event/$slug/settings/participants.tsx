@@ -1,4 +1,6 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
+  json,
   Link,
   LoaderFunction,
   useFetcher,
@@ -6,7 +8,7 @@ import {
   useParams,
 } from "remix";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -15,12 +17,30 @@ import {
   getFullDepthParticipants,
   getFullDepthWaitingList,
 } from "../utils.server";
-import { addParticipantSchema } from "./participants/add-participant";
-import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
-import { moveToParticipantsSchema } from "./participants/move-to-participants";
-import { removeFromWaitingListSchema } from "./participants/remove-from-waiting-list";
-import { removeParticipantSchema } from "./participants/remove-participant";
-import { setParticipantLimitSchema } from "./participants/set-participant-limit";
+import {
+  ActionData as AddParticipantActionData,
+  addParticipantSchema,
+} from "./participants/add-participant";
+import {
+  ActionData as AddToWaitingListActionData,
+  addToWaitingListSchema,
+} from "./participants/add-to-waiting-list";
+import {
+  ActionData as MoveToParticipantsActionData,
+  moveToParticipantsSchema,
+} from "./participants/move-to-participants";
+import {
+  ActionData as RemoveFromWaitingListActionData,
+  removeFromWaitingListSchema,
+} from "./participants/remove-from-waiting-list";
+import {
+  ActionData as RemoveParticipantActionData,
+  removeParticipantSchema,
+} from "./participants/remove-participant";
+import {
+  ActionData as SetParticipantLimitActionData,
+  setParticipantLimitSchema,
+} from "./participants/set-participant-limit";
 import {
   checkOwnershipOrThrow,
   getParticipantsDataFromEvent,
@@ -34,13 +54,22 @@ type LoaderData = {
   hasFullDepthWaitingList: boolean;
 } & ReturnType<typeof getParticipantsDataFromEvent>;
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const participantsData = getParticipantsDataFromEvent(event);
 
@@ -49,31 +78,36 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
   const fullDepthWaitingList = await getFullDepthWaitingList(event.id);
 
-  return {
-    userId: currentUser.id,
-    eventId: event.id,
-    ...participantsData,
-    participantLimit,
-    hasFullDepthParticipants:
-      fullDepthParticipants !== null &&
-      fullDepthParticipants.length > 0 &&
-      event._count.childEvents !== 0,
-    hasFullDepthWaitingList:
-      fullDepthWaitingList !== null &&
-      fullDepthWaitingList.length > 0 &&
-      event._count.childEvents !== 0,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      eventId: event.id,
+      ...participantsData,
+      participantLimit,
+      hasFullDepthParticipants:
+        fullDepthParticipants !== null &&
+        fullDepthParticipants.length > 0 &&
+        event._count.childEvents !== 0,
+      hasFullDepthWaitingList:
+        fullDepthWaitingList !== null &&
+        fullDepthWaitingList.length > 0 &&
+        event._count.childEvents !== 0,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const setParticipantLimitFetcher = useFetcher();
-  const addParticipantFetcher = useFetcher();
-  const removeParticipantFetcher = useFetcher();
-  const addToWaitingListFetcher = useFetcher();
-  const removeFromWaitingListFetcher = useFetcher();
-  const moveToParticipantsFetcher = useFetcher();
+  const setParticipantLimitFetcher =
+    useFetcher<SetParticipantLimitActionData>();
+  const addParticipantFetcher = useFetcher<AddParticipantActionData>();
+  const removeParticipantFetcher = useFetcher<RemoveParticipantActionData>();
+  const addToWaitingListFetcher = useFetcher<AddToWaitingListActionData>();
+  const removeFromWaitingListFetcher =
+    useFetcher<RemoveFromWaitingListActionData>();
+  const moveToParticipantsFetcher = useFetcher<MoveToParticipantsActionData>();
 
   return (
     <>

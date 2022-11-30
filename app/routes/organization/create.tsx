@@ -15,7 +15,7 @@ import {
 } from "remix-forms";
 import { forbidden } from "remix-utils";
 import { Schema, z } from "zod";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
@@ -36,7 +36,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getSessionUser(request);
   if (currentUser === null) {
     throw forbidden({ message: "not allowed" });
   }
@@ -61,7 +61,7 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getSessionUser(request);
 
   const requestClone = request.clone();
   const formData = await requestClone.formData();

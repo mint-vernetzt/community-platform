@@ -1,9 +1,11 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   ActionFunction,
   Form,
+  json,
   Link,
   LoaderFunction,
   useActionData,
@@ -14,7 +16,7 @@ import {
 } from "remix";
 import { Form as RemixForm } from "remix-forms";
 import { array, InferType, mixed, number, object, string } from "yup";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
@@ -42,8 +44,11 @@ import {
   getTypes,
 } from "~/utils.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { cancelSchema } from "./events/cancel";
-import { publishSchema } from "./events/publish";
+import { ActionData as CancelActionData, cancelSchema } from "./events/cancel";
+import {
+  ActionData as PublishActionData,
+  publishSchema,
+} from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
@@ -194,16 +199,25 @@ type LoaderData = {
   areas: Awaited<ReturnType<typeof getAreas>>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const focuses = await getFocuses();
   const types = await getTypes();
@@ -213,17 +227,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const stages = await getStages();
   const areas = await getAreas();
 
-  return {
-    event: transformEventToForm(event),
-    userId: currentUser.id,
-    focuses,
-    types,
-    tags,
-    targetGroups,
-    experienceLevels,
-    stages,
-    areas,
-  };
+  return json<LoaderData>(
+    {
+      event: transformEventToForm(event),
+      userId: sessionUser.id,
+      focuses,
+      types,
+      tags,
+      targetGroups,
+      experienceLevels,
+      stages,
+      areas,
+    },
+    { headers: response.headers }
+  );
 };
 
 type ActionData = {
@@ -233,19 +250,28 @@ type ActionData = {
   lastSubmit: string;
 };
 
-export const action: ActionFunction = async (args): Promise<ActionData> => {
+export const action: ActionFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
-  await checkIdentityOrThrow(request, currentUser);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,
@@ -278,12 +304,15 @@ export const action: ActionFunction = async (args): Promise<ActionData> => {
     });
   }
 
-  return {
-    data,
-    errors,
-    updated,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-  };
+  return json<ActionData>(
+    {
+      data,
+      errors,
+      updated,
+      lastSubmit: (formData.get("submit") as string) ?? "",
+    },
+    { headers: response.headers }
+  );
 };
 
 function General() {
@@ -300,8 +329,8 @@ function General() {
     areas,
   } = useLoaderData<LoaderData>();
 
-  const publishFetcher = useFetcher();
-  const cancelFetcher = useFetcher();
+  const publishFetcher = useFetcher<PublishActionData>();
+  const cancelFetcher = useFetcher<CancelActionData>();
 
   const transition = useTransition();
   const actionData = useActionData<ActionData>();

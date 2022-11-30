@@ -2,7 +2,7 @@ import { ActionFunction } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
@@ -20,7 +20,7 @@ const mutation = makeDomainFunction(
 
   let success = true;
 
-  const sessionUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(request);
   if (!sessionUser?.id) {
     throw serverError({ message: "You must be logged in." });
   }

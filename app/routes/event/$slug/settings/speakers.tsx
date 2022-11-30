@@ -1,4 +1,6 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
+  json,
   Link,
   LoaderFunction,
   useFetcher,
@@ -6,13 +8,19 @@ import {
   useParams,
 } from "remix";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { addSpeakerSchema } from "./speakers/add-speaker";
-import { removeSpeakerSchema } from "./speakers/remove-speaker";
+import {
+  ActionData as AddSpeakerActionData,
+  addSpeakerSchema,
+} from "./speakers/add-speaker";
+import {
+  ActionData as RemoveSpeakerActionData,
+  removeSpeakerSchema,
+} from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
   getSpeakerProfileDataFromEvent,
@@ -24,25 +32,37 @@ type LoaderData = {
   speakers: ReturnType<typeof getSpeakerProfileDataFromEvent>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const speakers = getSpeakerProfileDataFromEvent(event);
 
-  return { userId: currentUser.id, eventId: event.id, speakers };
+  return json<LoaderData>(
+    { userId: sessionUser.id, eventId: event.id, speakers },
+    { headers: response.headers }
+  );
 };
 
 function Speakers() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
 
-  const addSpeakerFetcher = useFetcher();
-  const removeSpeakerFetcher = useFetcher();
+  const addSpeakerFetcher = useFetcher<AddSpeakerActionData>();
+  const removeSpeakerFetcher = useFetcher<RemoveSpeakerActionData>();
 
   return (
     <>

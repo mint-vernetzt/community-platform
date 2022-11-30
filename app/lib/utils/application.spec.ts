@@ -1,12 +1,25 @@
-import { getUserByRequest } from "~/auth.server";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { getSessionUser } from "~/auth.server";
 import { validateFeatureAccess } from "./application";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
 jest.mock("~/auth.server", () => {
-  return { getUserByRequest: jest.fn() };
+  return { getSessionUser: jest.fn() };
 });
+
+const request = new Request("");
+const response = new Response();
+
+const supabaseClient = createServerClient(
+  "localhost:12345",
+  "SUPABASE_ANON_KEY",
+  {
+    request,
+    response,
+  }
+);
 
 describe("validateFeatureAccess()", () => {
   describe("single feature", () => {
@@ -20,7 +33,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), "a feature");
+        await validateFeatureAccess(supabaseClient, "a feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -31,7 +44,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, abilities } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         "a feature",
         { throw: false }
       );
@@ -56,7 +69,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), "another feature");
+        await validateFeatureAccess(supabaseClient, "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -69,7 +82,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         "another feature",
         { throw: false }
       );
@@ -87,13 +100,13 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(4);
 
-      (getUserByRequest as jest.Mock).mockImplementation(() => {
+      (getSessionUser as jest.Mock).mockImplementation(() => {
         return { id: "some-other-user-id" };
       });
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), "another feature");
+        await validateFeatureAccess(supabaseClient, "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -106,7 +119,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         "another feature",
         { throw: false }
       );
@@ -122,7 +135,7 @@ describe("validateFeatureAccess()", () => {
       process.env.FEATURES = "a feature, another feature";
       process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
 
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-other-user-id" };
       });
 
@@ -131,10 +144,7 @@ describe("validateFeatureAccess()", () => {
       let featureName: string | undefined;
 
       try {
-        const result = await validateFeatureAccess(
-          new Request(""),
-          "a feature"
-        );
+        const result = await validateFeatureAccess(supabaseClient, "a feature");
         error = result.error;
         hasAccess = result.hasAccess;
         featureName = result.featureName;
@@ -150,7 +160,7 @@ describe("validateFeatureAccess()", () => {
     test("feature set for public access", async () => {
       process.env.FEATURES = "a feature, another feature";
 
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
       });
 
@@ -160,7 +170,7 @@ describe("validateFeatureAccess()", () => {
 
       try {
         const result = await validateFeatureAccess(
-          new Request(""),
+          supabaseClient,
           "another feature"
         );
         error = result.error;
@@ -192,7 +202,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -203,7 +213,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -230,7 +240,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -241,7 +251,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -260,13 +270,13 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(6);
 
-      (getUserByRequest as jest.Mock).mockImplementation(() => {
+      (getSessionUser as jest.Mock).mockImplementation(() => {
         return { id: "some-other-user-id" };
       });
 
       // throw
       try {
-        await validateFeatureAccess(new Request(""), ["feature1", "feature2"]);
+        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -277,7 +287,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        new Request(""),
+        supabaseClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -301,13 +311,13 @@ describe("validateFeatureAccess()", () => {
       process.env.FEATURES = "feature1, feature2, feature3";
       process.env.FEATURE_USER_IDS = "some-user-id, some-other-user-id";
 
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-other-user-id" };
       });
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(new Request(""), [
+      const { abilities } = await validateFeatureAccess(supabaseClient, [
         "feature1",
         "feature2",
       ]);
@@ -326,13 +336,13 @@ describe("validateFeatureAccess()", () => {
     test("feature set for public access", async () => {
       process.env.FEATURES = "feature1,feature2,feature3";
 
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-other-user-id" };
       });
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(new Request(""), [
+      const { abilities } = await validateFeatureAccess(supabaseClient, [
         "feature1",
         "feature2",
       ]);

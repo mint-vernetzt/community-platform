@@ -1,4 +1,5 @@
 import {
+  json,
   Link,
   LoaderFunction,
   useFetcher,
@@ -6,7 +7,7 @@ import {
   useParams,
 } from "remix";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
@@ -16,10 +17,20 @@ import {
   getOptionsFromEvents,
 } from "./utils.server";
 
-import { setParentSchema } from "./events/set-parent";
-import { addChildSchema } from "./events/add-child";
-import { removeChildSchema } from "./events/remove-child";
+import {
+  ActionData as SetParentActionData,
+  setParentSchema,
+} from "./events/set-parent";
+import {
+  ActionData as AddChildActionData,
+  addChildSchema,
+} from "./events/add-child";
+import {
+  ActionData as RemoveChildActionData,
+  removeChildSchema,
+} from "./events/remove-child";
 import { H3 } from "~/components/Heading/Heading";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
 type LoaderData = {
   userId: string;
@@ -30,16 +41,25 @@ type LoaderData = {
   parentEventName: string | null;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(
-    currentUser.id,
+    sessionUser.id,
     event.id
   );
 
@@ -53,22 +73,25 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     parentEventName = event.parentEvent.name;
   }
 
-  return {
-    options,
-    parentEventId,
-    parentEventName,
-    childEvents: event.childEvents,
-    eventId: event.id,
-    userId: currentUser.id,
-  };
+  return json<LoaderData>(
+    {
+      options,
+      parentEventId,
+      parentEventName,
+      childEvents: event.childEvents,
+      eventId: event.id,
+      userId: sessionUser.id,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const setParentFetcher = useFetcher();
-  const addChildFetcher = useFetcher();
-  const removeChildFetcher = useFetcher();
+  const setParentFetcher = useFetcher<SetParentActionData>();
+  const addChildFetcher = useFetcher<AddChildActionData>();
+  const removeChildFetcher = useFetcher<RemoveChildActionData>();
 
   return (
     <>

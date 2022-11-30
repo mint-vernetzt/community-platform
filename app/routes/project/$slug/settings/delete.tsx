@@ -3,7 +3,7 @@ import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
 import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { checkIdentityOrThrow } from "../../utils.server";
@@ -29,7 +29,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   const project = await getProjectBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, currentUser);
@@ -66,7 +66,7 @@ export const action: ActionFunction = async (args) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
 
   await checkIdentityOrThrow(request, currentUser);
 

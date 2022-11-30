@@ -1,4 +1,6 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
+  json,
   Link,
   LoaderFunction,
   useFetcher,
@@ -6,7 +8,7 @@ import {
   useParams,
 } from "remix";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -34,17 +36,29 @@ type LoaderData = {
   teamMembers: ReturnType<typeof getTeamMemberProfileDataFromEvent>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
-  const teamMembers = getTeamMemberProfileDataFromEvent(event, currentUser.id);
+  const teamMembers = getTeamMemberProfileDataFromEvent(event, sessionUser.id);
 
-  return { userId: currentUser.id, eventId: event.id, teamMembers };
+  return json<LoaderData>(
+    { userId: sessionUser.id, eventId: event.id, teamMembers },
+    { headers: response.headers }
+  );
 };
 
 function Team() {

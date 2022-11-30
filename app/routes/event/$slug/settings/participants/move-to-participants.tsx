@@ -1,8 +1,9 @@
-import { ActionFunction } from "remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { ActionFunction, json } from "remix";
 import { makeDomainFunction } from "remix-domains";
-import { performMutation } from "remix-forms";
-import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { PerformMutation, performMutation } from "remix-forms";
+import { Schema, z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getProfileByUserId } from "~/profile.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
@@ -24,17 +25,31 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
+    await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     const profile = await getProfileByUserId(result.data.profileId);
     if (profile !== null) {
@@ -42,5 +57,5 @@ export const action: ActionFunction = async (args) => {
       await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

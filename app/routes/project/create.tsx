@@ -1,10 +1,11 @@
 import { useLoaderData } from "@remix-run/react";
+import { User } from "@supabase/supabase-js";
 import { ActionFunction, LoaderFunction, redirect, useNavigate } from "remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden } from "remix-utils";
 import { z } from "zod";
-import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
+import { getSessionUser, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { generateProjectSlug } from "~/utils";
@@ -22,7 +23,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const currentUser = await getUserByRequest(request);
+  const currentUser = await getSessionUser(request);
   if (currentUser === null) {
     throw forbidden({ message: "Not allowed" });
   }
@@ -40,7 +41,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action: ActionFunction = async (args) => {
   const { request } = args;
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const currentUser = await getSessionUserOrThrow(request);
   await checkIdentityOrThrow(request, currentUser);
 
   const result = await performMutation({

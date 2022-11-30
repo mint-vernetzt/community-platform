@@ -10,7 +10,7 @@ import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
 import { getURLSearchParameterFromURLHash } from "~/lib/utils/url";
-import { updatePasswordByAccessToken } from "../../auth.server";
+import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -53,10 +53,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       "confirmPassword"
     ); // -- Field error
   }
-  const { error } = await updatePasswordByAccessToken(
-    values.password,
-    values.accessToken
-  );
+  const { error } = await updatePassword(values.password, values.accessToken);
   if (error !== null) {
     throw error.message;
   }

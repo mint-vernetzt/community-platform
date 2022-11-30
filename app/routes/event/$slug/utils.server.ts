@@ -7,16 +7,16 @@ type Mode = "anon" | "authenticated" | "owner";
 
 export async function deriveMode(
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>,
-  currentUser: User | null
+  sessionUser: User | null
 ): Promise<Mode> {
-  if (currentUser === null) {
+  if (sessionUser === null) {
     return "anon";
   }
 
   const relation = await prismaClient.teamMemberOfEvent.findFirst({
     where: {
       eventId: event.id,
-      profileId: currentUser.id,
+      profileId: sessionUser.id,
     },
   });
 

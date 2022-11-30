@@ -87,7 +87,7 @@ function validatePersistence(
   }
 }
 
-export const parseMultipart = async (request: Request, bucketName: string) => {
+export const parseMultipart = async (request: Request) => {
   try {
     const formData = await unstable_parseMultipartFormData(
       request,
@@ -200,6 +200,7 @@ export async function download(
 
 export async function getDownloadDocumentsResponse(
   supabaseClient: SupabaseClient,
+  additionalHeaders: Headers,
   documents: Pick<Document, "title" | "filename" | "path">[],
   zipFilename: string = "Dokumente.zip"
 ) {
@@ -245,6 +246,7 @@ export async function getDownloadDocumentsResponse(
   return new Response(file, {
     status: 200,
     headers: {
+      ...additionalHeaders,
       "Content-Type": contentType,
       "Content-Disposition": `attachment; filename=${filename}`,
     },

@@ -1,6 +1,7 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { LoaderFunction } from "remix";
 import { forbidden, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { getDocumentById } from "~/document.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
@@ -10,11 +11,20 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(supabaseClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, currentUser);
+  const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
@@ -36,6 +46,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     documents = [document];
   }
   const zipFilename = `${event.name}_Dokumente.zip`;
-  const response = getDownloadDocumentsResponse(documents, zipFilename);
-  return response;
+  const documentResponse = getDownloadDocumentsResponse(
+    supabaseClient,
+    response.headers,
+    documents,
+    zipFilename
+  );
+  return documentResponse;
 };
