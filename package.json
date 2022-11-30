@@ -37,6 +37,7 @@
     "date-fns": "^2.29.2",
     "dotenv": "^16.0.0",
     "file-type": "^16.5.3",
+    "fs-constants": "^1.0.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "ics": "^2.40.0",
