@@ -1,11 +1,11 @@
 import { Document } from "@prisma/client";
+import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { fromBuffer } from "file-type";
 import JSZip from "jszip";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { badRequest, serverError } from "remix-utils";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
-import { supabaseAdmin } from "./supabase";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 const imageUploadKeys = ["avatar", "background", "logo"];
@@ -57,20 +57,20 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
 };
 
 async function persistUpload(
+  supabaseClient: SupabaseClient,
   path: string,
   buffer: Buffer,
   bucketName: string,
   mimeType: string
 ) {
-  return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from(bucketName)
-    .upload(path, buffer, {
-      upsert: true,
-      contentType: mimeType,
-    });
+  return await supabaseClient.storage.from(bucketName).upload(path, buffer, {
+    upsert: true,
+    contentType: mimeType,
+  });
 }
 
 function validatePersistence(
+  supabaseClient: SupabaseClient,
   error: any,
   data: any,
   path: string,
@@ -80,7 +80,7 @@ function validatePersistence(
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(path, bucketName) === null) {
+  if (getPublicURL(supabaseClient, path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });
@@ -135,6 +135,7 @@ export const parseMultipart = async (request: Request, bucketName: string) => {
 };
 
 export async function doPersistUpload(
+  supabaseClient: SupabaseClient,
   bucketName: string,
   uploadHandlerResponse: {
     buffer: Buffer;
@@ -146,31 +147,46 @@ export async function doPersistUpload(
   }
 ) {
   const { data, error } = await persistUpload(
+    supabaseClient,
     uploadHandlerResponse.path,
     uploadHandlerResponse.buffer,
     bucketName,
     uploadHandlerResponse.mimeType
   );
-  validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
+  validatePersistence(
+    supabaseClient,
+    error,
+    data,
+    uploadHandlerResponse.path,
+    bucketName
+  );
 
   return true;
 }
 
-export function getPublicURL(relativePath: string, bucket = "images") {
-  const { publicURL, error } = supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from(bucket)
-    .getPublicUrl(relativePath);
+export function getPublicURL(
+  supabaseClient: SupabaseClient,
+  relativePath: string,
+  bucket = "images"
+) {
+  const {
+    data: { publicUrl },
+  } = supabaseClient.storage.from(bucket).getPublicUrl(relativePath);
 
-  if (publicURL === null || error !== null) {
+  if (publicUrl === "") {
     throw serverError({
       message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
     });
   }
-  return publicURL;
+  return publicUrl;
 }
 
-export async function download(relativePath: string, bucket = "documents") {
-  const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+export async function download(
+  supabaseClient: SupabaseClient,
+  relativePath: string,
+  bucket = "documents"
+) {
+  const { data, error } = await supabaseClient.storage
     .from(bucket)
     .download(relativePath);
 
@@ -183,6 +199,7 @@ export async function download(relativePath: string, bucket = "documents") {
 }
 
 export async function getDownloadDocumentsResponse(
+  supabaseClient: SupabaseClient,
   documents: Pick<Document, "title" | "filename" | "path">[],
   zipFilename: string = "Dokumente.zip"
 ) {
@@ -194,7 +211,7 @@ export async function getDownloadDocumentsResponse(
 
   const files = await Promise.all(
     documents.map(async (document) => {
-      const blob = await download(document.path);
+      const blob = await download(supabaseClient, document.path);
       let file = {
         name: document.title || document.filename,
         content: await blob.arrayBuffer(),
@@ -234,8 +251,12 @@ export async function getDownloadDocumentsResponse(
   });
 }
 
-export async function remove(paths: string[], bucket = "images") {
-  const { data, error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
+export async function remove(
+  supabaseClient: SupabaseClient,
+  paths: string[],
+  bucket = "images"
+) {
+  const { data, error } = await supabaseClient.storage
     .from(bucket)
     .remove(paths);
 

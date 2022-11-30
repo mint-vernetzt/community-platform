@@ -1,9 +1,9 @@
+import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { fromBuffer } from "file-type";
 import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
 import { createHashFromString, stream2buffer } from "~/utils.server";
 import { uploadKeys } from "./schema";
 
@@ -55,17 +55,16 @@ const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
 };
 
 async function persistUpload(
+  supabaseClient: SupabaseClient,
   path: string,
   buffer: Buffer,
   bucketName: string,
   mimeType?: string
 ) {
-  return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from(bucketName)
-    .upload(path, buffer, {
-      upsert: true,
-      contentType: mimeType,
-    });
+  return await supabaseClient.storage.from(bucketName).upload(path, buffer, {
+    upsert: true,
+    contentType: mimeType,
+  });
 }
 
 export async function updateUserProfileImage(
@@ -129,7 +128,11 @@ export async function updateProjectBackgroundImage(
   });
 }
 
-export const upload = async (request: Request, bucketName: string) => {
+export const upload = async (
+  supabaseClient: SupabaseClient,
+  request: Request,
+  bucketName: string
+) => {
   try {
     const formData = await unstable_parseMultipartFormData(
       request,
@@ -160,12 +163,19 @@ export const upload = async (request: Request, bucketName: string) => {
     }
 
     const { data, error } = await persistUpload(
+      supabaseClient,
       uploadHandlerResponse.path,
       buffer,
       bucketName,
       uploadHandlerResponse.mimeType
     );
-    validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
+    validatePersistence(
+      supabaseClient,
+      error,
+      data,
+      uploadHandlerResponse.path,
+      bucketName
+    );
 
     return formData;
   } catch (exception) {
@@ -174,6 +184,7 @@ export const upload = async (request: Request, bucketName: string) => {
 };
 
 function validatePersistence(
+  supabaseClient: SupabaseClient,
   error: any,
   data: any,
   path: string,
@@ -183,7 +194,7 @@ function validatePersistence(
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(path, bucketName) === null) {
+  if (getPublicURL(supabaseClient, path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });

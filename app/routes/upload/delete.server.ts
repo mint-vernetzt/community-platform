@@ -1,5 +1,5 @@
+import { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "~/prisma";
-import { supabaseAdmin } from "~/supabase";
 import { UploadKey } from "./schema";
 
 export async function removeImageFromProfile(
@@ -44,10 +44,11 @@ export async function removeImageFromEvent(slug: string, name: UploadKey) {
   });
 }
 
-export async function removeImageFromStorage(path: string) {
-  const { error } = await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from("images")
-    .remove([path]);
+export async function removeImageFromStorage(
+  supabaseClient: SupabaseClient,
+  path: string
+) {
+  const { error } = await supabaseClient.storage.from("images").remove([path]);
 
   return error === null;
 }
