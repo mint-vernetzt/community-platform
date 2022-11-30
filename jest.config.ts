@@ -1,7 +1,7 @@
 export default {
   collectCoverage: true,
   coverageDirectory: "coverage",
-  testEnvironment: "jsdom",
+  testEnvironment: "node",
   transform: {
     "^.+\\.[tj]sx?$": "babel-jest",
   },
@@ -10,5 +10,5 @@ export default {
     "^~/(.*)": "<rootDir>/app/$1",
     "\\.css$": "<rootDir>/__mocks__/styleMock.js",
   },
-  // testPathIgnorePatterns: ["<rootDir>/app/components"],
+  testPathIgnorePatterns: ["<rootDir>/app/components"],
 };
