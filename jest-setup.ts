@@ -1,5 +1,10 @@
 import "@testing-library/jest-dom/extend-expect";
 import { installGlobals } from "@remix-run/node";
+import { TextEncoder as NodeTextEncoder } from "node:util";
+
+if (global.TextEncoder === undefined) {
+  global.TextEncoder = NodeTextEncoder;
+}
 
 installGlobals();
 

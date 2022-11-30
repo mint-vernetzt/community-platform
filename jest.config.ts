@@ -10,4 +10,5 @@ export default {
     "^~/(.*)": "<rootDir>/app/$1",
     "\\.css$": "<rootDir>/__mocks__/styleMock.js",
   },
+  // testPathIgnorePatterns: ["<rootDir>/app/components"],
 };

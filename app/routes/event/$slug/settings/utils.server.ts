@@ -1,14 +1,12 @@
-import { Event } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import type { Event } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
-import {
-  unstable_parseMultipartFormData,
-  UploadHandler,
-} from "@remix-run/node";
+import { unstable_composeUploadHandlers, UploadHandler } from "@remix-run/node";
+import { unstable_parseMultipartFormData } from "@remix-run/node";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
-import { getEventBySlugOrThrow } from "../utils.server";
+import type { getEventBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
   event: Event,
@@ -61,13 +59,17 @@ export async function checkIdentityOrThrow(
     };
     formData = await unstable_parseMultipartFormData(
       clonedRequest,
-      multipartFormDataProvider
+      unstable_composeUploadHandlers(multipartFormDataProvider)
     );
   } else {
+    console.log("hello");
     formData = await clonedRequest.formData();
+    console.log("hello1");
   }
 
   const userId = formData.get("userId") as string | null;
+
+  console.log({ userId });
 
   if (userId === null || userId !== currentUser.id) {
     throw unauthorized({ message: "Identity check failed" });
