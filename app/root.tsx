@@ -1,3 +1,4 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import * as React from "react";
 import {
   Form,
@@ -49,9 +50,12 @@ type LoaderData = RootRouteData;
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
 
   const { abilities } = await validateFeatureAccess(
     request,
@@ -96,7 +100,7 @@ export const loader: LoaderFunction = async (args) => {
       currentUserInfo,
       abilities, // TODO: fix type issue
     },
-    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+    { headers: response.headers }
   );
 };
 
