@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import { LoaderFunction } from "remix";
+import { LoaderFunction } from "@remix-run/node";
 import { forbidden } from "remix-utils";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";

@@ -1,12 +1,6 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import {
-  json,
-  Link,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData,
-  useParams,
-} from "remix";
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";

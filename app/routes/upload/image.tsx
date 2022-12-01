@@ -1,5 +1,5 @@
-import { User } from "@supabase/supabase-js";
-import { ActionFunction, LoaderFunction } from "remix";
+import type { User } from "@supabase/supabase-js";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
@@ -11,7 +11,8 @@ import {
   deriveMode as deriveProjectMode,
   getProjectBySlugOrThrow,
 } from "../project/$slug/utils.server";
-import { Subject, uploadKeys } from "./schema";
+import type { Subject } from "./schema";
+import { uploadKeys } from "./schema";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,
@@ -81,6 +82,7 @@ export const action: ActionFunction = async ({ request }) => {
   const profileId = sessionUser.id;
 
   const formData = await upload(request, "images");
+
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
@@ -89,6 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
   const uploadHandlerResponseJSON = formData.get(name as string);
+
   if (uploadHandlerResponseJSON === null) {
     throw serverError({ message: "Something went wrong on upload." });
   }

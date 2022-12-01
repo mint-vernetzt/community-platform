@@ -5,15 +5,13 @@ import {
 } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import React, { FormEvent } from "react";
+import { json, ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
-  json,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useSubmit,
-} from "remix";
+} from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,

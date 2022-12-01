@@ -1,21 +1,26 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import * as React from "react";
 import {
-  Form,
   json,
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
+
+import {
+  Form,
   Link,
   Links,
-  LinksFunction,
   LiveReload,
-  LoaderFunction,
   Meta,
-  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
   useLocation,
-} from "remix";
+} from "@remix-run/react";
+
+import { forbidden } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getSessionUser, sessionStorage } from "./auth.server";
 import Footer from "./components/Footer/Footer";

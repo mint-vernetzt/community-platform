@@ -2,11 +2,10 @@ import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   ActionFunction,
   json,
-  Link,
   LoaderFunction,
   redirect,
-  useLoaderData,
-} from "remix";
+} from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,

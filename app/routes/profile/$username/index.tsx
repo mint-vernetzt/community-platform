@@ -3,7 +3,8 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { json, Link, LoaderFunction, useLoaderData } from "remix";
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, notFound } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
@@ -673,12 +674,12 @@ export default function Index() {
                                   </div>
                                 )}
                                 <div className="hidden md:flex items-center flex-initial">
-                                  <Link
-                                    to={`/project/${project.slug}`}
+                                  <button
+                                    // to={`/project/${project.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Zum Projekt
-                                  </Link>
+                                  </button>
                                 </div>
                               </div>
                             </Link>

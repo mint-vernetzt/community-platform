@@ -1,4 +1,5 @@
-import { ActionFunction, LoaderFunction, redirect, useLoaderData } from "remix";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";

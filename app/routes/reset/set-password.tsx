@@ -3,9 +3,8 @@ import {
   json,
   LoaderFunction,
   redirect,
-  useActionData,
-  useLoaderData,
-} from "remix";
+} from "@remix-run/node";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";

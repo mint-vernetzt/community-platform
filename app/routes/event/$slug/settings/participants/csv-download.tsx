@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { LoaderFunction } from "remix";
+import { LoaderFunction } from "@remix-run/node";
 import { badRequest, notFound } from "remix-utils";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";

@@ -1,8 +1,10 @@
-import { ActionFunction } from "remix";
+import type { ActionFunction } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";

@@ -1,4 +1,4 @@
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";

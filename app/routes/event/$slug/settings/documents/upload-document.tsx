@@ -1,6 +1,6 @@
 import { Document } from "@prisma/client";
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { ActionFunction, json } from "remix";
+import { ActionFunction, json } from "@remix-run/node";
 import { PerformMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";

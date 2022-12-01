@@ -1,6 +1,6 @@
-import { redirect } from "remix";
 import { getSessionUser } from "~/auth.server";
-import { createRequestWithFormData } from "~/lib/utils/tests";
+import { redirect } from "@remix-run/node";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
 import * as crypto from "crypto";
@@ -36,7 +36,7 @@ describe("loader", () => {
     });
 
     try {
-      await loader({ request: new Request(path), params: {}, context: {} });
+      await loader({ request: new Request(testURL), params: {}, context: {} });
     } catch (error) {
       const response = error as Response;
       expect(response.status).toBe(403);

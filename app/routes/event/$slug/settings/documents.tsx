@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { useState } from "react";
-import { json, Link, LoaderFunction, useFetcher, useLoaderData } from "remix";
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { Form as RemixForm } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";

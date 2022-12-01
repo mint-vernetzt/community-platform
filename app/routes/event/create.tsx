@@ -1,12 +1,11 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
-  ActionFunction,
-  Form,
   json,
+  ActionFunction,
   LoaderFunction,
   redirect,
-  useLoaderData,
-} from "remix";
+} from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import { badRequest, forbidden } from "remix-utils";
 import { date, InferType, object, string } from "yup";
 import { getSessionUser } from "~/auth.server";

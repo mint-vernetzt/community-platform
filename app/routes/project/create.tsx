@@ -1,6 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
-import { User } from "@supabase/supabase-js";
-import { ActionFunction, LoaderFunction, redirect, useNavigate } from "remix";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden } from "remix-utils";

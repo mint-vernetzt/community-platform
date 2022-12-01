@@ -1,6 +1,7 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { prismaClient } from "~/prisma";
+import { testURL } from "~/lib/utils/tests";
 import { loader } from "./events";
 
 // @ts-ignore
@@ -50,7 +51,7 @@ describe("/event/$slug/settings/events", () => {
 
       try {
         const response = await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -98,7 +99,7 @@ describe("/event/$slug/settings/events", () => {
 
       try {
         const response = await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -145,7 +146,7 @@ describe("/event/$slug/settings/events", () => {
 
       try {
         const response = await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });

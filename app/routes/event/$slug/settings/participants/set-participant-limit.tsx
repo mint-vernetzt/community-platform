@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { ActionFunction, json } from "remix";
+import { ActionFunction, json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";

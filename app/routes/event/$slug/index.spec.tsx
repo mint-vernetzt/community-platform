@@ -1,4 +1,5 @@
 import { getSessionUser } from "~/auth.server";
+import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
 import { loader } from ".";
 
@@ -36,7 +37,7 @@ describe("/event/$slug", () => {
     test("no params", async () => {
       expect.assertions(2);
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: {} });
       } catch (error) {
@@ -58,7 +59,7 @@ describe("/event/$slug", () => {
         return { id: "some-user-id" };
       });
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
       } catch (error) {
@@ -99,7 +100,7 @@ describe("/event/$slug", () => {
         return null;
       });
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
       } catch (error) {
@@ -163,7 +164,7 @@ describe("/event/$slug", () => {
         return { isPrivileged: false };
       });
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
       } catch (error) {

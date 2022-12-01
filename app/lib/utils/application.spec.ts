@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { getSessionUser } from "~/auth.server";
 import { validateFeatureAccess } from "./application";
+import { testURL } from "./tests";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -9,7 +10,7 @@ jest.mock("~/auth.server", () => {
   return { getSessionUser: jest.fn() };
 });
 
-const request = new Request("");
+const request = new Request(testURL);
 const response = new Response();
 
 const supabaseClient = createServerClient(
@@ -30,11 +31,17 @@ describe("validateFeatureAccess()", () => {
 
     test("feature flags not set", async () => {
       expect.assertions(6);
+      try {
+        new Request(testURL);
+      } catch (err) {
+        console.log({ err });
+      }
 
       // throw
       try {
         await validateFeatureAccess(supabaseClient, "a feature");
       } catch (error) {
+        console.log({ error });
         const response = error as Response;
         expect(response.status).toBe(500);
 
