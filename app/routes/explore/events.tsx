@@ -1,5 +1,6 @@
 import { isSameDay } from "date-fns";
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { getUserByRequest } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {

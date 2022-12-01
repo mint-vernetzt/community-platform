@@ -1,12 +1,6 @@
 import { GravityType } from "imgproxy/dist/types";
-import {
-  ActionFunction,
-  LoaderFunction,
-  redirect,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-} from "remix";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { useActionData, useLoaderData, useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,

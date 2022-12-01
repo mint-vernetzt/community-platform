@@ -1,14 +1,13 @@
 import { Area } from "@prisma/client";
 import { GravityType } from "imgproxy/dist/types";
 import React, { FormEvent } from "react";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useSubmit,
-} from "remix";
+} from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,

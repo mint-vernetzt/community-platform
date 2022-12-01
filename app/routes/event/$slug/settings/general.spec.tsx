@@ -1,6 +1,6 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
-import { createRequestWithFormData } from "~/lib/utils/tests";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
 import { action, loader } from "./general";
 
@@ -54,7 +54,7 @@ describe("/event/$slug/settings/general", () => {
     test("no params", async () => {
       expect.assertions(2);
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: {} });
       } catch (error) {
@@ -73,7 +73,7 @@ describe("/event/$slug/settings/general", () => {
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
       } catch (error) {
@@ -92,7 +92,7 @@ describe("/event/$slug/settings/general", () => {
 
       try {
         await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -121,7 +121,7 @@ describe("/event/$slug/settings/general", () => {
 
       try {
         await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -150,7 +150,7 @@ describe("/event/$slug/settings/general", () => {
 
       try {
         await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -192,7 +192,7 @@ describe("/event/$slug/settings/general", () => {
       });
 
       const response = await loader({
-        request: new Request(""),
+        request: new Request(testURL),
         context: {},
         params: { slug },
       });

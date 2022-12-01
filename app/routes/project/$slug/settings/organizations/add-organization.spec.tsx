@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
@@ -57,7 +57,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
   });
 
   test("project not found", async () => {
-    const request = createRequestWithFormData({
+    const request = await createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
       email: "anotheruser@mail.com",
@@ -79,6 +79,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       await action({ request, context: {}, params: {} });
     } catch (error) {
       const response = error as Response;
+      console.log(response);
       expect(response.status).toBe(404);
 
       const json = await response.json();

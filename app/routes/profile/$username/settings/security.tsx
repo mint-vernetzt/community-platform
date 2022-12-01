@@ -1,11 +1,10 @@
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useTransition,
-} from "remix";
+} from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";

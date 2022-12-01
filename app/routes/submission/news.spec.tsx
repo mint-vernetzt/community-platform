@@ -3,6 +3,7 @@ import { submissionMailer } from "../../lib/submissions/mailer/submissionMailer"
 import { action, loader } from "./news";
 import * as newsSchema from "../../lib/submissions/forms/news/validation.schema.json";
 import { mailerOptions } from "../../lib/submissions/mailer/mailerOptions";
+import { testURL } from "~/lib/utils/tests";
 
 jest.mock("../../lib/submissions/mailer/submissionMailer");
 
@@ -22,7 +23,7 @@ const submitForm = async (data: NewsFormData) => {
   Object.entries(data).forEach(([key, value]) => formData.append(key, value));
 
   const response: Response = await action({
-    request: new Request(path, {
+    request: new Request(`${testURL}/${path}`, {
       method: "POST",
       body: formData,
     }),
@@ -37,7 +38,7 @@ describe("GET to submission endpoint", () => {
   it.todo("should do something great");
   it("should return the news schema.json on GET", async () => {
     const response: Response = await loader({
-      request: new Request(path, {
+      request: new Request(`${testURL}/${path}`, {
         method: "GET",
       }),
       params: {},

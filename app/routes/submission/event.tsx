@@ -1,4 +1,4 @@
-import { ActionFunction, json, LoaderFunction } from "remix";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 
 import { EventFormData } from "../../lib/submissions/forms/event/eventFormData";
 import * as schema from "../../lib/submissions/forms/event/validation.schema.json";

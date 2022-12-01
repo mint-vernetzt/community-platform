@@ -1,4 +1,4 @@
-import { LoaderFunction } from "remix";
+import { LoaderFunction } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import { getDocumentById } from "~/document.server";

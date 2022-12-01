@@ -1,4 +1,5 @@
-import { Link, LoaderFunction, Outlet, useLoaderData } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { getFeatureAbilities } from "~/lib/utils/application";
 
 type LoaderData = {

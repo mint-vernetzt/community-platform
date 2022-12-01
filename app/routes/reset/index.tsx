@@ -1,9 +1,5 @@
-import {
-  ActionFunction,
-  LoaderFunction,
-  useActionData,
-  useLoaderData,
-} from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { resetPassword } from "../../auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";

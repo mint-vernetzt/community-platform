@@ -1,17 +1,18 @@
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+
 import {
-  ActionFunction,
   Form,
   Link,
-  LoaderFunction,
   useActionData,
   useFetcher,
   useLoaderData,
   useParams,
   useTransition,
-} from "remix";
+} from "@remix-run/react";
+
 import { Form as RemixForm } from "remix-forms";
 import { array, InferType, mixed, number, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";

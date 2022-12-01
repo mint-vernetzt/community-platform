@@ -1,5 +1,6 @@
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
+import { testURL } from "~/lib/utils/tests";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
@@ -68,46 +69,57 @@ describe("errors", () => {
     (getProfileByUsername as jest.Mock).mockImplementation(() => null);
   });
   test("empty username", async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     try {
       await loader({
-        request: new Request(path),
+        request: new Request(testURL),
         params: {},
         context: {},
       });
     } catch (error) {
       expect(error instanceof Response).toBe(true);
-      expect(error).toStrictEqual(
-        badRequest({ message: "Username must be provided" })
-      );
+
+      const response = error as Response;
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json).toEqual({ message: "Username must be provided" });
     }
 
     try {
       await loader({
-        request: new Request(path),
+        request: new Request(testURL),
         params: { username: "" },
         context: {},
       });
     } catch (error) {
       expect(error instanceof Response).toBe(true);
-      expect(error).toStrictEqual(
-        badRequest({ message: "Username must be provided" })
-      );
+
+      const response = error as Response;
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json).toEqual({ message: "Username must be provided" });
     }
   });
 
   test("profile doesn't exists", async () => {
-    expect.assertions(2);
+    expect.assertions(3);
     try {
       await loader({
-        request: new Request(path),
+        request: new Request(testURL),
         params: { username: "notexists" },
         context: {},
       });
     } catch (error) {
       expect(error instanceof Response).toBe(true);
-      expect(error).toStrictEqual(notFound({ message: "Profile not found" }));
+
+      const response = error as Response;
+      const json = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(json).toEqual({ message: "Profile not found" });
     }
   });
 
@@ -125,7 +137,7 @@ describe("get profile (anon)", () => {
 
   test("receive only public data", async () => {
     const res = await loader({
-      request: new Request(path),
+      request: new Request(`${testURL}/${path}`),
       params: { username: profile.username },
       context: {},
     });
@@ -172,7 +184,7 @@ describe("get profile (authenticated)", () => {
   });
   test("can read all fields", async () => {
     const res = await loader({
-      request: new Request(path),
+      request: new Request(`${testURL}/${path}`),
       params: { username: profile.username },
       context: {},
     });
@@ -207,7 +219,7 @@ describe("get profile (owner)", () => {
 
   test("can read all fields", async () => {
     const res = await loader({
-      request: new Request(path),
+      request: new Request(`${testURL}/${path}`),
       params: { username: profile.username },
       context: {},
     });

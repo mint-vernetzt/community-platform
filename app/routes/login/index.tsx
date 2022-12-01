@@ -1,4 +1,5 @@
-import { ActionFunction, json, LoaderFunction, useLoaderData } from "remix";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
 import { SomeZodObject, z } from "zod";
