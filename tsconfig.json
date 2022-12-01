@@ -14,7 +14,7 @@
       "~/*": ["./app/*"]
     },
     "noEmit": true,
-    "types": ["cypress", "@testing-library/cypress", "jest"],
+    "types": ["cypress", "@testing-library/cypress", "jest", "node"],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true
   }
