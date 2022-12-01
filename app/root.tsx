@@ -1,12 +1,9 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import * as React from "react";
 import {
   json,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-
 import {
   Form,
   Link,
@@ -19,10 +16,10 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-
-import { forbidden } from "remix-utils";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import * as React from "react";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getSessionUser, sessionStorage } from "./auth.server";
+import { getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -67,17 +64,17 @@ export const loader: LoaderFunction = async (args) => {
   );
 
   const { abilities } = await validateFeatureAccess(
-    request,
+    supabaseClient,
     ["events", "projects"],
     { throw: false }
   );
 
-  const currentUser = await getSessionUser(request);
+  const sessionUser = await getSessionUser(supabaseClient);
 
-  let currentUserInfo;
+  let sessionUserInfo;
 
-  if (currentUser !== null) {
-    const profile = await getProfileByUserId(currentUser.id, [
+  if (sessionUser !== null) {
+    const profile = await getProfileByUserId(sessionUser.id, [
       "username",
       "firstName",
       "lastName",
@@ -87,14 +84,14 @@ export const loader: LoaderFunction = async (args) => {
     let avatar: string | undefined;
 
     if (profile && profile.avatar) {
-      const publicURL = getPublicURL(profile.avatar);
+      const publicURL = getPublicURL(supabaseClient, profile.avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
-    currentUserInfo = {
+    sessionUserInfo = {
       username: profile.username,
       initials: getInitials(profile),
       name: getFullName(profile),
@@ -106,7 +103,7 @@ export const loader: LoaderFunction = async (args) => {
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
-      currentUserInfo,
+      currentUserInfo: sessionUserInfo,
       abilities, // TODO: fix type issue
     },
     { headers: response.headers }
