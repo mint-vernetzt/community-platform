@@ -13,4 +13,5 @@ module.exports = {
     config.resolve.plugins = [new TsconfigPathsPlugin()];
     return config;
   },
+  core: { disableTelemetry: true },
 };
