@@ -1,4 +1,4 @@
-import { LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { ArrayElement } from "~/lib/utils/types";
 import {
@@ -7,7 +7,8 @@ import {
   handleAuthorization,
 } from "./utils.server";
 import {
-  ActionData as AddMemberActionData,
+  SuccessActionData as AddMemberSuccessActionData,
+  FailureActionData as AddMemberFailureActionData,
   addMemberSchema,
 } from "./team/add-member";
 import {
@@ -21,6 +22,8 @@ import {
 } from "./team/set-privilege";
 import { getInitials } from "~/lib/profile/getInitials";
 import { H3 } from "~/components/Heading/Heading";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export type Member = ArrayElement<
   Awaited<ReturnType<typeof getTeamMemberProfileDataFromOrganization>>
@@ -34,27 +37,50 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async (args) => {
-  const { organization, currentUser } = await handleAuthorization(args);
+  const { request, params } = args;
+  const response = new Response();
 
-  const members = await getMembersOfOrganization(organization.id);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const slug = getParamValueOrThrow(params, "slug");
+  const { organization, sessionUser } = await handleAuthorization(
+    supabaseClient,
+    slug
+  );
+
+  const members = await getMembersOfOrganization(
+    supabaseClient,
+    organization.id
+  );
 
   const enhancedMembers = getTeamMemberProfileDataFromOrganization(
     members,
-    currentUser.id
+    sessionUser.id
   );
 
-  return {
-    members: enhancedMembers,
-    userId: currentUser.id,
-    organizationId: organization.id,
-    slug: args.params.slug,
-  };
+  return json<LoaderData>(
+    {
+      members: enhancedMembers,
+      userId: sessionUser.id,
+      organizationId: organization.id,
+      slug: slug,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const addMemberFetcher = useFetcher<AddMemberActionData>();
+  const addMemberFetcher =
+    useFetcher<AddMemberSuccessActionData | AddMemberFailureActionData>();
   const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
   const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
 

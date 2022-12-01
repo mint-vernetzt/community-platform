@@ -1,8 +1,15 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { useFetcher, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form, PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   connectOrganizationToNetwork,
   getOrganizationByName,
@@ -60,33 +67,59 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async () => {
-  return redirect(".");
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+  return redirect(".", { headers: response.headers });
 };
 
-type ActionData = {
-  result?: PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-  message?: string;
+type SuccessActionData = {
+  message: string;
 };
 
+type FailureActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  await handleAuthorization(args);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(supabaseClient, slug);
 
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {
-    return {
-      message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
-    };
+    return json<SuccessActionData>(
+      {
+        message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
+      },
+      { headers: response.headers }
+    );
   }
 
-  return result;
+  return json<FailureActionData>(result, { headers: response.headers });
 };
 
 function Add() {
   const { slug } = useParams();
-  const fetcher = useFetcher<ActionData>();
+  const fetcher = useFetcher<SuccessActionData | FailureActionData>();
 
   return (
     <>
@@ -141,7 +174,7 @@ function Add() {
           );
         }}
       </Form>
-      {fetcher?.data?.message && (
+      {fetcher.data !== undefined && "message" in fetcher.data && (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {fetcher.data.message}
         </div>

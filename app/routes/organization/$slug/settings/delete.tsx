@@ -1,10 +1,22 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { z } from "zod";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deleteOrganizationBySlug } from "~/organization.server";
+import { getProfileByUserId } from "~/profile.server";
 import { handleAuthorization } from "./utils.server";
 
 const schema = z.object({
@@ -15,9 +27,23 @@ const schema = z.object({
 });
 
 export const loader: LoaderFunction = async (args) => {
-  await handleAuthorization(args);
+  const { request, params } = args;
+  const response = new Response();
 
-  return null;
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(supabaseClient, slug);
+
+  return response;
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -29,9 +55,28 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
-  const { currentUser } = await handleAuthorization(args);
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const { sessionUser } = await handleAuthorization(supabaseClient, slug);
+
+  const profile = await getProfileByUserId(sessionUser.id, ["username"]);
 
   const result = await performMutation({
     request,
@@ -40,10 +85,12 @@ export const action: ActionFunction = async (args) => {
   });
 
   if (result.success) {
-    return redirect(`/profile/${currentUser.user_metadata.username}`);
+    return redirect(`/profile/${profile.username}`, {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Delete() {

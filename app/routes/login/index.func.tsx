@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
+import { testURL } from "~/lib/utils/tests";
 
-const request = new Request("");
+const request = new Request(testURL);
 const response = new Response();
 
 const supabaseClient = createServerClient(

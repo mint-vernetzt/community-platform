@@ -1,6 +1,6 @@
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -37,6 +37,8 @@ import {
   handleAuthorization,
   updateOrganizationById,
 } from "./utils.server";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 const organizationSchema = object({
   name: string().required("Bitte gib Euren Namen ein."),
@@ -90,7 +92,21 @@ function makeFormOrganizationFromDbOrganization(
 }
 
 export const loader: LoaderFunction = async (args) => {
-  const { slug } = await handleAuthorization(args);
+  const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(supabaseClient, slug);
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
@@ -105,12 +121,15 @@ export const loader: LoaderFunction = async (args) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return {
-    organization,
-    organizationTypes,
-    areas,
-    focuses,
-  };
+  return json<LoaderData>(
+    {
+      organization,
+      organizationTypes,
+      areas,
+      focuses,
+    },
+    { headers: response.headers }
+  );
 };
 
 type ActionData = {
@@ -121,8 +140,23 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async (args) => {
-  const { organization } = await handleAuthorization(args);
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const { organization } = await handleAuthorization(supabaseClient, slug);
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
@@ -175,12 +209,15 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return {
-    organization: data,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-    updated,
-    errors,
-  };
+  return json<ActionData>(
+    {
+      organization: data,
+      lastSubmit: (formData.get("submit") as string) ?? "",
+      updated,
+      errors,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Index() {

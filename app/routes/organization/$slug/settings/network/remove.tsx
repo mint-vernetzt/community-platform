@@ -1,10 +1,17 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import { Form, PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { NetworkMember } from ".";
 import {
   disconnectOrganizationFromNetwork,
@@ -24,20 +31,40 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async () => {
-  return redirect(".");
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+  return redirect(".", { headers: response.headers });
 };
 
 type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  await handleAuthorization(args);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(supabaseClient, slug);
 
   const result = await performMutation({ request, schema, mutation });
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export function NetworkMemberRemoveForm(

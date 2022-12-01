@@ -2,7 +2,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, notFound } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
@@ -32,6 +32,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, Mode } from "./utils.server";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
 export function links() {
   return [
@@ -59,10 +60,20 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const { slug } = params;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
   if (slug === undefined || slug === "") {
     throw badRequest({ message: "organization slug must be provided" });
   }
-  const sessionUser = await getSessionUser(request);
+  const sessionUser = await getSessionUser(supabaseClient);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -79,7 +90,7 @@ export const loader: LoaderFunction = async (args) => {
     background?: string;
   } = {};
   if (unfilteredOrganization.logo) {
-    const publicURL = getPublicURL(unfilteredOrganization.logo);
+    const publicURL = getPublicURL(supabaseClient, unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 144, height: 144 },
@@ -87,7 +98,10 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
   if (unfilteredOrganization.background) {
-    const publicURL = getPublicURL(unfilteredOrganization.background);
+    const publicURL = getPublicURL(
+      supabaseClient,
+      unfilteredOrganization.background
+    );
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -97,7 +111,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.memberOf = unfilteredOrganization.memberOf.map(
     (member) => {
       if (member.network.logo !== null) {
-        const publicURL = getPublicURL(member.network.logo);
+        const publicURL = getPublicURL(supabaseClient, member.network.logo);
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -113,7 +127,10 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.networkMembers =
     unfilteredOrganization.networkMembers.map((member) => {
       if (member.networkMember.logo !== null) {
-        const publicURL = getPublicURL(member.networkMember.logo);
+        const publicURL = getPublicURL(
+          supabaseClient,
+          member.networkMember.logo
+        );
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -128,7 +145,10 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.teamMembers = unfilteredOrganization.teamMembers.map(
     (teamMember) => {
       if (teamMember.profile.avatar !== null) {
-        const publicURL = getPublicURL(teamMember.profile.avatar);
+        const publicURL = getPublicURL(
+          supabaseClient,
+          teamMember.profile.avatar
+        );
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -144,7 +164,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.responsibleForProject =
     unfilteredOrganization.responsibleForProject.map((relation) => {
       if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(relation.project.logo);
+        const publicURL = getPublicURL(supabaseClient, relation.project.logo);
         if (publicURL !== null) {
           relation.project.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -154,7 +174,7 @@ export const loader: LoaderFunction = async (args) => {
       }
       relation.project.awards = relation.project.awards.map((relation) => {
         if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(relation.award.logo);
+          const publicURL = getPublicURL(supabaseClient, relation.award.logo);
           if (publicURL !== null) {
             relation.award.logo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -211,26 +231,31 @@ export const loader: LoaderFunction = async (args) => {
 
   const inFuture = true;
   const organizationFutureEvents = await prepareOrganizationEvents(
+    supabaseClient,
     slug,
     sessionUser,
     inFuture
   );
   const organizationPastEvents = await prepareOrganizationEvents(
+    supabaseClient,
     slug,
     sessionUser,
     !inFuture
   );
 
-  return {
-    organization,
-    userIsPrivileged,
-    images,
-    futureEvents: organizationFutureEvents,
-    pastEvents: organizationPastEvents,
-    userId: sessionUser?.id,
-    userEmail: sessionUser?.email,
-    mode,
-  };
+  return json<LoaderData>(
+    {
+      organization,
+      userIsPrivileged,
+      images,
+      futureEvents: organizationFutureEvents,
+      pastEvents: organizationPastEvents,
+      userId: sessionUser?.id,
+      userEmail: sessionUser?.email,
+      mode,
+    },
+    { headers: response.headers }
+  );
 };
 
 function hasContactInformations(

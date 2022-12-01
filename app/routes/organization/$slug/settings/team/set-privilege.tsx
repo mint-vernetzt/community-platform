@@ -1,9 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import { ActionFunction, json } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { notFound } from "remix-utils";
 import { Schema, z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getOrganizationBySlug } from "~/organization.server";
 import { getProfileByUserId } from "~/profile.server";
 import {
@@ -33,11 +35,22 @@ export type ActionData = PerformMutation<
 >;
 
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  const currentUser = await getSessionUserOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
-  const { organization } = await handleAuthorization(args);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
+  const { organization } = await handleAuthorization(supabaseClient, slug);
   await checkSameOrganizationOrThrow(request, organization.id);
 
   const result = await performMutation({ request, schema, mutation });
@@ -58,5 +71,5 @@ export const action: ActionFunction = async (args) => {
       );
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

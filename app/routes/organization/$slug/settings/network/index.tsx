@@ -1,5 +1,7 @@
-import { LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
@@ -14,12 +16,27 @@ export type NetworkMember = ArrayElement<
 
 type LoaderData = { networkMembers: NetworkMember[] };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
-  const { organization } = await handleAuthorization(args);
+export const loader: LoaderFunction = async (args) => {
+  const { request, params } = args;
+  const response = new Response();
 
-  const networkMembers = await getNetworkMembersOfOrganization(organization.id);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const slug = getParamValueOrThrow(params, "slug");
+  const { organization } = await handleAuthorization(supabaseClient, slug);
 
-  return { networkMembers };
+  const networkMembers = await getNetworkMembersOfOrganization(
+    supabaseClient,
+    organization.id
+  );
+
+  return json<LoaderData>({ networkMembers }, { headers: response.headers });
 };
 
 function Index() {
