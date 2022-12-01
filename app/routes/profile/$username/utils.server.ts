@@ -1,7 +1,6 @@
 import { Profile } from "@prisma/client";
 import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { badRequest, forbidden, notFound } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { forbidden, notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -22,25 +21,30 @@ export function deriveMode(profileId: string, sessionUser: User | null): Mode {
 }
 
 export async function handleAuthorization(
-  supabaseClient: SupabaseClient,
-  username: string,
+  sessionUserId: string,
   profileId: string
 ) {
-  if (typeof username !== "string" || username === "") {
-    throw badRequest({ message: "username must be provided" });
-  }
-  const currentUser = await getSessionUser(supabaseClient);
-
-  if (currentUser?.id !== profileId) {
+  if (sessionUserId !== profileId) {
     throw forbidden({ message: "not allowed" });
   }
-
-  return currentUser;
 }
 
-export async function getWholeProfileFromId(id: string) {
+export async function checkIdentityOrThrow(
+  request: Request,
+  sessionUser: User
+) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const userId = formData.get("userId");
+
+  if (userId === null || userId !== sessionUser.id) {
+    throw unauthorized({ message: "Identity check failed" });
+  }
+}
+
+export async function getWholeProfileFromUsername(username: string) {
   const result = await prismaClient.profile.findFirst({
-    where: { id },
+    where: { username },
     include: {
       areas: { select: { area: { select: { id: true } } } },
       offers: { select: { offer: { select: { id: true } } } },

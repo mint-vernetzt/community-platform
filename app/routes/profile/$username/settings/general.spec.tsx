@@ -1,6 +1,9 @@
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { action, loader } from "./general";
-import { getWholeProfileFromId, updateProfileById } from "../utils.server";
+import {
+  getWholeProfileFromUsername,
+  updateProfileById,
+} from "../utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
@@ -11,7 +14,7 @@ const username = "sookie";
 
 jest.mock("../utils.server", () => {
   return {
-    getWholeProfileFromId: jest.fn(),
+    getWholeProfileFromUsername: jest.fn(),
     handleAuthorization: jest.fn().mockResolvedValue({ id }),
     updateProfileById: jest.fn(),
   };
@@ -29,7 +32,7 @@ jest.mock("~/utils.server", () => {
 
 describe("loader", () => {
   test("no profile found in db", async () => {
-    (getWholeProfileFromId as jest.Mock).mockImplementationOnce(() => {
+    (getWholeProfileFromUsername as jest.Mock).mockImplementationOnce(() => {
       return null;
     });
 
@@ -49,7 +52,7 @@ describe("loader", () => {
   test("profile found", async () => {
     const profile = { id, areas: [], offers: [], seekings: [] };
 
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce(profile);
+    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce(profile);
 
     const request = new Request(testURL);
     const response = await loader({
@@ -61,7 +64,7 @@ describe("loader", () => {
     expect(response.profile).toEqual(profile);
   });
   test("flatten areas, offers and seekings", async () => {
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce({
+    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce({
       id,
       areas: [{ area: { id: "area1" } }, { area: { id: "area2" } }],
       offers: [{ offer: { id: "offer1" } }],

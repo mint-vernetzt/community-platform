@@ -1,17 +1,13 @@
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import {
-  Link,
-  useActionData,
-  useLoaderData,
-  useTransition,
-} from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { z } from "zod";
-import { updateEmail, updatePassword } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { notFound } from "remix-utils";
+import { getSessionUserOrThrow } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileByUsername } from "~/profile.server";
 import { handleAuthorization } from "../utils.server";
+
+// TODO: Rework this with new supabaseClient
 
 /* Disabled until issue #609 is resolved
 
@@ -113,15 +109,33 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
+  }
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await handleAuthorization(sessionUser.id, profile.id);
   const url = new URL(request.url);
 
-  const username = params.username ?? "";
-  await handleAuthorization(request, username);
-
-  return {
-    protocol: url.protocol,
-    host: url.host,
-  };
+  // Return response when this is reworked
+  return json<LoaderData>(
+    {
+      protocol: url.protocol,
+      host: url.host,
+    },
+    { headers: response.headers }
+  );
 };
 
 export default function Security() {
