@@ -6,7 +6,7 @@ const response = new Response();
 
 const supabaseClient = createServerClient(
   Cypress.env("SUPABASE_URL"),
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.vI9obAHOGyVVKa3pD--kJlyxp-Z2zV9UUMAhKpNLAcU",
+  Cypress.env("SERVICE_ROLE_KEY"),
   { request, response }
 );
 
