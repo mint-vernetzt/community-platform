@@ -1,5 +1,6 @@
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { isSameDay } from "date-fns";
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { json, Link, LoaderFunction, useLoaderData } from "remix";
 import { getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
@@ -21,19 +22,40 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const sessionUser = await getSessionUser(request);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const sessionUser = await getSessionUser(supabaseClient);
 
   const inFuture = true;
-  const futureEvents = await prepareEvents(sessionUser, inFuture);
-  const pastEvents = await prepareEvents(sessionUser, !inFuture);
+  const futureEvents = await prepareEvents(
+    supabaseClient,
+    sessionUser,
+    inFuture
+  );
+  const pastEvents = await prepareEvents(
+    supabaseClient,
+    sessionUser,
+    !inFuture
+  );
 
-  return {
-    futureEvents: futureEvents,
-    pastEvents: pastEvents,
-    userId: sessionUser?.id || undefined,
-    email: sessionUser?.email || undefined,
-  };
+  return json<LoaderData>(
+    {
+      futureEvents: futureEvents,
+      pastEvents: pastEvents,
+      userId: sessionUser?.id || undefined,
+      email: sessionUser?.email || undefined,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Events() {

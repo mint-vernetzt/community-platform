@@ -1,8 +1,13 @@
 import { Area } from "@prisma/client";
+import {
+  createServerClient,
+  SupabaseClient,
+} from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import {
   ActionFunction,
+  json,
   Link,
   LoaderFunction,
   useActionData,
@@ -25,6 +30,10 @@ const schema = z.object({
   areaId: z.string().optional(),
 });
 
+const environmentSchema = z.object({
+  supabaseClient: z.instanceof(SupabaseClient),
+});
+
 type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
 
 type LoaderData = {
@@ -36,8 +45,18 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const sessionUser = await getSessionUser(request);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const sessionUser = await getSessionUser(supabaseClient);
 
   const isLoggedIn = sessionUser !== null;
 
@@ -63,7 +82,7 @@ export const loader: LoaderFunction = async (args) => {
         let logoImage: string | null = null;
 
         if (logo !== null) {
-          const publicURL = getPublicURL(logo);
+          const publicURL = getPublicURL(supabaseClient, logo);
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -84,8 +103,11 @@ export const loader: LoaderFunction = async (args) => {
         return scoreB - scoreA;
       });
   }
-
-  return { isLoggedIn, organizations, areas, offers };
+  // TODO: fix type issue
+  return json<LoaderData>(
+    { isLoggedIn, organizations, areas, offers },
+    { headers: response.headers }
+  );
 };
 
 function getCompareValues(
@@ -108,7 +130,10 @@ function getCompareValues(
   return compareValues;
 }
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   if (!values.areaId) {
     throw "";
   }
@@ -120,7 +145,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
   let filteredOrganizations = await getFilteredOrganizations(areaToFilter);
 
-  // TODO: Outsource profile sorting to database
+  // TODO: Outsource organization sorting (to database?) inside loader with url params
 
   let sortedOrganizations;
   if (areaToFilter) {
@@ -219,7 +244,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     let { logo, ...rest } = item;
 
     if (logo !== null) {
-      const publicURL = getPublicURL(logo);
+      const publicURL = getPublicURL(environment.supabaseClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -244,13 +269,25 @@ type ActionData = PerformMutation<
 >;
 
 export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  // TODO: Do we need an identity/authorization check for the filter action?
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { supabaseClient: supabaseClient },
   });
 
-  return result;
+  // TODO: fix type issue
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
