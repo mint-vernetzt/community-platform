@@ -35,9 +35,9 @@ export async function checkIdentityOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-  const userId = formData.get("userId");
+  const formSenderId = formData.get("userId");
 
-  if (userId === null || userId !== sessionUser.id) {
+  if (formSenderId === null || formSenderId !== sessionUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
 }
