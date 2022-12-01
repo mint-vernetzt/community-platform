@@ -13,5 +13,9 @@ module.exports = {
     config.resolve.plugins = [new TsconfigPathsPlugin()];
     return config;
   },
-  core: { disableTelemetry: true },
+  core: {
+    builder: "webpack5",
+    disableTelemetry: true,
+  },
+  typescript: { reactDocgen: false },
 };
