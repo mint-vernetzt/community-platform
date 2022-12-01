@@ -1,16 +1,21 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
-import { SomeZodObject, z } from "zod";
-import Input from "~/components/FormElements/Input/Input";
-import { updateProfileByUserId } from "~/profile.server";
 import {
-  authenticator,
-  getUserByAccessToken,
-  sessionStorage,
-  supabaseStrategy,
-} from "../../auth.server";
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { makeDomainFunction } from "remix-domains";
+import {
+  Form as RemixForm,
+  FormProps,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, SomeZodObject, z } from "zod";
+import Input from "~/components/FormElements/Input/Input";
+import { getSessionUser } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -31,13 +36,7 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
 
-const defaultRedirect = {
-  loginSuccessRedirect: "/",
-  loginFailureRedirect: "/login",
-};
-
 type LoaderData = {
-  error: Error | null;
   loginSuccessRedirect?: string;
   loginFailureRedirect?: string;
   registerRedirect: string;
@@ -47,23 +46,43 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const url = new URL(request.url);
-  const type = url.searchParams.get("type");
-  const accessToken = url.searchParams.get("access_token");
-  if (accessToken !== null && type === "email_change") {
-    const { user, error } = await getUserByAccessToken(accessToken);
-    if (error !== null) {
-      throw error;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
     }
-    if (user !== null && user.email !== undefined) {
-      const profile = await updateProfileByUserId(user.id, {
-        email: user.email,
-      });
-      await supabaseStrategy.checkSession(request, {
-        successRedirect: `/profile/${profile.username}`,
-      });
-    }
+  );
+
+  const sessionUser = getSessionUser(supabaseClient);
+
+  if (sessionUser !== null) {
+    return redirect("/explore", { headers: response.headers });
   }
+
+  const url = new URL(request.url);
+
+  // TODO: Rework email change
+  // const type = url.searchParams.get("type");
+  // const accessToken = url.searchParams.get("access_token");
+  // if (accessToken !== null && type === "email_change") {
+  //   const { user, error } = await getUserByAccessToken(accessToken);
+  //   if (error !== null) {
+  //     throw error;
+  //   }
+  //   if (user !== null && user.email !== undefined) {
+  //     const profile = await updateProfileByUserId(user.id, {
+  //       email: user.email,
+  //     });
+  //     await supabaseStrategy.checkSession(request, {
+  //       successRedirect: `/profile/${profile.username}`,
+  //     });
+  //   }
+  // }
+
   let loginSuccessRedirect;
   let loginFailureRedirect;
   const eventSlug = url.searchParams.get("event_slug");
@@ -79,48 +98,59 @@ export const loader: LoaderFunction = async (args) => {
     `/reset/set-password?redirect_to=${request.url}`;
   const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
 
-  await supabaseStrategy.checkSession(request, {
-    successRedirect: "/explore",
-  });
-
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
+  return json<LoaderData>(
+    {
+      loginSuccessRedirect,
+      loginFailureRedirect,
+      registerRedirect,
+      resetPasswordRedirect,
+    },
+    { headers: response.headers }
   );
-
-  const error = session.get(authenticator.sessionErrorKey);
-
-  return json<LoaderData>({
-    error,
-    loginSuccessRedirect,
-    loginFailureRedirect,
-    registerRedirect,
-    resetPasswordRedirect,
-  });
 };
+
+// TODO: Rework login
+// const defaultRedirect = {
+//   loginSuccessRedirect: "/",
+//   loginFailureRedirect: "/login",
+// };
 
 const mutation = makeDomainFunction(schema)(async (values) => values);
 
-export const action: ActionFunction = async (args) => {
-  const request = args.request.clone();
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+  const clonedRequest = request.clone();
 
   const result = await performMutation({
-    request,
+    request: clonedRequest,
     schema,
     mutation,
   });
 
-  if (result.success) {
-    await authenticator.authenticate("sb", request, {
-      successRedirect:
-        result.data.loginSuccessRedirect ||
-        defaultRedirect.loginSuccessRedirect,
-      failureRedirect:
-        result.data.loginFailureRedirect ||
-        defaultRedirect.loginFailureRedirect,
-    });
-  }
+  // TODO: Rework login -> Maybe move to mutation
+  // Return error when login failed
+  // if (result.success) {
+  //   await authenticator.authenticate("sb", request, {
+  //     successRedirect:
+  //       result.data.loginSuccessRedirect ||
+  //       defaultRedirect.loginSuccessRedirect,
+  //     failureRedirect:
+  //       result.data.loginFailureRedirect ||
+  //       defaultRedirect.loginFailureRedirect,
+  //   });
+  // }
 
-  return null;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
@@ -160,6 +190,7 @@ export default function Index() {
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Anmelden</h1>
+                {/* TODO: Rework login: Use error from actionData result */}
                 {loaderData.error && (
                   <div className="alert-error p-3 mb-3 text-white">
                     Deine Anmeldedaten (E-Mail oder Passwort) sind nicht
