@@ -1,25 +1,45 @@
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { useSubmit } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSubmit } from "@remix-run/react";
-import { authenticator, sessionStorage } from "~/auth.server";
+import { getSession } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
   );
 
-  const sessionValue = session.get(authenticator.sessionKey);
-  const hasSession = sessionValue !== undefined;
+  // Remove this if the landing page should be accessible for logged in users
+  const session = await getSession(supabaseClient);
+  if (session !== null) {
+    return redirect("/explore", { headers: response.headers });
+  }
 
-  return { hasSession };
+  // Remove this when landing page is designed
+  // This is the default redirect to /explore if someone visits this landing page
+  if (session === null) {
+    return redirect("/explore", { headers: response.headers });
+  }
+
+  return response;
 };
 
 export default function Index() {
   const submit = useSubmit();
-  const loaderData = useLoaderData();
 
-  // TODO: Move this inside the loader and get url params from request.url ?
+  // TODO: Make this to the access point of all confirmation links
+  // Check if we still need the accessToken
+  // If yes -> slice it from hash (use getAccessTokenFromHash() in lib)
+  // redirect to this route and do all following operations in this loader (redirect, email change on user, etc...)
+  // If no -> Remove below code and redirect right to the wanted location inside the loader (depending on type in urlParams)
   React.useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.hash.slice(1));
     const type = urlSearchParams.get("type");
@@ -31,14 +51,7 @@ export default function Index() {
         return;
       }
     }
-    if (loaderData.hasSession) {
-      submit(null, { action: "/explore" });
-    }
-    // TODO: Remove submit in else case when the landing page is designed and implemented
-    else {
-      submit(null, { action: "/explore" });
-    }
-  }, [loaderData]);
+  }, [submit]);
 
   return null;
 }
