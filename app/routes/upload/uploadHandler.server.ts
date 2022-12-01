@@ -19,7 +19,6 @@ function generatePathName(extension: string, hash: string, name: string) {
 
 const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
-
   const { contentType, data, name, filename } = part;
 
   let bytes = [];

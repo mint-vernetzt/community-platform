@@ -1,8 +1,10 @@
-import { ActionFunction } from "@remix-run/node";
+import { ActionFunction, json, redirect } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import { formAction } from "remix-forms";
+import { PerformMutation, performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { Schema, z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
@@ -15,15 +17,12 @@ import { environment, schema } from "./schema";
 const mutation = makeDomainFunction(
   schema,
   environment
-)(async (values, { request }) => {
+)(async (values, { supabaseClient }) => {
   const { subject, slug, uploadKey } = values;
 
   let success = true;
 
-  const sessionUser = await getSessionUser(request);
-  if (!sessionUser?.id) {
-    throw serverError({ message: "You must be logged in." });
-  }
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
   try {
     if (subject === "user") {
@@ -63,17 +62,35 @@ const mutation = makeDomainFunction(
   return { success };
 });
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.clone().formData();
-  const redirect = formData.get("redirect")?.toString();
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
-  return formAction({
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const formData = await request.clone().formData();
+  const redirectUrl = formData.get("redirect")?.toString();
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
     environment: {
-      request: request,
+      supabaseClient: supabaseClient,
     },
-    successPath: redirect,
   });
+
+  if (result.success && redirectUrl !== undefined) {
+    return redirect(redirectUrl, { headers: response.headers });
+  }
+
+  // TODO: fix type issue or let it be fixed by aligning with upload documents
+  return json<ActionData>(result, { headers: response.headers });
 };
