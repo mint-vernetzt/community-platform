@@ -117,16 +117,16 @@ export async function getProjectByField(field: string, value: string) {
 
 export async function deriveMode(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlug>>>,
-  currentUser: User | null
+  sessionUser: User | null
 ) {
-  if (currentUser === null) {
+  if (sessionUser === null) {
     return "anon";
   }
 
   const relation = await prismaClient.teamMemberOfProject.findFirst({
     where: {
       projectId: project.id,
-      profileId: currentUser.id,
+      profileId: sessionUser.id,
     },
   });
 

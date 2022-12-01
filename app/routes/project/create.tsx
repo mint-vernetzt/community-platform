@@ -1,11 +1,19 @@
-import { useLoaderData } from "@remix-run/react";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { forbidden } from "remix-utils";
-import { z } from "zod";
-import { getSessionUser, getSessionUserOrThrow } from "~/auth.server";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { generateProjectSlug } from "~/utils";
@@ -22,15 +30,25 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const currentUser = await getSessionUser(request);
-  if (currentUser === null) {
-    throw forbidden({ message: "Not allowed" });
-  }
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
-  await checkFeatureAbilitiesOrThrow(request, "projects");
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
-  return { userId: currentUser.id };
+  await checkFeatureAbilitiesOrThrow(supabaseClient, "projects");
+
+  return json<LoaderData>(
+    { userId: sessionUser.id },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -38,11 +56,23 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values, slug };
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const currentUser = await getSessionUserOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({
     request,
@@ -52,14 +82,16 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success) {
     await createProjectOnProfile(
-      currentUser.id,
+      sessionUser.id,
       result.data.projectName,
       result.data.slug
     );
-    return redirect(`/project/${result.data.slug}`);
+    return redirect(`/project/${result.data.slug}`, {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 function Create() {

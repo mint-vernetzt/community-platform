@@ -7,7 +7,7 @@ import { loader } from "./organizations";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
 
 const slug = "slug-test";
 
@@ -49,7 +49,7 @@ describe("/project/$slug/settings/organizations", () => {
 
     (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     const request = new Request(testURL);
     try {
@@ -66,7 +66,7 @@ describe("/project/$slug/settings/organizations", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
+    getSessionUser.mockResolvedValue(null);
 
     try {
       await loader({
@@ -86,7 +86,7 @@ describe("/project/$slug/settings/organizations", () => {
   test("not privileged user", async () => {
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { slug };
@@ -113,7 +113,7 @@ describe("/project/$slug/settings/organizations", () => {
   });
 
   test("privileged user", async () => {
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
 
     (
       prismaClient.teamMemberOfProject.findFirst as jest.Mock

@@ -1,5 +1,6 @@
-import { LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
@@ -28,19 +29,31 @@ type LoaderData = {
   teamMembers: ReturnType<typeof getTeamMemberProfileDataFromProject>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getSessionUserOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const project = await getProjectBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
 
   const teamMembers = getTeamMemberProfileDataFromProject(
     project,
-    currentUser.id
+    sessionUser.id
   );
-
-  return { userId: currentUser.id, projectId: project.id, teamMembers };
+  return json<LoaderData>(
+    { userId: sessionUser.id, projectId: project.id, teamMembers },
+    { headers: response.headers }
+  );
 };
 
 function Team() {

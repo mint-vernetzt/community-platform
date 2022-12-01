@@ -1,9 +1,9 @@
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { badRequest, notFound } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H4 } from "~/components/Heading/Heading";
@@ -16,6 +16,7 @@ import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
 
@@ -68,31 +69,34 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  const { slug } = params;
+  const response = new Response();
 
-  if (slug === undefined || typeof slug !== "string") {
-    throw badRequest({ message: '"slug" missing' });
-  }
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const slug = getParamValueOrThrow(params, "slug");
 
   const project = await getProjectBySlugOrThrow(slug);
 
-  if (project === null) {
-    throw notFound({ message: `Project not found` });
-  }
+  const sessionUser = await getSessionUser(supabaseClient);
 
-  const currentUser = await getSessionUser(request);
-
-  const mode = await deriveMode(project, currentUser);
+  const mode = await deriveMode(project, sessionUser);
 
   if (project.logo !== null) {
-    const publicURL = getPublicURL(project.logo);
+    const publicURL = getPublicURL(supabaseClient, project.logo);
     project.logo = getImageURL(publicURL, {
       resize: { type: "fit", width: 144, height: 144 },
     });
   }
 
   if (project.background !== null) {
-    const publicURL = getPublicURL(project.background);
+    const publicURL = getPublicURL(supabaseClient, project.background);
     project.background = getImageURL(publicURL, {
       resize: { type: "fit", width: 1488, height: 480 },
     });
@@ -100,7 +104,7 @@ export const loader: LoaderFunction = async (args) => {
 
   project.teamMembers = project.teamMembers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(item.profile.avatar);
+      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
       item.profile.avatar = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
@@ -111,7 +115,7 @@ export const loader: LoaderFunction = async (args) => {
   project.responsibleOrganizations = project.responsibleOrganizations.map(
     (item) => {
       if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(item.organization.logo);
+        const publicURL = getPublicURL(supabaseClient, item.organization.logo);
         item.organization.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
@@ -122,7 +126,7 @@ export const loader: LoaderFunction = async (args) => {
 
   project.awards = project.awards.map((item) => {
     if (item.award.logo !== null) {
-      const publicURL = getPublicURL(item.award.logo);
+      const publicURL = getPublicURL(supabaseClient, item.award.logo);
       item.award.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
@@ -130,7 +134,7 @@ export const loader: LoaderFunction = async (args) => {
     return item;
   });
 
-  return { mode, slug, project };
+  return json<LoaderData>({ mode, project }, { headers: response.headers });
 };
 
 function Index() {

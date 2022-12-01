@@ -1,6 +1,6 @@
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -34,6 +34,7 @@ import {
   transformProjectToForm,
   updateProjectById,
 } from "./utils.server";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
 const schema = object({
   userId: string().required(),
@@ -72,32 +73,62 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getSessionUserOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const project = await getProjectBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
 
   const targetGroups = await getTargetGroups();
   const disciplines = await getDisciplines();
 
-  return {
-    userId: currentUser.id,
-    project: transformProjectToForm(project),
-    targetGroups,
-    disciplines,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      project: transformProjectToForm(project),
+      targetGroups,
+      disciplines,
+    },
+    { headers: response.headers }
+  );
+};
+
+type ActionData = {
+  data: FormType;
+  errors: FormError | null;
+  updated: boolean;
+  lastSubmit: string;
 };
 
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getSessionUserOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const project = await getProjectBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
 
   const result = await getFormDataValidationResultOrThrow<typeof schema>(
     request,
@@ -124,19 +155,22 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return {
-    data,
-    errors,
-    updated,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-  };
+  return json<ActionData>(
+    {
+      data,
+      errors,
+      updated,
+      lastSubmit: (formData.get("submit") as string) ?? "",
+    },
+    { headers: response.headers }
+  );
 };
 
 function General() {
   const { slug } = useParams();
 
   const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
 
   const { project: originalProject, targetGroups, disciplines } = loaderData;
 

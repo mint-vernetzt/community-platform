@@ -1,4 +1,5 @@
-import { ActionFunction } from "@remix-run/node";
+import { ActionFunction, json } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import { PerformMutation, performMutation } from "remix-forms";
 import { Schema, z } from "zod";
@@ -32,14 +33,24 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getSessionUserOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const project = await getProjectByIdOrThrow(result.data.projectId);
-    await checkOwnershipOrThrow(project, currentUser);
+    await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
     const teamMemberProfile = await getProfileByUserId(
       result.data.teamMemberId
@@ -52,5 +63,5 @@ export const action: ActionFunction = async (args) => {
       );
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

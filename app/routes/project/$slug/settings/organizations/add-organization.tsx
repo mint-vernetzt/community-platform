@@ -1,4 +1,4 @@
-import type { ActionFunction } from "@remix-run/node";
+import { ActionFunction, json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { getSessionUserOrThrow } from "~/auth.server";
 import type { PerformMutation } from "remix-forms";
@@ -13,6 +13,7 @@ import {
   checkSameProjectOrThrow,
 } from "../utils.server";
 import { connectOrganizationToProject } from "./utils.server";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
 const schema = z.object({
   userId: z.string(),
@@ -49,14 +50,24 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getSessionUserOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const project = await getProjectByIdOrThrow(result.data.projectId);
-    await checkOwnershipOrThrow(project, currentUser);
+    await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
     const organization = await getOrganizationByName(
       result.data.organizationName
@@ -65,5 +76,5 @@ export const action: ActionFunction = async (args) => {
       await connectOrganizationToProject(project.id, organization.id);
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
