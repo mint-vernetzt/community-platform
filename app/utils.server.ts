@@ -3,17 +3,7 @@ import { getSession } from "./auth.server";
 import { forbidden } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
-import type { Readable } from "stream";
 import { SupabaseClient } from "@supabase/auth-helpers-remix";
-
-export async function stream2buffer(stream: Readable): Promise<Buffer> {
-  return new Promise<Buffer>((resolve, reject) => {
-    const _buf: Array<Uint8Array> = [];
-    stream.on("data", (chunk) => _buf.push(chunk));
-    stream.on("end", () => resolve(Buffer.concat(_buf)));
-    stream.on("error", (err) => reject(`error converting stream - ${err}`));
-  });
-}
 
 export async function createHashFromString(
   string: string,
