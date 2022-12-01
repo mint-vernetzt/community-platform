@@ -1,20 +1,3 @@
-import { json } from "@remix-run/node";
-
-export function badRequest(): Response {
-  return json("Bad Request", { status: 400 });
-}
-
-export function validateFormData(
-  requiredKeys: string[],
-  formData: FormData
-): boolean {
-  const isValid = requiredKeys.every((key) => {
-    const value = formData.get(key);
-    return value !== null && value !== "";
-  });
-  return isValid;
-}
-
 export function generateUsername(firstName: string, lastName: string) {
   return generateValidSlug(`${firstName}${lastName}`);
 }
@@ -36,6 +19,8 @@ export function generateProjectSlug(name: string) {
   return `${nameSlug}-${stringFromTimestamp}`;
 }
 
+// TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
+// (Greek letters, chinese letters, arabic letters, etc...)
 function generateValidSlug(string: string) {
   return string
     .toLowerCase()
