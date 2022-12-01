@@ -1,10 +1,11 @@
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { badRequest, notFound } from "remix-utils";
+import { notFound } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -22,6 +23,7 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
@@ -32,7 +34,6 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, Mode } from "./utils.server";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 export function links() {
   return [
@@ -59,7 +60,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  const { slug } = params;
   const response = new Response();
 
   const supabaseClient = createServerClient(
@@ -70,9 +70,7 @@ export const loader: LoaderFunction = async (args) => {
       response,
     }
   );
-  if (slug === undefined || slug === "") {
-    throw badRequest({ message: "organization slug must be provided" });
-  }
+  const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(supabaseClient);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);

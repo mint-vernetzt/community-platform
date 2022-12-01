@@ -1,4 +1,19 @@
+import { User } from "@supabase/auth-helpers-remix";
+import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
+
+export async function checkIdentityOrThrow(
+  request: Request,
+  sessionUser: User
+) {
+  const clonedRequest = request.clone();
+  const formData = await clonedRequest.formData();
+  const userId = formData.get("userId");
+
+  if (userId === null || userId !== sessionUser.id) {
+    throw unauthorized({ message: "Identity check failed" });
+  }
+}
 
 export async function createEventOnProfile(
   profileId: string,

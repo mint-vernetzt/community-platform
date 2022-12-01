@@ -57,7 +57,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
-  const sessionUser = getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(supabaseClient);
 
   if (sessionUser !== null) {
     return redirect("/explore", { headers: response.headers });

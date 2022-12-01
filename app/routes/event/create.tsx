@@ -1,14 +1,14 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
-  json,
   ActionFunction,
+  json,
   LoaderFunction,
   redirect,
 } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { badRequest, forbidden } from "remix-utils";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { badRequest } from "remix-utils";
 import { date, InferType, object, string } from "yup";
-import { getSessionUser } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import {
   FormError,
@@ -17,10 +17,10 @@ import {
   validateForm,
 } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
-import { createEventOnProfile } from "./utils.server";
+import { checkIdentityOrThrow, createEventOnProfile } from "./utils.server";
 
 const schema = object({
-  id: string().uuid().required(),
+  userId: string().uuid().required(),
   name: string().required("Please add event name"),
   startDate: date()
     .transform((current, original) => {
@@ -66,10 +66,7 @@ export const loader: LoaderFunction = async (args) => {
       response,
     }
   );
-  const sessionUser = await getSessionUser(supabaseClient);
-  if (sessionUser === null) {
-    throw forbidden({ message: "Not allowed" });
-  }
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
   const url = new URL(request.url);
   const child = url.searchParams.get("child") || "";
@@ -115,13 +112,10 @@ export const action: ActionFunction = async (args) => {
       response,
     }
   );
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
-
-  const sessionUser = await getSessionUser(supabaseClient);
-  if (sessionUser === null || sessionUser.id !== parsedFormData.id) {
-    throw forbidden({ message: "Not allowed" });
-  }
 
   let errors: FormError | null;
   let data: FormType;
@@ -168,7 +162,7 @@ export default function Create() {
   return (
     <Form method="post">
       <h1>create event</h1>
-      <input name="id" defaultValue={loaderData.id} hidden />
+      <input name="userId" defaultValue={loaderData.id} hidden />
       <input name="child" defaultValue={loaderData.child} hidden />
       <input name="parent" defaultValue={loaderData.parent} hidden />
       <div className="m-2">
