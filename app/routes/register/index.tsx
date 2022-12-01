@@ -1,6 +1,10 @@
-import React from "react";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  createServerClient,
+  SupabaseClient,
+} from "@supabase/auth-helpers-remix";
+import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
@@ -10,7 +14,6 @@ import {
 import { Schema, z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
-import { signUp } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -35,13 +38,26 @@ const schema = z.object({
   redirectToAfterRegister: z.string().optional(),
 });
 
+const environmentSchema = z.object({
+  supabaseClient: z.instanceof(SupabaseClient),
+});
+
 type LoaderData = {
   redirectToAfterRegister: string | null;
   loginRedirect?: string;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+
+  // TODO: Rework register: redirectToAfterRegister should be base index route
+  // Redirect after login should be default or event page
   const url = new URL(request.url);
   const redirectToAfterRegister = url.searchParams.get("redirect_to");
   let loginRedirect;
@@ -53,10 +69,16 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   }
 
-  return { redirectToAfterRegister, loginRedirect };
+  return json<LoaderData>(
+    { redirectToAfterRegister, loginRedirect },
+    { headers: response.headers }
+  );
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   // TODO: move to database trigger
   const { firstName, lastName, academicTitle, termsAccepted } = values;
 
@@ -76,21 +98,23 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       : ""
   }`;
 
-  const { error } = await signUp(
-    values.email,
-    values.password,
-    values.redirectToAfterRegister,
-    {
-      firstName,
-      lastName,
-      username,
-      academicTitle,
-      termsAccepted,
-    }
-  );
-  if (error !== null) {
-    throw error.message;
-  }
+  // TODO: Rework supabase signUp -> Create new method in auth.server.ts
+
+  // const { error } = await signUp(
+  //   values.email,
+  //   values.password,
+  //   values.redirectToAfterRegister,
+  //   {
+  //     firstName,
+  //     lastName,
+  //     username,
+  //     academicTitle,
+  //     termsAccepted,
+  //   }
+  // );
+  // if (error !== null) {
+  //   throw error.message;
+  // }
 
   return values;
 });
@@ -99,12 +123,25 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  return await performMutation({
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { supabaseClient: supabaseClient },
   });
+
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Register() {

@@ -4,11 +4,18 @@ import {
   LoaderFunction,
   redirect,
 } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
+import {
+  createServerClient,
+  SupabaseClient,
+} from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { z } from "zod";
-import { getURLSearchParameterFromURLHash } from "~/lib/utils/url";
+import {
+  Form as RemixForm,
+  PerformMutation,
+  performMutation,
+} from "remix-forms";
+import { Schema, z } from "zod";
 import { updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -21,6 +28,8 @@ const schema = z.object({
   confirmPassword: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
+
+  // TODO: Check if we still need the access token
   accessToken: z
     .string()
     .min(
@@ -30,6 +39,10 @@ const schema = z.object({
   redirectToAfterSetPassword: z.string().optional(),
 });
 
+const environmentSchema = z.object({
+  supabaseClient: z.instanceof(SupabaseClient),
+});
+
 type LoaderData = {
   accessToken: string | null;
   redirectToAfterSetPassword: string | null;
@@ -37,70 +50,101 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+
+  // TODO: Rework reset password -> Check redirects
+  // reset -> set-password -> login -> either default or event page
+  // Check if we still need the access token
   const url = new URL(request.url);
   const accessToken = url.searchParams.get("access_token");
   const redirectToAfterSetPassword = url.searchParams.get("redirect_to");
 
-  return json<LoaderData>({ accessToken, redirectToAfterSetPassword });
+  return json<LoaderData>(
+    { accessToken, redirectToAfterSetPassword },
+    { headers: response.headers }
+  );
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   if (values.password !== values.confirmPassword) {
     throw new InputError(
       "Deine Passwörter stimmen nicht überein.",
       "confirmPassword"
     ); // -- Field error
   }
-  const { error } = await updatePassword(values.password, values.accessToken);
+  const { error } = await updatePassword(
+    environment.supabaseClient,
+    values.password
+  );
   if (error !== null) {
     throw error.message;
   }
   return values;
 });
 
-// TODO: Make generic actionData type to reuse in other routes
-type ActionData = {
-  errors: Record<keyof z.infer<typeof schema>, string[]>;
-  values: z.infer<typeof schema>;
-};
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { supabaseClient: supabaseClient },
   });
 
   if (result.success) {
-    return redirect(result.data.redirectToAfterSetPassword || "/login");
+    // TODO: Rework reset password -> Check redirects
+    // reset -> set-password -> login -> either default or event page
+    return redirect(result.data.redirectToAfterSetPassword || "/login", {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
-export function getAccessToken(
-  urlSearchParameter: URLSearchParams | null,
-  actionData?: ActionData
-) {
-  if (urlSearchParameter !== null) {
-    const accessToken = urlSearchParameter.get("access_token");
-    if (accessToken !== null) {
-      return accessToken;
-    }
-  }
-  if (actionData !== undefined && actionData.values !== undefined) {
-    return actionData.values.accessToken;
-  }
-  return "";
-}
+// Check if we still need the access token
+// export function getAccessToken(
+//   urlSearchParameter: URLSearchParams | null,
+//   actionData?: ActionData
+// ) {
+//   if (urlSearchParameter !== null) {
+//     const accessToken = urlSearchParameter.get("access_token");
+//     if (accessToken !== null) {
+//       return accessToken;
+//     }
+//   }
+//   if (actionData !== undefined && actionData.values !== undefined) {
+//     return actionData.values.accessToken;
+//   }
+//   return "";
+// }
 
 export default function SetPassword() {
   const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData<ActionData>();
 
-  const urlSearchParameter = getURLSearchParameterFromURLHash();
-  const accessToken = getAccessToken(urlSearchParameter, actionData);
+  // Check if we still need the access token
+  // const actionData = useActionData<ActionData>();
+  // const urlSearchParameter = getURLSearchParameterFromURLHash();
+  // const accessToken = getAccessToken(urlSearchParameter, actionData);
 
   return (
     <>
@@ -158,7 +202,8 @@ export default function SetPassword() {
                   </Field>
                 </div>
 
-                <Field name="accessToken">
+                {/* Check if we still need the access token */}
+                {/* <Field name="accessToken">
                   {({ Errors }) => (
                     <>
                       <input
@@ -169,7 +214,7 @@ export default function SetPassword() {
                       <Errors />
                     </>
                   )}
-                </Field>
+                </Field> */}
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">

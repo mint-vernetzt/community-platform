@@ -1,5 +1,6 @@
 import { Profile } from "@prisma/client";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { testURL } from "~/lib/utils/tests";
 
 it("register user", () => {
   cy.visit("http://localhost:3000/register");
@@ -13,9 +14,13 @@ it("register user", () => {
 });
 
 after(async () => {
-  const supabaseClient = createClient(
+  const request = new Request(testURL);
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
     Cypress.env("SUPABASE_URL"),
-    Cypress.env("SERVICE_ROLE_KEY")
+    Cypress.env("SERVICE_ROLE_KEY"),
+    { request, response }
   );
 
   const res = await supabaseClient
@@ -25,9 +30,9 @@ after(async () => {
     .single();
 
   if (res.data !== null) {
-    const profile: Profile = res.data;
+    const profile: Profile = res.data; // TODO: fix type issue
     await supabaseClient.from("profiles").delete().match({ id: profile.id });
-    await supabaseClient.auth.api.deleteUser(profile.id);
+    await supabaseClient.auth.admin.deleteUser(profile.id);
   } else {
     throw new Error("Couldn't reset profiles and users.");
   }

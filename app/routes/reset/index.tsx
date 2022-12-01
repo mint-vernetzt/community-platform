@@ -1,5 +1,5 @@
 import { sendResetPasswordLink } from "../../auth.server";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import Input from "~/components/FormElements/Input/Input";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -11,6 +11,10 @@ import {
 } from "remix-forms";
 import { Schema, z } from "zod";
 import { makeDomainFunction } from "remix-domains";
+import {
+  createServerClient,
+  SupabaseClient,
+} from "@supabase/auth-helpers-remix";
 
 const schema = z.object({
   email: z
@@ -20,13 +24,26 @@ const schema = z.object({
   redirectToAfterResetPassword: z.string().optional(),
 });
 
+const environmentSchema = z.object({
+  supabaseClient: z.instanceof(SupabaseClient),
+});
+
 type LoaderData = {
   redirectToAfterResetPassword: string | null;
   loginRedirect?: string;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
+
+  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    request,
+    response,
+  });
+
+  // TODO: Rework reset password -> Check redirects
+  // reset -> set-password -> login -> either default or event page
   const url = new URL(request.url);
   const redirectToAfterResetPassword = url.searchParams.get("redirect_to");
   let loginRedirect;
@@ -42,11 +59,18 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   }
 
-  return { redirectToAfterResetPassword, loginRedirect };
+  return json<LoaderData>(
+    { redirectToAfterResetPassword, loginRedirect },
+    { headers: response.headers }
+  );
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   const { error } = await sendResetPasswordLink(
+    environment.supabaseClient,
     values.email,
     values.redirectToAfterResetPassword
   );
@@ -61,12 +85,25 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  return await performMutation({
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { supabaseClient: supabaseClient },
   });
+
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
