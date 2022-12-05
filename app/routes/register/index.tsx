@@ -1,4 +1,5 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import {
   createServerClient,
@@ -6,12 +7,11 @@ import {
 } from "@supabase/auth-helpers-remix";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
@@ -35,15 +35,15 @@ const schema = z.object({
       "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
     ),
   termsAccepted: z.boolean(),
-  redirectToAfterRegister: z.string().optional(),
+  loginRedirect: z.string().optional(),
 });
 
 const environmentSchema = z.object({
   supabaseClient: z.instanceof(SupabaseClient),
+  siteUrl: z.string(),
 });
 
 type LoaderData = {
-  redirectToAfterRegister: string | null;
   loginRedirect?: string;
 };
 
@@ -59,20 +59,13 @@ export const loader: LoaderFunction = async (args) => {
   // TODO: Rework register: redirectToAfterRegister should be base index route
   // Redirect after login should be default or event page
   const url = new URL(request.url);
-  const redirectToAfterRegister = url.searchParams.get("redirect_to");
+  const loginRedirectSearchParam = url.searchParams.get("login_redirect");
   let loginRedirect;
-  if (redirectToAfterRegister !== null) {
-    const redirectURL = new URL(redirectToAfterRegister);
-    const eventSlug = redirectURL.searchParams.get("event_slug");
-    if (eventSlug !== null) {
-      loginRedirect = `/login?event_slug=${eventSlug}`;
-    }
+  if (loginRedirectSearchParam !== null) {
+    loginRedirect = loginRedirectSearchParam;
   }
 
-  return json<LoaderData>(
-    { redirectToAfterRegister, loginRedirect },
-    { headers: response.headers }
-  );
+  return json<LoaderData>({ loginRedirect }, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(
@@ -98,23 +91,27 @@ const mutation = makeDomainFunction(
       : ""
   }`;
 
-  // TODO: Rework supabase signUp -> Create new method in auth.server.ts
+  // Passing through a possible redirect after login (e.g. to an event)
+  const emailRedirectTo = values.loginRedirect
+    ? environment.siteUrl + values.loginRedirect
+    : undefined;
 
-  // const { error } = await signUp(
-  //   values.email,
-  //   values.password,
-  //   values.redirectToAfterRegister,
-  //   {
-  //     firstName,
-  //     lastName,
-  //     username,
-  //     academicTitle,
-  //     termsAccepted,
-  //   }
-  // );
-  // if (error !== null) {
-  //   throw error.message;
-  // }
+  const { error } = await signUp(
+    environment.supabaseClient,
+    values.email,
+    values.password,
+    {
+      firstName,
+      lastName,
+      username,
+      academicTitle: academicTitle || null,
+      termsAccepted,
+    },
+    emailRedirectTo
+  );
+  if (error !== null) {
+    throw error.message;
+  }
 
   return values;
 });
@@ -134,11 +131,14 @@ export const action: ActionFunction = async (args) => {
     }
   );
 
+  const url = new URL(request.url);
+  const siteUrl = url.protocol + "//" + url.host + "/index?login_redirect=";
+
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient },
+    environment: { supabaseClient: supabaseClient, siteUrl: siteUrl },
   });
 
   return json<ActionData>(result, { headers: response.headers });
@@ -195,9 +195,9 @@ export default function Register() {
               <RemixForm
                 method="post"
                 schema={schema}
-                hiddenFields={["redirectToAfterRegister"]}
+                hiddenFields={["loginRedirect"]}
                 values={{
-                  redirectToAfterRegister: loaderData.redirectToAfterRegister,
+                  loginRedirect: loaderData.loginRedirect,
                 }}
               >
                 {({ Field, Button, Errors, register }) => (
@@ -209,7 +209,7 @@ export default function Register() {
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
-                        <Field name="redirectToAfterRegister" />
+                        <Field name="loginRedirect" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>

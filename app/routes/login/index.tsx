@@ -85,11 +85,14 @@ export const loader: LoaderFunction = async (args) => {
 
   let loginSuccessRedirect;
   let loginFailureRedirect;
-  const eventSlug = url.searchParams.get("event_slug");
-  if (eventSlug !== null) {
-    loginSuccessRedirect = `/event/${eventSlug}`;
-    loginFailureRedirect = `/login?event_slug=${eventSlug}`;
+  const loginRedirect = url.searchParams.get("login_redirect");
+  if (loginRedirect !== null) {
+    loginSuccessRedirect = loginRedirect;
+    // TODO: Check if we need the failure redirect
+    loginFailureRedirect = `/login?login_redirect=${loginRedirect}`;
   }
+  // Those redirects should be obsolete as all confirmation links should lead to the landing page
+  // There they get distibuted depending on its type
   const registerRedirect = `/register?redirect_to=${request.url}`;
   const absoluteSetPasswordURL =
     url.protocol +

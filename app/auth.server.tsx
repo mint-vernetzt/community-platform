@@ -1,6 +1,28 @@
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { Profile } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
+
+export const signUp = async (
+  supabaseClient: SupabaseClient,
+  email: string,
+  password: string,
+  metaData: Pick<
+    Profile,
+    "username" | "firstName" | "lastName" | "academicTitle" | "termsAccepted"
+  >,
+  emailRedirectTo?: string
+) => {
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: metaData,
+      emailRedirectTo: emailRedirectTo,
+    },
+  });
+  return { data, error };
+};
 
 export const getSession = async (supabaseClient: SupabaseClient) => {
   const {

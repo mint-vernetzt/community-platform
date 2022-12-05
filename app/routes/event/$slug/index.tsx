@@ -514,7 +514,7 @@ function Index() {
                       <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
                         <Link
                           className="btn btn-primary"
-                          to={`/login?event_slug=${loaderData.event.slug}`}
+                          to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                         >
                           Anmelden um teilzunehmen
                         </Link>
