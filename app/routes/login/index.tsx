@@ -1,21 +1,14 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect,
-} from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Link, useSearchParams } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  FormProps,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
-import { Schema, SomeZodObject, z } from "zod";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { FormProps, PerformMutation } from "remix-forms";
+import { z } from "zod";
+import type { Schema, SomeZodObject } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { getSessionUser } from "../../auth.server";
+import { getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -28,20 +21,17 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  loginSuccessRedirect: z.string().optional(),
-  loginFailureRedirect: z.string().optional(),
+  loginRedirect: z.string().optional(),
+});
+
+const environmentSchema = z.object({
+  supabaseClient: z.unknown(),
+  // supabaseClient: z.instanceof(SupabaseClient),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
-
-type LoaderData = {
-  loginSuccessRedirect?: string;
-  loginFailureRedirect?: string;
-  registerRedirect: string;
-  resetPasswordRedirect: string;
-};
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
@@ -63,62 +53,29 @@ export const loader: LoaderFunction = async (args) => {
     return redirect("/explore", { headers: response.headers });
   }
 
-  const url = new URL(request.url);
-
-  // TODO: Rework email change
-  // const type = url.searchParams.get("type");
-  // const accessToken = url.searchParams.get("access_token");
-  // if (accessToken !== null && type === "email_change") {
-  //   const { user, error } = await getUserByAccessToken(accessToken);
-  //   if (error !== null) {
-  //     throw error;
-  //   }
-  //   if (user !== null && user.email !== undefined) {
-  //     const profile = await updateProfileByUserId(user.id, {
-  //       email: user.email,
-  //     });
-  //     await supabaseStrategy.checkSession(request, {
-  //       successRedirect: `/profile/${profile.username}`,
-  //     });
-  //   }
-  // }
-
-  let loginSuccessRedirect;
-  let loginFailureRedirect;
-  const loginRedirect = url.searchParams.get("login_redirect");
-  if (loginRedirect !== null) {
-    loginSuccessRedirect = loginRedirect;
-    // TODO: Check if we need the failure redirect
-    loginFailureRedirect = `/login?login_redirect=${loginRedirect}`;
-  }
-  // Those redirects should be obsolete as all confirmation links should lead to the landing page
-  // There they get distibuted depending on its type
-  const registerRedirect = `/register?redirect_to=${request.url}`;
-  const absoluteSetPasswordURL =
-    url.protocol +
-    "//" +
-    url.host +
-    `/reset/set-password?redirect_to=${request.url}`;
-  const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
-
-  return json<LoaderData>(
-    {
-      loginSuccessRedirect,
-      loginFailureRedirect,
-      registerRedirect,
-      resetPasswordRedirect,
-    },
-    { headers: response.headers }
-  );
+  return response;
 };
 
-// TODO: Rework login
-// const defaultRedirect = {
-//   loginSuccessRedirect: "/",
-//   loginFailureRedirect: "/login",
-// };
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { error } = await signIn(
+    environment.supabaseClient,
+    values.email,
+    values.password
+  );
 
-const mutation = makeDomainFunction(schema)(async (values) => values);
+  if (error !== null) {
+    if (error.message === "Invalid login credentials") {
+      throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
+    } else {
+      throw error.message;
+    }
+  }
+
+  return { values };
+});
 
 export type ActionData = PerformMutation<
   z.infer<Schema>,
@@ -128,45 +85,47 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
-  const clonedRequest = request.clone();
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+    }
+  );
 
   const result = await performMutation({
-    request: clonedRequest,
+    request,
     schema,
     mutation,
+    environment: { supabaseClient: supabaseClient },
   });
 
-  // TODO: Rework login -> Maybe move to mutation
-  // Return error when login failed
-  // if (result.success) {
-  //   await authenticator.authenticate("sb", request, {
-  //     successRedirect:
-  //       result.data.loginSuccessRedirect ||
-  //       defaultRedirect.loginSuccessRedirect,
-  //     failureRedirect:
-  //       result.data.loginFailureRedirect ||
-  //       defaultRedirect.loginFailureRedirect,
-  //   });
-  // }
+  if (result.success) {
+    if (result.data.values.loginRedirect) {
+      return redirect(result.data.values.loginRedirect, {
+        headers: response.headers,
+      });
+    } else {
+      // Default redirect after login
+      return redirect("/explore", { headers: response.headers });
+    }
+  }
 
   return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
 
   return (
     <LoginForm
       method="post"
       schema={schema}
-      hiddenFields={["loginSuccessRedirect", "loginFailureRedirect"]}
+      hiddenFields={["loginRedirect"]}
       values={{
-        loginSuccessRedirect: loaderData.loginSuccessRedirect,
-        loginFailureRedirect: loaderData.loginFailureRedirect,
+        loginRedirect: loginRedirect || undefined,
       }}
     >
       {({ Field, Button, Errors, register }) => (
@@ -180,12 +139,14 @@ export default function Index() {
                 </div>
                 <div className="ml-auto">
                   Noch kein Mitglied?{" "}
-                  <a
-                    href={loaderData.registerRedirect}
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
                     className="text-primary font-bold"
                   >
                     Registrieren
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -193,13 +154,9 @@ export default function Index() {
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Anmelden</h1>
-                {/* TODO: Rework login: Use error from actionData result */}
-                {loaderData.error && (
-                  <div className="alert-error p-3 mb-3 text-white">
-                    Deine Anmeldedaten (E-Mail oder Passwort) sind nicht
-                    korrekt. Bitte überprüfe Deine Eingaben.
-                  </div>
-                )}
+
+                <Errors className="alert-error p-3 mb-3 text-white" />
+
                 <div className="mb-4">
                   <Field name="email" label="E-Mail">
                     {({ Errors }) => (
@@ -228,8 +185,8 @@ export default function Index() {
                     )}
                   </Field>
                 </div>
-                <Field name="loginSuccessRedirect" />
-                <Field name="loginFailureRedirect" />
+
+                <Field name="loginRedirect" />
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
@@ -237,12 +194,14 @@ export default function Index() {
                     </button>
                   </div>
                   <div className="basis-6/12 px-4 text-right">
-                    <a
-                      href={loaderData.resetPasswordRedirect}
+                    <Link
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
                       className="text-primary font-bold"
                     >
                       Passwort vergessen?
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

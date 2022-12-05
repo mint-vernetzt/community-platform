@@ -24,6 +24,18 @@ export const signUp = async (
   return { data, error };
 };
 
+export const signIn = async (
+  supabaseClient: SupabaseClient,
+  email: string,
+  password: string
+) => {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
+  return { data, error };
+};
+
 export const getSession = async (supabaseClient: SupabaseClient) => {
   const {
     data: { session },
