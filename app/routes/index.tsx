@@ -1,8 +1,13 @@
-import { LoaderFunction, redirect } from "@remix-run/node";
-import { useSubmit } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
 import { getSession } from "~/auth.server";
+
+type LoaderData = {
+  hasSession: boolean;
+};
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
@@ -17,41 +22,44 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
-  // Remove this if the landing page should be accessible for logged in users
   const session = await getSession(supabaseClient);
-  if (session !== null) {
-    return redirect("/explore", { headers: response.headers });
-  }
+  const hasSession = session !== null;
 
-  // Remove this when landing page is designed
-  // This is the default redirect to /explore if someone visits this landing page
-  if (session === null) {
-    return redirect("/explore", { headers: response.headers });
-  }
-
-  return response;
+  return json<LoaderData>({ hasSession }, { headers: response.headers });
 };
 
 export default function Index() {
   const submit = useSubmit();
+  const loaderData = useLoaderData<LoaderData>();
+  const [urlSearchParams] = useSearchParams();
 
-  // TODO: Make this to the access point of all confirmation links
-  // Check if we still need the accessToken
-  // If yes -> slice it from hash (use getAccessTokenFromHash() in lib)
-  // redirect to this route and do all following operations in this loader (redirect, email change on user, etc...)
-  // If no -> Remove below code and redirect right to the wanted location inside the loader (depending on type in urlParams)
+  // Access point for confirmation links
+  // Must be called on the client because hash parameters can only be accessed from the client
   React.useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.hash.slice(1));
-    const type = urlSearchParams.get("type");
-    const accessToken = urlSearchParams.get("access_token");
+    const urlHashParams = new URLSearchParams(window.location.hash.slice(1));
+    const type = urlHashParams.get("type");
+    const accessToken = urlHashParams.get("access_token");
+    const loginRedirect = urlSearchParams.get("login_redirect");
 
     if (accessToken !== null) {
-      if (type === "email_change") {
-        submit({ type, access_token: accessToken }, { action: "/login?index" }); // TODO: maybe we can automatically log in user
+      if (type === "signup") {
+        submit(loginRedirect ? { login_redirect: loginRedirect } : null, {
+          action: "/login",
+        });
         return;
       }
     }
-  }, [submit]);
+
+    // Redirect when user is logged in
+    // Remove the else case when the landing page is implemented in this route
+    if (loaderData.hasSession) {
+      submit(null, { action: "/explore" });
+      return;
+    } else {
+      submit(null, { action: "/explore" });
+      return;
+    }
+  }, [submit, loaderData.hasSession, urlSearchParams]);
 
   return null;
 }

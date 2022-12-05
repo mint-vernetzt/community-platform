@@ -34,7 +34,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.instanceof(SupabaseClient),
+  supabaseClient: z.unknown(),
+  // supabaseClient: z.instanceof(SupabaseClient),
 });
 
 type LoaderData = {

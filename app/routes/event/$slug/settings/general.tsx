@@ -2,11 +2,11 @@ import { createServerClient } from "@supabase/auth-helpers-remix";
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 
 import {
   Form,
-  json,
   Link,
   useActionData,
   useFetcher,

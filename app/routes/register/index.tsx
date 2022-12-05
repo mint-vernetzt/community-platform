@@ -38,7 +38,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.instanceof(SupabaseClient),
+  supabaseClient: z.unknown(),
+  // supabaseClient: z.instanceof(SupabaseClient),
   siteUrl: z.string(),
 });
 
@@ -96,7 +97,7 @@ const mutation = makeDomainFunction(
     },
     emailRedirectTo
   );
-  if (error !== null) {
+  if (error !== null && error.message !== "User already registered") {
     throw error.message;
   }
 
@@ -119,7 +120,7 @@ export const action: ActionFunction = async (args) => {
   );
 
   const url = new URL(request.url);
-  const siteUrl = url.protocol + "//" + url.host + "/index?login_redirect=";
+  const siteUrl = url.protocol + "//" + url.host + "/?login_redirect=";
 
   const result = await performMutation({
     request,
