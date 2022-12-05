@@ -55,8 +55,6 @@ export const loader: LoaderFunction = async (args) => {
     response,
   });
 
-  // TODO: Rework register: redirectToAfterRegister should be base index route
-  // Redirect after login should be default or event page
   const url = new URL(request.url);
   const loginRedirectSearchParam = url.searchParams.get("login_redirect");
   let loginRedirect;
