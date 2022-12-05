@@ -36,6 +36,11 @@ export const signIn = async (
   return { data, error };
 };
 
+export const signOut = async (supabaseClient: SupabaseClient) => {
+  const { error } = await supabaseClient.auth.signOut();
+  return { error };
+};
+
 export const getSession = async (supabaseClient: SupabaseClient) => {
   const {
     data: { session },
