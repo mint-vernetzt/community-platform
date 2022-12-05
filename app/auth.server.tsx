@@ -125,7 +125,7 @@ export async function updatePassword(
   return { data, error };
 }
 
-export async function updateEmail(
+export async function sendResetEmailLink(
   supabaseClient: SupabaseClient,
   email: string
 ) {
