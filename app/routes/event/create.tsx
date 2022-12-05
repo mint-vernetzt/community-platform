@@ -129,7 +129,7 @@ export const action: ActionFunction = async (args) => {
   }
 
   if (errors === null) {
-    const slug = generateEventSlug(data.name, Date.now());
+    const slug = generateEventSlug(data.name);
     const startTime = getDateTime(data.startDate, data.startTime);
 
     let endTime;

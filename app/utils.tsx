@@ -6,23 +6,18 @@ export function generateOrganizationSlug(name: string) {
   return generateValidSlug(name);
 }
 
-export function generateEventSlug(name: string, timestamp: number) {
-  const nameSlug = generateValidSlug(name);
-  const stringFromTimestamp = timestamp.toString(36);
-  return `${nameSlug}-${stringFromTimestamp}`;
+export function generateEventSlug(name: string) {
+  return generateValidSlug(name);
 }
 
 export function generateProjectSlug(name: string) {
-  const nameSlug = generateValidSlug(name);
-  const timestamp = Date.now();
-  const stringFromTimestamp = timestamp.toString(36);
-  return `${nameSlug}-${stringFromTimestamp}`;
+  return generateValidSlug(name);
 }
 
 // TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
 // (Greek letters, chinese letters, arabic letters, etc...)
 function generateValidSlug(string: string) {
-  return string
+  const slug = string
     .toLowerCase()
     .replace(/[áàâãå]/, "a")
     .replace(/[äæ]/, "ae")
@@ -37,4 +32,8 @@ function generateValidSlug(string: string) {
     .replace(/[ü]/, "ue")
     .replace(/[^\w ]/g, "")
     .replace(/[\s]/g, "");
+
+  const timestamp = Date.now();
+  const stringFromTimestamp = timestamp.toString(36);
+  return `${slug}-${stringFromTimestamp}`;
 }

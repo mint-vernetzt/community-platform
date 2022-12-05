@@ -13,7 +13,6 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -79,17 +78,7 @@ const mutation = makeDomainFunction(
     throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
   }
 
-  // TODO: Check if username exists because profiles can be deleted.
-  // That leads to username count gets out of sync with the below count of users with same name.
-  const numberOfProfilesWithSameName = await getNumberOfProfilesWithTheSameName(
-    firstName,
-    lastName
-  );
-  const username = `${generateUsername(firstName, lastName)}${
-    numberOfProfilesWithSameName > 0
-      ? numberOfProfilesWithSameName.toString()
-      : ""
-  }`;
+  const username = `${generateUsername(firstName, lastName)}`;
 
   // Passing through a possible redirect after login (e.g. to an event)
   const emailRedirectTo = values.loginRedirect

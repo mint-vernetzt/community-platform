@@ -74,11 +74,11 @@ test("generate event slug", () => {
   const timestamp = Date.now();
 
   const testData: {
-    given: { eventName: string; timestamp: number };
+    given: { eventName: string };
     expected: string;
   }[] = [
     {
-      given: { eventName: "My Event", timestamp },
+      given: { eventName: "My Event" },
       expected: `myevent-${timestamp.toString(36)}`,
     },
   ];
@@ -86,7 +86,7 @@ test("generate event slug", () => {
   expect.assertions(testData.length);
   testData.forEach((item) => {
     const { given, expected } = item;
-    const eventName = generateEventSlug(given.eventName, given.timestamp);
+    const eventName = generateEventSlug(given.eventName);
     expect(eventName).toBe(expected);
   });
 });
