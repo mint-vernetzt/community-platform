@@ -1,22 +1,13 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect,
-} from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import {
-  createServerClient,
-  SupabaseClient,
-} from "@supabase/auth-helpers-remix";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { useSearchParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
-import { Schema, z } from "zod";
-import { updatePassword } from "../../auth.server";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { setSession, updatePassword } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -28,26 +19,25 @@ const schema = z.object({
   confirmPassword: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-
-  // TODO: Check if we still need the access token
   accessToken: z
     .string()
     .min(
       1,
       "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
     ),
-  redirectToAfterSetPassword: z.string().optional(),
+  refreshToken: z
+    .string()
+    .min(
+      1,
+      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
+    ),
+  loginRedirect: z.string().optional(),
 });
 
 const environmentSchema = z.object({
   supabaseClient: z.unknown(),
   // supabaseClient: z.instanceof(SupabaseClient),
 });
-
-type LoaderData = {
-  accessToken: string | null;
-  redirectToAfterSetPassword: string | null;
-};
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
@@ -58,17 +48,7 @@ export const loader: LoaderFunction = async (args) => {
     response,
   });
 
-  // TODO: Rework reset password -> Check redirects
-  // reset -> set-password -> login -> either default or event page
-  // Check if we still need the access token
-  const url = new URL(request.url);
-  const accessToken = url.searchParams.get("access_token");
-  const redirectToAfterSetPassword = url.searchParams.get("redirect_to");
-
-  return json<LoaderData>(
-    { accessToken, redirectToAfterSetPassword },
-    { headers: response.headers }
-  );
+  return response;
 };
 
 const mutation = makeDomainFunction(
@@ -81,6 +61,15 @@ const mutation = makeDomainFunction(
       "confirmPassword"
     ); // -- Field error
   }
+
+  // This automatically logs in the user
+  // Throws error on invalid refreshToken, accessToken combination
+  await setSession(
+    environment.supabaseClient,
+    values.accessToken,
+    values.refreshToken
+  );
+
   const { error } = await updatePassword(
     environment.supabaseClient,
     values.password
@@ -112,9 +101,7 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   if (result.success) {
-    // TODO: Rework reset password -> Check redirects
-    // reset -> set-password -> login -> either default or event page
-    return redirect(result.data.redirectToAfterSetPassword || "/login", {
+    return redirect(result.data.loginRedirect || "/explore", {
       headers: response.headers,
     });
   }
@@ -122,30 +109,11 @@ export const action: ActionFunction = async ({ request }) => {
   return json<ActionData>(result, { headers: response.headers });
 };
 
-// Check if we still need the access token
-// export function getAccessToken(
-//   urlSearchParameter: URLSearchParams | null,
-//   actionData?: ActionData
-// ) {
-//   if (urlSearchParameter !== null) {
-//     const accessToken = urlSearchParameter.get("access_token");
-//     if (accessToken !== null) {
-//       return accessToken;
-//     }
-//   }
-//   if (actionData !== undefined && actionData.values !== undefined) {
-//     return actionData.values.accessToken;
-//   }
-//   return "";
-// }
-
 export default function SetPassword() {
-  const loaderData = useLoaderData<LoaderData>();
-
-  // Check if we still need the access token
-  // const actionData = useActionData<ActionData>();
-  // const urlSearchParameter = getURLSearchParameterFromURLHash();
-  // const accessToken = getAccessToken(urlSearchParameter, actionData);
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const accessToken = urlSearchParams.get("access_token");
+  const refreshToken = urlSearchParams.get("refresh_token");
 
   return (
     <>
@@ -162,9 +130,11 @@ export default function SetPassword() {
         <RemixForm
           method="post"
           schema={schema}
-          hiddenFields={["redirectToAfterSetPassword"]}
+          hiddenFields={["loginRedirect", "accessToken", "refreshToken"]}
           values={{
-            redirectToAfterSetPassword: loaderData.redirectToAfterSetPassword,
+            loginRedirect: loginRedirect,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
           }}
         >
           {({ Field, Button, Errors, register }) => (
@@ -172,7 +142,9 @@ export default function SetPassword() {
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
-                <Field name="redirectToAfterSetPassword" />
+                <Field name="loginRedirect" />
+                <Field name="accessToken" />
+                <Field name="refreshToken" />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (
@@ -202,20 +174,6 @@ export default function SetPassword() {
                     )}
                   </Field>
                 </div>
-
-                {/* Check if we still need the access token */}
-                {/* <Field name="accessToken">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        value={accessToken}
-                        {...register("accessToken")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field> */}
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">

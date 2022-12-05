@@ -41,6 +41,20 @@ export const signOut = async (supabaseClient: SupabaseClient) => {
   return { error };
 };
 
+export const setSession = async (
+  supabaseClient: SupabaseClient,
+  accessToken: string,
+  refreshToken: string
+) => {
+  const {
+    data: { session, user },
+  } = await supabaseClient.auth.setSession({
+    refresh_token: refreshToken,
+    access_token: accessToken,
+  });
+  return { session, user };
+};
+
 export const getSession = async (supabaseClient: SupabaseClient) => {
   const {
     data: { session },

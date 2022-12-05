@@ -39,26 +39,42 @@ export default function Index() {
     const urlHashParams = new URLSearchParams(window.location.hash.slice(1));
     const type = urlHashParams.get("type");
     const accessToken = urlHashParams.get("access_token");
+    const refreshToken = urlHashParams.get("refresh_token");
     const loginRedirect = urlSearchParams.get("login_redirect");
 
-    if (accessToken !== null) {
+    if (accessToken !== null && refreshToken !== null) {
       if (type === "signup") {
         submit(loginRedirect ? { login_redirect: loginRedirect } : null, {
           action: "/login",
         });
         return;
       }
+      if (type === "recovery") {
+        submit(
+          loginRedirect
+            ? {
+                login_redirect: loginRedirect,
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              }
+            : { access_token: accessToken, refresh_token: refreshToken },
+          {
+            action: "/reset/set-password",
+          }
+        );
+        return;
+      }
     }
 
     // Redirect when user is logged in
     // Remove the else case when the landing page is implemented in this route
-    if (loaderData.hasSession) {
-      submit(null, { action: "/explore" });
-      return;
-    } else {
-      submit(null, { action: "/explore" });
-      return;
-    }
+    // if (loaderData.hasSession) {
+    //   submit(null, { action: "/explore" });
+    //   return;
+    // } else {
+    //   submit(null, { action: "/explore" });
+    //   return;
+    // }
   }, [submit, loaderData.hasSession, urlSearchParams]);
 
   return null;

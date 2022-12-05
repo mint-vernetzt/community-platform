@@ -1,10 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
-import {
-  createServerClient,
-  SupabaseClient,
-} from "@supabase/auth-helpers-remix";
+import { Link, useActionData, useSearchParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
@@ -43,10 +40,6 @@ const environmentSchema = z.object({
   siteUrl: z.string(),
 });
 
-type LoaderData = {
-  loginRedirect?: string;
-};
-
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
@@ -56,14 +49,7 @@ export const loader: LoaderFunction = async (args) => {
     response,
   });
 
-  const url = new URL(request.url);
-  const loginRedirectSearchParam = url.searchParams.get("login_redirect");
-  let loginRedirect;
-  if (loginRedirectSearchParam !== null) {
-    loginRedirect = loginRedirectSearchParam;
-  }
-
-  return json<LoaderData>({ loginRedirect }, { headers: response.headers });
+  return response;
 };
 
 const mutation = makeDomainFunction(
@@ -133,8 +119,9 @@ export const action: ActionFunction = async (args) => {
 };
 
 export default function Register() {
-  const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
 
   return (
     <>
@@ -147,12 +134,14 @@ export default function Register() {
             </div>
             <div className="ml-auto">
               Bereits Mitglied?{" "}
-              <a
-                href={loaderData.loginRedirect || "/login"}
+              <Link
+                to={`/login${
+                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                }`}
                 className="text-primary font-bold"
               >
                 Anmelden
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -171,7 +160,9 @@ export default function Register() {
                   vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
                   vergessen, dann setze hier Dein Passwort zurück:{" "}
                   <Link
-                    to="/reset"
+                    to={`/reset${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
                     className="text-primary font-bold hover:underline"
                   >
                     Passwort zurücksetzen
@@ -185,7 +176,7 @@ export default function Register() {
                 schema={schema}
                 hiddenFields={["loginRedirect"]}
                 values={{
-                  loginRedirect: loaderData.loginRedirect,
+                  loginRedirect: loginRedirect,
                 }}
               >
                 {({ Field, Button, Errors, register }) => (
