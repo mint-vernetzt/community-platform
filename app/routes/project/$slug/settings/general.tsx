@@ -1,15 +1,14 @@
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
   Form,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useParams,
   useTransition,
-} from "remix";
+} from "@remix-run/react";
 import { array, InferType, object, string } from "yup";
 import { getUserByRequestOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";

@@ -1,15 +1,14 @@
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
   Form,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useParams,
   useTransition,
-} from "remix";
+} from "@remix-run/react";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { array, InferType, object, string } from "yup";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
@@ -21,8 +20,8 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import type { FormError } from "~/lib/utils/yup";
 import {
-  FormError,
   getFormValues,
   multiline,
   nullOrString,

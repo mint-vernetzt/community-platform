@@ -2,7 +2,8 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -353,7 +354,6 @@ export default function Index() {
                   maxTargetWidth={1488}
                   maxTargetHeight={480}
                   slug={loaderData.organization.slug}
-                  csrfToken={"034u9nsq0unun"}
                   redirect={uploadRedirect}
                 >
                   <Background />
@@ -400,7 +400,6 @@ export default function Index() {
                           minCropHeight={100}
                           maxTargetHeight={1488}
                           maxTargetWidth={1488}
-                          csrfToken={"034u9nsq0unun"}
                           redirect={uploadRedirect}
                           circularCrop={true}
                         >
@@ -787,12 +786,9 @@ export default function Index() {
                                     </div>
                                   )}
                                   <div className="hidden md:flex items-center flex-initial">
-                                    <Link
-                                      to={`/project/${project.slug}`}
-                                      className="btn btn-primary"
-                                    >
+                                    <button className="btn btn-primary">
                                       Zum Projekt
-                                    </Link>
+                                    </button>
                                   </div>
                                 </div>
                               </Link>

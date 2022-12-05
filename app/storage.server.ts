@@ -1,9 +1,13 @@
-import { Document } from "@prisma/client";
+import type { Document } from "@prisma/client";
+import {
+  unstable_composeUploadHandlers,
+  unstable_parseMultipartFormData,
+} from "@remix-run/node";
+import type { UploadHandler } from "@remix-run/node";
 import { fromBuffer } from "file-type";
 import JSZip from "jszip";
-import { unstable_parseMultipartFormData, UploadHandler } from "remix";
 import { badRequest, serverError } from "remix-utils";
-import { createHashFromString, stream2buffer } from "~/utils.server";
+import { createHashFromString } from "~/utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
 import { supabaseAdmin } from "./supabase";
 
@@ -14,13 +18,24 @@ function generatePathName(extension: string, hash: string, name: string) {
   return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
 }
 
-const uploadHandler: UploadHandler = async ({ name, stream, filename }) => {
-  if (!uploadKeys.includes(name)) {
-    stream.resume();
-    return;
+const uploadHandler: UploadHandler = async (part) => {
+  const { contentType, data, name, filename } = part;
+
+  // TODO: remove file-type package and use contentType...only if Remix uses file header
+
+  let bytes = [];
+  for await (let chunk of data) {
+    bytes.push(...chunk);
   }
 
-  const buffer = await stream2buffer(stream);
+  const array = new Uint8Array(bytes);
+
+  const buffer = Buffer.from(array.buffer);
+
+  if (!uploadKeys.includes(name)) {
+    return buffer.toString();
+  }
+
   const hash = await createHashFromString(buffer.toString());
   const fileTypeResult = await fromBuffer(buffer);
   if (fileTypeResult === undefined) {
@@ -91,7 +106,7 @@ export const parseMultipart = async (request: Request, bucketName: string) => {
   try {
     const formData = await unstable_parseMultipartFormData(
       request,
-      uploadHandler
+      unstable_composeUploadHandlers(uploadHandler)
     );
     const uploadKey = formData.get("uploadKey");
     if (uploadKey === null) {

@@ -1,4 +1,4 @@
-import { createRequestWithFormData } from "~/lib/utils/tests";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { action, loader } from "./general";
 import {
   getWholeOrganizationBySlug,
@@ -40,7 +40,7 @@ describe("loader", () => {
     expect.assertions(2);
 
     try {
-      const request = new Request("");
+      const request = new Request(testURL);
       await loader({ request, context: {}, params: { slug: slug } });
     } catch (error) {
       const response = error as Response;
@@ -57,7 +57,7 @@ describe("loader", () => {
 
     (getWholeOrganizationBySlug as jest.Mock).mockReturnValueOnce(organization);
 
-    const request = new Request("");
+    const request = new Request(testURL);
     const response = await loader({
       request,
       context: {},
@@ -78,7 +78,7 @@ describe("loader", () => {
       ],
     });
 
-    const request = new Request("");
+    const request = new Request(testURL);
     const response = await loader({
       request,
       context: {},
@@ -94,13 +94,6 @@ describe("loader", () => {
     ]);
   });
 });
-
-// Insert mock when csrf token is implemented on organization settings
-// jest.mock("~/utils.server", () => {
-//   return {
-//     validateCSRFToken: jest.fn(),
-//   };
-// });
 
 describe("action", () => {
   const formDefaults = {
@@ -154,7 +147,7 @@ describe("action", () => {
         params: { slug: slug },
       });
     } catch (error) {
-      const response = error as Response;
+      const response = error as Response; //?
       expect(response.status).toBe(400);
 
       const json = await response.json();

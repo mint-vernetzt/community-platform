@@ -1,53 +1,26 @@
-import { PassThrough } from "stream";
+import {
+  Request as NodeRequest,
+  FormData as NodeFormData,
+} from "@remix-run/web-fetch";
 
-function createFormDataEntry(args: {
-  key: string;
-  value: string;
-  boundary: string;
-}) {
-  const { key, value, boundary } = args;
-  const arr = [`--${boundary}`];
-  arr.push(`Content-Disposition: form-data; name="${key}"`);
-  arr.push("");
-  arr.push(value);
-  return arr;
-}
+export const testURL = "https://test.com";
 
 export function createRequestWithFormData(keyValuePairs: {
   [key: string]: string | string[];
 }) {
-  const boundary = "test";
-
-  const content: string[] = Object.entries(keyValuePairs).reduce(
-    (acc: string[], cur) => {
-      const [key, value] = cur;
-
-      let arr: string[] = [];
-
-      if (Array.isArray(value)) {
-        value.forEach((entry) => {
-          arr = arr.concat(
-            createFormDataEntry({ key, value: entry, boundary })
-          );
-        });
-      } else {
-        arr = arr.concat(createFormDataEntry({ key, value, boundary }));
-      }
-      return acc.concat(arr);
-    },
-    []
-  );
-
-  const source = [content.concat(`--${boundary}--`).join("\r\n")];
-  let body = new PassThrough();
-  source.forEach((chunk) => body.write(chunk));
-  body.end();
-
-  const headers = {
-    "Content-Type": `multipart/form-data; boundary=${boundary}`,
-  };
-
-  const request = new Request("", { method: "POST", body, headers }); // TODO: investigate type issue
-
+  const formData = new NodeFormData();
+  for (let key in keyValuePairs) {
+    if (Array.isArray(keyValuePairs[key])) {
+      (keyValuePairs[key] as string[]).forEach((item) => {
+        formData.set(key, item);
+      });
+    } else {
+      formData.set(key, keyValuePairs[key] as string);
+    }
+  }
+  const request = new NodeRequest(testURL, {
+    method: "post",
+    body: formData,
+  });
   return request;
 }

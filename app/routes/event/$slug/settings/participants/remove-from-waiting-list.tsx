@@ -1,4 +1,5 @@
-import { ActionFunction, useFetcher } from "remix";
+import { ActionFunction } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";

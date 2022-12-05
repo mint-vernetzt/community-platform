@@ -1,4 +1,5 @@
-import { LoaderFunction, useFetcher, useLoaderData, useParams } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { ArrayElement } from "~/lib/utils/types";
 import {
   getMembersOfOrganization,

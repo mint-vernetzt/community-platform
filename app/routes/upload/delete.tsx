@@ -1,4 +1,4 @@
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
@@ -66,8 +66,6 @@ const mutation = makeDomainFunction(
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.clone().formData();
   const redirect = formData.get("redirect")?.toString();
-
-  // TODO: CSRF -> await validateCSRFToken(clonedRequest);
 
   return formAction({
     request,

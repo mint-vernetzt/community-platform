@@ -3,7 +3,8 @@ import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
-import { Link, LoaderFunction, MetaFunction, useLoaderData } from "remix";
+import { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -444,7 +445,6 @@ function Index() {
                         maxTargetWidth={1488}
                         maxTargetHeight={480}
                         slug={loaderData.event.slug}
-                        csrfToken={"92014sijdaf02"}
                         redirect={`/event/${loaderData.event.slug}`}
                       >
                         <Background />

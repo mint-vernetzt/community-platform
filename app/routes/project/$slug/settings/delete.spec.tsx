@@ -1,7 +1,7 @@
-import { User } from "@supabase/supabase-js";
-import { redirect } from "remix";
+import type { User } from "@supabase/supabase-js";
+import { redirect } from "@remix-run/node";
 import * as authServerModule from "~/auth.server";
-import { createRequestWithFormData } from "~/lib/utils/tests";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
 import { action, loader } from "./delete";
 
@@ -35,7 +35,7 @@ describe("/event/$slug/settings/delete", () => {
     test("no params", async () => {
       expect.assertions(2);
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: {} });
       } catch (error) {
@@ -54,7 +54,7 @@ describe("/event/$slug/settings/delete", () => {
 
       getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
 
-      const request = new Request("");
+      const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
       } catch (error) {
@@ -73,7 +73,7 @@ describe("/event/$slug/settings/delete", () => {
 
       try {
         await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -104,7 +104,7 @@ describe("/event/$slug/settings/delete", () => {
 
       try {
         await loader({
-          request: new Request(""),
+          request: new Request(testURL),
           context: {},
           params: { slug },
         });
@@ -135,7 +135,7 @@ describe("/event/$slug/settings/delete", () => {
       });
 
       const response = await loader({
-        request: new Request(""),
+        request: new Request(testURL),
         context: {},
         params: { slug },
       });

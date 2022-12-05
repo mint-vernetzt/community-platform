@@ -1,18 +1,15 @@
 import React, { useState, useRef } from "react";
 import Pica from "pica";
 
-import ReactCrop, {
-  centerCrop,
-  makeAspectCrop,
-  Crop,
-  PixelCrop,
-} from "react-image-crop";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import type { Crop, PixelCrop } from "react-image-crop";
 import { Form } from "remix-forms";
 
 import { canvasPreview } from "./canvasPreview";
 import { InputFile } from "./InputFile";
 import { useDebounceEffect } from "./useDebounceEffect";
-import { schema, UploadKey, Subject } from "~/routes/upload/schema";
+import type { UploadKey, Subject } from "~/routes/upload/schema";
+import { schema } from "~/routes/upload/schema";
 import Slider from "rc-slider";
 
 export interface ImageCropperProps {
@@ -30,7 +27,6 @@ export interface ImageCropperProps {
   redirect?: string;
   handleCancel?: () => void;
   children: React.ReactNode;
-  csrfToken: string;
   circularCrop?: boolean;
 }
 
@@ -186,7 +182,6 @@ function ImageCropper(props: ImageCropperProps) {
             formData.append(props.uploadKey, blob ?? "");
             formData.append("subject", props.subject);
             formData.append("uploadKey", props.uploadKey);
-            formData.append("csrf", props.csrfToken);
 
             if (props.redirect) {
               formData.append("redirect", props.redirect);
@@ -216,6 +211,8 @@ function ImageCropper(props: ImageCropperProps) {
                 setIsSaving(false);
                 closeModal();
 
+                console.error({ err });
+
                 alert("Es ist leider ein Fehler aufgetreten.");
               });
           },
@@ -224,6 +221,7 @@ function ImageCropper(props: ImageCropperProps) {
         );
       }
     } catch (exception) {
+      console.log({ exception });
       alert("Es ist leider ein Fehler aufgetreten.");
       setIsSaving(false);
     }
@@ -252,18 +250,11 @@ function ImageCropper(props: ImageCropperProps) {
               method="post"
               reloadDocument
               schema={schema}
-              hiddenFields={[
-                "subject",
-                "slug",
-                "uploadKey",
-                "csrf",
-                "redirect",
-              ]}
+              hiddenFields={["subject", "slug", "uploadKey", "redirect"]}
               values={{
                 subject: props.subject,
                 slug: props.slug,
                 uploadKey: props.uploadKey,
-                csrf: props.csrfToken,
                 redirect: props.redirect,
               }}
             >
@@ -271,7 +262,6 @@ function ImageCropper(props: ImageCropperProps) {
                 <>
                   <Field name="subject" />
                   <Field name="slug" />
-                  <Field name="csrf" />
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button

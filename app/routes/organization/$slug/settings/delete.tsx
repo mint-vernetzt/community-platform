@@ -1,4 +1,5 @@
-import { ActionFunction, LoaderFunction, redirect, useParams } from "remix";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { useParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";

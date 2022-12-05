@@ -1,7 +1,8 @@
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, notFound } from "remix-utils";
 import { getUserByRequest } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -209,7 +210,6 @@ function Index() {
                   maxTargetWidth={1488}
                   maxTargetHeight={480}
                   slug={loaderData.project.slug}
-                  csrfToken={"92014sijdaf02"}
                   redirect={`/project/${loaderData.project.slug}`}
                 >
                   <Background />
@@ -291,7 +291,6 @@ function Index() {
                           minCropHeight={100}
                           maxTargetHeight={1488}
                           maxTargetWidth={1488}
-                          csrfToken={"034u9nsq0unun"}
                           redirect={`/project/${loaderData.project.slug}`}
                           circularCrop={true}
                         >

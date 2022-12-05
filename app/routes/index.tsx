@@ -1,5 +1,6 @@
 import React from "react";
-import { LoaderFunction, useLoaderData, useSubmit } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useSubmit } from "@remix-run/react";
 import { authenticator, sessionStorage } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {

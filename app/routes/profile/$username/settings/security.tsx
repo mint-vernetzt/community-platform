@@ -1,11 +1,10 @@
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
-  ActionFunction,
   Link,
-  LoaderFunction,
   useActionData,
   useLoaderData,
   useTransition,
-} from "remix";
+} from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
@@ -15,14 +14,11 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import useCSRF from "~/lib/hooks/useCSRF";
-import { validateCSRFToken } from "~/utils.server";
 import { handleAuthorization } from "../utils.server";
 
 /* Disabled until issue #609 is resolved
 
 const emailSchema = z.object({
-  csrf: z.string(),
   email: z
     .string()
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
@@ -35,7 +31,6 @@ const emailSchema = z.object({
 });
 
 const passwordSchema = z.object({
-  csrf: z.string(),
   password: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
@@ -93,8 +88,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
 
-  await validateCSRFToken(request);
-
   const submittedForm = formData.get("submittedForm");
 
   let result = null;
@@ -141,8 +134,6 @@ export default function Security() {
   // Disabled until issue #609 is resolved
 
   // const transition = useTransition();
-
-  // const { hiddenCSRFInput } = useCSRF();
 
   // // TODO: Declare type
   // const actionData = useActionData();
@@ -240,14 +231,6 @@ export default function Security() {
                   </>
                 )}
               </Field>
-              <Field name="csrf">
-                {({ Errors }) => (
-                  <>
-                    {hiddenCSRFInput}
-                    <Errors />
-                  </>
-                )}
-              </Field>
 
               <button type="submit" className="btn btn-primary mt-8">
                 Passwort ändern
@@ -310,14 +293,6 @@ export default function Security() {
                       value="changeEmail"
                       {...register("submittedForm")}
                     ></input>
-                    <Errors />
-                  </>
-                )}
-              </Field>
-              <Field name="csrf">
-                {({ Errors }) => (
-                  <>
-                    {hiddenCSRFInput}
                     <Errors />
                   </>
                 )}

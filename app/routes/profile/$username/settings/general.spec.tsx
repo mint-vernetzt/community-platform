@@ -1,4 +1,4 @@
-import { createRequestWithFormData } from "~/lib/utils/tests";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { action, loader } from "./general";
 import { getWholeProfileFromId, updateProfileById } from "../utils.server";
 
@@ -24,7 +24,6 @@ jest.mock("~/profile.server", () => {
 jest.mock("~/utils.server", () => {
   return {
     getAreas: jest.fn(),
-    validateCSRFToken: jest.fn(),
   };
 });
 
@@ -37,7 +36,7 @@ describe("loader", () => {
     expect.assertions(2);
 
     try {
-      const request = new Request("");
+      const request = new Request(testURL);
       await loader({ request, context: {}, params: { username } });
     } catch (error) {
       const response = error as Response;
@@ -52,7 +51,7 @@ describe("loader", () => {
 
     (getWholeProfileFromId as jest.Mock).mockReturnValueOnce(profile);
 
-    const request = new Request("");
+    const request = new Request(testURL);
     const response = await loader({
       request,
       context: {},
@@ -73,7 +72,7 @@ describe("loader", () => {
       ],
     });
 
-    const request = new Request("");
+    const request = new Request(testURL);
     const response = await loader({
       request,
       context: {},

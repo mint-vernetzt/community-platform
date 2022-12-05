@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  ActionFunction,
-  Link,
-  LoaderFunction,
-  useActionData,
-  useLoaderData,
-} from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import {
   Form as RemixForm,
