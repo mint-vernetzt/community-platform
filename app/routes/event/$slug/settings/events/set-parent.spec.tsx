@@ -7,7 +7,10 @@ import { action } from "./set-parent";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -28,32 +31,10 @@ describe("/event/$slug/settings/events/set-parent", () => {
     process.env.FEATURES = "events";
   });
 
-  test("event not found", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
-
-    expect.assertions(2);
-
-    (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
-
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
-
-    try {
-      await action({ request, context: {}, params: {} });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-
-      const json = await response.json();
-      expect(json.message).toBe("Event not found");
-    }
-  });
-
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
     expect.assertions(2);
-
-    getSessionUser.mockResolvedValue(null);
 
     try {
       await action({
@@ -70,12 +51,32 @@ describe("/event/$slug/settings/events/set-parent", () => {
     }
   });
 
+  test("event not found", async () => {
+    const request = createRequestWithFormData({ userId: "some-user-id" });
+
+    expect.assertions(2);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+    try {
+      await action({ request, context: {}, params: {} });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+
+      const json = await response.json();
+      expect(json.message).toBe("Event not found");
+    }
+  });
+
   test("authenticated user", async () => {
     const request = createRequestWithFormData({ userId: "some-user-id" });
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -106,7 +107,7 @@ describe("/event/$slug/settings/events/set-parent", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -137,7 +138,7 @@ describe("/event/$slug/settings/events/set-parent", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -162,7 +163,7 @@ describe("/event/$slug/settings/events/set-parent", () => {
       eventId: "some-event-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id", userId: "some-user-id" };
     });
@@ -195,7 +196,7 @@ describe("/event/$slug/settings/events/set-parent", () => {
       eventId: "some-event-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -208,26 +209,19 @@ describe("/event/$slug/settings/events/set-parent", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.event.update).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ parentEvent: { disconnect: true } }),
-        })
-      );
-      expect(result.success).toBe(true);
-      expect(result.data.parentEventId).toBe(undefined);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.event.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ parentEvent: { disconnect: true } }),
+      })
+    );
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.data.parentEventId).toBe(undefined);
   });
 
   test("set parent event", async () => {
@@ -239,7 +233,7 @@ describe("/event/$slug/settings/events/set-parent", () => {
       parentEventId: "some-other-event",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -252,30 +246,23 @@ describe("/event/$slug/settings/events/set-parent", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.event.update).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            parentEvent: expect.objectContaining({
-              connect: { id: "some-other-event" },
-            }),
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.event.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          parentEvent: expect.objectContaining({
+            connect: { id: "some-other-event" },
           }),
-        })
-      );
-      expect(result.success).toBe(true);
-      expect(result.data.parentEventId).toBe("some-other-event");
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+        }),
+      })
+    );
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.data.parentEventId).toBe("some-other-event");
   });
 
   afterAll(() => {

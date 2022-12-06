@@ -7,7 +7,10 @@ import { action } from "./add-child";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -32,8 +35,6 @@ describe("/event/$slug/settings/events/add-child", () => {
     const request = createRequestWithFormData({});
 
     expect.assertions(2);
-
-    getSessionUser.mockResolvedValue(null);
 
     try {
       await action({
@@ -60,7 +61,7 @@ describe("/event/$slug/settings/events/add-child", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -81,7 +82,7 @@ describe("/event/$slug/settings/events/add-child", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -115,7 +116,7 @@ describe("/event/$slug/settings/events/add-child", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -146,7 +147,7 @@ describe("/event/$slug/settings/events/add-child", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -172,7 +173,7 @@ describe("/event/$slug/settings/events/add-child", () => {
       childEventId: "another-user-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -206,7 +207,7 @@ describe("/event/$slug/settings/events/add-child", () => {
       childEventId: "child-event-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -218,30 +219,23 @@ describe("/event/$slug/settings/events/add-child", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.event.update).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            childEvents: expect.objectContaining({
-              connect: { id: "child-event-id" },
-            }),
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.event.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          childEvents: expect.objectContaining({
+            connect: { id: "child-event-id" },
           }),
-        })
-      );
-      expect(result.success).toBe(true);
-      expect(result.data.childEventId).toBe("child-event-id");
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+        }),
+      })
+    );
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.data.childEventId).toBe("child-event-id");
   });
 
   afterAll(() => {

@@ -1,30 +1,24 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
+import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
+import type { ActionData as AddChildActionData } from "./events/add-child";
+import { addChildSchema } from "./events/add-child";
+import type { ActionData as RemoveChildActionData } from "./events/remove-child";
+import { removeChildSchema } from "./events/remove-child";
+import type { ActionData as SetParentActionData } from "./events/set-parent";
+import { setParentSchema } from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
   getEventsOfPrivilegedMemberExceptOfGivenEvent,
   getOptionsFromEvents,
 } from "./utils.server";
-
-import {
-  ActionData as SetParentActionData,
-  setParentSchema,
-} from "./events/set-parent";
-import {
-  ActionData as AddChildActionData,
-  addChildSchema,
-} from "./events/add-child";
-import {
-  ActionData as RemoveChildActionData,
-  removeChildSchema,
-} from "./events/remove-child";
-import { H3 } from "~/components/Heading/Heading";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 type LoaderData = {
   userId: string;

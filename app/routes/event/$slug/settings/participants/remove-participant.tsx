@@ -1,9 +1,12 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { ActionFunction, json } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import { Form, PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";

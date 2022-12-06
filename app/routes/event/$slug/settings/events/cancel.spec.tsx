@@ -7,7 +7,10 @@ import { action } from "./cancel";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -34,8 +37,6 @@ describe("/event/$slug/settings/events/cancel", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -58,7 +59,7 @@ describe("/event/$slug/settings/events/cancel", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -76,7 +77,7 @@ describe("/event/$slug/settings/events/cancel", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -107,7 +108,7 @@ describe("/event/$slug/settings/events/cancel", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -138,7 +139,7 @@ describe("/event/$slug/settings/events/cancel", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -163,7 +164,7 @@ describe("/event/$slug/settings/events/cancel", () => {
       eventId: "some-event-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id", userId: "some-user-id" };
     });
@@ -195,7 +196,7 @@ describe("/event/$slug/settings/events/cancel", () => {
       cancel: "on",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {

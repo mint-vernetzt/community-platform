@@ -7,7 +7,10 @@ import { loader } from "./events";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 const slug = "slug-test";
 
@@ -34,7 +37,7 @@ describe("/event/$slug/settings/events", () => {
     test("no other events where user is privileged", async () => {
       expect.assertions(1);
 
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, parentEvent: null };
       });
@@ -49,25 +52,19 @@ describe("/event/$slug/settings/events", () => {
         return [];
       });
 
-      try {
-        const response = await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-        expect(response.options).toEqual([]);
-      } catch (error) {
-        const response = error as Response;
-        console.log(response);
-        const json = await response.json();
-        console.log(json);
-      }
+      const response = await loader({
+        request: new Request(testURL),
+        context: {},
+        params: { slug },
+      });
+      const responseBody = await response.json();
+      expect(responseBody.options).toEqual([]);
     });
 
     test("user is privileged on other events", async () => {
       expect.assertions(1);
 
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, parentEvent: null };
       });
@@ -97,36 +94,30 @@ describe("/event/$slug/settings/events", () => {
         ];
       });
 
-      try {
-        const response = await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-        expect(response.options).toEqual([
-          {
-            label: "Another Event",
-            value: "another-event-id",
-            hasParent: true,
-          },
-          {
-            label: "Yet Another Event",
-            value: "yet-another-event-id",
-            hasParent: false,
-          },
-        ]);
-      } catch (error) {
-        const response = error as Response;
-        console.log(response);
-        const json = await response.json();
-        console.log(json);
-      }
+      const response = await loader({
+        request: new Request(testURL),
+        context: {},
+        params: { slug },
+      });
+      const responseBody = await response.json();
+      expect(responseBody.options).toEqual([
+        {
+          label: "Another Event",
+          value: "another-event-id",
+          hasParent: true,
+        },
+        {
+          label: "Yet Another Event",
+          value: "yet-another-event-id",
+          hasParent: false,
+        },
+      ]);
     });
 
     test("event has still parent event", async () => {
       expect.assertions(2);
 
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,
@@ -144,20 +135,14 @@ describe("/event/$slug/settings/events", () => {
         return [];
       });
 
-      try {
-        const response = await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-        expect(response.parentEventId).toBe("parent-event-id");
-        expect(response.parentEventName).toBe("Parent Event");
-      } catch (error) {
-        const response = error as Response;
-        console.log(response);
-        const json = await response.json();
-        console.log(json);
-      }
+      const response = await loader({
+        request: new Request(testURL),
+        context: {},
+        params: { slug },
+      });
+      const responseBody = await response.json();
+      expect(responseBody.parentEventId).toBe("parent-event-id");
+      expect(responseBody.parentEventName).toBe("Parent Event");
     });
 
     afterAll(() => {

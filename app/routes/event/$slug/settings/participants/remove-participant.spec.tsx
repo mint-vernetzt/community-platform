@@ -7,7 +7,10 @@ import { action } from "./remove-participant";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -38,8 +41,6 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -64,7 +65,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -86,7 +87,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
@@ -117,7 +118,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -142,7 +143,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       eventId: "some-event-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -171,7 +172,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       profileId: "another-user-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -183,28 +184,21 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.participantOfEvent.delete).toHaveBeenLastCalledWith({
-        where: {
-          profileId_eventId: {
-            eventId: "some-event-id",
-            profileId: "another-user-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.participantOfEvent.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "another-user-id",
         },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   test("remove participant (self)", async () => {
@@ -216,7 +210,7 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       profileId: "some-user-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -228,28 +222,21 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       return null;
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.participantOfEvent.delete).toHaveBeenLastCalledWith({
-        where: {
-          profileId_eventId: {
-            eventId: "some-event-id",
-            profileId: "some-user-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.participantOfEvent.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
         },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

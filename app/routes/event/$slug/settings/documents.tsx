@@ -1,7 +1,8 @@
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { useState } from "react";
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { Form as RemixForm } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -10,18 +11,12 @@ import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import {
-  ActionData as DeleteDocumentActionData,
-  deleteDocumentSchema,
-} from "./documents/delete-document";
-import {
-  ActionData as EditDocumentActionData,
-  editDocumentSchema,
-} from "./documents/edit-document";
-import {
-  ActionData as UploadDocumentActionData,
-  uploadDocumentSchema,
-} from "./documents/upload-document";
+import type { ActionData as DeleteDocumentActionData } from "./documents/delete-document";
+import { deleteDocumentSchema } from "./documents/delete-document";
+import type { ActionData as EditDocumentActionData } from "./documents/edit-document";
+import { editDocumentSchema } from "./documents/edit-document";
+import type { ActionData as UploadDocumentActionData } from "./documents/upload-document";
+import { uploadDocumentSchema } from "./documents/upload-document";
 import { checkOwnershipOrThrow } from "./utils.server";
 
 type LoaderData = {

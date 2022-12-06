@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { LoaderFunction, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 
 // handle "/general" as default route
 export const loader: LoaderFunction = async (args) => {

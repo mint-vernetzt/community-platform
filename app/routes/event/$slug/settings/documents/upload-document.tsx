@@ -1,8 +1,10 @@
-import { Document } from "@prisma/client";
+import type { Document } from "@prisma/client";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { ActionFunction, json } from "@remix-run/node";
-import { PerformMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";

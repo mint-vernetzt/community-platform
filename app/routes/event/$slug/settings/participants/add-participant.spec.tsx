@@ -7,7 +7,10 @@ import { action } from "./add-participant";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -38,8 +41,6 @@ describe("/event/$slug/settings/participants/add-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -66,7 +67,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { participatedEvents: [] };
@@ -92,7 +93,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
@@ -126,7 +127,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -152,7 +153,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -189,7 +190,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
     });
@@ -210,19 +211,17 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const response = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
 
-      expect(response.success).toBe(false);
-      expect(response.errors.email).toContain(
-        "Das Profil unter dieser E-Mail nimmt bereits an Eurer Veranstaltung teil."
-      );
-    } catch (error) {}
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.email).toContain(
+      "Das Profil unter dieser E-Mail nimmt bereits an Eurer Veranstaltung teil."
+    );
   });
 
   test("add participant (owner)", async () => {
@@ -234,7 +233,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -251,20 +250,19 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
-        data: {
-          eventId: "some-event-id",
-          profileId: "another-user-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
+      data: {
+        eventId: "some-event-id",
+        profileId: "another-user-id",
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   test("add participant (self)", async () => {
@@ -276,7 +274,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       email: "someuser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({
+    getSessionUserOrThrow.mockResolvedValue({
       id: "some-user-id",
       email: "someuser@mail.com",
     } as User);
@@ -298,20 +296,19 @@ describe("/event/$slug/settings/participants/add-participant", () => {
       };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
-        data: {
-          eventId: "some-event-id",
-          profileId: "some-user-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
+      data: {
+        eventId: "some-event-id",
+        profileId: "some-user-id",
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

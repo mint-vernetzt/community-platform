@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { serverError } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 

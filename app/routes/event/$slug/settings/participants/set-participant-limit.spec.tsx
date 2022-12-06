@@ -8,7 +8,10 @@ import { action } from "./set-participant-limit";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -38,8 +41,6 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -65,7 +66,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -86,7 +87,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -117,7 +118,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -143,7 +144,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
       teamMemberId: "another-user-id",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -177,7 +178,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
       participantLimit: "1",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -194,24 +195,17 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
       }
     );
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(result.success).toBe(false);
-      expect(result.errors.participantLimit).not.toBe([]);
-      expect(result.errors.participantLimit[0]).toBe(
-        "Limit must be at least equal to current number of participants"
-      );
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.participantLimit).not.toBe([]);
+    expect(responseBody.errors.participantLimit[0]).toBe(
+      "Limit must be at least equal to current number of participants"
+    );
   });
 
   test("set participant limit", async () => {
@@ -223,7 +217,7 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
       participantLimit: "1",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -240,24 +234,17 @@ describe("/event/$slug/settings/team/set-participant-limit", () => {
       }
     );
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.event.update).toHaveBeenLastCalledWith({
-        where: { id: "some-event-id" },
-        data: expect.objectContaining({ participantLimit: 1 }),
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.event.update).toHaveBeenLastCalledWith({
+      where: { id: "some-event-id" },
+      data: expect.objectContaining({ participantLimit: 1 }),
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {
