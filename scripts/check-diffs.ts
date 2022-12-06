@@ -4,14 +4,25 @@ import { simpleGit } from "simple-git";
 const git: SimpleGit = simpleGit();
 
 async function main() {
-  const summary = await git.diffSummary(["@{-1}"]);
-  console.log({ summary });
+  const diffSummary = await git.diffSummary(["HEAD@{1}"]);
 
-  const packagesChanged = summary.files.some(
-    (item) => item.file === "package.json" || item.file === "package-lock.json"
-  );
+  let packagesChanged = false;
+  let migrationsChanged = false;
+  let datasetsChanged = false;
 
-  console.log({ packagesChanged });
+  diffSummary.files.forEach((item) => {
+    if (item.file === "package.json" || item.file === "package-lock.json") {
+      packagesChanged = true;
+    }
+    if (item.file.startsWith("prisma/migrations/")) {
+      migrationsChanged = true;
+    }
+    if (item.file.startsWith("prisma/scripts/import-datasets/data/")) {
+      datasetsChanged = true;
+    }
+  });
+
+  console.log({ packagesChanged, migrationsChanged, datasetsChanged });
 }
 
 main()
