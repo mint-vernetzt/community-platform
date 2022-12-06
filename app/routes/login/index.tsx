@@ -63,8 +63,8 @@ export const loader: LoaderFunction = async (args) => {
       accessToken,
       refreshToken
     );
-    if (type === "email_change" && sessionUser !== null) {
-      // Redirecting to profile of sessionUser after email change confirmation
+    if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
+      // Default redirect to profile of sessionUser after sign up confirmation
       const profile = await getProfileByUserId(sessionUser.id, ["username"]);
       return redirect(`/profile/${profile.username}`, {
         headers: response.headers,

@@ -41,6 +41,9 @@ export default function Index() {
     const accessToken = urlHashParams.get("access_token");
     const refreshToken = urlHashParams.get("refresh_token");
     const loginRedirect = urlSearchParams.get("login_redirect");
+    const error = urlHashParams.get("error");
+    const errorCode = urlHashParams.get("error_code");
+    const errorDescription = urlSearchParams.get("error_description");
 
     if (accessToken !== null && refreshToken !== null) {
       if (type === "signup") {
@@ -50,8 +53,13 @@ export default function Index() {
                 login_redirect: loginRedirect,
                 access_token: accessToken,
                 refresh_token: refreshToken,
+                type: type,
               }
-            : { access_token: accessToken, refresh_token: refreshToken },
+            : {
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                type: type,
+              },
           {
             action: "/login",
           }
@@ -81,7 +89,7 @@ export default function Index() {
             type: type,
           },
           {
-            action: "/login",
+            action: "/reset/set-email",
           }
         );
         return;

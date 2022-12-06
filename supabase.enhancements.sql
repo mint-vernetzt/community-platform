@@ -12,20 +12,6 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
 
--- Trigger profile email update on user update
-create function public.update_profile_email()
-returns trigger as $$
-begin
-  update public.profiles
-  set email = new.email
-  where id = new.id;
-end;
-$$ language plpgsql security definer;
-
-create trigger on_update_profile_email
-  after update of email on auth.users
-  for each row execute procedure public.update_profile_email();
-
 -- Create bucket for images
 insert into storage.buckets (id, name)
 values ('images', 'images');
