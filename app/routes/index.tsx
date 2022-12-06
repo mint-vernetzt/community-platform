@@ -44,9 +44,18 @@ export default function Index() {
 
     if (accessToken !== null && refreshToken !== null) {
       if (type === "signup") {
-        submit(loginRedirect ? { login_redirect: loginRedirect } : null, {
-          action: "/login",
-        });
+        submit(
+          loginRedirect
+            ? {
+                login_redirect: loginRedirect,
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              }
+            : { access_token: accessToken, refresh_token: refreshToken },
+          {
+            action: "/login",
+          }
+        );
         return;
       }
       if (type === "recovery") {
@@ -65,19 +74,17 @@ export default function Index() {
         return;
       }
       if (type === "email_change") {
-        // TODO version A:
-        // Database trigger update user.email triggers update profile.email
-        submit(null, {
-          action: "/login",
-        });
+        submit(
+          {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            type: type,
+          },
+          {
+            action: "/login",
+          }
+        );
         return;
-
-        // TODO version B:
-        // Prisma call
-        // Create action route reset/set-email.tsx
-        // setSession
-        // update profile by session.id
-        // redirect to profile
       }
       // TODO: Handle confirmation link error (e.g. confirmation link expired, etc...)
     }

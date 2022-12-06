@@ -8,10 +8,11 @@ import type { FormProps, PerformMutation } from "remix-forms";
 import { z } from "zod";
 import type { Schema, SomeZodObject } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { getSessionUser, signIn } from "../../auth.server";
+import { getSessionUser, setSession, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { getProfileByUserId } from "~/profile.server";
 
 const schema = z.object({
   email: z
@@ -47,10 +48,38 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
+  const url = new URL(request.url);
+  const urlSearchParams = new URLSearchParams(url.searchParams);
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const accessToken = urlSearchParams.get("access_token");
+  const refreshToken = urlSearchParams.get("refresh_token");
+  const type = urlSearchParams.get("type");
+
+  if (accessToken !== null && refreshToken !== null) {
+    // This automatically logs in the user
+    // Throws error on invalid refreshToken, accessToken combination
+    const { user: sessionUser } = await setSession(
+      supabaseClient,
+      accessToken,
+      refreshToken
+    );
+    if (type === "email_change" && sessionUser !== null) {
+      // Redirecting to profile of sessionUser after email change confirmation
+      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+      return redirect(`/profile/${profile.username}`, {
+        headers: response.headers,
+      });
+    }
+  }
+
   const sessionUser = await getSessionUser(supabaseClient);
 
   if (sessionUser !== null) {
-    return redirect("/explore", { headers: response.headers });
+    if (loginRedirect !== null) {
+      return redirect(loginRedirect, { headers: response.headers });
+    } else {
+      return redirect("/explore", { headers: response.headers });
+    }
   }
 
   return response;
