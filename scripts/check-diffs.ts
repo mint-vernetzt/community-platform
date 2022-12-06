@@ -1,10 +1,7 @@
-import type { SimpleGit } from "simple-git";
-import { simpleGit } from "simple-git";
 import * as inquirer from "inquirer";
 import * as childProcess from "node:child_process";
-import { promisify } from "node:util";
-
-const asyncExec = promisify(childProcess.exec);
+import type { SimpleGit } from "simple-git";
+import { simpleGit } from "simple-git";
 
 const git: SimpleGit = simpleGit();
 
@@ -66,13 +63,13 @@ async function main() {
 
   const answers = await inquirer.prompt(prompts);
   if (answers.packagesChanged === true) {
-    await executeCommand("npm i");
+    await executeCommand("npm", ["i"]);
   }
   if (answers.migrationsChanged) {
-    await executeCommand("make prisma-migrate");
+    await executeCommand("make", ["prisma-migrate"]);
   }
   if (answers.datasetsChanged) {
-    await executeCommand("make import-datasets");
+    await executeCommand("make", ["import-datasets"]);
   }
   if (enhancementsChanged) {
     await inquirer.prompt({
@@ -85,14 +82,24 @@ async function main() {
   console.log("\nDone.\n");
 }
 
-async function executeCommand(command: string) {
-  try {
-    const { stdout, stderr } = await asyncExec(command);
-    console.log(stdout);
-    console.log(stderr);
-  } catch (error) {
-    console.error(`\n❌ Running "${command}" failed with\n ${error}\n`);
-  }
+function executeCommand(command: string, options: string[]) {
+  return new Promise((resolve) => {
+    const runningCommand = childProcess.spawn(command, options, {
+      stdio: "inherit",
+    });
+    runningCommand.on("data", (data) => {
+      console.log(data.toString());
+    });
+
+    runningCommand.on("close", (code) => {
+      console.log(
+        `\nRunning "${command} ${options.join(
+          " "
+        )}" exited with code ${code}.\n`
+      );
+      resolve(code);
+    });
+  });
 }
 
 main().catch(console.error);
