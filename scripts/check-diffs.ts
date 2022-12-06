@@ -1,9 +1,10 @@
-import { simpleGit, SimpleGit } from "simple-git";
+import type { SimpleGit } from "simple-git";
+import { simpleGit } from "simple-git";
 
 const git: SimpleGit = simpleGit();
 
 async function main() {
-  const summary = await git.diffSummary(["@{-1}}"]);
+  const summary = await git.diffSummary(["@{-1}"]);
   console.log({ summary });
 
   const packagesChanged = summary.files.some(
