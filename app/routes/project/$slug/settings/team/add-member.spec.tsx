@@ -247,19 +247,17 @@ describe("/project/$slug/settings/team/add-member", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const response = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
 
-      expect(response.success).toBe(false);
-      expect(response.errors.email).toContain([
-        "Das Profil unter dieser E-Mail ist bereits Mitglied Eures Projektes.",
-      ]);
-    } catch (error) {}
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.email).toContain(
+      "Das Profil unter dieser E-Mail ist bereits Mitglied Eures Projektes."
+    );
   });
 
   test("add project team member", async () => {

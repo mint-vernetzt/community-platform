@@ -190,8 +190,10 @@ describe("/project/$slug/settings/team", () => {
       params: { slug },
     });
 
-    expect(response.teamMembers.length).toBe(3);
-    expect(response.teamMembers).toEqual(
+    const responseBody = await response.json();
+
+    expect(responseBody.teamMembers.length).toBe(3);
+    expect(responseBody.teamMembers).toEqual(
       expect.arrayContaining([
         {
           id: "some-user-id",

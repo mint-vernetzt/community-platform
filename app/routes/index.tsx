@@ -1,5 +1,5 @@
-import { json } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
@@ -94,7 +94,7 @@ export default function Index() {
         );
         return;
       }
-      // TODO: Handle confirmation link error (e.g. confirmation link expired, etc...)
+      // TODO: Handle confirmation link error (e.g. confirmation link expired, etc...) -> alert
     }
 
     // Redirect when user is logged in

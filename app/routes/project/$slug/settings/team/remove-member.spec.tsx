@@ -218,28 +218,23 @@ describe("/project/$slug/settings/team/remove-member", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.teamMemberOfProject.delete).toHaveBeenLastCalledWith({
-        where: {
-          profileId_projectId: {
-            profileId: "another-user-id",
-            projectId: "some-project-id",
-          },
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
 
-      const json = await response.json();
-      console.log(json);
-    }
+    const responseBody = await response.json();
+
+    expect(prismaClient.teamMemberOfProject.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_projectId: {
+          profileId: "another-user-id",
+          projectId: "some-project-id",
+        },
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

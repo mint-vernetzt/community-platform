@@ -187,30 +187,23 @@ describe("/project/$slug/settings/team/add-member", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.responsibleOrganizationOfProject.delete
-      ).toHaveBeenLastCalledWith({
-        where: {
-          projectId_organizationId: {
-            projectId: "some-project-id",
-            organizationId: "some-organization-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.responsibleOrganizationOfProject.delete
+    ).toHaveBeenLastCalledWith({
+      where: {
+        projectId_organizationId: {
+          projectId: "some-project-id",
+          organizationId: "some-organization-id",
         },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

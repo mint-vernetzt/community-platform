@@ -224,19 +224,17 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       }
     );
 
-    try {
-      const response = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
 
-      expect(response.success).toBe(false);
-      expect(response.errors.organizationName).toContain([
-        "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
-      ]);
-    } catch (error) {}
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.organizationName).toContain(
+      "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich."
+    );
   });
 
   test("add responsible organization to project", async () => {

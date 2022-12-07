@@ -1,12 +1,11 @@
 import { redirect } from "@remix-run/node";
-import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import type { User } from "@supabase/supabase-js";
+import * as crypto from "crypto";
 import * as authServerModule from "~/auth.server";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
-import * as crypto from "crypto";
 import { createEventOnProfile } from "./utils.server";
-import type { User } from "@supabase/supabase-js";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -17,10 +16,6 @@ const getSessionUserOrThrow = jest.spyOn(
   authServerModule,
   "getSessionUserOrThrow"
 );
-
-jest.mock("@supabase/auth-helpers-remix", () => {
-  return { createServerClient: jest.fn() };
-});
 
 jest.mock("~/utils", () => {
   return { generateEventSlug: jest.fn() };
@@ -38,21 +33,19 @@ describe("loader", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (createServerClient as jest.Mock).mockResolvedValue(null);
-
     try {
       await loader({ request: new Request(testURL), params: {}, context: {} });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("No session or session user found");
     }
   });
 
   test("logged in user", async () => {
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
@@ -66,27 +59,30 @@ describe("loader", () => {
   });
 
   test("search parameters", async () => {
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
-    const resultWithoutParameters = await loader({
+    const responseWithoutParameters = await loader({
       request: new Request(url),
       params: {},
       context: {},
     });
-    expect(resultWithoutParameters.child).toBe("");
-    expect(resultWithoutParameters.parent).toBe("");
+    const responseWithoutParametersBody =
+      await responseWithoutParameters.json();
+    expect(responseWithoutParametersBody.child).toBe("");
+    expect(responseWithoutParametersBody.parent).toBe("");
 
-    const resultWithParameters = await loader({
+    const responseWithParameters = await loader({
       request: new Request(
         `${url}?child=child-event-id&parent=parent-event-id`
       ),
       params: {},
       context: {},
     });
-    expect(resultWithParameters.child).toBe("child-event-id");
-    expect(resultWithParameters.parent).toBe("parent-event-id");
+    const responseWithParametersBody = await responseWithParameters.json();
+    expect(responseWithParametersBody.child).toBe("child-event-id");
+    expect(responseWithParametersBody.parent).toBe("parent-event-id");
   });
 
   afterAll(() => {
@@ -102,8 +98,6 @@ describe("action", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
     try {
       await action({
         request: createRequestWithFormData({}),
@@ -112,21 +106,21 @@ describe("action", () => {
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("No session or session user found");
     }
   });
 
   test("other user id", async () => {
     expect.assertions(2);
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     try {
       await action({
-        request: createRequestWithFormData({ id: "another-user-id" }),
+        request: createRequestWithFormData({ userId: "another-user-id" }),
         context: {},
         params: {},
       });
@@ -140,7 +134,7 @@ describe("action", () => {
   });
 
   test("no values", async () => {
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const request = createRequestWithFormData({
       id: "some-user-id",
@@ -159,7 +153,7 @@ describe("action", () => {
   test("required fields", async () => {
     const uuid = crypto.randomUUID();
 
-    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
@@ -193,7 +187,7 @@ describe("action", () => {
   test("all fields", async () => {
     const uuid = crypto.randomUUID();
 
-    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
@@ -231,7 +225,7 @@ describe("action", () => {
   test("all fields with relations", async () => {
     const uuid = crypto.randomUUID();
 
-    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";

@@ -156,8 +156,10 @@ describe("/project/$slug/settings/organizations", () => {
       params: { slug },
     });
 
-    expect(response.organizations.length).toBe(3);
-    expect(response.organizations).toEqual(
+    const responseBody = await response.json();
+
+    expect(responseBody.organizations.length).toBe(3);
+    expect(responseBody.organizations).toEqual(
       expect.arrayContaining([
         {
           id: "some-organization-id",

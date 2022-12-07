@@ -229,31 +229,24 @@ describe("/project/$slug/settings/team/set-privileged", () => {
       }
     );
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.teamMemberOfProject.update).toHaveBeenLastCalledWith({
-        where: {
-          profileId_projectId: {
-            profileId: "another-user-id",
-            projectId: "some-project-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(prismaClient.teamMemberOfProject.update).toHaveBeenLastCalledWith({
+      where: {
+        profileId_projectId: {
+          profileId: "another-user-id",
+          projectId: "some-project-id",
         },
-        data: {
-          isPrivileged: true,
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+      data: {
+        isPrivileged: true,
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {
