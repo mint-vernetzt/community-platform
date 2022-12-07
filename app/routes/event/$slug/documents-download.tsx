@@ -1,7 +1,7 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import type { LoaderFunction } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { forbidden, serverError } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getDocumentById } from "~/document.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   );
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
   const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
