@@ -1,12 +1,11 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
@@ -53,15 +52,8 @@ export const action: ActionFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });

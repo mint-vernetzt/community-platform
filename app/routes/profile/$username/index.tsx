@@ -2,13 +2,12 @@ import type { Profile } from "@prisma/client";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { notFound } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -64,14 +63,7 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const username = getParamValueOrThrow(params, "username");
 
@@ -80,9 +72,9 @@ export const loader: LoaderFunction = async (args) => {
     throw notFound({ message: "Profile not found" });
   }
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
   const mode = deriveMode(profile.id, sessionUser);
-  const abilities = await getFeatureAbilities(supabaseClient, [
+  const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
   ]);
@@ -95,7 +87,7 @@ export const loader: LoaderFunction = async (args) => {
   } = {};
 
   if (profile.avatar !== null) {
-    const publicURL = getPublicURL(supabaseClient, profile.avatar);
+    const publicURL = getPublicURL(authClient, profile.avatar);
     if (publicURL !== null) {
       images.avatar = getImageURL(publicURL, {
         resize: { type: "fill", width: 144, height: 144 },
@@ -103,7 +95,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
   if (profile.background !== null) {
-    const publicURL = getPublicURL(supabaseClient, profile.background);
+    const publicURL = getPublicURL(authClient, profile.background);
     if (publicURL !== null) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -112,10 +104,7 @@ export const loader: LoaderFunction = async (args) => {
   }
   profile.memberOf = profile.memberOf.map((relation) => {
     if (relation.organization.logo !== null) {
-      const publicURL = getPublicURL(
-        supabaseClient,
-        relation.organization.logo
-      );
+      const publicURL = getPublicURL(authClient, relation.organization.logo);
       if (publicURL !== null) {
         relation.organization.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
@@ -128,7 +117,7 @@ export const loader: LoaderFunction = async (args) => {
   profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
     (relation) => {
       if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, relation.project.logo);
+        const publicURL = getPublicURL(authClient, relation.project.logo);
         if (publicURL !== null) {
           relation.project.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -138,7 +127,7 @@ export const loader: LoaderFunction = async (args) => {
       }
       relation.project.awards = relation.project.awards.map((relation) => {
         if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(supabaseClient, relation.award.logo);
+          const publicURL = getPublicURL(authClient, relation.award.logo);
           if (publicURL !== null) {
             relation.award.logo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -155,14 +144,14 @@ export const loader: LoaderFunction = async (args) => {
 
   const inFuture = true;
   const profileFutureEvents = await prepareProfileEvents(
-    supabaseClient,
+    authClient,
     username,
     mode,
     sessionUser,
     inFuture
   );
   const profilePastEvents = await prepareProfileEvents(
-    supabaseClient,
+    authClient,
     username,
     mode,
     sessionUser,

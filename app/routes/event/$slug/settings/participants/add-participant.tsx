@@ -1,17 +1,16 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { getSessionUserOrThrow } from "~/auth.server";
-import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { connectParticipantToEvent } from "./utils.server";
-import { json } from "@remix-run/node";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
-import type { ActionFunction } from "@remix-run/node";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
+import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import { connectParticipantToEvent } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -49,15 +48,8 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });

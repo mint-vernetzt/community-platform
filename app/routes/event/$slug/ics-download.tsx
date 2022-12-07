@@ -1,9 +1,8 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
+import type { LoaderFunction } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import type { LoaderFunction } from "@remix-run/node";
 import { forbidden } from "remix-utils";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -118,16 +117,9 @@ type LoaderData = Response;
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
   const mode = await deriveMode(event, sessionUser); // TODO: fix type issue

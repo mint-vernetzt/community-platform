@@ -9,14 +9,13 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
 import { array, mixed, number, object, string } from "yup";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
@@ -201,19 +200,12 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(event, sessionUser);
@@ -252,19 +244,12 @@ type ActionData = {
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   await checkIdentityOrThrow(request, sessionUser);
 

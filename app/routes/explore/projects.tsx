@@ -1,8 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
+import { createAuthClient } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -16,23 +16,13 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const projects = await getAllProjects();
 
   const enhancedProjects = projects.map((project) => {
     let enhancedProject = project;
     if (enhancedProject.background !== null) {
-      const publicURL = getPublicURL(
-        supabaseClient,
-        enhancedProject.background
-      );
+      const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
         enhancedProject.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
@@ -40,7 +30,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       }
     }
     if (enhancedProject.logo !== null) {
-      const publicURL = getPublicURL(supabaseClient, enhancedProject.logo);
+      const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
         enhancedProject.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 144, height: 144 },
@@ -49,7 +39,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
     enhancedProject.awards = enhancedProject.awards.map((relation) => {
       if (relation.award.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, relation.award.logo);
+        const publicURL = getPublicURL(authClient, relation.award.logo);
         if (publicURL !== null) {
           relation.award.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },

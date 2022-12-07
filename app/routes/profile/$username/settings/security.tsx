@@ -1,7 +1,6 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useTransition } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -9,6 +8,7 @@ import { notFound } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
 import {
+  createAuthClient,
   getSessionUserOrThrow,
   sendResetEmailLink,
   updatePassword,
@@ -42,27 +42,20 @@ const passwordSchema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
   return response;
@@ -119,20 +112,13 @@ type ActionData =
 export const action: ActionFunction = async ({ request, params }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
@@ -146,14 +132,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       request,
       schema: emailSchema,
       mutation: emailMutation,
-      environment: { supabaseClient: supabaseClient },
+      environment: { authClient: authClient },
     });
   } else {
     result = await performMutation({
       request,
       schema: passwordSchema,
       mutation: passwordMutation,
-      environment: { supabaseClient: supabaseClient },
+      environment: { authClient: authClient },
     });
   }
   return json<ActionData>(result, { headers: response.headers });

@@ -7,7 +7,6 @@ import {
   useLoaderData,
   useSubmit,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import type { FormEvent } from "react";
 import React from "react";
@@ -16,7 +15,7 @@ import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -38,8 +37,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 type Profiles = Awaited<ReturnType<typeof getAllProfiles>>;
@@ -55,16 +54,9 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const isLoggedIn = sessionUser !== null;
 
@@ -93,7 +85,7 @@ export const loader: LoaderFunction = async (args) => {
         let avatarImage: string | null = null;
 
         if (avatar !== null) {
-          const publicURL = getPublicURL(supabaseClient, avatar);
+          const publicURL = getPublicURL(authClient, avatar);
           if (publicURL !== null) {
             avatarImage = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
@@ -289,20 +281,13 @@ type ActionData = PerformMutation<
 
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   // TODO: Do we need an identity/authorization check for the filter action?
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient },
+    environment: { authClient: authClient },
   });
 
   // TODO: fix type issue

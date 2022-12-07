@@ -1,14 +1,13 @@
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { getImageURL } from "~/images.server";
@@ -75,21 +74,14 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const { slug } = params;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const abilities = await getFeatureAbilities(supabaseClient, "events");
+  const authClient = createAuthClient(request, response);
+  const abilities = await getFeatureAbilities(authClient, "events");
 
   if (slug === undefined || typeof slug !== "string") {
     throw badRequest({ message: '"slug" missing' });
   }
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
   const event = await getEvent(slug);
 
   if (event === null) {
@@ -122,7 +114,7 @@ export const loader: LoaderFunction = async (args) => {
 
   speakers = speakers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -138,7 +130,7 @@ export const loader: LoaderFunction = async (args) => {
 
   enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -159,7 +151,7 @@ export const loader: LoaderFunction = async (args) => {
 
     participants = participants.map((item) => {
       if (item.profile.avatar !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
+        const publicURL = getPublicURL(authClient, item.profile.avatar);
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -197,7 +189,7 @@ export const loader: LoaderFunction = async (args) => {
   }
 
   if (enhancedEvent.background !== null) {
-    const publicURL = getPublicURL(supabaseClient, enhancedEvent.background);
+    const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -213,7 +205,7 @@ export const loader: LoaderFunction = async (args) => {
 
   enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
     if (item.background !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.background);
+      const publicURL = getPublicURL(authClient, item.background);
       if (publicURL) {
         item.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 160, height: 160 },
@@ -226,7 +218,7 @@ export const loader: LoaderFunction = async (args) => {
   enhancedEvent.responsibleOrganizations =
     enhancedEvent.responsibleOrganizations.map((item) => {
       if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.organization.logo);
+        const publicURL = getPublicURL(authClient, item.organization.logo);
         if (publicURL) {
           item.organization.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 144, height: 144 },

@@ -1,19 +1,18 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { json } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import { addMemberSchema } from "./team/add-member";
-import { removeMemberSchema } from "./team/remove-member";
-import { setPrivilegeSchema } from "./team/set-privilege";
 import type { ActionData as AddMemberActionData } from "./team/add-member";
+import { addMemberSchema } from "./team/add-member";
 import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
+import { removeMemberSchema } from "./team/remove-member";
 import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
+import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
   getTeamMemberProfileDataFromEvent,
@@ -28,17 +27,10 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
   await checkOwnershipOrThrow(event, sessionUser);
 

@@ -1,10 +1,9 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { useState } from "react";
 import { Form as RemixForm } from "remix-forms";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
@@ -27,20 +26,13 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  await checkFeatureAbilitiesOrThrow(supabaseClient, "events");
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(event, sessionUser);

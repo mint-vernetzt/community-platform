@@ -1,12 +1,12 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
+import { createAuthClient } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deleteOrganizationBySlug } from "~/organization.server";
@@ -24,18 +24,11 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(supabaseClient, slug);
+  await handleAuthorization(authClient, slug);
 
   return response;
 };
@@ -55,20 +48,13 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const { sessionUser } = await handleAuthorization(supabaseClient, slug);
+  const { sessionUser } = await handleAuthorization(authClient, slug);
 
   const profile = await getProfileByUserId(sessionUser.id, ["username"]);
 

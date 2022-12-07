@@ -1,14 +1,17 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { notFound } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
-import { deleteUserByUid, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  deleteUserByUid,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -25,8 +28,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 type LoaderData = {
@@ -36,20 +39,13 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
   return json<LoaderData>({ profile }, { headers: response.headers });
@@ -82,20 +78,13 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 export const action: ActionFunction = async ({ request, params }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
   await checkIdentityOrThrow(request, sessionUser);
 
@@ -103,7 +92,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient },
+    environment: { authClient: authClient },
   });
   if (result.success) {
     redirect("/goodbye", { headers: response.headers });

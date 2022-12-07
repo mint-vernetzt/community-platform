@@ -16,10 +16,9 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import * as React from "react";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getSessionUser } from "./auth.server";
+import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -52,22 +51,15 @@ export const loader: LoaderFunction = async (args) => {
 
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const { abilities } = await validateFeatureAccess(
-    supabaseClient,
+    authClient,
     ["events", "projects"],
     { throw: false }
   );
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   let sessionUserInfo;
 
@@ -82,7 +74,7 @@ export const loader: LoaderFunction = async (args) => {
     let avatar: string | undefined;
 
     if (profile && profile.avatar) {
-      const publicURL = getPublicURL(supabaseClient, profile.avatar);
+      const publicURL = getPublicURL(authClient, profile.avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },

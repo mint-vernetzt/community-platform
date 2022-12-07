@@ -4,17 +4,27 @@ import { createServerClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
-export const createAuthClient = async (
-  request: Request,
-  response: Response
-) => {
+const SESSION_NAME = "sb";
+
+export const createAuthClient = (request: Request, response: Response) => {
   const supabaseClient = createServerClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     {
       request,
       response,
-      cookieOptions: {},
+      cookieOptions: {
+        name: SESSION_NAME,
+        // normally you want this to be `secure: true`
+        // but that doesn't work on localhost for Safari
+        // https://web.dev/when-to-use-local-https/
+        secure: process.env.NODE_ENV === "production",
+        // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
+        sameSite: "lax", // TODO: check this setting
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
+      },
     }
   );
   return supabaseClient;

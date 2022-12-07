@@ -1,13 +1,16 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
-import { setSession, updatePassword } from "../../auth.server";
+import {
+  createAuthClient,
+  setSession,
+  updatePassword,
+} from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -35,18 +38,15 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
+  createAuthClient(request, response);
 
   return response;
 };
@@ -85,19 +85,12 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient },
+    environment: { authClient: authClient },
   });
 
   if (result.success) {

@@ -1,14 +1,13 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigate } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
@@ -32,15 +31,8 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const currentUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const currentUser = await getSessionUserOrThrow(authClient);
 
   return json<LoaderData>(
     { id: currentUser.id },
@@ -71,15 +63,8 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
 
   const requestClone = request.clone();
@@ -115,7 +100,7 @@ export const action: ActionFunction = async ({ request }) => {
         alreadyExistingOrganization.logo !== null
       ) {
         const publicURL = getPublicURL(
-          supabaseClient,
+          authClient,
           alreadyExistingOrganization.logo
         );
         if (publicURL) {

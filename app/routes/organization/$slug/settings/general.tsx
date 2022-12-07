@@ -8,12 +8,12 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
+import { createAuthClient } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -97,18 +97,11 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(supabaseClient, slug);
+  await handleAuthorization(authClient, slug);
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
@@ -145,20 +138,13 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const { organization } = await handleAuthorization(supabaseClient, slug);
+  const { organization } = await handleAuthorization(authClient, slug);
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,

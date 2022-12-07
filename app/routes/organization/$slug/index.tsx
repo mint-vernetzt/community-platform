@@ -1,13 +1,12 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { notFound } from "remix-utils";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -64,16 +63,9 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -90,7 +82,7 @@ export const loader: LoaderFunction = async (args) => {
     background?: string;
   } = {};
   if (unfilteredOrganization.logo) {
-    const publicURL = getPublicURL(supabaseClient, unfilteredOrganization.logo);
+    const publicURL = getPublicURL(authClient, unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 144, height: 144 },
@@ -99,7 +91,7 @@ export const loader: LoaderFunction = async (args) => {
   }
   if (unfilteredOrganization.background) {
     const publicURL = getPublicURL(
-      supabaseClient,
+      authClient,
       unfilteredOrganization.background
     );
     if (publicURL) {
@@ -111,7 +103,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.memberOf = unfilteredOrganization.memberOf.map(
     (member) => {
       if (member.network.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, member.network.logo);
+        const publicURL = getPublicURL(authClient, member.network.logo);
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -127,10 +119,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.networkMembers =
     unfilteredOrganization.networkMembers.map((member) => {
       if (member.networkMember.logo !== null) {
-        const publicURL = getPublicURL(
-          supabaseClient,
-          member.networkMember.logo
-        );
+        const publicURL = getPublicURL(authClient, member.networkMember.logo);
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -145,10 +134,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.teamMembers = unfilteredOrganization.teamMembers.map(
     (teamMember) => {
       if (teamMember.profile.avatar !== null) {
-        const publicURL = getPublicURL(
-          supabaseClient,
-          teamMember.profile.avatar
-        );
+        const publicURL = getPublicURL(authClient, teamMember.profile.avatar);
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -164,7 +150,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.responsibleForProject =
     unfilteredOrganization.responsibleForProject.map((relation) => {
       if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, relation.project.logo);
+        const publicURL = getPublicURL(authClient, relation.project.logo);
         if (publicURL !== null) {
           relation.project.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -174,7 +160,7 @@ export const loader: LoaderFunction = async (args) => {
       }
       relation.project.awards = relation.project.awards.map((relation) => {
         if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(supabaseClient, relation.award.logo);
+          const publicURL = getPublicURL(authClient, relation.award.logo);
           if (publicURL !== null) {
             relation.award.logo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -231,13 +217,13 @@ export const loader: LoaderFunction = async (args) => {
 
   const inFuture = true;
   const organizationFutureEvents = await prepareOrganizationEvents(
-    supabaseClient,
+    authClient,
     slug,
     sessionUser,
     inFuture
   );
   const organizationPastEvents = await prepareOrganizationEvents(
-    supabaseClient,
+    authClient,
     slug,
     sessionUser,
     !inFuture

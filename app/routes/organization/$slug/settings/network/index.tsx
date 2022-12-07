@@ -1,7 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
+import { createAuthClient } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
@@ -21,19 +21,12 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization } = await handleAuthorization(supabaseClient, slug);
+  const { organization } = await handleAuthorization(authClient, slug);
 
   const networkMembers = await getNetworkMembersOfOrganization(
-    supabaseClient,
+    authClient,
     organization.id
   );
 

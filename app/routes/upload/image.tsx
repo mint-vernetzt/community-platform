@@ -1,8 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import {
   deriveMode as deriveEventMode,
@@ -25,10 +24,7 @@ import {
 export const loader: LoaderFunction = ({ request }) => {
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
+  createAuthClient(request, response);
 
   if (request.method !== "POST") {
     throw badRequest({
@@ -85,19 +81,12 @@ async function handleAuth(
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
 
-  const formData = await upload(supabaseClient, request, "images");
+  const formData = await upload(authClient, request, "images");
 
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;

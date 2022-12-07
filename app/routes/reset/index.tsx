@@ -1,14 +1,13 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { sendResetPasswordLink } from "../../auth.server";
+import { createAuthClient, sendResetPasswordLink } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
@@ -21,8 +20,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
   siteUrl: z.string(),
 });
 
@@ -30,10 +29,7 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
+  createAuthClient(request, response);
 
   return response;
 };
@@ -65,14 +61,7 @@ export const action: ActionFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const url = new URL(request.url);
   const siteUrl = url.protocol + "//" + url.host + "/?login_redirect=";
@@ -81,7 +70,7 @@ export const action: ActionFunction = async (args) => {
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient, siteUrl: siteUrl },
+    environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
   return json<ActionData>(result, { headers: response.headers });

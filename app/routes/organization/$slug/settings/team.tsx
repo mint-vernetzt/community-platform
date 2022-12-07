@@ -1,8 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
+import { createAuthClient } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -37,25 +37,15 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
   const { organization, sessionUser } = await handleAuthorization(
-    supabaseClient,
+    authClient,
     slug
   );
 
-  const members = await getMembersOfOrganization(
-    supabaseClient,
-    organization.id
-  );
+  const members = await getMembersOfOrganization(authClient, organization.id);
 
   const enhancedMembers = getTeamMemberProfileDataFromOrganization(
     members,

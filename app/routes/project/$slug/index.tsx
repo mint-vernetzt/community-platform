@@ -1,11 +1,10 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -72,32 +71,25 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
   const project = await getProjectBySlugOrThrow(slug);
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const mode = await deriveMode(project, sessionUser);
 
   if (project.logo !== null) {
-    const publicURL = getPublicURL(supabaseClient, project.logo);
+    const publicURL = getPublicURL(authClient, project.logo);
     project.logo = getImageURL(publicURL, {
       resize: { type: "fit", width: 144, height: 144 },
     });
   }
 
   if (project.background !== null) {
-    const publicURL = getPublicURL(supabaseClient, project.background);
+    const publicURL = getPublicURL(authClient, project.background);
     project.background = getImageURL(publicURL, {
       resize: { type: "fit", width: 1488, height: 480 },
     });
@@ -105,7 +97,7 @@ export const loader: LoaderFunction = async (args) => {
 
   project.teamMembers = project.teamMembers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       item.profile.avatar = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
@@ -116,7 +108,7 @@ export const loader: LoaderFunction = async (args) => {
   project.responsibleOrganizations = project.responsibleOrganizations.map(
     (item) => {
       if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.organization.logo);
+        const publicURL = getPublicURL(authClient, item.organization.logo);
         item.organization.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
@@ -127,7 +119,7 @@ export const loader: LoaderFunction = async (args) => {
 
   project.awards = project.awards.map((item) => {
     if (item.award.logo !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.award.logo);
+      const publicURL = getPublicURL(authClient, item.award.logo);
       item.award.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });

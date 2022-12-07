@@ -1,7 +1,6 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps, PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -9,7 +8,12 @@ import type { Schema, SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { getProfileByUserId } from "~/profile.server";
-import { getSessionUser, setSession, signIn } from "../../auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  setSession,
+  signIn,
+} from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -26,8 +30,8 @@ const schema = z.object({
 });
 
 const environmentSchema = z.object({
-  supabaseClient: z.unknown(),
-  // supabaseClient: z.instanceof(SupabaseClient),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
@@ -39,14 +43,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
@@ -59,7 +56,7 @@ export const loader: LoaderFunction = async (args) => {
     // This automatically logs in the user
     // Throws error on invalid refreshToken, accessToken combination
     const { user: sessionUser } = await setSession(
-      supabaseClient,
+      authClient,
       accessToken,
       refreshToken
     );
@@ -72,7 +69,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
     if (loginRedirect !== null) {
@@ -114,20 +111,13 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { supabaseClient: supabaseClient },
+    environment: { authClient: authClient },
   });
 
   if (result.success) {

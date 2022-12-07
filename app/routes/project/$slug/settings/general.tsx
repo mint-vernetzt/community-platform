@@ -8,12 +8,11 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -77,18 +76,11 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, sessionUser);
@@ -118,14 +110,7 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const supabaseClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(supabaseClient);

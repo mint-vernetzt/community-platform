@@ -1,23 +1,15 @@
 import type { ActionFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { serverError } from "remix-utils";
-import { signOut } from "~/auth.server";
+import { createAuthClient, signOut } from "~/auth.server";
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const { error } = await signOut(supabaseClient);
+  const { error } = await signOut(authClient);
 
   if (error !== null) {
     throw serverError({ message: error.message });

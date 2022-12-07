@@ -1,11 +1,10 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { badRequest } from "remix-utils";
 import type { InferType } from "yup";
 import { date, object, string } from "yup";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import type { FormError } from "~/lib/utils/yup";
 import { getFormValues, nullOrString, validateForm } from "~/lib/utils/yup";
@@ -51,21 +50,14 @@ type LoaderData = {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
   const child = url.searchParams.get("child") || "";
   const parent = url.searchParams.get("parent") || "";
 
-  await validateFeatureAccess(supabaseClient, "events");
+  await validateFeatureAccess(authClient, "events");
 
   return json<LoaderData>(
     { id: sessionUser.id, child, parent },
@@ -97,15 +89,8 @@ type ActionData = {
 export const action: ActionFunction = async (args) => {
   const { request } = args;
   const response = new Response();
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);

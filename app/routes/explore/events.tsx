@@ -1,9 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { isSameDay } from "date-fns";
-import { getSessionUser } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,
@@ -26,28 +25,13 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const sessionUser = await getSessionUser(supabaseClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const inFuture = true;
-  const futureEvents = await prepareEvents(
-    supabaseClient,
-    sessionUser,
-    inFuture
-  );
-  const pastEvents = await prepareEvents(
-    supabaseClient,
-    sessionUser,
-    !inFuture
-  );
+  const futureEvents = await prepareEvents(authClient, sessionUser, inFuture);
+  const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture);
 
   return json<LoaderData>(
     {

@@ -1,12 +1,11 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
 import type { Schema, z } from "zod";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
@@ -69,14 +68,7 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();
 
@@ -85,7 +77,7 @@ export const action: ActionFunction = async ({ request }) => {
     schema,
     mutation,
     environment: {
-      supabaseClient: supabaseClient,
+      authClient: authClient,
     },
   });
 

@@ -1,12 +1,12 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
+import { createAuthClient } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -32,10 +32,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
 
-  createServerClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    request,
-    response,
-  });
+  createAuthClient(request, response);
   return redirect(".", { headers: response.headers });
 };
 
@@ -45,20 +42,13 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
   // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(supabaseClient, slug);
+  await handleAuthorization(authClient, slug);
 
   const result = await performMutation({ request, schema, mutation });
 

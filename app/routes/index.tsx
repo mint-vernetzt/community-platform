@@ -1,9 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import React from "react";
-import { getSession } from "~/auth.server";
+import { createAuthClient, getSession } from "~/auth.server";
 
 type LoaderData = {
   hasSession: boolean;
@@ -13,16 +12,9 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
 
-  const session = await getSession(supabaseClient);
+  const session = await getSession(authClient);
   const hasSession = session !== null;
 
   return json<LoaderData>({ hasSession }, { headers: response.headers });

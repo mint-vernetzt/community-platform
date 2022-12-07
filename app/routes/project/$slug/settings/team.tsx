@@ -1,9 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProjectBySlugOrThrow } from "../utils.server";
@@ -28,16 +27,9 @@ export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-    }
-  );
+  const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
   await checkOwnershipOrThrow(project, sessionUser);
 
