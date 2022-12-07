@@ -1,7 +1,24 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
+
+export const createAuthClient = async (
+  request: Request,
+  response: Response
+) => {
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+      cookieOptions: {},
+    }
+  );
+  return supabaseClient;
+};
 
 export const signUp = async (
   supabaseClient: SupabaseClient,
