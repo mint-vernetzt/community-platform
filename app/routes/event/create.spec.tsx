@@ -137,17 +137,20 @@ describe("action", () => {
     getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const request = createRequestWithFormData({
-      id: "some-user-id",
+      userId: "some-user-id",
       name: "",
       startDate: "",
     });
 
     const response = await action({ request, context: {}, params: {} });
-    expect(response.data.id).toBe("some-user-id");
-    expect(response.errors).toBeDefined();
-    expect(response.errors).not.toBeNull();
-    expect(response.errors.name.message).toBe("Please add event name");
-    expect(response.errors.startDate.message).toBe("Please add a start date");
+    const responseBody = await response.json();
+    expect(responseBody.data.userId).toBe("some-user-id");
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.name.message).toBe("Please add event name");
+    expect(responseBody.errors.startDate.message).toBe(
+      "Please add a start date"
+    );
   });
 
   test("required fields", async () => {
@@ -160,7 +163,7 @@ describe("action", () => {
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
     });
@@ -194,7 +197,7 @@ describe("action", () => {
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
       startTime: "09:00",
@@ -232,7 +235,7 @@ describe("action", () => {
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
       startTime: "09:00",
