@@ -3,7 +3,7 @@ import { getSession } from "./auth.server";
 import { forbidden } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 
 export async function createHashFromString(
   string: string,

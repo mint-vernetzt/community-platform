@@ -1,5 +1,6 @@
-import { Organization, Prisma, Profile } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import { Prisma } from "@prisma/client";
+import type { Organization, Profile } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
 

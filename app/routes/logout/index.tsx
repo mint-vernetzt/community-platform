@@ -1,5 +1,5 @@
-import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { serverError } from "remix-utils";
 import { signOut } from "~/auth.server";

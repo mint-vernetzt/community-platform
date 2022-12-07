@@ -1,8 +1,9 @@
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { isSameDay } from "date-fns";
 import { getSessionUser } from "~/auth.server";
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,

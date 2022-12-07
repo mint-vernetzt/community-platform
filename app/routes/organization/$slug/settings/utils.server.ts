@@ -1,5 +1,5 @@
-import { Organization } from "@prisma/client";
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { Organization } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getSessionUserOrThrow } from "~/auth.server";

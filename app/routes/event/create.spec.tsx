@@ -1,18 +1,25 @@
-import { getSessionUser } from "~/auth.server";
 import { redirect } from "@remix-run/node";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import * as authServerModule from "~/auth.server";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
 import * as crypto from "crypto";
 import { createEventOnProfile } from "./utils.server";
+import type { User } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
 const path = "/event/create";
 
-jest.mock("~/auth.server", () => {
-  return { getSessionUser: jest.fn() };
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
+
+jest.mock("@supabase/auth-helpers-remix", () => {
+  return { createServerClient: jest.fn() };
 });
 
 jest.mock("~/utils", () => {
@@ -31,9 +38,7 @@ describe("loader", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return null;
-    });
+    (createServerClient as jest.Mock).mockResolvedValue(null);
 
     try {
       await loader({ request: new Request(testURL), params: {}, context: {} });
@@ -47,24 +52,21 @@ describe("loader", () => {
   });
 
   test("logged in user", async () => {
-    (getSessionUser as jest.Mock).mockImplementation(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
-    const result = await loader({
+    const response = await loader({
       request: new Request(url),
       params: {},
       context: {},
     });
-    expect(result.id).toBe("some-user-id");
+    const responseBody = await response.json();
+    expect(responseBody.id).toBe("some-user-id");
   });
 
   test("search parameters", async () => {
-    (getSessionUser as jest.Mock).mockImplementation(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
@@ -100,9 +102,7 @@ describe("action", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return null;
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({
@@ -122,9 +122,7 @@ describe("action", () => {
   test("other user id", async () => {
     expect.assertions(2);
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({
@@ -142,9 +140,7 @@ describe("action", () => {
   });
 
   test("no values", async () => {
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     const request = createRequestWithFormData({
       id: "some-user-id",
@@ -163,9 +159,7 @@ describe("action", () => {
   test("required fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
@@ -199,9 +193,7 @@ describe("action", () => {
   test("all fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
@@ -239,9 +231,7 @@ describe("action", () => {
   test("all fields with relations", async () => {
     const uuid = crypto.randomUUID();
 
-    (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValue({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";

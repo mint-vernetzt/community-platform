@@ -1,29 +1,26 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import { ArrayElement } from "~/lib/utils/types";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { Form } from "remix-forms";
+import { H3 } from "~/components/Heading/Heading";
+import { getInitials } from "~/lib/profile/getInitials";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { ArrayElement } from "~/lib/utils/types";
+import type {
+  FailureActionData as AddMemberFailureActionData,
+  SuccessActionData as AddMemberSuccessActionData,
+} from "./team/add-member";
+import { addMemberSchema } from "./team/add-member";
+import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
+import { removeMemberSchema } from "./team/remove-member";
+import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
+import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   getMembersOfOrganization,
   getTeamMemberProfileDataFromOrganization,
   handleAuthorization,
 } from "./utils.server";
-import {
-  SuccessActionData as AddMemberSuccessActionData,
-  FailureActionData as AddMemberFailureActionData,
-  addMemberSchema,
-} from "./team/add-member";
-import {
-  ActionData as RemoveMemberActionData,
-  removeMemberSchema,
-} from "./team/remove-member";
-import { Form } from "remix-forms";
-import {
-  ActionData as SetPrivilegeActionData,
-  setPrivilegeSchema,
-} from "./team/set-privilege";
-import { getInitials } from "~/lib/profile/getInitials";
-import { H3 } from "~/components/Heading/Heading";
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export type Member = ArrayElement<
   Awaited<ReturnType<typeof getTeamMemberProfileDataFromOrganization>>

@@ -1,4 +1,3 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export const uploadKeys = ["avatar", "background", "logo", "document"];

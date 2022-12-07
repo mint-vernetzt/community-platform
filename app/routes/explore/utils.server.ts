@@ -1,4 +1,4 @@
-import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";

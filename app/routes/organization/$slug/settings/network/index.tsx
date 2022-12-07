@@ -1,8 +1,9 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { ArrayElement } from "~/lib/utils/types";
+import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
   handleAuthorization,

@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
 

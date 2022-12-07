@@ -1,12 +1,12 @@
-import { Organization } from ".prisma/client";
-import { AreaType } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { Organization } from ".prisma/client";
+import type { AreaType } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
+import { addUserParticipationStatus } from "~/lib/event/utils";
 import { getImageURL } from "./images.server";
 import { prismaClient } from "./prisma";
 import { getPublicURL } from "./storage.server";
-import { addUserParticipationStatus } from "~/lib/event/utils";
 
 export type OrganizationWithRelations = Organization & {
   types: {

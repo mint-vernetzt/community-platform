@@ -1,4 +1,4 @@
-import { Profile } from "@prisma/client";
+import type { Profile } from "@prisma/client";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { testURL } from "~/lib/utils/tests";
 

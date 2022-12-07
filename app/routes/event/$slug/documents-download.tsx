@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import { getDocumentById } from "~/document.server";

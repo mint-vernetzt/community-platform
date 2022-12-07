@@ -1,6 +1,5 @@
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,8 +8,13 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import React from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { array, InferType, object, string } from "yup";
+import type { InferType } from "yup";
+import { array, object, string } from "yup";
+import { getSessionUserOrThrow } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -20,9 +24,10 @@ import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import type { FormError } from "~/lib/utils/yup";
 import {
-  FormError,
   getFormValues,
   multiline,
   nullOrString,
@@ -31,7 +36,6 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-
 import { getAllOffers, getProfileByUsername } from "~/profile.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -39,9 +43,6 @@ import {
   handleAuthorization,
   updateProfileById,
 } from "../utils.server";
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getSessionUserOrThrow } from "~/auth.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),

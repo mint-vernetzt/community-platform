@@ -1,4 +1,4 @@
-import { NewsFormData } from "~/lib/submissions/forms/news/newsFormData";
+import type { NewsFormData } from "~/lib/submissions/forms/news/newsFormData";
 import { submissionMailer } from "../../lib/submissions/mailer/submissionMailer";
 import { action, loader } from "./news";
 import * as newsSchema from "../../lib/submissions/forms/news/validation.schema.json";

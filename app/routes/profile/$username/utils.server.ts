@@ -1,5 +1,5 @@
-import { Profile } from "@prisma/client";
-import { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { Profile } from "@prisma/client";
+import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { forbidden, notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import {
@@ -7,7 +7,7 @@ import {
   combineEventsSortChronologically,
 } from "~/lib/event/utils";
 import { prismaClient } from "~/prisma";
-import { getProfileByUsername } from "~/profile.server";
+import type { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 
 export type Mode = "anon" | "authenticated" | "owner";

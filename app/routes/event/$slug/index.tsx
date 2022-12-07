@@ -1,11 +1,12 @@
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
-import { json, LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -26,6 +27,7 @@ import { AddParticipantButton } from "./settings/participants/add-participant";
 import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/participants/remove-from-waiting-list";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
+import type { MaybeEnhancedEvent } from "./utils.server";
 import {
   deriveMode,
   enhanceChildEventsWithParticipationStatus,
@@ -38,7 +40,6 @@ import {
   getIsParticipant,
   getIsSpeaker,
   getIsTeamMember,
-  MaybeEnhancedEvent,
 } from "./utils.server";
 
 export function links() {

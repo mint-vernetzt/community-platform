@@ -1,6 +1,5 @@
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,7 +8,11 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
-import { array, InferType, object, string } from "yup";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import React from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import type { InferType } from "yup";
+import { array, object, string } from "yup";
 import { getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -17,8 +20,8 @@ import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/T
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import type { FormError } from "~/lib/utils/yup";
 import {
-  FormError,
   getFormDataValidationResultOrThrow,
   multiline,
   nullOrString,
@@ -34,7 +37,6 @@ import {
   transformProjectToForm,
   updateProjectById,
 } from "./utils.server";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 const schema = object({
   userId: string().required(),

@@ -1,8 +1,8 @@
-import { Project } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import type { Project } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
-import { getProjectBySlugOrThrow } from "../utils.server";
+import type { getProjectBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
   project: Project,

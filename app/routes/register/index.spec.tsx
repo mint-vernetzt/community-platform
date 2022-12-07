@@ -4,51 +4,7 @@ import { loader } from "./index";
 // @ts-ignore
 const expect = global.expect;
 
-const url = "http://www.community.org/register";
-const urlWithRedirectToLogin =
-  "http://www.community.org/register?redirect_to=http://www.testpage.org/login";
-const urlWithRedirectToLoginAndEvent =
-  "http://www.community.org/register?redirect_to=http://www.testpage.org/login?event_slug=testevent";
-
-test("call loader without redirect", async () => {
-  const res = await loader({
-    request: new Request(url),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual({
-    redirectToAfterRegister: null,
-    loginRedirect: undefined,
-  });
-});
-
-test("call loader with redirect parameter to login", async () => {
-  const res = await loader({
-    request: new Request(urlWithRedirectToLogin),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual({
-    redirectToAfterRegister: "http://www.testpage.org/login",
-    loginRedirect: undefined,
-  });
-});
-
-test("call loader with redirect parameter to login and event", async () => {
-  const res = await loader({
-    request: new Request(urlWithRedirectToLoginAndEvent),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual({
-    redirectToAfterRegister:
-      "http://www.testpage.org/login?event_slug=testevent",
-    loginRedirect: "/login?event_slug=testevent",
-  });
-});
+// TODO: Action tests
 
 /* TODO: run e2e test
 jest.mock("../../auth.server", () => {

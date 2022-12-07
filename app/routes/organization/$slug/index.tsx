@@ -1,4 +1,5 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
@@ -13,7 +14,7 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
-import { ExternalService } from "~/components/types";
+import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -25,15 +26,16 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
+import type { OrganizationWithRelations } from "~/organization.server";
 import {
   getOrganizationBySlug,
-  OrganizationWithRelations,
   prepareOrganizationEvents,
 } from "~/organization.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, Mode } from "./utils.server";
+import type { Mode } from "./utils.server";
+import { deriveMode } from "./utils.server";
 
 export function links() {
   return [

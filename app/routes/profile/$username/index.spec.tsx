@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { getSessionUser } from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
 import { getProfileByUserId, getProfileByUsername } from "~/profile.server";

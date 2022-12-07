@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { json, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
@@ -7,18 +8,12 @@ import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import {
-  ActionData as AddMemberActionData,
-  addMemberSchema,
-} from "./team/add-member";
-import {
-  ActionData as RemoveMemberActionData,
-  removeMemberSchema,
-} from "./team/remove-member";
-import {
-  ActionData as SetPrivilegeActionData,
-  setPrivilegeSchema,
-} from "./team/set-privilege";
+import { addMemberSchema } from "./team/add-member";
+import { removeMemberSchema } from "./team/remove-member";
+import { setPrivilegeSchema } from "./team/set-privilege";
+import type { ActionData as AddMemberActionData } from "./team/add-member";
+import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
+import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
   getTeamMemberProfileDataFromEvent,

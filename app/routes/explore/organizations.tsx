@@ -1,15 +1,15 @@
-import { Area } from "@prisma/client";
-import {
-  createServerClient,
-  SupabaseClient,
-} from "@supabase/auth-helpers-remix";
+import type { Area } from "@prisma/client";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
-import { json, ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";

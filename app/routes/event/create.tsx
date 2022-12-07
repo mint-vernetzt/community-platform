@@ -1,21 +1,14 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect,
-} from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { badRequest } from "remix-utils";
-import { date, InferType, object, string } from "yup";
+import type { InferType } from "yup";
+import { date, object, string } from "yup";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { validateFeatureAccess } from "~/lib/utils/application";
-import {
-  FormError,
-  getFormValues,
-  nullOrString,
-  validateForm,
-} from "~/lib/utils/yup";
+import type { FormError } from "~/lib/utils/yup";
+import { getFormValues, nullOrString, validateForm } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
 import { checkIdentityOrThrow, createEventOnProfile } from "./utils.server";
 

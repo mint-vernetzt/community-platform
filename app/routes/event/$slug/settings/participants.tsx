@@ -1,6 +1,7 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
@@ -11,30 +12,18 @@ import {
   getFullDepthParticipants,
   getFullDepthWaitingList,
 } from "../utils.server";
-import {
-  ActionData as AddParticipantActionData,
-  addParticipantSchema,
-} from "./participants/add-participant";
-import {
-  ActionData as AddToWaitingListActionData,
-  addToWaitingListSchema,
-} from "./participants/add-to-waiting-list";
-import {
-  ActionData as MoveToParticipantsActionData,
-  moveToParticipantsSchema,
-} from "./participants/move-to-participants";
-import {
-  ActionData as RemoveFromWaitingListActionData,
-  removeFromWaitingListSchema,
-} from "./participants/remove-from-waiting-list";
-import {
-  ActionData as RemoveParticipantActionData,
-  removeParticipantSchema,
-} from "./participants/remove-participant";
-import {
-  ActionData as SetParticipantLimitActionData,
-  setParticipantLimitSchema,
-} from "./participants/set-participant-limit";
+import type { ActionData as AddParticipantActionData } from "./participants/add-participant";
+import { addParticipantSchema } from "./participants/add-participant";
+import type { ActionData as AddToWaitingListActionData } from "./participants/add-to-waiting-list";
+import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
+import type { ActionData as MoveToParticipantsActionData } from "./participants/move-to-participants";
+import { moveToParticipantsSchema } from "./participants/move-to-participants";
+import type { ActionData as RemoveFromWaitingListActionData } from "./participants/remove-from-waiting-list";
+import { removeFromWaitingListSchema } from "./participants/remove-from-waiting-list";
+import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
+import { removeParticipantSchema } from "./participants/remove-participant";
+import type { ActionData as SetParticipantLimitActionData } from "./participants/set-participant-limit";
+import { setParticipantLimitSchema } from "./participants/set-participant-limit";
 import {
   checkOwnershipOrThrow,
   getParticipantsDataFromEvent,

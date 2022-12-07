@@ -1,10 +1,12 @@
-import { ActionFunction, json } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { getSessionUserOrThrow } from "~/auth.server";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
@@ -13,7 +15,6 @@ import {
   checkSameProjectOrThrow,
 } from "../utils.server";
 import { connectOrganizationToProject } from "./utils.server";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 const schema = z.object({
   userId: z.string(),

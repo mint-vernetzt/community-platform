@@ -1,8 +1,11 @@
-import { ActionFunction, json } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {

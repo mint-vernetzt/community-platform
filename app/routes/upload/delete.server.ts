@@ -1,6 +1,6 @@
-import { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "~/prisma";
-import { UploadKey } from "./schema";
+import type { UploadKey } from "./schema";
 
 export async function removeImageFromProfile(
   profileId: string,

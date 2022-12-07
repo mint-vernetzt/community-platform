@@ -1,4 +1,4 @@
-import { User } from "@supabase/auth-helpers-remix";
+import type { User } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 

@@ -7,7 +7,10 @@ import { action } from "./add-member";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -36,8 +39,6 @@ describe("/project/$slug/settings/team/add-member", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -64,7 +65,7 @@ describe("/project/$slug/settings/team/add-member", () => {
 
     (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { teamMemberOfProjects: [] };
@@ -90,7 +91,7 @@ describe("/project/$slug/settings/team/add-member", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -128,7 +129,7 @@ describe("/project/$slug/settings/team/add-member", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -162,7 +163,7 @@ describe("/project/$slug/settings/team/add-member", () => {
 
     expect.assertions(2);
 
-    getSessionUser.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -188,7 +189,7 @@ describe("/project/$slug/settings/team/add-member", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-project-id" };
     });
@@ -225,7 +226,7 @@ describe("/project/$slug/settings/team/add-member", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-project-id" };
     });
@@ -270,7 +271,7 @@ describe("/project/$slug/settings/team/add-member", () => {
       email: "anotheruser@mail.com",
     });
 
-    getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-project-id",

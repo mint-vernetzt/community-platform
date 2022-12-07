@@ -1,14 +1,12 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect,
-} from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useFetcher, useParams } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   connectOrganizationToNetwork,

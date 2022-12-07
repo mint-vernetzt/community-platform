@@ -7,7 +7,10 @@ import { loader } from "./speakers";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getSessionUser = jest.spyOn(authServerModule, "getSessionUser");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 const slug = "slug-test";
 
@@ -45,29 +48,8 @@ describe("/event/$slug/settings/speakers", () => {
       }
     });
 
-    test("event not found", async () => {
-      expect.assertions(2);
-
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
-
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
-
-      const request = new Request(testURL);
-      try {
-        await loader({ request, context: {}, params: { slug } });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(404);
-
-        const json = await response.json();
-        expect(json.message).toBe("Event not found");
-      }
-    });
-
     test("anon user", async () => {
       expect.assertions(2);
-
-      getSessionUser.mockResolvedValue(null);
 
       try {
         await loader({
@@ -84,10 +66,29 @@ describe("/event/$slug/settings/speakers", () => {
       }
     });
 
+    test("event not found", async () => {
+      expect.assertions(2);
+
+      (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+      const request = new Request(testURL);
+      try {
+        await loader({ request, context: {}, params: { slug } });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(404);
+
+        const json = await response.json();
+        expect(json.message).toBe("Event not found");
+      }
+    });
+
     test("not privileged user", async () => {
       expect.assertions(2);
 
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
@@ -114,7 +115,8 @@ describe("/event/$slug/settings/speakers", () => {
     });
 
     test("privileged user", async () => {
-      getSessionUser.mockResolvedValue({ id: "some-user-id" } as User);
+      expect.assertions(2);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -159,8 +161,10 @@ describe("/event/$slug/settings/speakers", () => {
         params: { slug },
       });
 
-      expect(response.speakers.length).toBe(3);
-      expect(response.speakers).toEqual(
+      const responseBody = await response.json();
+
+      expect(responseBody.speakers.length).toBe(3);
+      expect(responseBody.speakers).toEqual(
         expect.arrayContaining([
           {
             id: "some-user-id",

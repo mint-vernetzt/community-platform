@@ -1,5 +1,6 @@
-import { Profile } from "@prisma/client";
-import { json, LoaderFunction } from "@remix-run/node";
+import type { Profile } from "@prisma/client";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
@@ -14,7 +15,7 @@ import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
-import { ExternalService } from "~/components/types";
+import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -31,10 +32,10 @@ import { getProfileByUsername } from "~/profile.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
+import type { Mode } from "./utils.server";
 import {
   deriveMode,
   filterProfileByMode,
-  Mode,
   prepareProfileEvents,
 } from "./utils.server";
 

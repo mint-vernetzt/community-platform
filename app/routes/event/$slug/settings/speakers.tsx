@@ -1,20 +1,17 @@
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { Form } from "remix-forms";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import {
-  ActionData as AddSpeakerActionData,
-  addSpeakerSchema,
-} from "./speakers/add-speaker";
-import {
-  ActionData as RemoveSpeakerActionData,
-  removeSpeakerSchema,
-} from "./speakers/remove-speaker";
+import type { ActionData as AddSpeakerActionData } from "./speakers/add-speaker";
+import { addSpeakerSchema } from "./speakers/add-speaker";
+import type { ActionData as RemoveSpeakerActionData } from "./speakers/remove-speaker";
+import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
   getSpeakerProfileDataFromEvent,

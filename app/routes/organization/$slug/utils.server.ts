@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
 
 export type Mode = "anon" | "authenticated" | "owner";

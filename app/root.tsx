@@ -1,9 +1,9 @@
-import {
-  json,
+import type {
   LinksFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -23,10 +23,8 @@ import { getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
-import {
-  getFeatureAbilities,
-  validateFeatureAccess,
-} from "./lib/utils/application";
+import type { getFeatureAbilities } from "./lib/utils/application";
+import { validateFeatureAccess } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
