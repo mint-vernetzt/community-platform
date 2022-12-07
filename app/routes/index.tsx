@@ -94,18 +94,23 @@ export default function Index() {
         );
         return;
       }
-      // TODO: Handle confirmation link error (e.g. confirmation link expired, etc...) -> alert
+      if (error !== null && errorCode !== null && errorDescription !== null) {
+        alert(
+          `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
+        );
+        return;
+      }
     }
 
     // Redirect when user is logged in
     // Remove the else case when the landing page is implemented in this route
-    // if (loaderData.hasSession) {
-    //   submit(null, { action: "/explore" });
-    //   return;
-    // } else {
-    //   submit(null, { action: "/explore" });
-    //   return;
-    // }
+    if (loaderData.hasSession) {
+      submit(null, { action: "/explore" });
+      return;
+    } else {
+      submit(null, { action: "/explore" });
+      return;
+    }
   }, [submit, loaderData.hasSession, urlSearchParams]);
 
   return null;
