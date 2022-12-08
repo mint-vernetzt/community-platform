@@ -51,7 +51,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   } catch (error) {
     throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
   }
-  return values;
+  return { ...values, slug };
 });
 
 type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
@@ -67,14 +67,6 @@ export const action: ActionFunction = async ({ request }) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
 
-  const requestClone = request.clone();
-  const formData = await requestClone.formData();
-
-  const organizationName = formData.get("organizationName");
-  let slug = "";
-  if (organizationName !== null) {
-    slug = generateOrganizationSlug(organizationName as string);
-  }
   const result = await performMutation({
     request,
     schema,
@@ -84,7 +76,9 @@ export const action: ActionFunction = async ({ request }) => {
     ReturnType<typeof getOrganizationByName>
   > = null;
   if (result.success) {
-    return redirect(`/organization/${slug}`, { headers: response.headers });
+    return redirect(`/organization/${result.data.slug}`, {
+      headers: response.headers,
+    });
   } else {
     if (
       result.errors._global !== undefined &&
