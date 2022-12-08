@@ -880,7 +880,7 @@ export default function Index() {
                                     <div className="flex items-center ml-auto pr-4 py-6">
                                       <Link
                                         className="btn btn-primary"
-                                        to={`/login?event_slug=${event.slug}`}
+                                        to={`/login?login_redirect=/event/${event.slug}`}
                                       >
                                         Anmelden
                                       </Link>
@@ -1031,7 +1031,7 @@ export default function Index() {
                                     <div className="flex items-center ml-auto pr-4 py-6">
                                       <Link
                                         className="btn btn-primary"
-                                        to={`/login?event_slug=${event.slug}`}
+                                        to={`/login?login_redirect=/event/${event.slug}`}
                                       >
                                         Anmelden
                                       </Link>
