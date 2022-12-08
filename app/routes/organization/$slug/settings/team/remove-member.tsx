@@ -1,8 +1,12 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkIdentityOrThrow,
   checkSameOrganizationOrThrow,
@@ -45,14 +49,18 @@ export type ActionData = PerformMutation<
 >;
 
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
-  const { organization } = await handleAuthorization(args);
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
+  const { organization } = await handleAuthorization(authClient, slug);
   await checkSameOrganizationOrThrow(request, organization.id);
 
   const result = await performMutation({ request, schema, mutation });
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

@@ -1,52 +1,27 @@
-import { loader } from "./index";
-
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-const url = "http://www.community.org/register";
-const urlWithRedirectToLogin =
-  "http://www.community.org/register?redirect_to=http://www.testpage.org/login";
-const urlWithRedirectToLoginAndEvent =
-  "http://www.community.org/register?redirect_to=http://www.testpage.org/login?event_slug=testevent";
+// TODO: write tests
 
-test("call loader without redirect", async () => {
-  const res = await loader({
-    request: new Request(url),
-    params: {},
-    context: {},
+describe("context", () => {
+  test("call loader", async () => {
+    // const res = await loader({
+    //   request: new Request(path),
+    //   params: {},
+    //   context: {},
+    // });
+    // expect(res).toBeNull();
   });
 
-  expect(res).toStrictEqual({
-    redirectToAfterRegister: null,
-    loginRedirect: undefined,
-  });
-});
-
-test("call loader with redirect parameter to login", async () => {
-  const res = await loader({
-    request: new Request(urlWithRedirectToLogin),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual({
-    redirectToAfterRegister: "http://www.testpage.org/login",
-    loginRedirect: undefined,
-  });
-});
-
-test("call loader with redirect parameter to login and event", async () => {
-  const res = await loader({
-    request: new Request(urlWithRedirectToLoginAndEvent),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual({
-    redirectToAfterRegister:
-      "http://www.testpage.org/login?event_slug=testevent",
-    loginRedirect: "/login?event_slug=testevent",
+  test("call action", async () => {
+    // Use create request with formData method from lib test utils
+    // const res = await action({
+    //   request: new Request(path, { method: "POST" }),
+    //   params: {},
+    //   context: {},
+    // });
+    // expect(res).toBeNull();
   });
 });
 

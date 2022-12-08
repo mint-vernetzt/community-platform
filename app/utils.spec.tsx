@@ -10,7 +10,10 @@ test("generate username", () => {
     given: { firstName: string; lastName: string };
     expected: string;
   }[] = [
-    { given: { firstName: "John", lastName: "Doe" }, expected: "johndoe" },
+    {
+      given: { firstName: "John", lastName: "Doe" },
+      expected: "johndoe",
+    },
     {
       given: { firstName: "James T.", lastName: "Kirk" },
       expected: "jamestkirk",
@@ -32,7 +35,7 @@ test("generate username", () => {
   testData.forEach((item) => {
     const { given, expected } = item;
     const username = generateUsername(given.firstName, given.lastName);
-    expect(username).toBe(expected);
+    expect(username.startsWith(`${expected}-`)).toBe(true);
   });
 });
 
@@ -66,27 +69,25 @@ test("generate organization slug", () => {
   testData.forEach((item) => {
     const { given, expected } = item;
     const organizationName = generateOrganizationSlug(given.organizationName);
-    expect(organizationName).toBe(expected);
+    expect(organizationName.startsWith(`${expected}-`)).toBe(true);
   });
 });
 
 test("generate event slug", () => {
-  const timestamp = Date.now();
-
   const testData: {
-    given: { eventName: string; timestamp: number };
+    given: { eventName: string };
     expected: string;
   }[] = [
     {
-      given: { eventName: "My Event", timestamp },
-      expected: `myevent-${timestamp.toString(36)}`,
+      given: { eventName: "My Event" },
+      expected: "myevent",
     },
   ];
 
   expect.assertions(testData.length);
   testData.forEach((item) => {
     const { given, expected } = item;
-    const eventName = generateEventSlug(given.eventName, given.timestamp);
-    expect(eventName).toBe(expected);
+    const eventName = generateEventSlug(given.eventName);
+    expect(eventName.startsWith(`${expected}-`)).toBe(true);
   });
 });

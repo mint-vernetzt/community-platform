@@ -1,31 +1,172 @@
-import { loader } from "./index";
+import { redirect } from "@remix-run/node";
+// import { createServerClient } from "@supabase/auth-helpers-remix";
+import { getSessionUser, setSession, signIn } from "~/auth.server";
+import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import { prismaClient } from "~/prisma";
+import { action, loader } from "./index";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-const url = "http://localhost:3000/login";
-const urlWithEventRedirect = "http://localhost:3000/login?event_slug=testevent";
+jest.mock("~/prisma", () => {
+  return {
+    prismaClient: {
+      profile: {
+        findUnique: jest.fn(),
+      },
+    },
+  };
+});
 
-test("call loader without custom redirect", async () => {
+jest.mock("~/auth.server", () => {
+  return {
+    ...jest.requireActual("~/auth.server"),
+    getSessionUser: jest.fn(),
+    signIn: jest.fn(),
+    setSession: jest.fn(),
+  };
+});
+
+const url = testURL;
+const urlWithLoginRedirect = `${testURL}/login?login_redirect=${testURL}/event/some-event-slug`;
+const urlWithTokens = `${testURL}/login?access_token=abcde&refresh_token=fghij`;
+const urlWithTokensAfterEmailChange = `${testURL}/login?access_token=abcde&refresh_token=fghij&type=sign_up`;
+
+const actionRequest = createRequestWithFormData({
+  email: "some@email.de",
+  password: "some-password",
+});
+
+const actionRequestWithRedirect = createRequestWithFormData({
+  email: "some@email.de",
+  password: "some-password",
+  loginRedirect: `${testURL}/event/some-event-slug`,
+});
+
+test("redirect on existing session", async () => {
+  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+    return {
+      id: "some-user-id",
+      email: "user@user.de",
+    };
+  });
+
   const res = await loader({
     request: new Request(url),
     params: {},
     context: {},
   });
 
-  const data = await res.json();
-
-  expect(data).toStrictEqual({
-    registerRedirect: "/register?redirect_to=http://localhost:3000/login",
-    resetPasswordRedirect:
-      "/reset?redirect_to=http://localhost:3000/reset/set-password?redirect_to=http://localhost:3000/login",
-  });
+  expect(res).toStrictEqual(redirect("/explore"));
 });
 
-test("call loader with redirect to event", async () => {
+test("redirect on existing session with login redirect param", async () => {
+  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+    return {
+      id: "some-user-id",
+      email: "user@user.de",
+    };
+  });
+
   const res = await loader({
-    request: new Request(urlWithEventRedirect),
+    request: new Request(urlWithLoginRedirect),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual(redirect(`${testURL}/event/some-event-slug`));
+});
+
+test("set new session in loader with token params", async () => {
+  (setSession as jest.Mock).mockImplementationOnce(() => {
+    return {
+      user: {
+        id: "some-user-id",
+        email: "user@user.de",
+      },
+    };
+  });
+
+  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+    return {
+      id: "some-user-id",
+      email: "user@user.de",
+    };
+  });
+
+  const res = await loader({
+    request: new Request(urlWithTokens),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual(redirect("/explore"));
+});
+
+test("set new session in loader with token params after sign up confirmation", async () => {
+  (setSession as jest.Mock).mockImplementationOnce(() => {
+    return {
+      user: {
+        id: "some-user-id",
+      },
+    };
+  });
+
+  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
+    return {
+      username: "some-username",
+    };
+  });
+
+  const res = await loader({
+    request: new Request(urlWithTokensAfterEmailChange),
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
+});
+
+test("call login action success with login redirect param", async () => {
+  (signIn as jest.Mock).mockImplementationOnce(() => {
+    return { error: null };
+  });
+
+  const res = await action({
+    request: actionRequestWithRedirect,
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual(redirect(`${testURL}/event/some-event-slug`));
+});
+
+test("call login action success with default redirect", async () => {
+  (signIn as jest.Mock).mockImplementationOnce(() => {
+    return { error: null };
+  });
+
+  const res = await action({
+    request: actionRequest,
+    params: {},
+    context: {},
+  });
+
+  expect(res).toStrictEqual(redirect("/explore"));
+});
+
+test("call login action with wrong credentials", async () => {
+  (signIn as jest.Mock).mockImplementationOnce(() => {
+    return {
+      error: {
+        message: "Invalid login credentials",
+      },
+    };
+  });
+
+  const res = await action({
+    request: actionRequest,
     params: {},
     context: {},
   });
@@ -33,12 +174,51 @@ test("call loader with redirect to event", async () => {
   const data = await res.json();
 
   expect(data).toStrictEqual({
-    loginSuccessRedirect: "/event/testevent",
-    loginFailureRedirect: "/login?event_slug=testevent",
-    registerRedirect:
-      "/register?redirect_to=http://localhost:3000/login?event_slug=testevent",
-    resetPasswordRedirect:
-      "/reset?redirect_to=http://localhost:3000/reset/set-password?redirect_to=http://localhost:3000/login?event_slug=testevent",
+    errors: {
+      _global: [
+        "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
+      ],
+      email: [],
+      loginRedirect: [],
+      password: [],
+    },
+    success: false,
+    values: {
+      email: "some@email.de",
+      password: "some-password",
+    },
+  });
+});
+
+test("call login action causing auth api error", async () => {
+  (signIn as jest.Mock).mockImplementationOnce(() => {
+    return {
+      error: {
+        message: "some-auth-api-error",
+      },
+    };
+  });
+
+  const res = await action({
+    request: actionRequest,
+    params: {},
+    context: {},
+  });
+
+  const data = await res.json();
+
+  expect(data).toStrictEqual({
+    errors: {
+      _global: ["some-auth-api-error"],
+      email: [],
+      loginRedirect: [],
+      password: [],
+    },
+    success: false,
+    values: {
+      email: "some@email.de",
+      password: "some-password",
+    },
   });
 });
 

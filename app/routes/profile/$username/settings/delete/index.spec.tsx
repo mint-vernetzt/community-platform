@@ -5,7 +5,7 @@ describe("TODO", () => {
 });
 
 // import { deleteUserByUid } from "../../../../auth.server";
-// import { handleAuthorization } from "~/lib/auth/handleAuth";
+// import { handleAuthorization } from "~/app/routes/profile/$username/utils.server.ts";
 // import { getProfileByUserId } from "~/profile.server";
 // import { action, loader } from "./index";
 
@@ -15,7 +15,7 @@ describe("TODO", () => {
 // const path = "/profile/delete";
 
 // jest.mock("~/profile.server.ts");
-// jest.mock("~/lib/auth/handleAuth");
+// jest.mock("~/app/routes/profile/$username/utils.server.ts");
 
 // describe("context", () => {
 //   beforeEach(() => {

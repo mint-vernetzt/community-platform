@@ -1,41 +1,61 @@
-import { Profile } from "@prisma/client";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, formAction } from "remix-forms";
-import { forbidden } from "remix-utils";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import { notFound } from "remix-utils";
+import type { Schema } from "zod";
 import { z } from "zod";
-import { deleteUserByUid } from "~/auth.server";
+import {
+  createAuthClient,
+  deleteUserByUid,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   getOrganisationsOnProfileByUserId,
-  getProfileByUserId,
+  getProfileByUsername,
 } from "~/profile.server";
-import { handleAuthorization } from "../utils.server";
+import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
 
 const schema = z.object({
-  id: z.string().uuid(),
+  userId: z.string().uuid(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
+
 type LoaderData = {
-  profile: Pick<Profile, "id">;
+  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+  const response = new Response();
 
-  const profile = await getProfileByUserId(currentUser.id, ["id"]);
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
+  }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, profile.id);
 
-  return { profile };
+  return json<LoaderData>({ profile }, { headers: response.headers });
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  // TODO: is user a privileged member of any organisation?
-  const profile = await getOrganisationsOnProfileByUserId(values.id);
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const profile = await getOrganisationsOnProfileByUserId(values.userId);
   if (profile === null) {
     throw "Das Profil konnte nicht gefunden werden.";
   }
@@ -46,31 +66,38 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     return false;
   });
   try {
-    await deleteUserByUid(values.id);
+    await deleteUserByUid(environment.authClient, values.userId);
   } catch {
     throw "Das Profil konnte nicht gelöscht werden.";
   }
   return values;
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async ({ request, params }) => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+  const response = new Response();
 
-  const requestClone = request.clone();
-  const formData = await requestClone.formData();
-  const formUserId = formData.get("id");
-  if (formUserId !== currentUser.id) {
-    throw forbidden({ message: "not allowed" });
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
   }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, profile.id);
+  await checkIdentityOrThrow(request, sessionUser);
 
-  const formActionResult = formAction({
+  const result = await performMutation({
     request,
     schema,
     mutation,
-    successPath: `/goodbye`,
+    environment: { authClient: authClient },
   });
-  return formActionResult;
+  if (result.success) {
+    redirect("/goodbye", { headers: response.headers });
+  }
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
@@ -104,13 +131,13 @@ export default function Index() {
                 </>
               )}
             </Field>
-            <Field name="id">
+            <Field name="userId">
               {({ Errors }) => (
                 <>
                   <input
                     type="hidden"
                     value={profile.id}
-                    {...register("id")}
+                    {...register("userId")}
                   ></input>
                   <Errors />
                 </>

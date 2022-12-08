@@ -1,4 +1,4 @@
-import { Params } from "react-router";
+import type { Params } from "react-router";
 import { badRequest } from "remix-utils";
 
 export function getParamValue(params: Params<string>, key: string) {

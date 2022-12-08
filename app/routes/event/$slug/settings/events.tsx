@@ -1,20 +1,23 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
+import type { ActionData as AddChildActionData } from "./events/add-child";
+import { addChildSchema } from "./events/add-child";
+import type { ActionData as RemoveChildActionData } from "./events/remove-child";
+import { removeChildSchema } from "./events/remove-child";
+import type { ActionData as SetParentActionData } from "./events/set-parent";
+import { setParentSchema } from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
   getEventsOfPrivilegedMemberExceptOfGivenEvent,
   getOptionsFromEvents,
 } from "./utils.server";
-
-import { setParentSchema } from "./events/set-parent";
-import { addChildSchema } from "./events/add-child";
-import { removeChildSchema } from "./events/remove-child";
-import { H3 } from "~/components/Heading/Heading";
 
 type LoaderData = {
   userId: string;
@@ -25,16 +28,18 @@ type LoaderData = {
   parentEventName: string | null;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(
-    currentUser.id,
+    sessionUser.id,
     event.id
   );
 
@@ -48,22 +53,25 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     parentEventName = event.parentEvent.name;
   }
 
-  return {
-    options,
-    parentEventId,
-    parentEventName,
-    childEvents: event.childEvents,
-    eventId: event.id,
-    userId: currentUser.id,
-  };
+  return json<LoaderData>(
+    {
+      options,
+      parentEventId,
+      parentEventName,
+      childEvents: event.childEvents,
+      eventId: event.id,
+      userId: sessionUser.id,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const setParentFetcher = useFetcher();
-  const addChildFetcher = useFetcher();
-  const removeChildFetcher = useFetcher();
+  const setParentFetcher = useFetcher<SetParentActionData>();
+  const addChildFetcher = useFetcher<AddChildActionData>();
+  const removeChildFetcher = useFetcher<RemoveChildActionData>();
 
   return (
     <>

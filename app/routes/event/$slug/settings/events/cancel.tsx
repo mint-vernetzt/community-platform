@@ -1,8 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
 import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
@@ -20,20 +23,27 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, currentUser);
+    await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     await cancelEvent(event.id, result.data.cancel);
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

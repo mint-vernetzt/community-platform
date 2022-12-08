@@ -1,7 +1,8 @@
-import { isSameDay } from "date-fns";
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { getUserByRequest } from "~/auth.server";
+import { isSameDay } from "date-fns";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,
@@ -22,19 +23,25 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const sessionUser = await getUserByRequest(request);
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
 
   const inFuture = true;
-  const futureEvents = await prepareEvents(sessionUser, inFuture);
-  const pastEvents = await prepareEvents(sessionUser, !inFuture);
+  const futureEvents = await prepareEvents(authClient, sessionUser, inFuture);
+  const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture);
 
-  return {
-    futureEvents: futureEvents,
-    pastEvents: pastEvents,
-    userId: sessionUser?.id || undefined,
-    email: sessionUser?.email || undefined,
-  };
+  return json<LoaderData>(
+    {
+      futureEvents: futureEvents,
+      pastEvents: pastEvents,
+      userId: sessionUser?.id || undefined,
+      email: sessionUser?.email || undefined,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Events() {
@@ -282,7 +289,7 @@ function Events() {
                     <div className="ml-auto">
                       <Link
                         className="btn btn-primary"
-                        to={`/login?event_slug=${event.slug}`}
+                        to={`/login?login_redirect=/event/${event.slug}`}
                       >
                         Anmelden
                       </Link>

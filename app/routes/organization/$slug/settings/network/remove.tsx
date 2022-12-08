@@ -1,11 +1,16 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { Form, PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { NetworkMember } from ".";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { NetworkMember } from ".";
 import {
   disconnectOrganizationFromNetwork,
   handleAuthorization,
@@ -24,20 +29,30 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async () => {
-  return redirect(".");
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+
+  createAuthClient(request, response);
+  return redirect(".", { headers: response.headers });
 };
 
 type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  await handleAuthorization(args);
+  const authClient = createAuthClient(request, response);
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(authClient, slug);
 
   const result = await performMutation({ request, schema, mutation });
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export function NetworkMemberRemoveForm(

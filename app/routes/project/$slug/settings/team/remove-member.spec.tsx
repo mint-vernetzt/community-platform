@@ -7,7 +7,10 @@ import { action } from "./remove-member";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -36,8 +39,6 @@ describe("/project/$slug/settings/team/remove-member", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -62,7 +63,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
 
     (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -82,7 +83,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -115,7 +116,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -146,7 +147,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -171,7 +172,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
       projectId: "some-project-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-project-id" };
     });
@@ -205,7 +206,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
       teamMemberId: "another-user-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-project-id",
@@ -217,28 +218,23 @@ describe("/project/$slug/settings/team/remove-member", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.teamMemberOfProject.delete).toHaveBeenLastCalledWith({
-        where: {
-          profileId_projectId: {
-            profileId: "another-user-id",
-            projectId: "some-project-id",
-          },
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
 
-      const json = await response.json();
-      console.log(json);
-    }
+    const responseBody = await response.json();
+
+    expect(prismaClient.teamMemberOfProject.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_projectId: {
+          profileId: "another-user-id",
+          projectId: "some-project-id",
+        },
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

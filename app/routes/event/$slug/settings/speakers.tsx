@@ -1,12 +1,15 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
+import type { ActionData as AddSpeakerActionData } from "./speakers/add-speaker";
 import { addSpeakerSchema } from "./speakers/add-speaker";
+import type { ActionData as RemoveSpeakerActionData } from "./speakers/remove-speaker";
 import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
@@ -19,25 +22,30 @@ type LoaderData = {
   speakers: ReturnType<typeof getSpeakerProfileDataFromEvent>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const speakers = getSpeakerProfileDataFromEvent(event);
 
-  return { userId: currentUser.id, eventId: event.id, speakers };
+  return json<LoaderData>(
+    { userId: sessionUser.id, eventId: event.id, speakers },
+    { headers: response.headers }
+  );
 };
 
 function Speakers() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
 
-  const addSpeakerFetcher = useFetcher();
-  const removeSpeakerFetcher = useFetcher();
+  const addSpeakerFetcher = useFetcher<AddSpeakerActionData>();
+  const removeSpeakerFetcher = useFetcher<RemoveSpeakerActionData>();
 
   return (
     <>

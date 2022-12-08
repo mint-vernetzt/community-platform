@@ -1,22 +1,23 @@
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import {
-  Link,
-  useActionData,
-  useLoaderData,
-  useTransition,
-} from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useActionData, useTransition } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
+import { notFound } from "remix-utils";
+import type { Schema } from "zod";
 import { z } from "zod";
 import {
-  updateEmailOfLoggedInUser,
-  updatePasswordOfLoggedInUser,
+  createAuthClient,
+  getSessionUserOrThrow,
+  sendResetEmailLink,
+  updatePassword,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileByUsername } from "~/profile.server";
 import { handleAuthorization } from "../utils.server";
-
-/* Disabled until issue #609 is resolved
 
 const emailSchema = z.object({
   email: z
@@ -27,7 +28,7 @@ const emailSchema = z.object({
     .string()
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
     .email("Bitte gib eine gültige E-Mail-Adresse ein. "),
-  submittedForm: z.enum(["changeEmail"]), // TODO: Can be exactly one of changeEmail || changePassword
+  submittedForm: z.enum(["changeEmail"]),
 });
 
 const passwordSchema = z.object({
@@ -40,7 +41,30 @@ const passwordSchema = z.object({
   submittedForm: z.enum(["changePassword"]),
 });
 
-const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
+  }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, profile.id);
+
+  return response;
+};
+
+const passwordMutation = makeDomainFunction(
+  passwordSchema,
+  environmentSchema
+)(async (values, environment) => {
   if (values.confirmPassword !== values.password) {
     throw new InputError(
       "Deine Passwörter stimmen nicht überein.",
@@ -48,7 +72,10 @@ const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
     ); // -- Field error
   }
 
-  const { error } = await updatePasswordOfLoggedInUser(values.password);
+  const { error } = await updatePassword(
+    environment.authClient,
+    values.password
+  );
   if (error !== null) {
     throw error.message;
   }
@@ -56,7 +83,10 @@ const passwordMutation = makeDomainFunction(passwordSchema)(async (values) => {
   return values;
 });
 
-const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
+const emailMutation = makeDomainFunction(
+  emailSchema,
+  environmentSchema
+)(async (values, environment) => {
   if (values.confirmEmail !== values.email) {
     throw new InputError(
       "Deine E-Mails stimmen nicht überein.",
@@ -64,7 +94,10 @@ const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
     ); // -- Field error
   }
 
-  const { error } = await updateEmailOfLoggedInUser(values.email);
+  const { error } = await sendResetEmailLink(
+    environment.authClient,
+    values.email
+  );
   if (error !== null) {
     throw error.message;
   }
@@ -72,19 +105,22 @@ const emailMutation = makeDomainFunction(emailSchema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async (args) => {
-  const { request, params } = args;
-
-  const { username = "" } = params;
-
-  await handleAuthorization(request, username);
-
-  return null;
-};
-
-
+type ActionData =
+  | PerformMutation<z.infer<Schema>, z.infer<typeof emailSchema>>
+  | PerformMutation<z.infer<Schema>, z.infer<typeof passwordSchema>>;
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
+  }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, profile.id);
+
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
 
@@ -96,94 +132,41 @@ export const action: ActionFunction = async ({ request, params }) => {
       request,
       schema: emailSchema,
       mutation: emailMutation,
+      environment: { authClient: authClient },
     });
-  } else if (submittedForm === "changePassword") {
+  } else {
     result = await performMutation({
       request,
       schema: passwordSchema,
       mutation: passwordMutation,
+      environment: { authClient: authClient },
     });
   }
-  return result;
-};
-*/
-
-// Remove protocol and host from loader when issue #609 is resolved
-
-type LoaderData = {
-  protocol: string;
-  host: string;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const url = new URL(request.url);
-
-  const username = params.username ?? "";
-  await handleAuthorization(request, username);
-
-  return {
-    protocol: url.protocol,
-    host: url.host,
-  };
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Security() {
-  // Remove useLoaderData when issue #609 is resolved
-  const loaderData = useLoaderData<LoaderData>();
+  const transition = useTransition();
 
-  // Disabled until issue #609 is resolved
+  const actionData = useActionData<ActionData>();
 
-  // const transition = useTransition();
-
-  // // TODO: Declare type
-  // const actionData = useActionData();
-
-  // let showPasswordFeedback = false,
-  //   showEmailFeedback = false;
-  // if (actionData !== undefined) {
-  //   showPasswordFeedback =
-  //     actionData.success && actionData.data.password !== undefined;
-  //   showEmailFeedback =
-  //     actionData.success && actionData.data.email !== undefined;
-  // }
+  let showPasswordFeedback = false,
+    showEmailFeedback = false;
+  if (actionData !== undefined) {
+    showPasswordFeedback =
+      actionData.success &&
+      "password" in actionData.data &&
+      actionData.data.password !== undefined;
+    showEmailFeedback =
+      actionData.success &&
+      "email" in actionData.data &&
+      actionData.data.email !== undefined;
+  }
 
   return (
     <>
-      {/* Disabled until issue #609 is resolved */}
-
-      {/* <fieldset disabled={transition.state === "submitting"}> */}
-      <h1 className="mb-8">Login und Sicherheit</h1>
-      <p className="mb-4">
-        Bald stehen folgende Funktionen über ein automatisiertes Formular zur
-        Verfügung.
-      </p>
-      <h4 className="mb-4 font-semibold">E-Mail-Adresse ändern</h4>
-      <p className="mb-8">
-        Falls du die E-Mail-Adresse deines Accounts ändern möchtest, melde dich
-        bitte bei{" "}
-        <a
-          href="mailto:support@mint-vernetzt.de"
-          className="hover:underline font-bold text-primary"
-        >
-          support@mint-vernetzt.de
-        </a>
-        .
-      </p>
-      <h4 className="mb-4 font-semibold">Passwort ändern</h4>
-      <p>
-        Um dein Passwort zu ändern, folge bitte diesem Link:{" "}
-        <Link
-          to={`/reset?redirect_to=${loaderData.protocol}//${loaderData.host}/reset/set-password?redirect_to=${loaderData.protocol}//${loaderData.host}/login`}
-          className="hover:underline font-bold text-primary"
-        >
-          Passwort zurücksetzen
-        </Link>
-        .
-      </p>
-
-      {/* Disabled until issue #609 is resolved */}
-
-      {/* <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+      <fieldset disabled={transition.state === "submitting"}>
+        <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
         <p className="mb-8">
           Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang
@@ -312,9 +295,8 @@ export default function Security() {
               <Errors />
             </>
           )}
-        </RemixForm> 
+        </RemixForm>
       </fieldset>
-      */}
     </>
   );
 }

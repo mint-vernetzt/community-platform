@@ -1,15 +1,13 @@
-import { GravityType } from "imgproxy/dist/types";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigate } from "@remix-run/react";
+import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  performMutation,
-  PerformMutation,
-} from "remix-forms";
-import { forbidden } from "remix-utils";
-import { Schema, z } from "zod";
-import { getUserByRequest } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
@@ -17,9 +15,10 @@ import { createOrganizationOnProfile } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
+import { checkIdentityOrThrow } from "./$slug/utils.server";
 
 const schema = z.object({
-  id: z.string().uuid(),
+  userId: z.string().uuid(),
   organizationName: z
     .string()
     .min(1, "Bitte gib den Namen Deiner Organisation ein."),
@@ -29,19 +28,26 @@ type LoaderData = {
   id: string;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null) {
-    throw forbidden({ message: "not allowed" });
-  }
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
 
-  return { id: currentUser.id };
+  const authClient = createAuthClient(request, response);
+  const currentUser = await getSessionUserOrThrow(authClient);
+
+  return json<LoaderData>(
+    { id: currentUser.id },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
   const slug = generateOrganizationSlug(values.organizationName);
   try {
-    await createOrganizationOnProfile(values.id, values.organizationName, slug);
+    await createOrganizationOnProfile(
+      values.userId,
+      values.organizationName,
+      slug
+    );
   } catch (error) {
     throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
   }
@@ -54,16 +60,15 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
   >;
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const currentUser = await getUserByRequest(request);
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const requestClone = request.clone();
   const formData = await requestClone.formData();
-  const formUserId = formData.get("id");
-
-  if (currentUser === null || formUserId !== currentUser.id) {
-    throw forbidden({ message: "not allowed" });
-  }
 
   const organizationName = formData.get("organizationName");
   let slug = "";
@@ -79,7 +84,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     ReturnType<typeof getOrganizationByName>
   > = null;
   if (result.success) {
-    return redirect(`/organization/${slug}`);
+    return redirect(`/organization/${slug}`, { headers: response.headers });
   } else {
     if (
       result.errors._global !== undefined &&
@@ -94,7 +99,10 @@ export const action: ActionFunction = async ({ request, params }) => {
         alreadyExistingOrganization !== null &&
         alreadyExistingOrganization.logo !== null
       ) {
-        const publicURL = getPublicURL(alreadyExistingOrganization.logo);
+        const publicURL = getPublicURL(
+          authClient,
+          alreadyExistingOrganization.logo
+        );
         if (publicURL) {
           alreadyExistingOrganization.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -104,7 +112,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       }
     }
   }
-  return { ...result, alreadyExistingOrganization };
+  return json<ActionData>(
+    { ...result, alreadyExistingOrganization },
+    { headers: response.headers }
+  );
 };
 
 export default function Create() {
@@ -165,13 +176,13 @@ export default function Create() {
                         </>
                       )}
                     </Field>
-                    <Field name="id">
+                    <Field name="userId">
                       {({ Errors }) => (
                         <>
                           <input
                             type="hidden"
                             value={loaderData.id}
-                            {...register("id")}
+                            {...register("userId")}
                           ></input>
                           <Errors />
                         </>

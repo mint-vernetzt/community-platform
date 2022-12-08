@@ -1,7 +1,8 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -10,11 +11,17 @@ import {
   getFullDepthParticipants,
   getFullDepthWaitingList,
 } from "../utils.server";
+import type { ActionData as AddParticipantActionData } from "./participants/add-participant";
 import { addParticipantSchema } from "./participants/add-participant";
+import type { ActionData as AddToWaitingListActionData } from "./participants/add-to-waiting-list";
 import { addToWaitingListSchema } from "./participants/add-to-waiting-list";
+import type { ActionData as MoveToParticipantsActionData } from "./participants/move-to-participants";
 import { moveToParticipantsSchema } from "./participants/move-to-participants";
+import type { ActionData as RemoveFromWaitingListActionData } from "./participants/remove-from-waiting-list";
 import { removeFromWaitingListSchema } from "./participants/remove-from-waiting-list";
+import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
 import { removeParticipantSchema } from "./participants/remove-participant";
+import type { ActionData as SetParticipantLimitActionData } from "./participants/set-participant-limit";
 import { setParticipantLimitSchema } from "./participants/set-participant-limit";
 import {
   checkOwnershipOrThrow,
@@ -29,13 +36,15 @@ type LoaderData = {
   hasFullDepthWaitingList: boolean;
 } & ReturnType<typeof getParticipantsDataFromEvent>;
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const participantsData = getParticipantsDataFromEvent(event);
 
@@ -44,31 +53,36 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const fullDepthParticipants = await getFullDepthParticipants(event.id);
   const fullDepthWaitingList = await getFullDepthWaitingList(event.id);
 
-  return {
-    userId: currentUser.id,
-    eventId: event.id,
-    ...participantsData,
-    participantLimit,
-    hasFullDepthParticipants:
-      fullDepthParticipants !== null &&
-      fullDepthParticipants.length > 0 &&
-      event._count.childEvents !== 0,
-    hasFullDepthWaitingList:
-      fullDepthWaitingList !== null &&
-      fullDepthWaitingList.length > 0 &&
-      event._count.childEvents !== 0,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      eventId: event.id,
+      ...participantsData,
+      participantLimit,
+      hasFullDepthParticipants:
+        fullDepthParticipants !== null &&
+        fullDepthParticipants.length > 0 &&
+        event._count.childEvents !== 0,
+      hasFullDepthWaitingList:
+        fullDepthWaitingList !== null &&
+        fullDepthWaitingList.length > 0 &&
+        event._count.childEvents !== 0,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const setParticipantLimitFetcher = useFetcher();
-  const addParticipantFetcher = useFetcher();
-  const removeParticipantFetcher = useFetcher();
-  const addToWaitingListFetcher = useFetcher();
-  const removeFromWaitingListFetcher = useFetcher();
-  const moveToParticipantsFetcher = useFetcher();
+  const setParticipantLimitFetcher =
+    useFetcher<SetParticipantLimitActionData>();
+  const addParticipantFetcher = useFetcher<AddParticipantActionData>();
+  const removeParticipantFetcher = useFetcher<RemoveParticipantActionData>();
+  const addToWaitingListFetcher = useFetcher<AddToWaitingListActionData>();
+  const removeFromWaitingListFetcher =
+    useFetcher<RemoveFromWaitingListActionData>();
+  const moveToParticipantsFetcher = useFetcher<MoveToParticipantsActionData>();
 
   return (
     <>

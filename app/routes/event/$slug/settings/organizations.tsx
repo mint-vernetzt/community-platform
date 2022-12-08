@@ -1,12 +1,15 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
+import type { ActionData as AddOrganizationActionData } from "./organizations/add-organization";
 import { addOrganizationSchema } from "./organizations/add-organization";
+import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
 import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
@@ -19,23 +22,28 @@ type LoaderData = {
   organizations: ReturnType<typeof getResponsibleOrganizationDataFromEvent>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const organizations = getResponsibleOrganizationDataFromEvent(event);
-  return { userId: currentUser.id, eventId: event.id, organizations };
+  return json<LoaderData>(
+    { userId: sessionUser.id, eventId: event.id, organizations },
+    { headers: response.headers }
+  );
 };
 
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const addOrganizationFetcher = useFetcher();
-  const removeOrganizationFetcher = useFetcher();
+  const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
+  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
 
   return (
     <>
