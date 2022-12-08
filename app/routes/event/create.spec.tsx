@@ -73,6 +73,8 @@ describe("loader", () => {
     expect(responseWithoutParametersBody.child).toBe("");
     expect(responseWithoutParametersBody.parent).toBe("");
 
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
     const responseWithParameters = await loader({
       request: new Request(
         `${url}?child=child-event-id&parent=parent-event-id`
@@ -126,10 +128,11 @@ describe("action", () => {
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      console.log(response);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("Identity check failed");
     }
   });
 
