@@ -7,7 +7,10 @@ import { action } from "./remove-from-waiting-list";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -38,8 +41,6 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -64,7 +65,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     try {
       await action({ request, context: {}, params: {} });
@@ -85,7 +86,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
@@ -116,7 +117,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -141,7 +142,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
       eventId: "some-event-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -175,7 +176,7 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
       profileId: "another-user-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -187,30 +188,23 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.waitingParticipantOfEvent.delete as jest.Mock
-      ).toHaveBeenLastCalledWith({
-        where: {
-          profileId_eventId: {
-            eventId: "some-event-id",
-            profileId: "another-user-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.waitingParticipantOfEvent.delete as jest.Mock
+    ).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "another-user-id",
         },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   test("remove from waiting list (self)", async () => {
@@ -222,37 +216,30 @@ describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
       profileId: "some-user-id",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
       };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.waitingParticipantOfEvent.delete as jest.Mock
-      ).toHaveBeenLastCalledWith({
-        where: {
-          profileId_eventId: {
-            eventId: "some-event-id",
-            profileId: "some-user-id",
-          },
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.waitingParticipantOfEvent.delete as jest.Mock
+    ).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
         },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {
-      const response = error as Response;
-      console.log(response);
-
-      const json = await response.json();
-      console.log(json);
-    }
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

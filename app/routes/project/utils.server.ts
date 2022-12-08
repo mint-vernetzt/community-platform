@@ -1,16 +1,16 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 
 export async function checkIdentityOrThrow(
   request: Request,
-  currentUser: User
+  sessionUser: User
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-  const userId = formData.get("userId");
+  const formSenderId = formData.get("userId");
 
-  if (userId === null || userId !== currentUser.id) {
+  if (formSenderId === null || formSenderId !== sessionUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
 }

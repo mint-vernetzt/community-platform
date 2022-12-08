@@ -1,22 +1,22 @@
-import { Project } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import type { Project } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
-import { getProjectBySlugOrThrow } from "../utils.server";
+import type { getProjectBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
   project: Project,
-  currentUser: User | null,
+  sessionUser: User | null,
   options: {
     throw: boolean;
   } = { throw: false }
 ) {
   let isOwner = false;
-  if (currentUser !== null) {
+  if (sessionUser !== null) {
     const relation = await prismaClient.teamMemberOfProject.findFirst({
       where: {
         projectId: project.id,
-        profileId: currentUser.id,
+        profileId: sessionUser.id,
         isPrivileged: true,
       },
     });
@@ -34,9 +34,9 @@ export async function checkOwnership(
 
 export async function checkOwnershipOrThrow(
   project: Project,
-  currentUser: User | null
+  sessionUser: User | null
 ) {
-  return await checkOwnership(project, currentUser, { throw: true });
+  return await checkOwnership(project, sessionUser, { throw: true });
 }
 
 export function transformProjectToForm(

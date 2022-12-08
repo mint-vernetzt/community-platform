@@ -1,8 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
 import {
@@ -30,19 +33,22 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const project = await getProjectByIdOrThrow(result.data.projectId);
-    await checkOwnershipOrThrow(project, currentUser);
+    await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
     await disconnectOrganizationFromProject(
       project.id,
       result.data.organizationId
     );
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

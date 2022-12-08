@@ -1,13 +1,13 @@
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
 export function deriveMode(
-  sessionUsername: string,
+  sessionUser: User | null,
   isPrivileged: boolean
 ): Mode {
-  if (sessionUsername === "" || sessionUsername === undefined) {
+  if (sessionUser === null) {
     return "anon";
   }
 
@@ -16,13 +16,13 @@ export function deriveMode(
 
 export async function checkIdentityOrThrow(
   request: Request,
-  currentUser: User
+  sessionUser: User
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-  const userId = formData.get("userId");
+  const formSenderId = formData.get("userId");
 
-  if (userId === null || userId !== currentUser.id) {
+  if (formSenderId === null || formSenderId !== sessionUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
 }

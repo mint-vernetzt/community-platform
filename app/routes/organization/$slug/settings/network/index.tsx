@@ -1,6 +1,9 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { ArrayElement } from "~/lib/utils/types";
+import { createAuthClient } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
   handleAuthorization,
@@ -14,12 +17,20 @@ export type NetworkMember = ArrayElement<
 
 type LoaderData = { networkMembers: NetworkMember[] };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
-  const { organization } = await handleAuthorization(args);
+export const loader: LoaderFunction = async (args) => {
+  const { request, params } = args;
+  const response = new Response();
 
-  const networkMembers = await getNetworkMembersOfOrganization(organization.id);
+  const authClient = createAuthClient(request, response);
+  const slug = getParamValueOrThrow(params, "slug");
+  const { organization } = await handleAuthorization(authClient, slug);
 
-  return { networkMembers };
+  const networkMembers = await getNetworkMembersOfOrganization(
+    authClient,
+    organization.id
+  );
+
+  return json<LoaderData>({ networkMembers }, { headers: response.headers });
 };
 
 function Index() {

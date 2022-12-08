@@ -1,8 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
@@ -47,20 +50,22 @@ export type ActionData = PerformMutation<
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const project = await getProjectByIdOrThrow(result.data.projectId);
-    await checkOwnershipOrThrow(project, currentUser);
+    await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
     const teamMemberProfile = await getProfileByEmail(result.data.email);
     if (teamMemberProfile !== null) {
       await connectProfileToProject(project.id, teamMemberProfile.id);
     }
   }
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

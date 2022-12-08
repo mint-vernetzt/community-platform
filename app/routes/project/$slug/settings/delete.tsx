@@ -1,12 +1,16 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
+import type { Schema } from "zod";
 import { z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileByUserId } from "~/profile.server";
 import { checkIdentityOrThrow } from "../../utils.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
 import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
@@ -25,21 +29,27 @@ type LoaderData = {
   projectName: string;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
 
-  return {
-    userId: currentUser.id,
-    projectId: project.id,
-    projectName: project.name,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      projectId: project.id,
+      projectName: project.name,
+    },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(
@@ -62,18 +72,25 @@ const mutation = makeDomainFunction(
   }
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
-  await checkIdentityOrThrow(request, currentUser);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const project = await getProjectBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
+
+  const profile = await getProfileByUserId(sessionUser.id, ["username"]);
 
   const result = await performMutation({
     request,
@@ -90,10 +107,12 @@ export const action: ActionFunction = async (args) => {
       throw badRequest({ message: "Id nicht korrekt" });
     }
   } else {
-    return redirect(`/profile/${currentUser.user_metadata.username}`);
+    return redirect(`/profile/${profile.username}`, {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 function Delete() {

@@ -1,6 +1,5 @@
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,8 +8,12 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
+import React from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { array, InferType, object, string } from "yup";
+import type { InferType } from "yup";
+import { array, object, string } from "yup";
+import { getSessionUserOrThrow, createAuthClient } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -20,9 +23,10 @@ import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import type { FormError } from "~/lib/utils/yup";
 import {
-  FormError,
   getFormValues,
   multiline,
   nullOrString,
@@ -31,11 +35,10 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-
-import { getAllOffers } from "~/profile.server";
+import { getAllOffers, getProfileByUsername } from "~/profile.server";
 import { getAreas } from "~/utils.server";
 import {
-  getWholeProfileFromId,
+  getWholeProfileFromUsername,
   handleAuthorization,
   updateProfileById,
 } from "../utils.server";
@@ -73,7 +76,9 @@ type LoaderData = {
 };
 
 function makeFormProfileFromDbProfile(
-  dbProfile: NonNullable<Awaited<ReturnType<typeof getWholeProfileFromId>>>
+  dbProfile: NonNullable<
+    Awaited<ReturnType<typeof getWholeProfileFromUsername>>
+  >
 ) {
   return {
     ...dbProfile,
@@ -83,25 +88,27 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<LoaderData> => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const response = new Response();
 
-  const dbProfile = await getWholeProfileFromId(currentUser.id);
-
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw notFound({ message: "profile not found." });
   }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, dbProfile.id);
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return { profile, areas, offers };
+  return json<LoaderData>(
+    { profile, areas, offers },
+    { headers: response.headers }
+  );
 };
 
 type ActionData = {
@@ -111,12 +118,17 @@ type ActionData = {
   updated: boolean;
 };
 
-export const action: ActionFunction = async ({
-  request,
-  params,
-}): Promise<ActionData> => {
-  const username = params.username ?? "";
-  const currentUser = await handleAuthorization(request, username);
+export const action: ActionFunction = async ({ request, params }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const username = getParamValueOrThrow(params, "username");
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "profile not found." });
+  }
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await handleAuthorization(sessionUser.id, profile.id);
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
     request,
@@ -145,7 +157,7 @@ export const action: ActionFunction = async ({
   if (submit === "submit") {
     if (errors === null) {
       try {
-        await updateProfileById(currentUser.id, data);
+        await updateProfileById(profile.id, data);
         updated = true;
       } catch (error) {
         console.error(error);
@@ -165,13 +177,15 @@ export const action: ActionFunction = async ({
       data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
-
-  return {
-    profile: data,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-    errors,
-    updated,
-  };
+  return json<ActionData>(
+    {
+      profile: data,
+      lastSubmit: (formData.get("submit") as string) ?? "",
+      errors,
+      updated,
+    },
+    { headers: response.headers }
+  );
 };
 
 export default function Index() {

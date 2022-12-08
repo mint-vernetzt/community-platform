@@ -1,7 +1,7 @@
-import { badRequest, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import type { User } from "@supabase/supabase-js";
+import { getSessionUser } from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
-import { getProfileByUserId, getProfileByUsername } from "~/profile.server";
+import { getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
 
@@ -13,8 +13,9 @@ const path = "/profile/$username";
 
 jest.mock("~/auth.server", () => {
   return {
+    ...jest.requireActual("~/auth.server"),
     // eslint-disable-next-line
-    getUserByRequest: jest.fn(),
+    getSessionUser: jest.fn(),
   };
 });
 
@@ -45,6 +46,7 @@ jest.mock("~/lib/event/utils", () => {
 });
 
 const profile = {
+  id: "some-profile-id",
   username: "username",
   firstName: "User",
   lastName: "Name",
@@ -57,19 +59,27 @@ const profile = {
   teamMemberOfProjects: [],
 };
 
+const sessionUser: User = {
+  id: "sessionUserId",
+  app_metadata: {},
+  user_metadata: {},
+  aud: "",
+  created_at: "",
+};
+
 test("deriveMode", () => {
-  expect(deriveMode("profileUser", "sessionUser")).toBe("authenticated");
-  expect(deriveMode("sessionUser", "sessionUser")).toBe("owner");
-  expect(deriveMode("profileUser", "")).toBe("anon");
+  expect(deriveMode("profileUserId", sessionUser)).toBe("authenticated");
+  expect(deriveMode("sessionUserId", sessionUser)).toBe("owner");
+  expect(deriveMode("profileUser", null)).toBe("anon");
 });
 
 describe("errors", () => {
   beforeAll(() => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => null);
+    (getSessionUser as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => null);
   });
   test("empty username", async () => {
-    expect.assertions(6);
+    expect.assertions(3);
 
     try {
       await loader({
@@ -84,23 +94,7 @@ describe("errors", () => {
       const json = await response.json();
 
       expect(response.status).toBe(400);
-      expect(json).toEqual({ message: "Username must be provided" });
-    }
-
-    try {
-      await loader({
-        request: new Request(testURL),
-        params: { username: "" },
-        context: {},
-      });
-    } catch (error) {
-      expect(error instanceof Response).toBe(true);
-
-      const response = error as Response;
-      const json = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(json).toEqual({ message: "Username must be provided" });
+      expect(json).toEqual({ message: '"username" missing' });
     }
   });
 
@@ -124,14 +118,14 @@ describe("errors", () => {
   });
 
   afterAll(() => {
-    (getUserByRequest as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
 
 describe("get profile (anon)", () => {
   beforeAll(() => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => null);
+    (getSessionUser as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
   });
 
@@ -163,24 +157,17 @@ describe("get profile (anon)", () => {
   });
 
   afterAll(() => {
-    (getUserByRequest as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
   });
 });
 
 describe("get profile (authenticated)", () => {
-  const sessionUsername = "anotherusername";
-
   beforeAll(() => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
-      return { user_metadata: { username: sessionUsername } };
+    (getSessionUser as jest.Mock).mockImplementation(() => {
+      return { id: "another-id" };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
-    (getProfileByUserId as jest.Mock).mockImplementation(() => {
-      return {
-        username: sessionUsername,
-      };
-    });
   });
   test("can read all fields", async () => {
     const res = await loader({
@@ -202,19 +189,17 @@ describe("get profile (authenticated)", () => {
   });
 
   afterAll(() => {
-    (getUserByRequest as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
-    (getProfileByUserId as jest.Mock).mockReset();
   });
 });
 
 describe("get profile (owner)", () => {
   beforeAll(() => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
-      return { user_metadata: { username: profile.username } };
+    (getSessionUser as jest.Mock).mockImplementation(() => {
+      return { id: profile.id };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
-    (getProfileByUserId as jest.Mock).mockImplementation(() => profile);
   });
 
   test("can read all fields", async () => {
@@ -237,8 +222,7 @@ describe("get profile (owner)", () => {
   });
 
   afterAll(() => {
-    (getUserByRequest as jest.Mock).mockReset();
+    (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
-    (getProfileByUserId as jest.Mock).mockReset();
   });
 });

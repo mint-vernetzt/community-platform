@@ -7,7 +7,10 @@ import { action } from "./add-organization";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -39,8 +42,6 @@ describe("/project/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -67,7 +68,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
 
     (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
       () => {
@@ -96,7 +97,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {};
@@ -132,7 +133,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -158,7 +159,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       email: "anotheruser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-project-id" };
     });
@@ -197,7 +198,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       email: "anotheruser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-project-id",
@@ -223,19 +224,17 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       }
     );
 
-    try {
-      const response = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
 
-      expect(response.success).toBe(false);
-      expect(response.errors.organizationName).toContain([
-        "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
-      ]);
-    } catch (error) {}
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.organizationName).toContain(
+      "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich."
+    );
   });
 
   test("add responsible organization to project", async () => {
@@ -247,7 +246,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       organizationName: "Some Organization",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-project-id",

@@ -18,7 +18,7 @@ async function main() {
   const oldRestClient = createClient(
     process.env.OLD_PROJECT_URL,
     process.env.OLD_PROJECT_SERVICE_KEY,
-    { schema: "storage" }
+    { db: { schema: "storage" } }
   );
   const oldClient = createClient(
     process.env.OLD_PROJECT_URL,

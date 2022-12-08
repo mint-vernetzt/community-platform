@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { UploadHandler } from "@remix-run/node";
 import {
   unstable_composeUploadHandlers,
@@ -7,7 +8,6 @@ import { fromBuffer } from "file-type";
 import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
-import { supabaseAdmin } from "~/supabase";
 import { createHashFromString } from "~/utils.server";
 import { uploadKeys } from "./schema";
 
@@ -19,7 +19,6 @@ function generatePathName(extension: string, hash: string, name: string) {
 
 const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
-
   const { contentType, data, name, filename } = part;
 
   let bytes = [];
@@ -78,17 +77,16 @@ const uploadHandler: UploadHandler = async (part) => {
 };
 
 async function persistUpload(
+  supabaseClient: SupabaseClient,
   path: string,
   buffer: Buffer,
   bucketName: string,
   mimeType?: string
 ) {
-  return await supabaseAdmin.storage // TODO: don't use admin (supabaseClient.setAuth)
-    .from(bucketName)
-    .upload(path, buffer, {
-      upsert: true,
-      contentType: mimeType,
-    });
+  return await supabaseClient.storage.from(bucketName).upload(path, buffer, {
+    upsert: true,
+    contentType: mimeType,
+  });
 }
 
 export async function updateUserProfileImage(
@@ -152,7 +150,11 @@ export async function updateProjectBackgroundImage(
   });
 }
 
-export const upload = async (request: Request, bucketName: string) => {
+export const upload = async (
+  supabaseClient: SupabaseClient,
+  request: Request,
+  bucketName: string
+) => {
   try {
     const formData = await unstable_parseMultipartFormData(
       request,
@@ -186,12 +188,19 @@ export const upload = async (request: Request, bucketName: string) => {
     }
 
     const { data, error } = await persistUpload(
+      supabaseClient,
       uploadHandlerResponse.path,
       buffer,
       bucketName,
       uploadHandlerResponse.mimeType
     );
-    validatePersistence(error, data, uploadHandlerResponse.path, bucketName);
+    validatePersistence(
+      supabaseClient,
+      error,
+      data,
+      uploadHandlerResponse.path,
+      bucketName
+    );
 
     return formData;
   } catch (exception) {
@@ -200,6 +209,7 @@ export const upload = async (request: Request, bucketName: string) => {
 };
 
 function validatePersistence(
+  supabaseClient: SupabaseClient,
   error: any,
   data: any,
   path: string,
@@ -209,7 +219,7 @@ function validatePersistence(
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(path, bucketName) === null) {
+  if (getPublicURL(supabaseClient, path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });

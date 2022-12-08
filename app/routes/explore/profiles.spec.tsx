@@ -1,9 +1,5 @@
-import { loader } from "./index";
-
 // @ts-ignore
 const expect = global.expect as jest.Expect;
-
-const path = "/explore";
 
 // TODO: write tests
 
@@ -18,6 +14,7 @@ describe("context", () => {
   });
 
   test("call action", async () => {
+    // Use create request with formData method from lib test utils
     // const res = await action({
     //   request: new Request(path, { method: "POST" }),
     //   params: {},

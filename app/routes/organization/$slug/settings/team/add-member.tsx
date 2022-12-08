@@ -1,8 +1,12 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkIdentityOrThrow,
   checkSameOrganizationOrThrow,
@@ -29,6 +33,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   // Problem:
   // - organization.id is required inside the mutation scope
   // - handleAuthorization returns the organization.id but needs to be called inside the action scope as it needs the action args (params, request)
+  // TODO: Solution: Provide Action args via environment
   const organization = await getOrganizationIdBySlug(slug);
   if (organization === null) {
     throw "Die Organisation konnte nicht gefunden werden.";
@@ -65,26 +70,38 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export type ActionData = {
-  result?: PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-  message?: string;
+export type SuccessActionData = {
+  message: string;
 };
 
+export type FailureActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
 export const action: ActionFunction = async (args) => {
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
 
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
-  const { organization } = await handleAuthorization(args);
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const { organization } = await handleAuthorization(authClient, slug);
+
   await checkSameOrganizationOrThrow(request, organization.id);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success) {
-    return {
-      message: `Ein neues Teammitglied mit der E-Mail "${result.data.email}" wurde hinzugefügt.`,
-    };
+    return json<SuccessActionData>(
+      {
+        message: `Ein neues Teammitglied mit der E-Mail "${result.data.email}" wurde hinzugefügt.`,
+      },
+      { headers: response.headers }
+    );
   }
 
-  return result;
+  return json<FailureActionData>(result, { headers: response.headers });
 };

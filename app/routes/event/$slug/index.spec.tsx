@@ -1,4 +1,4 @@
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
 import { loader } from ".";
@@ -8,7 +8,8 @@ const expect = global.expect as jest.Expect;
 
 jest.mock("~/auth.server", () => {
   return {
-    getUserByRequest: jest.fn(),
+    ...jest.requireActual("~/auth.server"),
+    getSessionUser: jest.fn(),
   };
 });
 
@@ -55,7 +56,7 @@ describe("/event/$slug", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return null;
       });
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
       });
 
@@ -96,7 +97,7 @@ describe("/event/$slug", () => {
         return { slug, published: false };
       });
 
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return null;
       });
 
@@ -155,7 +156,7 @@ describe("/event/$slug", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, published: false };
       });
-      (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
       });
       (
