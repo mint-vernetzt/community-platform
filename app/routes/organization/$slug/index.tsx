@@ -1,18 +1,19 @@
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { badRequest, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { notFound } from "remix-utils";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
-import { ExternalService } from "~/components/types";
+import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -22,16 +23,18 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
+import type { OrganizationWithRelations } from "~/organization.server";
 import {
   getOrganizationBySlug,
-  OrganizationWithRelations,
   prepareOrganizationEvents,
 } from "~/organization.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, Mode } from "./utils.server";
+import type { Mode } from "./utils.server";
+import { deriveMode } from "./utils.server";
 
 export function links() {
   return [
@@ -58,11 +61,11 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  const { slug } = params;
-  if (slug === undefined || slug === "") {
-    throw badRequest({ message: "organization slug must be provided" });
-  }
-  const sessionUser = await getUserByRequest(request);
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const slug = getParamValueOrThrow(params, "slug");
+  const sessionUser = await getSessionUser(authClient);
 
   const unfilteredOrganization = await getOrganizationBySlug(slug);
   if (unfilteredOrganization === null) {
@@ -79,7 +82,7 @@ export const loader: LoaderFunction = async (args) => {
     background?: string;
   } = {};
   if (unfilteredOrganization.logo) {
-    const publicURL = getPublicURL(unfilteredOrganization.logo);
+    const publicURL = getPublicURL(authClient, unfilteredOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 144, height: 144 },
@@ -87,7 +90,10 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
   if (unfilteredOrganization.background) {
-    const publicURL = getPublicURL(unfilteredOrganization.background);
+    const publicURL = getPublicURL(
+      authClient,
+      unfilteredOrganization.background
+    );
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -97,7 +103,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.memberOf = unfilteredOrganization.memberOf.map(
     (member) => {
       if (member.network.logo !== null) {
-        const publicURL = getPublicURL(member.network.logo);
+        const publicURL = getPublicURL(authClient, member.network.logo);
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -113,7 +119,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.networkMembers =
     unfilteredOrganization.networkMembers.map((member) => {
       if (member.networkMember.logo !== null) {
-        const publicURL = getPublicURL(member.networkMember.logo);
+        const publicURL = getPublicURL(authClient, member.networkMember.logo);
 
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -128,7 +134,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.teamMembers = unfilteredOrganization.teamMembers.map(
     (teamMember) => {
       if (teamMember.profile.avatar !== null) {
-        const publicURL = getPublicURL(teamMember.profile.avatar);
+        const publicURL = getPublicURL(authClient, teamMember.profile.avatar);
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -144,7 +150,7 @@ export const loader: LoaderFunction = async (args) => {
   unfilteredOrganization.responsibleForProject =
     unfilteredOrganization.responsibleForProject.map((relation) => {
       if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(relation.project.logo);
+        const publicURL = getPublicURL(authClient, relation.project.logo);
         if (publicURL !== null) {
           relation.project.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -154,7 +160,7 @@ export const loader: LoaderFunction = async (args) => {
       }
       relation.project.awards = relation.project.awards.map((relation) => {
         if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(relation.award.logo);
+          const publicURL = getPublicURL(authClient, relation.award.logo);
           if (publicURL !== null) {
             relation.award.logo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -207,33 +213,35 @@ export const loader: LoaderFunction = async (args) => {
     );
   }
 
-  const mode: Mode = deriveMode(
-    sessionUser?.user_metadata.username,
-    userIsPrivileged
-  );
+  const mode: Mode = deriveMode(sessionUser, userIsPrivileged);
 
   const inFuture = true;
   const organizationFutureEvents = await prepareOrganizationEvents(
+    authClient,
     slug,
     sessionUser,
     inFuture
   );
   const organizationPastEvents = await prepareOrganizationEvents(
+    authClient,
     slug,
     sessionUser,
     !inFuture
   );
 
-  return {
-    organization,
-    userIsPrivileged,
-    images,
-    futureEvents: organizationFutureEvents,
-    pastEvents: organizationPastEvents,
-    userId: sessionUser?.id,
-    userEmail: sessionUser?.email,
-    mode,
-  };
+  return json<LoaderData>(
+    {
+      organization,
+      userIsPrivileged,
+      images,
+      futureEvents: organizationFutureEvents,
+      pastEvents: organizationPastEvents,
+      userId: sessionUser?.id,
+      userEmail: sessionUser?.email,
+      mode,
+    },
+    { headers: response.headers }
+  );
 };
 
 function hasContactInformations(
@@ -938,7 +946,7 @@ export default function Index() {
                                   <div className="flex items-center ml-auto pr-4 py-6">
                                     <Link
                                       className="btn btn-primary"
-                                      to={`/login?event_slug=${event.slug}`}
+                                      to={`/login?login_redirect=/event/${event.slug}`}
                                     >
                                       Anmelden
                                     </Link>

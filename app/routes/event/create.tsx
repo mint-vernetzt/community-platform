@@ -1,20 +1,18 @@
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { badRequest, forbidden } from "remix-utils";
-import { date, InferType, object, string } from "yup";
-import { getUserByRequest } from "~/auth.server";
+import { badRequest } from "remix-utils";
+import type { InferType } from "yup";
+import { date, object, string } from "yup";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { validateFeatureAccess } from "~/lib/utils/application";
-import {
-  FormError,
-  getFormValues,
-  nullOrString,
-  validateForm,
-} from "~/lib/utils/yup";
+import type { FormError } from "~/lib/utils/yup";
+import { getFormValues, nullOrString, validateForm } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
-import { createEventOnProfile } from "./utils.server";
+import { checkIdentityOrThrow, createEventOnProfile } from "./utils.server";
 
 const schema = object({
-  id: string().uuid().required(),
+  userId: string().uuid().required(),
   name: string().required("Please add event name"),
   startDate: date()
     .transform((current, original) => {
@@ -49,20 +47,22 @@ type LoaderData = {
   parent: string;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null) {
-    throw forbidden({ message: "Not allowed" });
-  }
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
   const child = url.searchParams.get("child") || "";
   const parent = url.searchParams.get("parent") || "";
 
-  await validateFeatureAccess(request, "events");
+  await validateFeatureAccess(authClient, "events");
 
-  return { id: currentUser.id, child, parent };
+  return json<LoaderData>(
+    { id: sessionUser.id, child, parent },
+    { headers: response.headers }
+  );
 };
 
 function getDateTime(date: Date, time: string | null) {
@@ -81,15 +81,19 @@ function getDateTime(date: Date, time: string | null) {
   return new Date(year, month, day, hoursAndMinutes[0], hoursAndMinutes[1]);
 }
 
+type ActionData = {
+  data: FormType;
+  errors: FormError | null;
+};
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
-
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null || currentUser.id !== parsedFormData.id) {
-    throw forbidden({ message: "Not allowed" });
-  }
 
   let errors: FormError | null;
   let data: FormType;
@@ -103,7 +107,7 @@ export const action: ActionFunction = async (args) => {
   }
 
   if (errors === null) {
-    const slug = generateEventSlug(data.name, Date.now());
+    const slug = generateEventSlug(data.name);
     const startTime = getDateTime(data.startDate, data.startTime);
 
     let endTime;
@@ -114,7 +118,7 @@ export const action: ActionFunction = async (args) => {
     }
 
     await createEventOnProfile(
-      currentUser.id,
+      sessionUser.id,
       {
         slug,
         name: data.name,
@@ -124,10 +128,10 @@ export const action: ActionFunction = async (args) => {
       },
       { child: data.child, parent: data.parent }
     );
-    return redirect(`/event/${slug}`);
+    return redirect(`/event/${slug}`, { headers: response.headers });
   }
 
-  return { data, errors };
+  return json<ActionData>({ data, errors }, { headers: response.headers });
 };
 
 export default function Create() {
@@ -136,7 +140,7 @@ export default function Create() {
   return (
     <Form method="post">
       <h1>create event</h1>
-      <input name="id" defaultValue={loaderData.id} hidden />
+      <input name="userId" defaultValue={loaderData.id} hidden />
       <input name="child" defaultValue={loaderData.child} hidden />
       <input name="parent" defaultValue={loaderData.parent} hidden />
       <div className="m-2">

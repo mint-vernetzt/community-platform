@@ -64,7 +64,9 @@ describe("loader", () => {
       params: { slug: slug },
     });
 
-    expect(response.organization).toEqual(organization);
+    const responseBody = await response.json();
+
+    expect(responseBody.organization).toEqual(organization);
   });
   test("flatten areas, focuses and types", async () => {
     (getWholeOrganizationBySlug as jest.Mock).mockReturnValueOnce({
@@ -85,9 +87,11 @@ describe("loader", () => {
       params: { slug: slug },
     });
 
-    expect(response.organization.areas).toEqual(["area1", "area2"]);
-    expect(response.organization.types).toEqual(["type1"]);
-    expect(response.organization.focuses).toEqual([
+    const responseBody = await response.json();
+
+    expect(responseBody.organization.areas).toEqual(["area1", "area2"]);
+    expect(responseBody.organization.types).toEqual(["type1"]);
+    expect(responseBody.organization.focuses).toEqual([
       "focus1",
       "focus2",
       "focus3",
@@ -167,8 +171,9 @@ describe("action", () => {
         context: {},
         params: { slug: slug },
       });
-      expect(response.errors.name).not.toBeUndefined();
-      expect(response.errors.name.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.name).not.toBeUndefined();
+      expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("name must be a `string` type")
       );
     });
@@ -182,8 +187,9 @@ describe("action", () => {
         context: {},
         params: { slug: slug },
       });
-      expect(response.errors.name).not.toBeUndefined();
-      expect(response.errors.name.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.name).not.toBeUndefined();
+      expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("Bitte gib Euren Namen ein.")
       );
     });
@@ -199,8 +205,9 @@ describe("action", () => {
         context: {},
         params: { slug: slug },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).not.toBeUndefined();
+      expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining(
           "Deine Eingabe entspricht nicht dem Format einer E-Mail."
         )
@@ -220,8 +227,9 @@ describe("action", () => {
         context: {},
         params: { slug: slug },
       });
-      expect(response.errors.email).toBeUndefined();
-      expect(response.organization.email).toBe(email);
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).toBeUndefined();
+      expect(responseBody.organization.email).toBe(email);
     });
   });
 
@@ -243,8 +251,10 @@ describe("action", () => {
         params: { slug: slug },
       });
 
-      expect(response.errors).toBeNull();
-      expect(response.organization.areas).toEqual([listActionItemId]);
+      const responseBody = await response.json();
+
+      expect(responseBody.errors).toBeNull();
+      expect(responseBody.organization.areas).toEqual([listActionItemId]);
     });
 
     test("update organization", async () => {
@@ -260,7 +270,8 @@ describe("action", () => {
         context: {},
         params: { slug: slug },
       });
-      expect(response.errors).toBeNull();
+      const responseBody = await response.json();
+      expect(responseBody.errors).toBeNull();
       expect(updateOrganizationById).toHaveBeenCalledWith(id, {
         ...parsedDataDefaults,
         name,

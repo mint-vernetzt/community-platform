@@ -1,8 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { updateDocument } from "~/document.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -60,17 +63,21 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
-  await checkIdentityOrThrow(request, currentUser);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const result = await performMutation({
     request,
@@ -79,5 +86,5 @@ export const action: ActionFunction = async (args) => {
     environment: { eventId: event.id },
   });
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };

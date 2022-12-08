@@ -1,21 +1,17 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { getFeatureAbilities } from "~/lib/utils/application";
-
-type LoaderData = {
-  abilities: ReturnType<Awaited<typeof getFeatureAbilities>>;
-};
+import type { LoaderFunction } from "@remix-run/node";
+import { Outlet } from "@remix-run/react";
+import { createAuthClient } from "~/auth.server";
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const abilities = await getFeatureAbilities(request, "events");
+  const response = new Response();
 
-  return { abilities };
+  createAuthClient(request, response);
+
+  return response;
 };
 
 function Explore() {
-  const loaderData = useLoaderData<LoaderData>();
-
   return (
     <div className="relative pb-44">
       <div className="">

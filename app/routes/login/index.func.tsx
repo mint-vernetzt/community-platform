@@ -1,8 +1,13 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { testURL } from "~/lib/utils/tests";
 
-const supabase = createClient(
+const request = new Request(testURL);
+const response = new Response();
+
+const supabaseClient = createServerClient(
   Cypress.env("SUPABASE_URL"),
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.vI9obAHOGyVVKa3pD--kJlyxp-Z2zV9UUMAhKpNLAcU"
+  Cypress.env("SERVICE_ROLE_KEY"),
+  { request, response }
 );
 
 let uid: string | undefined;
@@ -15,11 +20,16 @@ before(async () => {
   const termsAccepted = "on";
   const username = "peterhollo";
 
-  const { data: userList } = await supabase.auth.api.listUsers();
-  let user = userList?.filter((user) => user.email === email)[0];
+  const {
+    data: { users },
+  } = await supabaseClient.auth.admin.listUsers();
+  let user = users.filter((user) => user.email === email)[0];
 
   if (!user) {
-    const { user: newUser, error } = await supabase.auth.api.createUser({
+    const {
+      data: { user: newUser },
+      error,
+    } = await supabaseClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -47,8 +57,8 @@ it("redirect after login", () => {
 
 after(async () => {
   if (uid !== undefined) {
-    await supabase.from("profiles").delete().match({ id: uid });
-    await supabase.auth.api.deleteUser(uid);
+    await supabaseClient.from("profiles").delete().match({ id: uid });
+    await supabaseClient.auth.admin.deleteUser(uid);
   }
 });
 

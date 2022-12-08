@@ -8,7 +8,10 @@ import { action, loader } from "./delete";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -19,6 +22,9 @@ jest.mock("~/prisma", () => {
       },
       teamMemberOfProject: {
         findFirst: jest.fn(),
+      },
+      profile: {
+        findUnique: jest.fn(),
       },
     },
   };
@@ -47,29 +53,8 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
-    test("project not found", async () => {
-      expect.assertions(2);
-
-      (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
-
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
-
-      const request = new Request(testURL);
-      try {
-        await loader({ request, context: {}, params: { slug } });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(404);
-
-        const json = await response.json();
-        expect(json.message).toBe("Project not found");
-      }
-    });
-
     test("anon user", async () => {
       expect.assertions(2);
-
-      getUserByRequest.mockResolvedValue(null);
 
       try {
         await loader({
@@ -86,10 +71,33 @@ describe("/event/$slug/settings/delete", () => {
       }
     });
 
+    test("project not found", async () => {
+      expect.assertions(2);
+
+      (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      const request = new Request(testURL);
+      try {
+        await loader({ request, context: {}, params: { slug } });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(404);
+
+        const json = await response.json();
+        expect(json.message).toBe("Project not found");
+      }
+    });
+
     test("not privileged user", async () => {
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
 
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
@@ -118,7 +126,9 @@ describe("/event/$slug/settings/delete", () => {
     });
 
     test("privileged user", async () => {
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
 
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
@@ -139,8 +149,9 @@ describe("/event/$slug/settings/delete", () => {
         context: {},
         params: { slug },
       });
-      expect(response.userId).toBe("some-user-id");
-      expect(response.projectId).toBe("some-project-id");
+      const responseBody = await response.json();
+      expect(responseBody.userId).toBe("some-user-id");
+      expect(responseBody.projectId).toBe("some-project-id");
     });
 
     afterAll(() => {
@@ -174,9 +185,11 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
+      (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
 
       try {
         await action({ request, context: {}, params: { slug } });
@@ -193,8 +206,6 @@ describe("/event/$slug/settings/delete", () => {
       const request = createRequestWithFormData({});
 
       expect.assertions(2);
-
-      getUserByRequest.mockResolvedValue(null);
 
       try {
         await action({
@@ -216,7 +227,9 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
 
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
@@ -249,7 +262,9 @@ describe("/event/$slug/settings/delete", () => {
 
       expect.assertions(2);
 
-      getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "another-user-id",
+      } as User);
 
       try {
         await action({
@@ -275,7 +290,9 @@ describe("/event/$slug/settings/delete", () => {
         projectName: "Some project name",
       });
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
           return {
@@ -313,7 +330,9 @@ describe("/event/$slug/settings/delete", () => {
         projectName: "Some project name",
       });
 
-      getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
           return {
@@ -335,8 +354,10 @@ describe("/event/$slug/settings/delete", () => {
         params: { slug },
       });
 
-      expect(response.errors.projectName).toBeDefined();
-      expect(response.errors.projectName[0]).toBe(
+      const responseBody = await response.json();
+
+      expect(responseBody.errors.projectName).toBeDefined();
+      expect(responseBody.errors.projectName[0]).toBe(
         "Der Name des Projekts ist nicht korrekt"
       );
     });
@@ -348,7 +369,7 @@ describe("/event/$slug/settings/delete", () => {
         projectName: "Some project name",
       });
 
-      getUserByRequest.mockResolvedValue({
+      getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
         user_metadata: { username: "someuser" },
       } as unknown as User);
@@ -362,6 +383,12 @@ describe("/event/$slug/settings/delete", () => {
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
       });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return { username: "someuser" };
+        }
+      );
 
       const response = await action({
         request,

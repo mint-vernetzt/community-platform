@@ -1,11 +1,11 @@
-import { InferType } from "yup";
-import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
-import {
+import type { InferType } from "yup";
+import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
+import type {
   OptGroupProps,
   OptionOrGroup,
   OptionsProps,
 } from "~/components/FormElements/SelectField/SelectField";
-import { AreasWithState } from "~/profile.server";
+import type { AreasWithState } from "~/profile.server";
 import { capitalizeFirstLetter } from "../string/transform";
 
 function getListOperationName(operation: string, key: string) {

@@ -1,4 +1,4 @@
-import { Document } from "@prisma/client";
+import type { Document } from "@prisma/client";
 import { prismaClient } from "./prisma";
 
 export async function updateDocument(

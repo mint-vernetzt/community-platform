@@ -3,16 +3,7 @@ import { getSession } from "./auth.server";
 import { forbidden } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
-import type { Readable } from "stream";
-
-export async function stream2buffer(stream: Readable): Promise<Buffer> {
-  return new Promise<Buffer>((resolve, reject) => {
-    const _buf: Array<Uint8Array> = [];
-    stream.on("data", (chunk) => _buf.push(chunk));
-    stream.on("end", () => resolve(Buffer.concat(_buf)));
-    stream.on("error", (err) => reject(`error converting stream - ${err}`));
-  });
-}
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 
 export async function createHashFromString(
   string: string,
@@ -29,9 +20,12 @@ export function createCSRFToken() {
 }
 
 // TODO: Do we need user id in combination with csrf?
-export async function validateCSRFToken(request: Request) {
+export async function validateCSRFToken(
+  supabaseClient: SupabaseClient,
+  request: Request
+) {
   const formData = await request.clone().formData();
-  const session = await getSession(request);
+  const session = await getSession(supabaseClient);
 
   const message = "Not allowed";
 
@@ -42,33 +36,45 @@ export async function validateCSRFToken(request: Request) {
 
   const csrf = formData.get("csrf");
 
-  if (session.has("csrf") === false || csrf === null) {
-    console.error(new Error("CSRF Token not included"));
-    throw forbidden({ message });
-  }
+  // TODO: .has() and .get() does not exist on session since supabase v2
+  // Use getSession(), refreshSession() and setSession() instead
+  // https://supabase.com/docs/reference/javascript/auth-getsession
+  // https://supabase.com/docs/reference/javascript/auth-refreshsession
+  // https://supabase.com/docs/reference/javascript/auth-setsession
 
-  if (csrf !== session.get("csrf")) {
-    console.error(new Error("CSRF tokens do not match"));
-    console.log("formData:", csrf, "session:", session.get("csrf"));
-    throw forbidden({ message });
-  }
+  // if (session.has("csrf") === false || csrf === null) {
+  //   console.error(new Error("CSRF Token not included"));
+  //   throw forbidden({ message });
+  // }
+
+  // if (csrf !== session.get("csrf")) {
+  //   console.error(new Error("CSRF tokens do not match"));
+  //   console.log("formData:", csrf, "session:", session.get("csrf"));
+  //   throw forbidden({ message });
+  // }
 }
 
-export async function addCsrfTokenToSession(request: Request) {
-  const session = await getSession(request);
+export async function addCsrfTokenToSession(supabaseClient: SupabaseClient) {
+  const session = await getSession(supabaseClient);
 
-  console.log(session.get("csrf"));
+  // TODO: .has() and .get() does not exist on session since supabase v2
+  // Use getSession(), refreshSession() and setSession() instead
+  // https://supabase.com/docs/reference/javascript/auth-getsession
+  // https://supabase.com/docs/reference/javascript/auth-refreshsession
+  // https://supabase.com/docs/reference/javascript/auth-setsession
 
-  if (session !== null) {
-    const csrf = createCSRFToken();
+  // console.log(session.get("csrf"));
 
-    console.log("\n", "----add csrf to session----\n", csrf, "\n");
+  // if (session !== null) {
+  //   const csrf = createCSRFToken();
 
-    session.set("csrf", csrf);
+  //   console.log("\n", "----add csrf to session----\n", csrf, "\n");
 
-    console.log(session.get("csrf"));
-    return csrf;
-  }
+  //   session.set("csrf", csrf);
+
+  //   console.log(session.get("csrf"));
+  //   return csrf;
+  // }
 
   return null;
 }

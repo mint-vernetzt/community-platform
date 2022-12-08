@@ -1,11 +1,12 @@
-import { useLoaderData } from "@remix-run/react";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { forbidden } from "remix-utils";
+import type { Schema } from "zod";
 import { z } from "zod";
-import { getUserByRequest, getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { generateProjectSlug } from "~/utils";
@@ -22,15 +23,18 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const currentUser = await getUserByRequest(request);
-  if (currentUser === null) {
-    throw forbidden({ message: "Not allowed" });
-  }
+  const authClient = createAuthClient(request, response);
 
-  await checkFeatureAbilitiesOrThrow(request, "projects");
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
-  return { userId: currentUser.id };
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
+
+  return json<LoaderData>(
+    { userId: sessionUser.id },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -38,11 +42,16 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values, slug };
 });
 
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
+
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const currentUser = await getUserByRequestOrThrow(request);
-  await checkIdentityOrThrow(request, currentUser);
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({
     request,
@@ -52,14 +61,16 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success) {
     await createProjectOnProfile(
-      currentUser.id,
+      sessionUser.id,
       result.data.projectName,
       result.data.slug
     );
-    return redirect(`/project/${result.data.slug}`);
+    return redirect(`/project/${result.data.slug}`, {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 function Create() {

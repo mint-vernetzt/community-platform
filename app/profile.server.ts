@@ -1,6 +1,13 @@
-import { Area, AreaType, Offer, Prisma, Profile, State } from "@prisma/client";
+import type {
+  Area,
+  AreaType,
+  Offer,
+  Prisma,
+  Profile,
+  State,
+} from "@prisma/client";
 import { prismaClient } from "./prisma";
-import { ProfileFormType } from "./routes/profile/$username/settings/general";
+import type { ProfileFormType } from "./routes/profile/$username/settings/general";
 
 export type ProfileWithRelations = Profile & {
   areas?: Area[];
@@ -250,16 +257,6 @@ export async function getAllProfiles() {
     },
   });
   return profiles;
-}
-
-export async function getNumberOfProfilesWithTheSameName(
-  firstName: string,
-  lastName: string
-) {
-  const numberOfProfilesWithSameName = await prismaClient.profile.count({
-    where: { firstName, lastName },
-  });
-  return numberOfProfilesWithSameName;
 }
 
 export async function getAllOffers() {

@@ -1,8 +1,10 @@
-import { Document } from "@prisma/client";
-import { ActionFunction } from "@remix-run/node";
-import { PerformMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import type { Document } from "@prisma/client";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import type { PerformMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
@@ -28,17 +30,21 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
-  const parsedData = await parseMultipart(request, "documents");
+  const parsedData = await parseMultipart(request);
 
   const { uploadHandlerResponse, formData } = parsedData;
   const eventId = formData.get("eventId") as string;
@@ -46,7 +52,7 @@ export const action: ActionFunction = async (args) => {
     throw "Event id nicht korrekt";
   }
 
-  await doPersistUpload("documents", uploadHandlerResponse);
+  await doPersistUpload(authClient, "documents", uploadHandlerResponse);
 
   const document: Pick<
     Document,
@@ -66,5 +72,5 @@ export const action: ActionFunction = async (args) => {
     throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
   }
 
-  return null;
+  return json({ headers: response.headers });
 };

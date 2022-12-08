@@ -1,6 +1,6 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { badRequest, notFound } from "remix-utils";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -99,12 +99,14 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");
@@ -116,6 +118,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   return new Response(csv, {
     status: 200,
     headers: {
+      ...response.headers,
       "Content-Type": "text/csv",
       "Content-Disposition": `filename=${filename}`,
     },

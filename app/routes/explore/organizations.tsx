@@ -1,12 +1,16 @@
-import { Area } from "@prisma/client";
+import type { Area } from "@prisma/client";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { PerformMutation, performMutation } from "remix-forms";
-import { Schema, z } from "zod";
-import { getUserByRequest } from "~/auth.server";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -20,6 +24,11 @@ const schema = z.object({
   areaId: z.string().optional(),
 });
 
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
+
 type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
 
 type LoaderData = {
@@ -31,8 +40,11 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const sessionUser = await getUserByRequest(request);
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
 
   const isLoggedIn = sessionUser !== null;
 
@@ -58,7 +70,7 @@ export const loader: LoaderFunction = async (args) => {
         let logoImage: string | null = null;
 
         if (logo !== null) {
-          const publicURL = getPublicURL(logo);
+          const publicURL = getPublicURL(authClient, logo);
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -79,8 +91,11 @@ export const loader: LoaderFunction = async (args) => {
         return scoreB - scoreA;
       });
   }
-
-  return { isLoggedIn, organizations, areas, offers };
+  // TODO: fix type issue
+  return json<LoaderData>(
+    { isLoggedIn, organizations, areas, offers },
+    { headers: response.headers }
+  );
 };
 
 function getCompareValues(
@@ -103,7 +118,10 @@ function getCompareValues(
   return compareValues;
 }
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   if (!values.areaId) {
     throw "";
   }
@@ -115,7 +133,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
   let filteredOrganizations = await getFilteredOrganizations(areaToFilter);
 
-  // TODO: Outsource profile sorting to database
+  // TODO: Outsource organization sorting (to database?) inside loader with url params
 
   let sortedOrganizations;
   if (areaToFilter) {
@@ -214,7 +232,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     let { logo, ...rest } = item;
 
     if (logo !== null) {
-      const publicURL = getPublicURL(logo);
+      const publicURL = getPublicURL(environment.authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -239,13 +257,18 @@ type ActionData = PerformMutation<
 >;
 
 export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  // TODO: Do we need an identity/authorization check for the filter action?
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { authClient: authClient },
   });
 
-  return result;
+  // TODO: fix type issue
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {

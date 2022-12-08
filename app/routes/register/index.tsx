@@ -1,16 +1,14 @@
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import React from "react";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import {
-  Form as RemixForm,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
-import { Schema, z } from "zod";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
+import { createAuthClient, signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { getNumberOfProfilesWithTheSameName } from "~/profile.server";
-import { signUp } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -32,31 +30,28 @@ const schema = z.object({
       "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
     ),
   termsAccepted: z.boolean(),
-  redirectToAfterRegister: z.string().optional(),
+  loginRedirect: z.string().optional(),
 });
 
-type LoaderData = {
-  redirectToAfterRegister: string | null;
-  loginRedirect?: string;
-};
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+  siteUrl: z.string(),
+});
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const url = new URL(request.url);
-  const redirectToAfterRegister = url.searchParams.get("redirect_to");
-  let loginRedirect;
-  if (redirectToAfterRegister !== null) {
-    const redirectURL = new URL(redirectToAfterRegister);
-    const eventSlug = redirectURL.searchParams.get("event_slug");
-    if (eventSlug !== null) {
-      loginRedirect = `/login?event_slug=${eventSlug}`;
-    }
-  }
+  const response = new Response();
 
-  return { redirectToAfterRegister, loginRedirect };
+  createAuthClient(request, response);
+
+  return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   // TODO: move to database trigger
   const { firstName, lastName, academicTitle, termsAccepted } = values;
 
@@ -64,31 +59,27 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
   }
 
-  // TODO: Check if username exists because profiles can be deleted.
-  // That leads to username count gets out of sync with the below count of users with same name.
-  const numberOfProfilesWithSameName = await getNumberOfProfilesWithTheSameName(
-    firstName,
-    lastName
-  );
-  const username = `${generateUsername(firstName, lastName)}${
-    numberOfProfilesWithSameName > 0
-      ? numberOfProfilesWithSameName.toString()
-      : ""
-  }`;
+  const username = `${generateUsername(firstName, lastName)}`;
+
+  // Passing through a possible redirect after login (e.g. to an event)
+  const emailRedirectTo = values.loginRedirect
+    ? environment.siteUrl + values.loginRedirect
+    : undefined;
 
   const { error } = await signUp(
+    environment.authClient,
     values.email,
     values.password,
-    values.redirectToAfterRegister,
     {
       firstName,
       lastName,
       username,
-      academicTitle,
+      academicTitle: academicTitle || null,
       termsAccepted,
-    }
+    },
+    emailRedirectTo
   );
-  if (error !== null) {
+  if (error !== null && error.message !== "User already registered") {
     throw error.message;
   }
 
@@ -99,17 +90,27 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  return await performMutation({
+  const authClient = createAuthClient(request, response);
+
+  const url = new URL(request.url);
+  const siteUrl = url.protocol + "//" + url.host + "/?login_redirect=";
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { authClient: authClient, siteUrl: siteUrl },
   });
+
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Register() {
-  const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
 
   return (
     <>
@@ -122,12 +123,14 @@ export default function Register() {
             </div>
             <div className="ml-auto">
               Bereits Mitglied?{" "}
-              <a
-                href={loaderData.loginRedirect || "/login"}
+              <Link
+                to={`/login${
+                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                }`}
                 className="text-primary font-bold"
               >
                 Anmelden
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -146,7 +149,9 @@ export default function Register() {
                   vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
                   vergessen, dann setze hier Dein Passwort zurück:{" "}
                   <Link
-                    to="/reset"
+                    to={`/reset${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
                     className="text-primary font-bold hover:underline"
                   >
                     Passwort zurücksetzen
@@ -158,9 +163,9 @@ export default function Register() {
               <RemixForm
                 method="post"
                 schema={schema}
-                hiddenFields={["redirectToAfterRegister"]}
+                hiddenFields={["loginRedirect"]}
                 values={{
-                  redirectToAfterRegister: loaderData.redirectToAfterRegister,
+                  loginRedirect: loginRedirect,
                 }}
               >
                 {({ Field, Button, Errors, register }) => (
@@ -172,7 +177,7 @@ export default function Register() {
                     </p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
-                        <Field name="redirectToAfterRegister" />
+                        <Field name="loginRedirect" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>

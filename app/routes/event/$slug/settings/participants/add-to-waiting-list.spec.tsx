@@ -7,7 +7,10 @@ import { action } from "./add-to-waiting-list";
 // @ts-ignore
 const expect = global.expect as jest.Expect;
 
-const getUserByRequest = jest.spyOn(authServerModule, "getUserByRequest");
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/prisma", () => {
   return {
@@ -38,8 +41,6 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue(null);
-
     try {
       await action({
         request,
@@ -66,7 +67,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { waitingForEvents: [] };
@@ -92,7 +93,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
@@ -127,7 +128,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
 
     expect.assertions(2);
 
-    getUserByRequest.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
 
     try {
       await action({
@@ -153,7 +154,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       email: "anotheruser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "another-event-id" };
     });
@@ -191,7 +192,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       email: "anotheruser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return { id: "some-event-id" };
     });
@@ -212,19 +213,17 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       return { isPrivileged: true };
     });
 
-    try {
-      const response = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      console.log(response);
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
 
-      expect(response.success).toBe(false);
-      expect(response.errors.email).toContain(
-        "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung."
-      );
-    } catch (error) {}
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors.email).toContain(
+      "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung."
+    );
   });
 
   test("add to waiting list (privileged user)", async () => {
@@ -236,7 +235,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       email: "anotheruser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({ id: "some-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
@@ -258,22 +257,21 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.waitingParticipantOfEvent.create
-      ).toHaveBeenLastCalledWith({
-        data: {
-          eventId: "some-event-id",
-          profileId: "another-user-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.waitingParticipantOfEvent.create
+    ).toHaveBeenLastCalledWith({
+      data: {
+        eventId: "some-event-id",
+        profileId: "another-user-id",
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   test("add to waiting list (self)", async () => {
@@ -285,7 +283,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       email: "someuser@mail.com",
     });
 
-    getUserByRequest.mockResolvedValue({
+    getSessionUserOrThrow.mockResolvedValue({
       id: "some-user-id",
       email: "someuser@mail.com",
     } as User);
@@ -298,22 +296,21 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       return { waitingForEvents: [] };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.waitingParticipantOfEvent.create
-      ).toHaveBeenLastCalledWith({
-        data: {
-          eventId: "some-event-id",
-          profileId: "some-user-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.waitingParticipantOfEvent.create
+    ).toHaveBeenLastCalledWith({
+      data: {
+        eventId: "some-event-id",
+        profileId: "some-user-id",
+      },
+    });
+    expect(responseBody.success).toBe(true);
   });
 
   afterAll(() => {

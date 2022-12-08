@@ -1,122 +1,114 @@
-import type { ApiError, User } from "@supabase/supabase-js";
-import { createCookieSessionStorage } from "@remix-run/node";
-import { Authenticator, AuthorizationError } from "remix-auth";
-import { SupabaseStrategy } from "remix-auth-supabase";
+import type { Profile } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
-// important for testing nested calls (https://stackoverflow.com/a/55193363)
-// maybe move helper functions like getUserByRequest to other module
-// then we can just mock external modules
-import * as self from "./auth.server";
 import { prismaClient } from "./prisma";
-import type { Session } from "./supabase";
-import { supabaseAdmin, supabaseClient } from "./supabase";
 
-export const SESSION_NAME = "sb";
+const SESSION_NAME = "sb";
 
-export const sessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: SESSION_NAME,
-    // normally you want this to be `secure: true`
-    // but that doesn't work on localhost for Safari
-    // https://web.dev/when-to-use-local-https/
-    secure: process.env.NODE_ENV === "production",
-    secrets: [process.env.SESSION_SECRET],
-    sameSite: "lax", // TODO: check this setting
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-    httpOnly: true, // TODO: check this setting
-  },
-});
-
-export const supabaseStrategy = new SupabaseStrategy(
-  {
-    supabaseClient,
-    sessionStorage,
-    sessionKey: "sb:session",
-    sessionErrorKey: "sb:error",
-  },
-  async ({ req, supabaseClient }) => {
-    const formData = await req.formData();
-    const email = formData.get("email");
-    const password = formData.get("password");
-
-    if (email === null) {
-      throw new AuthorizationError("Email is required");
+export const createAuthClient = (request: Request, response: Response) => {
+  const supabaseClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      request,
+      response,
+      cookieOptions: {
+        name: SESSION_NAME,
+        // normally you want this to be `secure: true`
+        // but that doesn't work on localhost for Safari
+        // https://web.dev/when-to-use-local-https/
+        secure: process.env.NODE_ENV === "production",
+        // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
+        sameSite: "lax", // TODO: check this setting
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
+      },
     }
-    if (typeof email !== "string")
-      throw new AuthorizationError("Email must be a string");
+  );
+  return supabaseClient;
+};
 
-    if (password === null) {
-      throw new AuthorizationError("Password is required");
-    }
-    if (typeof password !== "string") {
-      throw new AuthorizationError("Password must be a string");
-    }
-
-    return supabaseClient.auth.api
-      .signInWithEmail(email, password)
-      .then(({ data, error }): Session => {
-        if (error || data === null) {
-          let message = "No user session found";
-          if (error !== null && error.message) {
-            message = error.message;
-          }
-          throw new AuthorizationError(message);
-        }
-        return data;
-      });
-  }
-);
-
-export const authenticator = new Authenticator<Session>(sessionStorage, {
-  sessionKey: supabaseStrategy.sessionKey,
-  sessionErrorKey: supabaseStrategy.sessionErrorKey,
-});
-
-authenticator.use(supabaseStrategy);
-
-export async function signUp(
+export const signUp = async (
+  supabaseClient: SupabaseClient,
   email: string,
   password: string,
-  redirectTo: string | undefined,
-  metaData: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    academicTitle: string | undefined;
-    termsAccepted: boolean;
-  }
-): Promise<{
-  user: User | null;
-  session: Session | null;
-  error: ApiError | null;
-}> {
-  const { user, session, error } = await supabaseClient.auth.signUp(
-    { email, password },
-    { data: metaData, redirectTo: redirectTo }
-  );
-  return { user, session, error };
-}
+  metaData: Pick<
+    Profile,
+    "username" | "firstName" | "lastName" | "academicTitle" | "termsAccepted"
+  >,
+  emailRedirectTo?: string
+) => {
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: metaData,
+      emailRedirectTo: emailRedirectTo,
+    },
+  });
+  return { data, error };
+};
 
-export const getSession = async (request: Request) => {
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
+export const signIn = async (
+  supabaseClient: SupabaseClient,
+  email: string,
+  password: string
+) => {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
+  return { data, error };
+};
+
+export const signOut = async (supabaseClient: SupabaseClient) => {
+  const { error } = await supabaseClient.auth.signOut();
+  return { error };
+};
+
+export const setSession = async (
+  supabaseClient: SupabaseClient,
+  accessToken: string,
+  refreshToken: string
+) => {
+  const {
+    data: { session, user },
+  } = await supabaseClient.auth.setSession({
+    refresh_token: refreshToken,
+    access_token: accessToken,
+  });
+  return { session, user };
+};
+
+export const getSession = async (supabaseClient: SupabaseClient) => {
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
   return session;
 };
 
-export const getUserByRequest = async (
-  request: Request
-): Promise<User | null> => {
-  const session = await supabaseStrategy.checkSession(request);
+export const getSessionOrThrow = async (supabaseClient: SupabaseClient) => {
+  const session = await getSession(supabaseClient);
+  if (session === null) {
+    throw unauthorized({
+      message: "No session found",
+    });
+  }
+  return session;
+};
+
+export const getSessionUser = async (supabaseClient: SupabaseClient) => {
+  const session = await getSession(supabaseClient);
   if (session !== null && session.user !== null) {
     return session.user;
   }
   return null;
 };
 
-export const getUserByRequestOrThrow = async (request: Request) => {
-  const result = await self.getUserByRequest(request);
+export const getSessionUserOrThrow = async (supabaseClient: SupabaseClient) => {
+  const result = await getSessionUser(supabaseClient);
   if (result === null) {
     throw unauthorized({
       message: "No session or session user found",
@@ -126,61 +118,55 @@ export const getUserByRequestOrThrow = async (request: Request) => {
 };
 
 export const getUserByAccessToken = async (
+  supabaseClient: SupabaseClient,
   accessToken: string
-): Promise<{
-  user: User | null;
-  data: User | null;
-  error: ApiError | null;
-}> => {
-  const { user, data, error } = await supabaseClient.auth.api.getUser(
-    accessToken
-  );
-  return { user, data, error };
+) => {
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser(accessToken);
+  return { user };
 };
 
-export async function resetPassword(
+export async function sendResetPasswordLink(
+  supabaseClient: SupabaseClient,
   email: string,
   redirectToAfterResetPassword?: string
-): Promise<{ error: ApiError | null }> {
-  const { error } = await supabaseClient.auth.api.resetPasswordForEmail(email, {
+) {
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
     redirectTo: redirectToAfterResetPassword,
   });
   return { error };
 }
 
-export async function updatePasswordByAccessToken(
-  password: string,
-  accessToken: string
-): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
-  const { user, data, error } = await supabaseClient.auth.api.updateUser(
-    accessToken,
-    {
-      password,
-    }
-  );
-  return { user, data, error };
-}
-
-export async function updatePasswordOfLoggedInUser(
+// TODO: Reset password rework see onAuthStateChanged() and resetPasswordForEmail()
+// Maybe use admin function updateUserById() -> https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid
+// https://supabase.com/docs/reference/javascript/auth-onauthstatechange
+// https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
+export async function updatePassword(
+  supabaseClient: SupabaseClient,
   password: string
-): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
-  const { user, data, error } = await supabaseClient.auth.update({
+) {
+  const { data, error } = await supabaseClient.auth.updateUser({
     password,
   });
-  return { user, data, error };
+  return { data, error };
 }
 
-export async function updateEmailOfLoggedInUser(
+export async function sendResetEmailLink(
+  supabaseClient: SupabaseClient,
   email: string
-): Promise<{ user: User | null; data: User | null; error: ApiError | null }> {
-  const { user, data, error } = await supabaseClient.auth.update({
+) {
+  const { data, error } = await supabaseClient.auth.updateUser({
     email,
   });
-  return { user, data, error };
+  return { data, error };
 }
 
-export async function deleteUserByUid(uid: string) {
+export async function deleteUserByUid(
+  supabaseClient: SupabaseClient,
+  uid: string
+) {
   await prismaClient.profile.delete({ where: { id: uid } });
-  const { error } = await supabaseAdmin.auth.api.deleteUser(uid);
+  const { error } = await supabaseClient.auth.admin.deleteUser(uid);
   return { error };
 }

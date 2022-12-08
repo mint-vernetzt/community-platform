@@ -1,5 +1,6 @@
-import { Organization, Prisma, Profile } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
+import { Prisma } from "@prisma/client";
+import type { Organization, Profile } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma";
 
@@ -7,16 +8,16 @@ type Mode = "anon" | "authenticated" | "owner";
 
 export async function deriveMode(
   event: NonNullable<Awaited<ReturnType<typeof getEvent>>>,
-  currentUser: User | null
+  sessionUser: User | null
 ): Promise<Mode> {
-  if (currentUser === null) {
+  if (sessionUser === null) {
     return "anon";
   }
 
   const relation = await prismaClient.teamMemberOfEvent.findFirst({
     where: {
       eventId: event.id,
-      profileId: currentUser.id,
+      profileId: sessionUser.id,
     },
   });
 
