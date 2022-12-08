@@ -1,5 +1,5 @@
 import { redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
+// import { createServerClient } from "@supabase/auth-helpers-remix";
 import { getSessionUser, setSession, signIn } from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
@@ -19,12 +19,9 @@ jest.mock("~/prisma", () => {
   };
 });
 
-jest.mock("@supabase/auth-helpers-remix", () => {
-  return { createServerClient: jest.fn() };
-});
-
 jest.mock("~/auth.server", () => {
   return {
+    ...jest.requireActual("~/auth.server"),
     getSessionUser: jest.fn(),
     signIn: jest.fn(),
     setSession: jest.fn(),
@@ -48,10 +45,6 @@ const actionRequestWithRedirect = createRequestWithFormData({
 });
 
 test("redirect on existing session", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (getSessionUser as jest.Mock).mockImplementationOnce(() => {
     return {
       id: "some-user-id",
@@ -69,10 +62,6 @@ test("redirect on existing session", async () => {
 });
 
 test("redirect on existing session with login redirect param", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (getSessionUser as jest.Mock).mockImplementationOnce(() => {
     return {
       id: "some-user-id",
@@ -90,10 +79,6 @@ test("redirect on existing session with login redirect param", async () => {
 });
 
 test("set new session in loader with token params", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (setSession as jest.Mock).mockImplementationOnce(() => {
     return {
       user: {
@@ -120,10 +105,6 @@ test("set new session in loader with token params", async () => {
 });
 
 test("set new session in loader with token params after sign up confirmation", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (setSession as jest.Mock).mockImplementationOnce(() => {
     return {
       user: {
@@ -148,10 +129,6 @@ test("set new session in loader with token params after sign up confirmation", a
 });
 
 test("call login action success with login redirect param", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return { error: null };
   });
@@ -166,10 +143,6 @@ test("call login action success with login redirect param", async () => {
 });
 
 test("call login action success with default redirect", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return { error: null };
   });
@@ -184,10 +157,6 @@ test("call login action success with default redirect", async () => {
 });
 
 test("call login action with wrong credentials", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return {
       error: {
@@ -222,10 +191,6 @@ test("call login action with wrong credentials", async () => {
 });
 
 test("call login action causing auth api error", async () => {
-  (createServerClient as jest.Mock).mockImplementationOnce(() => {
-    return null;
-  });
-
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return {
       error: {

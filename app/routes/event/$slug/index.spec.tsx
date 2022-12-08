@@ -8,6 +8,7 @@ const expect = global.expect as jest.Expect;
 
 jest.mock("~/auth.server", () => {
   return {
+    ...jest.requireActual("~/auth.server"),
     getSessionUser: jest.fn(),
   };
 });
