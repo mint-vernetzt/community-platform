@@ -65,13 +65,13 @@ const mutation = makeDomainFunction(
   // This automatically logs in the user
   // Throws error on invalid refreshToken, accessToken combination
   await setSession(
-    environment.supabaseClient,
+    environment.authClient,
     values.accessToken,
     values.refreshToken
   );
 
   const { error } = await updatePassword(
-    environment.supabaseClient,
+    environment.authClient,
     values.password
   );
   if (error !== null) {

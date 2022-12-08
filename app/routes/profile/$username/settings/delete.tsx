@@ -66,7 +66,7 @@ const mutation = makeDomainFunction(
     return false;
   });
   try {
-    await deleteUserByUid(environment.supabaseClient, values.userId);
+    await deleteUserByUid(environment.authClient, values.userId);
   } catch {
     throw "Das Profil konnte nicht gelöscht werden.";
   }

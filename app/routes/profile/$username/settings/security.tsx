@@ -73,7 +73,7 @@ const passwordMutation = makeDomainFunction(
   }
 
   const { error } = await updatePassword(
-    environment.supabaseClient,
+    environment.authClient,
     values.password
   );
   if (error !== null) {
@@ -95,7 +95,7 @@ const emailMutation = makeDomainFunction(
   }
 
   const { error } = await sendResetEmailLink(
-    environment.supabaseClient,
+    environment.authClient,
     values.email
   );
   if (error !== null) {

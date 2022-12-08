@@ -44,7 +44,7 @@ const mutation = makeDomainFunction(
     : undefined;
 
   const { error } = await sendResetPasswordLink(
-    environment.supabaseClient,
+    environment.authClient,
     values.email,
     emailRedirectTo
   );

@@ -67,7 +67,7 @@ const mutation = makeDomainFunction(
     : undefined;
 
   const { error } = await signUp(
-    environment.supabaseClient,
+    environment.authClient,
     values.email,
     values.password,
     {

@@ -232,7 +232,7 @@ const mutation = makeDomainFunction(
     let { logo, ...rest } = item;
 
     if (logo !== null) {
-      const publicURL = getPublicURL(environment.supabaseClient, logo);
+      const publicURL = getPublicURL(environment.authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },

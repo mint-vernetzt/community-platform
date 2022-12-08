@@ -255,7 +255,7 @@ const mutation = makeDomainFunction(
     let { avatar, ...rest } = item;
 
     if (avatar !== null) {
-      const publicURL = getPublicURL(environment.supabaseClient, avatar);
+      const publicURL = getPublicURL(environment.authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
