@@ -22,7 +22,10 @@ jest.mock("~/utils", () => {
 });
 
 jest.mock("./utils.server", () => {
-  return { createEventOnProfile: jest.fn() };
+  return {
+    ...jest.requireActual("./utils.server"),
+    createEventOnProfile: jest.fn(),
+  };
 });
 
 describe("loader", () => {
@@ -128,7 +131,6 @@ describe("action", () => {
       });
     } catch (error) {
       const response = error as Response;
-      console.log(response);
       expect(response.status).toBe(401);
 
       const json = await response.json();
