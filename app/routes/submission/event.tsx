@@ -1,9 +1,9 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
-
-import { EventFormData } from "../../lib/submissions/forms/event/eventFormData";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { cors } from "remix-utils";
+import type { EventFormData } from "../../lib/submissions/forms/event/eventFormData";
 import * as schema from "../../lib/submissions/forms/event/validation.schema.json";
 import { processSubmission } from "../../lib/submissions/process/processSubmission";
-import { cors } from "remix-utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
   return await cors(request, json(schema));

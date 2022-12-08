@@ -1,6 +1,12 @@
+import type { User } from "@supabase/supabase-js";
+import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import { getProfileByUsername } from "~/profile.server";
+import {
+  getWholeProfileFromUsername,
+  updateProfileById,
+} from "../utils.server";
 import { action, loader } from "./general";
-import { getWholeProfileFromId, updateProfileById } from "../utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
@@ -9,16 +15,21 @@ const expect = global.expect;
 const id = "1";
 const username = "sookie";
 
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
+
 jest.mock("../utils.server", () => {
   return {
-    getWholeProfileFromId: jest.fn(),
+    getWholeProfileFromUsername: jest.fn(),
     handleAuthorization: jest.fn().mockResolvedValue({ id }),
     updateProfileById: jest.fn(),
   };
 });
 
 jest.mock("~/profile.server", () => {
-  return { getAllOffers: jest.fn() };
+  return { getAllOffers: jest.fn(), getProfileByUsername: jest.fn() };
 });
 
 jest.mock("~/utils.server", () => {
@@ -29,7 +40,7 @@ jest.mock("~/utils.server", () => {
 
 describe("loader", () => {
   test("no profile found in db", async () => {
-    (getWholeProfileFromId as jest.Mock).mockImplementationOnce(() => {
+    (getWholeProfileFromUsername as jest.Mock).mockImplementationOnce(() => {
       return null;
     });
 
@@ -43,13 +54,15 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("Profile not found");
+      expect(json.message).toBe("profile not found.");
     }
   });
   test("profile found", async () => {
     const profile = { id, areas: [], offers: [], seekings: [] };
 
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce(profile);
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce(profile);
 
     const request = new Request(testURL);
     const response = await loader({
@@ -58,10 +71,12 @@ describe("loader", () => {
       params: { username },
     });
 
-    expect(response.profile).toEqual(profile);
+    const responseBody = await response.json();
+
+    expect(responseBody.profile).toEqual(profile);
   });
   test("flatten areas, offers and seekings", async () => {
-    (getWholeProfileFromId as jest.Mock).mockReturnValueOnce({
+    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce({
       id,
       areas: [{ area: { id: "area1" } }, { area: { id: "area2" } }],
       offers: [{ offer: { id: "offer1" } }],
@@ -79,9 +94,15 @@ describe("loader", () => {
       params: { username },
     });
 
-    expect(response.profile.areas).toEqual(["area1", "area2"]);
-    expect(response.profile.offers).toEqual(["offer1"]);
-    expect(response.profile.seekings).toEqual(["offer1", "offer2", "offer3"]);
+    const responseBody = await response.json();
+
+    expect(responseBody.profile.areas).toEqual(["area1", "area2"]);
+    expect(responseBody.profile.offers).toEqual(["offer1"]);
+    expect(responseBody.profile.seekings).toEqual([
+      "offer1",
+      "offer2",
+      "offer3",
+    ]);
   });
 });
 
@@ -127,6 +148,10 @@ describe("action", () => {
 
     expect.assertions(2);
 
+    (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+      return { id: "some-user-id" };
+    });
+
     try {
       await action({
         request,
@@ -149,13 +174,18 @@ describe("action", () => {
         ...otherDefaults,
       });
 
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
+
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).not.toBeUndefined();
+      expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email must be a `string` type")
       );
     });
@@ -164,13 +194,18 @@ describe("action", () => {
         ...formDefaults,
       });
 
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
+
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).not.toBeUndefined();
+      expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email is a required field")
       );
     });
@@ -180,14 +215,18 @@ describe("action", () => {
         ...formDefaults,
         email: "invalid email",
       });
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
 
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-      expect(response.errors.email).not.toBeUndefined();
-      expect(response.errors.email.message).toEqual(
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).not.toBeUndefined();
+      expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email must be a valid email")
       );
     });
@@ -199,14 +238,18 @@ describe("action", () => {
         ...formDefaults,
         email,
       });
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
 
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-      expect(response.errors.email).toBeUndefined();
-      expect(response.profile.email).toBe(email);
+      const responseBody = await response.json();
+      expect(responseBody.errors.email).toBeUndefined();
+      expect(responseBody.profile.email).toBe(email);
     });
   });
 
@@ -226,14 +269,17 @@ describe("action", () => {
         lastName,
         [listAction]: listActionItemId,
       });
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-
-      expect(response.errors).toBeNull();
-      expect(response.profile.areas).toEqual([listActionItemId]);
+      const responseBody = await response.json();
+      expect(responseBody.errors).toBeNull();
+      expect(responseBody.profile.areas).toEqual([listActionItemId]);
     });
 
     test("update profile", async () => {
@@ -248,12 +294,17 @@ describe("action", () => {
         firstName,
         lastName,
       });
+      getSessionUserOrThrow.mockResolvedValue({ id: id } as User);
+      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
+        return { id: id };
+      });
       const response = await action({
         request,
         context: {},
         params: { username },
       });
-      expect(response.errors).toBeNull();
+      const responseBody = await response.json();
+      expect(responseBody.errors).toBeNull();
       expect(updateProfileById).toHaveBeenLastCalledWith(id, {
         ...parsedDataDefaults,
         email,

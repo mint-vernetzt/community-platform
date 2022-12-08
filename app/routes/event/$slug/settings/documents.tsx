@@ -1,26 +1,21 @@
-import { useState } from "react";
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import { Form as RemixForm } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import {
-  ActionData as DeleteDocumentActionData,
-  deleteDocumentSchema,
-} from "./documents/delete-document";
-import {
-  ActionData as EditDocumentActionData,
-  editDocumentSchema,
-} from "./documents/edit-document";
-import {
-  ActionData as UploadDocumentActionData,
-  uploadDocumentSchema,
-} from "./documents/upload-document";
+import type { ActionData as DeleteDocumentActionData } from "./documents/delete-document";
+import { deleteDocumentSchema } from "./documents/delete-document";
+import type { ActionData as EditDocumentActionData } from "./documents/edit-document";
+import { editDocumentSchema } from "./documents/edit-document";
+import type { ActionData as UploadDocumentActionData } from "./documents/upload-document";
+import { uploadDocumentSchema } from "./documents/upload-document";
 import { checkOwnershipOrThrow } from "./utils.server";
 
 type LoaderData = {
@@ -28,22 +23,27 @@ type LoaderData = {
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
 
-  await checkFeatureAbilitiesOrThrow(request, "events");
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(event, currentUser);
+  await checkOwnershipOrThrow(event, sessionUser);
 
-  return {
-    userId: currentUser.id,
-    event: event,
-  };
+  return json<LoaderData>(
+    {
+      userId: sessionUser.id,
+      event: event,
+    },
+    { headers: response.headers }
+  );
 };
 
 function closeModal(id: string) {

@@ -1,26 +1,31 @@
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUser } from "~/auth.server";
 
 export async function getFeatureAbilities(
-  request: Request,
+  supabaseClient: SupabaseClient,
   featureNameOrNames: string | string[]
 ) {
-  const result = await validateFeatureAccess(request, featureNameOrNames, {
-    throw: false,
-  });
+  const result = await validateFeatureAccess(
+    supabaseClient,
+    featureNameOrNames,
+    {
+      throw: false,
+    }
+  );
   return result.abilities;
 }
 
 export async function checkFeatureAbilitiesOrThrow(
-  request: Request,
+  supabaseClient: SupabaseClient,
   featureName: string
 ) {
-  const result = await validateFeatureAccess(request, featureName);
+  const result = await validateFeatureAccess(supabaseClient, featureName);
   return result.abilities;
 }
 
 export async function validateFeatureAccess(
-  request: Request,
+  supabaseClient: SupabaseClient,
   featureNameOrNames: string | string[],
   options: {
     throw: boolean;
@@ -90,7 +95,7 @@ export async function validateFeatureAccess(
     const userIdList = userIds
       .split(",")
       .map((value) => value.trimStart().trimEnd()); // remove whitespace
-    const user = await getUserByRequest(request);
+    const user = await getSessionUser(supabaseClient);
 
     if (user === null || userIdList.indexOf(user.id) === -1) {
       for (const featureName of featureNames) {

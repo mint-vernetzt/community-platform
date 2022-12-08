@@ -1,6 +1,7 @@
 import { badRequest } from "remix-utils";
-import { Asserts, InferType, string, StringSchema, ValidationError } from "yup";
-import { AnyObject, OptionalObjectSchema } from "yup/lib/object";
+import { string, ValidationError } from "yup";
+import type { Asserts, InferType, StringSchema } from "yup";
+import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 
 type Error = {
   type: string;

@@ -1,9 +1,10 @@
 import { redirect } from "@remix-run/node";
-import { getUserByRequest } from "~/auth.server";
+import type { User } from "@supabase/supabase-js";
+import * as crypto from "crypto";
+import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
-import * as crypto from "crypto";
 import { createEventOnProfile } from "./utils.server";
 
 // @ts-ignore
@@ -11,16 +12,20 @@ const expect = global.expect as jest.Expect;
 
 const path = "/event/create";
 
-jest.mock("~/auth.server", () => {
-  return { getUserByRequest: jest.fn() };
-});
+const getSessionUserOrThrow = jest.spyOn(
+  authServerModule,
+  "getSessionUserOrThrow"
+);
 
 jest.mock("~/utils", () => {
   return { generateEventSlug: jest.fn() };
 });
 
 jest.mock("./utils.server", () => {
-  return { createEventOnProfile: jest.fn() };
+  return {
+    ...jest.requireActual("./utils.server"),
+    createEventOnProfile: jest.fn(),
+  };
 });
 
 describe("loader", () => {
@@ -31,60 +36,58 @@ describe("loader", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return null;
-    });
-
     try {
       await loader({ request: new Request(testURL), params: {}, context: {} });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("No session or session user found");
     }
   });
 
   test("logged in user", async () => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
-    const result = await loader({
+    const response = await loader({
       request: new Request(url),
       params: {},
       context: {},
     });
-    expect(result.id).toBe("some-user-id");
+    const responseBody = await response.json();
+    expect(responseBody.id).toBe("some-user-id");
   });
 
   test("search parameters", async () => {
-    (getUserByRequest as jest.Mock).mockImplementation(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const url = `https://someurl.io${path}`;
 
-    const resultWithoutParameters = await loader({
+    const responseWithoutParameters = await loader({
       request: new Request(url),
       params: {},
       context: {},
     });
-    expect(resultWithoutParameters.child).toBe("");
-    expect(resultWithoutParameters.parent).toBe("");
+    const responseWithoutParametersBody =
+      await responseWithoutParameters.json();
+    expect(responseWithoutParametersBody.child).toBe("");
+    expect(responseWithoutParametersBody.parent).toBe("");
 
-    const resultWithParameters = await loader({
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    const responseWithParameters = await loader({
       request: new Request(
         `${url}?child=child-event-id&parent=parent-event-id`
       ),
       params: {},
       context: {},
     });
-    expect(resultWithParameters.child).toBe("child-event-id");
-    expect(resultWithParameters.parent).toBe("parent-event-id");
+    const responseWithParametersBody = await responseWithParameters.json();
+    expect(responseWithParametersBody.child).toBe("child-event-id");
+    expect(responseWithParametersBody.parent).toBe("parent-event-id");
   });
 
   afterAll(() => {
@@ -100,10 +103,6 @@ describe("action", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return null;
-    });
-
     try {
       await action({
         request: createRequestWithFormData({}),
@@ -112,67 +111,64 @@ describe("action", () => {
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("No session or session user found");
     }
   });
 
   test("other user id", async () => {
     expect.assertions(2);
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     try {
       await action({
-        request: createRequestWithFormData({ id: "another-user-id" }),
+        request: createRequestWithFormData({ userId: "another-user-id" }),
         context: {},
         params: {},
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
 
       const json = await response.json();
-      expect(json.message).toBe("Not allowed");
+      expect(json.message).toBe("Identity check failed");
     }
   });
 
   test("no values", async () => {
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     const request = createRequestWithFormData({
-      id: "some-user-id",
+      userId: "some-user-id",
       name: "",
       startDate: "",
     });
 
     const response = await action({ request, context: {}, params: {} });
-    expect(response.data.id).toBe("some-user-id");
-    expect(response.errors).toBeDefined();
-    expect(response.errors).not.toBeNull();
-    expect(response.errors.name.message).toBe("Please add event name");
-    expect(response.errors.startDate.message).toBe("Please add a start date");
+    const responseBody = await response.json();
+    expect(responseBody.data.userId).toBe("some-user-id");
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.name.message).toBe("Please add event name");
+    expect(responseBody.errors.startDate.message).toBe(
+      "Please add a start date"
+    );
   });
 
   test("required fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
     });
@@ -199,16 +195,14 @@ describe("action", () => {
   test("all fields", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
       startTime: "09:00",
@@ -239,16 +233,14 @@ describe("action", () => {
   test("all fields with relations", async () => {
     const uuid = crypto.randomUUID();
 
-    (getUserByRequest as jest.Mock).mockImplementationOnce(() => {
-      return { id: uuid };
-    });
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
     });
 
     const request = createRequestWithFormData({
-      id: uuid,
+      userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
       startTime: "09:00",

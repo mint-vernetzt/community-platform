@@ -1,11 +1,16 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+import { testURL } from "~/lib/utils/tests";
 
 const test = it;
 
 describe("reset password", () => {
-  const supabaseClient = createClient(
+  const request = new Request(testURL);
+  const response = new Response();
+
+  const supabaseClient = createServerClient(
     Cypress.env("SUPABASE_URL"),
-    Cypress.env("SERVICE_ROLE_KEY")
+    Cypress.env("SERVICE_ROLE_KEY"),
+    { request, response }
   );
 
   let uid: string | undefined;
@@ -18,7 +23,10 @@ describe("reset password", () => {
     const termsAccepted = "on";
     const username = "peterhollo";
 
-    const { user, error } = await supabaseClient.auth.api.createUser({
+    const {
+      data: { user },
+      error,
+    } = await supabaseClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -44,7 +52,7 @@ describe("reset password", () => {
   after(async () => {
     if (uid !== undefined) {
       await supabaseClient.from("profiles").delete().match({ id: uid });
-      await supabaseClient.auth.api.deleteUser(uid);
+      await supabaseClient.auth.admin.deleteUser(uid);
     }
   });
 });

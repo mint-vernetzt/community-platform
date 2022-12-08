@@ -1,8 +1,8 @@
-import { Organization } from "@prisma/client";
-import { DataFunctionArgs } from "@remix-run/server-runtime";
+import type { Organization } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { getSessionUserOrThrow } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
@@ -305,7 +305,10 @@ export async function getMembers(organizationId: string) {
   return result;
 }
 
-export async function getMembersOfOrganization(organizationId: string) {
+export async function getMembersOfOrganization(
+  supabaseClient: SupabaseClient,
+  organizationId: string
+) {
   const members = await prismaClient.memberOfOrganization.findMany({
     select: {
       isPrivileged: true,
@@ -333,7 +336,7 @@ export async function getMembersOfOrganization(organizationId: string) {
 
   const enhancedMembers = members.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(item.profile.avatar);
+      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -363,7 +366,10 @@ export function getTeamMemberProfileDataFromOrganization(
   return profileData;
 }
 
-export async function getNetworkMembersOfOrganization(organizationId: string) {
+export async function getNetworkMembersOfOrganization(
+  supabaseClient: SupabaseClient,
+  organizationId: string
+) {
   const networkMembers = await prismaClient.memberOfNetwork.findMany({
     select: {
       networkId: true,
@@ -397,7 +403,7 @@ export async function getNetworkMembersOfOrganization(organizationId: string) {
 
   const enhancedNetworkMembers = networkMembers.map((item) => {
     if (item.networkMember.logo !== null) {
-      const publicURL = getPublicURL(item.networkMember.logo);
+      const publicURL = getPublicURL(supabaseClient, item.networkMember.logo);
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
@@ -415,19 +421,15 @@ export async function getNetworkMembersOfOrganization(organizationId: string) {
   return enhancedNetworkMembers;
 }
 
-export async function handleAuthorization(args: DataFunctionArgs) {
-  const { params, request } = args;
-  const { slug } = params;
-
+export async function handleAuthorization(
+  supabaseClient: SupabaseClient,
+  slug: string
+) {
   if (slug === undefined) {
     throw badRequest({ message: "Organization slug missing" });
   }
 
-  const currentUser = await getUserByRequest(request);
-
-  if (currentUser === null) {
-    throw forbidden({ message: "forbidden" });
-  }
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
   const organization = await getOrganizationIdBySlug(slug);
   if (organization === null) {
@@ -437,7 +439,7 @@ export async function handleAuthorization(args: DataFunctionArgs) {
   }
 
   const isAllowedToModify = await allowedToModify(
-    currentUser.id,
+    sessionUser.id,
     organization.id
   );
 
@@ -446,7 +448,7 @@ export async function handleAuthorization(args: DataFunctionArgs) {
   }
 
   return {
-    currentUser,
+    sessionUser,
     isAllowedToModify,
     organization,
     slug,

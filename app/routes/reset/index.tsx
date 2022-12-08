@@ -1,54 +1,52 @@
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
-import { resetPassword } from "../../auth.server";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useActionData, useSearchParams } from "@remix-run/react";
+import { makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
+import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
+import { createAuthClient, sendResetPasswordLink } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import {
-  Form as RemixForm,
-  PerformMutation,
-  performMutation,
-} from "remix-forms";
-import { Schema, z } from "zod";
-import { makeDomainFunction } from "remix-domains";
 
 const schema = z.object({
   email: z
     .string()
     .email("Bitte gib eine gültige E-Mail-Adresse ein.")
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
-  redirectToAfterResetPassword: z.string().optional(),
+  loginRedirect: z.string().optional(),
 });
 
-type LoaderData = {
-  redirectToAfterResetPassword: string | null;
-  loginRedirect?: string;
-};
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+  siteUrl: z.string(),
+});
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request } = args;
-  const url = new URL(request.url);
-  const redirectToAfterResetPassword = url.searchParams.get("redirect_to");
-  let loginRedirect;
-  if (redirectToAfterResetPassword !== null) {
-    const redirectURL = new URL(redirectToAfterResetPassword);
-    const redirectAfterRedirect = redirectURL.searchParams.get("redirect_to");
-    if (redirectAfterRedirect !== null) {
-      const redirectAfterRedirectURL = new URL(redirectAfterRedirect);
-      const eventSlug = redirectAfterRedirectURL.searchParams.get("event_slug");
-      if (eventSlug !== null) {
-        loginRedirect = `/login?event_slug=${eventSlug}`;
-      }
-    }
-  }
+  const response = new Response();
 
-  return { redirectToAfterResetPassword, loginRedirect };
+  createAuthClient(request, response);
+
+  return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { error } = await resetPassword(
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  // Passing through a possible redirect after login (e.g. to an event)
+  const emailRedirectTo = values.loginRedirect
+    ? environment.siteUrl + values.loginRedirect
+    : undefined;
+
+  const { error } = await sendResetPasswordLink(
+    environment.authClient,
     values.email,
-    values.redirectToAfterResetPassword
+    emailRedirectTo
   );
 
   if (error !== null && error.message !== "User not found") {
@@ -61,17 +59,27 @@ type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  return await performMutation({
+  const authClient = createAuthClient(request, response);
+
+  const url = new URL(request.url);
+  const siteUrl = url.protocol + "//" + url.host + "/?login_redirect=";
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { authClient: authClient, siteUrl: siteUrl },
   });
+
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
   const actionData = useActionData<ActionData>();
-  const loaderData = useLoaderData<LoaderData>();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
 
   return (
     <>
@@ -83,12 +91,14 @@ export default function Index() {
               <HeaderLogo />
             </div>
             <div className="ml-auto">
-              <a
-                href={loaderData.loginRedirect || "/login"}
+              <Link
+                to={`/login${
+                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                }`}
                 className="text-primary font-bold"
               >
                 Anmelden
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -112,10 +122,9 @@ export default function Index() {
               <RemixForm
                 method="post"
                 schema={schema}
-                hiddenFields={["redirectToAfterResetPassword"]}
+                hiddenFields={["loginRedirect"]}
                 values={{
-                  redirectToAfterResetPassword:
-                    loaderData.redirectToAfterResetPassword,
+                  loginRedirect: loginRedirect || undefined,
                 }}
               >
                 {({ Field, Button, Errors, register }) => (
@@ -127,7 +136,7 @@ export default function Index() {
                       Passwort einstellen kannst.
                     </p>
 
-                    <Field name="redirectToAfterResetPassword" />
+                    <Field name="loginRedirect" />
                     <div className="mb-8">
                       <Field name="email" label="E-Mail">
                         {({ Errors }) => (

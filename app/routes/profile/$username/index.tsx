@@ -1,19 +1,20 @@
-import { Profile } from "@prisma/client";
+import type { Profile } from "@prisma/client";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { badRequest, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { notFound } from "remix-utils";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
-import { ExternalService } from "~/components/types";
+import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -24,15 +25,16 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { getProfileByUsername } from "~/profile.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
+import type { Mode } from "./utils.server";
 import {
   deriveMode,
   filterProfileByMode,
-  Mode,
   prepareProfileEvents,
 } from "./utils.server";
 
@@ -43,7 +45,7 @@ export function links() {
   ];
 }
 
-type ProfileLoaderData = {
+type LoaderData = {
   mode: Mode;
   data: NonNullable<Awaited<ReturnType<typeof filterProfileByMode>>>;
   images: {
@@ -57,24 +59,25 @@ type ProfileLoaderData = {
   userEmail?: string;
 };
 
-export const loader: LoaderFunction = async (
-  args
-): Promise<Response | ProfileLoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
-  const { username } = params;
+  const response = new Response();
 
-  if (typeof username !== "string" || username === "") {
-    throw badRequest({ message: "Username must be provided" });
-  }
+  const authClient = createAuthClient(request, response);
+
+  const username = getParamValueOrThrow(params, "username");
 
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }
 
-  const sessionUser = await getUserByRequest(request);
-  const mode = deriveMode(username, sessionUser?.user_metadata?.username);
-  const abilities = await getFeatureAbilities(request, ["events", "projects"]);
+  const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(profile.id, sessionUser);
+  const abilities = await getFeatureAbilities(authClient, [
+    "events",
+    "projects",
+  ]);
 
   let data = await filterProfileByMode(profile, mode);
 
@@ -84,7 +87,7 @@ export const loader: LoaderFunction = async (
   } = {};
 
   if (profile.avatar !== null) {
-    const publicURL = getPublicURL(profile.avatar);
+    const publicURL = getPublicURL(authClient, profile.avatar);
     if (publicURL !== null) {
       images.avatar = getImageURL(publicURL, {
         resize: { type: "fill", width: 144, height: 144 },
@@ -92,7 +95,7 @@ export const loader: LoaderFunction = async (
     }
   }
   if (profile.background !== null) {
-    const publicURL = getPublicURL(profile.background);
+    const publicURL = getPublicURL(authClient, profile.background);
     if (publicURL !== null) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -101,7 +104,7 @@ export const loader: LoaderFunction = async (
   }
   profile.memberOf = profile.memberOf.map((relation) => {
     if (relation.organization.logo !== null) {
-      const publicURL = getPublicURL(relation.organization.logo);
+      const publicURL = getPublicURL(authClient, relation.organization.logo);
       if (publicURL !== null) {
         relation.organization.logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
@@ -114,7 +117,7 @@ export const loader: LoaderFunction = async (
   profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
     (relation) => {
       if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(relation.project.logo);
+        const publicURL = getPublicURL(authClient, relation.project.logo);
         if (publicURL !== null) {
           relation.project.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
@@ -124,7 +127,7 @@ export const loader: LoaderFunction = async (
       }
       relation.project.awards = relation.project.awards.map((relation) => {
         if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(relation.award.logo);
+          const publicURL = getPublicURL(authClient, relation.award.logo);
           if (publicURL !== null) {
             relation.award.logo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
@@ -141,28 +144,33 @@ export const loader: LoaderFunction = async (
 
   const inFuture = true;
   const profileFutureEvents = await prepareProfileEvents(
+    authClient,
     username,
     mode,
     sessionUser,
     inFuture
   );
   const profilePastEvents = await prepareProfileEvents(
+    authClient,
     username,
     mode,
     sessionUser,
     !inFuture
   );
 
-  return json({
-    mode,
-    data,
-    images,
-    abilities,
-    futureEvents: profileFutureEvents,
-    pastEvents: profilePastEvents,
-    userId: sessionUser?.id,
-    userEmail: sessionUser?.email,
-  });
+  return json<LoaderData>(
+    {
+      mode,
+      data,
+      images,
+      abilities,
+      futureEvents: profileFutureEvents,
+      pastEvents: profilePastEvents,
+      userId: sessionUser?.id,
+      userEmail: sessionUser?.email,
+    },
+    { headers: response.headers }
+  );
 };
 
 function hasContactInformations(data: Partial<Profile>) {
@@ -195,7 +203,7 @@ function hasWebsiteOrSocialService(
 }
 
 function canViewEvents(
-  events: ProfileLoaderData["futureEvents"] | ProfileLoaderData["pastEvents"]
+  events: LoaderData["futureEvents"] | LoaderData["pastEvents"]
 ) {
   return (
     events.teamMemberOfEvents.length > 0 ||
@@ -206,7 +214,7 @@ function canViewEvents(
 }
 
 export default function Index() {
-  const loaderData = useLoaderData<ProfileLoaderData>();
+  const loaderData = useLoaderData<LoaderData>();
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -872,7 +880,7 @@ export default function Index() {
                                     <div className="flex items-center ml-auto pr-4 py-6">
                                       <Link
                                         className="btn btn-primary"
-                                        to={`/login?event_slug=${event.slug}`}
+                                        to={`/login?login_redirect=/event/${event.slug}`}
                                       >
                                         Anmelden
                                       </Link>
@@ -1023,7 +1031,7 @@ export default function Index() {
                                     <div className="flex items-center ml-auto pr-4 py-6">
                                       <Link
                                         className="btn btn-primary"
-                                        to={`/login?event_slug=${event.slug}`}
+                                        to={`/login?login_redirect=/event/${event.slug}`}
                                       >
                                         Anmelden
                                       </Link>

@@ -1,12 +1,13 @@
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
-import { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
 import { badRequest, forbidden, notFound } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { getImageURL } from "~/images.server";
@@ -25,6 +26,7 @@ import { AddParticipantButton } from "./settings/participants/add-participant";
 import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/participants/remove-from-waiting-list";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
+import type { MaybeEnhancedEvent } from "./utils.server";
 import {
   deriveMode,
   enhanceChildEventsWithParticipationStatus,
@@ -37,7 +39,6 @@ import {
   getIsParticipant,
   getIsSpeaker,
   getIsTeamMember,
-  MaybeEnhancedEvent,
 } from "./utils.server";
 
 export function links() {
@@ -69,23 +70,25 @@ export const meta: MetaFunction = (args) => {
   };
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
   const { slug } = params;
-  const abilities = await getFeatureAbilities(request, "events");
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const abilities = await getFeatureAbilities(authClient, "events");
 
   if (slug === undefined || typeof slug !== "string") {
     throw badRequest({ message: '"slug" missing' });
   }
 
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(authClient);
   const event = await getEvent(slug);
 
   if (event === null) {
     throw notFound({ message: `Event not found` });
   }
 
-  const mode = await deriveMode(event, currentUser);
+  const mode = await deriveMode(event, sessionUser);
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
@@ -111,7 +114,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   speakers = speakers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -127,7 +130,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -139,7 +142,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     return item;
   });
 
-  if (mode !== "anon" && currentUser !== null) {
+  if (mode !== "anon" && sessionUser !== null) {
     if (event.childEvents.length > 0) {
       participants = (await getFullDepthParticipants(event.id)) || [];
     } else {
@@ -148,7 +151,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
     participants = participants.map((item) => {
       if (item.profile.avatar !== null) {
-        const publicURL = getPublicURL(item.profile.avatar);
+        const publicURL = getPublicURL(authClient, item.profile.avatar);
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -164,7 +167,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
     if (mode === "authenticated") {
       enhancedEvent = await enhanceChildEventsWithParticipationStatus(
-        currentUser.id,
+        sessionUser.id,
         enhancedEvent
       );
     }
@@ -175,18 +178,18 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   let isSpeaker;
   let isTeamMember;
 
-  if (currentUser !== null) {
-    isParticipant = await getIsParticipant(enhancedEvent.id, currentUser.id);
+  if (sessionUser !== null) {
+    isParticipant = await getIsParticipant(enhancedEvent.id, sessionUser.id);
     isOnWaitingList = await getIsOnWaitingList(
       enhancedEvent.id,
-      currentUser.id
+      sessionUser.id
     );
-    isSpeaker = await getIsSpeaker(enhancedEvent.id, currentUser.id);
-    isTeamMember = await getIsTeamMember(enhancedEvent.id, currentUser.id);
+    isSpeaker = await getIsSpeaker(enhancedEvent.id, sessionUser.id);
+    isTeamMember = await getIsTeamMember(enhancedEvent.id, sessionUser.id);
   }
 
   if (enhancedEvent.background !== null) {
-    const publicURL = getPublicURL(enhancedEvent.background);
+    const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -202,7 +205,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
 
   enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
     if (item.background !== null) {
-      const publicURL = getPublicURL(item.background);
+      const publicURL = getPublicURL(authClient, item.background);
       if (publicURL) {
         item.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 160, height: 160 },
@@ -215,7 +218,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   enhancedEvent.responsibleOrganizations =
     enhancedEvent.responsibleOrganizations.map((item) => {
       if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(item.organization.logo);
+        const publicURL = getPublicURL(authClient, item.organization.logo);
         if (publicURL) {
           item.organization.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 144, height: 144 },
@@ -245,17 +248,20 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     }
   }
 
-  return {
-    mode,
-    event: enhancedEvent,
-    userId: currentUser?.id || undefined,
-    email: currentUser?.email || undefined,
-    isParticipant,
-    isOnWaitingList,
-    isSpeaker,
-    isTeamMember,
-    abilities,
-  };
+  return json<LoaderData>(
+    {
+      mode,
+      event: enhancedEvent,
+      userId: sessionUser?.id || undefined,
+      email: sessionUser?.email || undefined,
+      isParticipant,
+      isOnWaitingList,
+      isSpeaker,
+      isTeamMember,
+      abilities,
+    },
+    { headers: response.headers }
+  );
 };
 
 function getForm(loaderData: LoaderData) {
@@ -501,7 +507,7 @@ function Index() {
                       <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
                         <Link
                           className="btn btn-primary"
-                          to={`/login?event_slug=${loaderData.event.slug}`}
+                          to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                         >
                           Anmelden um teilzunehmen
                         </Link>
@@ -1024,7 +1030,7 @@ function Index() {
                             <div className="flex items-center ml-auto pr-4 py-6">
                               <Link
                                 className="btn btn-primary"
-                                to={`/login?event_slug=${event.slug}`}
+                                to={`/login?login_redirect=/event/${event.slug}`}
                               >
                                 Anmelden
                               </Link>

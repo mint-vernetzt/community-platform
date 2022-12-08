@@ -1,15 +1,18 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Link, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, FormProps, performMutation } from "remix-forms";
-import { SomeZodObject, z } from "zod";
+import type { FormProps, PerformMutation } from "remix-forms";
+import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema, SomeZodObject } from "zod";
+import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { updateProfileByUserId } from "~/profile.server";
+import { getProfileByUserId } from "~/profile.server";
 import {
-  authenticator,
-  getUserByAccessToken,
-  sessionStorage,
-  supabaseStrategy,
+  createAuthClient,
+  getSessionUser,
+  setSession,
+  signIn,
 } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -23,117 +26,125 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  loginSuccessRedirect: z.string().optional(),
-  loginFailureRedirect: z.string().optional(),
+  loginRedirect: z.string().optional(),
+});
+
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
 
-const defaultRedirect = {
-  loginSuccessRedirect: "/",
-  loginFailureRedirect: "/login",
-};
-
-type LoaderData = {
-  error: Error | null;
-  loginSuccessRedirect?: string;
-  loginFailureRedirect?: string;
-  registerRedirect: string;
-  resetPasswordRedirect: string;
-};
-
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
   const url = new URL(request.url);
-  const type = url.searchParams.get("type");
-  const accessToken = url.searchParams.get("access_token");
-  if (accessToken !== null && type === "email_change") {
-    const { user, error } = await getUserByAccessToken(accessToken);
-    if (error !== null) {
-      throw error;
-    }
-    if (user !== null && user.email !== undefined) {
-      const profile = await updateProfileByUserId(user.id, {
-        email: user.email,
-      });
-      await supabaseStrategy.checkSession(request, {
-        successRedirect: `/profile/${profile.username}`,
+  const urlSearchParams = new URLSearchParams(url.searchParams);
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const accessToken = urlSearchParams.get("access_token");
+  const refreshToken = urlSearchParams.get("refresh_token");
+  const type = urlSearchParams.get("type");
+
+  if (accessToken !== null && refreshToken !== null) {
+    // This automatically logs in the user
+    // Throws error on invalid refreshToken, accessToken combination
+    const { user: sessionUser } = await setSession(
+      authClient,
+      accessToken,
+      refreshToken
+    );
+    if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
+      // Default redirect to profile of sessionUser after sign up confirmation
+      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+      return redirect(`/profile/${profile.username}`, {
+        headers: response.headers,
       });
     }
   }
-  let loginSuccessRedirect;
-  let loginFailureRedirect;
-  const eventSlug = url.searchParams.get("event_slug");
-  if (eventSlug !== null) {
-    loginSuccessRedirect = `/event/${eventSlug}`;
-    loginFailureRedirect = `/login?event_slug=${eventSlug}`;
+
+  const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    if (loginRedirect !== null) {
+      return redirect(loginRedirect, { headers: response.headers });
+    } else {
+      return redirect("/explore", { headers: response.headers });
+    }
   }
-  const registerRedirect = `/register?redirect_to=${request.url}`;
-  const absoluteSetPasswordURL =
-    url.protocol +
-    "//" +
-    url.host +
-    `/reset/set-password?redirect_to=${request.url}`;
-  const resetPasswordRedirect = `/reset?redirect_to=${absoluteSetPasswordURL}`;
 
-  await supabaseStrategy.checkSession(request, {
-    successRedirect: "/explore",
-  });
-
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
-
-  const error = session.get(authenticator.sessionErrorKey);
-
-  return json<LoaderData>({
-    error,
-    loginSuccessRedirect,
-    loginFailureRedirect,
-    registerRedirect,
-    resetPasswordRedirect,
-  });
+  return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => values);
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { error } = await signIn(
+    environment.authClient,
+    values.email,
+    values.password
+  );
 
-export const action: ActionFunction = async (args) => {
-  const request = args.request.clone();
+  if (error !== null) {
+    if (error.message === "Invalid login credentials") {
+      throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
+    } else {
+      throw error.message;
+    }
+  }
+
+  return { values };
+});
+
+export type ActionData = PerformMutation<
+  z.infer<Schema>,
+  z.infer<typeof schema>
+>;
+
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
 
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { authClient: authClient },
   });
 
   if (result.success) {
-    await authenticator.authenticate("sb", request, {
-      successRedirect:
-        result.data.loginSuccessRedirect ||
-        defaultRedirect.loginSuccessRedirect,
-      failureRedirect:
-        result.data.loginFailureRedirect ||
-        defaultRedirect.loginFailureRedirect,
-    });
+    if (result.data.values.loginRedirect) {
+      return redirect(result.data.values.loginRedirect, {
+        headers: response.headers,
+      });
+    } else {
+      // Default redirect after login
+      return redirect("/explore", { headers: response.headers });
+    }
   }
 
-  return null;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
 
   return (
     <LoginForm
       method="post"
       schema={schema}
-      hiddenFields={["loginSuccessRedirect", "loginFailureRedirect"]}
+      hiddenFields={["loginRedirect"]}
       values={{
-        loginSuccessRedirect: loaderData.loginSuccessRedirect,
-        loginFailureRedirect: loaderData.loginFailureRedirect,
+        loginRedirect: loginRedirect || undefined,
       }}
     >
       {({ Field, Button, Errors, register }) => (
@@ -147,12 +158,14 @@ export default function Index() {
                 </div>
                 <div className="ml-auto">
                   Noch kein Mitglied?{" "}
-                  <a
-                    href={loaderData.registerRedirect}
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
                     className="text-primary font-bold"
                   >
                     Registrieren
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -160,12 +173,9 @@ export default function Index() {
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Anmelden</h1>
-                {loaderData.error && (
-                  <div className="alert-error p-3 mb-3 text-white">
-                    Deine Anmeldedaten (E-Mail oder Passwort) sind nicht
-                    korrekt. Bitte überprüfe Deine Eingaben.
-                  </div>
-                )}
+
+                <Errors className="alert-error p-3 mb-3 text-white" />
+
                 <div className="mb-4">
                   <Field name="email" label="E-Mail">
                     {({ Errors }) => (
@@ -194,8 +204,8 @@ export default function Index() {
                     )}
                   </Field>
                 </div>
-                <Field name="loginSuccessRedirect" />
-                <Field name="loginFailureRedirect" />
+
+                <Field name="loginRedirect" />
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
@@ -203,12 +213,14 @@ export default function Index() {
                     </button>
                   </div>
                   <div className="basis-6/12 px-4 text-right">
-                    <a
-                      href={loaderData.resetPasswordRedirect}
+                    <Link
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
                       className="text-primary font-bold"
                     >
                       Passwort vergessen?
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

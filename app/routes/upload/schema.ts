@@ -15,5 +15,6 @@ export const schema = z.object({
 });
 
 export const environment = z.object({
-  request: z.instanceof(Request),
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
 });

@@ -1,7 +1,7 @@
-import type { User } from "@supabase/supabase-js";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import {
   deriveMode as deriveEventMode,
@@ -22,13 +22,17 @@ import {
 } from "./uploadHandler.server";
 
 export const loader: LoaderFunction = ({ request }) => {
+  const response = new Response();
+
+  createAuthClient(request, response);
+
   if (request.method !== "POST") {
     throw badRequest({
       message: `I'm a teapot. This endpoint is only for method POST uploads`,
     });
   }
 
-  return null;
+  return response;
 };
 
 async function handleAuth(
@@ -75,13 +79,14 @@ async function handleAuth(
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const sessionUser = await getUserByRequest(request);
-  if (!sessionUser?.id) {
-    throw serverError({ message: "You must be logged in." });
-  }
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
 
-  const formData = await upload(request, "images");
+  const formData = await upload(authClient, request, "images");
 
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
@@ -133,5 +138,5 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  return null;
+  return response;
 };

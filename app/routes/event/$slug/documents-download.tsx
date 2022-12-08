@@ -1,6 +1,6 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getDocumentById } from "~/document.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
@@ -10,11 +10,13 @@ type LoaderData = Response;
 
 export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const { request, params } = args;
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
 
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, currentUser);
+  const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });
@@ -36,6 +38,11 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     documents = [document];
   }
   const zipFilename = `${event.name}_Dokumente.zip`;
-  const response = getDownloadDocumentsResponse(documents, zipFilename);
-  return response;
+  const documentResponse = getDownloadDocumentsResponse(
+    authClient,
+    response.headers,
+    documents,
+    zipFilename
+  );
+  return documentResponse;
 };

@@ -1,8 +1,11 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import { formAction } from "remix-forms";
+import type { PerformMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import { getUserByRequest } from "~/auth.server";
+import type { Schema, z } from "zod";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
@@ -15,15 +18,12 @@ import { environment, schema } from "./schema";
 const mutation = makeDomainFunction(
   schema,
   environment
-)(async (values, { request }) => {
+)(async (values, { supabaseClient }) => {
   const { subject, slug, uploadKey } = values;
 
   let success = true;
 
-  const sessionUser = await getUserByRequest(request);
-  if (!sessionUser?.id) {
-    throw serverError({ message: "You must be logged in." });
-  }
+  const sessionUser = await getSessionUserOrThrow(supabaseClient);
 
   try {
     if (subject === "user") {
@@ -63,17 +63,28 @@ const mutation = makeDomainFunction(
   return { success };
 });
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.clone().formData();
-  const redirect = formData.get("redirect")?.toString();
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
-  return formAction({
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const formData = await request.clone().formData();
+  const redirectUrl = formData.get("redirect")?.toString();
+
+  const result = await performMutation({
     request,
     schema,
     mutation,
     environment: {
-      request: request,
+      authClient: authClient,
     },
-    successPath: redirect,
   });
+
+  if (result.success && redirectUrl !== undefined) {
+    return redirect(redirectUrl, { headers: response.headers });
+  }
+
+  // TODO: fix type issue or let it be fixed by aligning with upload documents
+  return json<ActionData>(result, { headers: response.headers });
 };

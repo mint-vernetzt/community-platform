@@ -1,15 +1,16 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect,
-} from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
+import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
+import type { Schema } from "zod";
 import { z } from "zod";
-import { getURLSearchParameterFromURLHash } from "~/lib/utils/url";
-import { updatePasswordByAccessToken } from "../../auth.server";
+import {
+  createAuthClient,
+  setSession,
+  updatePassword,
+} from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -27,34 +28,51 @@ const schema = z.object({
       1,
       "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
     ),
-  redirectToAfterSetPassword: z.string().optional(),
+  refreshToken: z
+    .string()
+    .min(
+      1,
+      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
+    ),
+  loginRedirect: z.string().optional(),
 });
 
-type LoaderData = {
-  accessToken: string | null;
-  redirectToAfterSetPassword: string | null;
-};
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
+  const response = new Response();
 
-  const url = new URL(request.url);
-  const accessToken = url.searchParams.get("access_token");
-  const redirectToAfterSetPassword = url.searchParams.get("redirect_to");
+  createAuthClient(request, response);
 
-  return json<LoaderData>({ accessToken, redirectToAfterSetPassword });
+  return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   if (values.password !== values.confirmPassword) {
     throw new InputError(
       "Deine Passwörter stimmen nicht überein.",
       "confirmPassword"
     ); // -- Field error
   }
-  const { error } = await updatePasswordByAccessToken(
-    values.password,
-    values.accessToken
+
+  // This automatically logs in the user
+  // Throws error on invalid refreshToken, accessToken combination
+  await setSession(
+    environment.authClient,
+    values.accessToken,
+    values.refreshToken
+  );
+
+  const { error } = await updatePassword(
+    environment.authClient,
+    values.password
   );
   if (error !== null) {
     throw error.message;
@@ -62,48 +80,33 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-// TODO: Make generic actionData type to reuse in other routes
-type ActionData = {
-  errors: Record<keyof z.infer<typeof schema>, string[]>;
-  values: z.infer<typeof schema>;
-};
+type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
 
 export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { authClient: authClient },
   });
 
   if (result.success) {
-    return redirect(result.data.redirectToAfterSetPassword || "/login");
+    return redirect(result.data.loginRedirect || "/explore", {
+      headers: response.headers,
+    });
   }
 
-  return result;
+  return json<ActionData>(result, { headers: response.headers });
 };
 
-export function getAccessToken(
-  urlSearchParameter: URLSearchParams | null,
-  actionData?: ActionData
-) {
-  if (urlSearchParameter !== null) {
-    const accessToken = urlSearchParameter.get("access_token");
-    if (accessToken !== null) {
-      return accessToken;
-    }
-  }
-  if (actionData !== undefined && actionData.values !== undefined) {
-    return actionData.values.accessToken;
-  }
-  return "";
-}
-
 export default function SetPassword() {
-  const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData<ActionData>();
-
-  const urlSearchParameter = getURLSearchParameterFromURLHash();
-  const accessToken = getAccessToken(urlSearchParameter, actionData);
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const accessToken = urlSearchParams.get("access_token");
+  const refreshToken = urlSearchParams.get("refresh_token");
 
   return (
     <>
@@ -120,9 +123,11 @@ export default function SetPassword() {
         <RemixForm
           method="post"
           schema={schema}
-          hiddenFields={["redirectToAfterSetPassword"]}
+          hiddenFields={["loginRedirect", "accessToken", "refreshToken"]}
           values={{
-            redirectToAfterSetPassword: loaderData.redirectToAfterSetPassword,
+            loginRedirect: loginRedirect,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
           }}
         >
           {({ Field, Button, Errors, register }) => (
@@ -130,7 +135,9 @@ export default function SetPassword() {
               <div className="basis-full md:basis-6/12"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
-                <Field name="redirectToAfterSetPassword" />
+                <Field name="loginRedirect" />
+                <Field name="accessToken" />
+                <Field name="refreshToken" />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (
@@ -160,19 +167,6 @@ export default function SetPassword() {
                     )}
                   </Field>
                 </div>
-
-                <Field name="accessToken">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        value={accessToken}
-                        {...register("accessToken")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field>
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">

@@ -1,11 +1,9 @@
-import * as React from "react";
-import {
-  json,
+import type {
   LinksFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -18,17 +16,14 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-
-import { forbidden } from "remix-utils";
+import * as React from "react";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getUserByRequest, sessionStorage } from "./auth.server";
+import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
-import {
-  getFeatureAbilities,
-  validateFeatureAccess,
-} from "./lib/utils/application";
+import type { getFeatureAbilities } from "./lib/utils/application";
+import { validateFeatureAccess } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
@@ -54,22 +49,22 @@ type LoaderData = RootRouteData;
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
 
   const { abilities } = await validateFeatureAccess(
-    request,
+    authClient,
     ["events", "projects"],
     { throw: false }
   );
 
-  const currentUser = await getUserByRequest(request);
+  const sessionUser = await getSessionUser(authClient);
 
-  let currentUserInfo;
+  let sessionUserInfo;
 
-  if (currentUser !== null) {
-    const profile = await getProfileByUserId(currentUser.id, [
+  if (sessionUser !== null) {
+    const profile = await getProfileByUserId(sessionUser.id, [
       "username",
       "firstName",
       "lastName",
@@ -79,14 +74,14 @@ export const loader: LoaderFunction = async (args) => {
     let avatar: string | undefined;
 
     if (profile && profile.avatar) {
-      const publicURL = getPublicURL(profile.avatar);
+      const publicURL = getPublicURL(authClient, profile.avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
-    currentUserInfo = {
+    sessionUserInfo = {
       username: profile.username,
       initials: getInitials(profile),
       name: getFullName(profile),
@@ -98,10 +93,10 @@ export const loader: LoaderFunction = async (args) => {
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
-      currentUserInfo,
+      currentUserInfo: sessionUserInfo,
       abilities, // TODO: fix type issue
     },
-    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+    { headers: response.headers }
   );
 };
 

@@ -1,18 +1,15 @@
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { getUserByRequestOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProjectBySlugOrThrow } from "../utils.server";
-import {
-  ActionData as AddOrganizationActionData,
-  addOrganizationSchema,
-} from "./organizations/add-organization";
-import {
-  ActionData as RemoveOrganizationActionData,
-  removeOrganizationSchema,
-} from "./organizations/remove-organization";
+import type { ActionData as AddOrganizationActionData } from "./organizations/add-organization";
+import { addOrganizationSchema } from "./organizations/add-organization";
+import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
+import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
@@ -24,17 +21,23 @@ type LoaderData = {
   organizations: ReturnType<typeof getResponsibleOrganizationDataFromProject>;
 };
 
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader: LoaderFunction = async (args) => {
   const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const currentUser = await getUserByRequestOrThrow(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const project = await getProjectBySlugOrThrow(slug);
 
-  await checkOwnershipOrThrow(project, currentUser);
+  await checkOwnershipOrThrow(project, sessionUser);
 
   const organizations = getResponsibleOrganizationDataFromProject(project);
-  return { userId: currentUser.id, projectId: project.id, organizations };
+  return json<LoaderData>(
+    { userId: sessionUser.id, projectId: project.id, organizations },
+    { headers: response.headers }
+  );
 };
 
 function Organizations() {
@@ -42,8 +45,6 @@ function Organizations() {
   const loaderData = useLoaderData<LoaderData>();
   const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
   const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
-
-  console.log(addOrganizationFetcher.data);
 
   return (
     <>

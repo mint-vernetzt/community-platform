@@ -1,6 +1,5 @@
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,8 +8,12 @@ import {
   useParams,
   useTransition,
 } from "@remix-run/react";
+import React from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
-import { array, InferType, object, string } from "yup";
+import type { InferType } from "yup";
+import { array, object, string } from "yup";
+import { createAuthClient } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -19,6 +22,7 @@ import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
 import {
@@ -90,7 +94,14 @@ function makeFormOrganizationFromDbOrganization(
 }
 
 export const loader: LoaderFunction = async (args) => {
-  const { slug } = await handleAuthorization(args);
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  await handleAuthorization(authClient, slug);
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
@@ -105,12 +116,15 @@ export const loader: LoaderFunction = async (args) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return {
-    organization,
-    organizationTypes,
-    areas,
-    focuses,
-  };
+  return json<LoaderData>(
+    {
+      organization,
+      organizationTypes,
+      areas,
+      focuses,
+    },
+    { headers: response.headers }
+  );
 };
 
 type ActionData = {
@@ -121,8 +135,16 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async (args) => {
-  const { organization } = await handleAuthorization(args);
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const { organization } = await handleAuthorization(authClient, slug);
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
@@ -175,12 +197,15 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return {
-    organization: data,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-    updated,
-    errors,
-  };
+  return json<ActionData>(
+    {
+      organization: data,
+      lastSubmit: (formData.get("submit") as string) ?? "",
+      updated,
+      errors,
+    },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
