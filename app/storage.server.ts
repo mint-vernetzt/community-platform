@@ -192,6 +192,14 @@ export function getPublicURL(
       message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
     });
   }
+
+  if (bucket === "images" && process.env.SUPABASE_IMG_URL !== undefined) {
+    return publicUrl.replace(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_IMG_URL
+    );
+  }
+
   return publicUrl;
 }
 
