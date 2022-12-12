@@ -12,6 +12,7 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
 
+
 -- Create bucket for images
 insert into storage.buckets (id, name)
 values ('images', 'images');
@@ -48,3 +49,6 @@ create policy "authenticated user can update documents"
   on storage.objects for update
   to authenticated
   using ( bucket_id = 'documents' );
+
+-- Set buckets to public
+update storage.buckets set public = true where name in ('documents', 'images');
