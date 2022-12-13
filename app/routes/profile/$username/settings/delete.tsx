@@ -4,18 +4,19 @@ import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound } from "remix-utils";
+import { notFound, serverError } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
   deleteUserByUid,
   getSessionUserOrThrow,
+  signOut,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
-  getOrganisationsOnProfileByUserId,
+  getRelationsOnProfileByUserId,
   getProfileByUsername,
 } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
@@ -55,13 +56,46 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  const profile = await getOrganisationsOnProfileByUserId(values.userId);
+  const profile = await getRelationsOnProfileByUserId(values.userId);
   if (profile === null) {
     throw "Das Profil konnte nicht gefunden werden.";
   }
   profile.memberOf.some(({ organization, isPrivileged }) => {
-    if (isPrivileged) {
-      throw `Das Profil besitzt Administratorrechte in der Organisation "${organization.name}" und kann deshalb nicht gelöscht werden.`;
+    const organizationHasOtherPrivilegedMembers = organization.teamMembers.some(
+      (teamMember) => {
+        return (
+          teamMember.profileId !== values.userId && teamMember.isPrivileged
+        );
+      }
+    );
+    if (isPrivileged && !organizationHasOtherPrivilegedMembers) {
+      throw `Das Profil ist letzter Administrator in der Organisation "${organization.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Organisation.`;
+    }
+    return false;
+  });
+  profile.teamMemberOfEvents.some(({ event, isPrivileged }) => {
+    const eventHasOtherPrivilegedMembers = event.teamMembers.some(
+      (teamMember) => {
+        return (
+          teamMember.profileId !== values.userId && teamMember.isPrivileged
+        );
+      }
+    );
+    if (isPrivileged && !eventHasOtherPrivilegedMembers) {
+      throw `Das Profil ist letzter Administrator in der Veranstaltung "${event.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Veranstaltung.`;
+    }
+    return false;
+  });
+  profile.teamMemberOfProjects.some(({ project, isPrivileged }) => {
+    const projectHasOtherPrivilegedMembers = project.teamMembers.some(
+      (teamMember) => {
+        return (
+          teamMember.profileId !== values.userId && teamMember.isPrivileged
+        );
+      }
+    );
+    if (isPrivileged && !projectHasOtherPrivilegedMembers) {
+      throw `Das Profil ist letzter Administrator in dem Projekt "${project.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst dein Projekt.`;
     }
     return false;
   });
@@ -95,7 +129,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     environment: { authClient: authClient },
   });
   if (result.success) {
-    redirect("/goodbye", { headers: response.headers });
+    const { error } = await signOut(authClient);
+    if (error !== null) {
+      throw serverError({ message: error.message });
+    }
+    return redirect("/goodbye", { headers: response.headers });
   }
   return json<ActionData>(result, { headers: response.headers });
 };

@@ -17,6 +17,7 @@ import {
   useLocation,
 } from "@remix-run/react";
 import * as React from "react";
+import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
@@ -73,20 +74,24 @@ export const loader: LoaderFunction = async (args) => {
 
     let avatar: string | undefined;
 
-    if (profile && profile.avatar) {
-      const publicURL = getPublicURL(authClient, profile.avatar);
-      if (publicURL) {
-        avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-        });
+    if (profile) {
+      sessionUserInfo = {
+        username: profile.username,
+        initials: getInitials(profile),
+        name: getFullName(profile),
+        avatar,
+      };
+      if (profile.avatar) {
+        const publicURL = getPublicURL(authClient, profile.avatar);
+        if (publicURL) {
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+          });
+        }
       }
+    } else {
+      throw notFound({ message: "profile not found." });
     }
-    sessionUserInfo = {
-      username: profile.username,
-      initials: getInitials(profile),
-      name: getFullName(profile),
-      avatar,
-    };
   }
 
   return json<LoaderData>(
