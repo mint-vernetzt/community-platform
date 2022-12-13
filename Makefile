@@ -1,6 +1,5 @@
 ifneq (,$(wildcard ./.env))
     include .env
-    export
 endif
 
 .DEFAULT_GOAL := help
