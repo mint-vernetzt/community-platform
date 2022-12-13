@@ -1,6 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { format, zonedTimeToUtc } from "date-fns-tz";
 import { badRequest } from "remix-utils";
 import type { InferType } from "yup";
 import { date, object, string } from "yup";
@@ -66,19 +67,13 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function getDateTime(date: Date, time: string | null) {
-  if (time === null) {
-    const copy = new Date(date.getTime());
-    copy.setHours(0);
-    copy.setMinutes(0);
-    copy.setSeconds(0);
-    copy.setMilliseconds(0);
-    return copy;
-  }
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const day = date.getDate();
-  const hoursAndMinutes = time.split(":").map(Number);
-  return new Date(year, month, day, hoursAndMinutes[0], hoursAndMinutes[1]);
+  const jsDate = new Date(date);
+  const formattedDate = format(jsDate, "yyyy-MM-dd");
+  let dateTime = zonedTimeToUtc(
+    `${formattedDate} ${time || "".trimEnd()}`,
+    "Europe/Berlin"
+  );
+  return dateTime;
 }
 
 type ActionData = {
