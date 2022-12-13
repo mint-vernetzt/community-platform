@@ -26,7 +26,7 @@ export async function seedEntity<
 }
 
 // TODO: More specific types
-export function getStandardEntity(type: string) {}
+export function getStandardEntityData(type: string) {}
 
 seedEntity<"profile">("profile", {
   email: "someuser",
