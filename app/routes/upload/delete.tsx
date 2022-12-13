@@ -18,12 +18,12 @@ import { environment, schema } from "./schema";
 const mutation = makeDomainFunction(
   schema,
   environment
-)(async (values, { supabaseClient }) => {
+)(async (values, environment) => {
   const { subject, slug, uploadKey } = values;
 
   let success = true;
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
   try {
     if (subject === "user") {
