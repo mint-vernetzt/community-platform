@@ -46,7 +46,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
               {...rest}
               name={`add${uppercaseSingularName}`}
               type="text"
-              className={`clear-after-submit input input-bordered w-full ${
+              className={`clear-after-submit input input-bordered input-lg w-full ${
                 props.className ?? ""
               }`}
               onKeyDown={(e) => {

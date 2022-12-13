@@ -54,7 +54,7 @@ const InputText = React.forwardRef(
                 }
               }}
               type={props.type ?? "text"}
-              className={`input input-bordered w-full ${
+              className={`input input-bordered w-full input-lg ${
                 props.className !== undefined ? props.className : ""
               }`.trimEnd()}
               id={id}
