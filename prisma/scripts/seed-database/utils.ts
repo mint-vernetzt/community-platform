@@ -76,7 +76,8 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "onlyOneField"
       | "unicode"
       | "randomFieldSizes"
-      | "largest"]
+      | "largest"
+      | "noConferenceLink"]
   : T extends "award"
   ? EntityStructure["standard" | "smallest" | "largest"]
   : T extends "document"
@@ -100,6 +101,7 @@ type EntityStructure = {
   participantLimit: "participantLimit";
   canceled: "canceled";
   unpublished: "unpublished";
+  noConferenceLink: "noConferenceLink";
 };
 
 export async function seedEntity<
@@ -120,8 +122,65 @@ export function getEntityData<
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
-  const entityData = {
-    username: "",
+  const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
+    username: "", // profile
+    title: "", // award, document
+    date: new Date(), // award
+    shortTitle: "", // award
+    path: "", // document
+    mimeType: "", // document
+    filename: "", // document
+    extension: "", // document
+    sizeInMB: 0.1, // document
+    name: "", // organization, event, project
+    slug: "", // organization, event, project, award
+    headline: "", // project
+    excerpt: "", // project
+    startTime: new Date(), // event
+    endTime: new Date(), // event
+    description: "", // event, project, document
+    subline: "", // event, award
+    published: true, // event
+    conferenceLink: "", // event
+    conferenceCode: "", // event
+    participantLimit: 0, // event
+    participationFrom: new Date(), // event
+    participationUntil: new Date(), // event
+    venueName: "", // event
+    venueStreet: "", // event
+    venueStreetNumber: "", // event
+    venueCity: "", // event
+    venueZipCode: "", // event
+    canceled: false, // event
+    email: "", // profile, organization, project
+    phone: "", // profile, organization, project
+    street: "", // organization, project
+    streetNumber: "", // organization, project
+    city: "", // organization, project
+    zipCode: "", // organization, project
+    website: "", // profile, organization, project
+    logo: "", // organization, project, award
+    avatar: "", // profile
+    background: "", // profile, organization, event, project
+    facebook: "", // profile, organization, project
+    linkedin: "", // profile, organization, project
+    twitter: "", // profile, organization, project
+    xing: "", // profile, organization, project
+    instagram: "", // profile, organization, project
+    youtube: "", // profile, organization, project
+    bio: "", // profile, organization
+    quote: "", // organization
+    quoteAuthor: "", // organization
+    quoteAuthorInformation: "", // organization
+    supportedBy: [], // organization
+    skills: [], // profile
+    interests: [], // profile
+    academicTitle: "", // profile
+    firstName: "", // profile
+    lastName: "", // profile
+    publicFields: [], // profile, organization
+    termsAccepted: "", // profile
+    position: "", // profile
   };
   return entityData as EntityTypeOnData<T>;
 }
