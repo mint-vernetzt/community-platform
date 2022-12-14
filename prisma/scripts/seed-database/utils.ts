@@ -170,7 +170,11 @@ export async function seedEntity<
   // TODO: fix union type issue (almost got the generic working, but thats too hard...)
   // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
   // @ts-ignore
-  const result = await prismaClient[entityType].create(entity);
+  const result = await prismaClient[entityType].create({
+    data: entity,
+    select: { id: true },
+  });
+  return result.id;
 }
 
 export function getEntityData<
@@ -406,10 +410,4 @@ seedEntity<"profile">("profile", {
   termsAccepted: true,
 });
 
-const event = getEntityData<"document">("document", "Standard", 0, {
-  path: "",
-  mimeType: "",
-  filename: "",
-  extension: "",
-  sizeInMB: 0.5,
-});
+const event = getEntityData<"event">("event", "Standard", 0, undefined);
