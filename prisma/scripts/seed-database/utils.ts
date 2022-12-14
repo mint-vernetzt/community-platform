@@ -131,10 +131,15 @@ export function getEntityData<
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
     username: generateUsernameByTypeAndStructure<T>(
       entityType,
-      entityStructure
+      entityStructure,
+      index
     ),
-    title: generateTitleByTypeAndStructure<T>(entityType, entityStructure),
-    date: new Date(), // award default now
+    title: generateTitleByTypeAndStructure<T>(
+      entityType,
+      entityStructure,
+      index
+    ),
+    date: generateDateByTypeAndStructure<T>(entityType, index),
     shortTitle: "", // award
     path: "", // document required
     mimeType: "", // document required
@@ -250,6 +255,20 @@ function generateTitleByTypeAndStructure<
   return title;
 }
 
+function generateDateByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, index: number) {
+  // award
+  let date;
+  if (entityType === "award") {
+    date = new Date(`01-01-202${index}`);
+  }
+  return date;
+}
+
 seedEntity<"profile">("profile", {
   email: "someuser",
   username: "",
@@ -258,4 +277,4 @@ seedEntity<"profile">("profile", {
   termsAccepted: true,
 });
 
-const event = getEntityData<"event">("event", "standard");
+const event = getEntityData<"event">("event", "standard", 0);
