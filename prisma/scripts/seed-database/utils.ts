@@ -1,6 +1,11 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prismaClient } from "~/prisma";
-import { generateUsername } from "~/utils";
+import {
+  generateEventSlug,
+  generateOrganizationSlug,
+  generateProjectSlug,
+  generateUsername,
+} from "~/utils";
 import { faker } from "@faker-js/faker";
 
 type EntityData = {
@@ -27,23 +32,39 @@ type EntityTypeOnData<T> = T extends "profile"
   : never;
 
 type EntityStructure = {
-  developer: "developer";
-  standard: "standard";
-  private: "private";
-  public: "public";
-  smallest: "smallest";
-  emptyStrings: "emptyStrings";
-  singleFieldMissing: "singleFieldMissing";
-  onlyOneField: "onlyOneField";
-  unicode: "unicode";
-  randomFieldSizes: "randomFieldSizes";
-  largest: "largest";
-  depth2: "depth2";
-  depth3: "depth3";
-  participantLimit: "participantLimit";
-  canceled: "canceled";
-  unpublished: "unpublished";
-  noConferenceLink: "noConferenceLink";
+  developer: "Developer";
+  standard: "Standard";
+  largeTeam: "Large Team";
+  smallTeam: "Small Team";
+  eventCompanion: "Event Companion";
+  projectCompanion: "Project Companion";
+  network: "Network";
+  private: "Private";
+  public: "Public";
+  small: "Small";
+  emptyStrings: "Empty Strings";
+  singleFieldMissing: "Single Field Missing";
+  onlyOneField: "Only One Field";
+  eventManager: "Event Manager";
+  maker: "Maker";
+  coordinator: "Coordinator";
+  unicode: "Unicode";
+  randomFieldSizes: "Random Field Sizes";
+  largest: "Largest";
+  depth2: "Depth2";
+  depth3: "Depth3";
+  fullParticipants: "Full Particpants";
+  overfullParticipants: "Overfull Particpants";
+  canceled: "Canceled";
+  unpublished: "Unpublished";
+  manyDocuments: "Many Documents";
+  manyChildEvents: "Many Child Events";
+  noConferenceLink: "NoConferenceLink";
+  singleAwarded: "Single Awarded";
+  multipleAwarded: "Multiple Awarded";
+  manyResponsibleOrganizations: "Many Responsible Organizations";
+  manySpeakers: "Many Speakers";
+  manyParticipants: "Many Participants";
 };
 
 type EntityTypeOnStructure<T> = T extends "profile"
@@ -52,10 +73,13 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "standard"
       | "private"
       | "public"
-      | "smallest"
+      | "small"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
+      | "eventManager"
+      | "maker"
+      | "coordinator"
       | "unicode"
       | "randomFieldSizes"
       | "largest"]
@@ -63,9 +87,15 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure[
       | "developer"
       | "standard"
+      | "largeTeam"
+      | "smallTeam"
+      | "eventCompanion"
+      | "projectCompanion"
+      | "network"
+      | "coordinator"
       | "private"
       | "public"
-      | "smallest"
+      | "small"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -76,10 +106,13 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure[
       | "developer"
       | "standard"
-      | "smallest"
+      | "small"
+      | "largeTeam"
+      | "smallTeam"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
+      | "manyResponsibleOrganizations"
       | "unicode"
       | "randomFieldSizes"
       | "largest"]
@@ -87,12 +120,20 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure[
       | "developer"
       | "standard"
+      | "largeTeam"
+      | "smallTeam"
       | "depth2"
       | "depth3"
-      | "participantLimit"
+      | "fullParticipants"
+      | "overfullParticipants"
       | "canceled"
       | "unpublished"
-      | "smallest"
+      | "manyDocuments"
+      | "manyChildEvents"
+      | "manyResponsibleOrganizations"
+      | "manySpeakers"
+      | "manyParticipants"
+      | "small"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -101,9 +142,9 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "largest"
       | "noConferenceLink"]
   : T extends "award"
-  ? EntityStructure["standard" | "smallest" | "largest"]
+  ? EntityStructure["standard" | "small" | "largest"]
   : T extends "document"
-  ? EntityStructure["standard" | "smallest" | "largest"]
+  ? EntityStructure["standard" | "small" | "largest"]
   : never;
 
 type BucketData = {
@@ -146,8 +187,7 @@ export function getEntityData<
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
     username: generateUsernameByTypeAndStructure<T>(
       entityType,
-      entityStructure,
-      index
+      entityStructure
     ),
     title: generateTitleByTypeAndStructure<T>(entityType, entityStructure),
     date: generateDateByTypeAndStructure<T>(entityType, index),
@@ -161,7 +201,7 @@ export function getEntityData<
     extension: bucketData ? bucketData.extension : undefined, // document required
     sizeInMB: bucketData ? bucketData.sizeInMB : undefined, // document required
     name: generateNameByTypeAndStructure<T>(entityType, entityStructure),
-    slug: "", // organization required unique, event required unique, project required unique, award required unique
+    slug: generateSlugByTypeAndStructure<T>(entityType, entityStructure),
     headline: "", // project
     excerpt: "", // project
     startTime: new Date(), // event required
@@ -218,19 +258,14 @@ function generateUsernameByTypeAndStructure<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile required unique
   let username;
   if (entityType === "profile") {
-    if (entityStructure === "developer") {
-      username = generateUsername("_Developer", `Profile ${index}`);
+    if (entityStructure === "Developer") {
+      username = generateUsername("_Developer", "Profile");
     } else {
-      username = generateUsername(
-        `${entityStructure.replace(/^./, function (match) {
-          return match.toUpperCase();
-        })}`,
-        `Profile ${index}`
-      );
+      username = generateUsername(entityStructure, "Profile");
     }
   }
   return username;
@@ -245,24 +280,24 @@ function generateTitleByTypeAndStructure<
   // award required, document
   let title;
   if (entityType === "award") {
-    if (entityStructure === "standard") {
+    if (entityStructure === "Standard") {
       title = "Best Practice Project";
     }
-    if (entityStructure === "smallest") {
+    if (entityStructure === "Small") {
       title = "A-Level";
     }
-    if (entityStructure === "largest") {
+    if (entityStructure === "Largest") {
       title = "Best Practice Project In The Education Sector";
     }
   }
   if (entityType === "document") {
-    if (entityStructure === "standard") {
+    if (entityStructure === "Standard") {
       title = "Standard document title";
     }
-    if (entityStructure === "smallest") {
+    if (entityStructure === "Small") {
       title = null;
     }
-    if (entityStructure === "largest") {
+    if (entityStructure === "Largest") {
       title = "A very large document title";
     }
   }
@@ -292,13 +327,13 @@ function generateShortTitleByTypeAndStructure<
   // award
   let shortTitle;
   if (entityType === "award") {
-    if (entityStructure === "standard") {
+    if (entityStructure === "Standard") {
       shortTitle = "Best Practice";
     }
-    if (entityStructure === "smallest") {
+    if (entityStructure === "Small") {
       shortTitle = "A";
     }
-    if (entityStructure === "largest") {
+    if (entityStructure === "Largest") {
       shortTitle = "Best Practice Education";
     }
   }
@@ -313,13 +348,51 @@ function generateNameByTypeAndStructure<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization required, event required, project required
   let name;
-  if (entityType === "organization") {
-    if (entityStructure === "developer") {
-      name = "_Developer Organization";
-    } else {
-      name = `${entityStructure.replace(/^./, function (match) {
+  if (
+    entityType === "organization" ||
+    entityType === "event" ||
+    entityType === "project"
+  ) {
+    if (entityStructure === "Developer") {
+      name = `_${entityStructure} ${entityType.replace(/^./, function (match) {
         return match.toUpperCase();
-      })} Organization`;
+      })}`;
+    } else {
+      name = `${entityStructure} ${entityType.replace(/^./, function (match) {
+        return match.toUpperCase();
+      })}`;
+    }
+  }
+  return name;
+}
+
+function generateSlugByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization required unique, event required unique, project required unique, award required unique
+  let name;
+  if (entityType === "organization") {
+    if (entityStructure === "Developer") {
+      name = generateOrganizationSlug("_Developer Organization");
+    } else {
+      name = generateOrganizationSlug(`${entityStructure} Organization`);
+    }
+  }
+  if (entityType === "event") {
+    if (entityStructure === "Developer") {
+      name = generateEventSlug("_Developer Event");
+    } else {
+      name = generateEventSlug(`${entityStructure} Event`);
+    }
+  }
+  if (entityType === "project") {
+    if (entityStructure === "Developer") {
+      name = generateProjectSlug("_Developer Project");
+    } else {
+      name = generateProjectSlug(`${entityStructure} Event`);
     }
   }
   return name;
@@ -333,7 +406,7 @@ seedEntity<"profile">("profile", {
   termsAccepted: true,
 });
 
-const event = getEntityData<"document">("document", "standard", 0, {
+const event = getEntityData<"document">("document", "Standard", 0, {
   path: "",
   mimeType: "",
   filename: "",
