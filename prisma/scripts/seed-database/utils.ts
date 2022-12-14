@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prismaClient } from "~/prisma";
 import { generateUsername } from "~/utils";
+import { faker } from "@faker-js/faker";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -105,6 +106,10 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure["standard" | "smallest" | "largest"]
   : never;
 
+export function setFakerSeed(seed: number) {
+  faker.seed(seed);
+}
+
 export async function seedEntity<
   T extends keyof Pick<
     PrismaClient,
@@ -122,13 +127,13 @@ export function getEntityData<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
     username: generateUsernameByTypeAndStructure<T>(
       entityType,
       entityStructure
-    ), // profile required unique
-    title: "", // award required, document
+    ),
+    title: generateTitleByTypeAndStructure<T>(entityType, entityStructure),
     date: new Date(), // award default now
     shortTitle: "", // award
     path: "", // document required
@@ -194,21 +199,55 @@ function generateUsernameByTypeAndStructure<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+  // profile required unique
   let username;
   if (entityType === "profile") {
     if (entityStructure === "developer") {
-      username = generateUsername("_Developer", "Profile");
+      username = generateUsername("_Developer", `Profile ${index}`);
     } else {
       username = generateUsername(
         `${entityStructure.replace(/^./, function (match) {
           return match.toUpperCase();
         })}`,
-        "Profile"
+        `Profile ${index}`
       );
     }
   }
   return username;
+}
+
+function generateTitleByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+  // award required, document
+  let title;
+  if (entityType === "award") {
+    if (entityStructure === "standard") {
+      title = `Best Practice ${index}`;
+    }
+    if (entityStructure === "smallest") {
+      title = `A ${index}`;
+    }
+    if (entityStructure === "largest") {
+      title = `Best Project Worldwide ${index}`;
+    }
+  }
+  if (entityType === "document") {
+    if (entityStructure === "standard") {
+      title = "Standard document title";
+    }
+    if (entityStructure === "smallest") {
+      title = null;
+    }
+    if (entityStructure === "largest") {
+      title = "A very large document title";
+    }
+  }
+  return title;
 }
 
 seedEntity<"profile">("profile", {
