@@ -24,6 +24,26 @@ type EntityTypeOnData<T> = T extends "profile"
   ? EntityData["document"]
   : never;
 
+type EntityStructure = {
+  developer: "developer";
+  standard: "standard";
+  private: "private";
+  public: "public";
+  smallest: "smallest";
+  emptyStrings: "emptyStrings";
+  singleFieldMissing: "singleFieldMissing";
+  onlyOneField: "onlyOneField";
+  unicode: "unicode";
+  randomFieldSizes: "randomFieldSizes";
+  largest: "largest";
+  depth2: "depth2";
+  depth3: "depth3";
+  participantLimit: "participantLimit";
+  canceled: "canceled";
+  unpublished: "unpublished";
+  noConferenceLink: "noConferenceLink";
+};
+
 type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure[
       | "developer"
@@ -83,26 +103,6 @@ type EntityTypeOnStructure<T> = T extends "profile"
   : T extends "document"
   ? EntityStructure["standard" | "smallest" | "largest"]
   : never;
-
-type EntityStructure = {
-  developer: "developer";
-  standard: "standard";
-  private: "private";
-  public: "public";
-  smallest: "smallest";
-  emptyStrings: "emptyStrings";
-  singleFieldMissing: "singleFieldMissing";
-  onlyOneField: "onlyOneField";
-  unicode: "unicode";
-  randomFieldSizes: "randomFieldSizes";
-  largest: "largest";
-  depth2: "depth2";
-  depth3: "depth3";
-  participantLimit: "participantLimit";
-  canceled: "canceled";
-  unpublished: "unpublished";
-  noConferenceLink: "noConferenceLink";
-};
 
 export async function seedEntity<
   T extends keyof Pick<
