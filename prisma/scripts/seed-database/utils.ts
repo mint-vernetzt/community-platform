@@ -160,7 +160,7 @@ export function getEntityData<
     filename: bucketData ? bucketData.filename : undefined, // document required
     extension: bucketData ? bucketData.extension : undefined, // document required
     sizeInMB: bucketData ? bucketData.sizeInMB : undefined, // document required
-    name: "", // organization required, event required, project required
+    name: generateNameByTypeAndStructure<T>(entityType, entityStructure),
     slug: "", // organization required unique, event required unique, project required unique, award required unique
     headline: "", // project
     excerpt: "", // project
@@ -303,6 +303,26 @@ function generateShortTitleByTypeAndStructure<
     }
   }
   return shortTitle;
+}
+
+function generateNameByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization required, event required, project required
+  let name;
+  if (entityType === "organization") {
+    if (entityStructure === "developer") {
+      name = "_Developer Organization";
+    } else {
+      name = `${entityStructure.replace(/^./, function (match) {
+        return match.toUpperCase();
+      })} Organization`;
+    }
+  }
+  return name;
 }
 
 seedEntity<"profile">("profile", {
