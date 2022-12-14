@@ -106,6 +106,16 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure["standard" | "smallest" | "largest"]
   : never;
 
+type BucketData = {
+  path: string;
+  mimeType: string;
+  filename: string;
+  extension: string;
+  sizeInMB: Number;
+};
+
+type EntityTypeOnBucketData<T> = T extends "document" ? BucketData : undefined;
+
 export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
@@ -127,7 +137,12 @@ export function getEntityData<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  index: number,
+  bucketData: EntityTypeOnBucketData<T>
+) {
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
     username: generateUsernameByTypeAndStructure<T>(
       entityType,
@@ -140,11 +155,11 @@ export function getEntityData<
       entityType,
       entityStructure
     ),
-    path: "", // document required
-    mimeType: "", // document required
-    filename: "", // document required
-    extension: "", // document required
-    sizeInMB: 0.1, // document required
+    path: bucketData ? bucketData.path : undefined, // document required
+    mimeType: bucketData ? bucketData.mimeType : undefined, // document required
+    filename: bucketData ? bucketData.filename : undefined, // document required
+    extension: bucketData ? bucketData.extension : undefined, // document required
+    sizeInMB: bucketData ? bucketData.sizeInMB : undefined, // document required
     name: "", // organization required, event required, project required
     slug: "", // organization required unique, event required unique, project required unique, award required unique
     headline: "", // project
@@ -298,4 +313,10 @@ seedEntity<"profile">("profile", {
   termsAccepted: true,
 });
 
-const event = getEntityData<"event">("event", "standard", 0);
+const event = getEntityData<"document">("document", "standard", 0, {
+  path: "",
+  mimeType: "",
+  filename: "",
+  extension: "",
+  sizeInMB: 0.5,
+});
