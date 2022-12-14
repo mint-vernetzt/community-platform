@@ -1,5 +1,6 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prismaClient } from "~/prisma";
+import { generateUsername } from "~/utils";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -123,7 +124,10 @@ export function getEntityData<
   >
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
-    username: "", // profile required unique
+    username: generateUsernameByTypeAndStructure<T>(
+      entityType,
+      entityStructure
+    ), // profile required unique
     title: "", // award required, document
     date: new Date(), // award default now
     shortTitle: "", // award
@@ -183,6 +187,28 @@ export function getEntityData<
     position: "", // profile
   };
   return entityData as EntityTypeOnData<T>;
+}
+
+function generateUsernameByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  let username;
+  if (entityType === "profile") {
+    if (entityStructure === "developer") {
+      username = generateUsername("_Developer", "Profile");
+    } else {
+      username = generateUsername(
+        `${entityStructure.replace(/^./, function (match) {
+          return match.toUpperCase();
+        })}`,
+        "Profile"
+      );
+    }
+  }
+  return username;
 }
 
 seedEntity<"profile">("profile", {
