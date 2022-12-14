@@ -123,43 +123,43 @@ export function getEntityData<
   >
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
-    username: "", // profile
-    title: "", // award, document
-    date: new Date(), // award
+    username: "", // profile required unique
+    title: "", // award required, document
+    date: new Date(), // award default now
     shortTitle: "", // award
-    path: "", // document
-    mimeType: "", // document
-    filename: "", // document
-    extension: "", // document
-    sizeInMB: 0.1, // document
-    name: "", // organization, event, project
-    slug: "", // organization, event, project, award
+    path: "", // document required
+    mimeType: "", // document required
+    filename: "", // document required
+    extension: "", // document required
+    sizeInMB: 0.1, // document required
+    name: "", // organization required, event required, project required
+    slug: "", // organization required unique, event required unique, project required unique, award required unique
     headline: "", // project
     excerpt: "", // project
-    startTime: new Date(), // event
-    endTime: new Date(), // event
+    startTime: new Date(), // event required
+    endTime: new Date(), // event required
     description: "", // event, project, document
-    subline: "", // event, award
-    published: true, // event
+    subline: "", // event, award required
+    published: true, // event default false
     conferenceLink: "", // event
     conferenceCode: "", // event
     participantLimit: 0, // event
-    participationFrom: new Date(), // event
-    participationUntil: new Date(), // event
+    participationFrom: new Date(), // event default now
+    participationUntil: new Date(), // event required
     venueName: "", // event
     venueStreet: "", // event
     venueStreetNumber: "", // event
     venueCity: "", // event
     venueZipCode: "", // event
     canceled: false, // event
-    email: "", // profile, organization, project
+    email: "", // profile required, organization, project
     phone: "", // profile, organization, project
     street: "", // organization, project
     streetNumber: "", // organization, project
     city: "", // organization, project
     zipCode: "", // organization, project
     website: "", // profile, organization, project
-    logo: "", // organization, project, award
+    logo: "", // organization, project, award required
     avatar: "", // profile
     background: "", // profile, organization, event, project
     facebook: "", // profile, organization, project
@@ -176,10 +176,10 @@ export function getEntityData<
     skills: [], // profile
     interests: [], // profile
     academicTitle: "", // profile
-    firstName: "", // profile
-    lastName: "", // profile
+    firstName: "", // profile required
+    lastName: "", // profile required
     publicFields: [], // profile, organization
-    termsAccepted: "", // profile
+    termsAccepted: true, // profile required
     position: "", // profile
   };
   return entityData as EntityTypeOnData<T>;
