@@ -134,13 +134,12 @@ export function getEntityData<
       entityStructure,
       index
     ),
-    title: generateTitleByTypeAndStructure<T>(
-      entityType,
-      entityStructure,
-      index
-    ),
+    title: generateTitleByTypeAndStructure<T>(entityType, entityStructure),
     date: generateDateByTypeAndStructure<T>(entityType, index),
-    shortTitle: "", // award
+    shortTitle: generateShortTitleByTypeAndStructure<T>(
+      entityType,
+      entityStructure
+    ),
     path: "", // document required
     mimeType: "", // document required
     filename: "", // document required
@@ -227,18 +226,18 @@ function generateTitleByTypeAndStructure<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // award required, document
   let title;
   if (entityType === "award") {
     if (entityStructure === "standard") {
-      title = `Best Practice ${index}`;
+      title = "Best Practice Project";
     }
     if (entityStructure === "smallest") {
-      title = `A ${index}`;
+      title = "A-Level";
     }
     if (entityStructure === "largest") {
-      title = `Best Project Worldwide ${index}`;
+      title = "Best Practice Project In The Education Sector";
     }
   }
   if (entityType === "document") {
@@ -267,6 +266,28 @@ function generateDateByTypeAndStructure<
     date = new Date(`01-01-202${index}`);
   }
   return date;
+}
+
+function generateShortTitleByTypeAndStructure<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // award
+  let shortTitle;
+  if (entityType === "award") {
+    if (entityStructure === "standard") {
+      shortTitle = "Best Practice";
+    }
+    if (entityStructure === "smallest") {
+      shortTitle = "A";
+    }
+    if (entityStructure === "largest") {
+      shortTitle = "Best Practice Education";
+    }
+  }
+  return shortTitle;
 }
 
 seedEntity<"profile">("profile", {
