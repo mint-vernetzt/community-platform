@@ -58,7 +58,6 @@ type EntityStructure = {
   canceled: "Canceled";
   unpublished: "Unpublished";
   manyDocuments: "Many Documents";
-  noConferenceLink: "NoConferenceLink";
   singleAwarded: "Single Awarded";
   multipleAwarded: "Multiple Awarded";
   manyResponsibleOrganizations: "Many Responsible Organizations";
@@ -137,8 +136,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "onlyOneField"
       | "unicode"
       | "randomFieldSizes"
-      | "largest"
-      | "noConferenceLink"]
+      | "largest"]
   : T extends "award"
   ? EntityStructure["standard" | "smallest" | "largest" | "emptyStrings"]
   : T extends "document"
@@ -199,14 +197,14 @@ export function getEntityData<
     name: generateName<T>(entityType, entityStructure),
     slug: generateSlug<T>(entityType, entityStructure),
     headline: generateHeadline<T>(entityType, entityStructure),
-    excerpt: generateExcerpt<T>(entityType, entityStructure), // project
+    excerpt: generateExcerpt<T>(entityType, entityStructure),
     startTime: generateStartTime<T>(entityType, index),
     endTime: generateEndTime<T>(entityType, entityStructure, index),
-    description: faker.commerce.productDescription(), // event, project, document
-    subline: "", // event, award required
-    published: true, // event default false
-    conferenceLink: "", // event
-    conferenceCode: "", // event
+    description: generateDescription<T>(entityType, entityStructure),
+    subline: generateSubline<T>(entityType, entityStructure),
+    published: generatePublished<T>(entityType, entityStructure),
+    conferenceLink: generateConferenceLink<T>(entityType, entityStructure),
+    conferenceCode: generateConferenceCode<T>(entityType, entityStructure),
     participantLimit: 0, // event
     participationFrom: new Date(), // event default now
     participationUntil: new Date(), // event required
@@ -442,9 +440,9 @@ function generateExcerpt<
     } else if (entityStructure === "Empty Strings") {
       excerpt = "";
     } else if (entityStructure === "Largest") {
-      //excerpt =
+      excerpt = faker.lorem.paragraphs(50);
     } else {
-      excerpt = faker.commerce.productDescription();
+      excerpt = faker.lorem.paragraphs(5);
     }
   }
   return excerpt;
@@ -564,6 +562,126 @@ function generateEndTime<
     }
   }
   return endTime;
+}
+
+function generateDescription<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event, project, document
+  let description;
+  if (
+    entityType === "project" ||
+    entityType === "event" ||
+    entityType === "document"
+  ) {
+    const descriptionForLargest =
+      entityType === "project"
+        ? faker.lorem.paragraphs(50)
+        : entityType === "event"
+        ? faker.lorem.paragraphs(7).substring(0, 1000)
+        : faker.lorem.sentences(5).substring(0, 100);
+    const descriptionForStandard =
+      entityType === "project" || entityType === "event"
+        ? faker.lorem.paragraphs(5)
+        : faker.lorem.sentence();
+    if (entityStructure === "Smallest") {
+      description = null;
+    } else if (entityStructure === "Empty Strings") {
+      description = "";
+    } else if (entityStructure === "Largest") {
+      description = descriptionForLargest;
+    } else {
+      description = descriptionForStandard;
+    }
+  }
+  return description;
+}
+
+function generateSubline<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event, award required
+  let subline;
+  if (entityType === "event" || entityType === "award") {
+    const sublineForLargest =
+      entityType === "award"
+        ? faker.lorem.paragraphs(5)
+        : faker.lorem.sentences(5).substring(0, 70);
+    if (entityStructure === "Smallest" && entityType === "event") {
+      subline = null;
+    } else if (entityStructure === "Empty Strings") {
+      subline = "";
+    } else if (entityStructure === "Largest") {
+      subline = sublineForLargest;
+    } else {
+      subline = faker.lorem.sentence();
+    }
+  }
+  return subline;
+}
+
+function generatePublished<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event (default false)
+  let published;
+  if (entityType === "event") {
+    if (entityStructure === "Unpublished") {
+      published = false;
+    } else {
+      published = true;
+    }
+  }
+  return published;
+}
+
+function generateConferenceLink<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let conferenceLink;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      conferenceLink = null;
+    } else if (entityStructure === "Empty Strings") {
+      conferenceLink = "";
+    } else {
+      conferenceLink = faker.internet.url();
+    }
+  }
+  return conferenceLink;
+}
+
+function generateConferenceCode<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let conferenceCode;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      conferenceCode = null;
+    } else if (entityStructure === "Empty Strings") {
+      conferenceCode = "";
+    } else {
+      conferenceCode = faker.datatype.number({ min: 100000, max: 999999 });
+    }
+  }
+  return conferenceCode;
 }
 
 seedEntity<"profile">("profile", {
