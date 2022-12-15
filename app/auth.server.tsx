@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/auth-helpers-remix";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
-const SESSION_NAME = "sb";
+const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request, response: Response) => {
   const supabaseClient = createServerClient(
