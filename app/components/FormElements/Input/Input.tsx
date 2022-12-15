@@ -30,7 +30,9 @@ const Input = React.forwardRef(
               {...rest}
               ref={forwardRef as React.RefObject<HTMLInputElement>}
               type={props.type ?? "text"}
-              className={`input input-bordered w-full ${props.className}`}
+              className={`input input-bordered input-lg w-full ${
+                props.className !== undefined ? props.className : ""
+              }`.trimEnd()}
               id={id}
               name={id}
             />

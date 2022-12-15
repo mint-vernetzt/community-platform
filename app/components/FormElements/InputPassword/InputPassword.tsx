@@ -30,7 +30,7 @@ const InputPassword = React.forwardRef(
             type={passwordShown ? "text" : "password"}
             id={id}
             name={id}
-            className="input input-bordered w-full"
+            className="input input-bordered w-full input-lg"
             ref={forwardRef as React.RefObject<HTMLInputElement>}
           />
           <button

@@ -173,7 +173,7 @@ describe("action", () => {
       startDate: "2022-09-19",
     });
 
-    const startTime = new Date("2022-09-19 00:00");
+    const startTime = new Date("2022-09-18 22:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -210,8 +210,8 @@ describe("action", () => {
       endTime: "18:00",
     });
 
-    const startTime = new Date("2022-09-19 09:00");
-    const endTime = new Date("2022-09-20 18:00");
+    const startTime = new Date("2022-09-19 07:00Z");
+    const endTime = new Date("2022-09-20 16:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -250,8 +250,8 @@ describe("action", () => {
       parent: "parent-event-id",
     });
 
-    const startTime = new Date("2022-09-19 09:00");
-    const endTime = new Date("2022-09-20 18:00");
+    const startTime = new Date("2022-09-19 07:00Z");
+    const endTime = new Date("2022-09-20 16:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 

@@ -404,7 +404,7 @@ export async function getFilteredProfiles(
   return result;
 }
 
-export async function getOrganisationsOnProfileByUserId(id: string) {
+export async function getRelationsOnProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({
     where: { id },
     select: {
@@ -414,6 +414,44 @@ export async function getOrganisationsOnProfileByUserId(id: string) {
           organization: {
             select: {
               name: true,
+              teamMembers: {
+                select: {
+                  isPrivileged: true,
+                  profileId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      teamMemberOfEvents: {
+        select: {
+          isPrivileged: true,
+          event: {
+            select: {
+              name: true,
+              teamMembers: {
+                select: {
+                  isPrivileged: true,
+                  profileId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      teamMemberOfProjects: {
+        select: {
+          isPrivileged: true,
+          project: {
+            select: {
+              name: true,
+              teamMembers: {
+                select: {
+                  isPrivileged: true,
+                  profileId: true,
+                },
+              },
             },
           },
         },
