@@ -41,7 +41,7 @@ type EntityStructure = {
   network: "Network";
   private: "Private";
   public: "Public";
-  small: "Small";
+  smallest: "Smallest";
   emptyStrings: "Empty Strings";
   singleFieldMissing: "Single Field Missing";
   onlyOneField: "Only One Field";
@@ -72,7 +72,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "standard"
       | "private"
       | "public"
-      | "small"
+      | "smallest"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -94,7 +94,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "coordinator"
       | "private"
       | "public"
-      | "small"
+      | "smallest"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -105,7 +105,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
   ? EntityStructure[
       | "developer"
       | "standard"
-      | "small"
+      | "smallest"
       | "largeTeam"
       | "smallTeam"
       | "emptyStrings"
@@ -131,7 +131,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "manyResponsibleOrganizations"
       | "manySpeakers"
       | "manyParticipants"
-      | "small"
+      | "smallest"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -140,9 +140,9 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "largest"
       | "noConferenceLink"]
   : T extends "award"
-  ? EntityStructure["standard" | "small" | "largest"]
+  ? EntityStructure["standard" | "smallest" | "largest" | "emptyStrings"]
   : T extends "document"
-  ? EntityStructure["standard" | "small" | "largest"]
+  ? EntityStructure["standard" | "smallest" | "largest" | "emptyStrings"]
   : never;
 
 type BucketData = {
@@ -199,10 +199,10 @@ export function getEntityData<
     name: generateName<T>(entityType, entityStructure),
     slug: generateSlug<T>(entityType, entityStructure),
     headline: generateHeadline<T>(entityType, entityStructure),
-    excerpt: faker.commerce.productDescription(), // project
+    excerpt: generateExcerpt<T>(entityType, entityStructure), // project
     startTime: generateStartTime<T>(entityType, index),
     endTime: generateEndTime<T>(entityType, entityStructure, index),
-    description: "", // event, project, document
+    description: faker.commerce.productDescription(), // event, project, document
     subline: "", // event, award required
     published: true, // event default false
     conferenceLink: "", // event
@@ -279,22 +279,28 @@ function generateTitle<
     if (entityStructure === "Standard") {
       title = "Best Practice Project";
     }
-    if (entityStructure === "Small") {
+    if (entityStructure === "Smallest") {
       title = "A-Level";
     }
     if (entityStructure === "Largest") {
       title = "Best Practice Project In The Education Sector";
+    }
+    if (entityStructure === "Empty Strings") {
+      title = "";
     }
   }
   if (entityType === "document") {
     if (entityStructure === "Standard") {
       title = "Standard document title";
     }
-    if (entityStructure === "Small") {
+    if (entityStructure === "Smallest") {
       title = null;
     }
     if (entityStructure === "Largest") {
       title = "A very large document title";
+    }
+    if (entityStructure === "Empty Strings") {
+      title = "";
     }
   }
   return title;
@@ -306,7 +312,7 @@ function generateDate<
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
 >(entityType: T, index: number) {
-  // award
+  // award (default now)
   let date;
   if (entityType === "award") {
     date = new Date(`01-01-202${index}`);
@@ -326,11 +332,14 @@ function generateShortTitle<
     if (entityStructure === "Standard") {
       shortTitle = "Best Practice";
     }
-    if (entityStructure === "Small") {
+    if (entityStructure === "Smallest") {
       shortTitle = "A";
     }
     if (entityStructure === "Largest") {
       shortTitle = "Best Practice Education";
+    }
+    if (entityStructure === "Empty Strings") {
+      shortTitle = "";
     }
   }
   return shortTitle;
@@ -403,11 +412,42 @@ function generateHeadline<
   // project
   let headline;
   if (entityType === "project") {
-    headline = `${entityStructure} ${entityType.replace(/^./, function (match) {
-      return match.toUpperCase();
-    })}`;
+    if (entityStructure === "Smallest") {
+      headline = null;
+    } else if (entityStructure === "Empty Strings") {
+      headline = "";
+    } else {
+      headline = `${entityStructure} ${entityType.replace(
+        /^./,
+        function (match) {
+          return match.toUpperCase();
+        }
+      )}`;
+    }
   }
   return headline;
+}
+
+function generateExcerpt<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // project
+  let excerpt;
+  if (entityType === "project") {
+    if (entityStructure === "Smallest") {
+      excerpt = null;
+    } else if (entityStructure === "Empty Strings") {
+      excerpt = "";
+    } else if (entityStructure === "Largest") {
+      //excerpt =
+    } else {
+      excerpt = faker.commerce.productDescription();
+    }
+  }
+  return excerpt;
 }
 
 function generateFutureAndPastTimes(
