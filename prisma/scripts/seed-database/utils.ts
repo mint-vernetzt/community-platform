@@ -4,7 +4,7 @@ import {
   generateEventSlug,
   generateOrganizationSlug,
   generateProjectSlug,
-  generateUsername,
+  generateUsername as generateUsername_app,
 } from "~/utils";
 import { faker } from "@faker-js/faker";
 
@@ -59,6 +59,7 @@ type EntityStructure = {
   unpublished: "Unpublished";
   manyDocuments: "Many Documents";
   manyChildEvents: "Many Child Events";
+  short: "Short";
   noConferenceLink: "NoConferenceLink";
   singleAwarded: "Single Awarded";
   multipleAwarded: "Multiple Awarded";
@@ -134,6 +135,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "manySpeakers"
       | "manyParticipants"
       | "small"
+      | "short"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -189,27 +191,21 @@ export function getEntityData<
   bucketData: EntityTypeOnBucketData<T>
 ) {
   const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
-    username: generateUsernameByTypeAndStructure<T>(
-      entityType,
-      entityStructure
-    ),
-    title: generateTitleByTypeAndStructure<T>(entityType, entityStructure),
-    date: generateDateByTypeAndStructure<T>(entityType, index),
-    shortTitle: generateShortTitleByTypeAndStructure<T>(
-      entityType,
-      entityStructure
-    ),
+    username: generateUsername<T>(entityType, entityStructure),
+    title: generateTitle<T>(entityType, entityStructure),
+    date: generateDate<T>(entityType, index),
+    shortTitle: generateShortTitle<T>(entityType, entityStructure),
     path: bucketData ? bucketData.path : undefined, // document required
     mimeType: bucketData ? bucketData.mimeType : undefined, // document required
     filename: bucketData ? bucketData.filename : undefined, // document required
     extension: bucketData ? bucketData.extension : undefined, // document required
     sizeInMB: bucketData ? bucketData.sizeInMB : undefined, // document required
-    name: generateNameByTypeAndStructure<T>(entityType, entityStructure),
-    slug: generateSlugByTypeAndStructure<T>(entityType, entityStructure),
-    headline: "", // project
-    excerpt: "", // project
-    startTime: new Date(), // event required
-    endTime: new Date(), // event required
+    name: generateName<T>(entityType, entityStructure),
+    slug: generateSlug<T>(entityType, entityStructure),
+    headline: generateHeadline<T>(entityType, entityStructure),
+    excerpt: faker.commerce.productDescription(), // project
+    startTime: generateStartTime<T>(entityType, index),
+    endTime: generateEndTime<T>(entityType, entityStructure, index),
     description: "", // event, project, document
     subline: "", // event, award required
     published: true, // event default false
@@ -257,7 +253,7 @@ export function getEntityData<
   return entityData as EntityTypeOnData<T>;
 }
 
-function generateUsernameByTypeAndStructure<
+function generateUsername<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -267,15 +263,15 @@ function generateUsernameByTypeAndStructure<
   let username;
   if (entityType === "profile") {
     if (entityStructure === "Developer") {
-      username = generateUsername("_Developer", "Profile");
+      username = generateUsername_app("_Developer", "Profile");
     } else {
-      username = generateUsername(entityStructure, "Profile");
+      username = generateUsername_app(entityStructure, "Profile");
     }
   }
   return username;
 }
 
-function generateTitleByTypeAndStructure<
+function generateTitle<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -308,7 +304,7 @@ function generateTitleByTypeAndStructure<
   return title;
 }
 
-function generateDateByTypeAndStructure<
+function generateDate<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -322,7 +318,7 @@ function generateDateByTypeAndStructure<
   return date;
 }
 
-function generateShortTitleByTypeAndStructure<
+function generateShortTitle<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -344,7 +340,7 @@ function generateShortTitleByTypeAndStructure<
   return shortTitle;
 }
 
-function generateNameByTypeAndStructure<
+function generateName<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -370,7 +366,7 @@ function generateNameByTypeAndStructure<
   return name;
 }
 
-function generateSlugByTypeAndStructure<
+function generateSlug<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -400,6 +396,67 @@ function generateSlugByTypeAndStructure<
     }
   }
   return name;
+}
+
+function generateHeadline<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // project
+  let headline;
+  if (entityType === "project") {
+    headline = `${entityStructure} ${entityType.replace(/^./, function (match) {
+      return match.toUpperCase();
+    })}`;
+  }
+  return headline;
+}
+
+function generateStartTime<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, index: number) {
+  // event required
+  let startTime;
+  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
+  const now = new Date();
+  if (entityType === "event") {
+    startTime = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + index * futurePastSwitcher,
+      now.getHours()
+    );
+  }
+  return startTime;
+}
+
+function generateEndTime<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+  // event required
+  let endTime;
+  let timeDelta;
+  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
+  const now = new Date();
+  if (entityType === "event") {
+    if (entityStructure === "Depth2") {
+      endTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + index * futurePastSwitcher,
+        now.getHours()
+      );
+    }
+  }
+  return endTime;
 }
 
 seedEntity<"profile">("profile", {
