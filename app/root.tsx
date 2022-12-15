@@ -38,7 +38,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
-  currentUserInfo?: CurrentUserInfo;
+  sessionUserInfo?: SessionUserInfo;
   abilities: Pick<
     Awaited<ReturnType<typeof validateFeatureAccess>>,
     "abilities"
@@ -75,12 +75,6 @@ export const loader: LoaderFunction = async (args) => {
     let avatar: string | undefined;
 
     if (profile) {
-      sessionUserInfo = {
-        username: profile.username,
-        initials: getInitials(profile),
-        name: getFullName(profile),
-        avatar,
-      };
       if (profile.avatar) {
         const publicURL = getPublicURL(authClient, profile.avatar);
         if (publicURL) {
@@ -89,6 +83,12 @@ export const loader: LoaderFunction = async (args) => {
           });
         }
       }
+      sessionUserInfo = {
+        username: profile.username,
+        initials: getInitials(profile),
+        name: getFullName(profile),
+        avatar,
+      };
     } else {
       throw notFound({ message: "profile not found." });
     }
@@ -98,7 +98,7 @@ export const loader: LoaderFunction = async (args) => {
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
-      currentUserInfo: sessionUserInfo,
+      sessionUserInfo,
       abilities, // TODO: fix type issue
     },
     { headers: response.headers }
@@ -141,11 +141,11 @@ function HeaderLogo() {
 }
 
 type NavBarProps = {
-  currentUserInfo?: CurrentUserInfo;
+  sessionUserInfo?: SessionUserInfo;
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
-type CurrentUserInfo = {
+type SessionUserInfo = {
   username: string;
   initials: string;
   name?: string;
@@ -207,7 +207,7 @@ function NavBar(props: NavBarProps) {
           </div>
 
           {/* TODO: link to login on anon*/}
-          {props.currentUserInfo !== undefined ? (
+          {props.sessionUserInfo !== undefined ? (
             <div className="flex-initial h-10 w-1/2 lg:w-1/4 flex justify-end items-center lg:order-3">
               <div className="dropdown dropdown-end">
                 <label
@@ -215,17 +215,17 @@ function NavBar(props: NavBarProps) {
                   className="flex items-center cursor-pointer nowrap"
                 >
                   <span className="mr-4 font-semibold text-primary hidden md:block">
-                    {props.currentUserInfo.name}
+                    {props.sessionUserInfo.name}
                   </span>
-                  {props.currentUserInfo.avatar === undefined ? (
+                  {props.sessionUserInfo.avatar === undefined ? (
                     <div className="text-sm w-10 h-10 font-semibold bg-primary text-white flex items-center justify-center rounded-full overflow-hidden">
-                      {props.currentUserInfo.initials}
+                      {props.sessionUserInfo.initials}
                     </div>
                   ) : (
                     <div className="cursor-pointer w-10 h-10 rounded-full">
                       <img
-                        src={props.currentUserInfo.avatar}
-                        alt={props.currentUserInfo.initials}
+                        src={props.sessionUserInfo.avatar}
+                        alt={props.sessionUserInfo.initials}
                         className="w-10 h-10 rounded-full"
                       />
                     </div>
@@ -261,7 +261,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.currentUserInfo.username}`}
+                      to={`/profile/${props.sessionUserInfo.username}`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
@@ -278,7 +278,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.currentUserInfo.username}#organisations`}
+                      to={`/profile/${props.sessionUserInfo.username}#organisations`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
@@ -306,7 +306,7 @@ function NavBar(props: NavBarProps) {
                     </li>
                     <li>
                       <Link
-                        to={`/profile/${props.currentUserInfo.username}#events`}
+                        to={`/profile/${props.sessionUserInfo.username}#events`}
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
@@ -335,7 +335,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.currentUserInfo.username}#projects`}
+                      to={`/profile/${props.sessionUserInfo.username}#projects`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
@@ -395,8 +395,12 @@ function NavBar(props: NavBarProps) {
 
 export default function App() {
   const location = useLocation();
-  const { matomoUrl, matomoSiteId, currentUserInfo, abilities } =
-    useLoaderData<LoaderData>();
+  const {
+    matomoUrl,
+    matomoSiteId,
+    sessionUserInfo: currentUserInfo,
+    abilities,
+  } = useLoaderData<LoaderData>();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -445,7 +449,7 @@ export default function App() {
       <body>
         <div className="flex flex-col min-h-screen">
           {isNonAppBaseRoute ? null : (
-            <NavBar currentUserInfo={currentUserInfo} abilities={abilities} />
+            <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
 
           <main className="flex-auto">
