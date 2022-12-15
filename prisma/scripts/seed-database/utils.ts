@@ -53,8 +53,8 @@ type EntityStructure = {
   largest: "Largest";
   depth2: "Depth2";
   depth3: "Depth3";
-  fullParticipants: "Full Particpants";
-  overfullParticipants: "Overfull Particpants";
+  fullParticipants: "Full Participants";
+  overfullParticipants: "Overfull Participants";
   canceled: "Canceled";
   unpublished: "Unpublished";
   manyDocuments: "Many Documents";
@@ -205,10 +205,14 @@ export function getEntityData<
     published: generatePublished<T>(entityType, entityStructure),
     conferenceLink: generateConferenceLink<T>(entityType, entityStructure),
     conferenceCode: generateConferenceCode<T>(entityType, entityStructure),
-    participantLimit: 0, // event
-    participationFrom: new Date(), // event default now
-    participationUntil: new Date(), // event required
-    venueName: "", // event
+    participantLimit: generateParticipantLimit<T>(
+      entityType,
+      entityStructure,
+      index
+    ),
+    participationFrom: generateParticipationFrom<T>(entityType, index),
+    participationUntil: generateParticipationUntil<T>(entityType, index),
+    venueName: generateVenueName<T>(entityType, entityStructure),
     venueStreet: "", // event
     venueStreetNumber: "", // event
     venueCity: "", // event
@@ -414,6 +418,9 @@ function generateHeadline<
       headline = null;
     } else if (entityStructure === "Empty Strings") {
       headline = "";
+    } else if (entityStructure === "Largest") {
+      headline =
+        "Very long project headline - This project headline was created by cn and not by faker - And it gets even longer - Disable the edge cases in the seed script to skip this project when seeding the database";
     } else {
       headline = `${entityStructure} ${entityType.replace(
         /^./,
@@ -513,8 +520,8 @@ function generateStartTime<
 >(entityType: T, index: number) {
   // event required
   let startTime;
-  const { hours, date, month, year } = generateFutureAndPastTimes(index);
   if (entityType === "event") {
+    const { hours, date, month, year } = generateFutureAndPastTimes(index);
     startTime = new Date(year, month, date, hours);
   }
   return startTime;
@@ -531,7 +538,7 @@ function generateEndTime<
   if (entityType === "event") {
     if (entityStructure === "Depth2") {
       // Daily event
-      let timeDelta = {
+      const timeDelta = {
         days: 1,
       };
       const { hours, date, month, year } = generateFutureAndPastTimes(
@@ -541,7 +548,7 @@ function generateEndTime<
       endTime = new Date(year, month, date, hours);
     } else if (entityStructure === "Depth3") {
       // Weekly event
-      let timeDelta = {
+      const timeDelta = {
         days: 7,
       };
       const { hours, date, month, year } = generateFutureAndPastTimes(
@@ -551,7 +558,7 @@ function generateEndTime<
       endTime = new Date(year, month, date, hours);
     } else {
       // Hourly event
-      let timeDelta = {
+      const timeDelta = {
         hours: 1,
       };
       const { hours, date, month, year } = generateFutureAndPastTimes(
@@ -682,6 +689,99 @@ function generateConferenceCode<
     }
   }
   return conferenceCode;
+}
+
+function generateParticipantLimit<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
+  // event
+  let participantLimit;
+  const participantLimitSwitcher =
+    index % 2 === 0 ? null : faker.datatype.number({ min: 1, max: 300 });
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      participantLimit = null;
+    } else if (entityStructure === "Empty Strings") {
+      participantLimit = -1;
+    } else if (entityStructure === "Largest") {
+      participantLimit = 20;
+    } else if (
+      entityStructure === "Full Participants" ||
+      entityStructure === "Overfull Participants"
+    ) {
+      participantLimit = 20;
+    } else {
+      participantLimit = participantLimitSwitcher;
+    }
+  }
+  return participantLimit;
+}
+
+function generateParticipationFrom<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, index: number) {
+  // event (default now)
+  let participationFrom;
+  if (entityType === "event") {
+    const timeDelta = {
+      days: -8,
+    };
+    const { hours, date, month, year } = generateFutureAndPastTimes(
+      index,
+      timeDelta
+    );
+    participationFrom = new Date(year, month, date, hours);
+  }
+  return participationFrom;
+}
+
+function generateParticipationUntil<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, index: number) {
+  // event required
+  let participationUntil;
+  if (entityType === "event") {
+    const timeDelta = {
+      days: -1,
+    };
+    const { hours, date, month, year } = generateFutureAndPastTimes(
+      index,
+      timeDelta
+    );
+    participationUntil = new Date(year, month, date, hours);
+  }
+  return participationUntil;
+}
+
+function generateVenueName<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let venueName;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      venueName = null;
+    } else if (entityStructure === "Empty Strings") {
+      venueName = "";
+    } else if (entityStructure === "Largest") {
+      venueName = "TODO";
+    } else {
+      venueName = "TODO";
+    }
+  }
+  return venueName;
 }
 
 seedEntity<"profile">("profile", {
