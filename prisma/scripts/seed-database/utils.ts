@@ -58,8 +58,6 @@ type EntityStructure = {
   canceled: "Canceled";
   unpublished: "Unpublished";
   manyDocuments: "Many Documents";
-  manyChildEvents: "Many Child Events";
-  short: "Short";
   noConferenceLink: "NoConferenceLink";
   singleAwarded: "Single Awarded";
   multipleAwarded: "Multiple Awarded";
@@ -130,12 +128,10 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "canceled"
       | "unpublished"
       | "manyDocuments"
-      | "manyChildEvents"
       | "manyResponsibleOrganizations"
       | "manySpeakers"
       | "manyParticipants"
       | "small"
-      | "short"
       | "emptyStrings"
       | "singleFieldMissing"
       | "onlyOneField"
@@ -414,6 +410,63 @@ function generateHeadline<
   return headline;
 }
 
+function generateFutureAndPastTimes(
+  index: number,
+  timeDelta?: {
+    years?: number;
+    months?: number;
+    days?: number;
+    hours?: number;
+  }
+) {
+  const now = new Date();
+  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
+  const middleHourOfDay = 12 + (timeDelta?.hours || 0);
+  const middleDayOfMonth = 14 + (timeDelta?.days || 0);
+  const middleMonthOfYear = 6 + (timeDelta?.months || 0);
+  let newHour;
+  let newDate;
+  let newMonth;
+  let newYear;
+  let dateCounter = 0;
+  let monthCounter = 0;
+  let yearCounter = 0;
+
+  newHour = middleHourOfDay + index * futurePastSwitcher;
+  if (newHour < 0 || newHour > 23) {
+    if (newHour > 23) {
+      dateCounter = newHour - 24;
+    }
+    if (newHour < 0) {
+      dateCounter = newHour + 1;
+    }
+    newHour = middleHourOfDay;
+  }
+  newDate = middleDayOfMonth + dateCounter;
+  if (newDate <= 0 || newDate >= 29) {
+    if (newDate >= 29) {
+      monthCounter = newDate - 28;
+    }
+    if (newDate <= 0) {
+      monthCounter = newDate - 1;
+    }
+    newDate = 1;
+  }
+  newMonth = middleMonthOfYear + monthCounter;
+  if (newMonth < 0 || newMonth > 11) {
+    if (newMonth > 11) {
+      yearCounter = newMonth - 12;
+    }
+    if (newMonth < 0) {
+      yearCounter = newMonth + 1;
+    }
+    newMonth = 1;
+  }
+  newYear = now.getFullYear() + yearCounter + (timeDelta?.years || 0);
+
+  return { hours: newHour, date: newDate, month: newMonth, year: newYear };
+}
+
 function generateStartTime<
   T extends keyof Pick<
     PrismaClient,
@@ -422,15 +475,9 @@ function generateStartTime<
 >(entityType: T, index: number) {
   // event required
   let startTime;
-  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
-  const now = new Date();
+  const { hours, date, month, year } = generateFutureAndPastTimes(index);
   if (entityType === "event") {
-    startTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + index * futurePastSwitcher,
-      now.getHours()
-    );
+    startTime = new Date(year, month, date, hours);
   }
   return startTime;
 }
@@ -443,17 +490,37 @@ function generateEndTime<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // event required
   let endTime;
-  let timeDelta;
-  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
-  const now = new Date();
   if (entityType === "event") {
     if (entityStructure === "Depth2") {
-      endTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + index * futurePastSwitcher,
-        now.getHours()
+      // Daily event
+      let timeDelta = {
+        days: 1,
+      };
+      const { hours, date, month, year } = generateFutureAndPastTimes(
+        index,
+        timeDelta
       );
+      endTime = new Date(year, month, date, hours);
+    } else if (entityStructure === "Depth3") {
+      // Weekly event
+      let timeDelta = {
+        days: 7,
+      };
+      const { hours, date, month, year } = generateFutureAndPastTimes(
+        index,
+        timeDelta
+      );
+      endTime = new Date(year, month, date, hours);
+    } else {
+      // Hourly event
+      let timeDelta = {
+        hours: 1,
+      };
+      const { hours, date, month, year } = generateFutureAndPastTimes(
+        index,
+        timeDelta
+      );
+      endTime = new Date(year, month, date, hours);
     }
   }
   return endTime;
