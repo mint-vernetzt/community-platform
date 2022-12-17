@@ -237,10 +237,10 @@ export function getEntityData<
     streetNumber: generateStreetNumber<T>(entityType, entityStructure),
     city: generateCity<T>(entityType, entityStructure),
     zipCode: generateZipCode<T>(entityType, entityStructure),
-    website: generateUrl<T>(entityType, entityStructure),
-    logo: setPath(entityType, entityStructure, bucketData),
-    avatar: setPath(entityType, entityStructure, bucketData),
-    background: setPath(entityType, entityStructure, bucketData),
+    website: generateWebsite<T>(entityType, entityStructure),
+    logo: setLogo(entityType, entityStructure, bucketData),
+    avatar: setAvatar(entityType, entityStructure, bucketData),
+    background: setBackground(entityType, entityStructure, bucketData),
     facebook: generateSocialMediaUrl<T>(
       entityType,
       entityStructure,
@@ -1161,7 +1161,7 @@ function generateZipCode<
   return zipCode;
 }
 
-function generateUrl<
+function generateWebsite<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
@@ -1186,6 +1186,86 @@ function generateUrl<
     }
   }
   return website;
+}
+
+function setLogo<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // award required, organization, project
+  let logoPath;
+  if (bucketData !== undefined) {
+    if (entityType === "award") {
+      logoPath = bucketData.path;
+    }
+    if (entityType === "organization" || entityType === "project") {
+      if (entityStructure === "Smallest") {
+        logoPath = null;
+      } else {
+        logoPath = bucketData.path;
+      }
+    }
+  }
+  return logoPath;
+}
+
+function setAvatar<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // profile
+  let avatarPath;
+  if (bucketData !== undefined) {
+    if (entityType === "profile") {
+      if (entityStructure === "Smallest") {
+        avatarPath = null;
+      } else {
+        avatarPath = bucketData.path;
+      }
+    }
+  }
+  return avatarPath;
+}
+
+function setBackground<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // organization, project, profile, event
+  let backgroundPath;
+  if (bucketData !== undefined) {
+    if (
+      entityType === "organization" ||
+      entityType === "project" ||
+      entityType === "event" ||
+      entityType === "profile"
+    ) {
+      if (entityStructure === "Smallest") {
+        backgroundPath = null;
+      } else {
+        backgroundPath = bucketData.path;
+      }
+    }
+  }
+  return backgroundPath;
 }
 
 function generateSocialMediaUrl<
