@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prismaClient } from "~/prisma";
 import {
@@ -6,7 +7,6 @@ import {
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "~/utils";
-import { faker } from "@faker-js/faker";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -151,7 +151,17 @@ type BucketData = {
   sizeInMB: Number;
 };
 
-type EntityTypeOnBucketData<T> = T extends "document" ? BucketData : undefined;
+type EntityTypeOnBucketData<T> = T extends "document" | "award"
+  ? BucketData
+  : undefined;
+
+type SocialMediaService =
+  | "facebook"
+  | "linkedin"
+  | "twitter"
+  | "instagram"
+  | "xing"
+  | "youtube";
 
 export function setFakerSeed(seed: number) {
   faker.seed(seed);
@@ -189,11 +199,11 @@ export function getEntityData<
     title: generateTitle<T>(entityType, entityStructure),
     date: generateDate<T>(entityType, index),
     shortTitle: generateShortTitle<T>(entityType, entityStructure),
-    path: bucketData ? bucketData.path : undefined, // document required
-    mimeType: bucketData ? bucketData.mimeType : undefined, // document required
-    filename: bucketData ? bucketData.filename : undefined, // document required
-    extension: bucketData ? bucketData.extension : undefined, // document required
-    sizeInMB: bucketData ? bucketData.sizeInMB : undefined, // document required
+    path: setPath<T>(entityType, entityStructure, bucketData),
+    mimeType: setMimeType<T>(entityType, bucketData),
+    filename: setFilename<T>(entityType, bucketData),
+    extension: setExtension<T>(entityType, bucketData),
+    sizeInMB: setSizeInMB<T>(entityType, bucketData),
     name: generateName<T>(entityType, entityStructure),
     slug: generateSlug<T>(entityType, entityStructure),
     headline: generateHeadline<T>(entityType, entityStructure),
@@ -213,27 +223,42 @@ export function getEntityData<
     participationFrom: generateParticipationFrom<T>(entityType, index),
     participationUntil: generateParticipationUntil<T>(entityType, index),
     venueName: generateVenueName<T>(entityType, entityStructure),
-    venueStreet: "", // event
-    venueStreetNumber: "", // event
-    venueCity: "", // event
-    venueZipCode: "", // event
-    canceled: false, // event
-    email: "", // profile required, organization, project
-    phone: "", // profile, organization, project
-    street: "", // organization, project
-    streetNumber: "", // organization, project
-    city: "", // organization, project
-    zipCode: "", // organization, project
-    website: "", // profile, organization, project
-    logo: "", // organization, project, award required
-    avatar: "", // profile
-    background: "", // profile, organization, event, project
-    facebook: "", // profile, organization, project
-    linkedin: "", // profile, organization, project
-    twitter: "", // profile, organization, project
-    xing: "", // profile, organization, project
-    instagram: "", // profile, organization, project
-    youtube: "", // profile, organization, project
+    venueStreet: generateVenueStreet<T>(entityType, entityStructure),
+    venueStreetNumber: generateVenueStreetNumber<T>(
+      entityType,
+      entityStructure
+    ),
+    venueCity: generateVenueCity<T>(entityType, entityStructure),
+    venueZipCode: generateVenueZipCode<T>(entityType, entityStructure),
+    canceled: generateCanceled<T>(entityType, entityStructure),
+    email: generateEmail<T>(entityType, entityStructure),
+    phone: generatePhone<T>(entityType, entityStructure),
+    street: generateStreet<T>(entityType, entityStructure),
+    streetNumber: generateStreetNumber<T>(entityType, entityStructure),
+    city: generateCity<T>(entityType, entityStructure),
+    zipCode: generateZipCode<T>(entityType, entityStructure),
+    website: generateUrl<T>(entityType, entityStructure),
+    logo: setPath(entityType, entityStructure, bucketData),
+    avatar: setPath(entityType, entityStructure, bucketData),
+    background: setPath(entityType, entityStructure, bucketData),
+    facebook: generateSocialMediaUrl<T>(
+      entityType,
+      entityStructure,
+      "facebook"
+    ),
+    linkedin: generateSocialMediaUrl<T>(
+      entityType,
+      entityStructure,
+      "linkedin"
+    ),
+    twitter: generateSocialMediaUrl<T>(entityType, entityStructure, "twitter"),
+    xing: generateSocialMediaUrl<T>(entityType, entityStructure, "xing"),
+    instagram: generateSocialMediaUrl<T>(
+      entityType,
+      entityStructure,
+      "instagram"
+    ),
+    youtube: generateSocialMediaUrl<T>(entityType, entityStructure, "youtube"),
     bio: "", // profile, organization
     quote: "", // organization
     quoteAuthor: "", // organization
@@ -345,6 +370,102 @@ function generateShortTitle<
     }
   }
   return shortTitle;
+}
+
+function setPath<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // document required, award required, organization, project, profile, event
+  let path;
+  if (bucketData !== undefined) {
+    if (entityType === "document" || entityType === "award") {
+      path = bucketData.path;
+    }
+    if (
+      entityType === "organization" ||
+      entityType === "project" ||
+      entityType === "event" ||
+      entityType === "profile"
+    ) {
+      if (entityStructure === "Smallest") {
+        path = null;
+      } else {
+        path = bucketData.path;
+      }
+    }
+  }
+  return path;
+}
+
+function setMimeType<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+  // document required
+  let mimeType;
+  if (bucketData !== undefined) {
+    if (entityType === "document") {
+      mimeType = bucketData.mimeType;
+    }
+  }
+  return mimeType;
+}
+
+function setExtension<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+  // document required
+  let extension;
+  if (bucketData !== undefined) {
+    if (entityType === "document") {
+      extension = bucketData.extension;
+    }
+  }
+  return extension;
+}
+
+function setFilename<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+  // document required
+  let filename;
+  if (bucketData !== undefined) {
+    if (entityType === "document") {
+      filename = bucketData.filename;
+    }
+  }
+  return filename;
+}
+
+function setSizeInMB<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+  // document required
+  let sizeInMB;
+  if (bucketData !== undefined) {
+    if (entityType === "document") {
+      sizeInMB = bucketData.sizeInMB;
+    }
+  }
+  return sizeInMB;
 }
 
 function generateName<
@@ -685,7 +806,9 @@ function generateConferenceCode<
     } else if (entityStructure === "Empty Strings") {
       conferenceCode = "";
     } else {
-      conferenceCode = faker.datatype.number({ min: 100000, max: 999999 });
+      conferenceCode = faker.datatype
+        .number({ min: 100000, max: 999999 })
+        .toString();
     }
   }
   return conferenceCode;
@@ -776,12 +899,343 @@ function generateVenueName<
     } else if (entityStructure === "Empty Strings") {
       venueName = "";
     } else if (entityStructure === "Largest") {
-      venueName = "TODO";
+      venueName =
+        "Large Event Space With A Large Name And Also Large Rooms - Almost Everything Is Large";
     } else {
-      venueName = "TODO";
+      venueName = faker.company.name();
     }
   }
   return venueName;
+}
+
+function generateVenueStreet<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let venueStreet;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      venueStreet = null;
+    } else if (entityStructure === "Empty Strings") {
+      venueStreet = "";
+    } else if (entityStructure === "Largest") {
+      venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
+    } else {
+      venueStreet = faker.address.streetName();
+    }
+  }
+  return venueStreet;
+}
+
+function generateVenueStreetNumber<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let venueStreetNumber;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      venueStreetNumber = null;
+    } else if (entityStructure === "Empty Strings") {
+      venueStreetNumber = "";
+    } else if (entityStructure === "Largest") {
+      venueStreetNumber = faker.datatype
+        .number({ min: 1000, max: 9999 })
+        .toString();
+    } else {
+      venueStreetNumber = faker.datatype
+        .number({ min: 1, max: 999 })
+        .toString();
+    }
+  }
+  return venueStreetNumber;
+}
+
+function generateVenueCity<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let venueCity;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      venueCity = null;
+    } else if (entityStructure === "Empty Strings") {
+      venueCity = "";
+    } else if (entityStructure === "Largest") {
+      venueCity = "The City Of The Greatest And Largest";
+    } else {
+      venueCity = faker.address.cityName();
+    }
+  }
+  return venueCity;
+}
+
+function generateVenueZipCode<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event
+  let venueZipCode;
+  if (entityType === "event") {
+    if (entityStructure === "Smallest") {
+      venueZipCode = null;
+    } else if (entityStructure === "Empty Strings") {
+      venueZipCode = "";
+    } else if (entityStructure === "Largest") {
+      venueZipCode = faker.datatype
+        .number({ min: 1000000000, max: 9999999999 })
+        .toString();
+    } else {
+      venueZipCode = faker.address.zipCode();
+    }
+  }
+  return venueZipCode;
+}
+
+function generateCanceled<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // event (default false)
+  let canceled;
+  if (entityType === "event") {
+    if (entityStructure === "Canceled") {
+      canceled = true;
+    } else {
+      canceled = false;
+    }
+  }
+  return canceled;
+}
+
+function generateEmail<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile required, organization, project
+  let email;
+  if (entityType === "profile") {
+    email = `${entityStructure}@${entityType}.org`;
+  }
+  if (entityType === "organization" || entityType === "project") {
+    if (entityStructure === "Smallest") {
+      email = null;
+    } else if (entityStructure === "Empty Strings") {
+      email = "";
+    } else if (entityStructure === "Largest") {
+      email = "a.very.large.email.address@LargeEmailAdresses.com";
+    } else {
+      email = faker.internet.email();
+    }
+  }
+  return email;
+}
+
+function generatePhone<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile, organization, project
+  let phone;
+  if (
+    entityType === "profile" ||
+    entityType === "organization" ||
+    entityType === "project"
+  ) {
+    if (entityStructure === "Smallest") {
+      phone = null;
+    } else if (entityStructure === "Empty Strings") {
+      phone = "";
+    } else if (entityStructure === "Largest") {
+      phone = "0123456/7891011121314151617181920";
+    } else {
+      phone = faker.phone.number();
+    }
+  }
+  return phone;
+}
+
+function generateStreet<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization, project
+  let street;
+  if (entityType === "organization" || entityType === "project") {
+    if (entityStructure === "Smallest") {
+      street = null;
+    } else if (entityStructure === "Empty Strings") {
+      street = "";
+    } else if (entityStructure === "Largest") {
+      street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
+    } else {
+      street = faker.address.streetName();
+    }
+  }
+  return street;
+}
+
+function generateStreetNumber<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization, project
+  let streetNumber;
+  if (entityType === "organization" || entityType === "project") {
+    if (entityStructure === "Smallest") {
+      streetNumber = null;
+    } else if (entityStructure === "Empty Strings") {
+      streetNumber = "";
+    } else if (entityStructure === "Largest") {
+      streetNumber = faker.datatype.number({ min: 1000, max: 9999 }).toString();
+    } else {
+      streetNumber = faker.datatype.number({ min: 1, max: 999 }).toString();
+    }
+  }
+  return streetNumber;
+}
+
+function generateCity<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization, project
+  let city;
+  if (entityType === "organization" || entityType === "project") {
+    if (entityStructure === "Smallest") {
+      city = null;
+    } else if (entityStructure === "Empty Strings") {
+      city = "";
+    } else if (entityStructure === "Largest") {
+      city = "The City Of The Greatest And Largest";
+    } else {
+      city = faker.address.cityName();
+    }
+  }
+  return city;
+}
+
+function generateZipCode<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization, project
+  let zipCode;
+  if (entityType === "organization" || entityType === "project") {
+    if (entityStructure === "Smallest") {
+      zipCode = null;
+    } else if (entityStructure === "Empty Strings") {
+      zipCode = "";
+    } else if (entityStructure === "Largest") {
+      zipCode = faker.datatype
+        .number({ min: 1000000000, max: 9999999999 })
+        .toString();
+    } else {
+      zipCode = faker.address.zipCode();
+    }
+  }
+  return zipCode;
+}
+
+function generateUrl<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile, organization, project
+  let website;
+  if (
+    entityType === "profile" ||
+    entityType === "organization" ||
+    entityType === "project"
+  ) {
+    if (entityStructure === "Smallest") {
+      website = null;
+    } else if (entityStructure === "Empty Strings") {
+      website = "";
+    } else if (entityStructure === "Largest") {
+      website =
+        "https://www.veeeeeeeeeeeeery-laaaaaaaaaaaaaaaaaaarge-website.com/with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param";
+    } else {
+      website = faker.internet.url();
+    }
+  }
+  return website;
+}
+
+function generateSocialMediaUrl<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  socialMediaService: SocialMediaService
+) {
+  // profile, organization, project
+  let website;
+  let slugDifference;
+  if (
+    entityType === "profile" ||
+    entityType === "organization" ||
+    entityType === "project"
+  ) {
+    if (entityType === "profile") {
+      if (socialMediaService === "linkedin") {
+        slugDifference = "in/";
+      }
+      if (socialMediaService === "xing") {
+        slugDifference = "profile/";
+      }
+    } else {
+      if (socialMediaService === "linkedin") {
+        slugDifference = "company/";
+      }
+      if (socialMediaService === "xing") {
+        slugDifference = "pages/";
+      }
+    }
+    if (entityStructure === "Smallest") {
+      website = null;
+    } else if (entityStructure === "Empty Strings") {
+      website = "";
+    } else if (entityStructure === "Largest") {
+      website = `https://www.${socialMediaService}.com/${
+        slugDifference || ""
+      }with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param`;
+    } else {
+      website = `https://www.linkedin.com/${
+        slugDifference || ""
+      }${faker.helpers.slugify(`${entityStructure}${entityType}`)}`;
+    }
+  }
+  return website;
 }
 
 seedEntity<"profile">("profile", {
