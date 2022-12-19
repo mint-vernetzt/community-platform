@@ -545,7 +545,7 @@ export default function Index() {
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">Organisationen</h3>
                   </div>
-                  {loaderData.mode === "owner" && (
+                  {loaderData.mode === "owner" ? (
                     <div className="flex-initial pl-4">
                       <Link
                         to="/organization/create"
@@ -554,7 +554,7 @@ export default function Index() {
                         Organisation anlegen
                       </Link>
                     </div>
-                  )}
+                  ) : null}
                 </div>
                 {loaderData.data.memberOf &&
                 loaderData.data.memberOf.length > 0 ? (

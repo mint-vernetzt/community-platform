@@ -66,8 +66,9 @@ export const loader: LoaderFunction = async (args) => {
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<LoaderData>();
-  const addMemberFetcher =
-    useFetcher<AddMemberSuccessActionData | AddMemberFailureActionData>();
+  const addMemberFetcher = useFetcher<
+    AddMemberSuccessActionData | AddMemberFailureActionData
+  >();
   const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
   const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
 
@@ -97,9 +98,9 @@ function Index() {
                 <H3 like="h4" className="text-xl mb-1">
                   {profile.firstName} {profile.lastName}
                 </H3>
-                {profile.position && (
+                {profile.position ? (
                   <p className="font-bold text-sm">{profile.position}</p>
-                )}
+                ) : null}
               </div>
               <Form
                 schema={setPrivilegeSchema}
@@ -129,7 +130,7 @@ function Index() {
                       <Field name="teamMemberId" />
                       <Field name="organizationId" />
                       <Field name="isPrivileged" />
-                      {profile.isCurrentUser === false && (
+                      {profile.isCurrentUser === false ? (
                         <div className="ml-2">
                           <Button
                             className="btn btn-outline-primary ml-auto btn-small"
@@ -144,7 +145,7 @@ function Index() {
                               : "Privileg hinzufügen"}
                           </Button>
                         </div>
-                      )}
+                      ) : null}
                     </>
                   );
                 }}
@@ -164,7 +165,7 @@ function Index() {
                 {({ Field, Button, Errors }) => {
                   return (
                     <>
-                      {profile.isCurrentUser === false && (
+                      {profile.isCurrentUser === false ? (
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
                             viewBox="0 0 10 10"
@@ -179,7 +180,7 @@ function Index() {
                             />
                           </svg>
                         </Button>
-                      )}
+                      ) : null}
                       <Field name="userId" />
                       <Field name="teamMemberId" />
                       <Field name="organizationId" />

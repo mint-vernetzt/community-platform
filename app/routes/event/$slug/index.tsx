@@ -730,15 +730,15 @@ function Index() {
                           >
                             {item.document.title || item.document.filename}
                           </Link>
-                          {item.document.description && (
+                          {item.document.description ? (
                             <p className="text-sm italic">
                               {item.document.description}
                             </p>
-                          )}
+                          ) : null}
                         </div>
                       );
                     })}
-                    {loaderData.event.documents.length > 1 && (
+                    {loaderData.event.documents.length > 1 ? (
                       <Link
                         className="btn btn-outline btn-primary btn-small mt-4"
                         to={`/event/${loaderData.event.slug}/documents-download`}
@@ -746,7 +746,7 @@ function Index() {
                       >
                         Alle Herunterladen
                       </Link>
-                    )}
+                    ) : null}
                   </div>
                 </>
               ) : null}

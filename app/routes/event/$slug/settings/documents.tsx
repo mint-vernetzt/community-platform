@@ -87,7 +87,7 @@ function Documents() {
   return (
     <>
       <h1 className="mb-8">Dokumente verwalten</h1>
-      {loaderData.event.documents.length > 0 && (
+      {loaderData.event.documents.length > 0 ? (
         <div className="mb-8">
           <h3>Aktuelle Dokumente</h3>
           <ul>
@@ -238,7 +238,7 @@ function Documents() {
             Alle Herunterladen
           </Link>
         </div>
-      )}
+      ) : null}
 
       <RemixForm
         method="post"

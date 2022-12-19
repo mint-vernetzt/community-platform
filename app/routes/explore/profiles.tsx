@@ -343,16 +343,16 @@ export default function Index() {
                             <option></option>
                             {areaOptions.map((option, index) => (
                               <React.Fragment key={index}>
-                                {"value" in option && (
+                                {"value" in option ? (
                                   <option
                                     key={`area-${index}`}
                                     value={option.value}
                                   >
                                     {option.label}
                                   </option>
-                                )}
+                                ) : null}
 
-                                {"options" in option && (
+                                {"options" in option ? (
                                   <optgroup
                                     key={`area-group-${index}`}
                                     label={option.label}
@@ -368,7 +368,7 @@ export default function Index() {
                                       )
                                     )}
                                   </optgroup>
-                                )}
+                                ) : null}
                               </React.Fragment>
                             ))}
                           </select>
@@ -463,10 +463,9 @@ export default function Index() {
         >
           {profiles.length > 0 ? (
             profiles.map((profile) => {
-              let slug, image, imageType, initials, name, subtitle;
+              let slug, image, initials, name, subtitle;
               slug = `/profile/${profile.username}`;
               image = profile.avatar;
-              imageType = "avatar";
               initials = getInitials(profile);
               name = getFullName(profile);
               subtitle = profile.position;
@@ -481,30 +480,24 @@ export default function Index() {
                     className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
                     <div className="w-full flex flex-row">
-                      {imageType === "avatar" && (
-                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                          {image !== null ? (
-                            <img src={image} alt="" />
-                          ) : (
-                            initials
-                          )}
-                        </div>
-                      )}
+                      <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                        {image !== null ? <img src={image} alt="" /> : initials}
+                      </div>
                       <div className="pl-4">
                         <H3 like="h4" className="text-xl mb-1">
                           {name}
                         </H3>
-                        {subtitle !== null && (
+                        {subtitle !== null ? (
                           <p className="font-bold text-sm">{subtitle}</p>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 
-                    {profile.bio !== undefined && (
+                    {profile.bio !== undefined ? (
                       <p className="mt-3 line-clamp-2">{profile.bio}</p>
-                    )}
+                    ) : null}
 
-                    {profile.areas !== undefined && profile.areas.length > 0 && (
+                    {profile.areas !== undefined && profile.areas.length > 0 ? (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
@@ -517,7 +510,7 @@ export default function Index() {
                           </span>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </Link>
                 </div>
               );

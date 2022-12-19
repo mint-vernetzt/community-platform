@@ -140,13 +140,13 @@ function Events() {
           );
         }}
       </Form>
-      {setParentFetcher.data?.message && (
+      {setParentFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {setParentFetcher.data.message}
         </div>
-      )}
+      ) : null}
       <hr className="border-neutral-400 my-4 lg:my-8" />
-      {loaderData.childEvents.length > 0 && (
+      {loaderData.childEvents.length > 0 ? (
         <div className="mb-8">
           <h3>Zugehörige Veranstaltungen</h3>
           <ul>
@@ -203,7 +203,7 @@ function Events() {
             })}
           </ul>
         </div>
-      )}
+      ) : null}
       <Form
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -287,11 +287,11 @@ function Events() {
           );
         }}
       </Form>
-      {addChildFetcher.data?.message && (
+      {addChildFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {addChildFetcher.data.message}
         </div>
-      )}
+      ) : null}
     </>
   );
 }

@@ -450,7 +450,7 @@ function General() {
                 Deine Informationen wurden aktualisiert.
               </div>
 
-              {isFormChanged && (
+              {isFormChanged ? (
                 <Link
                   to={`/project/${slug}/settings`}
                   reloadDocument
@@ -458,7 +458,7 @@ function General() {
                 >
                   Änderungen verwerfen
                 </Link>
-              )}
+              ) : null}
               <div></div>
               <button
                 type="submit"

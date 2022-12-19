@@ -193,19 +193,19 @@ export default function Create() {
                   </>
                 )}
               </RemixForm>
-              <div className="pt-4 -mx-4">
-                {actionData !== undefined &&
-                  !actionData.success &&
-                  actionData.alreadyExistingOrganization !== null && (
-                    <OrganizationCard
-                      id="already-existing-organization"
-                      link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
-                      name={actionData.alreadyExistingOrganization.name}
-                      types={actionData.alreadyExistingOrganization.types}
-                      image={actionData.alreadyExistingOrganization.logo}
-                    />
-                  )}
-              </div>
+              {actionData !== undefined &&
+              !actionData.success &&
+              actionData.alreadyExistingOrganization !== null ? (
+                <div className="pt-4 -mx-4">
+                  <OrganizationCard
+                    id="already-existing-organization"
+                    link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
+                    name={actionData.alreadyExistingOrganization.name}
+                    types={actionData.alreadyExistingOrganization.types}
+                    image={actionData.alreadyExistingOrganization.logo}
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
