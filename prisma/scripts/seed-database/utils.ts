@@ -1,5 +1,7 @@
 import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { Defined } from "yup/lib/util/types";
+import { string } from "zod";
 import { prismaClient } from "~/prisma";
 import {
   generateEventSlug,
@@ -144,15 +146,32 @@ type EntityTypeOnStructure<T> = T extends "profile"
   : never;
 
 type BucketData = {
-  path: string;
-  mimeType: string;
-  filename: string;
-  extension: string;
-  sizeInMB: Number;
+  document: {
+    path: string;
+    mimeType: string;
+    filename: string;
+    extension: string;
+    sizeInMB: Number;
+  };
+  logo?: {
+    path: string;
+  };
+  avatar?: {
+    path: string;
+  };
+  background?: {
+    path: string;
+  };
 };
 
-type EntityTypeOnBucketData<T> = T extends "document" | "award"
-  ? BucketData
+type EntityTypeOnBucketData<T> = T extends "document"
+  ? Pick<BucketData, "document">
+  : T extends "award"
+  ? Required<Pick<BucketData, "logo">>
+  : T extends "profile"
+  ? Pick<BucketData, "avatar" | "background">
+  : T extends "organization" | "project" | "event"
+  ? Pick<BucketData, "logo" | "background">
   : undefined;
 
 type SocialMediaService =
@@ -199,7 +218,7 @@ export function getEntityData<
     title: generateTitle<T>(entityType, entityStructure),
     date: generateDate<T>(entityType, index),
     shortTitle: generateShortTitle<T>(entityType, entityStructure),
-    path: setPath<T>(entityType, entityStructure, bucketData),
+    path: setPath<T>(entityType, bucketData),
     mimeType: setMimeType<T>(entityType, bucketData),
     filename: setFilename<T>(entityType, bucketData),
     extension: setExtension<T>(entityType, bucketData),
@@ -377,28 +396,12 @@ function setPath<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(
-  entityType: T,
-  entityStructure: EntityTypeOnStructure<T>,
-  bucketData: EntityTypeOnBucketData<T>
-) {
-  // document required, award required, organization, project, profile, event
+>(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+  // document required
   let path;
-  if (bucketData !== undefined) {
-    if (entityType === "document" || entityType === "award") {
-      path = bucketData.path;
-    }
-    if (
-      entityType === "organization" ||
-      entityType === "project" ||
-      entityType === "event" ||
-      entityType === "profile"
-    ) {
-      if (entityStructure === "Smallest") {
-        path = null;
-      } else {
-        path = bucketData.path;
-      }
+  if ("document" in bucketData && bucketData.document !== undefined) {
+    if (entityType === "document") {
+      path = bucketData.document.path;
     }
   }
   return path;
@@ -412,9 +415,9 @@ function setMimeType<
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let mimeType;
-  if (bucketData !== undefined) {
+  if ("document" in bucketData && bucketData.document !== undefined) {
     if (entityType === "document") {
-      mimeType = bucketData.mimeType;
+      mimeType = bucketData.document.mimeType;
     }
   }
   return mimeType;
@@ -428,9 +431,9 @@ function setExtension<
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let extension;
-  if (bucketData !== undefined) {
+  if ("document" in bucketData && bucketData.document !== undefined) {
     if (entityType === "document") {
-      extension = bucketData.extension;
+      extension = bucketData.document.extension;
     }
   }
   return extension;
@@ -444,9 +447,9 @@ function setFilename<
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let filename;
-  if (bucketData !== undefined) {
+  if ("document" in bucketData && bucketData.document !== undefined) {
     if (entityType === "document") {
-      filename = bucketData.filename;
+      filename = bucketData.document.filename;
     }
   }
   return filename;
@@ -460,9 +463,9 @@ function setSizeInMB<
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let sizeInMB;
-  if (bucketData !== undefined) {
+  if ("document" in bucketData && bucketData.document !== undefined) {
     if (entityType === "document") {
-      sizeInMB = bucketData.sizeInMB;
+      sizeInMB = bucketData.document.sizeInMB;
     }
   }
   return sizeInMB;
@@ -1200,15 +1203,15 @@ function setLogo<
 ) {
   // award required, organization, project
   let logoPath;
-  if (bucketData !== undefined) {
+  if ("logo" in bucketData && bucketData.logo !== undefined) {
     if (entityType === "award") {
-      logoPath = bucketData.path;
+      logoPath = bucketData.logo.path;
     }
     if (entityType === "organization" || entityType === "project") {
       if (entityStructure === "Smallest") {
         logoPath = null;
       } else {
-        logoPath = bucketData.path;
+        logoPath = bucketData.logo.path;
       }
     }
   }
@@ -1227,12 +1230,12 @@ function setAvatar<
 ) {
   // profile
   let avatarPath;
-  if (bucketData !== undefined) {
+  if ("avatar" in bucketData && bucketData.avatar !== undefined) {
     if (entityType === "profile") {
       if (entityStructure === "Smallest") {
         avatarPath = null;
       } else {
-        avatarPath = bucketData.path;
+        avatarPath = bucketData.avatar.path;
       }
     }
   }
@@ -1251,7 +1254,7 @@ function setBackground<
 ) {
   // organization, project, profile, event
   let backgroundPath;
-  if (bucketData !== undefined) {
+  if ("background" in bucketData && bucketData.background !== undefined) {
     if (
       entityType === "organization" ||
       entityType === "project" ||
@@ -1261,7 +1264,7 @@ function setBackground<
       if (entityStructure === "Smallest") {
         backgroundPath = null;
       } else {
-        backgroundPath = bucketData.path;
+        backgroundPath = bucketData.background.path;
       }
     }
   }
@@ -1326,4 +1329,6 @@ seedEntity<"profile">("profile", {
   termsAccepted: true,
 });
 
-const event = getEntityData<"event">("event", "Standard", 0, undefined);
+const event = getEntityData<"award">("award", "Standard", 0, {
+  logo: { path: "" },
+});
