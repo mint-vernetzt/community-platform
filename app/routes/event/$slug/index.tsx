@@ -367,7 +367,7 @@ function Index() {
     <>
       <section className="container md:mt-2">
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
-          {loaderData.event.parentEvent !== null && (
+          {loaderData.event.parentEvent !== null ? (
             <>
               <Link
                 className=""
@@ -390,7 +390,7 @@ function Index() {
                 </svg>
               </span>
             </>
-          )}
+          ) : null}
           <span className="w-full md:w-auto">{loaderData.event.name}</span>
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
@@ -418,49 +418,47 @@ function Index() {
           <div className="hidden md:block">
             <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
               <div className="w-full h-full">
-                {loaderData.event.background !== undefined && (
-                  <img
-                    src={
-                      loaderData.event.background ||
-                      "/images/default-event-background.jpg"
-                    }
-                    alt={loaderData.event.name}
-                  />
-                )}
+                <img
+                  src={
+                    loaderData.event.background ||
+                    "/images/default-event-background.jpg"
+                  }
+                  alt={loaderData.event.name}
+                />
               </div>
               {loaderData.mode === "owner" &&
-                loaderData.abilities.events.hasAccess && (
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="modal-background-upload"
-                      className="btn btn-primary modal-button"
-                    >
-                      Bild ändern
-                    </label>
+              loaderData.abilities.events.hasAccess ? (
+                <div className="absolute bottom-6 right-6">
+                  <label
+                    htmlFor="modal-background-upload"
+                    className="btn btn-primary modal-button"
+                  >
+                    Bild ändern
+                  </label>
 
-                    <Modal id="modal-background-upload">
-                      <ImageCropper
-                        headline="Hintergrundbild"
-                        subject="event"
-                        id="modal-background-upload"
-                        uploadKey="background"
-                        image={loaderData.event.background || undefined}
-                        aspect={31 / 10}
-                        minCropWidth={620}
-                        minCropHeight={62}
-                        maxTargetWidth={1488}
-                        maxTargetHeight={480}
-                        slug={loaderData.event.slug}
-                        redirect={`/event/${loaderData.event.slug}`}
-                      >
-                        <Background />
-                      </ImageCropper>
-                    </Modal>
-                  </div>
-                )}
+                  <Modal id="modal-background-upload">
+                    <ImageCropper
+                      headline="Hintergrundbild"
+                      subject="event"
+                      id="modal-background-upload"
+                      uploadKey="background"
+                      image={loaderData.event.background || undefined}
+                      aspect={31 / 10}
+                      minCropWidth={620}
+                      minCropHeight={62}
+                      maxTargetWidth={1488}
+                      maxTargetHeight={480}
+                      slug={loaderData.event.slug}
+                      redirect={`/event/${loaderData.event.slug}`}
+                    >
+                      <Background />
+                    </ImageCropper>
+                  </Modal>
+                </div>
+              ) : null}
             </div>
           </div>
-          {loaderData.mode === "owner" && (
+          {loaderData.mode === "owner" ? (
             <>
               {loaderData.event.canceled ? (
                 <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
@@ -480,14 +478,14 @@ function Index() {
                 </>
               )}
             </>
-          )}
+          ) : null}
 
-          {loaderData.mode !== "owner" && loaderData.event.canceled && (
+          {loaderData.mode !== "owner" && loaderData.event.canceled ? (
             <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
               Abgesagt
             </div>
-          )}
-          {loaderData.mode !== "owner" && (
+          ) : null}
+          {loaderData.mode !== "owner" ? (
             <>
               {beforeParticipationPeriod || afterParticipationPeriod ? (
                 <div className="bg-accent-300 p-8">
@@ -502,51 +500,52 @@ function Index() {
               ) : (
                 <>
                   {loaderData.mode === "anon" &&
-                    loaderData.event.canceled === false &&
-                    loaderData.event.childEvents.length === 0 && (
-                      <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
-                        <Link
-                          className="btn btn-primary"
-                          to={`/login?login_redirect=/event/${loaderData.event.slug}`}
-                        >
-                          Anmelden um teilzunehmen
-                        </Link>
-                      </div>
-                    )}
+                  loaderData.event.canceled === false &&
+                  loaderData.event.childEvents.length === 0 ? (
+                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
+                      <Link
+                        className="btn btn-primary"
+                        to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                      >
+                        Anmelden um teilzunehmen
+                      </Link>
+                    </div>
+                  ) : null}
                   {loaderData.mode !== "anon" &&
-                    loaderData.event.canceled === false &&
-                    loaderData.event.childEvents.length === 0 && (
-                      <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
-                        {Form}
-                      </div>
-                    )}
+                  loaderData.event.canceled === false &&
+                  loaderData.event.childEvents.length === 0 ? (
+                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
+                      {Form}
+                    </div>
+                  ) : null}
                 </>
               )}
-              <div className="hidden md:block">
-                {loaderData.event.childEvents.length > 0 &&
-                  laysInThePast === false &&
-                  !beforeParticipationPeriod &&
-                  !afterParticipationPeriod && (
-                    <>
-                      <div className="bg-accent-300 p-8">
-                        <p className="font-bold text-center">
-                          Wähle{" "}
-                          <a
-                            href="#child-events"
-                            className="underline hover:no-underline"
-                          >
-                            zugehörige Veranstaltungen
-                          </a>{" "}
-                          aus, an denen Du teilnehmen möchtest.
-                        </p>
-                      </div>
-                    </>
-                  )}
-              </div>
+              {loaderData.event.childEvents.length > 0 &&
+              laysInThePast === false &&
+              !beforeParticipationPeriod &&
+              !afterParticipationPeriod ? (
+                <div className="hidden md:block">
+                  <>
+                    <div className="bg-accent-300 p-8">
+                      <p className="font-bold text-center">
+                        Wähle{" "}
+                        <a
+                          href="#child-events"
+                          className="underline hover:no-underline"
+                        >
+                          zugehörige Veranstaltungen
+                        </a>{" "}
+                        aus, an denen Du teilnehmen möchtest.
+                      </p>
+                    </div>
+                  </>
+                </div>
+              ) : null}
             </>
-          )}
+          ) : null}
         </div>
-        {loaderData.mode === "owner" && loaderData.abilities.events.hasAccess && (
+        {loaderData.mode === "owner" &&
+        loaderData.abilities.events.hasAccess ? (
           <>
             <div className="bg-accent-white p-8 pb-0">
               <p className="font-bold text-right">
@@ -565,7 +564,7 @@ function Index() {
               </p>
             </div>
           </>
-        )}
+        ) : null}
       </section>
       <div className="container relative pt-8 lg:pt-16 pb-20 lg:pb-44">
         <div className="flex -mx-4 justify-center">
@@ -573,23 +572,23 @@ function Index() {
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>
-              {loaderData.event.subline !== null && (
+              {loaderData.event.subline !== null ? (
                 <p className="font-bold text-xl mt-2">
                   {loaderData.event.subline}
                 </p>
-              )}
+              ) : null}
             </header>
-            {loaderData.event.description && (
+            {loaderData.event.description ? (
               <p
                 className="mb-6"
                 dangerouslySetInnerHTML={{
                   __html: nl2br(loaderData.event.description, true),
                 }}
               />
-            )}
+            ) : null}
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">
-              {loaderData.event.types.length > 0 && (
+              {loaderData.event.types.length > 0 ? (
                 <>
                   <div className="text-xs leading-6">Veranstaltungsart</div>
                   <div className="pb-3 md:pb-0">
@@ -598,9 +597,9 @@ function Index() {
                       .join(" / ")}
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {loaderData.event.venueName !== null && (
+              {loaderData.event.venueName !== null ? (
                 <>
                   <div className="text-xs leading-6">Veranstaltungsort</div>
                   <div className="pb-3 md:pb-0">
@@ -613,74 +612,72 @@ function Index() {
                     </p>
                   </div>
                 </>
-              )}
+              ) : null}
 
               {loaderData.event.conferenceLink !== null &&
-                loaderData.event.conferenceLink !== "" && (
-                  <>
-                    <div className="text-xs leading-6">Konferenzlink</div>
-                    <div className="pb-3 md:pb-0">
-                      <a
-                        href={loaderData.event.conferenceLink}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {loaderData.event.conferenceLink}
-                      </a>
-                    </div>
-                  </>
-                )}
+              loaderData.event.conferenceLink !== "" ? (
+                <>
+                  <div className="text-xs leading-6">Konferenzlink</div>
+                  <div className="pb-3 md:pb-0">
+                    <a
+                      href={loaderData.event.conferenceLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {loaderData.event.conferenceLink}
+                    </a>
+                  </div>
+                </>
+              ) : null}
               {loaderData.event.conferenceCode !== null &&
-                loaderData.event.conferenceCode !== "" && (
-                  <>
-                    <div className="text-xs leading-6">Konferenz-Code</div>
-                    <div className="pb-3 md:pb-0">
-                      {loaderData.event.conferenceCode}
-                    </div>
-                  </>
-                )}
+              loaderData.event.conferenceCode !== "" ? (
+                <>
+                  <div className="text-xs leading-6">Konferenz-Code</div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event.conferenceCode}
+                  </div>
+                </>
+              ) : null}
 
-              {loaderData.event.startTime && (
+              {loaderData.event.startTime ? (
                 <>
                   <div className="text-xs leading-6">Start</div>
                   <div className="pb-3 md:pb-0">
                     {formatDateTime(startTime)}
                   </div>
                 </>
-              )}
-              {loaderData.event.endTime && (
+              ) : null}
+              {loaderData.event.endTime ? (
                 <>
                   <div className="text-xs leading-6">Ende</div>
                   <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
                 </>
-              )}
+              ) : null}
 
               {loaderData.event.participationFrom &&
-                new Date(loaderData.event.participationFrom) > new Date() && (
-                  <>
-                    <div className="text-xs leading-6">
-                      Registrierungsbeginn
-                    </div>
-                    <div className="pb-3 md:pb-0">
-                      {formatDateTime(
-                        new Date(loaderData.event.participationFrom)
-                      )}
-                    </div>
-                  </>
-                )}
+              new Date(loaderData.event.participationFrom) > new Date() ? (
+                <>
+                  <div className="text-xs leading-6">Registrierungsbeginn</div>
+                  <div className="pb-3 md:pb-0">
+                    {formatDateTime(
+                      new Date(loaderData.event.participationFrom)
+                    )}
+                  </div>
+                </>
+              ) : null}
               {loaderData.event.participationUntil &&
-                new Date(loaderData.event.participationUntil) > new Date() && (
-                  <>
-                    <div className="text-xs leading-6">Registrierungsende</div>
-                    <div className="pb-3 md:pb-0">
-                      {formatDateTime(
-                        new Date(loaderData.event.participationUntil)
-                      )}
-                    </div>
-                  </>
-                )}
+              new Date(loaderData.event.participationUntil) > new Date() ? (
+                <>
+                  <div className="text-xs leading-6">Registrierungsende</div>
+                  <div className="pb-3 md:pb-0">
+                    {formatDateTime(
+                      new Date(loaderData.event.participationUntil)
+                    )}
+                  </div>
+                </>
+              ) : null}
 
-              {loaderData.event.participantLimit !== null && (
+              {loaderData.event.participantLimit !== null ? (
                 <>
                   <div className="text-xs leading-6">Verfügbare Plätze</div>
                   <div className="pb-3 md:pb-0">
@@ -699,11 +696,11 @@ function Index() {
                     )}
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {(loaderData.isParticipant ||
-                loaderData.isSpeaker ||
-                loaderData.isTeamMember) && (
+              {loaderData.isParticipant ||
+              loaderData.isSpeaker ||
+              loaderData.isTeamMember ? (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div className="pb-3 md:pb-0">
@@ -716,48 +713,45 @@ function Index() {
                     </Link>
                   </div>
                 </>
-              )}
+              ) : null}
 
               {loaderData.mode !== "anon" &&
-                loaderData.event.documents.length > 0 && (
-                  <>
-                    <div className="text-xs leading-6">Downloads</div>
-                    <div className="pb-3 md:pb-0">
-                      {loaderData.event.documents.map((item) => {
-                        return (
-                          <div
-                            key={`document-${item.document.id}`}
-                            className=""
+              loaderData.event.documents.length > 0 ? (
+                <>
+                  <div className="text-xs leading-6">Downloads</div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event.documents.map((item) => {
+                      return (
+                        <div key={`document-${item.document.id}`} className="">
+                          <Link
+                            className="underline hover:no-underline"
+                            to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
+                            reloadDocument
                           >
-                            <Link
-                              className="underline hover:no-underline"
-                              to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
-                              reloadDocument
-                            >
-                              {item.document.title || item.document.filename}
-                            </Link>
-                            {item.document.description && (
-                              <p className="text-sm italic">
-                                {item.document.description}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {loaderData.event.documents.length > 1 && (
-                        <Link
-                          className="btn btn-outline btn-primary btn-small mt-4"
-                          to={`/event/${loaderData.event.slug}/documents-download`}
-                          reloadDocument
-                        >
-                          Alle Herunterladen
-                        </Link>
-                      )}
-                    </div>
-                  </>
-                )}
+                            {item.document.title || item.document.filename}
+                          </Link>
+                          {item.document.description && (
+                            <p className="text-sm italic">
+                              {item.document.description}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {loaderData.event.documents.length > 1 && (
+                      <Link
+                        className="btn btn-outline btn-primary btn-small mt-4"
+                        to={`/event/${loaderData.event.slug}/documents-download`}
+                        reloadDocument
+                      >
+                        Alle Herunterladen
+                      </Link>
+                    )}
+                  </div>
+                </>
+              ) : null}
 
-              {loaderData.event.focuses.length > 0 && (
+              {loaderData.event.focuses.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Schwerpunkte</div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
@@ -770,9 +764,9 @@ function Index() {
                     })}
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {loaderData.event.targetGroups.length > 0 && (
+              {loaderData.event.targetGroups.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
@@ -785,9 +779,9 @@ function Index() {
                     })}
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {loaderData.event.experienceLevel && (
+              {loaderData.event.experienceLevel ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
                     Erfahrunsglevel
@@ -798,9 +792,9 @@ function Index() {
                     </div>
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {loaderData.event.tags.length > 0 && (
+              {loaderData.event.tags.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Tags</div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
@@ -813,9 +807,9 @@ function Index() {
                     })}
                   </div>
                 </>
-              )}
+              ) : null}
 
-              {loaderData.event.areas.length > 0 && (
+              {loaderData.event.areas.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Gebiete</div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
@@ -828,54 +822,54 @@ function Index() {
                     })}
                   </div>
                 </>
-              )}
+              ) : null}
             </div>
 
             {loaderData.event.speakers !== null &&
-              loaderData.event.speakers.length > 0 && (
-                <>
-                  <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
-                    {loaderData.event.speakers.map((speaker) => {
-                      const { profile } = speaker;
-                      return (
-                        <div key={profile.username}>
-                          <Link
-                            className="flex flex-row"
-                            to={`/profile/${profile.username}`}
-                          >
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                              {profile.avatar !== null &&
-                              profile.avatar !== "" ? (
-                                <img
-                                  src={profile.avatar}
-                                  alt={
-                                    profile.firstName + " " + profile.lastName
-                                  }
-                                />
-                              ) : (
-                                getInitials(profile)
-                              )}
-                            </div>
-
-                            <div className="pl-4">
-                              <h5 className="text-sm m-0 font-bold">
-                                {`${profile.academicTitle || ""} ${
+            loaderData.event.speakers.length > 0 ? (
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
+                  {loaderData.event.speakers.map((speaker) => {
+                    const { profile } = speaker;
+                    return (
+                      <div key={profile.username}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/profile/${profile.username}`}
+                        >
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                            {profile.avatar !== null &&
+                            profile.avatar !== "" ? (
+                              <img
+                                src={profile.avatar}
+                                alt={`${profile.academicTitle || ""} ${
                                   profile.firstName
                                 } ${profile.lastName}`.trimStart()}
-                              </h5>
-                              <p className="text-sm m-0 line-clamp-2">
-                                {profile.position}
-                              </p>
-                            </div>
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            {loaderData.event.childEvents.length > 0 && (
+                              />
+                            ) : (
+                              getInitials(profile)
+                            )}
+                          </div>
+
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {`${profile.academicTitle || ""} ${
+                                profile.firstName
+                              } ${profile.lastName}`.trimStart()}
+                            </h5>
+                            <p className="text-sm m-0 line-clamp-2">
+                              {profile.position}
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null}
+            {loaderData.event.childEvents.length > 0 ? (
               <>
                 <h3 id="child-events" className="mt-16 font-bold">
                   Zugehörige Veranstaltungen
@@ -895,24 +889,23 @@ function Index() {
                       >
                         <Link className="flex" to={`/event/${event.slug}`}>
                           <div className="hidden xl:block w-40 shrink-0">
-                            {event.background !== undefined && (
-                              <img
-                                src={
-                                  event.background ||
-                                  "/images/default-event-background.jpg"
-                                }
-                                alt={event.name}
-                                className="object-cover w-full h-full"
-                              />
-                            )}
+                            <img
+                              src={
+                                event.background ||
+                                "/images/default-event-background.jpg"
+                              }
+                              alt={event.name}
+                              className="object-cover w-full h-full"
+                            />
                           </div>
                           <div className="px-4 py-6">
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
-                              {event.stage !== null &&
-                                event.stage.title + " | "}
+                              {event.stage !== null
+                                ? event.stage.title + " | "
+                                : ""}
                               {getDuration(startTime, endTime)}
-                              {event._count.childEvents === 0 && (
+                              {event._count.childEvents === 0 ? (
                                 <>
                                   {event.participantLimit === null
                                     ? " | Unbegrenzte Plätze"
@@ -923,19 +916,23 @@ function Index() {
                                         event.participantLimit
                                       } Plätzen frei`}
                                 </>
+                              ) : (
+                                ""
                               )}
                               {event.participantLimit !== null &&
-                                event._count.participants >=
-                                  event.participantLimit && (
-                                  <>
-                                    {" "}
-                                    |{" "}
-                                    <span>
-                                      {event._count.waitingList} auf der
-                                      Warteliste
-                                    </span>
-                                  </>
-                                )}
+                              event._count.participants >=
+                                event.participantLimit ? (
+                                <>
+                                  {" "}
+                                  |{" "}
+                                  <span>
+                                    {event._count.waitingList} auf der
+                                    Warteliste
+                                  </span>
+                                </>
+                              ) : (
+                                ""
+                              )}
                             </p>
                             <h4 className="font-bold text-base m-0 md:line-clamp-1">
                               {event.name}
@@ -952,7 +949,7 @@ function Index() {
                           </div>
                         </Link>
 
-                        {loaderData.mode === "owner" && !event.canceled && (
+                        {loaderData.mode === "owner" && !event.canceled ? (
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
@@ -964,21 +961,22 @@ function Index() {
                               </div>
                             )}
                           </>
-                        )}
-                        {event.canceled && (
+                        ) : null}
+                        {event.canceled ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
                             Abgesagt
                           </div>
-                        )}
+                        ) : null}
                         {"isParticipant" in event &&
-                          event.isParticipant &&
-                          !event.canceled &&
-                          loaderData.mode !== "owner" && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                              <p>Angemeldet</p>
-                            </div>
-                          )}
-                        {"isParticipant" in event && canUserParticipate(event) && (
+                        event.isParticipant &&
+                        !event.canceled &&
+                        loaderData.mode !== "owner" ? (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                            <p>Angemeldet</p>
+                          </div>
+                        ) : null}
+                        {"isParticipant" in event &&
+                        canUserParticipate(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -987,34 +985,34 @@ function Index() {
                               email={loaderData.email}
                             />
                           </div>
-                        )}
+                        ) : null}
                         {"isParticipant" in event &&
-                          event.isOnWaitingList &&
-                          !event.canceled &&
-                          loaderData.mode !== "owner" && (
-                            <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                              <p>Wartend</p>
-                            </div>
-                          )}
+                        event.isOnWaitingList &&
+                        !event.canceled &&
+                        loaderData.mode !== "owner" ? (
+                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                            <p>Wartend</p>
+                          </div>
+                        ) : null}
                         {"isParticipant" in event &&
-                          canUserBeAddedToWaitingList(event) && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <AddToWaitingListButton
-                                action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
-                                userId={loaderData.userId}
-                                eventId={event.id}
-                                email={loaderData.email}
-                              />
-                            </div>
-                          )}
-                        {(("isParticipant" in event &&
+                        canUserBeAddedToWaitingList(event) ? (
+                          <div className="flex items-center ml-auto pr-4 py-6">
+                            <AddToWaitingListButton
+                              action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                              userId={loaderData.userId}
+                              eventId={event.id}
+                              email={loaderData.email}
+                            />
+                          </div>
+                        ) : null}
+                        {("isParticipant" in event &&
                           !event.isParticipant &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
                           !event.canceled) ||
-                          (loaderData.userId === undefined &&
-                            event._count.childEvents > 0)) && (
+                        (loaderData.userId === undefined &&
+                          event._count.childEvents > 0) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <Link
                               to={`/event/${event.slug}`}
@@ -1023,27 +1021,27 @@ function Index() {
                               Mehr erfahren
                             </Link>
                           </div>
-                        )}
+                        ) : null}
                         {loaderData.mode === "anon" &&
-                          event.canceled === false &&
-                          event._count.childEvents === 0 && (
-                            <div className="flex items-center ml-auto pr-4 py-6">
-                              <Link
-                                className="btn btn-primary"
-                                to={`/login?login_redirect=/event/${event.slug}`}
-                              >
-                                Anmelden
-                              </Link>
-                            </div>
-                          )}
+                        event.canceled === false &&
+                        event._count.childEvents === 0 ? (
+                          <div className="flex items-center ml-auto pr-4 py-6">
+                            <Link
+                              className="btn btn-primary"
+                              to={`/login?login_redirect=/event/${event.slug}`}
+                            >
+                              Anmelden
+                            </Link>
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}
                 </div>
               </>
-            )}
+            ) : null}
 
-            {loaderData.event.teamMembers.length > 0 && (
+            {loaderData.event.teamMembers.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Team</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1059,11 +1057,9 @@ function Index() {
                             member.profile.avatar !== "" ? (
                               <img
                                 src={member.profile.avatar}
-                                alt={
-                                  member.profile.firstName +
-                                  " " +
-                                  member.profile.lastName
-                                }
+                                alt={`${member.profile.academicTitle || ""} ${
+                                  member.profile.firstName
+                                } ${member.profile.lastName}`.trimStart()}
                               />
                             ) : (
                               getInitials(member.profile)
@@ -1072,9 +1068,9 @@ function Index() {
 
                           <div className="pl-4">
                             <h5 className="text-sm m-0 font-bold">
-                              {member.profile.firstName +
-                                " " +
-                                member.profile.lastName}
+                              {`${member.profile.academicTitle || ""} ${
+                                member.profile.firstName
+                              } ${member.profile.lastName}`.trimStart()}
                             </h5>
                             <p className="text-sm m-0 line-clamp-2">
                               {member.profile.position}
@@ -1086,8 +1082,8 @@ function Index() {
                   })}
                 </div>
               </>
-            )}
-            {loaderData.event.responsibleOrganizations.length > 0 && (
+            ) : null}
+            {loaderData.event.responsibleOrganizations.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1128,52 +1124,52 @@ function Index() {
                   })}
                 </div>
               </>
-            )}
+            ) : null}
 
             {loaderData.event.participants !== null &&
-              loaderData.event.participants.length > 0 && (
-                <>
-                  <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {loaderData.event.participants.map((participant) => {
-                      const { profile } = participant;
-                      return (
-                        <div key={profile.username}>
-                          <Link
-                            className="flex flex-row"
-                            to={`/profile/${profile.username}`}
-                          >
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                              {profile.avatar !== null &&
-                              profile.avatar !== "" ? (
-                                <img
-                                  src={profile.avatar}
-                                  alt={
-                                    profile.firstName + " " + profile.lastName
-                                  }
-                                />
-                              ) : (
-                                getInitials(profile)
-                              )}
-                            </div>
-
-                            <div className="pl-4">
-                              <h5 className="text-sm m-0 font-bold">
-                                {`${profile.academicTitle || ""} ${
+            loaderData.event.participants.length > 0 ? (
+              <>
+                <h3 className="mt-16 mb-8 font-bold">Teilnehmer:innen</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {loaderData.event.participants.map((participant) => {
+                    const { profile } = participant;
+                    return (
+                      <div key={profile.username}>
+                        <Link
+                          className="flex flex-row"
+                          to={`/profile/${profile.username}`}
+                        >
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                            {profile.avatar !== null &&
+                            profile.avatar !== "" ? (
+                              <img
+                                src={profile.avatar}
+                                alt={`${profile.academicTitle || ""} ${
                                   profile.firstName
                                 } ${profile.lastName}`.trimStart()}
-                              </h5>
-                              <p className="text-sm m-0 line-clamp-2">
-                                {profile.position}
-                              </p>
-                            </div>
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
+                              />
+                            ) : (
+                              getInitials(profile)
+                            )}
+                          </div>
+
+                          <div className="pl-4">
+                            <h5 className="text-sm m-0 font-bold">
+                              {`${profile.academicTitle || ""} ${
+                                profile.firstName
+                              } ${profile.lastName}`.trimStart()}
+                            </h5>
+                            <p className="text-sm m-0 line-clamp-2">
+                              {profile.position}
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
       </div>
