@@ -84,16 +84,14 @@ function Projects() {
                 to={`/project/${project.slug}`}
               >
                 <div className="w-full aspect-4/3 lg:aspect-video rounded-t-2xl hidden">
-                  {project.background !== undefined && (
-                    <img
-                      src={
-                        project.background ||
-                        "/images/default-event-background.jpg"
-                      }
-                      alt={project.name}
-                      className="object-cover w-full h-full"
-                    />
-                  )}
+                  <img
+                    src={
+                      project.background ||
+                      "/images/default-event-background.jpg"
+                    }
+                    alt={project.name}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
               </Link>
               <Link
@@ -120,22 +118,22 @@ function Projects() {
                         {project.name}
                       </H3>
                       {project.responsibleOrganizations &&
-                        project.responsibleOrganizations.length > 0 && (
-                          <p className="font-bold text-sm">
-                            {project.responsibleOrganizations
-                              .map(({ organization }) => organization.name)
-                              .join(" / ")}
-                          </p>
-                        )}
+                      project.responsibleOrganizations.length > 0 ? (
+                        <p className="font-bold text-sm">
+                          {project.responsibleOrganizations
+                            .map(({ organization }) => organization.name)
+                            .join(" / ")}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
-                  {project.excerpt !== null && project.excerpt !== "" && (
+                  {project.excerpt !== null && project.excerpt !== "" ? (
                     <div className="mt-2 line-clamp-3 text-sm">
                       {project.excerpt}
                     </div>
-                  )}
+                  ) : null}
                 </div>
-                {project.awards.length > 0 && (
+                {project.awards.length > 0 ? (
                   <div className="-mt-4 flex ml-4">
                     {project.awards.map(({ award }) => {
                       award.date = new Date(award.date);
@@ -153,12 +151,14 @@ function Projects() {
                               )}
                             </div>
                             <div className="px-2 pt-1 mb-4">
-                              <H4
-                                like="h4"
-                                className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
-                              >
-                                {award.shortTitle}
-                              </H4>
+                              {award.shortTitle ? (
+                                <H4
+                                  like="h4"
+                                  className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                >
+                                  {award.shortTitle}
+                                </H4>
+                              ) : null}
                               <p className="text-xxs text-center leading-none">
                                 {award.date.getFullYear()}
                               </p>
@@ -168,7 +168,7 @@ function Projects() {
                       );
                     })}
                   </div>
-                )}
+                ) : null}
               </Link>
 
               <div className="items-end px-4">

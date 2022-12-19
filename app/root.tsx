@@ -313,7 +313,7 @@ function NavBar(props: NavBarProps) {
                         Veranstaltungen anzeigen
                       </Link>
                     </li>
-                    {props.abilities.events.hasAccess === true && (
+                    {props.abilities.events.hasAccess === true ? (
                       <li>
                         <Link
                           to={`/event/create`}
@@ -323,7 +323,7 @@ function NavBar(props: NavBarProps) {
                           Veranstaltung anlegen
                         </Link>
                       </li>
-                    )}
+                    ) : null}
                   </>
                   <li className="p-4 pb-6">
                     <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
@@ -342,7 +342,7 @@ function NavBar(props: NavBarProps) {
                       Projekte anzeigen
                     </Link>
                   </li>
-                  {props.abilities.projects.hasAccess === true && (
+                  {props.abilities.projects.hasAccess === true ? (
                     <li>
                       <Link
                         to={`/project/create`}
@@ -352,7 +352,7 @@ function NavBar(props: NavBarProps) {
                         Projekt anlegen
                       </Link>
                     </li>
-                  )}
+                  ) : null}
                   <li className="p-4">
                     <hr className="divide-y divide-neutral-400 hover:bg-white m-0 p-0" />
                   </li>
@@ -426,7 +426,7 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {matomoSiteId !== undefined && (
+        {matomoSiteId !== undefined ? (
           <script
             async
             dangerouslySetInnerHTML={{
@@ -443,7 +443,7 @@ export default function App() {
               `,
             }}
           />
-        )}
+        ) : null}
       </head>
 
       <body>

@@ -71,20 +71,20 @@ const uploadHandler: UploadHandler = async (part) => {
 };
 
 async function persistUpload(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   path: string,
   buffer: Buffer,
   bucketName: string,
   mimeType: string
 ) {
-  return await supabaseClient.storage.from(bucketName).upload(path, buffer, {
+  return await authClient.storage.from(bucketName).upload(path, buffer, {
     upsert: true,
     contentType: mimeType,
   });
 }
 
 function validatePersistence(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   error: any,
   data: any,
   path: string,
@@ -94,7 +94,7 @@ function validatePersistence(
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(supabaseClient, path, bucketName) === null) {
+  if (getPublicURL(authClient, path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });
@@ -149,7 +149,7 @@ export const parseMultipart = async (request: Request) => {
 };
 
 export async function doPersistUpload(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   bucketName: string,
   uploadHandlerResponse: {
     buffer: Buffer;
@@ -161,14 +161,14 @@ export async function doPersistUpload(
   }
 ) {
   const { data, error } = await persistUpload(
-    supabaseClient,
+    authClient,
     uploadHandlerResponse.path,
     uploadHandlerResponse.buffer,
     bucketName,
     uploadHandlerResponse.mimeType
   );
   validatePersistence(
-    supabaseClient,
+    authClient,
     error,
     data,
     uploadHandlerResponse.path,
@@ -179,13 +179,13 @@ export async function doPersistUpload(
 }
 
 export function getPublicURL(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   relativePath: string,
   bucket = "images"
 ) {
   const {
     data: { publicUrl },
-  } = supabaseClient.storage.from(bucket).getPublicUrl(relativePath);
+  } = authClient.storage.from(bucket).getPublicUrl(relativePath);
 
   if (publicUrl === "") {
     throw serverError({
@@ -204,11 +204,11 @@ export function getPublicURL(
 }
 
 export async function download(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   relativePath: string,
   bucket = "documents"
 ) {
-  const { data, error } = await supabaseClient.storage
+  const { data, error } = await authClient.storage
     .from(bucket)
     .download(relativePath);
 
@@ -221,7 +221,7 @@ export async function download(
 }
 
 export async function getDownloadDocumentsResponse(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   additionalHeaders: Headers,
   documents: Pick<Document, "title" | "filename" | "path">[],
   zipFilename: string = "Dokumente.zip"
@@ -234,7 +234,7 @@ export async function getDownloadDocumentsResponse(
 
   const files = await Promise.all(
     documents.map(async (document) => {
-      const blob = await download(supabaseClient, document.path);
+      const blob = await download(authClient, document.path);
       let file = {
         name: document.title || document.filename,
         content: await blob.arrayBuffer(),
@@ -276,13 +276,11 @@ export async function getDownloadDocumentsResponse(
 }
 
 export async function remove(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   paths: string[],
   bucket = "images"
 ) {
-  const { data, error } = await supabaseClient.storage
-    .from(bucket)
-    .remove(paths);
+  const { data, error } = await authClient.storage.from(bucket).remove(paths);
 
   if (data === null || error !== null) {
     throw serverError({

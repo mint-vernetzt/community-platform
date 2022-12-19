@@ -356,7 +356,7 @@ export async function getProfileEventsByMode(
 }
 
 export async function prepareProfileEvents(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   username: string,
   mode: Mode,
   sessionUser: User | null,
@@ -374,7 +374,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.teamMemberOfEvents =
     profileFutureEvents.teamMemberOfEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.event.background);
+        const publicURL = getPublicURL(authClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -387,7 +387,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.contributedEvents =
     profileFutureEvents.contributedEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.event.background);
+        const publicURL = getPublicURL(authClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -400,7 +400,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.participatedEvents =
     profileFutureEvents.participatedEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.event.background);
+        const publicURL = getPublicURL(authClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
@@ -413,7 +413,7 @@ export async function prepareProfileEvents(
   profileFutureEvents.waitingForEvents =
     profileFutureEvents.waitingForEvents.map((item) => {
       if (item.event.background !== null) {
-        const publicURL = getPublicURL(supabaseClient, item.event.background);
+        const publicURL = getPublicURL(authClient, item.event.background);
         if (publicURL) {
           item.event.background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },

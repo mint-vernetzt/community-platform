@@ -167,11 +167,11 @@ function Organizations() {
           );
         }}
       </Form>
-      {addOrganizationFetcher.data?.message && (
+      {addOrganizationFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {addOrganizationFetcher.data.message}
         </div>
-      )}
+      ) : null}
     </>
   );
 }

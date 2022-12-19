@@ -45,10 +45,10 @@ export async function removeImageFromEvent(slug: string, name: UploadKey) {
 }
 
 export async function removeImageFromStorage(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   path: string
 ) {
-  const { error } = await supabaseClient.storage.from("images").remove([path]);
+  const { error } = await authClient.storage.from("images").remove([path]);
 
   return error === null;
 }

@@ -110,11 +110,11 @@ function Speakers() {
           })}
         </ul>
       </div>
-      {removeSpeakerFetcher.data?.message && (
+      {removeSpeakerFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {removeSpeakerFetcher.data.message}
         </div>
-      )}
+      ) : null}
       <h4 className="mb-4 font-semibold">Vortragende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
@@ -174,11 +174,11 @@ function Speakers() {
           );
         }}
       </Form>
-      {addSpeakerFetcher.data?.message && (
+      {addSpeakerFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {addSpeakerFetcher.data.message}
         </div>
-      )}
+      ) : null}
     </>
   );
 }

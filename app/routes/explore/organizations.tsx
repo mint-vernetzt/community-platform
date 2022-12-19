@@ -304,11 +304,10 @@ export default function Index() {
         >
           {organizations.length > 0 ? (
             organizations.map((organization) => {
-              let slug, image, imageType, initials, name, subtitle;
+              let slug, image, initials, name, subtitle;
 
               slug = `/organization/${organization.slug}`;
               image = organization.logo;
-              imageType = "logo";
               initials = getInitialsOfName(organization.name);
               name = organization.name;
               subtitle = organization.types
@@ -326,52 +325,48 @@ export default function Index() {
                     className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
                   >
                     <div className="w-full flex flex-row">
-                      {imageType === "logo" && (
-                        <>
-                          {image !== null ? (
-                            <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center border">
-                              <img
-                                className="max-w-full w-auto max-h-16 h-auto"
-                                src={image}
-                                alt={name}
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                              {initials}
-                            </div>
-                          )}
-                        </>
+                      {image !== null ? (
+                        <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center border">
+                          <img
+                            className="max-w-full w-auto max-h-16 h-auto"
+                            src={image}
+                            alt={name}
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                          {initials}
+                        </div>
                       )}
                       <div className="pl-4">
                         <H3 like="h4" className="text-xl mb-1">
                           {name}
                         </H3>
-                        {subtitle !== null && (
+                        {subtitle !== null ? (
                           <p className="font-bold text-sm">{subtitle}</p>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 
-                    {organization.bio !== undefined && (
+                    {organization.bio !== undefined ? (
                       <p className="mt-3 line-clamp-2">{organization.bio}</p>
-                    )}
+                    ) : null}
 
                     {organization.areas !== undefined &&
-                      organization.areas.length > 0 && (
-                        <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
-                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                            Aktivitätsgebiete
-                          </div>
-                          <div className="flex-auto line-clamp-3">
-                            <span>
-                              {organization.areas
-                                .map((area) => area.area.name)
-                                .join(" / ")}
-                            </span>
-                          </div>
+                    organization.areas.length > 0 ? (
+                      <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
+                        <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                          Aktivitätsgebiete
                         </div>
-                      )}
+                        <div className="flex-auto line-clamp-3">
+                          <span>
+                            {organization.areas
+                              .map((area) => area.area.name)
+                              .join(" / ")}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
                   </Link>
                 </div>
               );

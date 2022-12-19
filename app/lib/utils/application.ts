@@ -3,29 +3,25 @@ import { serverError } from "remix-utils";
 import { getSessionUser } from "~/auth.server";
 
 export async function getFeatureAbilities(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   featureNameOrNames: string | string[]
 ) {
-  const result = await validateFeatureAccess(
-    supabaseClient,
-    featureNameOrNames,
-    {
-      throw: false,
-    }
-  );
+  const result = await validateFeatureAccess(authClient, featureNameOrNames, {
+    throw: false,
+  });
   return result.abilities;
 }
 
 export async function checkFeatureAbilitiesOrThrow(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   featureName: string
 ) {
-  const result = await validateFeatureAccess(supabaseClient, featureName);
+  const result = await validateFeatureAccess(authClient, featureName);
   return result.abilities;
 }
 
 export async function validateFeatureAccess(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   featureNameOrNames: string | string[],
   options: {
     throw: boolean;
@@ -95,7 +91,7 @@ export async function validateFeatureAccess(
     const userIdList = userIds
       .split(",")
       .map((value) => value.trimStart().trimEnd()); // remove whitespace
-    const user = await getSessionUser(supabaseClient);
+    const user = await getSessionUser(authClient);
 
     if (user === null || userIdList.indexOf(user.id) === -1) {
       for (const featureName of featureNames) {

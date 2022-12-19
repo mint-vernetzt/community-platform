@@ -306,7 +306,7 @@ export async function getMembers(organizationId: string) {
 }
 
 export async function getMembersOfOrganization(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   organizationId: string
 ) {
   const members = await prismaClient.memberOfOrganization.findMany({
@@ -336,7 +336,7 @@ export async function getMembersOfOrganization(
 
   const enhancedMembers = members.map((item) => {
     if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.profile.avatar);
+      const publicURL = getPublicURL(authClient, item.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
@@ -367,7 +367,7 @@ export function getTeamMemberProfileDataFromOrganization(
 }
 
 export async function getNetworkMembersOfOrganization(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   organizationId: string
 ) {
   const networkMembers = await prismaClient.memberOfNetwork.findMany({
@@ -403,7 +403,7 @@ export async function getNetworkMembersOfOrganization(
 
   const enhancedNetworkMembers = networkMembers.map((item) => {
     if (item.networkMember.logo !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.networkMember.logo);
+      const publicURL = getPublicURL(authClient, item.networkMember.logo);
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
@@ -422,14 +422,14 @@ export async function getNetworkMembersOfOrganization(
 }
 
 export async function handleAuthorization(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   slug: string
 ) {
   if (slug === undefined) {
     throw badRequest({ message: "Organization slug missing" });
   }
 
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const organization = await getOrganizationIdBySlug(slug);
   if (organization === null) {
