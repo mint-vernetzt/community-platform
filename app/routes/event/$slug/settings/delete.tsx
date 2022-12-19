@@ -134,7 +134,7 @@ function Delete() {
         klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.
       </p>
 
-      {loaderData.childEvents.length > 0 && (
+      {loaderData.childEvents.length > 0 ? (
         <>
           <p className="mb-2">
             Folgende Veranstaltung und zugehörige Veranstaltung werden auch
@@ -156,7 +156,7 @@ function Delete() {
             })}
           </ul>
         </>
-      )}
+      ) : null}
 
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (

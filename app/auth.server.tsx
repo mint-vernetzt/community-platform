@@ -7,7 +7,7 @@ import { prismaClient } from "./prisma";
 const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request, response: Response) => {
-  const supabaseClient = createServerClient(
+  const authClient = createServerClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     {
@@ -27,11 +27,11 @@ export const createAuthClient = (request: Request, response: Response) => {
       },
     }
   );
-  return supabaseClient;
+  return authClient;
 };
 
 export const signUp = async (
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   email: string,
   password: string,
   metaData: Pick<
@@ -40,7 +40,7 @@ export const signUp = async (
   >,
   emailRedirectTo?: string
 ) => {
-  const { data, error } = await supabaseClient.auth.signUp({
+  const { data, error } = await authClient.auth.signUp({
     email: email,
     password: password,
     options: {
@@ -52,45 +52,45 @@ export const signUp = async (
 };
 
 export const signIn = async (
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   email: string,
   password: string
 ) => {
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { data, error } = await authClient.auth.signInWithPassword({
     email: email,
     password: password,
   });
   return { data, error };
 };
 
-export const signOut = async (supabaseClient: SupabaseClient) => {
-  const { error } = await supabaseClient.auth.signOut();
+export const signOut = async (authClient: SupabaseClient) => {
+  const { error } = await authClient.auth.signOut();
   return { error };
 };
 
 export const setSession = async (
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   accessToken: string,
   refreshToken: string
 ) => {
   const {
     data: { session, user },
-  } = await supabaseClient.auth.setSession({
+  } = await authClient.auth.setSession({
     refresh_token: refreshToken,
     access_token: accessToken,
   });
   return { session, user };
 };
 
-export const getSession = async (supabaseClient: SupabaseClient) => {
+export const getSession = async (authClient: SupabaseClient) => {
   const {
     data: { session },
-  } = await supabaseClient.auth.getSession();
+  } = await authClient.auth.getSession();
   return session;
 };
 
-export const getSessionOrThrow = async (supabaseClient: SupabaseClient) => {
-  const session = await getSession(supabaseClient);
+export const getSessionOrThrow = async (authClient: SupabaseClient) => {
+  const session = await getSession(authClient);
   if (session === null) {
     throw unauthorized({
       message: "No session found",
@@ -99,16 +99,16 @@ export const getSessionOrThrow = async (supabaseClient: SupabaseClient) => {
   return session;
 };
 
-export const getSessionUser = async (supabaseClient: SupabaseClient) => {
-  const session = await getSession(supabaseClient);
+export const getSessionUser = async (authClient: SupabaseClient) => {
+  const session = await getSession(authClient);
   if (session !== null && session.user !== null) {
     return session.user;
   }
   return null;
 };
 
-export const getSessionUserOrThrow = async (supabaseClient: SupabaseClient) => {
-  const result = await getSessionUser(supabaseClient);
+export const getSessionUserOrThrow = async (authClient: SupabaseClient) => {
+  const result = await getSessionUser(authClient);
   if (result === null) {
     throw unauthorized({
       message: "No session or session user found",
@@ -118,21 +118,21 @@ export const getSessionUserOrThrow = async (supabaseClient: SupabaseClient) => {
 };
 
 export const getUserByAccessToken = async (
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   accessToken: string
 ) => {
   const {
     data: { user },
-  } = await supabaseClient.auth.getUser(accessToken);
+  } = await authClient.auth.getUser(accessToken);
   return { user };
 };
 
 export async function sendResetPasswordLink(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   email: string,
   redirectToAfterResetPassword?: string
 ) {
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+  const { error } = await authClient.auth.resetPasswordForEmail(email, {
     redirectTo: redirectToAfterResetPassword,
   });
   return { error };
@@ -143,30 +143,27 @@ export async function sendResetPasswordLink(
 // https://supabase.com/docs/reference/javascript/auth-onauthstatechange
 // https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
 export async function updatePassword(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   password: string
 ) {
-  const { data, error } = await supabaseClient.auth.updateUser({
+  const { data, error } = await authClient.auth.updateUser({
     password,
   });
   return { data, error };
 }
 
 export async function sendResetEmailLink(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   email: string
 ) {
-  const { data, error } = await supabaseClient.auth.updateUser({
+  const { data, error } = await authClient.auth.updateUser({
     email,
   });
   return { data, error };
 }
 
-export async function deleteUserByUid(
-  supabaseClient: SupabaseClient,
-  uid: string
-) {
+export async function deleteUserByUid(authClient: SupabaseClient, uid: string) {
   await prismaClient.profile.delete({ where: { id: uid } });
-  const { error } = await supabaseClient.auth.admin.deleteUser(uid);
+  const { error } = await authClient.auth.admin.deleteUser(uid);
   return { error };
 }

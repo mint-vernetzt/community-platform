@@ -95,7 +95,7 @@ function Team() {
                         <Field name="eventId" />
                         <Field name="teamMemberId" />
                         <Field name="isPrivileged" />
-                        {teamMember.isCurrentUser === false && (
+                        {teamMember.isCurrentUser === false ? (
                           <div className="ml-2">
                             <Button
                               className="btn btn-outline-primary ml-auto btn-small"
@@ -110,7 +110,7 @@ function Team() {
                                 : "Privileg hinzufügen"}
                             </Button>
                           </div>
-                        )}
+                        ) : null}
                       </>
                     );
                   }}
@@ -133,7 +133,7 @@ function Team() {
                         <Field name="userId" />
                         <Field name="eventId" />
                         <Field name="teamMemberId" />
-                        {teamMember.isCurrentUser === false && (
+                        {teamMember.isCurrentUser === false ? (
                           <Button
                             className="ml-auto btn-none"
                             title="entfernen"
@@ -151,7 +151,7 @@ function Team() {
                               />
                             </svg>
                           </Button>
-                        )}
+                        ) : null}
                       </>
                     );
                   }}

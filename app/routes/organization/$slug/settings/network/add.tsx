@@ -162,11 +162,11 @@ function Add() {
           );
         }}
       </Form>
-      {fetcher.data !== undefined && "message" in fetcher.data && (
+      {fetcher.data !== undefined && "message" in fetcher.data ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {fetcher.data.message}
         </div>
-      )}
+      ) : null}
     </>
   );
 }

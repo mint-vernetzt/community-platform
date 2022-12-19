@@ -21,11 +21,11 @@ export function createCSRFToken() {
 
 // TODO: Do we need user id in combination with csrf?
 export async function validateCSRFToken(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   request: Request
 ) {
   const formData = await request.clone().formData();
-  const session = await getSession(supabaseClient);
+  const session = await getSession(authClient);
 
   const message = "Not allowed";
 
@@ -54,8 +54,8 @@ export async function validateCSRFToken(
   // }
 }
 
-export async function addCsrfTokenToSession(supabaseClient: SupabaseClient) {
-  const session = await getSession(supabaseClient);
+export async function addCsrfTokenToSession(authClient: SupabaseClient) {
+  const session = await getSession(authClient);
 
   // TODO: .has() and .get() does not exist on session since supabase v2
   // Use getSession(), refreshSession() and setSession() instead

@@ -145,11 +145,11 @@ function Participants() {
             );
           }}
         </Form>
-        {setParticipantLimitFetcher.data?.message && (
+        {setParticipantLimitFetcher.data?.message ? (
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {setParticipantLimitFetcher.data.message}
           </div>
-        )}
+        ) : null}
       </div>
       <div className="mb-8">
         <h3>Teilnehmende</h3>
@@ -210,12 +210,12 @@ function Participants() {
             );
           })}
         </ul>
-        {removeParticipantFetcher.data?.message && (
+        {removeParticipantFetcher.data?.message ? (
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {removeParticipantFetcher.data.message}
           </div>
-        )}
-        {loaderData.participants.length > 0 && (
+        ) : null}
+        {loaderData.participants.length > 0 ? (
           <Link
             className="btn btn-outline btn-primary mt-4"
             to="csv-download?type=participants&amp;depth=single"
@@ -223,8 +223,8 @@ function Participants() {
           >
             Teilnehmerliste herunterladen
           </Link>
-        )}
-        {loaderData.hasFullDepthParticipants && (
+        ) : null}
+        {loaderData.hasFullDepthParticipants ? (
           <Link
             className="btn btn-outline btn-primary mt-4"
             to="csv-download?type=participants&amp;depth=full"
@@ -232,7 +232,7 @@ function Participants() {
           >
             Teilnehmerliste aller Subveranstaltungen herunterladen
           </Link>
-        )}
+        ) : null}
       </div>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">Lorem Ipsum</p>
@@ -292,11 +292,11 @@ function Participants() {
             );
           }}
         </Form>
-        {addParticipantFetcher.data?.message && (
+        {addParticipantFetcher.data?.message ? (
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {addParticipantFetcher.data.message}
           </div>
-        )}
+        ) : null}
       </div>
       <div className="mb-8">
         <h3>Warteliste</h3>
@@ -382,12 +382,12 @@ function Participants() {
             );
           })}
         </ul>
-        {removeFromWaitingListFetcher.data?.message && (
+        {removeFromWaitingListFetcher.data?.message ? (
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {removeFromWaitingListFetcher.data.message}
           </div>
-        )}
-        {loaderData.waitingList.length > 0 && (
+        ) : null}
+        {loaderData.waitingList.length > 0 ? (
           <>
             <Link
               className="btn btn-outline btn-primary mt-4"
@@ -397,8 +397,8 @@ function Participants() {
               Warteliste herunterladen
             </Link>
           </>
-        )}
-        {loaderData.hasFullDepthWaitingList && (
+        ) : null}
+        {loaderData.hasFullDepthWaitingList ? (
           <>
             <Link
               className="btn btn-outline btn-primary mt-4"
@@ -408,7 +408,7 @@ function Participants() {
               Warteliste aller Subveranstaltungen herunterladen
             </Link>
           </>
-        )}
+        ) : null}
       </div>
       <h4 className="mb-4 font-semibold">Zur Warteliste hinzufügen</h4>
       <p className="mb-8">Lorem Ipsum</p>
@@ -468,11 +468,11 @@ function Participants() {
             );
           }}
         </Form>
-        {addToWaitingListFetcher.data?.message && (
+        {addToWaitingListFetcher.data?.message ? (
           <div className="p-4 bg-green-200 rounded-md mt-4">
             {addToWaitingListFetcher.data.message}
           </div>
-        )}
+        ) : null}
       </div>
     </>
   );

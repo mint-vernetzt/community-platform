@@ -77,13 +77,13 @@ const uploadHandler: UploadHandler = async (part) => {
 };
 
 async function persistUpload(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   path: string,
   buffer: Buffer,
   bucketName: string,
   mimeType?: string
 ) {
-  return await supabaseClient.storage.from(bucketName).upload(path, buffer, {
+  return await authClient.storage.from(bucketName).upload(path, buffer, {
     upsert: true,
     contentType: mimeType,
   });
@@ -151,7 +151,7 @@ export async function updateProjectBackgroundImage(
 }
 
 export const upload = async (
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   request: Request,
   bucketName: string
 ) => {
@@ -188,14 +188,14 @@ export const upload = async (
     }
 
     const { data, error } = await persistUpload(
-      supabaseClient,
+      authClient,
       uploadHandlerResponse.path,
       buffer,
       bucketName,
       uploadHandlerResponse.mimeType
     );
     validatePersistence(
-      supabaseClient,
+      authClient,
       error,
       data,
       uploadHandlerResponse.path,
@@ -209,7 +209,7 @@ export const upload = async (
 };
 
 function validatePersistence(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   error: any,
   data: any,
   path: string,
@@ -219,7 +219,7 @@ function validatePersistence(
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
-  if (getPublicURL(supabaseClient, path, bucketName) === null) {
+  if (getPublicURL(authClient, path, bucketName) === null) {
     throw serverError({
       message: "Die angefragte URL konnte nicht gefunden werden.",
     });

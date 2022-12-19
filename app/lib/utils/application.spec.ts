@@ -13,14 +13,10 @@ jest.mock("~/auth.server", () => {
 const request = new Request(testURL);
 const response = new Response();
 
-const supabaseClient = createServerClient(
-  "localhost:12345",
-  "SUPABASE_ANON_KEY",
-  {
-    request,
-    response,
-  }
-);
+const authClient = createServerClient("localhost:12345", "SUPABASE_ANON_KEY", {
+  request,
+  response,
+});
 
 describe("validateFeatureAccess()", () => {
   describe("single feature", () => {
@@ -39,7 +35,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, "a feature");
+        await validateFeatureAccess(authClient, "a feature");
       } catch (error) {
         console.log({ error });
         const response = error as Response;
@@ -51,7 +47,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, abilities } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         "a feature",
         { throw: false }
       );
@@ -76,7 +72,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, "another feature");
+        await validateFeatureAccess(authClient, "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -89,7 +85,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         "another feature",
         { throw: false }
       );
@@ -113,7 +109,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, "another feature");
+        await validateFeatureAccess(authClient, "another feature");
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -126,7 +122,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { error, hasAccess, featureName } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         "another feature",
         { throw: false }
       );
@@ -151,7 +147,7 @@ describe("validateFeatureAccess()", () => {
       let featureName: string | undefined;
 
       try {
-        const result = await validateFeatureAccess(supabaseClient, "a feature");
+        const result = await validateFeatureAccess(authClient, "a feature");
         error = result.error;
         hasAccess = result.hasAccess;
         featureName = result.featureName;
@@ -177,7 +173,7 @@ describe("validateFeatureAccess()", () => {
 
       try {
         const result = await validateFeatureAccess(
-          supabaseClient,
+          authClient,
           "another feature"
         );
         error = result.error;
@@ -209,7 +205,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
+        await validateFeatureAccess(authClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -220,7 +216,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -247,7 +243,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
+        await validateFeatureAccess(authClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -258,7 +254,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -283,7 +279,7 @@ describe("validateFeatureAccess()", () => {
 
       // throw
       try {
-        await validateFeatureAccess(supabaseClient, ["feature1", "feature2"]);
+        await validateFeatureAccess(authClient, ["feature1", "feature2"]);
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(500);
@@ -294,7 +290,7 @@ describe("validateFeatureAccess()", () => {
 
       // self handled
       const { abilities } = await validateFeatureAccess(
-        supabaseClient,
+        authClient,
         ["feature1", "feature2"],
         { throw: false }
       );
@@ -324,7 +320,7 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(supabaseClient, [
+      const { abilities } = await validateFeatureAccess(authClient, [
         "feature1",
         "feature2",
       ]);
@@ -349,7 +345,7 @@ describe("validateFeatureAccess()", () => {
 
       expect.assertions(4);
 
-      const { abilities } = await validateFeatureAccess(supabaseClient, [
+      const { abilities } = await validateFeatureAccess(authClient, [
         "feature1",
         "feature2",
       ]);

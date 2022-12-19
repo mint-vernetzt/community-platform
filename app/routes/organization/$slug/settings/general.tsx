@@ -542,7 +542,7 @@ function Index() {
                   Deine Informationen wurden aktualisiert.
                 </div>
 
-                {isFormChanged && (
+                {isFormChanged ? (
                   <Link
                     to={`/organization/${slug}/settings`}
                     reloadDocument
@@ -550,7 +550,7 @@ function Index() {
                   >
                     Änderungen verwerfen
                   </Link>
-                )}
+                ) : null}
                 <div></div>
                 <button
                   type="submit"

@@ -560,7 +560,7 @@ export default function Index() {
                     Dein Profil wurde aktualisiert.
                   </div>
 
-                  {isFormChanged && (
+                  {isFormChanged ? (
                     <Link
                       to={`/profile/${username}/settings`}
                       reloadDocument
@@ -568,7 +568,7 @@ export default function Index() {
                     >
                       Änderungen verwerfen
                     </Link>
-                  )}
+                  ) : null}
                   <div></div>
                   <button
                     type="submit"
