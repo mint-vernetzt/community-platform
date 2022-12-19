@@ -110,10 +110,10 @@ export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
 
-  const supabaseClient = createAuthClient(request, response);
+  const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(supabaseClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
   await checkOwnershipOrThrow(project, sessionUser);
 

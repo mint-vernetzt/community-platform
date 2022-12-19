@@ -7,7 +7,7 @@ describe("reset password", () => {
   const request = new Request(testURL);
   const response = new Response();
 
-  const supabaseClient = createServerClient(
+  const authClient = createServerClient(
     Cypress.env("SUPABASE_URL"),
     Cypress.env("SERVICE_ROLE_KEY"),
     { request, response }
@@ -26,7 +26,7 @@ describe("reset password", () => {
     const {
       data: { user },
       error,
-    } = await supabaseClient.auth.admin.createUser({
+    } = await authClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -51,8 +51,8 @@ describe("reset password", () => {
 
   after(async () => {
     if (uid !== undefined) {
-      await supabaseClient.from("profiles").delete().match({ id: uid });
-      await supabaseClient.auth.admin.deleteUser(uid);
+      await authClient.from("profiles").delete().match({ id: uid });
+      await authClient.auth.admin.deleteUser(uid);
     }
   });
 });

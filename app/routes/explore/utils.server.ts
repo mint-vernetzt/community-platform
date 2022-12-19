@@ -239,7 +239,7 @@ export async function enhanceEventsWithParticipationStatus(
 }
 
 export async function prepareEvents(
-  supabaseClient: SupabaseClient,
+  authClient: SupabaseClient,
   sessionUser: User | null,
   inFuture: boolean
 ) {
@@ -256,7 +256,7 @@ export async function prepareEvents(
 
   enhancedEvents = enhancedEvents.map((item) => {
     if (item.background !== null) {
-      const publicURL = getPublicURL(supabaseClient, item.background);
+      const publicURL = getPublicURL(authClient, item.background);
       if (publicURL) {
         item.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
@@ -271,10 +271,7 @@ export async function prepareEvents(
       event.responsibleOrganizations = event.responsibleOrganizations.map(
         (item) => {
           if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(
-              supabaseClient,
-              item.organization.logo
-            );
+            const publicURL = getPublicURL(authClient, item.organization.logo);
             if (publicURL) {
               item.organization.logo = getImageURL(publicURL, {
                 resize: { type: "fit", width: 144, height: 144 },

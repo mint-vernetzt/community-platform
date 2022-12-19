@@ -17,13 +17,13 @@ after(async () => {
   const request = new Request(testURL);
   const response = new Response();
 
-  const supabaseClient = createServerClient(
+  const authClient = createServerClient(
     Cypress.env("SUPABASE_URL"),
     Cypress.env("SERVICE_ROLE_KEY"),
     { request, response }
   );
 
-  const res = await supabaseClient
+  const res = await authClient
     .from("profiles")
     .select("id")
     .eq("username", "peterhollo")
@@ -31,8 +31,8 @@ after(async () => {
 
   if (res.data !== null) {
     const profile: Profile = res.data; // TODO: fix type issue
-    await supabaseClient.from("profiles").delete().match({ id: profile.id });
-    await supabaseClient.auth.admin.deleteUser(profile.id);
+    await authClient.from("profiles").delete().match({ id: profile.id });
+    await authClient.auth.admin.deleteUser(profile.id);
   } else {
     throw new Error("Couldn't reset profiles and users.");
   }

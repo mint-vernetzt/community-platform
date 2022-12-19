@@ -4,7 +4,7 @@ import { testURL } from "~/lib/utils/tests";
 const request = new Request(testURL);
 const response = new Response();
 
-const supabaseClient = createServerClient(
+const authClient = createServerClient(
   Cypress.env("SUPABASE_URL"),
   Cypress.env("SERVICE_ROLE_KEY"),
   { request, response }
@@ -22,18 +22,18 @@ before(async () => {
 
   const {
     data: { users },
-  } = await supabaseClient.auth.admin.listUsers();
+  } = await authClient.auth.admin.listUsers();
   let user = users.filter((user) => user.email === email)[0];
 
   if (user) {
     //    await supabase.from("profiles").delete().match({ id: user.id });
-    await supabaseClient.auth.admin.deleteUser(user.id);
+    await authClient.auth.admin.deleteUser(user.id);
   }
 
   const {
     data: { user: newUser },
     error,
-  } = await supabaseClient.auth.admin.createUser({
+  } = await authClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -75,7 +75,7 @@ it("login", () => {
 after(async () => {
   if (uid !== undefined) {
     //    await supabase.from("profiles").delete().match({ id: uid });
-    await supabaseClient.auth.admin.deleteUser(uid);
+    await authClient.auth.admin.deleteUser(uid);
   }
 });
 
