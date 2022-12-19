@@ -530,10 +530,10 @@ export default function Index() {
                         </svg>
                       </span>
                       <span>
-                        {loaderData.organization.street}{" "}
+                        {loaderData.organization.street}&nbsp;
                         {loaderData.organization.streetNumber}
                         <br />
-                        {loaderData.organization.zipCode}{" "}
+                        {loaderData.organization.zipCode}&nbsp;
                         {loaderData.organization.city}
                       </span>
                     </p>
@@ -543,7 +543,7 @@ export default function Index() {
 
                 {loaderData.organization.createdAt ? (
                   <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem{" "}
+                    Profil besteht seit dem&nbsp;
                     {new Date(
                       loaderData.organization.createdAt
                     ).toLocaleDateString("de-De", {
@@ -864,8 +864,7 @@ export default function Index() {
                                     event._count.participants >=
                                       event.participantLimit ? (
                                       <>
-                                        {" "}
-                                        |{" "}
+                                        &nbsp; |&nbsp;
                                         <span>
                                           {event._count.waitingList} auf der
                                           Warteliste

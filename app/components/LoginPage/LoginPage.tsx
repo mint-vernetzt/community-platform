@@ -21,7 +21,7 @@ function LoginPage(props: LoginPageProps) {
               <HeaderLogo />
             </div>
             <div className="ml-auto">
-              Noch kein Mitglied?{" "}
+              Noch kein Mitglied?&nbsp;
               <a href="/register" className="text-primary font-bold">
                 Registrieren
               </a>

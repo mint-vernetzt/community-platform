@@ -139,12 +139,13 @@ function Delete() {
           <p className="mb-2">
             Folgende Veranstaltung und zugehörige Veranstaltung werden auch
             gelöscht:
-          </p>{" "}
+          </p>
+          &nbsp;
           <ul className="mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
                 <li key={`child-event-${childEvent.id}`}>
-                  -{" "}
+                  -&nbsp;
                   <Link
                     className="underline hover:no-underline"
                     to={`/event/${childEvent.slug}`}

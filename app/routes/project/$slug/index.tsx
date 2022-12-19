@@ -445,7 +445,7 @@ function Index() {
                         </svg>
                       </span>
                       <span>
-                        {loaderData.project.street}{" "}
+                        {loaderData.project.street}&nbsp;
                         {loaderData.project.streetNumber}
                         <br />
                         {loaderData.project.zipCode} {loaderData.project.city}

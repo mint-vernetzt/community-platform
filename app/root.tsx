@@ -377,8 +377,8 @@ function NavBar(props: NavBarProps) {
                 className="text-primary font-semibold hover:underline"
               >
                 Anmelden
-              </Link>{" "}
-              /{" "}
+              </Link>
+              &nbsp; /&nbsp;
               <Link
                 to="/register"
                 className="text-primary font-semibold hover:underline"

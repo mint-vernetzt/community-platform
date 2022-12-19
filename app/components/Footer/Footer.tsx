@@ -45,7 +45,7 @@ function Footer(props: FooterProps) {
               </a>
             </li>
             <p>
-              Benötigst du Hilfe? Melde dich bei{" "}
+              Benötigst du Hilfe? Melde dich bei&nbsp;
               <a
                 href="mailto:support@mint-vernetzt.de"
                 className="hover:underline hover:text-primary"

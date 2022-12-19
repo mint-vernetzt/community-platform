@@ -122,7 +122,7 @@ export default function Register() {
               <HeaderLogo />
             </div>
             <div className="ml-auto">
-              Bereits Mitglied?{" "}
+              Bereits Mitglied?&nbsp;
               <Link
                 to={`/login${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
@@ -147,7 +147,7 @@ export default function Register() {
                   wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte
                   sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits
                   vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
-                  vergessen, dann setze hier Dein Passwort zurück:{" "}
+                  vergessen, dann setze hier Dein Passwort zurück:&nbsp;
                   <Link
                     to={`/reset${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
@@ -309,7 +309,7 @@ export default function Register() {
                             }}
                           </Field>
                           <span className="label-text">
-                            Ich erkläre mich mit der Geltung der{" "}
+                            Ich erkläre mich mit der Geltung der&nbsp;
                             <a
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
@@ -317,8 +317,8 @@ export default function Register() {
                               className="text-primary font-bold hover:underline"
                             >
                               Nutzungsbedingungen
-                            </a>{" "}
-                            einverstanden. Die{" "}
+                            </a>
+                            &nbsp; einverstanden. Die&nbsp;
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
@@ -326,8 +326,8 @@ export default function Register() {
                               className="text-primary font-bold hover:underline"
                             >
                               Datenschutzerklärung
-                            </a>{" "}
-                            habe ich zur Kenntnis genommen.
+                            </a>
+                            &nbsp; habe ich zur Kenntnis genommen.
                           </span>
                         </label>
                       </div>

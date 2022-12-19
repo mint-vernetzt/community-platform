@@ -157,7 +157,7 @@ export default function Index() {
                   <HeaderLogo />
                 </div>
                 <div className="ml-auto">
-                  Noch kein Mitglied?{" "}
+                  Noch kein Mitglied?&nbsp;
                   <Link
                     to={`/register${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""

@@ -422,7 +422,7 @@ export default function Index() {
                   <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                   <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem{" "}
+                    Profil besteht seit dem&nbsp;
                     {new Date(loaderData.data.createdAt).toLocaleDateString(
                       "de-De",
                       { day: "numeric", month: "long", year: "numeric" }
@@ -437,7 +437,7 @@ export default function Index() {
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
-                  Hi, ich bin{" "}
+                  Hi, ich bin&nbsp;
                   {getFullName(loaderData.data, { withAcademicTitle: false })}
                 </h1>
               </div>
@@ -776,8 +776,7 @@ export default function Index() {
                                     event._count.participants >=
                                       event.participantLimit ? (
                                       <>
-                                        {" "}
-                                        |{" "}
+                                        &nbsp; |&nbsp;
                                         <span>
                                           {event._count.waitingList} auf der
                                           Warteliste
@@ -950,8 +949,7 @@ export default function Index() {
                                     event._count.participants >=
                                       event.participantLimit ? (
                                       <>
-                                        {" "}
-                                        |{" "}
+                                        &nbsp; |&nbsp;
                                         <span>
                                           {event._count.waitingList} auf der
                                           Warteliste
@@ -1103,8 +1101,7 @@ export default function Index() {
                                     event._count.participants >=
                                       event.participantLimit ? (
                                       <>
-                                        {" "}
-                                        |{" "}
+                                        &nbsp; |&nbsp;
                                         <span>
                                           {event._count.waitingList} auf der
                                           Warteliste

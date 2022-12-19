@@ -27,7 +27,7 @@ export default function Imprint() {
       <p>Tel.: +49(0)211-75707-910</p>
       <p>Fax: +49(0)211-987300</p>
       <p>
-        E-Mail:{" "}
+        E-Mail:&nbsp;
         <a
           className="text-primary hover:underline"
           href="mailto:info@matrix-gmbh.de"

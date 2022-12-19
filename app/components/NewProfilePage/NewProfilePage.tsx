@@ -21,7 +21,7 @@ function NewProfilePage(props: NewProfilePageProps) {
               <HeaderLogo />
             </div>
             <div className="ml-auto">
-              Bereits Mitglied?{" "}
+              Bereits Mitglied?&nbsp;
               <a href="/login" className="text-primary font-bold">
                 Anmelden
               </a>

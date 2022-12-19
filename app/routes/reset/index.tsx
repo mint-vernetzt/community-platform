@@ -109,7 +109,7 @@ export default function Index() {
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Eine E-Mail zum Zurücksetzen des Passworts wurde an{" "}
+                  Eine E-Mail zum Zurücksetzen des Passworts wurde an&nbsp;
                   <b>{actionData.data.email}</b> geschickt.
                 </p>
                 <p className="mb-4">

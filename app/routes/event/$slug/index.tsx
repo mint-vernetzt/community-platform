@@ -528,14 +528,14 @@ function Index() {
                   <>
                     <div className="bg-accent-300 p-8">
                       <p className="font-bold text-center">
-                        Wähle{" "}
+                        Wähle&nbsp;
                         <a
                           href="#child-events"
                           className="underline hover:no-underline"
                         >
                           zugehörige Veranstaltungen
-                        </a>{" "}
-                        aus, an denen Du teilnehmen möchtest.
+                        </a>
+                        &nbsp; aus, an denen Du teilnehmen möchtest.
                       </p>
                     </div>
                   </>
@@ -604,10 +604,10 @@ function Index() {
                   <div className="text-xs leading-6">Veranstaltungsort</div>
                   <div className="pb-3 md:pb-0">
                     <p>
-                      {loaderData.event.venueName},{" "}
-                      {loaderData.event.venueStreet}{" "}
-                      {loaderData.event.venueStreetNumber},{" "}
-                      {loaderData.event.venueZipCode}{" "}
+                      {loaderData.event.venueName},&nbsp;
+                      {loaderData.event.venueStreet}&nbsp;
+                      {loaderData.event.venueStreetNumber},&nbsp;
+                      {loaderData.event.venueZipCode}&nbsp;
                       {loaderData.event.venueCity}
                     </p>
                   </div>
@@ -690,8 +690,8 @@ function Index() {
                         0
                           ? 0
                           : loaderData.event.participantLimit -
-                            loaderData.event._count.participants}{" "}
-                        / {loaderData.event.participantLimit}
+                            loaderData.event._count.participants}
+                        &nbsp; / {loaderData.event.participantLimit}
                       </>
                     )}
                   </div>
@@ -923,8 +923,7 @@ function Index() {
                               event._count.participants >=
                                 event.participantLimit ? (
                                 <>
-                                  {" "}
-                                  |{" "}
+                                  &nbsp; |&nbsp;
                                   <span>
                                     {event._count.waitingList} auf der
                                     Warteliste
