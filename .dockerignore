@@ -1,0 +1,11 @@
+.env
+.cache
+.github
+.husky
+.storybook
+__mocks__
+build
+coverage
+docker
+node_modules
+supabase
