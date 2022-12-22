@@ -15,6 +15,12 @@ describe("reset password", () => {
 
   let uid: string | undefined;
 
+  beforeEach(() => {
+    // Reset the application state before each test. Example:
+    // cy.visit("http://localhost:3000/reset");
+    // cy.wait(500); // Wait for the reset to complete asynchronously
+  });
+  
   before(async () => {
     const email = "hello@songsforthe.dev";
     const password = "password";
@@ -50,9 +56,13 @@ describe("reset password", () => {
   });
 
   after(async () => {
-    if (uid !== undefined) {
-      await authClient.from("profiles").delete().match({ id: uid });
-      await authClient.auth.admin.deleteUser(uid);
+    try {
+      if (uid !== undefined) {
+        await authClient.from("profiles").delete().match({ id: uid });
+        await authClient.auth.admin.deleteUser(uid);
+      }
+    } catch (error) {
+      console.error(error);
     }
   });
 });
