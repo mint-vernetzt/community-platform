@@ -1,9 +1,51 @@
-const test = it;
-
-describe("context", () => {
-  test("opens route", () => {
+describe("{{ route }} route", () => {
+  before(() => {
     cy.visit("http://localhost:3000{{ route }}");
   });
-});
 
-export {};
+  test("displays the correct content when the route is opened", () => {
+    cy.get("{{ element }}").should("have text content as", "{{ expected content }}");
+  });
+
+  test("handle errors or invalid input", () => {
+    cy.get("input[name=email]").type("invalid email");
+    cy.get("form").submit();
+
+    // Test that the correct error message or feedback is displayed
+    cy.get("#error-message").should("have text content as", "Error: Invalid email address");
+  });
+
+  test("displays the correct content for different users", () => {
+    // Test actions that trigger a change in the content displayed
+    cy.get("select[name=user]").select("Peter Holló");
+    cy.wait(500); // Wait for the data to be loaded asynchronously
+
+    // Test that the correct content is displayed
+    cy.contains("Hello, Peter Holló!");
+  });
+  
+  test("performs asynchronous operations correctly", () => {
+    // Test actions that trigger an asynchronous operation
+    cy.get("button[name=load-data]").click();
+    cy.wait(500); // Wait for the data to be loaded asynchronously
+
+    // Test that the correct content is displayed
+    cy.get("#data-container").should("have text content as", "Data loaded successfully");
+  });
+
+  test("interacts with external APIs correctly", () => {
+    // Use the cy.task() command to perform custom Node.js code
+    cy.task("fetchData", { url: "http://example.com/api/users" }).then((data) => {
+      expect(data).to.have.property("users");
+      expect(data.users).to.be.an("array");
+    });
+  });
+
+  test("loads data from a fixture file correctly", () => {
+    // Use the cy.fixture() command to load data from a fixture file
+    const data = cy.fixture("example.json");
+    expect(data).to.have.property("name");
+    expect(data).to.have.property("email");
+    expect(data).to.have.property("body");
+  });
+});
