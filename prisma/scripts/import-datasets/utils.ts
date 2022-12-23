@@ -68,7 +68,7 @@ export function makeLookup(entries: GenericEntry[]) {
   }, {} as Lookup);
 }
 
-export function shallowComparison<T>(obj1: T, obj2: T) {
+export function shallowComparison<T extends {}>(obj1: T, obj2: T) {
   return (
     Object.keys(obj1).length === Object.keys(obj2).length &&
     (Object.keys(obj1) as (keyof typeof obj1)[]).every((key) => {
