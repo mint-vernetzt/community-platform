@@ -1,19 +1,19 @@
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { testURL } from "~/lib/utils/tests";
-
-const test = it;
+import { testURL } from "../lib/utils/tests";
 
 describe("reset password", () => {
-  const request = new Request(testURL);
-  const response = new Response();
-
-  const authClient = createServerClient(
-    Cypress.env("SUPABASE_URL"),
-    Cypress.env("SERVICE_ROLE_KEY"),
-    { request, response }
-  );
-
   let uid: string | undefined;
+  let authClient: any;
+  
+  beforeAll(() => {
+    const request = new Request(testURL);
+    const response = new Response();
+    authClient = createServerClient(
+      Cypress.env("SUPABASE_URL"),
+      Cypress.env("SERVICE_ROLE_KEY"),
+      { request, response }
+    );
+  });  
 
   beforeEach(() => {
     // Reset the application state before each test. Example:
@@ -21,7 +21,7 @@ describe("reset password", () => {
     // cy.wait(500); // Wait for the reset to complete asynchronously
   });
   
-  before(async () => {
+  beforeEach(async () => {
     const email = "hello@songsforthe.dev";
     const password = "password";
     const firstName = "Peter";
