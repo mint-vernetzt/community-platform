@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import FormattedDuration from "~/components/Date/FormattedDuration";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,
@@ -86,7 +87,10 @@ function Events() {
                 <div className="flex justify-between absolute p-2 left-0 right-0 bottom-0">
                   {isSameDay(startTime, endTime) ? (
                     <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
-                      {getTimeDuration(startTime, endTime)}
+                      <FormattedDuration
+                        startDate={event.startTime}
+                        endDate={event.endTime}
+                      />
                     </div>
                   ) : null}
                   {event._count.childEvents === 0 ? (
@@ -338,7 +342,10 @@ function Events() {
                     <div className="flex justify-between absolute p-2 left-0 right-0 bottom-0">
                       {isSameDay(startTime, endTime) ? (
                         <div className="text-white bg-primary px-2 py-1 rounded-lg text-xs">
-                          {getTimeDuration(startTime, endTime)}
+                          <FormattedDuration
+                            startDate={event.startTime}
+                            endDate={event.endTime}
+                          />
                         </div>
                       ) : null}
                     </div>

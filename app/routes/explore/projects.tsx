@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient } from "~/auth.server";
+import AwardDate from "~/components/Date/AwardDate";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -136,7 +137,6 @@ function Projects() {
                 {project.awards.length > 0 ? (
                   <div className="-mt-4 flex ml-4">
                     {project.awards.map(({ award }) => {
-                      award.date = new Date(award.date);
                       return (
                         <div
                           key={`award-${award.id}`}
@@ -159,9 +159,7 @@ function Projects() {
                                   {award.shortTitle}
                                 </H4>
                               ) : null}
-                              <p className="text-xxs text-center leading-none">
-                                {award.date.getFullYear()}
-                              </p>
+                              <AwardDate date={award.date} />
                             </div>
                           </div>
                         </div>

@@ -7,6 +7,9 @@ import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import AwardDate from "~/components/Date/AwardDate";
+import CreatedAt from "~/components/Date/CreatedAt";
+import FormattedDuration from "~/components/Date/FormattedDuration";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -24,7 +27,6 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getDuration } from "~/lib/utils/time";
 import type { OrganizationWithRelations } from "~/organization.server";
 import {
   getOrganizationBySlug,
@@ -1040,73 +1042,4 @@ export default function Index() {
       </div>
     </>
   );
-}
-
-function FormattedDuration(props: { startDate: string; endDate: string }) {
-  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
-
-  React.useEffect(() => {
-    if (initialRenderDone === false) {
-      setInitialRenderDone(true);
-    }
-  }, [initialRenderDone]);
-
-  if (initialRenderDone) {
-    const startTime = new Date(props.startDate);
-    const endTime = new Date(props.endDate);
-    const duration = getDuration(startTime, endTime);
-    return <>{duration}</>;
-  } else {
-    return (
-      <>
-        {props.startDate} - {props.endDate}
-      </>
-    );
-  }
-}
-
-function CreatedAt(props: { createdAt: string }) {
-  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
-
-  React.useEffect(() => {
-    if (initialRenderDone === false) {
-      setInitialRenderDone(true);
-    }
-  }, [initialRenderDone]);
-
-  if (initialRenderDone) {
-    const date = new Date(props.createdAt).toLocaleDateString("de-De", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    return (
-      <p className="text-xs mb-4 text-center">Profil besteht seit dem {date}</p>
-    );
-  } else {
-    return (
-      <p className="text-xs mb-4 text-center">
-        Profil besteht seit dem {props.createdAt}
-      </p>
-    );
-  }
-}
-
-function AwardDate(props: { date: string }) {
-  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
-
-  React.useEffect(() => {
-    if (initialRenderDone === false) {
-      setInitialRenderDone(true);
-    }
-  }, [initialRenderDone]);
-
-  if (initialRenderDone) {
-    const date = new Date(props.date);
-    return (
-      <p className="text-xxs text-center leading-none">{date.getFullYear()}</p>
-    );
-  } else {
-    return <p className="text-xxs text-center leading-none">{props.date}</p>;
-  }
 }
