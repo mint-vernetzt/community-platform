@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
@@ -136,7 +137,7 @@ function Projects() {
                 {project.awards.length > 0 ? (
                   <div className="-mt-4 flex ml-4">
                     {project.awards.map(({ award }) => {
-                      award.date = new Date(award.date);
+                      const date = utcToZonedTime(award.date, "Europe/Berlin");
                       return (
                         <div
                           key={`award-${award.id}`}
@@ -160,7 +161,7 @@ function Projects() {
                                 </H4>
                               ) : null}
                               <p className="text-xxs text-center leading-none">
-                                {award.date.getFullYear()}
+                                {date.getFullYear()}
                               </p>
                             </div>
                           </div>
