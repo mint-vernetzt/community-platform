@@ -1,4 +1,5 @@
 // import React from "react";
+import { utcToZonedTime } from "date-fns-tz";
 
 function AwardDate(props: { date: string }) {
   // const [initialRenderDone, setInitialRenderDone] = React.useState(false);
@@ -10,11 +11,8 @@ function AwardDate(props: { date: string }) {
   // }, [initialRenderDone]);
 
   // if (initialRenderDone) {
-  const date = new Date(
-    Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin" }).format(
-      new Date(props.date)
-    )
-  );
+
+  const date = utcToZonedTime(props.date, "Europe/Berlin");
   return (
     <p className="text-xxs text-center leading-none">{date.getFullYear()}</p>
   );
