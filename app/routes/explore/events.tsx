@@ -2,6 +2,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { isSameDay } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
@@ -55,8 +56,8 @@ function Events() {
       </section>
       <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {loaderData.futureEvents.map((event) => {
-          const startTime = new Date(event.startTime);
-          const endTime = new Date(event.endTime);
+          const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+          const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
           return (
             <div
               key={`future-event-${event.id}`}
@@ -302,13 +303,17 @@ function Events() {
           );
         })}
       </section>
+      ;
       {loaderData.pastEvents.length > 0 ? (
         <section className="container my-8 md:my-10 lg:my-20">
           <H1>Vergangene Veranstaltungen</H1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {loaderData.pastEvents.map((event) => {
-              const startTime = new Date(event.startTime);
-              const endTime = new Date(event.endTime);
+              const startTime = utcToZonedTime(
+                event.startTime,
+                "Europe/Berlin"
+              );
+              const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
               return (
                 <div
                   key={`past-event-${event.id}`}

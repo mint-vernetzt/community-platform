@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
@@ -216,7 +217,7 @@ function Index() {
         {loaderData.project.awards.length > 0 ? (
           <div className="mv-awards absolute -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
             {loaderData.project.awards.map((item) => {
-              item.award.date = new Date(item.award.date);
+              const date = utcToZonedTime(item.award.date, "Europe/Berlin");
               return (
                 <div
                   key={`award-${item.awardId}`}
@@ -240,7 +241,7 @@ function Index() {
                         </H4>
                       ) : null}
                       <p className="text-xxs lg:text-sm text-center leading-none">
-                        {item.award.date.getFullYear()}
+                        {date.getFullYear()}
                       </p>
                     </div>
                   </div>
@@ -540,49 +541,45 @@ function Index() {
                 <H4 className="font-bold mb-4 mt-8 lg:mt-16">Auszeichnungen</H4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {loaderData.project.awards.map((item) => {
-                    item.award.date = new Date(item.award.date);
+                    const date = utcToZonedTime(
+                      item.award.date,
+                      "Europe/Berlin"
+                    );
                     return (
                       <div
                         key={`award-${item.awardId}`}
                         className="w-full flex flex-row"
                       >
-                        <div className="">
-                          {loaderData.project.awards.map((item) => {
-                            item.award.date = new Date(item.award.date);
-                            return (
-                              <div
-                                key={`award-${item.awardId}`}
-                                className="mv-awards-bg bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
-                              >
-                                <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
-                                  <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                    {item.award.logo !== null &&
-                                    item.award.logo !== "" ? (
-                                      <img
-                                        src={item.award.logo}
-                                        alt={item.award.title}
-                                      />
-                                    ) : (
-                                      getInitialsOfName(item.award.title)
-                                    )}
-                                  </div>
-                                  <div className="px-2 mb-4 pt-1">
-                                    {item.award.shortTitle ? (
-                                      <H4
-                                        like="h4"
-                                        className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
-                                      >
-                                        {item.award.shortTitle}
-                                      </H4>
-                                    ) : null}
-                                    <p className="text-xxs text-center leading-none">
-                                      {item.award.date.getFullYear()}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                        <div
+                          key={`award-${item.awardId}`}
+                          className="mv-awards-bg bg-[url('/images/award_bg.svg')] bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
+                        >
+                          <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
+                            <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                              {item.award.logo !== null &&
+                              item.award.logo !== "" ? (
+                                <img
+                                  src={item.award.logo}
+                                  alt={item.award.title}
+                                />
+                              ) : (
+                                getInitialsOfName(item.award.title)
+                              )}
+                            </div>
+                            <div className="px-2 mb-4 pt-1">
+                              {item.award.shortTitle ? (
+                                <H4
+                                  like="h4"
+                                  className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                >
+                                  {item.award.shortTitle}
+                                </H4>
+                              ) : null}
+                              <p className="text-xxs text-center leading-none">
+                                {date.getFullYear()}
+                              </p>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="pl-4">

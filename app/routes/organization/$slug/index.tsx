@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
@@ -544,8 +545,9 @@ export default function Index() {
                 {loaderData.organization.createdAt ? (
                   <p className="text-xs mb-4 text-center">
                     Profil besteht seit dem{" "}
-                    {new Date(
-                      loaderData.organization.createdAt
+                    {utcToZonedTime(
+                      loaderData.organization.createdAt,
+                      "Europe/Berlin"
                     ).toLocaleDateString("de-De", {
                       day: "numeric",
                       month: "long",
@@ -756,7 +758,10 @@ export default function Index() {
                             {project.awards && project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {project.awards.map(({ award }) => {
-                                  award.date = new Date(award.date);
+                                  const date = utcToZonedTime(
+                                    award.date,
+                                    "Europe/Berlin"
+                                  );
                                   return (
                                     <div
                                       key={`award-${award.id}`}
@@ -782,7 +787,7 @@ export default function Index() {
                                             {award.shortTitle}
                                           </H4>
                                           <p className="text-xxs text-center leading-none">
-                                            {award.date.getFullYear()}
+                                            {date.getFullYear()}
                                           </p>
                                         </div>
                                       </div>
@@ -818,8 +823,14 @@ export default function Index() {
                     <div className="mb-6">
                       {loaderData.futureEvents.responsibleForEvents.map(
                         ({ event }) => {
-                          const startTime = new Date(event.startTime);
-                          const endTime = new Date(event.endTime);
+                          const startTime = utcToZonedTime(
+                            event.startTime,
+                            "Europe/Berlin"
+                          );
+                          const endTime = utcToZonedTime(
+                            event.endTime,
+                            "Europe/Berlin"
+                          );
                           return (
                             <div
                               key={`future-event-${event.id}`}
@@ -967,8 +978,14 @@ export default function Index() {
                     <div className="mb-16">
                       {loaderData.pastEvents.responsibleForEvents.map(
                         ({ event }) => {
-                          const startTime = new Date(event.startTime);
-                          const endTime = new Date(event.endTime);
+                          const startTime = utcToZonedTime(
+                            event.startTime,
+                            "Europe/Berlin"
+                          );
+                          const endTime = utcToZonedTime(
+                            event.endTime,
+                            "Europe/Berlin"
+                          );
                           return (
                             <div
                               key={`past-event-${event.id}`}
