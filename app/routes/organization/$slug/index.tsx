@@ -542,16 +542,7 @@ export default function Index() {
                 <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                 {loaderData.organization.createdAt ? (
-                  <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem&nbsp;
-                    {new Date(
-                      loaderData.organization.createdAt
-                    ).toLocaleDateString("de-De", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
+                  <CreatedAt createdAt={loaderData.organization.createdAt} />
                 ) : null}
               </div>
               {/** TODO: Styling of quote section */}
@@ -756,7 +747,6 @@ export default function Index() {
                             {project.awards && project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {project.awards.map(({ award }) => {
-                                  award.date = new Date(award.date);
                                   return (
                                     <div
                                       key={`award-${award.id}`}
@@ -782,7 +772,7 @@ export default function Index() {
                                             {award.shortTitle}
                                           </H4>
                                           <p className="text-xxs text-center leading-none">
-                                            {award.date.getFullYear()}
+                                            <AwardDate date={award.date} />
                                           </p>
                                         </div>
                                       </div>
@@ -818,8 +808,6 @@ export default function Index() {
                     <div className="mb-6">
                       {loaderData.futureEvents.responsibleForEvents.map(
                         ({ event }) => {
-                          const startTime = new Date(event.startTime);
-                          const endTime = new Date(event.endTime);
                           return (
                             <div
                               key={`future-event-${event.id}`}
@@ -845,7 +833,10 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    <FormattedDuration
+                                      startDate={event.startTime}
+                                      endDate={event.endTime}
+                                    />
                                     {event._count.childEvents === 0 ? (
                                       <>
                                         {event.participantLimit === null
@@ -966,8 +957,6 @@ export default function Index() {
                     <div className="mb-16">
                       {loaderData.pastEvents.responsibleForEvents.map(
                         ({ event }) => {
-                          const startTime = new Date(event.startTime);
-                          const endTime = new Date(event.endTime);
                           return (
                             <div
                               key={`past-event-${event.id}`}
@@ -993,7 +982,10 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    <FormattedDuration
+                                      startDate={event.startTime}
+                                      endDate={event.endTime}
+                                    />
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {event.name}
@@ -1048,4 +1040,67 @@ export default function Index() {
       </div>
     </>
   );
+}
+
+function FormattedDuration(props: { startDate: string; endDate: string }) {
+  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialRenderDone === false) {
+      setInitialRenderDone(true);
+    }
+  }, [initialRenderDone]);
+
+  if (initialRenderDone) {
+    const startTime = new Date(props.startDate);
+    const endTime = new Date(props.endDate);
+    const duration = getDuration(startTime, endTime);
+    return <>{duration}</>;
+  } else {
+    return null;
+  }
+}
+
+function CreatedAt(props: { createdAt: string }) {
+  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialRenderDone === false) {
+      setInitialRenderDone(true);
+    }
+  }, [initialRenderDone]);
+
+  if (initialRenderDone) {
+    const date = new Date(props.createdAt).toLocaleDateString("de-De", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    return (
+      <p className="text-xs mb-4 text-center">
+        Profil besteht seit dem {date};
+      </p>
+    );
+  } else {
+    return null;
+  }
+}
+
+function AwardDate(props: { date: string }) {
+  const [initialRenderDone, setInitialRenderDone] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialRenderDone === false) {
+      setInitialRenderDone(true);
+    }
+  }, [initialRenderDone]);
+
+  if (initialRenderDone) {
+    const date = new Date(props.date);
+    return (
+      <p className="text-xxs text-center leading-none">{date.getFullYear()}</p>
+    );
+  } else {
+    return null;
+  }
 }
