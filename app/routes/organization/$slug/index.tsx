@@ -1057,7 +1057,11 @@ function FormattedDuration(props: { startDate: string; endDate: string }) {
     const duration = getDuration(startTime, endTime);
     return <>{duration}</>;
   } else {
-    return null;
+    return (
+      <>
+        {props.startDate} - {props.endDate}
+      </>
+    );
   }
 }
 
@@ -1077,12 +1081,14 @@ function CreatedAt(props: { createdAt: string }) {
       year: "numeric",
     });
     return (
-      <p className="text-xs mb-4 text-center">
-        Profil besteht seit dem {date};
-      </p>
+      <p className="text-xs mb-4 text-center">Profil besteht seit dem {date}</p>
     );
   } else {
-    return null;
+    return (
+      <p className="text-xs mb-4 text-center">
+        Profil besteht seit dem {props.createdAt}
+      </p>
+    );
   }
 }
 
@@ -1101,6 +1107,6 @@ function AwardDate(props: { date: string }) {
       <p className="text-xxs text-center leading-none">{date.getFullYear()}</p>
     );
   } else {
-    return null;
+    return <p className="text-xxs text-center leading-none">{props.date}</p>;
   }
 }
