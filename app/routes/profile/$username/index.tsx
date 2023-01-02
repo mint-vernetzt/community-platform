@@ -752,8 +752,8 @@ export default function Index() {
                                   />
                                 </div>
                                 <div className="px-4 py-6">
-                                  <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
+                                  {/* TODO: Display icons (see figma) */}
+                                  {/* <p className="text-xs mb-1">
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
@@ -785,7 +785,7 @@ export default function Index() {
                                     ) : (
                                       ""
                                     )}
-                                  </p>
+                                  </p> */}
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {event.name}
                                   </h4>
