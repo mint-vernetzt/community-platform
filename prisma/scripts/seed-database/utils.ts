@@ -43,13 +43,10 @@ type EntityStructure = {
   public: "Public";
   smallest: "Smallest";
   emptyStrings: "Empty Strings";
-  singleFieldMissing: "Single Field Missing";
-  onlyOneField: "Only One Field";
   eventManager: "Event Manager";
   maker: "Maker";
   coordinator: "Coordinator";
   unicode: "Unicode";
-  randomFieldSizes: "Random Field Sizes";
   largest: "Largest";
   depth2: "Depth2";
   depth3: "Depth3";
@@ -73,13 +70,10 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "public"
       | "smallest"
       | "emptyStrings"
-      | "singleFieldMissing"
-      | "onlyOneField"
       | "eventManager"
       | "maker"
       | "coordinator"
       | "unicode"
-      | "randomFieldSizes"
       | "largest"]
   : T extends "organization"
   ? EntityStructure[
@@ -95,10 +89,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "public"
       | "smallest"
       | "emptyStrings"
-      | "singleFieldMissing"
-      | "onlyOneField"
       | "unicode"
-      | "randomFieldSizes"
       | "largest"]
   : T extends "project"
   ? EntityStructure[
@@ -108,11 +99,8 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "largeTeam"
       | "smallTeam"
       | "emptyStrings"
-      | "singleFieldMissing"
-      | "onlyOneField"
       | "manyResponsibleOrganizations"
       | "unicode"
-      | "randomFieldSizes"
       | "largest"]
   : T extends "event"
   ? EntityStructure[
@@ -132,10 +120,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "manyParticipants"
       | "smallest"
       | "emptyStrings"
-      | "singleFieldMissing"
-      | "onlyOneField"
       | "unicode"
-      | "randomFieldSizes"
       | "largest"]
   : T extends "award"
   ? EntityStructure[
@@ -221,7 +206,7 @@ export function getEntityData<
   index: number,
   bucketData: EntityTypeOnBucketData<T>
 ) {
-  const entityData /*: unknown <-- TODO: if type issue doesnt resolve */ = {
+  const entityData: unknown = {
     username: generateUsername<T>(entityType, entityStructure),
     title: generateTitle<T>(entityType, entityStructure),
     date: generateDate<T>(entityType, index),
@@ -297,11 +282,11 @@ export function getEntityData<
     skills: generateSkills<T>(entityType, entityStructure),
     interests: generateInterests<T>(entityType, entityStructure),
     academicTitle: generateAcademicTitle<T>(entityType, entityStructure),
-    firstName: "", // profile required
-    lastName: "", // profile required
-    publicFields: [], // profile, organization
-    termsAccepted: true, // profile required
-    position: "", // profile
+    firstName: generateFirstName<T>(entityType, entityStructure),
+    lastName: generateLastName<T>(entityType, entityStructure),
+    publicFields: generatePublicFields<T>(entityType, entityStructure),
+    termsAccepted: generateTermsAccepted<T>(entityType),
+    position: generatePosition<T>(entityType, entityStructure),
   };
   return entityData as EntityTypeOnData<T>;
 }
@@ -1600,14 +1585,185 @@ function generateAcademicTitle<
   return academicTitle;
 }
 
-seedEntity<"profile">("profile", {
-  email: "someuser",
-  username: "",
-  firstName: "",
-  lastName: "",
-  termsAccepted: true,
-});
+function generateFirstName<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile required
+  let firstName;
+  if (entityType === "profile") {
+    if (entityStructure === "Largest") {
+      firstName = "Alexandros-Lukas-Nikolai-Ioanis-Giorgios-Petros";
+    } else {
+      firstName = faker.name.firstName();
+    }
+  }
+  return firstName;
+}
 
-const event = getEntityData<"award">("award", "Standard", 0, {
-  logo: { path: "" },
-});
+function generateLastName<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile required
+  let lastName;
+  if (entityType === "profile") {
+    if (entityStructure === "Largest") {
+      lastName = "Di-Savoia-Aosta-Carignano-Genova-Montferrat-Casa-Nuova";
+    } else {
+      lastName = faker.name.lastName();
+    }
+  }
+  return lastName;
+}
+
+function generatePublicFields<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile, organization
+  let publicFields;
+  if (entityType === "profile" || entityType === "organization") {
+    let alwaysPublicFields;
+    let privateFields;
+    if (entityType === "profile") {
+      alwaysPublicFields = [
+        "id",
+        "username",
+        "firstName",
+        "lastName",
+        "academicTitle",
+        "areas",
+        "avatar",
+        "background",
+        "memberOf",
+        "teamMemberOfProjects",
+      ];
+      privateFields = [
+        "email",
+        "website",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "xing",
+        "bio",
+        "skills",
+        "interests",
+        "createdAt",
+        "publicFields",
+        "termsAccepted",
+        "termsAcceptedAt",
+        "updatedAt",
+        "position",
+        "instagram",
+        "youtube",
+        "offers",
+        "participatedEvents",
+        "seekings",
+        "contributedEvents",
+        "teamMemberOfEvents",
+        "waitingForEvents",
+      ];
+    } else {
+      alwaysPublicFields = [
+        "name",
+        "slug",
+        "street",
+        "streetNumber",
+        "zipCode",
+        "city",
+        "logo",
+        "background",
+        "types",
+        "supportedBy",
+        "publicFields",
+        "teamMembers",
+        "memberOf",
+        "networkMembers",
+        "createdAt",
+        "areas",
+        "responsibleForEvents",
+        "responsibleForProject",
+      ];
+      privateFields = [
+        "id",
+        "email",
+        "phone",
+        "website",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "xing",
+        "bio",
+        "quote",
+        "quoteAuthor",
+        "quoteAuthorInformation",
+        "updatedAt",
+        "instagram",
+        "youtube",
+        "focuses",
+      ];
+    }
+    if (entityStructure === "Public") {
+      publicFields = [...alwaysPublicFields, ...privateFields];
+    } else if (entityStructure === "Private") {
+      publicFields = alwaysPublicFields;
+    } else {
+      publicFields = [
+        ...alwaysPublicFields,
+        ...privateFields.filter(
+          () =>
+            Math.random() <
+            faker.datatype.number({ min: 0, max: privateFields.length }) /
+              privateFields.length
+        ),
+      ];
+    }
+  }
+  return publicFields;
+}
+
+function generateTermsAccepted<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T) {
+  // profile required
+  let termsAccepted;
+  if (entityType === "profile") {
+    termsAccepted = true;
+  }
+  return termsAccepted;
+}
+
+function generatePosition<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile
+  let position;
+  if (entityType === "profile") {
+    if (entityStructure === "Smallest") {
+      position = null;
+    } else if (entityStructure === "Empty Strings") {
+      position = "";
+    } else if (entityStructure === "Unicode") {
+      position = "Involved in unicode business_Γ";
+    } else if (entityStructure === "Largest") {
+      position =
+        "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title";
+    } else {
+      position = faker.name.jobTitle();
+    }
+  }
+  return position;
+}

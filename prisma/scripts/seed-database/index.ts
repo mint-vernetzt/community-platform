@@ -1,4 +1,5 @@
 import { program } from "commander";
+import { getEntityData, seedEntity, setFakerSeed } from "./utils";
 
 program
   .name("seed-database")
@@ -34,9 +35,28 @@ async function main(
   // remove: boolean,
   edgeCases: boolean
 ) {
-  // TODO: Generate entity data
-  // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
-  // Call prisma with entity data
+  // TODO: if (--force option is not set)
+  // -> Check for local environment
+  // -> if (environment !== local)
+  // -> throw "run script with --force option to seed db on production environment"
+
+  // TODO: Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
+
+  setFakerSeed(123);
+
+  // TODO: Generate entity data for each entityType and entityStructure
+  // TODO: Create global constants to enable easy configuring (f.e. number of profiles, etc...) / Maybe include some of them in the script options
+  // TODO: Define and implement edge cases in getEntityData()
+  const award = getEntityData<"award">("award", "Standard", 0, {
+    logo: { path: "" },
+  });
+
+  // TODO: Create corresponding users (pw: 12345678) on supabase auth.users table (see supabase local auth.users table and login.func.tsx for example)
+
+  // Seed db via prisma call
+  seedEntity<"award">("award", award);
+
+  // TODO: Log the profile list with emails and password: 12345678
 }
 
 main(options.force /*, options.add, options.remove*/, options.edgeCases);
