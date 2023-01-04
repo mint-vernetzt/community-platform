@@ -286,14 +286,17 @@ export function getEntityData<
       "instagram"
     ),
     youtube: generateSocialMediaUrl<T>(entityType, entityStructure, "youtube"),
-    bio: "", // profile, organization
-    quote: "", // organization
-    quoteAuthor: "", // organization
-    quoteAuthorInformation: "", // organization
-    supportedBy: [], // organization
-    skills: [], // profile
-    interests: [], // profile
-    academicTitle: "", // profile
+    bio: generateBio<T>(entityType, entityStructure),
+    quote: generateQuote<T>(entityType, entityStructure),
+    quoteAuthor: generateQuoteAuthor<T>(entityType, entityStructure),
+    quoteAuthorInformation: generateQuoteAuthorInformation<T>(
+      entityType,
+      entityStructure
+    ),
+    supportedBy: generateSupportedBy<T>(entityType, entityStructure),
+    skills: generateSkills<T>(entityType, entityStructure),
+    interests: generateInterests<T>(entityType, entityStructure),
+    academicTitle: generateAcademicTitle<T>(entityType, entityStructure),
     firstName: "", // profile required
     lastName: "", // profile required
     publicFields: [], // profile, organization
@@ -749,7 +752,7 @@ function generateDescription<
         : faker.lorem.sentences(5).substring(0, 100);
     const descriptionForStandard =
       entityType === "project" || entityType === "event"
-        ? faker.lorem.paragraphs(5)
+        ? faker.lorem.paragraphs(3)
         : faker.lorem.sentence();
     if (entityStructure === "Smallest") {
       description = null;
@@ -777,7 +780,7 @@ function generateSubline<
   if (entityType === "event" || entityType === "award") {
     const sublineForLargest =
       entityType === "award"
-        ? faker.lorem.paragraphs(5)
+        ? faker.lorem.paragraphs(3)
         : faker.lorem.sentences(5).substring(0, 70);
     if (entityStructure === "Smallest" && entityType === "event") {
       subline = null;
@@ -1376,6 +1379,225 @@ function generateSocialMediaUrl<
     }
   }
   return website;
+}
+
+function generateBio<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile, organization
+  let bio;
+  if (entityType === "profile" || entityType === "organization") {
+    const bioForLargest = faker.lorem.paragraphs(7).substring(0, 500);
+    const bioForStandard = faker.lorem.paragraphs(1);
+    if (entityStructure === "Smallest") {
+      bio = null;
+    } else if (entityStructure === "Empty Strings") {
+      bio = "";
+    } else if (entityStructure === "Unicode") {
+      bio = "A bio containing unicode character_Γ";
+    } else if (entityStructure === "Largest") {
+      bio = bioForLargest;
+    } else {
+      bio = bioForStandard;
+    }
+  }
+  return bio;
+}
+
+function generateQuote<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization
+  let quote;
+  if (entityType === "organization") {
+    const quoteForLargest = faker.lorem.paragraphs(3).substring(0, 300);
+    const quoteForStandard = faker.lorem.paragraphs(1);
+    if (entityStructure === "Smallest") {
+      quote = null;
+    } else if (entityStructure === "Empty Strings") {
+      quote = "";
+    } else if (entityStructure === "Unicode") {
+      quote = "A quote containing unicode character_Γ";
+    } else if (entityStructure === "Largest") {
+      quote = quoteForLargest;
+    } else {
+      quote = quoteForStandard;
+    }
+  }
+  return quote;
+}
+
+function generateQuoteAuthor<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization
+  let quoteAuthor;
+  if (entityType === "organization") {
+    if (entityStructure === "Smallest") {
+      quoteAuthor = null;
+    } else if (entityStructure === "Empty Strings") {
+      quoteAuthor = "";
+    } else if (entityStructure === "Unicode") {
+      quoteAuthor = "Mister Unicode_Γ";
+    } else if (entityStructure === "Largest") {
+      quoteAuthor =
+        "Oscar Wiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiilde";
+    } else {
+      quoteAuthor = faker.name.fullName();
+    }
+  }
+  return quoteAuthor;
+}
+
+function generateQuoteAuthorInformation<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization
+  let quoteAuthorInformation;
+  if (entityType === "organization") {
+    if (entityStructure === "Smallest") {
+      quoteAuthorInformation = null;
+    } else if (entityStructure === "Empty Strings") {
+      quoteAuthorInformation = "";
+    } else if (entityStructure === "Unicode") {
+      quoteAuthorInformation = "Involved in unicode business_Γ";
+    } else if (entityStructure === "Largest") {
+      quoteAuthorInformation =
+        "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title of the author";
+    } else {
+      quoteAuthorInformation = faker.name.jobTitle();
+    }
+  }
+  return quoteAuthorInformation;
+}
+
+function generateSupportedBy<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // organization
+  let supportedBy;
+  if (entityType === "organization") {
+    if (entityStructure === "Smallest") {
+      supportedBy = [];
+    } else if (entityStructure === "Empty Strings") {
+      supportedBy = ["", "", ""];
+    } else if (entityStructure === "Unicode") {
+      supportedBy = ["Unicode company_Γ"];
+    } else if (entityStructure === "Largest") {
+      supportedBy = [];
+      for (let i = 0; i < 30; i++) {
+        supportedBy.push(faker.company.name());
+      }
+    } else {
+      supportedBy = [];
+      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      for (let i = 0; i < iterations; i++) {
+        supportedBy.push(faker.company.name());
+      }
+    }
+  }
+  return supportedBy;
+}
+
+function generateSkills<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile
+  let skills;
+  if (entityType === "profile") {
+    if (entityStructure === "Smallest") {
+      skills = [];
+    } else if (entityStructure === "Empty Strings") {
+      skills = ["", "", ""];
+    } else if (entityStructure === "Unicode") {
+      skills = ["Unicode skill_Γ"];
+    } else if (entityStructure === "Largest") {
+      skills = [];
+      for (let i = 0; i < 30; i++) {
+        skills.push(faker.name.jobArea());
+      }
+    } else {
+      skills = [];
+      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      for (let i = 0; i < iterations; i++) {
+        skills.push(faker.name.jobArea());
+      }
+    }
+  }
+  return skills;
+}
+
+function generateInterests<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile
+  let interests;
+  if (entityType === "profile") {
+    if (entityStructure === "Smallest") {
+      interests = [];
+    } else if (entityStructure === "Empty Strings") {
+      interests = ["", "", ""];
+    } else if (entityStructure === "Unicode") {
+      interests = ["Unicode interest_Γ"];
+    } else if (entityStructure === "Largest") {
+      interests = [];
+      for (let i = 0; i < 30; i++) {
+        interests.push(faker.hacker.phrase());
+      }
+    } else {
+      interests = [];
+      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      for (let i = 0; i < iterations; i++) {
+        interests.push(faker.hacker.phrase());
+      }
+    }
+  }
+  return interests;
+}
+
+function generateAcademicTitle<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+  // profile
+  let academicTitle;
+  const academicTitles = [null, "", "Dr.", "Prof.", "Prof. Dr."];
+  if (entityType === "profile") {
+    if (entityStructure === "Smallest") {
+      academicTitle = null;
+    } else if (entityStructure === "Empty Strings") {
+      academicTitle = "";
+    } else if (entityStructure === "Largest") {
+      academicTitle = "Prof. Dr.";
+    } else {
+      let index = faker.datatype.number({ min: 0, max: 4 });
+      academicTitle = academicTitles[index];
+    }
+  }
+  return academicTitle;
 }
 
 seedEntity<"profile">("profile", {
