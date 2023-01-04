@@ -1,7 +1,5 @@
 import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import { Defined } from "yup/lib/util/types";
-import { string } from "zod";
 import { prismaClient } from "~/prisma";
 import {
   generateEventSlug,
@@ -140,9 +138,19 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "randomFieldSizes"
       | "largest"]
   : T extends "award"
-  ? EntityStructure["standard" | "smallest" | "largest" | "emptyStrings"]
+  ? EntityStructure[
+      | "standard"
+      | "smallest"
+      | "largest"
+      | "emptyStrings"
+      | "unicode"]
   : T extends "document"
-  ? EntityStructure["standard" | "smallest" | "largest" | "emptyStrings"]
+  ? EntityStructure[
+      | "standard"
+      | "smallest"
+      | "largest"
+      | "emptyStrings"
+      | "unicode"]
   : never;
 
 type BucketData = {
@@ -306,6 +314,8 @@ function generateUsername<
   if (entityType === "profile") {
     if (entityStructure === "Developer") {
       username = generateUsername_app("_Developer", "Profile");
+    } else if (entityStructure === "Unicode") {
+      username = generateUsername_app(`${entityStructure}_Γ`, "Profile_Γ");
     } else {
       username = generateUsername_app(entityStructure, "Profile");
     }
@@ -325,6 +335,9 @@ function generateTitle<
     if (entityStructure === "Standard") {
       title = "Best Practice Project";
     }
+    if (entityStructure === "Unicode") {
+      title = "Best Practice Project_Γ";
+    }
     if (entityStructure === "Smallest") {
       title = "A-Level";
     }
@@ -338,6 +351,9 @@ function generateTitle<
   if (entityType === "document") {
     if (entityStructure === "Standard") {
       title = "Standard document title";
+    }
+    if (entityStructure === "Unicode") {
+      title = "Standard document title_Γ";
     }
     if (entityStructure === "Smallest") {
       title = null;
@@ -377,6 +393,9 @@ function generateShortTitle<
   if (entityType === "award") {
     if (entityStructure === "Standard") {
       shortTitle = "Best Practice";
+    }
+    if (entityStructure === "Unicode") {
+      shortTitle = "Best Practice_Γ";
     }
     if (entityStructure === "Smallest") {
       shortTitle = "A";
@@ -488,6 +507,10 @@ function generateName<
       name = `_${entityStructure} ${entityType.replace(/^./, function (match) {
         return match.toUpperCase();
       })}`;
+    } else if (entityStructure === "Unicode") {
+      name = `${entityStructure} ${entityType.replace(/^./, function (match) {
+        return match.toUpperCase();
+      })}_Γ`;
     } else {
       name = `${entityStructure} ${entityType.replace(/^./, function (match) {
         return match.toUpperCase();
@@ -508,6 +531,8 @@ function generateSlug<
   if (entityType === "organization") {
     if (entityStructure === "Developer") {
       name = generateOrganizationSlug("_Developer Organization");
+    } else if (entityStructure === "Unicode") {
+      name = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
     } else {
       name = generateOrganizationSlug(`${entityStructure} Organization`);
     }
@@ -515,6 +540,8 @@ function generateSlug<
   if (entityType === "event") {
     if (entityStructure === "Developer") {
       name = generateEventSlug("_Developer Event");
+    } else if (entityStructure === "Unicode") {
+      name = generateEventSlug(`${entityStructure} Event_Γ`);
     } else {
       name = generateEventSlug(`${entityStructure} Event`);
     }
@@ -522,8 +549,10 @@ function generateSlug<
   if (entityType === "project") {
     if (entityStructure === "Developer") {
       name = generateProjectSlug("_Developer Project");
+    } else if (entityStructure === "Unicode") {
+      name = generateProjectSlug(`${entityStructure} Project_Γ`);
     } else {
-      name = generateProjectSlug(`${entityStructure} Event`);
+      name = generateProjectSlug(`${entityStructure} Project`);
     }
   }
   return name;
@@ -542,6 +571,8 @@ function generateHeadline<
       headline = null;
     } else if (entityStructure === "Empty Strings") {
       headline = "";
+    } else if (entityStructure === "Unicode") {
+      headline = "Project_Γ";
     } else if (entityStructure === "Largest") {
       headline =
         "Very long project headline - This project headline was created by cn and not by faker - And it gets even longer - Disable the edge cases in the seed script to skip this project when seeding the database";
@@ -570,6 +601,8 @@ function generateExcerpt<
       excerpt = null;
     } else if (entityStructure === "Empty Strings") {
       excerpt = "";
+    } else if (entityStructure === "Unicode") {
+      excerpt = "Project excerpt with unicode character_Γ";
     } else if (entityStructure === "Largest") {
       excerpt = faker.lorem.paragraphs(50);
     } else {
@@ -722,6 +755,8 @@ function generateDescription<
       description = null;
     } else if (entityStructure === "Empty Strings") {
       description = "";
+    } else if (entityStructure === "Unicode") {
+      description = "A description containing unicode character_Γ";
     } else if (entityStructure === "Largest") {
       description = descriptionForLargest;
     } else {
@@ -748,6 +783,8 @@ function generateSubline<
       subline = null;
     } else if (entityStructure === "Empty Strings") {
       subline = "";
+    } else if (entityStructure === "Unicode") {
+      subline = "A subline containing unicode character_Γ";
     } else if (entityStructure === "Largest") {
       subline = sublineForLargest;
     } else {
@@ -788,6 +825,8 @@ function generateConferenceLink<
       conferenceLink = null;
     } else if (entityStructure === "Empty Strings") {
       conferenceLink = "";
+    } else if (entityStructure === "Unicode") {
+      conferenceLink = "https://unicode.conference.link/Γ";
     } else {
       conferenceLink = faker.internet.url();
     }
@@ -901,6 +940,8 @@ function generateVenueName<
       venueName = null;
     } else if (entityStructure === "Empty Strings") {
       venueName = "";
+    } else if (entityStructure === "Unicode") {
+      venueName = "Unicode venue_Γ";
     } else if (entityStructure === "Largest") {
       venueName =
         "Large Event Space With A Large Name And Also Large Rooms - Almost Everything Is Large";
@@ -924,6 +965,8 @@ function generateVenueStreet<
       venueStreet = null;
     } else if (entityStructure === "Empty Strings") {
       venueStreet = "";
+    } else if (entityStructure === "Unicode") {
+      venueStreet = "Unicodestreet_Γ";
     } else if (entityStructure === "Largest") {
       venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
@@ -972,6 +1015,8 @@ function generateVenueCity<
       venueCity = null;
     } else if (entityStructure === "Empty Strings") {
       venueCity = "";
+    } else if (entityStructure === "Unicode") {
+      venueCity = "Unicode City_Γ";
     } else if (entityStructure === "Largest") {
       venueCity = "The City Of The Greatest And Largest";
     } else {
@@ -1039,6 +1084,8 @@ function generateEmail<
       email = null;
     } else if (entityStructure === "Empty Strings") {
       email = "";
+    } else if (entityStructure === "Unicode") {
+      email = "unicode_Γ@email.org";
     } else if (entityStructure === "Largest") {
       email = "a.very.large.email.address@LargeEmailAdresses.com";
     } else {
@@ -1087,6 +1134,8 @@ function generateStreet<
       street = null;
     } else if (entityStructure === "Empty Strings") {
       street = "";
+    } else if (entityStructure === "Unicode") {
+      street = "Unicodestreet_Γ";
     } else if (entityStructure === "Largest") {
       street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
@@ -1131,6 +1180,8 @@ function generateCity<
       city = null;
     } else if (entityStructure === "Empty Strings") {
       city = "";
+    } else if (entityStructure === "Unicode") {
+      city = "Unicode City_Γ";
     } else if (entityStructure === "Largest") {
       city = "The City Of The Greatest And Largest";
     } else {
@@ -1181,6 +1232,8 @@ function generateWebsite<
       website = null;
     } else if (entityStructure === "Empty Strings") {
       website = "";
+    } else if (entityStructure === "Unicode") {
+      website = "https://unicode.website.org/Γ";
     } else if (entityStructure === "Largest") {
       website =
         "https://www.veeeeeeeeeeeeery-laaaaaaaaaaaaaaaaaaarge-website.com/with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param";
@@ -1312,6 +1365,10 @@ function generateSocialMediaUrl<
       website = `https://www.${socialMediaService}.com/${
         slugDifference || ""
       }with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param`;
+    } else if (entityStructure === "Unicode") {
+      website = `https://www.${socialMediaService}.com/${
+        slugDifference || ""
+      }unicode-slug-Γ`;
     } else {
       website = `https://www.linkedin.com/${
         slugDifference || ""
