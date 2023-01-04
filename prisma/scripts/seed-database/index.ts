@@ -1,6 +1,7 @@
 import { program } from "commander";
 import { getEntityData, seedEntity, setFakerSeed } from "./utils";
 import * as dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config({ path: "./.env" });
 
@@ -53,6 +54,41 @@ async function main(
   }
 
   // TODO: Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
+  try {
+    let response;
+    let avatarBlobs: Blob[] = [];
+    console.log("Fetching avatar images from https://pravatar.cc/images");
+    for (let i = 1; i <= 70; i++) {
+      response = await fetch(`https://i.pravatar.cc/400?img=${i}`);
+      if (response.status !== 200) {
+        console.error(
+          `\n!!!\nUnable to fetch image from https://i.pravatar.cc/400?img=${i}. Received status code ${response.status}: ${response.statusText}\n!!!\n`
+        );
+      } else {
+        console.log(
+          `Successfully fetched image from https://i.pravatar.cc/400?img=${i}.`
+        );
+      }
+      avatarBlobs.push(await response.blob());
+    }
+  } catch (e) {
+    console.error("\nCould not fetch images from pravatar.cc:\n");
+    throw e;
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+  if (supabaseUrl === undefined) {
+    throw new Error(
+      "No supabase url provided via the .env file. Database could not be seeded."
+    );
+  }
+  if (supabaseAnonKey === undefined) {
+    throw new Error(
+      "No supabase anon key provided via the .env file. Database could not be seeded."
+    );
+  }
+  const authClient = createClient(supabaseUrl, supabaseAnonKey);
 
   // setFakerSeed(123);
 
