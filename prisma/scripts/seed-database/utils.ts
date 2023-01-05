@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "../../../app/prisma";
 import {
   generateEventSlug,
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
-} from "~/utils";
+} from "../../../app/utils";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -175,8 +175,23 @@ type SocialMediaService =
   | "xing"
   | "youtube";
 
+export type ImageType = "logos" | "backgrounds" | "avatars";
+
 export function setFakerSeed(seed: number) {
   faker.seed(seed);
+}
+
+export function getImageUrl(imageType?: ImageType) {
+  if (imageType === "avatars") {
+    return faker.image.avatar();
+  }
+  if (imageType === "logos") {
+    return faker.image.abstract(640, 480, true);
+  }
+  if (imageType === "backgrounds") {
+    return faker.image.nature(1488, 480, true);
+  }
+  return faker.image.imageUrl();
 }
 
 export async function seedEntity<
