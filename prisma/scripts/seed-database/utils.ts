@@ -1,5 +1,8 @@
 import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { fromBuffer } from "file-type";
 import { prismaClient } from "../../../app/prisma";
 import {
   generateEventSlug,
@@ -7,6 +10,9 @@ import {
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
+import { generatePathName } from "../../../app/storage.server";
+import { createHashFromString } from "../../../app/utils.server";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -177,11 +183,115 @@ type SocialMediaService =
 
 export type ImageType = "logos" | "backgrounds" | "avatars";
 
+export function checkLocalEnvironment() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl === undefined) {
+    throw new Error(
+      "No database url provided via the .env file. Database could not be seeded."
+    );
+  }
+  if (!databaseUrl.includes("localhost:")) {
+    throw new Error(
+      "You are not seeding the database on a local environment. All data will be dropped when you seed the database with this script. If you intended to run this script on a production environment please use the --force flag."
+    );
+  }
+}
+
+export async function createSupabaseAdmin() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseServiceRoleKey = process.env.SERVICE_ROLE_KEY;
+  if (supabaseUrl === undefined) {
+    throw new Error(
+      "No SUPABASE_URL provided via the .env file. Database could not be seeded."
+    );
+  }
+  if (supabaseServiceRoleKey === undefined) {
+    throw new Error(
+      "No SERVICE_ROLE_KEY provided via the .env file. Database could not be seeded."
+    );
+  }
+  const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+  return authClient;
+}
+
 export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
 
-export function getImageUrl(imageType?: ImageType) {
+export async function uploadImageBucketData(
+  authClient: SupabaseClient<any, "public", any>
+) {
+  let bucketData: {
+    [key in ImageType]: string[];
+  } = {
+    avatars: [],
+    logos: [],
+    backgrounds: [],
+  };
+
+  console.log("\n--- Fetching images from @faker-js/faker image api ---\n");
+  try {
+    for (const imageType in bucketData) {
+      // TODO: Make number of images configurable
+      for (let i = 1; i <= 50; i++) {
+        const imgUrl = getImageUrl(imageType as ImageType);
+        const response = await fetch(imgUrl);
+        if (response.status !== 200) {
+          console.error(
+            `\n!!!\nUnable to fetch image from ${imgUrl}. Received status code ${response.status}: ${response.statusText}\n!!!\n`
+          );
+          continue;
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const fileTypeResult = await fromBuffer(arrayBuffer);
+        if (fileTypeResult === undefined) {
+          console.error(
+            "The MIME-type could not be read. The file was left out."
+          );
+          continue;
+        }
+        if (!fileTypeResult.mime.includes("image/")) {
+          console.error(
+            "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
+          );
+          continue;
+        }
+        const hash = await createHashFromString(
+          Buffer.from(arrayBuffer).toString()
+        );
+        const path = generatePathName(
+          fileTypeResult.ext,
+          hash,
+          imageType.substring(0, imageType.length - 1)
+        );
+        const { error: uploadObjectError } = await authClient.storage
+          .from("images")
+          .upload(path, arrayBuffer, {
+            upsert: true,
+            contentType: fileTypeResult.mime,
+          });
+        if (uploadObjectError) {
+          console.error(
+            "The image could not be uploaded and was left out. Following error occured:",
+            uploadObjectError
+          );
+          continue;
+        }
+        bucketData[imageType as ImageType].push(path);
+        console.log(
+          `Successfully fetched image from ${imgUrl} and added it to bucket images.`
+        );
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    console.error("\nCould not fetch images from pravatar.cc:\n");
+    throw e;
+  }
+  return bucketData;
+}
+
+function getImageUrl(imageType?: ImageType) {
   if (imageType === "avatars") {
     return faker.image.avatar();
   }
@@ -194,20 +304,83 @@ export function getImageUrl(imageType?: ImageType) {
   return faker.image.imageUrl();
 }
 
-export async function seedEntity<
-  T extends keyof Pick<
-    PrismaClient,
-    "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
->(entityType: T, entity: EntityTypeOnData<T>) {
-  // TODO: fix union type issue (almost got the generic working, but thats too hard...)
-  // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
-  // @ts-ignore
-  const result = await prismaClient[entityType].create({
-    data: entity,
-    select: { id: true },
-  });
-  return result.id;
+export async function uploadDocumentBucketData(
+  authClient: SupabaseClient<any, "public", any>
+) {
+  let bucketData: {
+    documents: {
+      path: string;
+      mimeType: string;
+      filename: string;
+      extension: string;
+      sizeInMB: Number;
+    }[];
+  } = {
+    documents: [],
+  };
+
+  console.log("\n--- Creating fake PDFs via pdf-lib ---\n");
+  // TODO: Make number of documents configurable
+  for (let i = 1; i <= 50; i++) {
+    const pdfDoc = await PDFDocument.create();
+    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    // TODO: Make number of pages configurable
+    for (let j = 0; j < 10; j++) {
+      const page = pdfDoc.addPage();
+      const { height } = page.getSize();
+      const fontSize = 30;
+      page.drawText(
+        faker.lorem.paragraphs(faker.datatype.number({ min: 50, max: 1000 })),
+        {
+          x: 50,
+          y: height - 4 * fontSize,
+          size: fontSize,
+          font: timesRomanFont,
+          color: rgb(0, 0.53, 0.71),
+        }
+      );
+    }
+    const pdfBytes = await pdfDoc.save();
+
+    const fileTypeResult = await fromBuffer(pdfBytes);
+    if (fileTypeResult === undefined) {
+      console.error("The MIME-type could not be read. The file was left out.");
+      continue;
+    }
+    if (!fileTypeResult.mime.includes("application/pdf")) {
+      console.error(
+        "The file is not an pdf as it does not have an application/pdf MIME-Type. The file was left out."
+      );
+      continue;
+    }
+    const hash = await createHashFromString(Buffer.from(pdfBytes).toString());
+    const path = generatePathName(fileTypeResult.ext, hash, "document");
+    const { error: uploadObjectError } = await authClient.storage
+      .from("images")
+      .upload(path, pdfBytes, {
+        upsert: true,
+        contentType: fileTypeResult.mime,
+      });
+    if (uploadObjectError) {
+      console.error(
+        "The image could not be uploaded and was left out. Following error occured:",
+        uploadObjectError
+      );
+      continue;
+    }
+    bucketData.documents.push({
+      path: path,
+      mimeType: fileTypeResult.mime,
+      filename: "document.pdf",
+      extension: fileTypeResult.ext,
+      sizeInMB: pdfBytes.length / 1_000_000,
+    });
+    console.log(
+      `Successfully created pdf ${i} and uploaded it to bucket documents.`
+    );
+  }
+
+  return bucketData;
 }
 
 export function getEntityData<
@@ -304,6 +477,22 @@ export function getEntityData<
     position: generatePosition<T>(entityType, entityStructure),
   };
   return entityData as EntityTypeOnData<T>;
+}
+
+export async function seedEntity<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >
+>(entityType: T, entity: EntityTypeOnData<T>) {
+  // TODO: fix union type issue (almost got the generic working, but thats too hard...)
+  // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
+  // @ts-ignore
+  const result = await prismaClient[entityType].create({
+    data: entity,
+    select: { id: true },
+  });
+  return result.id;
 }
 
 function generateUsername<
