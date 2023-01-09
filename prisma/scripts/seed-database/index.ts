@@ -3,6 +3,8 @@ import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,
+  seedAllEntities,
+  setFakerLocale,
   setFakerSeed,
   uploadDocumentBucketData,
   uploadImageBucketData,
@@ -37,6 +39,9 @@ program.parse();
 
 const options = program.opts();
 
+const NUMBER_OF_IMAGES = 10;
+const NUMBER_OF_DOCUMENTS = 10;
+
 async function main(
   force: boolean,
   // TODO:
@@ -52,22 +57,23 @@ async function main(
   // Creating an authClient to upload files to the bucket and manage the users table
   const authClient = await createSupabaseAdmin();
 
+  // Set faker locale
+  setFakerLocale("de");
+
   // Set faker seed to receive the same random results whenever this script is executed
   setFakerSeed(123);
 
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
-  const imageBucketData = await uploadImageBucketData(authClient);
-  const documentBucketData = await uploadDocumentBucketData(authClient);
+  const imageBucketData = await uploadImageBucketData(
+    authClient,
+    NUMBER_OF_IMAGES
+  );
+  const documentBucketData = await uploadDocumentBucketData(
+    authClient,
+    NUMBER_OF_DOCUMENTS
+  );
 
-  // TODO: Generate entity data for each entityType and entityStructure
-  // TODO: Create global constants to enable easy configuring (f.e. number of profiles, etc...) / Maybe include some of them in the script options
-  // TODO: Define and implement edge cases in getEntityData()
-  // const award = getEntityData<"award">("award", "Standard", 0, {
-  //   logo: { path: "" },
-  // });
-
-  // Seed db via prisma call
-  // seedEntity<"award">("award", award);
+  const profiles = seedAllEntities(imageBucketData, documentBucketData);
 
   // TODO: Create corresponding users (pw: 12345678) on supabase auth.users table (see supabase local auth.users table and login.func.tsx for example)
 

@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import type { UsableLocale } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
@@ -169,7 +170,9 @@ type EntityTypeOnBucketData<T> = T extends "document"
   ? Required<Pick<BucketData, "logo">>
   : T extends "profile"
   ? Pick<BucketData, "avatar" | "background">
-  : T extends "organization" | "project" | "event"
+  : T extends "event"
+  ? Pick<BucketData, "background">
+  : T extends "organization" | "project"
   ? Pick<BucketData, "logo" | "background">
   : undefined;
 
@@ -181,7 +184,7 @@ type SocialMediaService =
   | "xing"
   | "youtube";
 
-export type ImageType = "logos" | "backgrounds" | "avatars";
+type ImageType = "logos" | "backgrounds" | "avatars";
 
 export function checkLocalEnvironment() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -190,6 +193,7 @@ export function checkLocalEnvironment() {
       "No database url provided via the .env file. Database could not be seeded."
     );
   }
+  // TODO: What defines to be in a local/production environment? Is it "localhost:" for everyone?
   if (!databaseUrl.includes("localhost:")) {
     throw new Error(
       "You are not seeding the database on a local environment. All data will be dropped when you seed the database with this script. If you intended to run this script on a production environment please use the --force flag."
@@ -218,8 +222,13 @@ export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
 
+export function setFakerLocale(locale: UsableLocale) {
+  faker.locale = locale;
+}
+
 export async function uploadImageBucketData(
-  authClient: SupabaseClient<any, "public", any>
+  authClient: SupabaseClient<any, "public", any>,
+  numberOfImages: number
 ) {
   let bucketData: {
     [key in ImageType]: string[];
@@ -230,10 +239,10 @@ export async function uploadImageBucketData(
   };
 
   console.log("\n--- Fetching images from @faker-js/faker image api ---\n");
+
   try {
     for (const imageType in bucketData) {
-      // TODO: Make number of images configurable
-      for (let i = 1; i <= 50; i++) {
+      for (let i = 1; i <= numberOfImages; i++) {
         const imgUrl = getImageUrl(imageType as ImageType);
         const response = await fetch(imgUrl);
         if (response.status !== 200) {
@@ -305,7 +314,8 @@ function getImageUrl(imageType?: ImageType) {
 }
 
 export async function uploadDocumentBucketData(
-  authClient: SupabaseClient<any, "public", any>
+  authClient: SupabaseClient<any, "public", any>,
+  numberOfDocuments: number
 ) {
   let bucketData: {
     documents: {
@@ -320,12 +330,12 @@ export async function uploadDocumentBucketData(
   };
 
   console.log("\n--- Creating fake PDFs via pdf-lib ---\n");
-  // TODO: Make number of documents configurable
-  for (let i = 1; i <= 50; i++) {
+
+  for (let i = 1; i <= numberOfDocuments; i++) {
     const pdfDoc = await PDFDocument.create();
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-    // TODO: Make number of pages configurable
-    for (let j = 0; j < 10; j++) {
+    const numberOfPages = faker.datatype.number({ min: 1, max: 10 });
+    for (let j = 0; j < numberOfPages; j++) {
       const page = pdfDoc.addPage();
       const { height } = page.getSize();
       const fontSize = 30;
@@ -383,6 +393,43 @@ export async function uploadDocumentBucketData(
   return bucketData;
 }
 
+export async function seedAllEntities(
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>
+) {
+  let profiles: Array<EntityTypeOnData<"profile">> = [];
+  let organizations: Array<EntityTypeOnData<"organization">> = [];
+  let events: Array<EntityTypeOnData<"event">> = [];
+  let projects: Array<EntityTypeOnData<"project">> = [];
+  let awards: Array<EntityTypeOnData<"award">> = [];
+  let documents: Array<EntityTypeOnData<"document">> = [];
+
+  // Creating developer profile and all relevant entities that are connected to it
+  const developerProfile = getEntityData<"profile">("profile", "Developer", 0, {
+    avatar: {
+      path: imageBucketData.avatars[
+        faker.datatype.number({
+          min: 0,
+          max: imageBucketData.avatars.length - 1,
+        })
+      ],
+    },
+    background: {
+      path: imageBucketData.backgrounds[
+        faker.datatype.number({
+          min: 0,
+          max: imageBucketData.backgrounds.length - 1,
+        })
+      ],
+    },
+  });
+  profiles.push(developerProfile);
+  // TODO: What is relevant and connected to a developer profile? Go through the list.
+
+  return profiles;
+}
+
+// TODO: Add static data like focuses, eventTypes, targetGroups, etc...
 export function getEntityData<
   T extends keyof Pick<
     PrismaClient,
@@ -479,6 +526,7 @@ export function getEntityData<
   return entityData as EntityTypeOnData<T>;
 }
 
+// TODO: Do we need this function?
 export async function seedEntity<
   T extends keyof Pick<
     PrismaClient,
