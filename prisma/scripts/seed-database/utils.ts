@@ -505,9 +505,11 @@ function generateUsername<
   let username;
   if (entityType === "profile") {
     if (entityStructure === "Developer") {
-      username = generateUsername_app("_Developer", "Profile");
+      username = generateUsername_app("!Developer", "Profile");
     } else if (entityStructure === "Unicode") {
       username = generateUsername_app(`${entityStructure}_Γ`, "Profile_Γ");
+    } else if (entityStructure === "Standard") {
+      username = generateUsername_app("~Standard", "Profile_Γ");
     } else {
       username = generateUsername_app(entityStructure, "Profile");
     }
@@ -696,7 +698,11 @@ function generateName<
     entityType === "project"
   ) {
     if (entityStructure === "Developer") {
-      name = `_${entityStructure} ${entityType.replace(/^./, function (match) {
+      name = `!${entityStructure} ${entityType.replace(/^./, function (match) {
+        return match.toUpperCase();
+      })}`;
+    } else if (entityStructure === "Standard") {
+      name = `~${entityStructure} ${entityType.replace(/^./, function (match) {
         return match.toUpperCase();
       })}`;
     } else if (entityStructure === "Unicode") {
@@ -722,7 +728,9 @@ function generateSlug<
   let name;
   if (entityType === "organization") {
     if (entityStructure === "Developer") {
-      name = generateOrganizationSlug("_Developer Organization");
+      name = generateOrganizationSlug("!Developer Organization");
+    } else if (entityStructure === "Standard") {
+      name = generateOrganizationSlug("~Standard Organization");
     } else if (entityStructure === "Unicode") {
       name = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
     } else {
@@ -731,7 +739,9 @@ function generateSlug<
   }
   if (entityType === "event") {
     if (entityStructure === "Developer") {
-      name = generateEventSlug("_Developer Event");
+      name = generateEventSlug("!Developer Event");
+    } else if (entityStructure === "Standard") {
+      name = generateEventSlug("~Standard Event");
     } else if (entityStructure === "Unicode") {
       name = generateEventSlug(`${entityStructure} Event_Γ`);
     } else {
@@ -740,7 +750,9 @@ function generateSlug<
   }
   if (entityType === "project") {
     if (entityStructure === "Developer") {
-      name = generateProjectSlug("_Developer Project");
+      name = generateProjectSlug("!Developer Project");
+    } else if (entityStructure === "Standard") {
+      name = generateProjectSlug("~Standard Project");
     } else if (entityStructure === "Unicode") {
       name = generateProjectSlug(`${entityStructure} Project_Γ`);
     } else {
