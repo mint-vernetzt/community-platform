@@ -431,7 +431,7 @@ export function getEntityData<
     venueCity: generateVenueCity<T>(entityType, entityStructure),
     venueZipCode: generateVenueZipCode<T>(entityType, entityStructure),
     canceled: generateCanceled<T>(entityType, entityStructure),
-    email: generateEmail<T>(entityType, entityStructure),
+    email: generateEmail<T>(entityType, entityStructure, index),
     phone: generatePhone<T>(entityType, entityStructure),
     street: generateStreet<T>(entityType, entityStructure),
     streetNumber: generateStreetNumber<T>(entityType, entityStructure),
@@ -1265,11 +1265,11 @@ function generateEmail<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // profile required, organization, project
   let email;
   if (entityType === "profile") {
-    email = `${entityStructure}@${entityType}.org`;
+    email = `${entityStructure}@${entityType}${index}.org`;
   }
   if (entityType === "organization" || entityType === "project") {
     if (entityStructure === "Smallest") {
