@@ -2,9 +2,7 @@ import type { Area } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useActionData, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
-import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -38,9 +36,19 @@ type LoaderData = {
   offers: Awaited<ReturnType<typeof getAllOffers>>;
 };
 
+const ITEMS_PER_PAGE = 6;
+
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
+
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get("page") || "0";
+
+  let page = parseInt(pageParam);
+  if (Number.isNaN(page)) {
+    page = 0;
+  }
 
   const authClient = createAuthClient(request, response);
 
@@ -53,7 +61,11 @@ export const loader: LoaderFunction = async (args) => {
 
   let organizations;
 
-  const allOrganizations = await getAllOrganizations();
+  const allOrganizations = await getAllOrganizations(
+    ITEMS_PER_PAGE * page,
+    ITEMS_PER_PAGE
+  );
+
   if (allOrganizations !== null) {
     organizations = allOrganizations
       .map((organization) => {
@@ -272,7 +284,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<ReturnType<typeof loader>>();
   const actionData = useActionData<ActionData>();
   // const submit = useSubmit();
   // const areaOptions = createAreaOptionFromData(loaderData.areas);
