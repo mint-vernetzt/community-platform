@@ -4,6 +4,7 @@ import {
   checkLocalEnvironment,
   createSupabaseAdmin,
   dropDatabase,
+  runMake,
   seedAllEntities,
   setFakerLocale,
   setFakerSeed,
@@ -66,6 +67,7 @@ async function main(
 
   // TODO: Drop database and buckets
   await dropDatabase();
+  await runMake();
 
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
   const imageBucketData = await uploadImageBucketData(

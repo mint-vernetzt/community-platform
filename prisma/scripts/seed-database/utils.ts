@@ -250,19 +250,25 @@ export async function dropDatabase() {
   }
 }
 
-export function runMake() {
-  const make = spawn("make", ["all"]);
-
-  make.stdout.on("data", (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  make.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
-  });
-
-  make.on("close", (code) => {
-    console.log(`child process exited with code ${code}`);
+export async function runMake() {
+  return new Promise((resolve, reject) => {
+    console.log(process.env.DATABASE_URL);
+    const make = spawn("make", [], {
+      env: { DATABASE_URL: process.env.DATABASE_URL, ...process.env },
+    });
+    make.stdout.on("data", (data) => {
+      console.log(`stdout: ${data}`);
+    });
+    make.stderr.on("data", (data) => {
+      console.error(`stderr: ${data}`);
+    });
+    make.on("close", (code) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        reject(new Error(`Make process failed with code ${code}`));
+      }
+    });
   });
 }
 
@@ -1073,10 +1079,7 @@ export async function seedEntity<
   // @ts-ignore
   const result = await prismaClient[entityType].create({
     data: entity,
-    select: {
-      id: true,
-      email: entityType === "profile",
-    },
+    select: { id: true },
   });
   return result.id as string;
 }
