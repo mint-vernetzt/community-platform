@@ -79,7 +79,7 @@ async function main(
     NUMBER_OF_DOCUMENTS
   );
 
-  const profileCredentials = seedAllEntities(
+  const profileCredentials = await seedAllEntities(
     imageBucketData,
     documentBucketData
   );
