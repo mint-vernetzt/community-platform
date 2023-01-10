@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
+import { spawn } from "child_process";
 import { fromBuffer } from "file-type";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
@@ -19,7 +20,6 @@ import {
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
 import { createHashFromString } from "../../../app/utils.server";
-import { spawn } from "child_process";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -993,7 +993,7 @@ export function getEntityData<
     extension: setExtension<T>(entityType, bucketData),
     sizeInMB: setSizeInMB<T>(entityType, bucketData),
     name: generateName<T>(entityType, entityStructure),
-    slug: generateSlug<T>(entityType, entityStructure),
+    slug: generateSlug<T>(entityType, entityStructure, index),
     headline: generateHeadline<T>(entityType, entityStructure),
     excerpt: generateExcerpt<T>(entityType, entityStructure),
     startTime: generateStartTime<T>(entityType, index),
@@ -1440,7 +1440,7 @@ function generateDate<
   // award (default now)
   let date;
   if (entityType === "award") {
-    date = new Date(`01-01-202${index}`);
+    date = new Date(2020 + index, 6);
   }
   return date;
 }
@@ -1592,43 +1592,47 @@ function generateSlug<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // organization required unique, event required unique, project required unique, award required unique
-  let name;
+  let slug;
   if (entityType === "organization") {
     if (entityStructure === "Developer") {
-      name = generateOrganizationSlug(`!${entityStructure} Organization`);
+      slug = generateOrganizationSlug(`!${entityStructure} Organization`);
     } else if (entityStructure === "Standard") {
-      name = generateOrganizationSlug(`~${entityStructure} Organization`);
+      slug = generateOrganizationSlug(`~${entityStructure} Organization`);
     } else if (entityStructure === "Unicode") {
-      name = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
+      slug = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
     } else {
-      name = generateOrganizationSlug(`${entityStructure} Organization`);
+      slug = generateOrganizationSlug(`${entityStructure} Organization`);
     }
   }
   if (entityType === "event") {
     if (entityStructure === "Developer") {
-      name = generateEventSlug(`!${entityStructure} Event`);
+      slug = generateEventSlug(`!${entityStructure} Event`);
     } else if (entityStructure === "Standard") {
-      name = generateEventSlug(`~${entityStructure} Event`);
+      slug = generateEventSlug(`~${entityStructure} Event`);
     } else if (entityStructure === "Unicode") {
-      name = generateEventSlug(`${entityStructure} Event_Γ`);
+      slug = generateEventSlug(`${entityStructure} Event_Γ`);
     } else {
-      name = generateEventSlug(`${entityStructure} Event`);
+      slug = generateEventSlug(`${entityStructure} Event`);
     }
   }
   if (entityType === "project") {
     if (entityStructure === "Developer") {
-      name = generateProjectSlug(`!${entityStructure} Project`);
+      slug = generateProjectSlug(`!${entityStructure} Project`);
     } else if (entityStructure === "Standard") {
-      name = generateProjectSlug(`~${entityStructure} Project`);
+      slug = generateProjectSlug(`~${entityStructure} Project`);
     } else if (entityStructure === "Unicode") {
-      name = generateProjectSlug(`${entityStructure} Project_Γ`);
+      slug = generateProjectSlug(`${entityStructure} Project_Γ`);
     } else {
-      name = generateProjectSlug(`${entityStructure} Project`);
+      slug = generateProjectSlug(`${entityStructure} Project`);
+      console.log(slug);
     }
   }
-  return name;
+  if (entityType === "award") {
+    slug = generateProjectSlug(`${entityStructure} Award${index}`);
+  }
+  return slug;
 }
 
 function generateHeadline<
