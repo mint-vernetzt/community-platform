@@ -1,8 +1,14 @@
 import type { Area } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -34,6 +40,7 @@ type LoaderData = {
   organizations: Organizations;
   areas: Awaited<ReturnType<typeof getAreas>>;
   offers: Awaited<ReturnType<typeof getAllOffers>>;
+  page: number;
 };
 
 const ITEMS_PER_PAGE = 6;
@@ -49,6 +56,8 @@ export const loader: LoaderFunction = async (args) => {
   if (Number.isNaN(page)) {
     page = 0;
   }
+
+  console.log(page);
 
   const authClient = createAuthClient(request, response);
 
@@ -105,7 +114,7 @@ export const loader: LoaderFunction = async (args) => {
   }
   // TODO: fix type issue
   return json<LoaderData>(
-    { isLoggedIn, organizations, areas, offers },
+    { isLoggedIn, organizations, areas, offers, page },
     { headers: response.headers }
   );
 };
@@ -283,21 +292,72 @@ export const action: ActionFunction = async ({ request }) => {
   return json<ActionData>(result, { headers: response.headers });
 };
 
+const InfiniteScroll = (props: {
+  children: any;
+  loading: boolean;
+  loadNext: () => void;
+}) => {
+  const { children, loading, loadNext } = props;
+  const scrollListener = React.useRef(loadNext);
+
+  React.useEffect(() => {
+    scrollListener.current = loadNext;
+  }, [loadNext]);
+
+  React.useEffect(() => {
+    const onScroll = () => {
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollDifference = Math.floor(window.innerHeight + window.scrollY);
+      const scrollEnded = documentHeight == scrollDifference;
+
+      if (scrollEnded && !loading) {
+        scrollListener.current();
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", onScroll);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [loading]);
+
+  return <>{children}</>;
+};
+
 export default function Index() {
-  const loaderData = useLoaderData<ReturnType<typeof loader>>();
-  const actionData = useActionData<ActionData>();
+  const loaderData = useLoaderData<LoaderData>();
+  // const actionData = useActionData<ActionData>();
   // const submit = useSubmit();
   // const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let organizations = loaderData.organizations;
+  // let organizations = loaderData.organizations;
 
-  if (actionData && actionData.success) {
-    organizations = actionData.data.organizations;
-  }
+  // if (actionData && actionData.success) {
+  //   organizations = actionData.data.organizations;
+  // }
 
   // const handleChange = (event: FormEvent<HTMLFormElement>) => {
   //   submit(event.currentTarget);
   // };
+
+  const [items, setItems] = React.useState<typeof loaderData.organizations>(
+    loaderData.organizations
+  );
+  const fetcher = useFetcher<LoaderData>();
+
+  React.useEffect(() => {
+    if (fetcher.data === undefined || fetcher.state === "loading") {
+      return;
+    }
+
+    if (fetcher.data !== undefined) {
+      console.log(fetcher.data.organizations);
+      const newItems = fetcher.data.organizations;
+      setItems((prevAssets) => [...prevAssets, ...newItems]);
+    }
+  }, [fetcher.data, fetcher.state]);
 
   return (
     <>
@@ -305,92 +365,101 @@ export default function Index() {
         <H1 like="h0">Entdecke Organisationen</H1>
         <p className="">Hier findest du Organisationen und Netzwerke.</p>
       </section>
-
-      <section
-        className="container my-8 md:my-10 lg:my-20"
-        id="contact-details"
+      <InfiniteScroll
+        loadNext={() => {
+          const page =
+            fetcher.data !== undefined ? fetcher.data.page : loaderData.page;
+          const query = `/explore/organizations?page=${page + 1}`;
+          fetcher.load(query);
+        }}
+        loading={fetcher.state === "loading"}
       >
-        <div
-          data-testid="grid"
-          className="flex flex-wrap justify-center -mx-4 items-stretch"
+        <section
+          className="container my-8 md:my-10 lg:my-20"
+          id="contact-details"
         >
-          {organizations.length > 0 ? (
-            organizations.map((organization) => {
-              let slug, image, initials, name, subtitle;
+          <div
+            data-testid="grid"
+            className="flex flex-wrap justify-center -mx-4 items-stretch"
+          >
+            {items.length > 0 ? (
+              items.map((organization) => {
+                let slug, image, initials, name, subtitle;
 
-              slug = `/organization/${organization.slug}`;
-              image = organization.logo;
-              initials = getInitialsOfName(organization.name);
-              name = organization.name;
-              subtitle = organization.types
-                .map(({ organizationType }) => organizationType.title)
-                .join(" / ");
+                slug = `/organization/${organization.slug}`;
+                image = organization.logo;
+                initials = getInitialsOfName(organization.name);
+                name = organization.name;
+                subtitle = organization.types
+                  .map(({ organizationType }) => organizationType.title)
+                  .join(" / ");
 
-              return (
-                <div
-                  key={`organization-${organization.id}`}
-                  data-testid="gridcell"
-                  className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
-                >
-                  <Link
-                    to={slug}
-                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                return (
+                  <div
+                    key={`organization-${organization.id}`}
+                    data-testid="gridcell"
+                    className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
                   >
-                    <div className="w-full flex flex-row">
-                      {image !== null ? (
-                        <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center border">
-                          <img
-                            className="max-w-full w-auto max-h-16 h-auto"
-                            src={image}
-                            alt={name}
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
-                          {initials}
-                        </div>
-                      )}
-                      <div className="pl-4">
-                        <H3 like="h4" className="text-xl mb-1">
-                          {name}
-                        </H3>
-                        {subtitle !== null ? (
-                          <p className="font-bold text-sm">{subtitle}</p>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {organization.bio !== undefined ? (
-                      <p className="mt-3 line-clamp-2">{organization.bio}</p>
-                    ) : null}
-
-                    {organization.areas !== undefined &&
-                    organization.areas.length > 0 ? (
-                      <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
-                        <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                          Aktivitätsgebiete
-                        </div>
-                        <div className="flex-auto line-clamp-3">
-                          <span>
-                            {organization.areas
-                              .map((area) => area.area.name)
-                              .join(" / ")}
-                          </span>
+                    <Link
+                      to={slug}
+                      className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                    >
+                      <div className="w-full flex flex-row">
+                        {image !== null ? (
+                          <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center border">
+                            <img
+                              className="max-w-full w-auto max-h-16 h-auto"
+                              src={image}
+                              alt={name}
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="pl-4">
+                          <H3 like="h4" className="text-xl mb-1">
+                            {name}
+                          </H3>
+                          {subtitle !== null ? (
+                            <p className="font-bold text-sm">{subtitle}</p>
+                          ) : null}
                         </div>
                       </div>
-                    ) : null}
-                  </Link>
-                </div>
-              );
-            })
-          ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
-          )}
-        </div>
-      </section>
+
+                      {organization.bio !== undefined ? (
+                        <p className="mt-3 line-clamp-2">{organization.bio}</p>
+                      ) : null}
+
+                      {organization.areas !== undefined &&
+                      organization.areas.length > 0 ? (
+                        <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
+                          <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                            Aktivitätsgebiete
+                          </div>
+                          <div className="flex-auto line-clamp-3">
+                            <span>
+                              {organization.areas
+                                .map((area) => area.area.name)
+                                .join(" / ")}
+                            </span>
+                          </div>
+                        </div>
+                      ) : null}
+                    </Link>
+                  </div>
+                );
+              })
+            ) : (
+              <p>
+                Für Deine Filterkriterien konnten leider keine Profile gefunden
+                werden.
+              </p>
+            )}
+          </div>
+        </section>
+      </InfiniteScroll>
     </>
   );
 }
