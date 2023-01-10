@@ -17,7 +17,11 @@ import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllOrganizations, getScoreOfEntity } from "./utils.server";
+import {
+  getAllOrganizations,
+  getPaginationValues,
+  getScoreOfEntity,
+} from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -35,22 +39,13 @@ type LoaderData = {
   organizations: Organizations;
   areas: Awaited<ReturnType<typeof getAreas>>;
   offers: Awaited<ReturnType<typeof getAllOffers>>;
-  page: number;
 };
-
-const ITEMS_PER_PAGE = 6;
 
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const url = new URL(request.url);
-  const pageParam = url.searchParams.get("page") || "1";
-
-  let page = parseInt(pageParam);
-  if (Number.isNaN(page)) {
-    page = 1;
-  }
+  const { skip, take } = getPaginationValues(request);
 
   const authClient = createAuthClient(request, response);
 
@@ -63,10 +58,7 @@ export const loader: LoaderFunction = async (args) => {
 
   let organizations;
 
-  const allOrganizations = await getAllOrganizations(
-    ITEMS_PER_PAGE * (page - 1),
-    ITEMS_PER_PAGE
-  );
+  const allOrganizations = await getAllOrganizations(skip, take);
 
   if (allOrganizations !== null) {
     organizations = allOrganizations
@@ -108,7 +100,7 @@ export const loader: LoaderFunction = async (args) => {
   // TODO: fix type issue
 
   return json<LoaderData>(
-    { isLoggedIn, organizations, areas, offers, page },
+    { isLoggedIn, organizations, areas, offers },
     { headers: response.headers }
   );
 };
@@ -291,7 +283,8 @@ export default function Index() {
 
   const { items, refCallback } = useInfiniteItems(
     loaderData.organizations,
-    "/explore/organizations"
+    "/explore/organizations",
+    "organizations"
   );
 
   return (

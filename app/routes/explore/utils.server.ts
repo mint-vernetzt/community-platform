@@ -14,8 +14,14 @@ export async function getAllProfiles() {
 
   return profiles;
 }
-export async function getAllOrganizations() {
+
+export async function getAllOrganizations(
+  skip: number | undefined = undefined,
+  take: number | undefined = undefined
+) {
   const organizations = await prismaClient.organization.findMany({
+    skip,
+    take,
     include: {
       areas: { select: { area: { select: { name: true } } } },
       focuses: { select: { focus: { select: { title: true } } } },
@@ -26,8 +32,13 @@ export async function getAllOrganizations() {
   return organizations;
 }
 
-export async function getAllProjects() {
+export async function getAllProjects(
+  skip: number | undefined = undefined,
+  take: number | undefined = undefined
+) {
   const projects = await prismaClient.project.findMany({
+    skip,
+    take,
     select: {
       id: true,
       slug: true,
@@ -61,6 +72,24 @@ export async function getAllProjects() {
   });
 
   return projects;
+}
+
+export function getPaginationValues(
+  request: Request,
+  options = { itemsPerPage: 6 }
+) {
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get("page") || "1";
+
+  let page = parseInt(pageParam);
+  if (Number.isNaN(page)) {
+    page = 1;
+  }
+
+  const skip = options.itemsPerPage * (page - 1);
+  const take = options.itemsPerPage;
+
+  return { skip, take };
 }
 
 export function getScoreOfEntity(entity: any) {

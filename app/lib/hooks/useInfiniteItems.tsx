@@ -1,7 +1,11 @@
 import { useFetcher } from "@remix-run/react";
 import React from "react";
 
-export function useInfiniteItems(initialItems: any[], route: string) {
+export function useInfiniteItems(
+  initialItems: any[],
+  route: string,
+  key: string
+) {
   const [items, setItems] = React.useState(initialItems);
   const [page, setPage] = React.useState(2);
   const fetcher = useFetcher();
@@ -46,7 +50,7 @@ export function useInfiniteItems(initialItems: any[], route: string) {
     }
 
     if (clientHeight + scrollPosition > height) {
-      fetcher.load(`/explore/organizations/?page=${page}`);
+      fetcher.load(`${route}?page=${page}`);
       setShouldFetch(false);
     }
 
@@ -54,13 +58,13 @@ export function useInfiniteItems(initialItems: any[], route: string) {
   }, [clientHeight, scrollPosition]);
 
   React.useEffect(() => {
-    if (fetcher.data !== undefined && fetcher.data.organizations.length === 0) {
+    if (fetcher.data !== undefined && fetcher.data[key].length === 0) {
       setShouldFetch(false);
       return;
     }
 
-    if (fetcher.data !== undefined && fetcher.data.organizations.length > 0) {
-      setItems((prevItems) => [...prevItems, ...fetcher.data.organizations]);
+    if (fetcher.data !== undefined && fetcher.data[key].length > 0) {
+      setItems((prevItems) => [...prevItems, ...fetcher.data[key]]);
       setPage((page: number) => page + 1);
       setShouldFetch(true);
     }
