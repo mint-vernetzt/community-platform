@@ -1,19 +1,25 @@
-import { faker } from "@faker-js/faker";
 import type { UsableLocale } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { fromBuffer } from "file-type";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import {
+  getMultipleRandomUniqueSubsets,
+  getRandomUniqueSubset,
+} from "../../../app/lib/utils/array";
+import type { ArrayElement } from "../../../app/lib/utils/types";
 import { prismaClient } from "../../../app/prisma";
+import { generatePathName } from "../../../app/storage.server";
 import {
   generateEventSlug,
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
-import { generatePathName } from "../../../app/storage.server";
 import { createHashFromString } from "../../../app/utils.server";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { spawn } from "child_process";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -218,12 +224,46 @@ export async function createSupabaseAdmin() {
   return authClient;
 }
 
+export function setFakerLocale(locale: UsableLocale) {
+  faker.locale = locale;
+}
+
 export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
 
-export function setFakerLocale(locale: UsableLocale) {
-  faker.locale = locale;
+export async function dropDatabase() {
+  const tablenames = await prismaClient.$queryRaw<
+    Array<{ tablename: string }>
+  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
+
+  const tables = tablenames
+    .map(({ tablename }) => tablename)
+    .filter((name) => name !== "_prisma_migrations")
+    .map((name) => `"public"."${name}"`)
+    .join(", ");
+
+  try {
+    await prismaClient.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
+export function runMake() {
+  const make = spawn("make", ["all"]);
+
+  make.stdout.on("data", (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  make.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  make.on("close", (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
 }
 
 export async function uploadImageBucketData(
@@ -397,14 +437,224 @@ export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>
 ) {
-  let profiles: Array<EntityTypeOnData<"profile">> = [];
-  let organizations: Array<EntityTypeOnData<"organization">> = [];
-  let events: Array<EntityTypeOnData<"event">> = [];
-  let projects: Array<EntityTypeOnData<"project">> = [];
-  let awards: Array<EntityTypeOnData<"award">> = [];
-  let documents: Array<EntityTypeOnData<"document">> = [];
+  const standardPassword = "12345678";
+  let profileCredentials: {
+    id: string;
+    email: string;
+    password: string;
+  }[] = [];
+  let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let organizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let eventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let projectIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let awardIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let documentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let someProfileIds;
+  let someOrganizationIds;
+  let someAwardIds;
+  let someDocumentIds;
+  const areas = await prismaClient.area.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const offersAndSeekings = await prismaClient.offer.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const organizationTypes = await prismaClient.organizationType.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const focuses = await prismaClient.focus.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const targetGroups = await prismaClient.targetGroup.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const experienceLevels = await prismaClient.experienceLevel.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const eventTypes = await prismaClient.eventType.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const tags = await prismaClient.tag.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const stages = await prismaClient.stage.findMany({
+    select: {
+      id: true,
+    },
+  });
+  const disciplines = await prismaClient.discipline.findMany({
+    select: {
+      id: true,
+    },
+  });
 
-  // Creating developer profile and all relevant entities that are connected to it
+  console.log("\n--- Seeding all entities ---\n");
+
+  // Seeding some standard profiles to add to specific entities later
+  for (let i = 0; i <= 20; i++) {
+    const standardProfile = getEntityData<"profile">("profile", "Standard", i, {
+      avatar: {
+        path: imageBucketData.avatars[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.avatars.length - 1,
+          })
+        ],
+      },
+      background: {
+        path: imageBucketData.backgrounds[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.backgrounds.length - 1,
+          })
+        ],
+      },
+    });
+    const standardProfileId = await seedEntity<"profile">(
+      "profile",
+      standardProfile
+    );
+    await addBasicProfileRelations(standardProfileId, areas, offersAndSeekings);
+    profileIds.push(standardProfileId);
+    profileCredentials.push({
+      id: standardProfileId,
+      email: standardProfile.email,
+      password: standardPassword,
+    });
+    console.log(
+      `Successfully seeded standard profile with id: ${standardProfileId}`
+    );
+  }
+
+  // Seeding some standard organizations to add to specific entities later
+  for (let i = 0; i <= 20; i++) {
+    const standardOrganization = getEntityData<"organization">(
+      "organization",
+      "Standard",
+      i,
+      {
+        logo: {
+          path: imageBucketData.logos[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.logos.length - 1,
+            })
+          ],
+        },
+        background: {
+          path: imageBucketData.backgrounds[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.backgrounds.length - 1,
+            })
+          ],
+        },
+      }
+    );
+    const standardOrganizationId = await seedEntity<"organization">(
+      "organization",
+      standardOrganization
+    );
+    await addBasicOrganizationRelations(
+      standardOrganizationId,
+      areas,
+      focuses,
+      organizationTypes
+    );
+    someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
+      profileIds,
+      faker.datatype.number({ min: 1, max: 10 })
+    );
+    await prismaClient.memberOfOrganization.createMany({
+      data: [
+        ...someProfileIds.map((id) => {
+          return {
+            profileId: id,
+            organizationId: standardOrganizationId,
+            isPrivileged: i % 4 === 0,
+          };
+        }),
+      ],
+    });
+    someOrganizationIds = getRandomUniqueSubset<
+      ArrayElement<typeof organizationIds>
+    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    await prismaClient.memberOfNetwork.createMany({
+      data: [
+        ...someOrganizationIds.map((id) => {
+          return {
+            networkId: i % 2 === 0 ? id : standardOrganizationId,
+            networkMemberId: i % 2 === 1 ? id : standardOrganizationId,
+          };
+        }),
+      ],
+    });
+    organizationIds.push(standardOrganizationId);
+    console.log(
+      `Successfully seeded standard organization with id: ${standardOrganizationId}`
+    );
+  }
+
+  // Seeding the standard documents and awards to connect them later where they are needed
+  for (let i = 0; i <= 20; i++) {
+    const standardDocument = getEntityData<"document">(
+      "document",
+      "Standard",
+      i,
+      {
+        document:
+          documentBucketData.documents[
+            faker.datatype.number({
+              min: 0,
+              max: documentBucketData.documents.length - 1,
+            })
+          ],
+      }
+    );
+    const standardDocumentId = await seedEntity<"document">(
+      "document",
+      standardDocument
+    );
+    documentIds.push(standardDocumentId);
+    console.log(
+      `Successfully seeded standard document with id: ${standardDocumentId}`
+    );
+  }
+  for (let i = 0; i <= 20; i++) {
+    const standardAward = getEntityData<"award">("award", "Standard", i, {
+      logo: {
+        path: imageBucketData.logos[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.logos.length - 1,
+          })
+        ],
+      },
+    });
+    const standardAwardId = await seedEntity<"award">("award", standardAward);
+    awardIds.push(standardAwardId);
+    console.log(
+      `Successfully seeded standard award with id: ${standardAwardId}`
+    );
+  }
+
+  // Seeding developer profile
   const developerProfile = getEntityData<"profile">("profile", "Developer", 0, {
     avatar: {
       path: imageBucketData.avatars[
@@ -423,10 +673,295 @@ export async function seedAllEntities(
       ],
     },
   });
-  profiles.push(developerProfile);
-  // TODO: What is relevant and connected to a developer profile? Go through the list.
+  const developerProfileId = await seedEntity<"profile">(
+    "profile",
+    developerProfile
+  );
+  await addBasicProfileRelations(developerProfileId, areas, offersAndSeekings);
+  profileIds.push(developerProfileId);
+  profileCredentials.push({
+    id: developerProfileId,
+    email: developerProfile.email,
+    password: standardPassword,
+  });
+  console.log(
+    `Successfully seeded developer profile with id: ${developerProfileId}`
+  );
 
-  return profiles;
+  // Seeding developer organization
+  const developerOrganization = getEntityData<"organization">(
+    "organization",
+    "Developer",
+    0,
+    {
+      logo: {
+        path: imageBucketData.logos[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.logos.length - 1,
+          })
+        ],
+      },
+      background: {
+        path: imageBucketData.backgrounds[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.backgrounds.length - 1,
+          })
+        ],
+      },
+    }
+  );
+  const developerOrganizationId = await seedEntity<"organization">(
+    "organization",
+    developerOrganization
+  );
+  await addBasicOrganizationRelations(
+    developerOrganizationId,
+    areas,
+    focuses,
+    organizationTypes
+  );
+  someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
+    profileIds,
+    faker.datatype.number({ min: 1, max: 10 })
+  ).filter((id) => {
+    return id !== developerProfileId;
+  });
+  await prismaClient.memberOfOrganization.createMany({
+    data: [
+      {
+        profileId: developerProfileId,
+        organizationId: developerOrganizationId,
+        isPrivileged: true,
+      },
+      ...someProfileIds.map((id) => {
+        return {
+          profileId: id,
+          organizationId: developerOrganizationId,
+        };
+      }),
+    ],
+  });
+  organizationIds.push(developerOrganizationId);
+  console.log(
+    `Successfully seeded developer organization with id: ${developerOrganizationId}`
+  );
+
+  // Seeding developer events
+  for (let i = 0; i < 20; i++) {
+    const developerEvent = getEntityData<"event">("event", "Developer", 0, {
+      background: {
+        path: imageBucketData.backgrounds[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.backgrounds.length - 1,
+          })
+        ],
+      },
+    });
+    const developerEventId = await seedEntity<"event">("event", developerEvent);
+    await addBasicEventRelations(
+      developerEventId,
+      areas,
+      focuses,
+      eventTypes,
+      experienceLevels,
+      stages,
+      tags,
+      targetGroups
+    );
+    someProfileIds = getMultipleRandomUniqueSubsets<
+      ArrayElement<typeof profileIds>
+    >(profileIds, 4);
+    await prismaClient.teamMemberOfEvent.createMany({
+      data: [
+        {
+          profileId: developerProfileId,
+          eventId: developerEventId,
+          isPrivileged: true,
+        },
+        ...someProfileIds[0]
+          .filter((id) => {
+            return id !== developerProfileId;
+          })
+          .map((id) => {
+            return {
+              profileId: id,
+              eventId: developerEventId,
+            };
+          }),
+      ],
+    });
+    await prismaClient.speakerOfEvent.createMany({
+      data: [
+        ...someProfileIds[1].map((id) => {
+          return {
+            profileId: id,
+            eventId: developerEventId,
+          };
+        }),
+      ],
+    });
+    if (
+      developerEvent.participationFrom !== undefined &&
+      typeof developerEvent.participationFrom !== "string" &&
+      developerEvent.participationFrom < new Date(Date.now())
+    ) {
+      const participantIds = someProfileIds[2].slice(
+        0,
+        developerEvent.participantLimit || undefined
+      );
+      await prismaClient.participantOfEvent.createMany({
+        data: [
+          ...participantIds.map((id) => {
+            return {
+              profileId: id,
+              eventId: developerEventId,
+            };
+          }),
+        ],
+      });
+      if (participantIds.length === developerEvent.participantLimit) {
+        await prismaClient.waitingParticipantOfEvent.createMany({
+          data: [
+            ...someProfileIds[3].map((id) => {
+              return {
+                profileId: id,
+                eventId: developerEventId,
+              };
+            }),
+          ],
+        });
+      }
+    }
+    someOrganizationIds = getRandomUniqueSubset<
+      ArrayElement<typeof organizationIds>
+    >(organizationIds, faker.datatype.number({ min: 1, max: 10 })).filter(
+      (id) => {
+        return id !== developerOrganizationId;
+      }
+    );
+    await prismaClient.responsibleOrganizationOfEvent.createMany({
+      data: [
+        {
+          organizationId: developerOrganizationId,
+          eventId: developerEventId,
+        },
+        ...someOrganizationIds.map((id) => {
+          return {
+            organizationId: id,
+            eventId: developerEventId,
+          };
+        }),
+      ],
+    });
+    someDocumentIds = getRandomUniqueSubset<ArrayElement<typeof documentIds>>(
+      documentIds,
+      faker.datatype.number({ min: 1, max: 10 })
+    );
+    await prismaClient.documentOfEvent.createMany({
+      data: [
+        ...someDocumentIds.map((id) => {
+          return {
+            documentId: id,
+            eventId: developerEventId,
+          };
+        }),
+      ],
+    });
+    eventIds.push(developerEventId);
+    console.log(
+      `Successfully seeded developer event with id: ${developerEventId}`
+    );
+  }
+
+  // Seeding developer project
+  const developerProject = getEntityData<"project">("project", "Developer", 0, {
+    logo: {
+      path: imageBucketData.logos[
+        faker.datatype.number({
+          min: 0,
+          max: imageBucketData.logos.length - 1,
+        })
+      ],
+    },
+    background: {
+      path: imageBucketData.backgrounds[
+        faker.datatype.number({
+          min: 0,
+          max: imageBucketData.backgrounds.length - 1,
+        })
+      ],
+    },
+  });
+  const developerProjectId = await seedEntity<"project">(
+    "project",
+    developerProject
+  );
+  await addBasicProjectRelations(developerProjectId, disciplines, targetGroups);
+  someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
+    profileIds,
+    faker.datatype.number({ min: 1, max: 10 })
+  ).filter((id) => {
+    return id !== developerProfileId;
+  });
+  await prismaClient.teamMemberOfProject.createMany({
+    data: [
+      {
+        profileId: developerProfileId,
+        projectId: developerProjectId,
+        isPrivileged: true,
+      },
+      ...someProfileIds.map((id) => {
+        return {
+          profileId: id,
+          projectId: developerProjectId,
+        };
+      }),
+    ],
+  });
+  someOrganizationIds = getRandomUniqueSubset<
+    ArrayElement<typeof organizationIds>
+  >(organizationIds, faker.datatype.number({ min: 1, max: 10 })).filter(
+    (id) => {
+      return id !== developerOrganizationId;
+    }
+  );
+  await prismaClient.responsibleOrganizationOfProject.createMany({
+    data: [
+      {
+        organizationId: developerOrganizationId,
+        projectId: developerProjectId,
+      },
+      ...someOrganizationIds.map((id) => {
+        return {
+          organizationId: id,
+          projectId: developerProjectId,
+        };
+      }),
+    ],
+  });
+  someAwardIds = getRandomUniqueSubset<ArrayElement<typeof awardIds>>(
+    awardIds,
+    faker.datatype.number({ min: 0, max: 1 })
+  );
+  await prismaClient.awardOfProject.createMany({
+    data: [
+      ...someAwardIds.map((id) => {
+        return {
+          awardId: id,
+          projectId: developerProjectId,
+        };
+      }),
+    ],
+  });
+  projectIds.push(developerProjectId);
+  console.log(
+    `Successfully seeded developer project with id: ${developerProjectId}`
+  );
+
+  return profileCredentials;
 }
 
 // TODO: Add static data like focuses, eventTypes, targetGroups, etc...
@@ -442,7 +977,7 @@ export function getEntityData<
   bucketData: EntityTypeOnBucketData<T>
 ) {
   const entityData: unknown = {
-    username: generateUsername<T>(entityType, entityStructure),
+    username: generateUsername<T>(entityType, entityStructure, index),
     title: generateTitle<T>(entityType, entityStructure),
     date: generateDate<T>(entityType, index),
     shortTitle: generateShortTitle<T>(entityType, entityStructure),
@@ -538,9 +1073,289 @@ export async function seedEntity<
   // @ts-ignore
   const result = await prismaClient[entityType].create({
     data: entity,
-    select: { id: true },
+    select: {
+      id: true,
+      email: entityType === "profile",
+    },
   });
-  return result.id;
+  return result.id as string;
+}
+
+async function addBasicProfileRelations(
+  profileId: string,
+  areas: { id: string }[],
+  offersAndSeekings: { id: string }[]
+) {
+  const someAreas = getRandomUniqueSubset<ArrayElement<typeof areas>>(
+    areas,
+    faker.datatype.number({ min: 1, max: 10 })
+  );
+  const someOffers =
+    getRandomUniqueSubset<ArrayElement<typeof offersAndSeekings>>(
+      offersAndSeekings
+    );
+  const someSeekings =
+    getRandomUniqueSubset<ArrayElement<typeof offersAndSeekings>>(
+      offersAndSeekings
+    );
+  await prismaClient.profile.update({
+    where: {
+      id: profileId,
+    },
+    data: {
+      areas: {
+        connectOrCreate: someAreas.map((area) => ({
+          where: {
+            profileId_areaId: {
+              areaId: area.id,
+              profileId: profileId,
+            },
+          },
+          create: {
+            areaId: area.id,
+          },
+        })),
+      },
+      offers: {
+        connectOrCreate: someOffers.map((offer) => ({
+          where: {
+            profileId_offerId: {
+              offerId: offer.id,
+              profileId: profileId,
+            },
+          },
+          create: {
+            offerId: offer.id,
+          },
+        })),
+      },
+      seekings: {
+        connectOrCreate: someSeekings.map((seeking) => ({
+          where: {
+            profileId_offerId: {
+              offerId: seeking.id,
+              profileId: profileId,
+            },
+          },
+          create: {
+            offerId: seeking.id,
+          },
+        })),
+      },
+    },
+  });
+}
+
+async function addBasicOrganizationRelations(
+  organizationId: string,
+  areas: { id: string }[],
+  focuses: { id: string }[],
+  organizationTypes: { id: string }[]
+) {
+  const someAreas = getRandomUniqueSubset<ArrayElement<typeof areas>>(
+    areas,
+    faker.datatype.number({ min: 1, max: 10 })
+  );
+  const someFocuses =
+    getRandomUniqueSubset<ArrayElement<typeof focuses>>(focuses);
+  const someOrganizationTypes =
+    getRandomUniqueSubset<ArrayElement<typeof organizationTypes>>(
+      organizationTypes
+    );
+  await prismaClient.organization.update({
+    where: {
+      id: organizationId,
+    },
+    data: {
+      areas: {
+        connectOrCreate: someAreas.map((area) => ({
+          where: {
+            organizationId_areaId: {
+              areaId: area.id,
+              organizationId: organizationId,
+            },
+          },
+          create: {
+            areaId: area.id,
+          },
+        })),
+      },
+      focuses: {
+        connectOrCreate: someFocuses.map((focus) => ({
+          where: {
+            organizationId_focusId: {
+              focusId: focus.id,
+              organizationId: organizationId,
+            },
+          },
+          create: {
+            focusId: focus.id,
+          },
+        })),
+      },
+      types: {
+        connectOrCreate: someOrganizationTypes.map((type) => ({
+          where: {
+            organizationId_organizationTypeId: {
+              organizationTypeId: type.id,
+              organizationId: organizationId,
+            },
+          },
+          create: {
+            organizationTypeId: type.id,
+          },
+        })),
+      },
+    },
+  });
+}
+
+async function addBasicEventRelations(
+  eventId: string,
+  areas: { id: string }[],
+  focuses: { id: string }[],
+  eventTypes: { id: string }[],
+  experienceLevels: { id: string }[],
+  stages: { id: string }[],
+  tags: { id: string }[],
+  targetGroups: { id: string }[]
+) {
+  const someAreas = getRandomUniqueSubset<ArrayElement<typeof areas>>(
+    areas,
+    faker.datatype.number({ min: 1, max: 10 })
+  );
+  const someFocuses =
+    getRandomUniqueSubset<ArrayElement<typeof focuses>>(focuses);
+  const someEventTypes =
+    getRandomUniqueSubset<ArrayElement<typeof eventTypes>>(eventTypes);
+  const someExperienceLevel = getRandomUniqueSubset<
+    ArrayElement<typeof experienceLevels>
+  >(experienceLevels, 1);
+  const someStage = getRandomUniqueSubset<ArrayElement<typeof stages>>(
+    stages,
+    1
+  );
+  const someTags = getRandomUniqueSubset<ArrayElement<typeof tags>>(tags);
+  const someTargetGroups =
+    getRandomUniqueSubset<ArrayElement<typeof targetGroups>>(targetGroups);
+  await prismaClient.event.update({
+    where: {
+      id: eventId,
+    },
+    data: {
+      areas: {
+        connectOrCreate: someAreas.map((area) => ({
+          where: {
+            eventId_areaId: {
+              areaId: area.id,
+              eventId: eventId,
+            },
+          },
+          create: {
+            areaId: area.id,
+          },
+        })),
+      },
+      focuses: {
+        connectOrCreate: someFocuses.map((focus) => ({
+          where: {
+            eventId_focusId: {
+              focusId: focus.id,
+              eventId: eventId,
+            },
+          },
+          create: {
+            focusId: focus.id,
+          },
+        })),
+      },
+      types: {
+        connectOrCreate: someEventTypes.map((type) => ({
+          where: {
+            eventTypeId_eventId: {
+              eventTypeId: type.id,
+              eventId: eventId,
+            },
+          },
+          create: {
+            eventTypeId: type.id,
+          },
+        })),
+      },
+      experienceLevelId: someExperienceLevel[0].id,
+      stageId: someStage[0].id,
+      tags: {
+        connectOrCreate: someTags.map((tag) => ({
+          where: {
+            tagId_eventId: {
+              tagId: tag.id,
+              eventId: eventId,
+            },
+          },
+          create: {
+            tagId: tag.id,
+          },
+        })),
+      },
+      targetGroups: {
+        connectOrCreate: someTargetGroups.map((targetGroup) => ({
+          where: {
+            targetGroupId_eventId: {
+              targetGroupId: targetGroup.id,
+              eventId: eventId,
+            },
+          },
+          create: {
+            targetGroupId: targetGroup.id,
+          },
+        })),
+      },
+    },
+  });
+}
+
+async function addBasicProjectRelations(
+  projectId: string,
+  disciplines: { id: string }[],
+  targetGroups: { id: string }[]
+) {
+  const someDisciplines =
+    getRandomUniqueSubset<ArrayElement<typeof disciplines>>(disciplines);
+  const someTargetGroups =
+    getRandomUniqueSubset<ArrayElement<typeof targetGroups>>(targetGroups);
+  await prismaClient.project.update({
+    where: {
+      id: projectId,
+    },
+    data: {
+      disciplines: {
+        connectOrCreate: someDisciplines.map((discipline) => ({
+          where: {
+            disciplineId_projectId: {
+              disciplineId: discipline.id,
+              projectId: projectId,
+            },
+          },
+          create: {
+            disciplineId: discipline.id,
+          },
+        })),
+      },
+      targetGroups: {
+        connectOrCreate: someTargetGroups.map((targetGroup) => ({
+          where: {
+            targetGroupId_projectId: {
+              targetGroupId: targetGroup.id,
+              projectId: projectId,
+            },
+          },
+          create: {
+            targetGroupId: targetGroup.id,
+          },
+        })),
+      },
+    },
+  });
 }
 
 function generateUsername<
@@ -548,18 +1363,21 @@ function generateUsername<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // profile required unique
   let username;
   if (entityType === "profile") {
     if (entityStructure === "Developer") {
-      username = generateUsername_app("!Developer", "Profile");
+      username = generateUsername_app("!Developer", `Profile${index}`);
     } else if (entityStructure === "Unicode") {
-      username = generateUsername_app(`${entityStructure}_Γ`, "Profile_Γ");
+      username = generateUsername_app(
+        `${entityStructure}_Γ`,
+        `Profile_Γ${index}`
+      );
     } else if (entityStructure === "Standard") {
-      username = generateUsername_app("~Standard", "Profile_Γ");
+      username = generateUsername_app("~Standard", `Profile${index}`);
     } else {
-      username = generateUsername_app(entityStructure, "Profile");
+      username = generateUsername_app(entityStructure, `Profile${index}`);
     }
   }
   return username;
@@ -776,9 +1594,9 @@ function generateSlug<
   let name;
   if (entityType === "organization") {
     if (entityStructure === "Developer") {
-      name = generateOrganizationSlug("!Developer Organization");
+      name = generateOrganizationSlug(`!${entityStructure} Organization`);
     } else if (entityStructure === "Standard") {
-      name = generateOrganizationSlug("~Standard Organization");
+      name = generateOrganizationSlug(`~${entityStructure} Organization`);
     } else if (entityStructure === "Unicode") {
       name = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
     } else {
@@ -787,9 +1605,9 @@ function generateSlug<
   }
   if (entityType === "event") {
     if (entityStructure === "Developer") {
-      name = generateEventSlug("!Developer Event");
+      name = generateEventSlug(`!${entityStructure} Event`);
     } else if (entityStructure === "Standard") {
-      name = generateEventSlug("~Standard Event");
+      name = generateEventSlug(`~${entityStructure} Event`);
     } else if (entityStructure === "Unicode") {
       name = generateEventSlug(`${entityStructure} Event_Γ`);
     } else {
@@ -798,9 +1616,9 @@ function generateSlug<
   }
   if (entityType === "project") {
     if (entityStructure === "Developer") {
-      name = generateProjectSlug("!Developer Project");
+      name = generateProjectSlug(`!${entityStructure} Project`);
     } else if (entityStructure === "Standard") {
-      name = generateProjectSlug("~Standard Project");
+      name = generateProjectSlug(`~${entityStructure} Project`);
     } else if (entityStructure === "Unicode") {
       name = generateProjectSlug(`${entityStructure} Project_Γ`);
     } else {
@@ -1121,8 +1939,6 @@ function generateParticipantLimit<
   if (entityType === "event") {
     if (entityStructure === "Smallest") {
       participantLimit = null;
-    } else if (entityStructure === "Empty Strings") {
-      participantLimit = -1;
     } else if (entityStructure === "Largest") {
       participantLimit = 20;
     } else if (

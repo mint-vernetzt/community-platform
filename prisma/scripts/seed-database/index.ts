@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,
+  dropDatabase,
   seedAllEntities,
   setFakerLocale,
   setFakerSeed,
@@ -39,8 +40,8 @@ program.parse();
 
 const options = program.opts();
 
-const NUMBER_OF_IMAGES = 10;
-const NUMBER_OF_DOCUMENTS = 10;
+const NUMBER_OF_IMAGES = 1;
+const NUMBER_OF_DOCUMENTS = 1;
 
 async function main(
   force: boolean,
@@ -63,6 +64,9 @@ async function main(
   // Set faker seed to receive the same random results whenever this script is executed
   setFakerSeed(123);
 
+  // TODO: Drop database and buckets
+  await dropDatabase();
+
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
   const imageBucketData = await uploadImageBucketData(
     authClient,
@@ -73,7 +77,12 @@ async function main(
     NUMBER_OF_DOCUMENTS
   );
 
-  const profiles = seedAllEntities(imageBucketData, documentBucketData);
+  const profileCredentials = seedAllEntities(
+    imageBucketData,
+    documentBucketData
+  );
+
+  console.log(profileCredentials);
 
   // TODO: Create corresponding users (pw: 12345678) on supabase auth.users table (see supabase local auth.users table and login.func.tsx for example)
 
