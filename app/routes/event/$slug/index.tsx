@@ -1,6 +1,7 @@
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
@@ -332,20 +333,26 @@ function Index() {
 
   const navigate = useNavigate();
 
-  const now = new Date();
+  const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
-  const beforeParticipationPeriod =
-    now < new Date(loaderData.event.participationFrom);
+  const startTime = utcToZonedTime(loaderData.event.startTime, "Europe/Berlin");
+  const endTime = utcToZonedTime(loaderData.event.endTime, "Europe/Berlin");
+  const participationFrom = utcToZonedTime(
+    loaderData.event.participationFrom,
+    "Europe/Berlin"
+  );
+  const participationUntil = utcToZonedTime(
+    loaderData.event.participationUntil,
+    "Europe/Berlin"
+  );
 
-  const afterParticipationPeriod =
-    now > new Date(loaderData.event.participationUntil);
+  const beforeParticipationPeriod = now < participationFrom;
 
-  const laysInThePast = new Date() > new Date(loaderData.event.endTime);
+  const afterParticipationPeriod = now > participationUntil;
+
+  const laysInThePast = now > endTime;
 
   const Form = getForm(loaderData);
-
-  const startTime = new Date(loaderData.event.startTime);
-  const endTime = new Date(loaderData.event.endTime);
 
   const duration = getDuration(startTime, endTime);
 
@@ -654,25 +661,20 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.participationFrom &&
-              new Date(loaderData.event.participationFrom) > new Date() ? (
+              {loaderData.event.participationFrom && participationFrom > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsbeginn</div>
                   <div className="pb-3 md:pb-0">
-                    {formatDateTime(
-                      new Date(loaderData.event.participationFrom)
-                    )}
+                    {formatDateTime(participationFrom)}
                   </div>
                 </>
               ) : null}
               {loaderData.event.participationUntil &&
-              new Date(loaderData.event.participationUntil) > new Date() ? (
+              participationUntil > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsende</div>
                   <div className="pb-3 md:pb-0">
-                    {formatDateTime(
-                      new Date(loaderData.event.participationUntil)
-                    )}
+                    {formatDateTime(participationUntil)}
                   </div>
                 </>
               ) : null}
@@ -880,8 +882,14 @@ function Index() {
                 </p>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event) => {
-                    const startTime = new Date(event.startTime);
-                    const endTime = new Date(event.endTime);
+                    const eventStartTime = utcToZonedTime(
+                      event.startTime,
+                      "Europe/Berlin"
+                    );
+                    const eventEndTime = utcToZonedTime(
+                      event.endTime,
+                      "Europe/Berlin"
+                    );
                     return (
                       <div
                         key={`child-event-${event.id}`}
@@ -904,7 +912,7 @@ function Index() {
                               {event.stage !== null
                                 ? event.stage.title + " | "
                                 : ""}
-                              {getDuration(startTime, endTime)}
+                              {getDuration(eventStartTime, eventEndTime)}
                               {event._count.childEvents === 0 ? (
                                 <>
                                   {event.participantLimit === null
