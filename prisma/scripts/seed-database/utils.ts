@@ -443,11 +443,9 @@ export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>
 ) {
-  const standardPassword = "12345678";
   let profileCredentials: {
     id: string;
     email: string;
-    password: string;
   }[] = [];
   let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let organizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
@@ -541,7 +539,6 @@ export async function seedAllEntities(
     profileCredentials.push({
       id: standardProfileId,
       email: standardProfile.email,
-      password: standardPassword,
     });
     console.log(
       `Successfully seeded standard profile with id: ${standardProfileId}`
@@ -688,7 +685,6 @@ export async function seedAllEntities(
   profileCredentials.push({
     id: developerProfileId,
     email: developerProfile.email,
-    password: standardPassword,
   });
   console.log(
     `Successfully seeded developer profile with id: ${developerProfileId}`
