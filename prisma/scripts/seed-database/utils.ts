@@ -1285,8 +1285,8 @@ async function addBasicEventRelations(
           },
         })),
       },
-      experienceLevelId: someExperienceLevel[0].id,
-      stageId: someStage[0].id,
+      experienceLevelId: someExperienceLevel[0]?.id || undefined,
+      stageId: someStage[0]?.id || undefined,
       tags: {
         connectOrCreate: someTags.map((tag) => ({
           where: {
