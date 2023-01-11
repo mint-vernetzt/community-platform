@@ -6,7 +6,6 @@ import {
   createSupabaseAdmin,
   truncateTables,
   seedAllEntities,
-  setFakerLocale,
   setFakerSeed,
   uploadDocumentBucketData,
   uploadImageBucketData,
@@ -87,8 +86,6 @@ async function main(
 
   // Init faker
   console.log("\n--- Initializing library @faker-js/faker ---\n");
-  // Set faker locale
-  setFakerLocale("de");
   // Set faker seed to receive the same random results whenever this script is executed
   setFakerSeed(123);
 

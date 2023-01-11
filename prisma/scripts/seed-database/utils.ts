@@ -1,4 +1,3 @@
-import type { UsableLocale } from "@faker-js/faker";
 import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -221,10 +220,6 @@ export async function createSupabaseAdmin() {
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
   return authClient;
-}
-
-export function setFakerLocale(locale: UsableLocale) {
-  faker.locale = locale;
 }
 
 export function setFakerSeed(seed: number) {
@@ -1678,7 +1673,13 @@ function generateName<
     entityType === "project"
   ) {
     if (useRealNames) {
-      name = faker.company.name();
+      if (entityType === "event") {
+        name = faker.company.catchPhraseNoun();
+      } else if (entityType === "project") {
+        name = faker.commerce.department();
+      } else {
+        name = faker.company.name();
+      }
     } else {
       if (entityStructure === "Developer") {
         name = `!${entityStructure} ${entityType.replace(
@@ -2174,7 +2175,7 @@ function generateVenueStreet<
     } else if (entityStructure === "Largest") {
       venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
-      venueStreet = faker.address.streetName();
+      venueStreet = faker.address.street();
     }
   }
   return venueStreet;
@@ -2307,6 +2308,7 @@ function generatePhone<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let phone;
+  faker.locale = "de";
   if (
     entityType === "profile" ||
     entityType === "organization" ||
@@ -2322,6 +2324,7 @@ function generatePhone<
       phone = faker.phone.number();
     }
   }
+  faker.locale = "en";
   return phone;
 }
 
