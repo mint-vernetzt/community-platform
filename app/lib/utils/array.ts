@@ -1,6 +1,6 @@
 export function getRandomUniqueSubset<T>(arr: T[], subsetLength?: number): T[] {
   let length =
-    subsetLength !== undefined && subsetLength < arr.length && subsetLength > 0
+    subsetLength !== undefined && subsetLength < arr.length
       ? subsetLength
       : Math.floor(Math.random() * (arr.length - 1));
   let randomSubset: T[] = [];
