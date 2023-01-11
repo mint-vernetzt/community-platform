@@ -468,7 +468,8 @@ export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
   authClient: SupabaseClient<any, "public", any>,
-  defaultPassword: string
+  defaultPassword: string,
+  useRealNames: boolean
 ) {
   let profileEmails: string[] = [];
   let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
@@ -536,24 +537,30 @@ export async function seedAllEntities(
 
   // Seeding some standard profiles to add to specific entities later
   for (let i = 0; i <= 20; i++) {
-    const standardProfile = getEntityData<"profile">("profile", "Standard", i, {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
+    const standardProfile = getEntityData<"profile">(
+      "profile",
+      "Standard",
+      i,
+      {
+        avatar: {
+          path: imageBucketData.avatars[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.avatars.length - 1,
+            })
+          ],
+        },
+        background: {
+          path: imageBucketData.backgrounds[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.backgrounds.length - 1,
+            })
+          ],
+        },
       },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
-    });
+      useRealNames
+    );
     const standardProfileId = await seedEntity<"profile">(
       "profile",
       standardProfile,
@@ -591,7 +598,8 @@ export async function seedAllEntities(
             })
           ],
         },
-      }
+      },
+      useRealNames
     );
     const standardOrganizationId = await seedEntity<"organization">(
       "organization",
@@ -653,7 +661,8 @@ export async function seedAllEntities(
               max: documentBucketData.documents.length - 1,
             })
           ],
-      }
+      },
+      useRealNames
     );
     const standardDocumentId = await seedEntity<"document">(
       "document",
@@ -667,16 +676,22 @@ export async function seedAllEntities(
     );
   }
   for (let i = 0; i <= 20; i++) {
-    const standardAward = getEntityData<"award">("award", "Standard", i, {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
+    const standardAward = getEntityData<"award">(
+      "award",
+      "Standard",
+      i,
+      {
+        logo: {
+          path: imageBucketData.logos[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.logos.length - 1,
+            })
+          ],
+        },
       },
-    });
+      useRealNames
+    );
     const standardAwardId = await seedEntity<"award">(
       "award",
       standardAward,
@@ -690,24 +705,30 @@ export async function seedAllEntities(
   }
 
   // Seeding developer profile
-  const developerProfile = getEntityData<"profile">("profile", "Developer", 0, {
-    avatar: {
-      path: imageBucketData.avatars[
-        faker.datatype.number({
-          min: 0,
-          max: imageBucketData.avatars.length - 1,
-        })
-      ],
+  const developerProfile = getEntityData<"profile">(
+    "profile",
+    "Developer",
+    0,
+    {
+      avatar: {
+        path: imageBucketData.avatars[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.avatars.length - 1,
+          })
+        ],
+      },
+      background: {
+        path: imageBucketData.backgrounds[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.backgrounds.length - 1,
+          })
+        ],
+      },
     },
-    background: {
-      path: imageBucketData.backgrounds[
-        faker.datatype.number({
-          min: 0,
-          max: imageBucketData.backgrounds.length - 1,
-        })
-      ],
-    },
-  });
+    useRealNames
+  );
   const developerProfileId = await seedEntity<"profile">(
     "profile",
     developerProfile,
@@ -743,7 +764,8 @@ export async function seedAllEntities(
           })
         ],
       },
-    }
+    },
+    useRealNames
   );
   const developerOrganizationId = await seedEntity<"organization">(
     "organization",
@@ -785,16 +807,22 @@ export async function seedAllEntities(
 
   // Seeding developer events
   for (let i = 0; i < 20; i++) {
-    const developerEvent = getEntityData<"event">("event", "Developer", 0, {
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
+    const developerEvent = getEntityData<"event">(
+      "event",
+      "Developer",
+      0,
+      {
+        background: {
+          path: imageBucketData.backgrounds[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.backgrounds.length - 1,
+            })
+          ],
+        },
       },
-    });
+      useRealNames
+    );
     const developerEventId = await seedEntity<"event">(
       "event",
       developerEvent,
@@ -917,24 +945,30 @@ export async function seedAllEntities(
   }
 
   // Seeding developer project
-  const developerProject = getEntityData<"project">("project", "Developer", 0, {
-    logo: {
-      path: imageBucketData.logos[
-        faker.datatype.number({
-          min: 0,
-          max: imageBucketData.logos.length - 1,
-        })
-      ],
+  const developerProject = getEntityData<"project">(
+    "project",
+    "Developer",
+    0,
+    {
+      logo: {
+        path: imageBucketData.logos[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.logos.length - 1,
+          })
+        ],
+      },
+      background: {
+        path: imageBucketData.backgrounds[
+          faker.datatype.number({
+            min: 0,
+            max: imageBucketData.backgrounds.length - 1,
+          })
+        ],
+      },
     },
-    background: {
-      path: imageBucketData.backgrounds[
-        faker.datatype.number({
-          min: 0,
-          max: imageBucketData.backgrounds.length - 1,
-        })
-      ],
-    },
-  });
+    useRealNames
+  );
   const developerProjectId = await seedEntity<"project">(
     "project",
     developerProject,
@@ -1016,7 +1050,8 @@ export function getEntityData<
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
   index: number,
-  bucketData: EntityTypeOnBucketData<T>
+  bucketData: EntityTypeOnBucketData<T>,
+  useRealNames: boolean
 ) {
   const entityData: unknown = {
     username: generateUsername<T>(entityType, entityStructure, index),
@@ -1028,9 +1063,9 @@ export function getEntityData<
     filename: setFilename<T>(entityType, bucketData),
     extension: setExtension<T>(entityType, bucketData),
     sizeInMB: setSizeInMB<T>(entityType, bucketData),
-    name: generateName<T>(entityType, entityStructure),
+    name: generateName<T>(entityType, entityStructure, useRealNames),
     slug: generateSlug<T>(entityType, entityStructure, index),
-    headline: generateHeadline<T>(entityType, entityStructure),
+    headline: generateHeadline<T>(entityType, entityStructure, useRealNames),
     excerpt: generateExcerpt<T>(entityType, entityStructure),
     startTime: generateStartTime<T>(entityType, index),
     endTime: generateEndTime<T>(entityType, entityStructure, index),
@@ -1094,8 +1129,8 @@ export function getEntityData<
     skills: generateSkills<T>(entityType, entityStructure),
     interests: generateInterests<T>(entityType, entityStructure),
     academicTitle: generateAcademicTitle<T>(entityType, entityStructure),
-    firstName: generateFirstName<T>(entityType, entityStructure),
-    lastName: generateLastName<T>(entityType, entityStructure),
+    firstName: generateFirstName<T>(entityType, entityStructure, useRealNames),
+    lastName: generateLastName<T>(entityType, entityStructure, useRealNames),
     publicFields: generatePublicFields<T>(entityType, entityStructure),
     termsAccepted: generateTermsAccepted<T>(entityType),
     position: generatePosition<T>(entityType, entityStructure),
@@ -1630,7 +1665,11 @@ function generateName<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  useRealNames: boolean
+) {
   // organization required, event required, project required
   let name;
   if (
@@ -1638,22 +1677,32 @@ function generateName<
     entityType === "event" ||
     entityType === "project"
   ) {
-    if (entityStructure === "Developer") {
-      name = `!${entityStructure} ${entityType.replace(/^./, function (match) {
-        return match.toUpperCase();
-      })}`;
-    } else if (entityStructure === "Standard") {
-      name = `~${entityStructure} ${entityType.replace(/^./, function (match) {
-        return match.toUpperCase();
-      })}`;
-    } else if (entityStructure === "Unicode") {
-      name = `${entityStructure} ${entityType.replace(/^./, function (match) {
-        return match.toUpperCase();
-      })}_Γ`;
+    if (useRealNames) {
+      name = faker.company.name();
     } else {
-      name = `${entityStructure} ${entityType.replace(/^./, function (match) {
-        return match.toUpperCase();
-      })}`;
+      if (entityStructure === "Developer") {
+        name = `!${entityStructure} ${entityType.replace(
+          /^./,
+          function (match) {
+            return match.toUpperCase();
+          }
+        )}`;
+      } else if (entityStructure === "Standard") {
+        name = `~${entityStructure} ${entityType.replace(
+          /^./,
+          function (match) {
+            return match.toUpperCase();
+          }
+        )}`;
+      } else if (entityStructure === "Unicode") {
+        name = `${entityStructure} ${entityType.replace(/^./, function (match) {
+          return match.toUpperCase();
+        })}_Γ`;
+      } else {
+        name = `${entityStructure} ${entityType.replace(/^./, function (match) {
+          return match.toUpperCase();
+        })}`;
+      }
     }
   }
   return name;
@@ -1712,7 +1761,11 @@ function generateHeadline<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  useRealNames: boolean
+) {
   // project
   let headline;
   if (entityType === "project") {
@@ -1724,14 +1777,18 @@ function generateHeadline<
       headline = "Project_Γ";
     } else if (entityStructure === "Largest") {
       headline =
-        "Very long project headline - This project headline was created by cn and not by faker - And it gets even longer - Disable the edge cases in the seed script to skip this project when seeding the database";
+        "Very long project headline - This project headline was created by cn and not by faker - And it gets even longer - Ohhhhhhhhh it is very long, indeed";
     } else {
-      headline = `${entityStructure} ${entityType.replace(
-        /^./,
-        function (match) {
-          return match.toUpperCase();
-        }
-      )}`;
+      if (useRealNames) {
+        headline = faker.commerce.productName();
+      } else {
+        headline = `${entityStructure} ${entityType.replace(
+          /^./,
+          function (match) {
+            return match.toUpperCase();
+          }
+        )}`;
+      }
     }
   }
   return headline;
@@ -2749,14 +2806,28 @@ function generateFirstName<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  useRealNames: boolean
+) {
   // profile required
   let firstName;
   if (entityType === "profile") {
-    if (entityStructure === "Largest") {
-      firstName = "Alexandros-Lukas-Nikolai-Ioanis-Giorgios-Petros";
+    if (useRealNames) {
+      if (entityStructure === "Largest") {
+        firstName = "Alexandros-Lukas-Nikolai-Ioanis-Giorgios-Petros";
+      } else {
+        firstName = faker.name.firstName();
+      }
     } else {
-      firstName = faker.name.firstName();
+      if (entityStructure === "Developer") {
+        firstName = `!${entityStructure}`;
+      } else if (entityStructure === "Standard") {
+        firstName = `~${entityStructure}`;
+      } else {
+        firstName = entityStructure;
+      }
     }
   }
   return firstName;
@@ -2767,14 +2838,22 @@ function generateLastName<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  useRealNames: boolean
+) {
   // profile required
   let lastName;
   if (entityType === "profile") {
-    if (entityStructure === "Largest") {
-      lastName = "Di-Savoia-Aosta-Carignano-Genova-Montferrat-Casa-Nuova";
+    if (useRealNames) {
+      if (entityStructure === "Largest") {
+        lastName = "Di-Savoia-Aosta-Carignano-Genova-Montferrat-Casa-Nuova";
+      } else {
+        lastName = faker.name.lastName();
+      }
     } else {
-      lastName = faker.name.lastName();
+      lastName = entityType;
     }
   }
   return lastName;

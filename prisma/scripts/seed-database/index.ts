@@ -24,20 +24,25 @@ program
     "-f, --force",
     "This enables to run the script outside a local development environment."
   )
-  // TODO:
-  // .option(
-  //   "-a, --add",
-  //   "When set, the script appends the seeded data to exisiting data on the database. That can cause conflicts, that have to be resolved manually (e.g. uniqueness)."
-  // )
-  // TODO:
-  // .option(
-  //   "-r, --remove",
-  //   "Removes only the seeded data from the database."
-  // )
   .option(
-    "-e, --edgeCases",
-    "Also seed edge cases, like the largest possible profile."
+    "-r, --useRealNames",
+    "When set, script seeds entities with real names instead of developer friendly names (Developer friendly names describe the type and structure of an entity)."
   );
+// TODO:
+// .option(
+//   "-a, --add",
+//   "When set, the script appends the seeded data to exisiting data on the database. That can cause conflicts, that have to be resolved manually (e.g. uniqueness)."
+// )
+// TODO:
+// .option(
+//   "-r, --remove",
+//   "Removes only the seeded data from the database."
+// )
+// TODO:
+// .option(
+//   "-e, --edgeCases",
+//   "Also seed edge cases, like the largest possible profile."
+// );
 
 program.parse();
 
@@ -49,10 +54,11 @@ const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
   force: boolean,
+  useRealNames: boolean
   // TODO:
   // add: boolean,
   // remove: boolean,
-  edgeCases: boolean
+  // edgeCases: boolean
 ) {
   // Checking if script is executed on a local environment
   if (!force) {
@@ -102,7 +108,8 @@ async function main(
     imageBucketData,
     documentBucketData,
     authClient,
-    DEFAULT_PASSWORD_FOR_PROFILES
+    DEFAULT_PASSWORD_FOR_PROFILES,
+    useRealNames
   );
 
   console.log("\n--- Seeding finished ---\n");
@@ -117,4 +124,7 @@ async function main(
   // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }
 
-main(options.force /*, options.add, options.remove*/, options.edgeCases);
+main(
+  options.force,
+  options.useRealNames /*, options.add, options.remove, options.edgeCases*/
+);
