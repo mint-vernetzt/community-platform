@@ -810,7 +810,7 @@ export async function seedAllEntities(
     const developerEvent = getEntityData<"event">(
       "event",
       "Developer",
-      0,
+      i,
       {
         background: {
           path: imageBucketData.backgrounds[
