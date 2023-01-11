@@ -1,18 +1,19 @@
 import { program } from "commander";
-import * as dotenv from "dotenv";
+import { executeCommand } from "scripts/utils";
+// import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,
-  dropDatabase,
-  runMake,
+  truncateTables,
   seedAllEntities,
   setFakerLocale,
   setFakerSeed,
   uploadDocumentBucketData,
   uploadImageBucketData,
+  emptyBuckets,
 } from "./utils";
 
-dotenv.config({ path: "./.env" });
+// dotenv.config({ path: "./.env" });
 
 program
   .name("seed-database")
@@ -65,9 +66,18 @@ async function main(
   // Set faker seed to receive the same random results whenever this script is executed
   setFakerSeed(123);
 
-  // TODO: Drop database and buckets
-  await dropDatabase();
-  await runMake();
+  // Truncate database tables and empty buckets
+  await truncateTables();
+  await emptyBuckets(authClient);
+  await executeCommand("npm", ["run", "prisma:migrate"]);
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/import-datasets/index.ts",
+  ]);
 
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
   const imageBucketData = await uploadImageBucketData(
@@ -89,6 +99,8 @@ async function main(
   // TODO: Create corresponding users (pw: 12345678) on supabase auth.users table (see supabase local auth.users table and login.func.tsx for example)
 
   // TODO: Log the profile list with emails and password: 12345678
+
+  // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }
 
 main(options.force /*, options.add, options.remove*/, options.edgeCases);

@@ -3,7 +3,6 @@ import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { spawn } from "child_process";
 import { fromBuffer } from "file-type";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
@@ -232,7 +231,7 @@ export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
 
-export async function dropDatabase() {
+export async function truncateTables() {
   const tablenames = await prismaClient.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
@@ -250,26 +249,25 @@ export async function dropDatabase() {
   }
 }
 
-export async function runMake() {
-  return new Promise((resolve, reject) => {
-    console.log(process.env.DATABASE_URL);
-    const make = spawn("make", [], {
-      env: { DATABASE_URL: process.env.DATABASE_URL, ...process.env },
-    });
-    make.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
-    });
-    make.stderr.on("data", (data) => {
-      console.error(`stderr: ${data}`);
-    });
-    make.on("close", (code) => {
-      if (code === 0) {
-        resolve(true);
-      } else {
-        reject(new Error(`Make process failed with code ${code}`));
-      }
-    });
-  });
+export async function emptyBuckets(
+  authClient: SupabaseClient<any, "public", any>
+) {
+  const { error: imageBucketError } = await authClient.storage.emptyBucket(
+    "images"
+  );
+  const { error: documentBucketError } = await authClient.storage.emptyBucket(
+    "documents"
+  );
+  if (imageBucketError !== null) {
+    console.error(
+      "The image bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio) and run the seed script again. If you don't have a bucket named 'images', please run the supabase.enhancements.sql (located in the root directory) in Supabase Studio -> SQL Queries."
+    );
+  }
+  if (documentBucketError !== null) {
+    console.error(
+      "The document bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio) and run the seed script again. If you don't have a bucket named 'documents', please run the supabase.enhancements.sql (located in the root directory) in Supabase Studio -> SQL Queries."
+    );
+  }
 }
 
 export async function uploadImageBucketData(
