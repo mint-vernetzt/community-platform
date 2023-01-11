@@ -1,7 +1,7 @@
 import * as inquirer from "inquirer";
-import * as childProcess from "node:child_process";
 import type { SimpleGit } from "simple-git";
 import { simpleGit } from "simple-git";
+import { executeCommand } from "./utils";
 
 const git: SimpleGit = simpleGit();
 
@@ -80,26 +80,6 @@ async function main() {
   }
 
   console.log("\nDone.\n");
-}
-
-function executeCommand(command: string, options: string[]) {
-  return new Promise((resolve) => {
-    const runningCommand = childProcess.spawn(command, options, {
-      stdio: "inherit",
-    });
-    runningCommand.on("data", (data) => {
-      console.log(data.toString());
-    });
-
-    runningCommand.on("close", (code) => {
-      console.log(
-        `\nRunning "${command} ${options.join(
-          " "
-        )}" exited with code ${code}.\n`
-      );
-      resolve(code);
-    });
-  });
 }
 
 main().catch(console.error);
