@@ -800,7 +800,7 @@ export async function seedAllEntities(
   );
 
   // Seeding developer events
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 50; i++) {
     const developerEvent = getEntityData<"event">(
       "event",
       "Developer",
@@ -1661,7 +1661,7 @@ function generateName<
       if (entityType === "event") {
         name = faker.music.genre();
       } else if (entityType === "project") {
-        name = faker.commerce.department();
+        name = faker.commerce.productName();
       } else {
         name = faker.company.name();
       }
