@@ -1,5 +1,5 @@
 import { program } from "commander";
-import { executeCommand } from "scripts/utils";
+import { executeCommand } from "../../../scripts/utils";
 // import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
@@ -44,6 +44,7 @@ const options = program.opts();
 
 const NUMBER_OF_IMAGES = 1;
 const NUMBER_OF_DOCUMENTS = 1;
+const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
   force: boolean,
@@ -89,14 +90,12 @@ async function main(
     NUMBER_OF_DOCUMENTS
   );
 
-  const profileCredentials = await seedAllEntities(
+  const profileEmails = await seedAllEntities(
     imageBucketData,
-    documentBucketData
+    documentBucketData,
+    authClient,
+    DEFAULT_PASSWORD_FOR_PROFILES
   );
-
-  console.log(profileCredentials);
-
-  // TODO: Create corresponding users (pw: 12345678) on supabase auth.users table (see supabase local auth.users table and login.func.tsx for example)
 
   // TODO: Log the profile list with emails and password: 12345678
 

@@ -439,12 +439,11 @@ export async function uploadDocumentBucketData(
 
 export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
-  documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>
+  documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
+  authClient: SupabaseClient<any, "public", any>,
+  defaultPassword: string
 ) {
-  let profileCredentials: {
-    id: string;
-    email: string;
-  }[] = [];
+  let profileEmails: string[] = [];
   let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let organizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let eventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
@@ -530,14 +529,13 @@ export async function seedAllEntities(
     });
     const standardProfileId = await seedEntity<"profile">(
       "profile",
-      standardProfile
+      standardProfile,
+      authClient,
+      defaultPassword
     );
     await addBasicProfileRelations(standardProfileId, areas, offersAndSeekings);
     profileIds.push(standardProfileId);
-    profileCredentials.push({
-      id: standardProfileId,
-      email: standardProfile.email,
-    });
+    profileEmails.push(standardProfile.email);
     console.log(
       `Successfully seeded standard profile with id: ${standardProfileId}`
     );
@@ -570,7 +568,9 @@ export async function seedAllEntities(
     );
     const standardOrganizationId = await seedEntity<"organization">(
       "organization",
-      standardOrganization
+      standardOrganization,
+      authClient,
+      defaultPassword
     );
     await addBasicOrganizationRelations(
       standardOrganizationId,
@@ -630,7 +630,9 @@ export async function seedAllEntities(
     );
     const standardDocumentId = await seedEntity<"document">(
       "document",
-      standardDocument
+      standardDocument,
+      authClient,
+      defaultPassword
     );
     documentIds.push(standardDocumentId);
     console.log(
@@ -648,7 +650,12 @@ export async function seedAllEntities(
         ],
       },
     });
-    const standardAwardId = await seedEntity<"award">("award", standardAward);
+    const standardAwardId = await seedEntity<"award">(
+      "award",
+      standardAward,
+      authClient,
+      defaultPassword
+    );
     awardIds.push(standardAwardId);
     console.log(
       `Successfully seeded standard award with id: ${standardAwardId}`
@@ -676,14 +683,13 @@ export async function seedAllEntities(
   });
   const developerProfileId = await seedEntity<"profile">(
     "profile",
-    developerProfile
+    developerProfile,
+    authClient,
+    defaultPassword
   );
   await addBasicProfileRelations(developerProfileId, areas, offersAndSeekings);
   profileIds.push(developerProfileId);
-  profileCredentials.push({
-    id: developerProfileId,
-    email: developerProfile.email,
-  });
+  profileEmails.push(developerProfile.email);
   console.log(
     `Successfully seeded developer profile with id: ${developerProfileId}`
   );
@@ -714,7 +720,9 @@ export async function seedAllEntities(
   );
   const developerOrganizationId = await seedEntity<"organization">(
     "organization",
-    developerOrganization
+    developerOrganization,
+    authClient,
+    defaultPassword
   );
   await addBasicOrganizationRelations(
     developerOrganizationId,
@@ -760,7 +768,12 @@ export async function seedAllEntities(
         ],
       },
     });
-    const developerEventId = await seedEntity<"event">("event", developerEvent);
+    const developerEventId = await seedEntity<"event">(
+      "event",
+      developerEvent,
+      authClient,
+      defaultPassword
+    );
     await addBasicEventRelations(
       developerEventId,
       areas,
@@ -897,7 +910,9 @@ export async function seedAllEntities(
   });
   const developerProjectId = await seedEntity<"project">(
     "project",
-    developerProject
+    developerProject,
+    authClient,
+    defaultPassword
   );
   await addBasicProjectRelations(developerProjectId, disciplines, targetGroups);
   someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
@@ -961,7 +976,7 @@ export async function seedAllEntities(
     `Successfully seeded developer project with id: ${developerProjectId}`
   );
 
-  return profileCredentials;
+  return profileEmails;
 }
 
 // TODO: Add static data like focuses, eventTypes, targetGroups, etc...
@@ -1067,14 +1082,49 @@ export async function seedEntity<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, entity: EntityTypeOnData<T>) {
-  // TODO: fix union type issue (almost got the generic working, but thats too hard...)
-  // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
-  // @ts-ignore
-  const result = await prismaClient[entityType].create({
-    data: entity,
-    select: { id: true },
-  });
+>(
+  entityType: T,
+  entity: EntityTypeOnData<T>,
+  authClient: SupabaseClient<any, "public", any>,
+  defaultPassword: string
+) {
+  let result;
+  if (
+    entityType === "profile" &&
+    "firstName" in entity &&
+    entity.email !== undefined
+  ) {
+    const { data, error } = await authClient.auth.admin.createUser({
+      email: entity.email,
+      password: defaultPassword,
+      email_confirm: false,
+      user_metadata: {
+        firstName: entity.firstName,
+        lastName: entity.lastName,
+        username: entity.username,
+        academicTitle: entity.academicTitle || null,
+        termsAccepted: entity.termsAccepted,
+      },
+    });
+    if (error !== null || data === null) {
+      console.error(
+        `The user with the email '${entity.email}' and the corresponding profile could not be created due to following error. ${error}`
+      );
+    } else {
+      result = await prismaClient.profile.create({
+        data: { id: data.user.id, ...entity },
+        select: { id: true },
+      });
+    }
+  } else {
+    // TODO: fix union type issue (almost got the generic working, but thats too hard...)
+    // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
+    // @ts-ignore
+    result = await prismaClient[entityType].create({
+      data: entity,
+      select: { id: true },
+    });
+  }
   return result.id as string;
 }
 
