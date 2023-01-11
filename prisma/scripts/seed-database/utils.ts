@@ -1124,7 +1124,7 @@ export async function seedEntity<
     const { data, error } = await authClient.auth.admin.createUser({
       email: entity.email,
       password: defaultPassword,
-      email_confirm: false,
+      email_confirm: true,
       user_metadata: {
         firstName: entity.firstName,
         lastName: entity.lastName,
