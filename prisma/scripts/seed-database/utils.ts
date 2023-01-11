@@ -1659,7 +1659,7 @@ function generateName<
   ) {
     if (useRealNames) {
       if (entityType === "event") {
-        name = faker.company.catchPhraseNoun();
+        name = faker.music.genre();
       } else if (entityType === "project") {
         name = faker.commerce.department();
       } else {
@@ -2331,7 +2331,7 @@ function generateStreet<
     } else if (entityStructure === "Largest") {
       street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
-      street = faker.address.streetName();
+      street = faker.address.street();
     }
   }
   return street;
