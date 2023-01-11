@@ -270,6 +270,33 @@ export async function emptyBuckets(
   }
 }
 
+export async function deleteUsers(
+  authClient: SupabaseClient<any, "public", any>
+) {
+  const {
+    data: { users },
+    error: listUsersError,
+  } = await authClient.auth.admin.listUsers();
+
+  if (listUsersError !== null || users.length === 0) {
+    console.error(
+      "Could not fetch already existing users from auth.users table. Skipped deleting all users from auth.users table. Either there were no users in auth.users table before running this script or the users could not be fetched."
+    );
+  } else {
+    for (let user of users) {
+      const { error: deleteUserError } = await authClient.auth.admin.deleteUser(
+        user.id
+      );
+
+      if (deleteUserError !== null) {
+        console.error(
+          `The user with the id "${user.id}" and the email "${user.email}" could not be deleted. Please try to manually delete it (f.e. via Supabase Studio) and run the seed script again.`
+        );
+      }
+    }
+  }
+}
+
 export async function uploadImageBucketData(
   authClient: SupabaseClient<any, "public", any>,
   numberOfImages: number
@@ -1111,8 +1138,9 @@ export async function seedEntity<
         `The user with the email '${entity.email}' and the corresponding profile could not be created due to following error. ${error}`
       );
     } else {
-      result = await prismaClient.profile.create({
-        data: { id: data.user.id, ...entity },
+      result = await prismaClient.profile.update({
+        where: { id: data.user.id },
+        data: entity,
         select: { id: true },
       });
     }

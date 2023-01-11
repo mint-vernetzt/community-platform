@@ -11,6 +11,7 @@ import {
   uploadDocumentBucketData,
   uploadImageBucketData,
   emptyBuckets,
+  deleteUsers,
 } from "./utils";
 
 // dotenv.config({ path: "./.env" });
@@ -55,21 +56,19 @@ async function main(
 ) {
   // Checking if script is executed on a local environment
   if (!force) {
+    console.log("\n--- Checking for local environment ---\n");
     checkLocalEnvironment();
   }
 
   // Creating an authClient to upload files to the bucket and manage the users table
+  console.log("\n--- Creating auth client ---\n");
   const authClient = await createSupabaseAdmin();
 
-  // Set faker locale
-  setFakerLocale("de");
-
-  // Set faker seed to receive the same random results whenever this script is executed
-  setFakerSeed(123);
-
-  // Truncate database tables and empty buckets
+  // Truncate database tables, empty buckets and delete users
+  console.log("\n--- Reseting database and buckets ---\n");
   await truncateTables();
   await emptyBuckets(authClient);
+  await deleteUsers(authClient);
   await executeCommand("npm", ["run", "prisma:migrate"]);
   await executeCommand("npx", [
     "ts-node",
@@ -80,7 +79,15 @@ async function main(
     "prisma/scripts/import-datasets/index.ts",
   ]);
 
+  // Init faker
+  console.log("\n--- Initializing library @faker-js/faker ---\n");
+  // Set faker locale
+  setFakerLocale("de");
+  // Set faker seed to receive the same random results whenever this script is executed
+  setFakerSeed(123);
+
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
+  console.log("\n--- Uploading fake images and pdf documents to buckets ---\n");
   const imageBucketData = await uploadImageBucketData(
     authClient,
     NUMBER_OF_IMAGES
@@ -90,6 +97,7 @@ async function main(
     NUMBER_OF_DOCUMENTS
   );
 
+  console.log("\n--- Seeding all entities ---\n");
   const profileEmails = await seedAllEntities(
     imageBucketData,
     documentBucketData,
@@ -97,7 +105,14 @@ async function main(
     DEFAULT_PASSWORD_FOR_PROFILES
   );
 
-  // TODO: Log the profile list with emails and password: 12345678
+  console.log("\n--- Seeding finished ---\n");
+  console.log("\n--- User list ---\n");
+  for (let email of profileEmails) {
+    console.log(email);
+  }
+  console.log(
+    `\nThe default password for all users is "${DEFAULT_PASSWORD_FOR_PROFILES}"`
+  );
 
   // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }
