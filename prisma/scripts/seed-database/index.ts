@@ -4,13 +4,13 @@ import { executeCommand } from "../../../scripts/utils";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,
-  truncateTables,
+  deleteUsers,
+  emptyBuckets,
   seedAllEntities,
   setFakerSeed,
+  truncateTables,
   uploadDocumentBucketData,
   uploadImageBucketData,
-  emptyBuckets,
-  deleteUsers,
 } from "./utils";
 
 // dotenv.config({ path: "./.env" });

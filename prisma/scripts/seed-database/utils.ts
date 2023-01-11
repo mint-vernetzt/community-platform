@@ -475,7 +475,6 @@ export async function seedAllEntities(
   let documentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let someProfileIds;
   let someOrganizationIds;
-  let someAwardIds;
   let someDocumentIds;
   const areas = await prismaClient.area.findMany({
     select: {
@@ -1008,20 +1007,6 @@ export async function seedAllEntities(
       ...someOrganizationIds.map((id) => {
         return {
           organizationId: id,
-          projectId: developerProjectId,
-        };
-      }),
-    ],
-  });
-  someAwardIds = getRandomUniqueSubset<ArrayElement<typeof awardIds>>(
-    awardIds,
-    faker.datatype.number({ min: 0, max: 1 })
-  );
-  await prismaClient.awardOfProject.createMany({
-    data: [
-      ...someAwardIds.map((id) => {
-        return {
-          awardId: id,
           projectId: developerProjectId,
         };
       }),
