@@ -89,7 +89,7 @@ export function getPaginationValues(
   const pageParam = url.searchParams.get("page") || "1";
 
   let page = parseInt(pageParam);
-  if (Number.isNaN(page)) {
+  if (Number.isNaN(page) || page < 1) {
     page = 1;
   }
 
