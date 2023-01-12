@@ -1809,81 +1809,37 @@ function generateFutureAndPastTimes(
   timeDelta?: {
     years?: number;
     months?: number;
-    days?: number;
-    hours?: number;
-  }
-) {
-  const now = new Date();
-  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
-  const middleHourOfDay = 12 + (timeDelta?.hours || 0);
-  const middleDayOfMonth = 14 + (timeDelta?.days || 0);
-  const middleMonthOfYear = 6 + (timeDelta?.months || 0);
-  let newHour;
-  let newDate;
-  let newMonth;
-  let newYear;
-  let dateCounter = 0;
-  let monthCounter = 0;
-  let yearCounter = 0;
-
-  newHour = middleHourOfDay + index * futurePastSwitcher;
-  if (newHour < 0 || newHour > 23) {
-    if (newHour > 23) {
-      dateCounter = newHour - 24;
-    }
-    if (newHour < 0) {
-      dateCounter = newHour + 1;
-    }
-    newHour = middleHourOfDay;
-  }
-  newDate = middleDayOfMonth + dateCounter;
-  if (newDate <= 0 || newDate >= 29) {
-    if (newDate >= 29) {
-      monthCounter = newDate - 28;
-    }
-    if (newDate <= 0) {
-      monthCounter = newDate - 1;
-    }
-    newDate = 1;
-  }
-  newMonth = middleMonthOfYear + monthCounter;
-  if (newMonth < 0 || newMonth > 11) {
-    if (newMonth > 11) {
-      yearCounter = newMonth - 12;
-    }
-    if (newMonth < 0) {
-      yearCounter = newMonth + 1;
-    }
-    newMonth = 1;
-  }
-  newYear = now.getFullYear() + yearCounter + (timeDelta?.years || 0);
-
-  return { hours: newHour, date: newDate, month: newMonth, year: newYear };
-}
-
-function generateFutureAndPastTimesNew(
-  index: number,
-  timeDelta?: {
-    years?: number;
-    months?: number;
+    weeks?: number;
     days?: number;
     hours?: number;
   }
 ) {
   const oneHourInMillis = 3_600_000;
   const oneDayInMillis = 86_400_000;
+  const oneWeekInMillis = 604_800_000;
   const oneMonthInMillis = 2_628_000_000;
   const oneYearInMillis = 31_540_000_000;
-  const startTime =
-    new Date().getTime() +
-    (timeDelta?.hours ? oneHourInMillis : 0) +
-    (timeDelta?.days ? oneHourInMillis : 0);
+  const now = new Date();
+  const nowPlusTimeDeltaInMillis =
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours()
+    ).getTime() +
+    (timeDelta?.hours ? oneHourInMillis * timeDelta.hours : 0) +
+    (timeDelta?.days ? oneDayInMillis * timeDelta.days : 0) +
+    (timeDelta?.weeks ? oneWeekInMillis * timeDelta.weeks : 0) +
+    (timeDelta?.months ? oneMonthInMillis * timeDelta.months : 0) +
+    (timeDelta?.years ? oneYearInMillis * timeDelta.years : 0);
   const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
-  const middleHourOfDay = 12 + (timeDelta?.hours || 0);
-  const middleDayOfMonth = 14 + (timeDelta?.days || 0);
-  const middleMonthOfYear = 6 + (timeDelta?.months || 0);
 
-  return;
+  // Generating future and past times in a one week turnus, depending on the given index
+  const futurePastTimeInMillis =
+    index * futurePastSwitcher * oneWeekInMillis + nowPlusTimeDeltaInMillis;
+  const futurePastDate = new Date(futurePastTimeInMillis);
+
+  return futurePastDate;
 }
 
 function generateStartTime<
@@ -1895,8 +1851,7 @@ function generateStartTime<
   // event required
   let startTime;
   if (entityType === "event") {
-    const { hours, date, month, year } = generateFutureAndPastTimes(index);
-    startTime = new Date(year, month, date, hours);
+    startTime = generateFutureAndPastTimes(index);
   }
   return startTime;
 }
@@ -1915,31 +1870,19 @@ function generateEndTime<
       const timeDelta = {
         days: 1,
       };
-      const { hours, date, month, year } = generateFutureAndPastTimes(
-        index,
-        timeDelta
-      );
-      endTime = new Date(year, month, date, hours);
+      endTime = generateFutureAndPastTimes(index, timeDelta);
     } else if (entityStructure === "Depth3") {
       // Weekly event
       const timeDelta = {
         days: 7,
       };
-      const { hours, date, month, year } = generateFutureAndPastTimes(
-        index,
-        timeDelta
-      );
-      endTime = new Date(year, month, date, hours);
+      endTime = generateFutureAndPastTimes(index, timeDelta);
     } else {
       // Hourly event
       const timeDelta = {
-        hours: 1,
+        hours: faker.datatype.number({ min: 1, max: 4 }),
       };
-      const { hours, date, month, year } = generateFutureAndPastTimes(
-        index,
-        timeDelta
-      );
-      endTime = new Date(year, month, date, hours);
+      endTime = generateFutureAndPastTimes(index, timeDelta);
     }
   }
   return endTime;
@@ -2110,13 +2053,9 @@ function generateParticipationFrom<
   let participationFrom;
   if (entityType === "event") {
     const timeDelta = {
-      days: -8,
+      days: -22,
     };
-    const { hours, date, month, year } = generateFutureAndPastTimes(
-      index,
-      timeDelta
-    );
-    participationFrom = new Date(year, month, date, hours);
+    participationFrom = generateFutureAndPastTimes(index, timeDelta);
   }
   return participationFrom;
 }
@@ -2133,11 +2072,7 @@ function generateParticipationUntil<
     const timeDelta = {
       days: -1,
     };
-    const { hours, date, month, year } = generateFutureAndPastTimes(
-      index,
-      timeDelta
-    );
-    participationUntil = new Date(year, month, date, hours);
+    participationUntil = generateFutureAndPastTimes(index, timeDelta);
   }
   return participationUntil;
 }
