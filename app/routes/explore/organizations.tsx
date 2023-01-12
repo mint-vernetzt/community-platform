@@ -3,6 +3,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -17,11 +18,7 @@ import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import {
-  getAllOrganizations,
-  getPaginationValues,
-  getScoreOfEntity,
-} from "./utils.server";
+import { getAllOrganizations, getPaginationValues } from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),

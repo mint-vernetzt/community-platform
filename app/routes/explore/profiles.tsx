@@ -8,6 +8,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
 import type { FormEvent } from "react";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
@@ -28,7 +29,7 @@ import {
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllProfiles, getScoreOfEntity } from "./utils.server";
+import { getAllProfiles } from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
