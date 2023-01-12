@@ -469,12 +469,13 @@ export async function seedAllEntities(
   numberOfStandardEntities: number
 ) {
   let profileEmails: string[] = [];
-  let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let organizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let eventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let projectIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let awardIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let documentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let standardProfileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let standardOrganizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
+    [];
+  let standardEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let standardProjectIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let standardAwardIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  let standardDocumentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let someProfileIds;
   let someOrganizationIds;
   let someDocumentIds;
@@ -563,7 +564,7 @@ export async function seedAllEntities(
       defaultPassword
     );
     await addBasicProfileRelations(standardProfileId, areas, offersAndSeekings);
-    profileIds.push(standardProfileId);
+    standardProfileIds.push(standardProfileId);
     profileEmails.push(standardProfile.email);
     console.log(
       `Successfully seeded standard profile with id: ${standardProfileId}`
@@ -608,10 +609,9 @@ export async function seedAllEntities(
       focuses,
       organizationTypes
     );
-    someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
-      profileIds,
-      faker.datatype.number({ min: 1, max: 10 })
-    );
+    someProfileIds = getRandomUniqueSubset<
+      ArrayElement<typeof standardProfileIds>
+    >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.memberOfOrganization.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -624,8 +624,8 @@ export async function seedAllEntities(
       ],
     });
     someOrganizationIds = getRandomUniqueSubset<
-      ArrayElement<typeof organizationIds>
-    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+      ArrayElement<typeof standardOrganizationIds>
+    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.memberOfNetwork.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -636,7 +636,7 @@ export async function seedAllEntities(
         }),
       ],
     });
-    organizationIds.push(standardOrganizationId);
+    standardOrganizationIds.push(standardOrganizationId);
     console.log(
       `Successfully seeded standard organization with id: ${standardOrganizationId}`
     );
@@ -665,7 +665,7 @@ export async function seedAllEntities(
       authClient,
       defaultPassword
     );
-    documentIds.push(standardDocumentId);
+    standardDocumentIds.push(standardDocumentId);
     console.log(
       `Successfully seeded standard document with id: ${standardDocumentId}`
     );
@@ -695,7 +695,7 @@ export async function seedAllEntities(
       authClient,
       defaultPassword
     );
-    awardIds.push(standardAwardId);
+    standardAwardIds.push(standardAwardId);
     console.log(
       `Successfully seeded standard award with id: ${standardAwardId}`
     );
@@ -736,8 +736,8 @@ export async function seedAllEntities(
       targetGroups
     );
     someProfileIds = getMultipleRandomUniqueSubsets<
-      ArrayElement<typeof profileIds>
-    >(profileIds, 3);
+      ArrayElement<typeof standardProfileIds>
+    >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
         ...someProfileIds[0].map((id) => {
@@ -797,8 +797,8 @@ export async function seedAllEntities(
       // }
     }
     someOrganizationIds = getRandomUniqueSubset<
-      ArrayElement<typeof organizationIds>
-    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+      ArrayElement<typeof standardOrganizationIds>
+    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -809,10 +809,9 @@ export async function seedAllEntities(
         }),
       ],
     });
-    someDocumentIds = getRandomUniqueSubset<ArrayElement<typeof documentIds>>(
-      documentIds,
-      faker.datatype.number({ min: 1, max: 10 })
-    );
+    someDocumentIds = getRandomUniqueSubset<
+      ArrayElement<typeof standardDocumentIds>
+    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -823,7 +822,7 @@ export async function seedAllEntities(
         }),
       ],
     });
-    eventIds.push(standardEventId);
+    standardEventIds.push(standardEventId);
     console.log(
       `Successfully seeded standard event with id: ${standardEventId}`
     );
@@ -866,10 +865,9 @@ export async function seedAllEntities(
       disciplines,
       targetGroups
     );
-    someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
-      profileIds,
-      faker.datatype.number({ min: 1, max: 10 })
-    );
+    someProfileIds = getRandomUniqueSubset<
+      ArrayElement<typeof standardProfileIds>
+    >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.teamMemberOfProject.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -881,8 +879,8 @@ export async function seedAllEntities(
       ],
     });
     someOrganizationIds = getRandomUniqueSubset<
-      ArrayElement<typeof organizationIds>
-    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+      ArrayElement<typeof standardOrganizationIds>
+    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfProject.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -893,7 +891,7 @@ export async function seedAllEntities(
         }),
       ],
     });
-    projectIds.push(standardProjectId);
+    standardProjectIds.push(standardProjectId);
     console.log(
       `Successfully seeded standard project with id: ${standardProjectId}`
     );
@@ -931,7 +929,6 @@ export async function seedAllEntities(
     defaultPassword
   );
   await addBasicProfileRelations(developerProfileId, areas, offersAndSeekings);
-  profileIds.push(developerProfileId);
   profileEmails.push(developerProfile.email);
   console.log(
     `Successfully seeded developer profile with id: ${developerProfileId}`
@@ -974,12 +971,13 @@ export async function seedAllEntities(
     focuses,
     organizationTypes
   );
-  someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
-    profileIds,
-    faker.datatype.number({ min: 1, max: 10 })
-  ).filter((id) => {
-    return id !== developerProfileId;
-  });
+  someProfileIds = getRandomUniqueSubset<
+    ArrayElement<typeof standardProfileIds>
+  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 })).filter(
+    (id) => {
+      return id !== developerProfileId;
+    }
+  );
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -995,7 +993,6 @@ export async function seedAllEntities(
       }),
     ],
   });
-  organizationIds.push(developerOrganizationId);
   console.log(
     `Successfully seeded developer organization with id: ${developerOrganizationId}`
   );
@@ -1035,8 +1032,8 @@ export async function seedAllEntities(
       targetGroups
     );
     someProfileIds = getMultipleRandomUniqueSubsets<
-      ArrayElement<typeof profileIds>
-    >(profileIds, 3);
+      ArrayElement<typeof standardProfileIds>
+    >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
         {
@@ -1092,12 +1089,13 @@ export async function seedAllEntities(
       });
     }
     someOrganizationIds = getRandomUniqueSubset<
-      ArrayElement<typeof organizationIds>
-    >(organizationIds, faker.datatype.number({ min: 1, max: 10 })).filter(
-      (id) => {
-        return id !== developerOrganizationId;
-      }
-    );
+      ArrayElement<typeof standardOrganizationIds>
+    >(
+      standardOrganizationIds,
+      faker.datatype.number({ min: 1, max: 10 })
+    ).filter((id) => {
+      return id !== developerOrganizationId;
+    });
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -1112,10 +1110,9 @@ export async function seedAllEntities(
         }),
       ],
     });
-    someDocumentIds = getRandomUniqueSubset<ArrayElement<typeof documentIds>>(
-      documentIds,
-      faker.datatype.number({ min: 1, max: 10 })
-    );
+    someDocumentIds = getRandomUniqueSubset<
+      ArrayElement<typeof standardDocumentIds>
+    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -1126,7 +1123,6 @@ export async function seedAllEntities(
         }),
       ],
     });
-    eventIds.push(developerEventId);
     console.log(
       `Successfully seeded developer event with id: ${developerEventId}`
     );
@@ -1164,12 +1160,13 @@ export async function seedAllEntities(
     defaultPassword
   );
   await addBasicProjectRelations(developerProjectId, disciplines, targetGroups);
-  someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
-    profileIds,
-    faker.datatype.number({ min: 1, max: 10 })
-  ).filter((id) => {
-    return id !== developerProfileId;
-  });
+  someProfileIds = getRandomUniqueSubset<
+    ArrayElement<typeof standardProfileIds>
+  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 })).filter(
+    (id) => {
+      return id !== developerProfileId;
+    }
+  );
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       {
@@ -1186,8 +1183,8 @@ export async function seedAllEntities(
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
-    ArrayElement<typeof organizationIds>
-  >(organizationIds, faker.datatype.number({ min: 1, max: 10 })).filter(
+    ArrayElement<typeof standardOrganizationIds>
+  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 })).filter(
     (id) => {
       return id !== developerOrganizationId;
     }
@@ -1206,7 +1203,6 @@ export async function seedAllEntities(
       }),
     ],
   });
-  projectIds.push(developerProjectId);
   console.log(
     `Successfully seeded developer project with id: ${developerProjectId}`
   );
