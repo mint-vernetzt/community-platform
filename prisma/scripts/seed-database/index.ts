@@ -7,7 +7,6 @@ import {
   deleteUsers,
   emptyBuckets,
   seedAllEntities,
-  setFakerSeed,
   truncateTables,
   uploadDocumentBucketData,
   uploadImageBucketData,
@@ -83,11 +82,6 @@ async function main(
     "ts-node",
     "prisma/scripts/import-datasets/index.ts",
   ]);
-
-  // Init faker
-  console.log("\n--- Initializing library @faker-js/faker ---\n");
-  // Set faker seed to receive the same random results whenever this script is executed
-  setFakerSeed(123);
 
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
   console.log("\n--- Uploading fake images and pdf documents to buckets ---\n");
