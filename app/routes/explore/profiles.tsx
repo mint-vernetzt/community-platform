@@ -18,6 +18,7 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
+import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { createAreaOptionFromData } from "~/lib/utils/components";
@@ -28,7 +29,7 @@ import {
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllProfiles } from "./utils.server";
+import { getAllProfiles, getPaginationValues } from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -54,6 +55,8 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
+  const { skip, take } = getPaginationValues(request);
+
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
@@ -62,7 +65,7 @@ export const loader: LoaderFunction = async (args) => {
 
   let profiles;
 
-  const allProfiles = await getAllProfiles();
+  const allProfiles = await getAllProfiles(skip, take);
   if (allProfiles !== null) {
     profiles = allProfiles.map((profile) => {
       const { bio, position, avatar, publicFields, ...otherFields } = profile;
@@ -290,11 +293,11 @@ export default function Index() {
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let profiles = loaderData.profiles;
-
-  if (actionData && actionData.success) {
-    profiles = actionData.data.profiles;
-  }
+  const { items, refCallback } = useInfiniteItems(
+    loaderData.profiles,
+    "/explore/profiles",
+    "profiles"
+  );
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
     submit(event.currentTarget);
@@ -444,6 +447,7 @@ export default function Index() {
       ) : null}
 
       <section
+        ref={refCallback}
         className="container my-8 md:my-10 lg:my-20"
         id="contact-details"
       >
@@ -451,8 +455,8 @@ export default function Index() {
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {profiles.length > 0 ? (
-            profiles.map((profile) => {
+          {items.length > 0 ? (
+            items.map((profile) => {
               let slug, image, initials, name, subtitle;
               slug = `/profile/${profile.username}`;
               image = profile.avatar;

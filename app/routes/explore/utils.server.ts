@@ -3,8 +3,13 @@ import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 
-export async function getAllProfiles() {
+export async function getAllProfiles(
+  skip: number | undefined = undefined,
+  take: number | undefined = undefined
+) {
   const profiles = await prismaClient.profile.findMany({
+    skip,
+    take,
     include: {
       areas: { select: { area: { select: { name: true } } } },
       offers: { select: { offer: { select: { title: true } } } },
