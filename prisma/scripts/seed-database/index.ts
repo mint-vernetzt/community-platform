@@ -48,8 +48,8 @@ const options = program.opts();
 
 const NUMBER_OF_IMAGES = 50;
 const NUMBER_OF_DOCUMENTS = 20;
-const NUMBER_OF_EVENTS_PER_STRUCTURE = 30;
-const NUMBER_OF_STANDARD_ENTITIES = 20;
+const NUMBER_OF_EVENTS_PER_STRUCTURE = 30; // Must be greater than 1
+const NUMBER_OF_STANDARD_ENTITIES = 20; // Must be greater than 20
 const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
