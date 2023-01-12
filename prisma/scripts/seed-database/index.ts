@@ -47,8 +47,8 @@ program.parse();
 
 const options = program.opts();
 
-const NUMBER_OF_IMAGES = 100;
-const NUMBER_OF_DOCUMENTS = 20;
+const NUMBER_OF_IMAGES = 50;
+const NUMBER_OF_DOCUMENTS = 1;
 const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(

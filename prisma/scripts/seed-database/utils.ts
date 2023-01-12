@@ -1861,6 +1861,31 @@ function generateFutureAndPastTimes(
   return { hours: newHour, date: newDate, month: newMonth, year: newYear };
 }
 
+function generateFutureAndPastTimesNew(
+  index: number,
+  timeDelta?: {
+    years?: number;
+    months?: number;
+    days?: number;
+    hours?: number;
+  }
+) {
+  const oneHourInMillis = 3_600_000;
+  const oneDayInMillis = 86_400_000;
+  const oneMonthInMillis = 2_628_000_000;
+  const oneYearInMillis = 31_540_000_000;
+  const startTime =
+    new Date().getTime() +
+    (timeDelta?.hours ? oneHourInMillis : 0) +
+    (timeDelta?.days ? oneHourInMillis : 0);
+  const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
+  const middleHourOfDay = 12 + (timeDelta?.hours || 0);
+  const middleDayOfMonth = 14 + (timeDelta?.days || 0);
+  const middleMonthOfYear = 6 + (timeDelta?.months || 0);
+
+  return;
+}
+
 function generateStartTime<
   T extends keyof Pick<
     PrismaClient,
