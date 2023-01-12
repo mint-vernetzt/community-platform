@@ -6,6 +6,7 @@ import { getSessionUserOrThrow } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
+import { triggerEntityScore } from "~/utils.server";
 
 export async function getProfileByEmail(email: string) {
   const profile = await prismaClient.profile.findFirst({
@@ -223,6 +224,7 @@ export async function updateOrganizationById(
       },
     },
   });
+  await triggerEntityScore({ entity: "organization", where: { id } });
 }
 
 export async function connectProfileToOrganization(

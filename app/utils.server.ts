@@ -4,6 +4,7 @@ import { forbidden } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
 
 export async function createHashFromString(
   string: string,
@@ -120,4 +121,24 @@ export async function getAreas() {
 export async function getDisciplines() {
   const result = await prismaClient.discipline.findMany();
   return result;
+}
+
+export async function triggerEntityScore(options: {
+  entity: "organization" | "profile";
+  where: { id?: string; slug?: string };
+}) {
+  if (options.entity === "profile" && options.where.slug !== undefined) {
+    return;
+  }
+
+  // TODO: fix type issue
+  const entity = await prismaClient[options.entity].findFirst({
+    where: options.where,
+    include: { areas: { select: { area: { select: { id: true } } } } },
+  });
+  const score = getScoreOfEntity(entity);
+  await prismaClient[options.entity].update({
+    where: { id: entity.id },
+    data: { score },
+  });
 }
