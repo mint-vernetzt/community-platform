@@ -737,7 +737,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getMultipleRandomUniqueSubsets<
       ArrayElement<typeof profileIds>
-    >(profileIds, 4);
+    >(profileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
         ...someProfileIds[0].map((id) => {
@@ -765,7 +765,12 @@ export async function seedAllEntities(
     ) {
       const participantIds = someProfileIds[2].slice(
         0,
-        standardEvent.participantLimit || undefined
+        standardEvent.participantLimit
+          ? Math.round(
+              standardEvent.participantLimit /
+                faker.datatype.number({ min: 2, max: 10 })
+            )
+          : undefined
       );
       await prismaClient.participantOfEvent.createMany({
         data: [
@@ -777,18 +782,19 @@ export async function seedAllEntities(
           }),
         ],
       });
-      if (participantIds.length === standardEvent.participantLimit) {
-        await prismaClient.waitingParticipantOfEvent.createMany({
-          data: [
-            ...someProfileIds[3].map((id) => {
-              return {
-                profileId: id,
-                eventId: standardEventId,
-              };
-            }),
-          ],
-        });
-      }
+      // Use this for fullParticipants structure
+      // if (participantIds.length === standardEvent.participantLimit) {
+      //   await prismaClient.waitingParticipantOfEvent.createMany({
+      //     data: [
+      //       ...someProfileIds[3].map((id) => {
+      //         return {
+      //           profileId: id,
+      //           eventId: standardEventId,
+      //         };
+      //       }),
+      //     ],
+      //   });
+      // }
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof organizationIds>
@@ -1030,7 +1036,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getMultipleRandomUniqueSubsets<
       ArrayElement<typeof profileIds>
-    >(profileIds, 4);
+    >(profileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
         {
@@ -1067,7 +1073,12 @@ export async function seedAllEntities(
     ) {
       const participantIds = someProfileIds[2].slice(
         0,
-        developerEvent.participantLimit || undefined
+        developerEvent.participantLimit
+          ? Math.round(
+              developerEvent.participantLimit /
+                faker.datatype.number({ min: 2, max: 10 })
+            )
+          : undefined
       );
       await prismaClient.participantOfEvent.createMany({
         data: [
@@ -1079,18 +1090,6 @@ export async function seedAllEntities(
           }),
         ],
       });
-      if (participantIds.length === developerEvent.participantLimit) {
-        await prismaClient.waitingParticipantOfEvent.createMany({
-          data: [
-            ...someProfileIds[3].map((id) => {
-              return {
-                profileId: id,
-                eventId: developerEventId,
-              };
-            }),
-          ],
-        });
-      }
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof organizationIds>
@@ -1211,6 +1210,7 @@ export async function seedAllEntities(
   console.log(
     `Successfully seeded developer project with id: ${developerProjectId}`
   );
+  // TODO: Next structure (priorize!)
 
   return profileEmails;
 }
