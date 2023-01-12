@@ -476,6 +476,8 @@ export async function seedAllEntities(
   let someProfileIds;
   let someOrganizationIds;
   let someDocumentIds;
+  const numberOfEventsPerStructure = 30;
+  const numberOfStandardEntities = 10;
   const areas = await prismaClient.area.findMany({
     select: {
       id: true,
@@ -530,7 +532,7 @@ export async function seedAllEntities(
   console.log("\n--- Seeding all entities ---\n");
 
   // Seeding some standard profiles to add to specific entities later
-  for (let i = 0; i <= 20; i++) {
+  for (let i = 0; i <= numberOfStandardEntities; i++) {
     const standardProfile = getEntityData<"profile">(
       "profile",
       "Standard",
@@ -570,7 +572,7 @@ export async function seedAllEntities(
   }
 
   // Seeding some standard organizations to add to specific entities later
-  for (let i = 0; i <= 20; i++) {
+  for (let i = 0; i <= numberOfStandardEntities; i++) {
     const standardOrganization = getEntityData<"organization">(
       "organization",
       "Standard",
@@ -641,8 +643,8 @@ export async function seedAllEntities(
     );
   }
 
-  // Seeding the standard documents and awards to connect them later where they are needed
-  for (let i = 0; i <= 20; i++) {
+  // Seeding the standard documents to connect them later where they are needed
+  for (let i = 0; i <= numberOfStandardEntities; i++) {
     const standardDocument = getEntityData<"document">(
       "document",
       "Standard",
@@ -669,7 +671,9 @@ export async function seedAllEntities(
       `Successfully seeded standard document with id: ${standardDocumentId}`
     );
   }
-  for (let i = 0; i <= 20; i++) {
+
+  // Seeding the standard awards to connect them later where they are needed
+  for (let i = 0; i <= numberOfStandardEntities; i++) {
     const standardAward = getEntityData<"award">(
       "award",
       "Standard",
@@ -695,6 +699,198 @@ export async function seedAllEntities(
     awardIds.push(standardAwardId);
     console.log(
       `Successfully seeded standard award with id: ${standardAwardId}`
+    );
+  }
+
+  // Seeding standard events
+  for (let i = 0; i < numberOfEventsPerStructure; i++) {
+    const standardEvent = getEntityData<"event">(
+      "event",
+      "Standard",
+      i,
+      {
+        background: {
+          path: imageBucketData.backgrounds[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.backgrounds.length - 1,
+            })
+          ],
+        },
+      },
+      useRealNames
+    );
+    const standardEventId = await seedEntity<"event">(
+      "event",
+      standardEvent,
+      authClient,
+      defaultPassword
+    );
+    await addBasicEventRelations(
+      standardEventId,
+      areas,
+      focuses,
+      eventTypes,
+      experienceLevels,
+      stages,
+      tags,
+      targetGroups
+    );
+    someProfileIds = getMultipleRandomUniqueSubsets<
+      ArrayElement<typeof profileIds>
+    >(profileIds, 4);
+    await prismaClient.teamMemberOfEvent.createMany({
+      data: [
+        ...someProfileIds[0].map((id) => {
+          return {
+            profileId: id,
+            eventId: standardEventId,
+          };
+        }),
+      ],
+    });
+    await prismaClient.speakerOfEvent.createMany({
+      data: [
+        ...someProfileIds[1].map((id) => {
+          return {
+            profileId: id,
+            eventId: standardEventId,
+          };
+        }),
+      ],
+    });
+    if (
+      standardEvent.participationFrom !== undefined &&
+      typeof standardEvent.participationFrom !== "string" &&
+      standardEvent.participationFrom < new Date(Date.now())
+    ) {
+      const participantIds = someProfileIds[2].slice(
+        0,
+        standardEvent.participantLimit || undefined
+      );
+      await prismaClient.participantOfEvent.createMany({
+        data: [
+          ...participantIds.map((id) => {
+            return {
+              profileId: id,
+              eventId: standardEventId,
+            };
+          }),
+        ],
+      });
+      if (participantIds.length === standardEvent.participantLimit) {
+        await prismaClient.waitingParticipantOfEvent.createMany({
+          data: [
+            ...someProfileIds[3].map((id) => {
+              return {
+                profileId: id,
+                eventId: standardEventId,
+              };
+            }),
+          ],
+        });
+      }
+    }
+    someOrganizationIds = getRandomUniqueSubset<
+      ArrayElement<typeof organizationIds>
+    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    await prismaClient.responsibleOrganizationOfEvent.createMany({
+      data: [
+        ...someOrganizationIds.map((id) => {
+          return {
+            organizationId: id,
+            eventId: standardEventId,
+          };
+        }),
+      ],
+    });
+    someDocumentIds = getRandomUniqueSubset<ArrayElement<typeof documentIds>>(
+      documentIds,
+      faker.datatype.number({ min: 1, max: 10 })
+    );
+    await prismaClient.documentOfEvent.createMany({
+      data: [
+        ...someDocumentIds.map((id) => {
+          return {
+            documentId: id,
+            eventId: standardEventId,
+          };
+        }),
+      ],
+    });
+    eventIds.push(standardEventId);
+    console.log(
+      `Successfully seeded standard event with id: ${standardEventId}`
+    );
+  }
+
+  // Seeding standard projects
+  for (let i = 0; i <= numberOfStandardEntities; i++) {
+    const standardProject = getEntityData<"project">(
+      "project",
+      "Standard",
+      i,
+      {
+        logo: {
+          path: imageBucketData.logos[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.logos.length - 1,
+            })
+          ],
+        },
+        background: {
+          path: imageBucketData.backgrounds[
+            faker.datatype.number({
+              min: 0,
+              max: imageBucketData.backgrounds.length - 1,
+            })
+          ],
+        },
+      },
+      useRealNames
+    );
+    const standardProjectId = await seedEntity<"project">(
+      "project",
+      standardProject,
+      authClient,
+      defaultPassword
+    );
+    await addBasicProjectRelations(
+      standardProjectId,
+      disciplines,
+      targetGroups
+    );
+    someProfileIds = getRandomUniqueSubset<ArrayElement<typeof profileIds>>(
+      profileIds,
+      faker.datatype.number({ min: 1, max: 10 })
+    );
+    await prismaClient.teamMemberOfProject.createMany({
+      data: [
+        ...someProfileIds.map((id) => {
+          return {
+            profileId: id,
+            projectId: standardProjectId,
+          };
+        }),
+      ],
+    });
+    someOrganizationIds = getRandomUniqueSubset<
+      ArrayElement<typeof organizationIds>
+    >(organizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    await prismaClient.responsibleOrganizationOfProject.createMany({
+      data: [
+        ...someOrganizationIds.map((id) => {
+          return {
+            organizationId: id,
+            projectId: standardProjectId,
+          };
+        }),
+      ],
+    });
+    projectIds.push(standardProjectId);
+    console.log(
+      `Successfully seeded standard project with id: ${standardProjectId}`
     );
   }
 
@@ -800,7 +996,7 @@ export async function seedAllEntities(
   );
 
   // Seeding developer events
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < numberOfEventsPerStructure; i++) {
     const developerEvent = getEntityData<"event">(
       "event",
       "Developer",
