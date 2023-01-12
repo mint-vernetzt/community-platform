@@ -4,7 +4,7 @@ import { forbidden } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
+import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 
 export async function createHashFromString(
   string: string,
