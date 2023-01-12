@@ -326,7 +326,7 @@ export default function Index() {
                       )}
                       <div className="pl-4">
                         <H3 like="h4" className="text-xl mb-1">
-                          {name}
+                          {name} {organization.score}
                         </H3>
                         {subtitle !== null ? (
                           <p className="font-bold text-sm">{subtitle}</p>
