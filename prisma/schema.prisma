@@ -42,6 +42,7 @@ model Profile {
   teamMemberOfEvents   TeamMemberOfEvent[]
   teamMemberOfProjects TeamMemberOfProject[]
   waitingForEvents     WaitingParticipantOfEvent[]
+  score                Int                         @default(0)
 
   @@map("profiles")
 }
@@ -111,6 +112,7 @@ model Organization {
   types                  OrganizationTypesOnOrganizations[]
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
   responsibleForProject  ResponsibleOrganizationOfProject[]
+  score                  Int                                @default(0)
 
   @@map("organizations")
 }
