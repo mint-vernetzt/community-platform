@@ -303,6 +303,8 @@ export async function uploadImageBucketData(
     logos: [],
     backgrounds: [],
   };
+  let extension;
+  let mimeType;
 
   console.log("\n--- Fetching images from @faker-js/faker image api ---\n");
 
@@ -317,25 +319,33 @@ export async function uploadImageBucketData(
           );
           continue;
         }
-        const arrayBuffer = await response.arrayBuffer();
-        const fileTypeResult = await fromBuffer(arrayBuffer);
-        if (fileTypeResult === undefined) {
-          console.error(
-            "The MIME-type could not be read. The file was left out."
-          );
-          continue;
-        }
-        if (!fileTypeResult.mime.includes("image/")) {
-          console.error(
-            "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
-          );
-          continue;
+        const arrayBuffer = await (await response.blob()).arrayBuffer();
+        if (imageType === "logos") {
+          // TODO: Validate svg (ChatGPT)
+          extension = ".svg";
+          mimeType = "image/svg+xml";
+        } else {
+          const fileTypeResult = await fromBuffer(arrayBuffer);
+          if (fileTypeResult === undefined) {
+            console.error(
+              "The MIME-type could not be read. The file was left out."
+            );
+            continue;
+          }
+          if (!fileTypeResult.mime.includes("image/")) {
+            console.error(
+              "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
+            );
+            continue;
+          }
+          extension = fileTypeResult.ext;
+          mimeType = fileTypeResult.mime;
         }
         const hash = await createHashFromString(
           Buffer.from(arrayBuffer).toString()
         );
         const path = generatePathName(
-          fileTypeResult.ext,
+          extension,
           hash,
           imageType.substring(0, imageType.length - 1)
         );
@@ -343,7 +353,7 @@ export async function uploadImageBucketData(
           .from("images")
           .upload(path, arrayBuffer, {
             upsert: true,
-            contentType: fileTypeResult.mime,
+            contentType: mimeType,
           });
         if (uploadObjectError) {
           console.error(
@@ -371,7 +381,10 @@ function getImageUrl(imageType?: ImageType) {
     return faker.image.avatar();
   }
   if (imageType === "logos") {
-    return faker.image.abstract(640, 480, true);
+    return `https://img.logoipsum.com/2${faker.datatype.number({
+      min: 11,
+      max: 95,
+    })}.svg`;
   }
   if (imageType === "backgrounds") {
     return faker.image.nature(1488, 480, true);
