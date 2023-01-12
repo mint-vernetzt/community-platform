@@ -3,7 +3,6 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -58,41 +57,31 @@ export const loader: LoaderFunction = async (args) => {
   const allOrganizations = await getAllOrganizations(skip, take);
 
   if (allOrganizations !== null) {
-    organizations = allOrganizations
-      .map((organization) => {
-        const { bio, publicFields, logo, ...otherFields } = organization;
-        let extensions: { bio?: string } = {};
+    organizations = allOrganizations.map((organization) => {
+      const { bio, publicFields, logo, ...otherFields } = organization;
+      let extensions: { bio?: string } = {};
 
-        if (
-          (publicFields.includes("bio") || sessionUser !== null) &&
-          bio !== null
-        ) {
-          extensions.bio = bio;
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+
+      let logoImage: string | null = null;
+
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logoImage = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
         }
+      }
 
-        let logoImage: string | null = null;
-
-        if (logo !== null) {
-          const publicURL = getPublicURL(authClient, logo);
-          if (publicURL !== null) {
-            logoImage = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-
-        return { ...otherFields, ...extensions, logo: logoImage };
-      })
-      .sort((a, b) => {
-        const scoreA = getScoreOfEntity(a);
-        const scoreB = getScoreOfEntity(b);
-
-        if (scoreA === scoreB) {
-          return b.updatedAt.getTime() - a.updatedAt.getTime();
-        }
-        return scoreB - scoreA;
-      });
+      return { ...otherFields, ...extensions, logo: logoImage };
+    });
   }
   // TODO: fix type issue
 

@@ -8,7 +8,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { getScoreOfEntity } from "prisma/scripts/update-score/utils";
 import type { FormEvent } from "react";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
@@ -65,47 +64,37 @@ export const loader: LoaderFunction = async (args) => {
 
   const allProfiles = await getAllProfiles();
   if (allProfiles !== null) {
-    profiles = allProfiles
-      .map((profile) => {
-        const { bio, position, avatar, publicFields, ...otherFields } = profile;
-        let extensions: { bio?: string; position?: string } = {};
+    profiles = allProfiles.map((profile) => {
+      const { bio, position, avatar, publicFields, ...otherFields } = profile;
+      let extensions: { bio?: string; position?: string } = {};
 
-        if (
-          (publicFields.includes("bio") || sessionUser !== null) &&
-          bio !== null
-        ) {
-          extensions.bio = bio;
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+      if (
+        (publicFields.includes("position") || sessionUser !== null) &&
+        position !== null
+      ) {
+        extensions.position = position;
+      }
+
+      let avatarImage: string | null = null;
+
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        if (publicURL !== null) {
+          avatarImage = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
         }
-        if (
-          (publicFields.includes("position") || sessionUser !== null) &&
-          position !== null
-        ) {
-          extensions.position = position;
-        }
+      }
 
-        let avatarImage: string | null = null;
-
-        if (avatar !== null) {
-          const publicURL = getPublicURL(authClient, avatar);
-          if (publicURL !== null) {
-            avatarImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-
-        return { ...otherFields, ...extensions, avatar: avatarImage };
-      })
-      .sort((a, b) => {
-        const scoreA = getScoreOfEntity(a);
-        const scoreB = getScoreOfEntity(b);
-
-        if (scoreA === scoreB) {
-          return b.updatedAt.getTime() - a.updatedAt.getTime();
-        }
-        return scoreB - scoreA;
-      });
+      return { ...otherFields, ...extensions, avatar: avatarImage };
+    });
   }
 
   const areas = await getAreas();

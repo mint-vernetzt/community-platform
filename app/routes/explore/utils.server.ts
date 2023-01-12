@@ -10,6 +10,7 @@ export async function getAllProfiles() {
       offers: { select: { offer: { select: { title: true } } } },
       seekings: { select: { offer: { select: { title: true } } } },
     },
+    orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
   });
 
   return profiles;
@@ -27,6 +28,7 @@ export async function getAllOrganizations(
       focuses: { select: { focus: { select: { title: true } } } },
       types: { select: { organizationType: { select: { title: true } } } },
     },
+    orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
   });
 
   return organizations;
