@@ -46,8 +46,10 @@ program.parse();
 
 const options = program.opts();
 
-const NUMBER_OF_IMAGES = 1;
-const NUMBER_OF_DOCUMENTS = 1;
+const NUMBER_OF_IMAGES = 50;
+const NUMBER_OF_DOCUMENTS = 20;
+const NUMBER_OF_EVENTS_PER_STRUCTURE = 30;
+const NUMBER_OF_STANDARD_ENTITIES = 20;
 const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
@@ -100,7 +102,9 @@ async function main(
     documentBucketData,
     authClient,
     DEFAULT_PASSWORD_FOR_PROFILES,
-    useRealNames
+    useRealNames,
+    NUMBER_OF_EVENTS_PER_STRUCTURE,
+    NUMBER_OF_STANDARD_ENTITIES
   );
 
   console.log("\n--- Seeding finished ---\n");

@@ -464,7 +464,9 @@ export async function seedAllEntities(
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string,
-  useRealNames: boolean
+  useRealNames: boolean,
+  numberOfEventsPerStructure: number,
+  numberOfStandardEntities: number
 ) {
   let profileEmails: string[] = [];
   let profileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
@@ -476,8 +478,7 @@ export async function seedAllEntities(
   let someProfileIds;
   let someOrganizationIds;
   let someDocumentIds;
-  const numberOfEventsPerStructure = 30;
-  const numberOfStandardEntities = 10;
+
   const areas = await prismaClient.area.findMany({
     select: {
       id: true,
@@ -528,8 +529,6 @@ export async function seedAllEntities(
       id: true,
     },
   });
-
-  console.log("\n--- Seeding all entities ---\n");
 
   // Seeding some standard profiles to add to specific entities later
   for (let i = 0; i <= numberOfStandardEntities; i++) {
