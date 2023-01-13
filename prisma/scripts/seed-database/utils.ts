@@ -320,27 +320,31 @@ export async function uploadImageBucketData(
           continue;
         }
         const arrayBuffer = await (await response.blob()).arrayBuffer();
-        if (imageType === "logos") {
-          // TODO: Validate svg (ChatGPT)
-          extension = ".svg";
-          mimeType = "image/svg+xml";
-        } else {
-          const fileTypeResult = await fromBuffer(arrayBuffer);
-          if (fileTypeResult === undefined) {
-            console.error(
-              "The MIME-type could not be read. The file was left out."
-            );
-            continue;
-          }
-          if (!fileTypeResult.mime.includes("image/")) {
-            console.error(
-              "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
-            );
-            continue;
-          }
-          extension = fileTypeResult.ext;
-          mimeType = fileTypeResult.mime;
+        // TODO: Validate svg
+        // if (imageType === "logos") {
+        //   extension = ".svg";
+        //   mimeType = "image/svg+xml";
+        //   console.error(
+        //     "The validation of svg images is not yet implemented and therefore this image is skipped."
+        //   );
+        //   continue;
+        // } else {
+        const fileTypeResult = await fromBuffer(arrayBuffer);
+        if (fileTypeResult === undefined) {
+          console.error(
+            "The MIME-type could not be read. The file was left out."
+          );
+          continue;
         }
+        if (!fileTypeResult.mime.includes("image/")) {
+          console.error(
+            "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
+          );
+          continue;
+        }
+        extension = fileTypeResult.ext;
+        mimeType = fileTypeResult.mime;
+        // }
         const hash = await createHashFromString(
           Buffer.from(arrayBuffer).toString()
         );
@@ -381,10 +385,12 @@ function getImageUrl(imageType?: ImageType) {
     return faker.image.avatar();
   }
   if (imageType === "logos") {
-    return `https://img.logoipsum.com/2${faker.datatype.number({
-      min: 11,
-      max: 95,
-    })}.svg`;
+    return faker.image.abstract();
+    // TODO: logoIpsum (svg validation)
+    // return `https://img.logoipsum.com/2${faker.datatype.number({
+    //   min: 11,
+    //   max: 95,
+    // })}.svg`;
   }
   if (imageType === "backgrounds") {
     return faker.image.nature(1488, 480, true);
