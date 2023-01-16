@@ -46,10 +46,10 @@ program.parse();
 
 const options = program.opts();
 
-const NUMBER_OF_IMAGES = 1; // Must be greater than 0
-const NUMBER_OF_DOCUMENTS = 1; // Must be greater than 0
-const NUMBER_OF_EVENTS_PER_STRUCTURE = 30; // Must be greater than 1
-const NUMBER_OF_STANDARD_ENTITIES = 20; // Must be greater than 20
+const NUMBER_OF_IMAGES = 50; // Must be greater than 0
+const NUMBER_OF_DOCUMENTS = 20; // Must be greater than 0
+const NUMBER_OF_EVENTS_PER_STRUCTURE = 20; // Must be greater than 0 (>=20 for good results)
+const NUMBER_OF_STANDARD_ENTITIES = 20; // Must be greater than 0 (>=20 for good results)
 const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
