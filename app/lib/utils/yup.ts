@@ -75,7 +75,6 @@ function addUrlPrefix(url: string) {
   if (validUrl !== "" && validUrl.search(/^https?:\/\//) === -1) {
     validUrl = "https://" + validUrl;
   }
-  console.log({ validUrl });
   return validUrl;
 }
 
@@ -127,11 +126,9 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
   let errors: FormError = {};
 
   try {
-    console.log("before schema.validate");
     data = await schema.validate(parsedFormData, {
       abortEarly: false,
     });
-    console.log("after schema.validate");
     return { data, errors: null };
   } catch (validationError) {
     if (validationError instanceof ValidationError) {
