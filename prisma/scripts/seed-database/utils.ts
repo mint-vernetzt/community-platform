@@ -219,6 +219,7 @@ export async function createSupabaseAdmin() {
     );
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+  console.log(`Successfully created auth client`);
   return authClient;
 }
 
@@ -239,6 +240,7 @@ export async function truncateTables() {
 
   try {
     await prismaClient.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
+    console.log(`Successfully truncated tables: ${tables}`);
   } catch (error) {
     console.log({ error });
   }
@@ -263,6 +265,7 @@ export async function emptyBuckets(
       "The document bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio) and run the seed script again. If you don't have a bucket named 'documents', please run the supabase.enhancements.sql (located in the root directory) in Supabase Studio -> SQL Queries."
     );
   }
+  console.log(`Successfully emptied buckets: "images", "documents"`);
 }
 
 export async function deleteUsers(
@@ -282,12 +285,12 @@ export async function deleteUsers(
       const { error: deleteUserError } = await authClient.auth.admin.deleteUser(
         user.id
       );
-      console.log("\nDELETING USER", user.email);
       if (deleteUserError !== null) {
         console.error(
           `The user with the id "${user.id}" and the email "${user.email}" could not be deleted. Please try to manually delete it (f.e. via Supabase Studio) and run the seed script again.`
         );
       }
+      console.log(`Successfully deleted user: ${user.email}`);
     }
   }
 }
@@ -504,7 +507,6 @@ export async function seedAllEntities(
   let someProfileIds;
   let someOrganizationIds;
   let someEventIds;
-  let someProjectIds;
   let someDocumentIds;
   let addMaximum;
 
