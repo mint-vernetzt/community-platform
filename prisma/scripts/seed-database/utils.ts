@@ -2827,24 +2827,24 @@ export async function seedAllEntities(
         }),
       ],
     });
-    const childEventIds = standardEventIds.filter(async (id) => {
+    const childEventIds = [];
+    for (let childEventId of standardEventIds) {
       const event = await prismaClient.event.findFirst({
         select: { startTime: true, endTime: true },
-        where: { id },
+        where: { id: childEventId },
       });
-      if (event !== null) {
-        if (
-          new Date(event.startTime) >= new Date(depth2Event.startTime) &&
-          new Date(event.endTime) <= new Date(depth2Event.endTime)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
+      if (event === null) {
+        continue;
       }
-    });
+      if (
+        new Date(event.startTime) >= new Date(depth2Event.startTime) &&
+        new Date(event.startTime) <= new Date(depth2Event.endTime) &&
+        new Date(event.endTime) >= new Date(depth2Event.startTime) &&
+        new Date(event.endTime) <= new Date(depth2Event.endTime)
+      ) {
+        childEventIds.push(childEventId);
+      }
+    }
     await prismaClient.event.update({
       where: { id: depth2EventId },
       data: {
@@ -2985,24 +2985,24 @@ export async function seedAllEntities(
         }),
       ],
     });
-    const childEventIds = depth2EventIds.filter(async (id) => {
+    const childEventIds = [];
+    for (let childEventId of depth2EventIds) {
       const event = await prismaClient.event.findFirst({
         select: { startTime: true, endTime: true },
-        where: { id },
+        where: { id: childEventId },
       });
-      if (event !== null) {
-        if (
-          new Date(event.startTime) >= new Date(depth3Event.startTime) &&
-          new Date(event.endTime) <= new Date(depth3Event.endTime)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
+      if (event === null) {
+        continue;
       }
-    });
+      if (
+        new Date(event.startTime) >= new Date(depth3Event.startTime) &&
+        new Date(event.startTime) <= new Date(depth3Event.endTime) &&
+        new Date(event.endTime) >= new Date(depth3Event.startTime) &&
+        new Date(event.endTime) <= new Date(depth3Event.endTime)
+      ) {
+        childEventIds.push(childEventId);
+      }
+    }
     await prismaClient.event.update({
       where: { id: depth3EventId },
       data: {
@@ -5207,7 +5207,7 @@ export function getEntityData<
     slug: generateSlug<T>(entityType, entityStructure, index),
     headline: generateHeadline<T>(entityType, entityStructure, useRealNames),
     excerpt: generateExcerpt<T>(entityType, entityStructure),
-    startTime: generateStartTime<T>(entityType, index),
+    startTime: generateStartTime<T>(entityType, entityStructure, index),
     endTime: generateEndTime<T>(entityType, entityStructure, index),
     description: generateDescription<T>(entityType, entityStructure),
     subline: generateSubline<T>(entityType, entityStructure),
@@ -6015,9 +6015,10 @@ function generateFutureAndPastTimes(
     (timeDelta?.years ? oneYearInMillis * timeDelta.years : 0);
   const futurePastSwitcher = index % 2 === 0 ? 1 : -1;
 
-  // Generating future and past times in a one week turnus, depending on the given index
+  // Generating future and past times in a daily turnus, depending on the given index
   const futurePastTimeInMillis =
-    index * futurePastSwitcher * oneWeekInMillis + nowPlusTimeDeltaInMillis;
+    index * futurePastSwitcher * (oneDayInMillis / 2) +
+    nowPlusTimeDeltaInMillis;
   const futurePastDate = new Date(futurePastTimeInMillis);
 
   return futurePastDate;
@@ -6028,11 +6029,25 @@ function generateStartTime<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >
->(entityType: T, index: number) {
+>(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // event required
   let startTime;
   if (entityType === "event") {
-    startTime = generateFutureAndPastTimes(index);
+    if (entityStructure === "Depth2") {
+      // Depth 2 events start 6 hours earlier to better add childEvents
+      const timeDelta = {
+        hours: -6,
+      };
+      startTime = generateFutureAndPastTimes(index, timeDelta);
+    } else if (entityStructure === "Depth3") {
+      // Depth 2 events start 12 hours earlier to better add childEvents
+      const timeDelta = {
+        hours: -12,
+      };
+      startTime = generateFutureAndPastTimes(index, timeDelta);
+    } else {
+      startTime = generateFutureAndPastTimes(index);
+    }
   }
   return startTime;
 }
@@ -6047,15 +6062,15 @@ function generateEndTime<
   let endTime;
   if (entityType === "event") {
     if (entityStructure === "Depth2") {
-      // Month long event (to be able to add the two week seperated child events)
+      // 2 day long event (to be able to add the one day seperated child events)
       const timeDelta = {
-        months: 1,
+        days: 2,
       };
       endTime = generateFutureAndPastTimes(index, timeDelta);
     } else if (entityStructure === "Depth3") {
-      // 3 Month long event (to be able to add the monthly seperated child events (see Depth2))
+      // 4 day long event (to be able to add the two day long child events (see Depth2))
       const timeDelta = {
-        months: 3,
+        days: 4,
       };
       endTime = generateFutureAndPastTimes(index, timeDelta);
     } else {

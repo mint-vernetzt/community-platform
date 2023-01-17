@@ -12,7 +12,19 @@ import {
   uploadImageBucketData,
 } from "./utils";
 
-// dotenv.config({ path: "./.env" });
+// Next time when touching this:
+/*
+Flatten the structure:
+- index.ts -> Stays the same (Top-Level script)
+- profileSeeder.ts -> getEntityData<profile>("Standard", ...) should be getProfileData("Standard", ...)
+- organizationSeeder.ts -> same as above
+- projectSeeder.ts -> same as above
+- eventSeeder.ts -> same as above
+- documentSeeder.ts -> same as above
+- awardSeeder.ts -> same as above
+- entityConnector -> Store all functions that connect entities (f.e. connectProfileWithOrganization(profileId, organizationId), ...)
+- utils.ts -> Store all other functions (f.e. bucket and table handling, checking environment, seedAllEntities(), ...)
+*/
 
 program
   .name("seed-database")
@@ -46,10 +58,11 @@ program.parse();
 
 const options = program.opts();
 
+// TODO: Add this to script flags with default values
 const NUMBER_OF_IMAGES = 50; // Must be greater than 0
-const NUMBER_OF_DOCUMENTS = 20; // Must be greater than 0
+const NUMBER_OF_DOCUMENTS = 10; // Must be greater than 0
 const NUMBER_OF_EVENTS_PER_STRUCTURE = 20; // Must be greater than 0 (>=20 for good results)
-const NUMBER_OF_STANDARD_ENTITIES = 20; // Must be greater than 0 (>=20 for good results)
+const NUMBER_OF_STANDARD_ENTITIES = 10; // Must be greater than 0 (>=20 for good results)
 const DEFAULT_PASSWORD_FOR_PROFILES = "12345678";
 
 async function main(
