@@ -9,11 +9,12 @@ import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
+import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
-import { prepareEvents } from "./utils.server";
+import { getPaginationValues, prepareEvents } from "./utils.server";
 
 type LoaderData = {
   futureEvents: Awaited<ReturnType<typeof prepareEvents>>;
@@ -26,13 +27,21 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
+  const { skip, take } = getPaginationValues(request);
+
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
 
   const inFuture = true;
-  const futureEvents = await prepareEvents(authClient, sessionUser, inFuture);
-  const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture);
+  const futureEvents = await prepareEvents(authClient, sessionUser, inFuture, {
+    skip,
+    take,
+  });
+  const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture, {
+    skip,
+    take,
+  });
 
   return json<LoaderData>(
     {
@@ -48,14 +57,29 @@ export const loader: LoaderFunction = async (args) => {
 function Events() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const { items: futureEvents, refCallback: futureRefCallback } =
+    useInfiniteItems(
+      loaderData.futureEvents,
+      "/explore/events",
+      "futureEvents"
+    );
+  const { items: pastEvents, refCallback: pastRefCallback } = useInfiniteItems(
+    loaderData.pastEvents,
+    "/explore/events",
+    "pastEvents"
+  );
+
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Entdecke Veranstaltungen</H1>
         <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-        {loaderData.futureEvents.map((event) => {
+      <section
+        ref={futureRefCallback}
+        className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch"
+      >
+        {futureEvents.map((event) => {
           const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
           const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
           return (
@@ -304,11 +328,14 @@ function Events() {
         })}
       </section>
       ;
-      {loaderData.pastEvents.length > 0 ? (
-        <section className="container my-8 md:my-10 lg:my-20">
+      {pastEvents.length > 0 ? (
+        <section
+          ref={pastRefCallback}
+          className="container my-8 md:my-10 lg:my-20"
+        >
           <H1>Vergangene Veranstaltungen</H1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-            {loaderData.pastEvents.map((event) => {
+            {pastEvents.map((event) => {
               const startTime = utcToZonedTime(
                 event.startTime,
                 "Europe/Berlin"

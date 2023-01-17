@@ -99,7 +99,11 @@ export function getPaginationValues(
   return { skip, take };
 }
 
-export async function getEvents(inFuture: boolean) {
+export async function getEvents(
+  inFuture: boolean,
+  skip: number | undefined = undefined,
+  take: number | undefined = undefined
+) {
   const result = await prismaClient.event.findMany({
     where: {
       endTime: inFuture
@@ -109,6 +113,8 @@ export async function getEvents(inFuture: boolean) {
         : { lte: new Date() },
       published: true,
     },
+    skip,
+    take,
     select: {
       id: true,
       name: true,
@@ -227,9 +233,13 @@ export async function enhanceEventsWithParticipationStatus(
 export async function prepareEvents(
   authClient: SupabaseClient,
   sessionUser: User | null,
-  inFuture: boolean
+  inFuture: boolean,
+  options: {
+    skip: number | undefined;
+    take: number | undefined;
+  } = { skip: undefined, take: undefined }
 ) {
-  const events = await getEvents(inFuture);
+  const events = await getEvents(inFuture, options.skip, options.take);
 
   let enhancedEvents: MaybeEnhancedEvents = events;
 
