@@ -532,40 +532,36 @@ function Index() {
               !beforeParticipationPeriod &&
               !afterParticipationPeriod ? (
                 <div className="hidden md:block">
-                  <>
-                    <div className="bg-accent-300 p-8">
-                      <p className="font-bold text-center">
-                        Diese Veranstaltung findet im Rahmen von "
-                        <Link
-                          className="underline hover:no-underline"
-                          to={`/event/${loaderData.event.parentEvent.slug}`}
-                        >
-                          {loaderData.event.parentEvent.name}
-                        </Link>
-                        " statt.
-                      </p>
-                    </div>
-                  </>
+                  <div className="p-8">
+                    <p className="font-bold text-center">
+                      Diese Veranstaltung findet im Rahmen von "
+                      <Link
+                        className="underline hover:no-underline"
+                        to={`/event/${loaderData.event.parentEvent.slug}`}
+                      >
+                        {loaderData.event.parentEvent.name}
+                      </Link>
+                      " statt.
+                    </p>
+                  </div>
                 </div>
               ) : loaderData.event.childEvents.length > 0 &&
                 laysInThePast === false &&
                 !beforeParticipationPeriod &&
                 !afterParticipationPeriod ? (
                 <div className="hidden md:block">
-                  <>
-                    <div className="bg-accent-300 p-8">
-                      <p className="font-bold text-center">
-                        Wähle{" "}
-                        <a
-                          href="#child-events"
-                          className="underline hover:no-underline"
-                        >
-                          zugehörige Veranstaltungen
-                        </a>{" "}
-                        aus, an denen Du teilnehmen möchtest.
-                      </p>
-                    </div>
-                  </>
+                  <div className="bg-accent-300 p-8">
+                    <p className="font-bold text-center">
+                      Wähle{" "}
+                      <a
+                        href="#child-events"
+                        className="underline hover:no-underline"
+                      >
+                        zugehörige Veranstaltungen
+                      </a>{" "}
+                      aus, an denen Du teilnehmen möchtest.
+                    </p>
+                  </div>
                 </div>
               ) : null}
             </>
