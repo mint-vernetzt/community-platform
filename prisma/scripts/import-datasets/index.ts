@@ -1,13 +1,14 @@
-import { importDataset, GenericEntry, TableName } from "./utils";
+import disciplines from "./data/disciplines.json";
+import eventTypes from "./data/eventTypes.json";
+import experienceLevels from "./data/experienceLevels.json";
 import focuses from "./data/focuses.json";
 import offers from "./data/offers.json";
 import organizationTypes from "./data/organizationTypes.json";
+import stages from "./data/stages.json";
 import tags from "./data/tags.json";
 import targetGroups from "./data/targetGroups.json";
-import eventTypes from "./data/eventTypes.json";
-import experienceLevels from "./data/experienceLevels.json";
-import stages from "./data/stages.json";
-import disciplines from "./data/disciplines.json";
+import type { GenericEntry, TableName } from "./utils";
+import { importDataset } from "./utils";
 
 const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "offer", data: offers },
