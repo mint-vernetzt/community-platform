@@ -1,33 +1,43 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { unauthorized } from "remix-utils";
+import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
 const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request, response: Response) => {
-  const authClient = createServerClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      request,
-      response,
-      cookieOptions: {
-        name: SESSION_NAME,
-        // normally you want this to be `secure: true`
-        // but that doesn't work on localhost for Safari
-        // https://web.dev/when-to-use-local-https/
-        secure: process.env.NODE_ENV === "production",
-        // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
-        sameSite: "lax", // TODO: check this setting
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-        // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
-      },
-    }
-  );
-  return authClient;
+  if (
+    process.env.SUPABASE_URL !== undefined &&
+    process.env.SUPABASE_ANON_KEY !== undefined
+  ) {
+    const authClient = createServerClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+      {
+        request,
+        response,
+        cookieOptions: {
+          name: SESSION_NAME,
+          // normally you want this to be `secure: true`
+          // but that doesn't work on localhost for Safari
+          // https://web.dev/when-to-use-local-https/
+          secure: process.env.NODE_ENV === "production",
+          // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
+          sameSite: "lax", // TODO: check this setting
+          path: "/",
+          maxAge: 60 * 60 * 24 * 30,
+          // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
+        },
+      }
+    );
+    return authClient;
+  } else {
+    throw serverError({
+      message:
+        "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
+    });
+  }
 };
 
 export const signUp = async (

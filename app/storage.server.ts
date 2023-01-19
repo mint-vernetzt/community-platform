@@ -8,13 +8,17 @@ import type { UploadHandler } from "@remix-run/node";
 import { fromBuffer } from "file-type";
 import JSZip from "jszip";
 import { badRequest, serverError } from "remix-utils";
-import { createHashFromString } from "~/utils.server";
+import { createHashFromString } from "./utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 const imageUploadKeys = ["avatar", "background", "logo"];
 
-function generatePathName(extension: string, hash: string, name: string) {
+export function generatePathName(
+  extension: string,
+  hash: string,
+  name: string
+) {
   return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
 }
 
@@ -91,6 +95,7 @@ function validatePersistence(
   bucketName?: string
 ) {
   if (error || data === null) {
+    console.log(error);
     throw serverError({ message: "Hochladen fehlgeschlagen." });
   }
 
@@ -193,7 +198,11 @@ export function getPublicURL(
     });
   }
 
-  if (bucket === "images" && process.env.SUPABASE_IMG_URL !== undefined) {
+  if (
+    bucket === "images" &&
+    process.env.SUPABASE_IMG_URL !== undefined &&
+    process.env.SUPABASE_URL !== undefined
+  ) {
     return publicUrl.replace(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_IMG_URL

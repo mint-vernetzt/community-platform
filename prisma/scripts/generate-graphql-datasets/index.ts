@@ -1,13 +1,14 @@
 import { program } from "commander";
-import { gql, request } from "graphql-request";
 // @ts-ignore
 import fs from "fs/promises";
-import { addUuids, GenericEntry } from "./utils";
+import { gql, request } from "graphql-request";
 import {
   dataToBeUpdated,
   entriesOnlyExistingOnDatabase as entriesOnlyExistingOnDataset,
   filterMissingData,
 } from "../import-datasets/utils";
+import type { GenericEntry } from "./utils";
+import { addUuids } from "./utils";
 
 const datasetsPath = "prisma/scripts/import-datasets/data/";
 
