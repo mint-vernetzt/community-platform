@@ -5314,11 +5314,18 @@ export async function seedEntity<
         `The user with the email '${entity.email}' and the corresponding profile could not be created due to following error. ${error}`
       );
     } else {
-      result = await prismaClient.profile.update({
-        where: { id: data.user.id },
-        data: entity,
-        select: { id: true },
-      });
+      try {
+        result = await prismaClient.profile.update({
+          where: { id: data.user.id },
+          data: entity,
+          select: { id: true },
+        });
+      } catch (e) {
+        console.error(e);
+        throw new Error(
+          "User was created on auth.users table but not on public.profiles table. Are you sure the database trigger to create a profile on user creation is enabled? If not try to run the supabase.enhancements.sql in Supabase Studio."
+        );
+      }
     }
   } else {
     // TODO: fix union type issue (almost got the generic working, but thats too hard...)
