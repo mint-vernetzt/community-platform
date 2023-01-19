@@ -1229,6 +1229,7 @@ export async function seedAllEntities(
         return {
           profileId: makerProfileId,
           projectId: id,
+          isPrivileged: true,
         };
       }),
     ],
@@ -1540,6 +1541,7 @@ export async function seedAllEntities(
         return {
           profileId: largestProfileId,
           organizationId: id,
+          isPrivileged: true,
         };
       }),
     ],
