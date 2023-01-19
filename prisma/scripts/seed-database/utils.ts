@@ -1164,6 +1164,7 @@ export async function seedAllEntities(
         return {
           profileId: eventManagerProfileId,
           eventId: id,
+          isPrivileged: true,
         };
       }),
     ],
