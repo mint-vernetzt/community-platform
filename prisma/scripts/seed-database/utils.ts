@@ -562,7 +562,7 @@ export async function seedAllEntities(
   });
 
   // Seeding some standard profiles to add to specific entities later
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardProfile = getEntityData<"profile">(
       "profile",
       "Standard",
@@ -603,7 +603,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard organizations
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardOrganization = getEntityData<"organization">(
       "organization",
       "Standard",
@@ -675,7 +675,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard documents
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardDocument = getEntityData<"document">(
       "document",
       "Standard",
@@ -705,7 +705,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard awards
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardAward = getEntityData<"award">(
       "award",
       "Standard",
@@ -851,7 +851,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard projects
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardProject = getEntityData<"project">(
       "project",
       "Standard",
@@ -1164,6 +1164,7 @@ export async function seedAllEntities(
         return {
           profileId: eventManagerProfileId,
           eventId: id,
+          isPrivileged: true,
         };
       }),
     ],
@@ -1228,6 +1229,7 @@ export async function seedAllEntities(
         return {
           profileId: makerProfileId,
           projectId: id,
+          isPrivileged: true,
         };
       }),
     ],
@@ -1539,6 +1541,7 @@ export async function seedAllEntities(
         return {
           profileId: largestProfileId,
           organizationId: id,
+          isPrivileged: true,
         };
       }),
     ],
@@ -5314,11 +5317,18 @@ export async function seedEntity<
         `The user with the email '${entity.email}' and the corresponding profile could not be created due to following error. ${error}`
       );
     } else {
-      result = await prismaClient.profile.update({
-        where: { id: data.user.id },
-        data: entity,
-        select: { id: true },
-      });
+      try {
+        result = await prismaClient.profile.update({
+          where: { id: data.user.id },
+          data: entity,
+          select: { id: true },
+        });
+      } catch (e) {
+        console.error(e);
+        throw new Error(
+          "User was created on auth.users table but not on public.profiles table. Are you sure the database trigger to create a profile on user creation is enabled? If not try to run the supabase.enhancements.sql in Supabase Studio."
+        );
+      }
     }
   } else {
     // TODO: fix union type issue (almost got the generic working, but thats too hard...)
