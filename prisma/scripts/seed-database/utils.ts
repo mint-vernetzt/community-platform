@@ -562,7 +562,7 @@ export async function seedAllEntities(
   });
 
   // Seeding some standard profiles to add to specific entities later
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardProfile = getEntityData<"profile">(
       "profile",
       "Standard",
@@ -603,7 +603,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard organizations
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardOrganization = getEntityData<"organization">(
       "organization",
       "Standard",
@@ -675,7 +675,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard documents
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardDocument = getEntityData<"document">(
       "document",
       "Standard",
@@ -705,7 +705,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard awards
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardAward = getEntityData<"award">(
       "award",
       "Standard",
@@ -851,7 +851,7 @@ export async function seedAllEntities(
   }
 
   // Seeding standard projects
-  for (let i = 0; i <= numberOfStandardEntities; i++) {
+  for (let i = 0; i < numberOfStandardEntities; i++) {
     const standardProject = getEntityData<"project">(
       "project",
       "Standard",
