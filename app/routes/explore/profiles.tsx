@@ -78,8 +78,6 @@ export const loader: LoaderFunction = async (args) => {
     ...filterValues,
   });
 
-  console.log(allProfiles);
-
   if (allProfiles !== null) {
     profiles = allProfiles.map((profile) => {
       const { bio, position, avatar, publicFields, ...otherFields } = profile;
@@ -307,11 +305,13 @@ export default function Index() {
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  const { items, refCallback } = useInfiniteItems(
-    loaderData.profiles,
-    "/explore/profiles",
-    "profiles"
-  );
+  const {
+    items,
+    refCallback,
+  }: {
+    items: typeof loaderData.profiles;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(loaderData.profiles, "/explore/profiles", "profiles");
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
     submit(event.currentTarget);
@@ -505,17 +505,13 @@ export default function Index() {
                       <p className="mt-3 line-clamp-2">{profile.bio}</p>
                     ) : null}
 
-                    {profile.areas !== undefined && profile.areas.length > 0 ? (
+                    {profile.areaNames.length > 0 ? (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
                         </div>
                         <div className="flex-auto line-clamp-3">
-                          <span>
-                            {profile.areas
-                              .map((area) => area.area.name)
-                              .join(" / ")}
-                          </span>
+                          <span>{profile.areaNames.join(" / ")}</span>
                         </div>
                       </div>
                     ) : null}
