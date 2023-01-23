@@ -1,4 +1,5 @@
-import { Prisma, Profile } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
@@ -35,19 +36,19 @@ export async function getAllProfiles(
       if (areaToFilter.type === "country") {
         /* No WHERE statement needed as we want to select all profiles that have at least one area */
         /* ORDER BY: country -> state -> district */
-        orderByClause = Prisma.sql`ORDER BY (CASE type WHEN 'country' THEN 1 WHEN 'state' THEN 2 WHEN 'district' THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
       }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
         areaWhere = Prisma.sql`WHERE "stateId" = ${areaToFilter.stateId} OR type = 'country'`;
         /* ORDER BY: state -> district -> country */
-        orderByClause = Prisma.sql`ORDER BY (CASE type WHEN 'state' THEN 1 WHEN 'district' THEN 2 WHEN 'country' THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
         areaWhere = Prisma.sql`WHERE areas.id = ${areaToFilter.id} OR (type = 'state' AND "stateId" = ${areaToFilter.stateId}) OR type = 'country'`;
         /* ORDER BY: district -> state -> country */
-        orderByClause = Prisma.sql`ORDER BY (CASE type WHEN 'district' THEN 1 WHEN 'state' THEN 2 WHEN 'country' THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
       }
       if (areaWhere !== undefined) {
         whereClauses.push(areaWhere);
@@ -91,18 +92,18 @@ export async function getAllProfiles(
       /* Join all profiles and connected areas */
       LEFT JOIN areas_on_profiles
       ON profiles.id = areas_on_profiles."profileId"
-      JOIN areas
-      ON areas.id = areas_on_profiles."areaId"
+      LEFT JOIN areas
+      ON areas_on_profiles."areaId" = areas.id
       /* Join all profiles and connected seekings as S */
       LEFT JOIN seekings_on_profiles
       ON profiles.id = seekings_on_profiles."profileId"
-      JOIN offer S
-      ON S.id = seekings_on_profiles."offerId"
+      LEFT JOIN offer S
+      ON seekings_on_profiles."offerId" = S.id
       /* Join all profiles and connected offers as O */
       LEFT JOIN offers_on_profiles
       ON profiles.id = offers_on_profiles."profileId"
-      JOIN offer O
-      ON O.id = offers_on_profiles."offerId"
+      LEFT JOIN offer O
+      ON offers_on_profiles."offerId" = O.id
     /* Filtering with the where clauses from above if any exist */
     ${whereClause || Prisma.sql``}
     /* Group by profile.id to aggregate selected areas, offers and seekings as array */
