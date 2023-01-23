@@ -1,6 +1,6 @@
 import type { BinaryToTextEncoding } from "crypto";
 import { getSession } from "./auth.server";
-import { forbidden } from "remix-utils";
+import { forbidden, serverError } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
@@ -11,9 +11,15 @@ export async function createHashFromString(
   hashAlgorithm: string = "md5",
   encoding: BinaryToTextEncoding = "hex"
 ) {
-  const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
-  hash.update(string);
-  return hash.digest(encoding);
+  if (process.env.HASH_SECRET !== undefined) {
+    const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
+    hash.update(string);
+    return hash.digest(encoding);
+  } else {
+    throw serverError({
+      message: "Could not find HASH_SECRET in the .env file.",
+    });
+  }
 }
 
 export function createCSRFToken() {
