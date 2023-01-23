@@ -40,13 +40,21 @@ export async function getAllProfiles(
       }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
-        areaWhere = Prisma.sql`WHERE "stateId" = ${areaToFilter.stateId} OR type = 'country'`;
+        if (areaToFilter.stateId !== null) {
+          areaWhere = Prisma.sql`WHERE "stateId" = ${areaToFilter.stateId} OR type = 'country'`;
+        } else {
+          areaWhere = Prisma.sql`WHERE areas.id = ${areaToFilter.id} OR type = 'country'`;
+        }
         /* ORDER BY: state -> district -> country */
         orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
-        areaWhere = Prisma.sql`WHERE areas.id = ${areaToFilter.id} OR (type = 'state' AND "stateId" = ${areaToFilter.stateId}) OR type = 'country'`;
+        if (areaToFilter.stateId !== null) {
+          areaWhere = Prisma.sql`WHERE areas.id = ${areaToFilter.id} OR (type = 'state' AND "stateId" = ${areaToFilter.stateId}) OR type = 'country'`;
+        } else {
+          areaWhere = Prisma.sql`WHERE areas.id = ${areaToFilter.id} OR type = 'state' OR type = 'country'`;
+        }
         /* ORDER BY: district -> state -> country */
         orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
       }
