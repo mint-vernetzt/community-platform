@@ -1,22 +1,63 @@
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
+import { getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
-  skip: number | undefined = undefined,
-  take: number | undefined = undefined
+  options: {
+    skip: number | undefined;
+    take: number | undefined;
+    areaId: string | undefined;
+    offerId: string | undefined;
+    seekingId: string | undefined;
+  } = {
+    skip: undefined,
+    take: undefined,
+    areaId: undefined,
+    offerId: undefined,
+    seekingId: undefined,
+  }
 ) {
-  const profiles = await prismaClient.profile.findMany({
+  const {
     skip,
     take,
-    include: {
-      areas: { select: { area: { select: { name: true } } } },
-      offers: { select: { offer: { select: { title: true } } } },
-      seekings: { select: { offer: { select: { title: true } } } },
-    },
-    orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
-  });
+    areaId = "a2788c07-8dde-4c5c-9393-d75814935354",
+    offerId,
+    seekingId,
+  } = options;
+
+  const areaToFilter = await getAreaById(areaId);
+
+  const profiles = await prismaClient.$queryRaw`
+    SELECT DISTINCT ON (profiles.id) profiles.first_name as "firstName", profiles.last_name as "lastName", profiles.username, profiles.academic_title as "academicTitle", profiles.position, profiles.bio, profiles.avatar, areas.name as "areaName", profiles.public_fields as "publicFields"/*, S."title" as seekingTitle, O."title" as offerTitle*/ /* Insert additional selects when offer and seekings should be selected too */
+      FROM profiles
+        FULL JOIN areas_on_profiles
+        ON profiles.id = areas_on_profiles."profileId"
+        FULL JOIN areas
+        ON areas.id = areas_on_profiles."areaId"
+        FULL JOIN seekings_on_profiles
+        ON profiles.id = seekings_on_profiles."profileId"
+        FULL JOIN offer S
+        ON S.id = seekings_on_profiles."offerId"
+        FULL JOIN offers_on_profiles
+        ON profiles.id = offers_on_profiles."profileId"
+        FULL JOIN offer O
+        ON O.id = offers_on_profiles."offerId"
+      WHERE "stateId" = ${areaToFilter.stateId} OR type = 'country'
+      OFFSET ${skip} LIMIT ${take}
+  ;`;
+
+  // const profiles = await prismaClient.profile.findMany({
+  //   skip,
+  //   take,
+  //   include: {
+  //     areas: { select: { area: { select: { name: true } } } },
+  //     offers: { select: { offer: { select: { title: true } } } },
+  //     seekings: { select: { offer: { select: { title: true } } } },
+  //   },
+  //   orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
+  // });
 
   return profiles;
 }
@@ -97,6 +138,14 @@ export function getPaginationValues(
   const take = options.itemsPerPage;
 
   return { skip, take };
+}
+
+export function getFilterValues(request: Request) {
+  const url = new URL(request.url);
+  const areaId = url.searchParams.get("areaId") || undefined;
+  const offerId = url.searchParams.get("offerId") || undefined;
+  const seekingId = url.searchParams.get("seekingId") || undefined;
+  return { areaId, offerId, seekingId };
 }
 
 export async function getEvents(

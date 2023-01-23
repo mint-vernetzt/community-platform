@@ -29,7 +29,11 @@ import {
 } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllProfiles, getPaginationValues } from "./utils.server";
+import {
+  getAllProfiles,
+  getFilterValues,
+  getPaginationValues,
+} from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -55,17 +59,27 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
-  const { skip, take } = getPaginationValues(request);
-
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
 
   const isLoggedIn = sessionUser !== null;
 
+  // TODO: apply filter only if logged in
+  const paginationValues = getPaginationValues(request);
+  const filterValues = isLoggedIn
+    ? getFilterValues(request)
+    : { areaId: undefined, offerId: undefined, seekingId: undefined };
+
   let profiles;
 
-  const allProfiles = await getAllProfiles(skip, take);
+  const allProfiles = await getAllProfiles({
+    ...paginationValues,
+    ...filterValues,
+  });
+
+  console.log(allProfiles);
+
   if (allProfiles !== null) {
     profiles = allProfiles.map((profile) => {
       const { bio, position, avatar, publicFields, ...otherFields } = profile;
