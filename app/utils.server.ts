@@ -138,11 +138,13 @@ export async function triggerEntityScore(options: {
   }
 
   // TODO: fix type issue
+  // @ts-ignore
   const entity = await prismaClient[options.entity].findFirst({
     where: options.where,
     include: { areas: { select: { area: { select: { id: true } } } } },
   });
   const score = getScoreOfEntity(entity);
+  // @ts-ignore
   await prismaClient[options.entity].update({
     where: { id: entity.id },
     data: { score },
