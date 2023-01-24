@@ -4,7 +4,8 @@ import React from "react";
 export function useInfiniteItems(
   initialItems: any[],
   route: string,
-  key: string
+  key: string,
+  searchParams: URLSearchParams
 ) {
   const [items, setItems] = React.useState(initialItems);
   const [page, setPage] = React.useState(2);
@@ -50,7 +51,11 @@ export function useInfiniteItems(
     }
 
     if (clientHeight + scrollPosition > height) {
-      fetcher.load(`${route}?page=${page}`);
+      let searchParamsQuery = "";
+      searchParams.forEach((value, key) => {
+        searchParamsQuery += `&${key}=${value}`;
+      });
+      fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
 

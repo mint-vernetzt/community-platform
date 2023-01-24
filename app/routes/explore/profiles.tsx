@@ -5,6 +5,7 @@ import {
   Link,
   useActionData,
   useLoaderData,
+  useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -302,16 +303,21 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
-
   const {
     items,
     refCallback,
   }: {
     items: typeof loaderData.profiles;
     refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(loaderData.profiles, "/explore/profiles", "profiles");
+  } = useInfiniteItems(
+    loaderData.profiles,
+    "/explore/profiles",
+    "profiles",
+    searchParams
+  );
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
     submit(event.currentTarget);
