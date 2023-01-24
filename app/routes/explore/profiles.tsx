@@ -301,7 +301,6 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
-  console.log(loaderData.profiles.length);
   const {
     items,
     refCallback,
@@ -316,10 +315,11 @@ export default function Index() {
   );
 
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
+    //event.stopPropagation();
     submit(event.currentTarget);
   };
 
-  console.log(searchParams.get("offerId"));
+  console.log("CLIENT CALLED");
 
   return (
     <>

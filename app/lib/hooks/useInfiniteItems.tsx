@@ -19,6 +19,7 @@ export function useInfiniteItems(
   const refCallback = React.useCallback(
     (node: HTMLDivElement) => {
       if (node !== null) {
+        console.log("set height", node.getBoundingClientRect().height);
         setHeight(node.getBoundingClientRect().height);
       }
     },
@@ -31,6 +32,7 @@ export function useInfiniteItems(
       setClientHeight(window.innerHeight);
       setScrollPosition(window.scrollY);
     };
+    console.log("SCROLL LISTENER HOOK");
 
     if (typeof window !== "undefined") {
       setClientHeight(window.innerHeight);
@@ -49,7 +51,7 @@ export function useInfiniteItems(
     if (shouldFetch === false || height === null) {
       return;
     }
-
+    console.log("FETCH HOOK");
     if (clientHeight + scrollPosition > height) {
       let searchParamsQuery = "";
       if (searchParams !== undefined) {
@@ -57,20 +59,20 @@ export function useInfiniteItems(
           searchParamsQuery += `&${key}=${value}`;
         });
       }
+      console.log(`load ${route}?page=${page}${searchParamsQuery}`);
       fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
-
-    //eslint-disable-next-line
   }, [clientHeight, scrollPosition]);
 
   React.useEffect(() => {
     if (fetcher.data !== undefined && fetcher.data[key].length === 0) {
+      console.log("nothing to fetch");
       setShouldFetch(false);
       return;
     }
-
     if (fetcher.data !== undefined && fetcher.data[key].length > 0) {
+      console.log("set items");
       setItems((prevItems) => [...prevItems, ...fetcher.data[key]]);
       setPage((page: number) => page + 1);
       setShouldFetch(true);
