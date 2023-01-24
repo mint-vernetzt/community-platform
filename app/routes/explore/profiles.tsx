@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  Form,
   Link,
   useLoaderData,
   useSearchParams,
@@ -64,10 +65,14 @@ export const loader: LoaderFunction = async (args) => {
 
   let profiles;
 
+  console.log("\n");
+  console.time("query profiles");
   const allProfiles = await getAllProfiles({
     ...paginationValues,
     ...filterValues,
   });
+  console.timeEnd("query profiles");
+  console.log("\n");
 
   if (allProfiles !== null) {
     profiles = allProfiles.map((profile) => {
@@ -106,10 +111,10 @@ export const loader: LoaderFunction = async (args) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  console.log("LOADER CALLED WITH SEARCH PARAMS: ", {
-    ...paginationValues,
-    ...filterValues,
-  });
+  // console.log("LOADER CALLED WITH SEARCH PARAMS: ", {
+  //   ...paginationValues,
+  //   ...filterValues,
+  // });
 
   // TODO: fix type issue
   return json<LoaderData>(
@@ -314,12 +319,12 @@ export default function Index() {
     searchParams
   );
 
+  console.log({ searchParams });
+
   const handleChange = (event: FormEvent<HTMLFormElement>) => {
-    //event.stopPropagation();
+    event.stopPropagation();
     submit(event.currentTarget);
   };
-
-  console.log("CLIENT CALLED");
 
   return (
     <>
@@ -332,7 +337,53 @@ export default function Index() {
 
       {loaderData.isLoggedIn ? (
         <section className="container my-8">
-          <RemixForm method="get" schema={schema} onChange={handleChange}>
+          <Form
+            method="get"
+            action="/explore/profiles?page=1"
+            // onChange={handleChange}
+            reloadDocument
+          >
+            <label htmlFor="areaId">Aktivitätsgebiete</label>
+            <select
+              id="areaId"
+              name="areaId"
+              defaultValue={searchParams.get("areaId") || undefined}
+            >
+              {areaOptions.map((option, index) => (
+                <React.Fragment key={index}>
+                  {"value" in option ? (
+                    <option key={`area-${index}`} value={option.value}>
+                      {option.label}
+                    </option>
+                  ) : null}
+
+                  {"options" in option ? (
+                    <optgroup key={`area-group-${index}`} label={option.label}>
+                      {option.options.map((groupOption, groupOptionIndex) => (
+                        <option
+                          key={`area-${index}-${groupOptionIndex}`}
+                          value={groupOption.value}
+                        >
+                          {groupOption.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                </React.Fragment>
+              ))}
+            </select>
+            <div className="flex justify-end">
+              <button type="submit" className="btn btn-primary mr-2">
+                Filter anwenden
+              </button>
+              <Link to={"./"} reloadDocument>
+                <div className="btn btn-primary btn-outline">
+                  Filter zurücksetzen
+                </div>
+              </Link>
+            </div>
+          </Form>
+          {/* <RemixForm method="get" schema={schema} onChange={handleChange}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <div className="flex flex-wrap -mx-4">
@@ -452,7 +503,7 @@ export default function Index() {
                 </div>
                 <div className="flex justify-end">
                   <noscript>
-                    {/* TODO: selection not shown without javascript */}
+                    // TODO: selection not shown without javascript
                     <button type="submit" className="btn btn-primary mr-2">
                       Filter anwenden
                     </button>
@@ -463,7 +514,7 @@ export default function Index() {
                 </div>
               </>
             )}
-          </RemixForm>
+          </RemixForm> */}
         </section>
       ) : null}
 
