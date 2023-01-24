@@ -113,7 +113,7 @@ export async function getAllProfiles(
       LEFT JOIN offer O
       ON offers_on_profiles."offerId" = O.id
     /* Filtering with the where clauses from above if any exist */
-    ${whereClause || Prisma.sql``}
+    ${whereClause || Prisma.empty}
     /* Group by profile.id to aggregate selected areas, offers and seekings as array */
     GROUP BY profiles.id
     /* Order by the order by clauses specified above */
