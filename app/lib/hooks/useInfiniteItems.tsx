@@ -5,7 +5,7 @@ export function useInfiniteItems(
   initialItems: any[],
   route: string,
   key: string,
-  searchParams: URLSearchParams
+  searchParams?: URLSearchParams
 ) {
   const [items, setItems] = React.useState(initialItems);
   const [page, setPage] = React.useState(2);
@@ -52,9 +52,11 @@ export function useInfiniteItems(
 
     if (clientHeight + scrollPosition > height) {
       let searchParamsQuery = "";
-      searchParams.forEach((value, key) => {
-        searchParamsQuery += `&${key}=${value}`;
-      });
+      if (searchParams !== undefined) {
+        searchParams.forEach((value, key) => {
+          searchParamsQuery += `&${key}=${value}`;
+        });
+      }
       fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
