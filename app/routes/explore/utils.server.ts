@@ -30,7 +30,7 @@ export async function getAllProfiles(
   let offerJoin = Prisma.empty;
   let seekingJoin = Prisma.empty;
   // Default ordering: first_name ASC
-  let orderByClause = Prisma.sql`ORDER BY "firstName" ASC`;
+  let orderByClause = Prisma.sql`ORDER BY "score" DESC, "firstName" ASC`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
@@ -47,6 +47,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC,
+                        "score" DESC,
                         "firstName" ASC`;
       }
       if (areaToFilter.type === "state") {
@@ -66,6 +67,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC, 
+                        "score" DESC,
                         "firstName" ASC`;
       }
       if (areaToFilter.type === "district") {
@@ -85,6 +87,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC, 
+                        "score" DESC,
                         "firstName" ASC`;
       }
       if (areaWhere !== undefined) {
@@ -131,6 +134,7 @@ export async function getAllProfiles(
       | "bio"
       | "avatar"
       | "position"
+      | "score"
     > & { areaNames: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
@@ -142,6 +146,7 @@ export async function getAllProfiles(
       profiles.position,
       profiles.bio,
       profiles.avatar,
+      profiles.score,
       array_remove(array_agg(DISTINCT areas.name), null) as "areaNames"
     FROM profiles
       /* Always joining areas to get areaNames */
