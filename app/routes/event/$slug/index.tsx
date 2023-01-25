@@ -421,7 +421,7 @@ function Index() {
         </div>
       </section>
       <section className="container mt-6">
-        <div className="rounded-3xl overflow-hidden w-full relative">
+        <div className="md:rounded-3xl overflow-hidden w-full relative">
           <div className="hidden md:block">
             <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
               <div className="w-full h-full">
@@ -506,64 +506,85 @@ function Index() {
                 </div>
               ) : (
                 <>
-                  {loaderData.mode === "anon" &&
-                  loaderData.event.canceled === false &&
-                  loaderData.event.childEvents.length === 0 ? (
-                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
-                      <Link
-                        className="btn btn-primary"
-                        to={`/login?login_redirect=/event/${loaderData.event.slug}`}
-                      >
-                        Anmelden um teilzunehmen
-                      </Link>
+                  {loaderData.event.parentEvent !== null &&
+                  laysInThePast === false ? (
+                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl md:py-6">
+                      <div className="md:flex -mx-[17px] items-center">
+                        <div className="w-full hidden lg:flex lg:flex-1/4 px-4"></div>
+                        <div className="w-full md:flex-auto px-4">
+                          <p className="font-bold xl:text-center md:pl-4 lg:pl-0 pb-4 md:pb-0">
+                            Diese Veranstaltung findet im Rahmen von "
+                            <Link
+                              className="underline hover:no-underline"
+                              to={`/event/${loaderData.event.parentEvent.slug}`}
+                            >
+                              {loaderData.event.parentEvent.name}
+                            </Link>
+                            " statt.
+                          </p>
+                        </div>
+                        <div className="w-full lg:flex-1/4 px-4 text-right">
+                          <div className="pr-4 lg:pr-8">
+                            <>
+                              {loaderData.mode === "anon" &&
+                              loaderData.event.canceled === false &&
+                              loaderData.event.childEvents.length === 0 ? (
+                                <Link
+                                  className="btn btn-primary"
+                                  to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                                >
+                                  Anmelden um teilzunehmen
+                                </Link>
+                              ) : null}
+                              {loaderData.mode !== "anon" &&
+                              loaderData.event.canceled === false &&
+                              loaderData.event.childEvents.length === 0 ? (
+                                <>{Form}</>
+                              ) : null}
+                            </>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ) : null}
-                  {loaderData.mode !== "anon" &&
-                  loaderData.event.canceled === false &&
-                  loaderData.event.childEvents.length === 0 ? (
-                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl px-8 md:py-6 md:text-right">
-                      {Form}
+                  ) : loaderData.event.childEvents.length > 0 &&
+                    laysInThePast === false ? (
+                    <div className="hidden md:block">
+                      <div className="bg-accent-300 p-8">
+                        <p className="font-bold text-center">
+                          Wähle{" "}
+                          <a
+                            href="#child-events"
+                            className="underline hover:no-underline"
+                          >
+                            zugehörige Veranstaltungen
+                          </a>{" "}
+                          aus, an denen Du teilnehmen möchtest.
+                        </p>
+                      </div>
+                    </div>
+                  ) : laysInThePast === false ? (
+                    <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl md:py-6 md:text-right pr-4 lg:pr-8">
+                      <>
+                        {loaderData.mode === "anon" &&
+                        loaderData.event.canceled === false &&
+                        loaderData.event.childEvents.length === 0 ? (
+                          <Link
+                            className="btn btn-primary"
+                            to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                          >
+                            Anmelden um teilzunehmen
+                          </Link>
+                        ) : null}
+                        {loaderData.mode !== "anon" &&
+                        loaderData.event.canceled === false &&
+                        loaderData.event.childEvents.length === 0 ? (
+                          <>{Form}</>
+                        ) : null}
+                      </>
                     </div>
                   ) : null}
                 </>
               )}
-              {loaderData.event.parentEvent !== null &&
-              laysInThePast === false &&
-              !beforeParticipationPeriod &&
-              !afterParticipationPeriod ? (
-                <div className="hidden md:block">
-                  <div className="p-8">
-                    <p className="font-bold text-center">
-                      Diese Veranstaltung findet im Rahmen von "
-                      <Link
-                        className="underline hover:no-underline"
-                        to={`/event/${loaderData.event.parentEvent.slug}`}
-                      >
-                        {loaderData.event.parentEvent.name}
-                      </Link>
-                      " statt.
-                    </p>
-                  </div>
-                </div>
-              ) : loaderData.event.childEvents.length > 0 &&
-                laysInThePast === false &&
-                !beforeParticipationPeriod &&
-                !afterParticipationPeriod ? (
-                <div className="hidden md:block">
-                  <div className="bg-accent-300 p-8">
-                    <p className="font-bold text-center">
-                      Wähle{" "}
-                      <a
-                        href="#child-events"
-                        className="underline hover:no-underline"
-                      >
-                        zugehörige Veranstaltungen
-                      </a>{" "}
-                      aus, an denen Du teilnehmen möchtest.
-                    </p>
-                  </div>
-                </div>
-              ) : null}
             </>
           ) : null}
         </div>
