@@ -1,17 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useLoaderData,
-  useSearchParams,
-  useSubmit,
-} from "@remix-run/react";
+import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import type { FormEvent } from "react";
 import React from "react";
-import { Form as RemixForm } from "remix-forms";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
@@ -27,19 +18,6 @@ import {
   getFilterValues,
   getPaginationValues,
 } from "./utils.server";
-
-const schema = z.object({
-  areaId: z.string().optional(),
-  offerId: z.string().optional(),
-  seekingId: z.string().optional(),
-});
-
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
-
-type Profiles = Awaited<ReturnType<typeof getAllProfiles>>;
 
 type LoaderData = {
   isLoggedIn: boolean;
@@ -65,14 +43,10 @@ export const loader: LoaderFunction = async (args) => {
 
   let profiles;
 
-  console.log("\n");
-  console.time("query profiles");
   const allProfiles = await getAllProfiles({
     ...paginationValues,
     ...filterValues,
   });
-  console.timeEnd("query profiles");
-  console.log("\n");
 
   if (allProfiles !== null) {
     profiles = allProfiles.map((profile) => {
@@ -111,11 +85,6 @@ export const loader: LoaderFunction = async (args) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  // console.log("LOADER CALLED WITH SEARCH PARAMS: ", {
-  //   ...paginationValues,
-  //   ...filterValues,
-  // });
-
   // TODO: fix type issue
   return json<LoaderData>(
     { isLoggedIn, profiles, areas, offers },
@@ -123,188 +92,9 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-// function getCompareValues(
-//   a: { firstName: string } | { name: string },
-//   b: { firstName: string } | { name: string }
-// ) {
-//   let compareValues: { a: string; b: string } = { a: "", b: "" };
-
-//   if ("firstName" in a) {
-//     compareValues.a = a.firstName;
-//   } else {
-//     compareValues.a = a.name;
-//   }
-//   if ("firstName" in b) {
-//     compareValues.b = b.firstName;
-//   } else {
-//     compareValues.b = b.name;
-//   }
-
-//   return compareValues;
-// }
-
-// const mutation = makeDomainFunction(
-//   schema,
-//   environmentSchema
-// )(async (values, environment) => {
-//   if (!(values.areaId || values.offerId || values.seekingId)) {
-//     throw "";
-//   }
-
-//   let areaToFilter: Pick<Area, "id" | "type" | "stateId"> | null | undefined;
-//   if (values.areaId !== undefined) {
-//     areaToFilter = await getAreaById(values.areaId);
-//   }
-
-//   let filteredProfiles = await getFilteredProfiles(
-//     areaToFilter,
-//     values.offerId,
-//     values.seekingId
-//   );
-
-//   // TODO: Outsource profile sorting (to database?) inside loader with url params
-
-//   let sortedProfiles;
-//   if (areaToFilter) {
-//     // Explanation of the below sorting code:
-//     //
-//     // Expected sorting when filtering for country ("Bundesweit"):
-//     // 1. All profiles with a country
-//     // 2. All remaining profiles with a state
-//     // 3. All remaining profiles with a district
-//     //
-//     // Expected sorting when filtering for state ("Sachsen", "Saarland", etc...):
-//     // 1. All profiles with exactly the filtered state
-//     // 2. All remaining profiles with districts inside the filtered state
-//     // 3. All remaining profiles with a country
-//     //
-//     // Expected sorting when filtering for district ("Berlin", "Hamburg", etc...):
-//     // 1. All profiles with exactly the filtered district
-//     // 2. All remaining profiles with a state that includes the district
-//     // 3. All remaining profiles with a country
-//     //
-//     // To achieve this:
-//     // 1. Group the filteredProfiles in ProfilesWithCountry, ProfilesWithState, ProfilesWithDistrict
-//     // 2. Sort them alphabetical
-//     // 3. Append the groups together getting the order described above
-//     // 3.1. Profiles can have more than one area, which leads to the possibility that they got fetched from the database
-//     //      because they have a country ("Bundesweit") but also have a state or district the user did not filter for.
-//     //      Therefore another filter method is applied filtering out all profiles with the exact state or district.
-//     // 4. Step 1. and 3. leads to duplicate Profile entries. To exclude them the Array is transformed to a Set and vice versa.
-
-//     // 1.
-//     const profilesWithCountry = filteredProfiles
-//       .filter((item) => item.areas.some((area) => area.area.type === "country"))
-//       // 2.
-//       .sort((a, b) => {
-//         let compareValues = getCompareValues(a, b);
-//         return compareValues.a.localeCompare(compareValues.b);
-//       });
-//     const profilesWithState = filteredProfiles
-//       .filter((item) => item.areas.some((area) => area.area.type === "state"))
-//       .sort((a, b) => {
-//         let compareValues = getCompareValues(a, b);
-//         return compareValues.a.localeCompare(compareValues.b);
-//       });
-//     const profilesWithDistrict = filteredProfiles
-//       .filter((item) =>
-//         item.areas.some((area) => area.area.type === "district")
-//       )
-//       .sort((a, b) => {
-//         let compareValues = getCompareValues(a, b);
-//         return compareValues.a.localeCompare(compareValues.b);
-//       });
-//     // 3.
-//     const stateId = areaToFilter.stateId; // TypeScript reasons...
-//     if (areaToFilter.type === "country") {
-//       sortedProfiles = [
-//         ...profilesWithCountry,
-//         ...profilesWithState,
-//         ...profilesWithDistrict,
-//       ];
-//     }
-//     // 3.1.
-//     if (areaToFilter.type === "state") {
-//       sortedProfiles = [
-//         ...profilesWithState.filter((item) =>
-//           item.areas.some((area) => area.area.stateId === stateId)
-//         ),
-//         ...profilesWithDistrict.filter((item) =>
-//           item.areas.some((area) => area.area.stateId === stateId)
-//         ),
-//         ...profilesWithCountry,
-//       ];
-//     }
-//     if (areaToFilter.type === "district") {
-//       sortedProfiles = [
-//         ...profilesWithDistrict.filter((item) =>
-//           item.areas.some((area) => area.area.stateId === stateId)
-//         ),
-//         ...profilesWithState.filter((item) =>
-//           item.areas.some((area) => area.area.stateId === stateId)
-//         ),
-//         ...profilesWithCountry,
-//       ];
-//     }
-//     // 4.
-//     const profilesSet = new Set(sortedProfiles);
-//     sortedProfiles = Array.from(profilesSet);
-//   } else {
-//     // Sorting firstName alphabetical when no area filter is applied
-//     sortedProfiles = filteredProfiles.sort((a, b) =>
-//       a.firstName.localeCompare(b.firstName)
-//     );
-//   }
-
-//   // Add avatars
-//   const profilesWithImages = sortedProfiles.map((item) => {
-//     let { avatar, ...rest } = item;
-
-//     if (avatar !== null) {
-//       const publicURL = getPublicURL(environment.authClient, avatar);
-//       if (publicURL !== null) {
-//         avatar = getImageURL(publicURL, {
-//           resize: { type: "fill", width: 64, height: 64 },
-//         });
-//       }
-//     }
-
-//     return { ...rest, avatar };
-//   });
-
-//   return {
-//     values,
-//     profiles: profilesWithImages,
-//   };
-// });
-
-// type ActionData = PerformMutation<
-//   z.infer<Schema>,
-//   z.infer<typeof schema> & {
-//     profiles: Profiles;
-//   }
-// >;
-
-// export const action: ActionFunction = async ({ request }) => {
-//   const response = new Response();
-//   const authClient = createAuthClient(request, response);
-//   // TODO: Do we need an identity/authorization check for the filter action?
-//   const result = await performMutation({
-//     request,
-//     schema,
-//     mutation,
-//     environment: { authClient: authClient },
-//   });
-
-//   // TODO: fix type issue
-//   return json<ActionData>(result, { headers: response.headers });
-// };
-
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
-  // const actionData = useActionData<ActionData>();
   const [searchParams] = useSearchParams();
-  const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
   const {
     items,
@@ -318,13 +108,6 @@ export default function Index() {
     "profiles",
     searchParams
   );
-
-  console.log({ searchParams });
-
-  const handleChange = (event: FormEvent<HTMLFormElement>) => {
-    event.stopPropagation();
-    submit(event.currentTarget);
-  };
 
   return (
     <>
@@ -343,35 +126,82 @@ export default function Index() {
             // onChange={handleChange}
             reloadDocument
           >
-            <label htmlFor="areaId">Aktivitätsgebiete</label>
-            <select
-              id="areaId"
-              name="areaId"
-              defaultValue={searchParams.get("areaId") || undefined}
-            >
-              {areaOptions.map((option, index) => (
-                <React.Fragment key={index}>
-                  {"value" in option ? (
-                    <option key={`area-${index}`} value={option.value}>
-                      {option.label}
-                    </option>
-                  ) : null}
-
-                  {"options" in option ? (
-                    <optgroup key={`area-group-${index}`} label={option.label}>
-                      {option.options.map((groupOption, groupOptionIndex) => (
-                        <option
-                          key={`area-${index}-${groupOptionIndex}`}
-                          value={groupOption.value}
-                        >
-                          {groupOption.label}
+            <div className="flex flex-wrap -mx-4">
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                <label className="block font-semibold mb-2">
+                  Aktivitätsgebiet
+                </label>
+                <select
+                  id="areaId"
+                  name="areaId"
+                  defaultValue={searchParams.get("areaId") || undefined}
+                  className="select w-full select-bordered"
+                >
+                  <option></option>
+                  {areaOptions.map((option, index) => (
+                    <React.Fragment key={index}>
+                      {"value" in option ? (
+                        <option key={`area-${index}`} value={option.value}>
+                          {option.label}
                         </option>
-                      ))}
-                    </optgroup>
-                  ) : null}
-                </React.Fragment>
-              ))}
-            </select>
+                      ) : null}
+
+                      {"options" in option ? (
+                        <optgroup
+                          key={`area-group-${index}`}
+                          label={option.label}
+                        >
+                          {option.options.map(
+                            (groupOption, groupOptionIndex) => (
+                              <option
+                                key={`area-${index}-${groupOptionIndex}`}
+                                value={groupOption.value}
+                              >
+                                {groupOption.label}
+                              </option>
+                            )
+                          )}
+                        </optgroup>
+                      ) : null}
+                    </React.Fragment>
+                  ))}
+                </select>
+              </div>
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                <label className="block font-semibold mb-2">Ich suche</label>
+                <select
+                  id="offerId"
+                  name="offerId"
+                  defaultValue={searchParams.get("offerId") || undefined}
+                  className="select w-full select-bordered"
+                >
+                  <option></option>
+                  {loaderData.offers.map((offer) => (
+                    <option key={`offer-${offer.id}`} value={offer.id}>
+                      {offer.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+                <label className="block font-semibold mb-2">
+                  Ich möchte unterstützen mit
+                </label>
+                <select
+                  id="seekingId"
+                  name="seekingId"
+                  defaultValue={searchParams.get("seekingId") || undefined}
+                  className="select w-full select-bordered"
+                >
+                  <option></option>
+                  {loaderData.offers.map((offer) => (
+                    <option key={`seeking-${offer.id}`} value={offer.id}>
+                      {offer.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="flex justify-end">
               <button type="submit" className="btn btn-primary mr-2">
                 Filter anwenden
@@ -383,138 +213,6 @@ export default function Index() {
               </Link>
             </div>
           </Form>
-          {/* <RemixForm method="get" schema={schema} onChange={handleChange}>
-            {({ Field, Button, Errors, register }) => (
-              <>
-                <div className="flex flex-wrap -mx-4">
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="areaId"
-                      label="Filtern nach Aktivitätsgebiet:"
-                      className=""
-                      value={searchParams.get("areaId") || undefined}
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Aktivitätsgebiet
-                          </label>
-                          <select
-                            {...register("areaId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {areaOptions.map((option, index) => (
-                              <React.Fragment key={index}>
-                                {"value" in option ? (
-                                  <option
-                                    key={`area-${index}`}
-                                    value={option.value}
-                                  >
-                                    {option.label}
-                                  </option>
-                                ) : null}
-
-                                {"options" in option ? (
-                                  <optgroup
-                                    key={`area-group-${index}`}
-                                    label={option.label}
-                                  >
-                                    {option.options.map(
-                                      (groupOption, groupOptionIndex) => (
-                                        <option
-                                          key={`area-${index}-${groupOptionIndex}`}
-                                          value={groupOption.value}
-                                        >
-                                          {groupOption.label}
-                                        </option>
-                                      )
-                                    )}
-                                  </optgroup>
-                                ) : null}
-                              </React.Fragment>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="offerId"
-                      label="Filtern nach Angeboten:"
-                      className=""
-                      value={searchParams.get("offerId") || undefined}
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Ich suche
-                          </label>
-                          <select
-                            {...register("offerId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {loaderData.offers.map((offer) => (
-                              <option
-                                key={`offer-${offer.id}`}
-                                value={offer.id}
-                              >
-                                {offer.title}
-                              </option>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
-                  <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                    <Field
-                      name="seekingId"
-                      label="Filtern nach Gesuchen:"
-                      className=""
-                      value={searchParams.get("seekingId") || undefined}
-                    >
-                      {({ Errors }) => (
-                        <>
-                          <label className="block font-semibold mb-2">
-                            Ich möchte unterstützen mit
-                          </label>
-                          <select
-                            {...register("seekingId")}
-                            className="select w-full select-bordered"
-                          >
-                            <option></option>
-                            {loaderData.offers.map((offer) => (
-                              <option
-                                key={`seeking-${offer.id}`}
-                                value={offer.id}
-                              >
-                                {offer.title}
-                              </option>
-                            ))}
-                          </select>
-                        </>
-                      )}
-                    </Field>
-                  </div>
-                  <Errors />
-                </div>
-                <div className="flex justify-end">
-                  <noscript>
-                    // TODO: selection not shown without javascript
-                    <button type="submit" className="btn btn-primary mr-2">
-                      Filter anwenden
-                    </button>
-                  </noscript>
-                  <Link to={"./"} reloadDocument>
-                    <div className="btn btn-primary">Filter zurücksetzen</div>
-                  </Link>
-                </div>
-              </>
-            )}
-          </RemixForm> */}
         </section>
       ) : null}
 

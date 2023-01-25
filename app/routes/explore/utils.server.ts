@@ -119,8 +119,6 @@ export async function getAllProfiles(
     whereClause = Prisma.join(whereClauses, ") AND (", "WHERE (", ")");
   }
 
-  console.log(skip, take);
-
   const profiles: Array<
     Pick<
       Profile,

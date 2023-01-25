@@ -55,7 +55,6 @@ export function useInfiniteItems(
         searchParams.forEach((value, key) => {
           searchParamsQuery += `&${key}=${value}`;
         });
-        console.log({ searchParamsQuery });
       }
       fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
