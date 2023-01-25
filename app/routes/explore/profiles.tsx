@@ -54,13 +54,15 @@ export const loader: LoaderFunction = async (args) => {
       let extensions: { bio?: string; position?: string } = {};
 
       if (
-        (publicFields.includes("bio") || sessionUser !== null) &&
+        ((publicFields !== null && publicFields.includes("bio")) ||
+          sessionUser !== null) &&
         bio !== null
       ) {
         extensions.bio = bio;
       }
       if (
-        (publicFields.includes("position") || sessionUser !== null) &&
+        ((publicFields !== null && publicFields.includes("position")) ||
+          sessionUser !== null) &&
         position !== null
       ) {
         extensions.position = position;
