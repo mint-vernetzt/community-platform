@@ -1,7 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams, useSubmit } from "@remix-run/react";
-import { KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps, PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";

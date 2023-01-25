@@ -1,6 +1,12 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useActionData,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
+import type { KeyboardEvent } from "react";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
@@ -111,6 +117,16 @@ export default function Register() {
   const actionData = useActionData<ActionData>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
+  const submit = useSubmit();
+  const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      // TODO: Type issue
+      if (event.target.getAttribute("name") !== "termsAccepted") {
+        submit(event.currentTarget);
+      }
+    }
+  };
 
   return (
     <>
@@ -167,6 +183,7 @@ export default function Register() {
                 values={{
                   loginRedirect: loginRedirect,
                 }}
+                onKeyDown={handleKeyPress}
               >
                 {({ Field, Button, Errors, register }) => (
                   <>
