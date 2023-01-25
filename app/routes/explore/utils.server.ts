@@ -26,9 +26,11 @@ export async function getAllProfiles(
 
   let areaToFilter;
   let whereClauses = [];
-  let whereClause;
+  let whereClause = Prisma.empty;
+  let offerJoin = Prisma.empty;
+  let seekingJoin = Prisma.empty;
   // Default ordering: first_name ASC
-  let orderByClause = Prisma.sql`ORDER BY first_name ASC`;
+  let orderByClause = Prisma.sql`ORDER BY "firstName" ASC`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
@@ -36,7 +38,16 @@ export async function getAllProfiles(
       if (areaToFilter.type === "country") {
         /* No WHERE statement needed as we want to select all profiles that have at least one area */
         /* ORDER BY: country -> state -> district */
-        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`
+                        ORDER BY (
+                          CASE 
+                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
+                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
+                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
+                            ELSE 4 
+                          END
+                        ) ASC,
+                        "firstName" ASC`;
       }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
@@ -46,7 +57,16 @@ export async function getAllProfiles(
           areaWhere = Prisma.sql`areas.id = ${areaToFilter.id} OR type = 'country'`;
         }
         /* ORDER BY: state -> district -> country */
-        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`
+                        ORDER BY (
+                          CASE 
+                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
+                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
+                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
+                            ELSE 4 
+                          END
+                        ) ASC, 
+                        "firstName" ASC`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
@@ -56,7 +76,16 @@ export async function getAllProfiles(
           areaWhere = Prisma.sql`areas.id = ${areaToFilter.id} OR type = 'state' OR type = 'country'`;
         }
         /* ORDER BY: district -> state -> country */
-        orderByClause = Prisma.sql`ORDER BY (CASE WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 1 WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 ELSE 4 END) ASC, first_name ASC`;
+        orderByClause = Prisma.sql`
+                        ORDER BY (
+                          CASE 
+                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
+                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
+                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
+                            ELSE 4 
+                          END
+                        ) ASC, 
+                        "firstName" ASC`;
       }
       if (areaWhere !== undefined) {
         whereClauses.push(areaWhere);
@@ -66,11 +95,21 @@ export async function getAllProfiles(
     }
   }
   if (offerId !== undefined) {
+    offerJoin = Prisma.sql`
+                LEFT JOIN offers_on_profiles
+                ON profiles.id = offers_on_profiles."profileId"
+                LEFT JOIN offer O
+                ON offers_on_profiles."offerId" = O.id`;
     /* Filter profiles that have the exact offer */
     const offerWhere = Prisma.sql`O.id = ${offerId}`;
     whereClauses.push(offerWhere);
   }
   if (seekingId !== undefined) {
+    seekingJoin = Prisma.sql`
+                  LEFT JOIN seekings_on_profiles
+                  ON profiles.id = seekings_on_profiles."profileId"
+                  LEFT JOIN offer S
+                  ON seekings_on_profiles."offerId" = S.id`;
     /* Filter profiles that have the exact seeking */
     const seekingWhere = Prisma.sql`S.id = ${seekingId}`;
     whereClauses.push(seekingWhere);
@@ -79,6 +118,8 @@ export async function getAllProfiles(
     /* All WHERE clauses must hold true and are therefore connected with an logical AND */
     whereClause = Prisma.join(whereClauses, ") AND (", "WHERE (", ")");
   }
+
+  console.log(skip, take);
 
   const profiles: Array<
     Pick<
@@ -94,44 +135,31 @@ export async function getAllProfiles(
       | "position"
     > & { areaNames: string[] }
   > = await prismaClient.$queryRaw`
-    SELECT profiles.id, profiles.public_fields as "publicFields", profiles.first_name as "firstName", profiles.last_name as "lastName", profiles.username, profiles.academic_title as "academicTitle", profiles.position, profiles.bio, profiles.avatar, array_remove(array_agg(DISTINCT areas.name), null) as "areaNames"/*, array_remove(array_agg(DISTINCT S."title"), null) as "seekingTitles", array_remove(array_agg(DISTINCT O."title"), null) as "offerTitles"*/ /* Insert additional selects when offer and seekings should be selected too */
-    /* Selecting from profiles table joined with area, offer and seeking table */
+    SELECT 
+      profiles.id,
+      profiles.public_fields as "publicFields",
+      profiles.first_name as "firstName",
+      profiles.last_name as "lastName",
+      profiles.username, profiles.academic_title as "academicTitle",
+      profiles.position,
+      profiles.bio,
+      profiles.avatar,
+      array_remove(array_agg(DISTINCT areas.name), null) as "areaNames"
     FROM profiles
-      /* Join all profiles and connected areas */
+      /* Always joining areas to get areaNames */
       LEFT JOIN areas_on_profiles
       ON profiles.id = areas_on_profiles."profileId"
       LEFT JOIN areas
       ON areas_on_profiles."areaId" = areas.id
-      /* Join all profiles and connected seekings as S */
-      LEFT JOIN seekings_on_profiles
-      ON profiles.id = seekings_on_profiles."profileId"
-      LEFT JOIN offer S
-      ON seekings_on_profiles."offerId" = S.id
-      /* Join all profiles and connected offers as O */
-      LEFT JOIN offers_on_profiles
-      ON profiles.id = offers_on_profiles."profileId"
-      LEFT JOIN offer O
-      ON offers_on_profiles."offerId" = O.id
+      ${offerJoin}
+      ${seekingJoin}
     /* Filtering with the where clauses from above if any exist */
     ${whereClause || Prisma.empty}
-    /* Group by profile.id to aggregate selected areas, offers and seekings as array */
     GROUP BY profiles.id
-    /* Order by the order by clauses specified above */
     ${orderByClause}
-    /* Skip and take */
-    OFFSET ${skip} LIMIT ${take}
+    LIMIT ${take}
+    OFFSET ${skip}
   ;`;
-
-  // const profiles = await prismaClient.profile.findMany({
-  //   skip,
-  //   take,
-  //   include: {
-  //     areas: { select: { area: { select: { name: true } } } },
-  //     offers: { select: { offer: { select: { title: true } } } },
-  //     seekings: { select: { offer: { select: { title: true } } } },
-  //   },
-  //   orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
-  // });
 
   return profiles;
 }
