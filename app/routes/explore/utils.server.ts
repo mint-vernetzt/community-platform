@@ -77,7 +77,7 @@ export async function getAllProfiles(
   }
   if (whereClauses.length > 0) {
     /* All WHERE clauses must hold true and are therefore connected with an logical AND */
-    whereClause = Prisma.join(whereClauses, " AND ", "WHERE ");
+    whereClause = Prisma.join(whereClauses, ") AND (", "WHERE (", ")");
   }
 
   const profiles: Array<
