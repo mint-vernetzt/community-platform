@@ -1,6 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useSearchParams } from "@remix-run/react";
+import { Link, useSearchParams, useSubmit } from "@remix-run/react";
+import { KeyboardEvent } from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps, PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -137,6 +138,13 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Index() {
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
+  const submit = useSubmit();
+  const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      submit(event.currentTarget);
+    }
+  };
 
   return (
     <LoginForm
@@ -146,6 +154,7 @@ export default function Index() {
       values={{
         loginRedirect: loginRedirect || undefined,
       }}
+      onKeyDown={handleKeyPress}
     >
       {({ Field, Button, Errors, register }) => (
         <>
