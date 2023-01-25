@@ -5650,14 +5650,14 @@ function generateUsername<
   let username;
   if (entityType === "profile") {
     if (entityStructure === "Developer") {
-      username = generateUsername_app("!Developer", `Profile${index}`);
+      username = generateUsername_app("0_Developer", `Profile${index}`);
     } else if (entityStructure === "Unicode") {
       username = generateUsername_app(
         `${entityStructure}_Γ`,
         `Profile_Γ${index}`
       );
     } else if (entityStructure === "Standard") {
-      username = generateUsername_app("~Standard", `Profile${index}`);
+      username = generateUsername_app("Y_Standard", `Profile${index}`);
     } else {
       username = generateUsername_app(entityStructure, `Profile${index}`);
     }
@@ -5859,14 +5859,14 @@ function generateName<
       }
     } else {
       if (entityStructure === "Developer") {
-        name = `!${entityStructure} ${entityType.replace(
+        name = `0_${entityStructure} ${entityType.replace(
           /^./,
           function (match) {
             return match.toUpperCase();
           }
         )}`;
       } else if (entityStructure === "Standard") {
-        name = `~${entityStructure} ${entityType.replace(
+        name = `Y_${entityStructure} ${entityType.replace(
           /^./,
           function (match) {
             return match.toUpperCase();
@@ -5896,9 +5896,9 @@ function generateSlug<
   let slug;
   if (entityType === "organization") {
     if (entityStructure === "Developer") {
-      slug = generateOrganizationSlug(`!${entityStructure} Organization`);
+      slug = generateOrganizationSlug(`0_${entityStructure} Organization`);
     } else if (entityStructure === "Standard") {
-      slug = generateOrganizationSlug(`~${entityStructure} Organization`);
+      slug = generateOrganizationSlug(`Y_${entityStructure} Organization`);
     } else if (entityStructure === "Unicode") {
       slug = generateOrganizationSlug(`${entityStructure} Organization_Γ`);
     } else {
@@ -5907,9 +5907,9 @@ function generateSlug<
   }
   if (entityType === "event") {
     if (entityStructure === "Developer") {
-      slug = generateEventSlug(`!${entityStructure} Event`);
+      slug = generateEventSlug(`0_${entityStructure} Event`);
     } else if (entityStructure === "Standard") {
-      slug = generateEventSlug(`~${entityStructure} Event`);
+      slug = generateEventSlug(`Y_${entityStructure} Event`);
     } else if (entityStructure === "Unicode") {
       slug = generateEventSlug(`${entityStructure} Event_Γ`);
     } else {
@@ -5918,9 +5918,9 @@ function generateSlug<
   }
   if (entityType === "project") {
     if (entityStructure === "Developer") {
-      slug = generateProjectSlug(`!${entityStructure} Project`);
+      slug = generateProjectSlug(`0_${entityStructure} Project`);
     } else if (entityStructure === "Standard") {
-      slug = generateProjectSlug(`~${entityStructure} Project`);
+      slug = generateProjectSlug(`Y_${entityStructure} Project`);
     } else if (entityStructure === "Unicode") {
       slug = generateProjectSlug(`${entityStructure} Project_Γ`);
     } else {
@@ -6983,9 +6983,9 @@ function generateFirstName<
       }
     } else {
       if (entityStructure === "Developer") {
-        firstName = `!${entityStructure}`;
+        firstName = `0_${entityStructure}`;
       } else if (entityStructure === "Standard") {
-        firstName = `~${entityStructure}`;
+        firstName = `Y_${entityStructure}`;
       } else {
         firstName = entityStructure;
       }
