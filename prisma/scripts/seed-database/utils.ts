@@ -6735,7 +6735,7 @@ function generateSocialMediaUrl<
         slugDifference || ""
       }unicode-slug-Γ`;
     } else {
-      website = `https://www.linkedin.com/${
+      website = `https://www.${socialMediaService}.com/${
         slugDifference || ""
       }${faker.helpers.slugify(`${entityStructure}${entityType}`)}`;
     }
