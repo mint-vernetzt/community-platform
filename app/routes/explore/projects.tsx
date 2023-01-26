@@ -6,9 +6,10 @@ import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
+import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getPublicURL } from "~/storage.server";
-import { getAllProjects } from "./utils.server";
+import { getAllProjects, getPaginationValues } from "./utils.server";
 
 type LoaderData = {
   projects: Awaited<ReturnType<typeof getAllProjects>>;
@@ -17,8 +18,10 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
 
+  const { skip, take } = getPaginationValues(request, { itemsPerPage: 6 });
+
   const authClient = createAuthClient(request, response);
-  const projects = await getAllProjects();
+  const projects = await getAllProjects(skip, take);
 
   const enhancedProjects = projects.map((project) => {
     let enhancedProject = project;
@@ -64,6 +67,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 function Projects() {
   const loaderData = useLoaderData<LoaderData>();
 
+  const { items, refCallback } = useInfiniteItems(
+    loaderData.projects,
+    "/explore/projects",
+    "projects"
+  );
+
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
@@ -73,8 +82,11 @@ function Projects() {
           MINT-Community werfen.
         </p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
-        {loaderData.projects.map((project) => {
+      <section
+        ref={refCallback}
+        className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch"
+      >
+        {items.map((project) => {
           return (
             <div
               key={`project-${project.id}`}

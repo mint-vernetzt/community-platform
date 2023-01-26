@@ -23,3 +23,6 @@ imgproxy: ## Start imgproxy
 	
 imgproxy_stop: ## stop imgproxy
 	docker stop `docker ps --format "{{.ID}}" --filter name=imgproxy`
+
+update-score: ## update score of profiles and organizations
+	npx ts-node prisma/scripts/update-score/index.ts

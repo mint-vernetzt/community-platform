@@ -9,6 +9,7 @@ import {
 import { prismaClient } from "~/prisma";
 import type { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
+import { triggerEntityScore } from "~/utils.server";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
@@ -118,6 +119,8 @@ export async function updateProfileById(
       updatedAt: new Date(),
     },
   });
+
+  await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
 export async function getProfileEventsByMode(

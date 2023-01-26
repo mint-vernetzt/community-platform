@@ -8,7 +8,7 @@ import { fromBuffer } from "file-type";
 import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
-import { createHashFromString } from "~/utils.server";
+import { createHashFromString, triggerEntityScore } from "~/utils.server";
 import { uploadKeys } from "./schema";
 
 const imageUploadKeys = ["avatar", "logo", "background"];
@@ -94,7 +94,7 @@ export async function updateUserProfileImage(
   name: string,
   path: string
 ) {
-  return await prismaClient.profile.update({
+  await prismaClient.profile.update({
     where: {
       id,
     },
@@ -103,6 +103,7 @@ export async function updateUserProfileImage(
       updatedAt: new Date(),
     },
   });
+  await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
 export async function updateOrganizationProfileImage(
@@ -110,7 +111,7 @@ export async function updateOrganizationProfileImage(
   name: string,
   path: string
 ) {
-  return await prismaClient.organization.update({
+  await prismaClient.organization.update({
     where: {
       slug: slug,
     },
@@ -118,6 +119,7 @@ export async function updateOrganizationProfileImage(
       [name]: path,
     },
   });
+  await triggerEntityScore({ entity: "organization", where: { slug } });
 }
 
 export async function updateEventBackgroundImage(

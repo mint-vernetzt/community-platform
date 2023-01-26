@@ -1,12 +1,13 @@
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "~/prisma";
+import { triggerEntityScore } from "~/utils.server";
 import type { UploadKey } from "./schema";
 
 export async function removeImageFromProfile(
   profileId: string,
   name: UploadKey
 ) {
-  return await prismaClient.profile.update({
+  await prismaClient.profile.update({
     where: {
       id: profileId,
     },
@@ -15,13 +16,14 @@ export async function removeImageFromProfile(
       updatedAt: new Date(),
     },
   });
+  await triggerEntityScore({ entity: "profile", where: { id: profileId } });
 }
 
 export async function removeImageFromOrganization(
   slug: string,
   name: UploadKey
 ) {
-  return await prismaClient.organization.update({
+  await prismaClient.organization.update({
     where: {
       slug,
     },
@@ -30,6 +32,7 @@ export async function removeImageFromOrganization(
       updatedAt: new Date(),
     },
   });
+  await triggerEntityScore({ entity: "organization", where: { slug } });
 }
 
 export async function removeImageFromEvent(slug: string, name: UploadKey) {

@@ -1,10 +1,8 @@
 import type { Area } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
+import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import React from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -13,12 +11,13 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
+import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllOrganizations, getScoreOfEntity } from "./utils.server";
+import { getAllOrganizations, getPaginationValues } from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -42,6 +41,8 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
 
+  const { skip, take } = getPaginationValues(request);
+
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
@@ -53,45 +54,37 @@ export const loader: LoaderFunction = async (args) => {
 
   let organizations;
 
-  const allOrganizations = await getAllOrganizations();
+  const allOrganizations = await getAllOrganizations(skip, take);
+
   if (allOrganizations !== null) {
-    organizations = allOrganizations
-      .map((organization) => {
-        const { bio, publicFields, logo, ...otherFields } = organization;
-        let extensions: { bio?: string } = {};
+    organizations = allOrganizations.map((organization) => {
+      const { bio, publicFields, logo, ...otherFields } = organization;
+      let extensions: { bio?: string } = {};
 
-        if (
-          (publicFields.includes("bio") || sessionUser !== null) &&
-          bio !== null
-        ) {
-          extensions.bio = bio;
+      if (
+        (publicFields.includes("bio") || sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
+      }
+
+      let logoImage: string | null = null;
+
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logoImage = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
         }
+      }
 
-        let logoImage: string | null = null;
-
-        if (logo !== null) {
-          const publicURL = getPublicURL(authClient, logo);
-          if (publicURL !== null) {
-            logoImage = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-
-        return { ...otherFields, ...extensions, logo: logoImage };
-      })
-      .sort((a, b) => {
-        const scoreA = getScoreOfEntity(a);
-        const scoreB = getScoreOfEntity(b);
-
-        if (scoreA === scoreB) {
-          return b.updatedAt.getTime() - a.updatedAt.getTime();
-        }
-        return scoreB - scoreA;
-      });
+      return { ...otherFields, ...extensions, logo: logoImage };
+    });
   }
   // TODO: fix type issue
+
   return json<LoaderData>(
     { isLoggedIn, organizations, areas, offers },
     { headers: response.headers }
@@ -273,19 +266,12 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData<ActionData>();
-  // const submit = useSubmit();
-  // const areaOptions = createAreaOptionFromData(loaderData.areas);
 
-  let organizations = loaderData.organizations;
-
-  if (actionData && actionData.success) {
-    organizations = actionData.data.organizations;
-  }
-
-  // const handleChange = (event: FormEvent<HTMLFormElement>) => {
-  //   submit(event.currentTarget);
-  // };
+  const { items, refCallback } = useInfiniteItems(
+    loaderData.organizations,
+    "/explore/organizations",
+    "organizations"
+  );
 
   return (
     <>
@@ -293,17 +279,17 @@ export default function Index() {
         <H1 like="h0">Entdecke Organisationen</H1>
         <p className="">Hier findest du Organisationen und Netzwerke.</p>
       </section>
-
       <section
         className="container my-8 md:my-10 lg:my-20"
         id="contact-details"
       >
         <div
+          ref={refCallback}
           data-testid="grid"
           className="flex flex-wrap justify-center -mx-4 items-stretch"
         >
-          {organizations.length > 0 ? (
-            organizations.map((organization) => {
+          {items.length > 0 ? (
+            items.map((organization) => {
               let slug, image, initials, name, subtitle;
 
               slug = `/organization/${organization.slug}`;
