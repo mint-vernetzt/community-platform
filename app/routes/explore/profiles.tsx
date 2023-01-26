@@ -102,6 +102,7 @@ export const loader: LoaderFunction = async (args) => {
 
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
+
   const [searchParams] = useSearchParams();
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
@@ -121,6 +122,10 @@ export default function Index() {
     searchParams
   );
 
+  function handleChange(event: React.FormEvent<HTMLFormElement>) {
+    submit(event.currentTarget);
+  }
+
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
@@ -132,18 +137,7 @@ export default function Index() {
 
       {loaderData.isLoggedIn ? (
         <section className="container my-8">
-          <Form
-            method="get"
-            onChange={(event: React.FormEvent<HTMLFormElement>) => {
-              event.stopPropagation();
-              const submitButton: HTMLButtonElement | null =
-                event.currentTarget.querySelector("#submitButton");
-              if (submitButton !== null) {
-                submitButton.click();
-              }
-            }}
-            reloadDocument
-          >
+          <Form method="get" onChange={handleChange} reloadDocument>
             <div className="flex flex-wrap -mx-4">
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
@@ -219,6 +213,7 @@ export default function Index() {
                   ))}
                 </select>
               </div>
+              <input hidden name="page" defaultValue={1} readOnly />
             </div>
             <div className="flex justify-end">
               <noscript>
@@ -230,11 +225,6 @@ export default function Index() {
                   Filter anwenden
                 </button>
               </noscript>
-              <button
-                id="submitButton"
-                type="submit"
-                className="hidden"
-              ></button>
               <Link to={"./"} reloadDocument>
                 <div
                   className={`btn btn-primary btn-outline ${

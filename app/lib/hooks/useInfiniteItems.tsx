@@ -27,6 +27,11 @@ export function useInfiniteItems(
   );
 
   React.useEffect(() => {
+    setItems(initialItems);
+    setPage(2);
+  }, [initialItems]);
+
+  React.useEffect(() => {
     const scrollListener = () => {
       setClientHeight(window.innerHeight);
       setScrollPosition(window.scrollY);
