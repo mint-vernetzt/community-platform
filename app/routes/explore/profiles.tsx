@@ -1,6 +1,12 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -97,6 +103,10 @@ export const loader: LoaderFunction = async (args) => {
 export default function Index() {
   const loaderData = useLoaderData<LoaderData>();
   const [searchParams] = useSearchParams();
+  const areaId = searchParams.get("areaId");
+  const offerId = searchParams.get("offerId");
+  const seekingId = searchParams.get("seekingId");
+  const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
   const {
     items,
@@ -124,8 +134,14 @@ export default function Index() {
         <section className="container my-8">
           <Form
             method="get"
-            action="/explore/profiles?page=1"
-            // onChange={handleChange}
+            onChange={(event: React.FormEvent<HTMLFormElement>) => {
+              event.stopPropagation();
+              const submitButton: HTMLButtonElement | null =
+                event.currentTarget.querySelector("#submitButton");
+              if (submitButton !== null) {
+                submitButton.click();
+              }
+            }}
             reloadDocument
           >
             <div className="flex flex-wrap -mx-4">
@@ -136,7 +152,7 @@ export default function Index() {
                 <select
                   id="areaId"
                   name="areaId"
-                  defaultValue={searchParams.get("areaId") || undefined}
+                  defaultValue={areaId || undefined}
                   className="select w-full select-bordered"
                 >
                   <option></option>
@@ -174,7 +190,7 @@ export default function Index() {
                 <select
                   id="offerId"
                   name="offerId"
-                  defaultValue={searchParams.get("offerId") || undefined}
+                  defaultValue={offerId || undefined}
                   className="select w-full select-bordered"
                 >
                   <option></option>
@@ -192,7 +208,7 @@ export default function Index() {
                 <select
                   id="seekingId"
                   name="seekingId"
-                  defaultValue={searchParams.get("seekingId") || undefined}
+                  defaultValue={seekingId || undefined}
                   className="select w-full select-bordered"
                 >
                   <option></option>
@@ -205,11 +221,28 @@ export default function Index() {
               </div>
             </div>
             <div className="flex justify-end">
-              <button type="submit" className="btn btn-primary mr-2">
-                Filter anwenden
-              </button>
+              <noscript>
+                <button
+                  id="noScriptSubmitButton"
+                  type="submit"
+                  className="btn btn-primary mr-2"
+                >
+                  Filter anwenden
+                </button>
+              </noscript>
+              <button
+                id="submitButton"
+                type="submit"
+                className="hidden"
+              ></button>
               <Link to={"./"} reloadDocument>
-                <div className="btn btn-primary btn-outline">
+                <div
+                  className={`btn btn-primary btn-outline ${
+                    areaId === null && offerId === null && seekingId === null
+                      ? "hidden"
+                      : ""
+                  }`}
+                >
                   Filter zurücksetzen
                 </div>
               </Link>
