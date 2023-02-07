@@ -456,7 +456,10 @@ export default function App() {
             <Outlet />
           </main>
 
-          <Footer isDifferentFooterRoute={isDifferentFooterRoute} />
+          <Footer
+            isDifferentFooterRoute={isDifferentFooterRoute}
+            isNonAppBaseRoute={isNonAppBaseRoute}
+          />
         </div>
         <ScrollRestoration />
         <Scripts />
