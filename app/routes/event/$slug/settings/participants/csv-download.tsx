@@ -20,7 +20,8 @@ async function getProfilesBySearchParams(
 
   if (type === "participants") {
     if (depth === "full") {
-      profiles = await getFullDepthParticipants(event.id, false);
+      const selectDistinct = false;
+      profiles = await getFullDepthParticipants(event.id, selectDistinct);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
         return { ...participant.profile, eventName: event.name };
@@ -33,7 +34,8 @@ async function getProfilesBySearchParams(
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
-      profiles = await getFullDepthWaitingList(event.id, false);
+      const selectDistinct = false;
+      profiles = await getFullDepthWaitingList(event.id, selectDistinct);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
         return { ...waitingParticipant.profile, eventName: event.name };
@@ -82,13 +84,29 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,VERANSTALTUNG\n";
+  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNGEN\n";
 
   for (const profile of profiles) {
     if ("profile" in profile) {
-      csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${profile.profile.email}","${profile.profile.position}","${profile.profile.eventName}"\n`;
+      csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${
+        profile.profile.email
+      }","${profile.profile.position}","${
+        profile.profile.organizationNames !== undefined
+          ? profile.profile.organizationNames.join(", ")
+          : ""
+      }","${
+        profile.profile.eventNames !== undefined
+          ? profile.profile.eventNames.join(", ")
+          : ""
+      }"\n`;
     } else {
-      csv += `"${profile.firstName}","${profile.lastName}","${profile.email}","${profile.position}","${profile.eventName}"\n`;
+      csv += `"${profile.firstName}","${profile.lastName}","${
+        profile.email
+      }","${profile.position}","${profile.memberOf
+        .map((organization) => {
+          return organization.organization.name;
+        })
+        .join(", ")}","${profile.eventName}"\n`;
     }
   }
 
