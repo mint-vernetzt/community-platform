@@ -18,7 +18,7 @@ Flatten the structure:
 - index.ts -> Stays the same (Top-Level script)
 x - profileSeeder.ts -> getEntityData<profile>("Standard", ...) should be getProfileData("Standard", ...)
 x - organizationSeeder.ts -> same as above
-- projectSeeder.ts -> same as above
+x - projectSeeder.ts -> same as above
 - eventSeeder.ts -> same as above
 - documentSeeder.ts -> same as above
 - awardSeeder.ts -> same as above
