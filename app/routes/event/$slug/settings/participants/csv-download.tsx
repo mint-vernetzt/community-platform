@@ -66,13 +66,13 @@ function getFilenameBySearchParams(
   let filename = event.name;
 
   if (type === "participants") {
-    filename += "_Teilnehmende";
+    filename += " Teilnehmende";
   }
   if (type === "waitingList") {
-    filename += "_Warteliste";
+    filename += " Warteliste";
   }
   if (depth === "full") {
-    filename += "_inklusive_Subveranstaltungen";
+    filename += " inklusive Subveranstaltungen";
   }
   filename += ".csv";
 
