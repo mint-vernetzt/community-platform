@@ -16,8 +16,8 @@ import {
 /*
 Flatten the structure:
 - index.ts -> Stays the same (Top-Level script)
-- profileSeeder.ts -> getEntityData<profile>("Standard", ...) should be getProfileData("Standard", ...)
-- organizationSeeder.ts -> same as above
+x - profileSeeder.ts -> getEntityData<profile>("Standard", ...) should be getProfileData("Standard", ...)
+x - organizationSeeder.ts -> same as above
 - projectSeeder.ts -> same as above
 - eventSeeder.ts -> same as above
 - documentSeeder.ts -> same as above
