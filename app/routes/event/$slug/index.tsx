@@ -333,13 +333,13 @@ function Index() {
 
   const navigate = useNavigate();
 
-  const [historyLength, setHistoryLength] = React.useState(0);
+  const [historyStateIndex, setHistoryStateIndex] = React.useState(0);
 
   React.useEffect(() => {
     if (window !== undefined && window.history !== undefined) {
-      setHistoryLength(window.history.length);
+      setHistoryStateIndex(window.history.state.idx);
     }
-  }, []);
+  }, [loaderData.event.id]);
 
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
@@ -410,7 +410,7 @@ function Index() {
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
           {/* TODO: get back route from loader */}
-          {historyLength > 1 ? (
+          {historyStateIndex > 0 ? (
             <button onClick={() => navigate(-1)} className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
