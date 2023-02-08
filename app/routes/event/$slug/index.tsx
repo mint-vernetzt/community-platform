@@ -333,6 +333,14 @@ function Index() {
 
   const navigate = useNavigate();
 
+  const [historyStateIndex, setHistoryStateIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (window !== undefined && window.history !== undefined) {
+      setHistoryStateIndex(window.history.state.idx);
+    }
+  }, [loaderData.event.id]);
+
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
   const startTime = utcToZonedTime(loaderData.event.startTime, "Europe/Berlin");
@@ -402,22 +410,26 @@ function Index() {
         </div>
         <div className="font-semi text-neutral-600 flex items-center">
           {/* TODO: get back route from loader */}
-          <button onClick={() => navigate(-1)} className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              className="h-auto w-6"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path
-                fillRule="evenodd"
-                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-              />
-            </svg>
-            <span className="ml-2">Zurück</span>
-          </button>
+          {historyStateIndex > 0 ? (
+            <button onClick={() => navigate(-1)} className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                className="h-auto w-6"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+                />
+              </svg>
+              <span className="ml-2">Zurück</span>
+            </button>
+          ) : (
+            <div className="w-6 h-6"></div>
+          )}
         </div>
       </section>
       <section className="container mt-6">
