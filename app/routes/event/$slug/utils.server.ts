@@ -275,17 +275,18 @@ export async function checkSameEventOrThrow(request: Request, eventId: string) {
     throw badRequest({ message: "Event IDs differ" });
   }
 }
-
+// TODO: Union the three getFullDepth functions -> The only difference is the JOIN on "participants_of_events", "waiting_participants_of_events", "speakers_of_events"
 export async function getFullDepthParticipants(
   id: string,
-  selectDistinct = true
+  groupBy: "profiles" | "events" = "profiles"
 ) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const select = selectDistinct
-      ? Prisma.sql`SELECT DISTINCT 
-                  profile_id as id, 
+    const select =
+      groupBy === "profiles"
+        ? Prisma.sql`SELECT 
+                  profiles.id, 
                   first_name as "firstName", 
                   last_name as "lastName", 
                   username, 
@@ -293,8 +294,8 @@ export async function getFullDepthParticipants(
                   position, 
                   avatar, 
                   academic_title as "academicTitle"`
-      : Prisma.sql`SELECT 
-                  profile_id as id, 
+        : Prisma.sql`SELECT 
+                  profiles.id, 
                   first_name as "firstName", 
                   last_name as "lastName", 
                   username, 
@@ -302,26 +303,20 @@ export async function getFullDepthParticipants(
                   position, 
                   avatar, 
                   academic_title as "academicTitle", 
-                  array_agg(DISTINCT events.name) as "eventNames", 
-                  array_agg(DISTINCT organizations.name) as "organizationNames"`;
+                  get_full_depth.name as "eventName", 
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "organizationNames"`;
 
-    const organizationJoin = selectDistinct
-      ? Prisma.empty
-      : Prisma.sql`JOIN "members_of_organizations"
-                  ON "profiles".id = "members_of_organizations"."profileId"
-                  JOIN "organizations"
-                  ON "organizations".id = "members_of_organizations"."organizationId"`;
-    const groupBy = selectDistinct
-      ? Prisma.empty
-      : Prisma.sql`GROUP BY 
-                  participants_of_events.profile_id, 
-                  profiles.first_name, 
-                  profiles.last_name, 
-                  profiles.username, 
-                  profiles.email, 
-                  profiles.position, 
-                  profiles.avatar, 
-                  profiles.academic_title`;
+    const organizationJoin =
+      groupBy === "profiles"
+        ? Prisma.empty
+        : Prisma.sql`LEFT JOIN "members_of_organizations"
+                    ON "profiles".id = "members_of_organizations"."profileId"
+                    LEFT JOIN "organizations"
+                    ON "organizations".id = "members_of_organizations"."organizationId"`;
+    const groupByClause =
+      groupBy === "profiles"
+        ? Prisma.sql`GROUP BY profiles.id`
+        : Prisma.sql`GROUP BY get_full_depth.name, profiles.id`;
 
     const result: Array<
       Pick<
@@ -334,28 +329,26 @@ export async function getFullDepthParticipants(
         | "email"
         | "avatar"
         | "position"
-      > & { eventNames?: string[]; organizationNames?: string[] }
+      > & { eventName?: string[]; organizationNames?: string[] }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id
+          SELECT id, parent_event_id, name
           FROM "events"
           WHERE id = ${id}
         UNION
-          SELECT "events".id, "events".parent_event_id
+          SELECT "events".id, "events".parent_event_id, "events".name
           FROM "events"
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
         ${select}
-        FROM "profiles"
+        FROM get_full_depth
           JOIN "participants_of_events"
+          ON get_full_depth.id = "participants_of_events".event_id
+          JOIN "profiles"
           ON "profiles".id = "participants_of_events".profile_id
-          JOIN "events"
-          ON "events".id = "participants_of_events".event_id
           ${organizationJoin}
-          JOIN get_full_depth
-          ON "participants_of_events".event_id = get_full_depth.id
-        ${groupBy}
+        ${groupByClause}
         ORDER BY first_name ASC
       ;`;
 
@@ -371,14 +364,15 @@ export async function getFullDepthParticipants(
 
 export async function getFullDepthWaitingList(
   id: string,
-  selectDistinct = true
+  groupBy: "profiles" | "events" = "profiles"
 ) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const select = selectDistinct
-      ? Prisma.sql`SELECT DISTINCT 
-                  profile_id as id, 
+    const select =
+      groupBy === "profiles"
+        ? Prisma.sql`SELECT 
+                  profiles.id, 
                   first_name as "firstName", 
                   last_name as "lastName", 
                   username, 
@@ -386,8 +380,8 @@ export async function getFullDepthWaitingList(
                   position, 
                   avatar, 
                   academic_title as "academicTitle"`
-      : Prisma.sql`SELECT 
-                  profile_id as id, 
+        : Prisma.sql`SELECT 
+                  profiles.id, 
                   first_name as "firstName", 
                   last_name as "lastName", 
                   username, 
@@ -395,27 +389,20 @@ export async function getFullDepthWaitingList(
                   position, 
                   avatar, 
                   academic_title as "academicTitle", 
-                  array_agg(DISTINCT events.name) as "eventNames", 
-                  array_agg(DISTINCT organizations.name) as "organizationNames"`;
+                  get_full_depth.name as "eventName", 
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "organizationNames"`;
 
-    const organizationJoin = selectDistinct
-      ? Prisma.empty
-      : Prisma.sql`JOIN "members_of_organizations"
-                  ON "profiles".id = "members_of_organizations"."profileId"
-                  JOIN "organizations"
-                  ON "organizations".id = "members_of_organizations"."organizationId"`;
-
-    const groupBy = selectDistinct
-      ? Prisma.empty
-      : Prisma.sql`GROUP BY 
-                  waiting_participants_of_events.profile_id, 
-                  profiles.first_name, 
-                  profiles.last_name, 
-                  profiles.username, 
-                  profiles.email, 
-                  profiles.position, 
-                  profiles.avatar, 
-                  profiles.academic_title`;
+    const organizationJoin =
+      groupBy === "profiles"
+        ? Prisma.empty
+        : Prisma.sql`LEFT JOIN "members_of_organizations"
+                    ON "profiles".id = "members_of_organizations"."profileId"
+                    LEFT JOIN "organizations"
+                    ON "organizations".id = "members_of_organizations"."organizationId"`;
+    const groupByClause =
+      groupBy === "profiles"
+        ? Prisma.sql`GROUP BY profiles.id`
+        : Prisma.sql`GROUP BY get_full_depth.name, profiles.id`;
 
     const result: Array<
       Pick<
@@ -428,28 +415,26 @@ export async function getFullDepthWaitingList(
         | "email"
         | "avatar"
         | "position"
-      > & { eventNames?: string[]; organizationNames?: string[] }
+      > & { eventName?: string; organizationNames?: string[] }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id
+          SELECT id, parent_event_id, name
           FROM "events"
           WHERE id = ${id}
         UNION
-          SELECT "events".id, "events".parent_event_id
+          SELECT "events".id, "events".parent_event_id, "events".name
           FROM "events"
             JOIN get_full_depth
             ON "events".parent_event_id = get_full_depth.id
       )
         ${select}
-        FROM "profiles"
+        FROM get_full_depth
           JOIN "waiting_participants_of_events"
+          ON get_full_depth.id = "waiting_participants_of_events".event_id
+          JOIN "profiles"
           ON "profiles".id = "waiting_participants_of_events".profile_id
-          JOIN "events"
-          ON "events".id = "waiting_participants_of_events".event_id
           ${organizationJoin}
-          JOIN get_full_depth
-          ON "waiting_participants_of_events".event_id = get_full_depth.id
-        ${groupBy}
+        ${groupByClause}
         ORDER BY first_name ASC
       ;`;
     const profiles = result.map((profile) => {
@@ -462,13 +447,47 @@ export async function getFullDepthWaitingList(
   }
 }
 
-export async function getFullDepthSpeakers(id: string, selectDistinct = true) {
+export async function getFullDepthSpeakers(
+  id: string,
+  groupBy: "profiles" | "events" = "profiles"
+) {
   try {
     // Get event and all child events of arbitrary depth with raw query
     // Join the result with relevant relation tables
-    const select = selectDistinct
-      ? Prisma.sql`SELECT DISTINCT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle"`
-      : Prisma.sql`SELECT profile_id as id, first_name as "firstName", last_name as "lastName", username, email, position, avatar, academic_title as "academicTitle", name as "eventName"`;
+    const select =
+      groupBy === "profiles"
+        ? Prisma.sql`SELECT 
+                  profiles.id, 
+                  first_name as "firstName", 
+                  last_name as "lastName", 
+                  username, 
+                  profiles.email, 
+                  position, 
+                  avatar, 
+                  academic_title as "academicTitle"`
+        : Prisma.sql`SELECT 
+                  profiles.id, 
+                  first_name as "firstName", 
+                  last_name as "lastName", 
+                  username, 
+                  profiles.email, 
+                  position, 
+                  avatar, 
+                  academic_title as "academicTitle", 
+                  get_full_depth.name as "eventName", 
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "organizationNames"`;
+
+    const organizationJoin =
+      groupBy === "profiles"
+        ? Prisma.empty
+        : Prisma.sql`LEFT JOIN "members_of_organizations"
+                    ON "profiles".id = "members_of_organizations"."profileId"
+                    LEFT JOIN "organizations"
+                    ON "organizations".id = "members_of_organizations"."organizationId"`;
+    const groupByClause =
+      groupBy === "profiles"
+        ? Prisma.sql`GROUP BY profiles.id`
+        : Prisma.sql`GROUP BY get_full_depth.name, profiles.id`;
 
     const result: Array<
       Pick<
@@ -481,28 +500,28 @@ export async function getFullDepthSpeakers(id: string, selectDistinct = true) {
         | "email"
         | "avatar"
         | "position"
-      > & { eventName?: string }
+      > & { eventName?: string[]; organizationNames?: string[] }
     > = await prismaClient.$queryRaw`
-      WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id
-          FROM "events"
-          WHERE id = ${id}
-        UNION
-          SELECT "events".id, "events".parent_event_id
-          FROM "events"
-            JOIN get_full_depth
-            ON "events".parent_event_id = get_full_depth.id
-      )
-      ${select}
-        FROM "profiles"
-          JOIN "speakers_of_events"
-          ON "profiles".id = "speakers_of_events".profile_id
-          JOIN "events"
-          ON "events".id = "speakers_of_events".event_id
-          JOIN get_full_depth
-          ON "speakers_of_events".event_id = get_full_depth.id
-        ORDER BY first_name ASC
-      ;`;
+        WITH RECURSIVE get_full_depth AS (
+            SELECT id, parent_event_id, name
+            FROM "events"
+            WHERE id = ${id}
+          UNION
+            SELECT "events".id, "events".parent_event_id, "events".name
+            FROM "events"
+              JOIN get_full_depth
+              ON "events".parent_event_id = get_full_depth.id
+        )
+          ${select}
+          FROM get_full_depth
+            JOIN "speakers_of_events"
+            ON get_full_depth.id = "speakers_of_events".event_id
+            JOIN "profiles"
+            ON "profiles".id = "speakers_of_events".profile_id
+            ${organizationJoin}
+          ${groupByClause}
+          ORDER BY first_name ASC
+        ;`;
 
     const profiles = result.map((profile) => {
       return { profile };
@@ -514,6 +533,7 @@ export async function getFullDepthSpeakers(id: string, selectDistinct = true) {
   }
 }
 
+// TODO: When this function gets used please optimize the query like the query in the above fullDepth functions (Selecting from get_full_depth and then joining towards organizations)
 export async function getFullDepthOrganizers(
   id: string,
   selectDistinct = true

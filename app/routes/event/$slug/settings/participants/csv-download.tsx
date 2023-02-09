@@ -18,10 +18,10 @@ async function getProfilesBySearchParams(
 ) {
   let profiles;
 
+  const groupBy = "events";
   if (type === "participants") {
     if (depth === "full") {
-      const selectDistinct = false;
-      profiles = await getFullDepthParticipants(event.id, selectDistinct);
+      profiles = await getFullDepthParticipants(event.id, groupBy);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
         return { ...participant.profile, eventName: event.name };
@@ -34,8 +34,7 @@ async function getProfilesBySearchParams(
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
-      const selectDistinct = false;
-      profiles = await getFullDepthWaitingList(event.id, selectDistinct);
+      profiles = await getFullDepthWaitingList(event.id, groupBy);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
         return { ...waitingParticipant.profile, eventName: event.name };
@@ -84,7 +83,7 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNGEN\n";
+  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNG\n";
 
   for (const profile of profiles) {
     if ("profile" in profile) {
@@ -94,11 +93,7 @@ function createCsvString(
         profile.profile.organizationNames !== undefined
           ? profile.profile.organizationNames.join(", ")
           : ""
-      }","${
-        profile.profile.eventNames !== undefined
-          ? profile.profile.eventNames.join(", ")
-          : ""
-      }"\n`;
+      }","${profile.profile.eventName || ""}"\n`;
     } else {
       csv += `"${profile.firstName}","${profile.lastName}","${
         profile.email
