@@ -34,8 +34,7 @@ import {
   getEvent,
   getEventParticipants,
   getEventSpeakers,
-  getFullDepthParticipants,
-  getFullDepthSpeakers,
+  getFullDepthProfiles,
   getIsOnWaitingList,
   getIsParticipant,
   getIsSpeaker,
@@ -96,10 +95,10 @@ export const loader: LoaderFunction = async (args) => {
   }
 
   let participants: Awaited<
-    ReturnType<typeof getEventParticipants | typeof getFullDepthParticipants>
+    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
   > = [];
   let speakers: Awaited<
-    ReturnType<typeof getEventSpeakers | typeof getFullDepthSpeakers>
+    ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
   > = [];
   let enhancedEvent: MaybeEnhancedEvent = {
     ...event,
@@ -108,7 +107,7 @@ export const loader: LoaderFunction = async (args) => {
   };
 
   if (event.childEvents.length > 0) {
-    speakers = (await getFullDepthSpeakers(event.id)) || [];
+    speakers = (await getFullDepthProfiles(event.id, "speakers")) || [];
   } else {
     speakers = await getEventSpeakers(event.id);
   }
@@ -145,7 +144,8 @@ export const loader: LoaderFunction = async (args) => {
 
   if (mode !== "anon" && sessionUser !== null) {
     if (event.childEvents.length > 0) {
-      participants = (await getFullDepthParticipants(event.id)) || [];
+      participants =
+        (await getFullDepthProfiles(event.id, "participants")) || [];
     } else {
       participants = await getEventParticipants(event.id);
     }

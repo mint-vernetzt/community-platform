@@ -6,8 +6,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   getEventBySlugOrThrow,
-  getFullDepthParticipants,
-  getFullDepthWaitingList,
+  getFullDepthProfiles,
 } from "../../utils.server";
 import { checkOwnershipOrThrow } from "../utils.server";
 
@@ -21,7 +20,7 @@ async function getProfilesBySearchParams(
   const groupBy = "events";
   if (type === "participants") {
     if (depth === "full") {
-      profiles = await getFullDepthParticipants(event.id, groupBy);
+      profiles = await getFullDepthProfiles(event.id, "participants", groupBy);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
         return { ...participant.profile, eventName: event.name };
@@ -34,7 +33,7 @@ async function getProfilesBySearchParams(
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
-      profiles = await getFullDepthWaitingList(event.id, groupBy);
+      profiles = await getFullDepthProfiles(event.id, "waitingList", groupBy);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
         return { ...waitingParticipant.profile, eventName: event.name };
@@ -88,7 +87,7 @@ function createCsvString(
   for (const profile of profiles) {
     if ("profile" in profile) {
       csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${
-        profile.profile.email
+        profile.profile.email || ""
       }","${profile.profile.position}","${
         profile.profile.organizationNames !== undefined
           ? profile.profile.organizationNames.join(", ")
