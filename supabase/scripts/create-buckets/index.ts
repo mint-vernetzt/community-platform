@@ -25,7 +25,6 @@ async function main() {
     );
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
-  console.log(`Successfully created auth client`);
 
   const { data: imageBucketData } = await authClient.storage.getBucket(
     "images"

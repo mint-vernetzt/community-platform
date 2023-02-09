@@ -7,7 +7,7 @@ endif
 help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-all: prisma-migrate german-states-and-districts-dataset import-datasets create-profile-trigger create-buckets imgproxy ## Run prisma-migrate -> german-states-and-districts-dataset -> import-datasets -> create-profile-trigger -> create-buckets -> imgproxy
+all: prisma-migrate german-states-and-districts-dataset import-datasets create-profile-trigger create-buckets apply-bucket-rls imgproxy ## Run prisma-migrate -> german-states-and-districts-dataset -> import-datasets -> create-profile-trigger -> create-buckets -> apply-bucket-rls -> imgproxy
 
 prisma-migrate: ## Migrate the prisma database
 	npm run prisma:migrate
@@ -23,6 +23,9 @@ create-profile-trigger: ## Creates the profile trigger, which creates a public p
 
 create-buckets: ## Create supabase buckets
 	npx ts-node supabase/scripts/create-buckets/index.ts
+
+apply-bucket-rls: ## Applies the RLS policies for the supabase storage buckets
+	npx ts-node prisma/scripts/apply-bucket-rls/index.ts
 
 imgproxy: ## Start imgproxy
 	docker run --rm -p 8080:8080 --network supabase_network_community-platform -e IMGPROXY_KEY -e IMGPROXY_SALT --name imgproxy -itd darthsim/imgproxy
