@@ -1,13 +1,10 @@
-import { program, InvalidArgumentError } from "commander";
+import { InvalidArgumentError, program } from "commander";
 import { executeCommand } from "../../../scripts/utils";
 // import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,
-  deleteUsers,
-  emptyBuckets,
   seedAllEntities,
-  truncateTables,
   uploadDocumentBucketData,
   uploadImageBucketData,
 } from "./utils";
@@ -147,19 +144,24 @@ async function main(
     checkLocalEnvironment();
   }
 
-  // Creating an authClient to upload files to the bucket and manage the users table
-  console.log("\n--- Creating auth client ---\n");
-  const authClient = await createSupabaseAdmin();
-
   // Truncate database tables, create/empty buckets and delete users
   console.log("\n--- Reseting database and buckets ---\n");
-  await truncateTables();
   await executeCommand("npx", [
     "ts-node",
-    "supabase/scripts/create-buckets/index.ts ",
+    "prisma/scripts/truncate-tables/index.ts",
   ]);
-  await emptyBuckets(authClient);
-  await deleteUsers(authClient);
+  await executeCommand("npx", [
+    "ts-node",
+    "supabase/scripts/create-buckets/index.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
+    "supabase/scripts/empty-buckets/index.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
+    "supabase/scripts/delete-users/index.ts",
+  ]);
   await executeCommand("npm", ["run", "prisma:migrate"]);
   await executeCommand("npx", [
     "ts-node",
@@ -169,6 +171,10 @@ async function main(
     "ts-node",
     "prisma/scripts/import-datasets/index.ts",
   ]);
+
+  // Creating an authClient to upload files to the bucket and manage the users table
+  console.log("\n--- Creating auth client ---\n");
+  const authClient = await createSupabaseAdmin();
 
   // Upload fake avatars/backgrounds/logos/documents/awardIcons to bucket
   console.log("\n--- Uploading fake images and pdf documents to buckets ---\n");
