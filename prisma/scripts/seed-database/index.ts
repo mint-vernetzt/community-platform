@@ -150,6 +150,19 @@ async function main(
     "ts-node",
     "prisma/scripts/truncate-tables/index.ts",
   ]);
+  await executeCommand("npm", ["run", "prisma:migrate"]);
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/import-datasets/index.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/create-profile-trigger/index.ts",
+  ]);
   await executeCommand("npx", [
     "ts-node",
     "supabase/scripts/create-buckets/index.ts",
@@ -161,15 +174,6 @@ async function main(
   await executeCommand("npx", [
     "ts-node",
     "supabase/scripts/delete-users/index.ts",
-  ]);
-  await executeCommand("npm", ["run", "prisma:migrate"]);
-  await executeCommand("npx", [
-    "ts-node",
-    "prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts",
-  ]);
-  await executeCommand("npx", [
-    "ts-node",
-    "prisma/scripts/import-datasets/index.ts",
   ]);
 
   // Creating an authClient to upload files to the bucket and manage the users table
