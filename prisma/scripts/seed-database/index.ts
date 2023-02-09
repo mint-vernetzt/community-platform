@@ -151,9 +151,13 @@ async function main(
   console.log("\n--- Creating auth client ---\n");
   const authClient = await createSupabaseAdmin();
 
-  // Truncate database tables, empty buckets and delete users
+  // Truncate database tables, create/empty buckets and delete users
   console.log("\n--- Reseting database and buckets ---\n");
   await truncateTables();
+  await executeCommand("npx", [
+    "ts-node",
+    "supabase/scripts/create-buckets/index.ts ",
+  ]);
   await emptyBuckets(authClient);
   await deleteUsers(authClient);
   await executeCommand("npm", ["run", "prisma:migrate"]);
