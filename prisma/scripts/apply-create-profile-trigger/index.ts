@@ -3,9 +3,9 @@ import { program } from "commander";
 import { prismaClient } from "~/prisma";
 
 program
-  .name("create-profile-trigger")
+  .name("apply-create-profile-trigger")
   .description(
-    `CLI tool to create the profile trigger which creates a profile on the public table when it is created on the auth table.`
+    `CLI tool to apply the create profile trigger which creates a profile on the public table when a user is created on the auth.users table.`
   )
   .version("1.0.0");
 
@@ -46,7 +46,7 @@ async function main() {
     after insert on auth.users
     for each row execute procedure public.create_profile_of_new_user();`;
     console.log(
-      'Succesfully created trigger "on_auth_user_created" which executes the function "create_profile_of_new_user" everytime a user is inserted into the auth.users table.'
+      'Succesfully applied trigger "on_auth_user_created" which executes the function "create_profile_of_new_user" everytime a user is inserted into the auth.users table.'
     );
   } catch (e: any) {
     let error: PrismaClientKnownRequestError = e;
