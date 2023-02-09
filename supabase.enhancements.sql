@@ -12,10 +12,7 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.create_profile_of_new_user();
 
-
--- Create bucket for images
-insert into storage.buckets (id, name)
-values ('images', 'images');
+-- RLS for images bucket
 
 create policy "anyone can access images"
   on storage.objects for select
@@ -31,9 +28,7 @@ create policy "authenticated user can update images"
   to authenticated
   using ( bucket_id = 'images' );
 
--- Create bucket for documents
-insert into storage.buckets (id, name)
-values ('documents', 'documents');
+-- RLS for documents bucket
 
 create policy "authenticated user can access documents"
   on storage.objects for select
@@ -49,6 +44,3 @@ create policy "authenticated user can update documents"
   on storage.objects for update
   to authenticated
   using ( bucket_id = 'documents' );
-
--- Set buckets to public
-update storage.buckets set public = true where name in ('documents', 'images');
