@@ -6,8 +6,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   getEventBySlugOrThrow,
-  getFullDepthParticipants,
-  getFullDepthWaitingList,
+  getFullDepthProfiles,
 } from "../../utils.server";
 import { checkOwnershipOrThrow } from "../utils.server";
 
@@ -18,10 +17,10 @@ async function getProfilesBySearchParams(
 ) {
   let profiles;
 
+  const groupBy = "events";
   if (type === "participants") {
     if (depth === "full") {
-      const selectDistinct = false;
-      profiles = await getFullDepthParticipants(event.id, selectDistinct);
+      profiles = await getFullDepthProfiles(event.id, "participants", groupBy);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
         return { ...participant.profile, eventName: event.name };
@@ -34,8 +33,7 @@ async function getProfilesBySearchParams(
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
-      const selectDistinct = false;
-      profiles = await getFullDepthWaitingList(event.id, selectDistinct);
+      profiles = await getFullDepthProfiles(event.id, "waitingList", groupBy);
     } else if (depth === "single") {
       profiles = event.waitingList.map((waitingParticipant) => {
         return { ...waitingParticipant.profile, eventName: event.name };
@@ -84,21 +82,17 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNGEN\n";
+  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNG\n";
 
   for (const profile of profiles) {
     if ("profile" in profile) {
       csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${
-        profile.profile.email
+        profile.profile.email || ""
       }","${profile.profile.position}","${
         profile.profile.organizationNames !== undefined
           ? profile.profile.organizationNames.join(", ")
           : ""
-      }","${
-        profile.profile.eventNames !== undefined
-          ? profile.profile.eventNames.join(", ")
-          : ""
-      }"\n`;
+      }","${profile.profile.eventName || ""}"\n`;
     } else {
       csv += `"${profile.firstName}","${profile.lastName}","${
         profile.email

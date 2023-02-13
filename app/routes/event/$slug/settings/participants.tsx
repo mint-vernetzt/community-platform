@@ -6,11 +6,7 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  getEventBySlugOrThrow,
-  getFullDepthParticipants,
-  getFullDepthWaitingList,
-} from "../utils.server";
+import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
 import type { ActionData as AddParticipantActionData } from "./participants/add-participant";
 import { addParticipantSchema } from "./participants/add-participant";
 import type { ActionData as AddToWaitingListActionData } from "./participants/add-to-waiting-list";
@@ -50,8 +46,14 @@ export const loader: LoaderFunction = async (args) => {
 
   const { participantLimit } = event;
 
-  const fullDepthParticipants = await getFullDepthParticipants(event.id);
-  const fullDepthWaitingList = await getFullDepthWaitingList(event.id);
+  const fullDepthParticipants = await getFullDepthProfiles(
+    event.id,
+    "participants"
+  );
+  const fullDepthWaitingList = await getFullDepthProfiles(
+    event.id,
+    "waitingList"
+  );
 
   return json<LoaderData>(
     {
