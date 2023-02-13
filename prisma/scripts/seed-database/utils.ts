@@ -18,6 +18,7 @@ import {
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
 import { createHashFromString } from "../../../app/utils.server";
+import fs from "fs";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -307,10 +308,59 @@ export async function uploadImageBucketData(
         );
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     console.log(e);
-    console.error("\nCould not fetch images from pravatar.cc:\n");
-    throw e;
+    console.error(
+      "\nCould not fetch images from pravatar.cc. Continueing with one fallback image.\n"
+    );
+    if (e.cause.code === "ENOTFOUND") {
+      console.error(
+        "Either you have no internet connection or the faker image server is down. Skipped fetching and uploading images to bucket."
+      );
+    }
+    fs.readFile(
+      "./public/images/default-event-background.jpg",
+      async (err, data) => {
+        if (err) throw err;
+        const fileTypeResult = await fromBuffer(data);
+        if (fileTypeResult === undefined) {
+          console.error(
+            "The MIME-type could not be read. The file was left out."
+          );
+        } else if (!fileTypeResult.mime.includes("image/")) {
+          console.error(
+            "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
+          );
+        } else {
+          extension = fileTypeResult.ext;
+          mimeType = fileTypeResult.mime;
+          const hash = await createHashFromString(data.toString());
+          for (const imageType in bucketData) {
+            const path = generatePathName(
+              extension,
+              hash,
+              imageType.substring(0, imageType.length - 1)
+            );
+            const { error: uploadObjectError } = await authClient.storage
+              .from("images")
+              .upload(path, data, {
+                upsert: true,
+                contentType: mimeType,
+              });
+            if (uploadObjectError) {
+              console.error(
+                "The image could not be uploaded and was left out. Following error occured:",
+                uploadObjectError
+              );
+            }
+            bucketData[imageType as ImageType].push(path);
+            console.log(
+              `Successfully added fallback ${imageType} to bucket images.`
+            );
+          }
+        }
+      }
+    );
   }
   return bucketData;
 }
