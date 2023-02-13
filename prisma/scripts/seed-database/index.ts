@@ -161,7 +161,7 @@ async function main(
   ]);
   await executeCommand("npx", [
     "ts-node",
-    "prisma/scripts/create-profile-trigger/index.ts",
+    "prisma/scripts/apply-create-profile-trigger/index.ts",
   ]);
   await executeCommand("npx", [
     "ts-node",
