@@ -30,23 +30,31 @@ async function main() {
     data: { users },
     error: listUsersError,
   } = await authClient.auth.admin.listUsers();
-
-  if (listUsersError !== null || users.length === 0) {
-    console.error(
-      "Could not fetch already existing users from auth.users table. Skipped deleting all users from auth.users table. Either there were no users in auth.users table before running this script or the users could not be fetched."
-    );
-  } else {
-    for (let user of users) {
-      const { error: deleteUserError } = await authClient.auth.admin.deleteUser(
-        user.id
+  let partialUserList = users;
+  let error = listUsersError;
+  while (partialUserList.length !== 0) {
+    if (error !== null || partialUserList.length === 0) {
+      console.error(
+        "Could not fetch already existing users from auth.users table. Skipped deleting all users from auth.users table. Either there were no users in auth.users table before running this script or the users could not be fetched."
       );
-      if (deleteUserError !== null) {
-        console.error(
-          `The user with the id "${user.id}" and the email "${user.email}" could not be deleted. Please try to manually delete it (f.e. via Supabase Studio).`
-        );
+    } else {
+      for (let user of partialUserList) {
+        const { error: deleteUserError } =
+          await authClient.auth.admin.deleteUser(user.id);
+        if (deleteUserError !== null) {
+          console.error(
+            `The user with the id "${user.id}" and the email "${user.email}" could not be deleted. Please try to manually delete it (f.e. via Supabase Studio).`
+          );
+        }
+        console.log(`Successfully deleted user: ${user.email}`);
       }
-      console.log(`Successfully deleted user: ${user.email}`);
     }
+    const {
+      data: { users },
+      error: listUsersError,
+    } = await authClient.auth.admin.listUsers();
+    partialUserList = users;
+    error = listUsersError;
   }
 }
 
