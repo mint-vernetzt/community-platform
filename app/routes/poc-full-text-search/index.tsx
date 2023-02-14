@@ -1,7 +1,8 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { prismaClient } from "~/prisma";
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const searchQueryForFTS = "'Unicode'"; // Mind the single quotes!
   const searchQueryForFTSMultiple = "'Kontakt' | 'zu' | 'Unternehmen'"; // Mind the single quotes!
   const searchQueryForLike = "Unicode";
@@ -30,7 +31,8 @@ export const loader: LoaderFunction = async (args) => {
   // - Simple substring search is possibe
   // - How to sort by relevance?
   // - Search on arrays is possible
-
+  // - Search on relations is possible
+  // - Case sensitive!
   const profiles = await searchProfilesViaLike(searchQueryForLikeMultiple);
   const organizations = await searchOrganizationsViaLike(
     searchQueryForLikeMultiple
@@ -55,7 +57,7 @@ export const loader: LoaderFunction = async (args) => {
   console.timeEnd("Overall time");
   console.log("\n-------------------------------------------\n");
 
-  return null;
+  return { profiles, organizations, events, projects };
 };
 
 async function searchProfilesViaLike(searchQuery: string[]) {
@@ -189,6 +191,9 @@ async function searchProfilesViaLike(searchQuery: string[]) {
     where: {
       AND: whereQueries,
     },
+    // Pagination boosts performance
+    skip: 0,
+    take: 6,
   });
   console.timeEnd("Profiles");
   console.log("\n********************************************\n");
@@ -328,6 +333,9 @@ async function searchOrganizationsViaLike(searchQuery: string[]) {
     where: {
       AND: whereQueries,
     },
+    // Pagination boosts performance
+    skip: 0,
+    take: 6,
   });
   console.timeEnd("Organizations");
   console.log("\n********************************************\n");
@@ -507,6 +515,9 @@ async function searchEventsViaLike(searchQuery: string[]) {
     where: {
       AND: [{ published: true }, ...whereQueries],
     },
+    // Pagination boosts performance
+    skip: 0,
+    take: 6,
   });
   console.timeEnd("Events");
   console.log("\n********************************************\n");
@@ -655,6 +666,9 @@ async function searchProjectsViaLike(searchQuery: string[]) {
     where: {
       AND: whereQueries,
     },
+    // Pagination boosts performance
+    skip: 0,
+    take: 6,
   });
   console.timeEnd("Projects");
   console.log("\n********************************************\n");
@@ -806,5 +820,6 @@ function prismaLog() {
 }
 
 export default function PocFullTextSearch() {
+  const loaderData = useLoaderData<typeof loader>();
   return <></>;
 }
