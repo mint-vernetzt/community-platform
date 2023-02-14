@@ -19,7 +19,7 @@ Flatten the structure:
 x - profileSeeder.ts -> getEntityData<profile>("Standard", ...) should be getProfileData("Standard", ...)
 x - organizationSeeder.ts -> same as above
 x - projectSeeder.ts -> same as above
-- eventSeeder.ts -> same as above
+x - eventSeeder.ts -> same as above
 - documentSeeder.ts -> same as above
 - awardSeeder.ts -> same as above
 - entityConnector -> Store all functions that connect entities (f.e. connectProfileWithOrganization(profileId, organizationId), ...)
