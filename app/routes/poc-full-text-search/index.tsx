@@ -7,6 +7,8 @@ export const loader: LoaderFunction = async (args) => {
   const searchQueryForLike = "Unicode";
   const searchQueryForLikeMultiple = ["Kontakt", "zu", "Unternehmen"];
 
+  console.time("Overall time");
+
   // Prisma logging
   //prismaLog(); // <-- Restart dev server to use this
 
@@ -28,100 +30,100 @@ export const loader: LoaderFunction = async (args) => {
   // - Simple substring search is possibe
   // - How to sort by relevance?
   // - Search on arrays is possible
-  //const profiles = await likeQuery(searchQueryForLike);
-  const profiles = await likeQueryMultiple(searchQueryForLikeMultiple);
+
+  const profiles = await searchProfilesViaLike(searchQueryForLikeMultiple);
+  const organizations = await searchOrganizationsViaLike(
+    searchQueryForLikeMultiple
+  );
 
   // **************
   // 3. Build full text index inside schema with ts vector/ ts query
-  // TODO
 
   // **************
   // 4. Own full text search field
   // TODO
 
-  console.log(profiles);
+  // **************
+  // 5. Creating a postgres view
+  //const profiles = await createPostgresView();
+
+  //console.log(profiles);
+
+  console.log("\n-------------------------------------------\n");
+  console.timeEnd("Overall time");
+  console.log("\n-------------------------------------------\n");
 
   return null;
 };
 
-async function likeQuery(searchQuery: string) {
+async function searchProfilesViaLike(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return [];
+  }
+  console.log("\n********************************************\n");
   console.time();
-  const profiles = await prismaClient.profile.findMany({
-    select: {
-      firstName: true,
-      email: true,
-    },
-    where: {
+  let whereQueries = [];
+  for (const word of searchQuery) {
+    const contains = {
       OR: [
         {
           firstName: {
-            contains: searchQuery,
-          },
-        },
-        {
-          offers: {
-            some: {
-              offer: {
-                title: {
-                  contains: searchQuery,
-                },
-              },
-            },
+            contains: word,
           },
         },
         {
           username: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           email: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           phone: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           website: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           bio: {
-            contains: searchQuery,
-          },
-        },
-        {
-          skills: {
-            has: searchQuery,
-          },
-        },
-        {
-          interests: {
-            has: searchQuery,
+            contains: word,
           },
         },
         {
           academicTitle: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           firstName: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           lastName: {
-            contains: searchQuery,
+            contains: word,
           },
         },
         {
           position: {
-            contains: searchQuery,
+            contains: word,
+          },
+        },
+        {
+          skills: {
+            has: word,
+          },
+        },
+        {
+          interests: {
+            has: word,
           },
         },
         {
@@ -129,7 +131,18 @@ async function likeQuery(searchQuery: string) {
             some: {
               area: {
                 name: {
-                  contains: searchQuery,
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          offers: {
+            some: {
+              offer: {
+                title: {
+                  contains: word,
                 },
               },
             },
@@ -140,138 +153,188 @@ async function likeQuery(searchQuery: string) {
             some: {
               offer: {
                 title: {
-                  contains: searchQuery,
+                  contains: word,
                 },
               },
             },
           },
         },
       ],
-    },
-  });
-  console.log("\n********************************************\n");
-  console.timeEnd();
-
-  return profiles;
-}
-
-async function likeQueryMultiple(searchQueries: string[]) {
-  console.time();
-  let whereQueries = [];
-  for (const query of searchQueries) {
-    const contains = [
-      {
-        firstName: {
-          contains: query,
-        },
-      },
-      {
-        offers: {
-          some: {
-            offer: {
-              title: {
-                contains: query,
-              },
-            },
-          },
-        },
-      },
-      {
-        username: {
-          contains: query,
-        },
-      },
-      {
-        email: {
-          contains: query,
-        },
-      },
-      {
-        phone: {
-          contains: query,
-        },
-      },
-      {
-        website: {
-          contains: query,
-        },
-      },
-      {
-        bio: {
-          contains: query,
-        },
-      },
-      {
-        skills: {
-          has: query,
-        },
-      },
-      {
-        interests: {
-          has: query,
-        },
-      },
-      {
-        academicTitle: {
-          contains: query,
-        },
-      },
-      {
-        firstName: {
-          contains: query,
-        },
-      },
-      {
-        lastName: {
-          contains: query,
-        },
-      },
-      {
-        position: {
-          contains: query,
-        },
-      },
-      {
-        areas: {
-          some: {
-            area: {
-              name: {
-                contains: query,
-              },
-            },
-          },
-        },
-      },
-      {
-        seekings: {
-          some: {
-            offer: {
-              title: {
-                contains: query,
-              },
-            },
-          },
-        },
-      },
-    ];
-    whereQueries = [...whereQueries, ...contains];
+    };
+    whereQueries.push(contains);
   }
   const profiles = await prismaClient.profile.findMany({
     select: {
+      id: true,
+      publicFields: true,
+      academicTitle: true,
       firstName: true,
-      email: true,
+      lastName: true,
+      username: true,
+      bio: true,
+      avatar: true,
+      position: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
     where: {
-      OR: whereQueries,
+      AND: whereQueries,
     },
   });
-  console.log("\n********************************************\n");
   console.timeEnd();
+  console.log("\n********************************************\n");
 
   return profiles;
 }
 
+async function searchOrganizationsViaLike(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return [];
+  }
+  console.log("\n********************************************\n");
+  console.time();
+  let whereQueries = [];
+  for (const word of searchQuery) {
+    const contains = {
+      OR: [
+        {
+          name: {
+            contains: word,
+          },
+        },
+        {
+          slug: {
+            contains: word,
+          },
+        },
+        {
+          email: {
+            contains: word,
+          },
+        },
+        {
+          phone: {
+            contains: word,
+          },
+        },
+        {
+          street: {
+            contains: word,
+          },
+        },
+        {
+          city: {
+            contains: word,
+          },
+        },
+        {
+          website: {
+            contains: word,
+          },
+        },
+        {
+          bio: {
+            contains: word,
+          },
+        },
+        {
+          streetNumber: {
+            contains: word,
+          },
+        },
+        {
+          zipCode: {
+            contains: word,
+          },
+        },
+        {
+          supportedBy: {
+            has: word,
+          },
+        },
+        {
+          areas: {
+            some: {
+              area: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          focuses: {
+            some: {
+              focus: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          types: {
+            some: {
+              organizationType: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      publicFields: true,
+      slug: true,
+      name: true,
+      logo: true,
+      bio: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: whereQueries,
+    },
+  });
+  console.timeEnd();
+  console.log("\n********************************************\n");
+
+  return organizations;
+}
+
 async function prismasFtsQuery(searchQuery: string) {
+  console.log("\n********************************************\n");
   console.time();
   const profiles = await prismaClient.profile.findMany({
     select: {
@@ -351,7 +414,7 @@ async function prismasFtsQuery(searchQuery: string) {
             search: searchQuery,
           },
         },
-        // Not supported ? Sting Arrays
+        // Not supported ? String Arrays
         // { skills: {} },
         // { interests: {} },
         {
@@ -399,8 +462,8 @@ async function prismasFtsQuery(searchQuery: string) {
       ],
     },
   });
-  console.log("\n********************************************\n");
   console.timeEnd();
+  console.log("\n********************************************\n");
 
   return profiles;
 }
