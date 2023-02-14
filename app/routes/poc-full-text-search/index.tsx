@@ -2,33 +2,34 @@ import type { LoaderFunction } from "@remix-run/node";
 import { prismaClient } from "~/prisma";
 
 export const loader: LoaderFunction = async (args) => {
-  const searchQueryForFTS = "'Kontakt zu Unternehmen'"; // Mind the single quotes!
-  const searchQueryForFTSMultiple = "'Kontakt zu Unternehmen' | 'Unicode'"; // Mind the single quotes!
-  const searchQueryForLike = "Kontakt zu Unternehmen";
-  const searchQueryForLikeMultiple = ["Kontakt zu Unternehmen", "Unicode"];
+  const searchQueryForFTS = "'Unicode'"; // Mind the single quotes!
+  const searchQueryForFTSMultiple = "'Kontakt' | 'zu' | 'Unternehmen'"; // Mind the single quotes!
+  const searchQueryForLike = "Unicode";
+  const searchQueryForLikeMultiple = ["Kontakt", "zu", "Unternehmen"];
 
   // Prisma logging
-  //prismaLog(); <-- Restart dev server to use this
+  //prismaLog(); // <-- Restart dev server to use this
 
   // **************
   // 1. Prismas preview feature of Postgresql Full-Text Search
   // - Performance: ~15 ms for full profile on search query 'Kontakt zu Unternehmen'
   // - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-postgres-fts
-  // - Fast implemented? -> We have to write the where statement for each field on Profiles/Events, etc... -> see prismasFtsQuery()
-  // - We know how it would work
+  // - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see prismasFtsQuery()
   // - No substring search
   // - How to search on string arrays ? -> see profile.skills
   //const profiles = await prismasFtsQuery(searchQueryForFTS);
+  //const profiles = await prismasFtsQuery(searchQueryForFTSMultiple);
 
   // **************
   // 2. prismas like filtering with where contains
-  // - Performance: ~25 ms for full profile on search query 'Kontakt zu Unternehmen'
+  // - Performance: ~30 ms for full profile on search query 'Kontakt zu Unternehmen'
   // - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-like
+  // - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see likeQueryMultiple()
   // - Simple substring search is possibe
-  // - Great writing effort with connecting search words via OR/AND -> see likeQueryMultiple()
+  // - How to sort by relevance?
   // - Search on arrays is possible
-  const profiles = await likeQuery(searchQueryForLike);
-  //const profiles = await likeQueryMultiple(searchQueryForLikeMultiple);
+  //const profiles = await likeQuery(searchQueryForLike);
+  const profiles = await likeQueryMultiple(searchQueryForLikeMultiple);
 
   // **************
   // 3. Build full text index inside schema with ts vector/ ts query
@@ -42,10 +43,6 @@ export const loader: LoaderFunction = async (args) => {
 
   return null;
 };
-
-export default function PocFullTextSearch() {
-  return <></>;
-}
 
 async function likeQuery(searchQuery: string) {
   console.time();
@@ -93,51 +90,20 @@ async function likeQuery(searchQuery: string) {
           },
         },
         {
-          facebook: {
-            contains: searchQuery,
-          },
-        },
-        {
-          linkedin: {
-            contains: searchQuery,
-          },
-        },
-        {
-          twitter: {
-            contains: searchQuery,
-          },
-        },
-        {
-          xing: {
-            contains: searchQuery,
-          },
-        },
-        {
-          instagram: {
-            contains: searchQuery,
-          },
-        },
-        {
-          youtube: {
-            contains: searchQuery,
-          },
-        },
-        {
           bio: {
             contains: searchQuery,
           },
         },
-        // Outcommented for time measurement
-        // {
-        //   skills: {
-        //     has: searchQuery,
-        //   },
-        // },
-        // {
-        //   interests: {
-        //     has: searchQuery,
-        //   },
-        // },
+        {
+          skills: {
+            has: searchQuery,
+          },
+        },
+        {
+          interests: {
+            has: searchQuery,
+          },
+        },
         {
           academicTitle: {
             contains: searchQuery,
@@ -191,25 +157,112 @@ async function likeQuery(searchQuery: string) {
 
 async function likeQueryMultiple(searchQueries: string[]) {
   console.time();
+  let whereQueries = [];
+  for (const query of searchQueries) {
+    const contains = [
+      {
+        firstName: {
+          contains: query,
+        },
+      },
+      {
+        offers: {
+          some: {
+            offer: {
+              title: {
+                contains: query,
+              },
+            },
+          },
+        },
+      },
+      {
+        username: {
+          contains: query,
+        },
+      },
+      {
+        email: {
+          contains: query,
+        },
+      },
+      {
+        phone: {
+          contains: query,
+        },
+      },
+      {
+        website: {
+          contains: query,
+        },
+      },
+      {
+        bio: {
+          contains: query,
+        },
+      },
+      {
+        skills: {
+          has: query,
+        },
+      },
+      {
+        interests: {
+          has: query,
+        },
+      },
+      {
+        academicTitle: {
+          contains: query,
+        },
+      },
+      {
+        firstName: {
+          contains: query,
+        },
+      },
+      {
+        lastName: {
+          contains: query,
+        },
+      },
+      {
+        position: {
+          contains: query,
+        },
+      },
+      {
+        areas: {
+          some: {
+            area: {
+              name: {
+                contains: query,
+              },
+            },
+          },
+        },
+      },
+      {
+        seekings: {
+          some: {
+            offer: {
+              title: {
+                contains: query,
+              },
+            },
+          },
+        },
+      },
+    ];
+    whereQueries = [...whereQueries, ...contains];
+  }
   const profiles = await prismaClient.profile.findMany({
     select: {
       firstName: true,
       email: true,
     },
     where: {
-      OR: [
-        {
-          firstName: {
-            contains: searchQueries[0],
-          },
-        },
-        {
-          firstName: {
-            contains: searchQueries[1],
-          },
-        },
-        // And so on ... (for each query word a new where object. And that for each field that is searched on the entity.)
-      ],
+      OR: whereQueries,
     },
   });
   console.log("\n********************************************\n");
@@ -358,4 +411,8 @@ function prismaLog() {
     console.log("Params: " + e.params);
     console.log("Duration: " + e.duration + "ms");
   });
+}
+
+export default function PocFullTextSearch() {
+  return <></>;
 }
