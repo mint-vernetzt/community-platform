@@ -35,6 +35,8 @@ export const loader: LoaderFunction = async (args) => {
   const organizations = await searchOrganizationsViaLike(
     searchQueryForLikeMultiple
   );
+  const events = await searchEventsViaLike(searchQueryForLikeMultiple);
+  const projects = await searchProjectsViaLike(searchQueryForLikeMultiple);
 
   // **************
   // 3. Build full text index inside schema with ts vector/ ts query
@@ -61,7 +63,7 @@ async function searchProfilesViaLike(searchQuery: string[]) {
     return [];
   }
   console.log("\n********************************************\n");
-  console.time();
+  console.time("Profiles");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -188,7 +190,7 @@ async function searchProfilesViaLike(searchQuery: string[]) {
       AND: whereQueries,
     },
   });
-  console.timeEnd();
+  console.timeEnd("Profiles");
   console.log("\n********************************************\n");
 
   return profiles;
@@ -199,7 +201,7 @@ async function searchOrganizationsViaLike(searchQuery: string[]) {
     return [];
   }
   console.log("\n********************************************\n");
-  console.time();
+  console.time("Organizations");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -327,10 +329,337 @@ async function searchOrganizationsViaLike(searchQuery: string[]) {
       AND: whereQueries,
     },
   });
-  console.timeEnd();
+  console.timeEnd("Organizations");
   console.log("\n********************************************\n");
 
   return organizations;
+}
+
+async function searchEventsViaLike(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return [];
+  }
+  console.log("\n********************************************\n");
+  console.time("Events");
+  let whereQueries = [];
+  for (const word of searchQuery) {
+    const contains = {
+      OR: [
+        {
+          name: {
+            contains: word,
+          },
+        },
+        {
+          slug: {
+            contains: word,
+          },
+        },
+        {
+          description: {
+            contains: word,
+          },
+        },
+        {
+          venueName: {
+            contains: word,
+          },
+        },
+        {
+          venueStreet: {
+            contains: word,
+          },
+        },
+        {
+          venueStreetNumber: {
+            contains: word,
+          },
+        },
+        {
+          venueCity: {
+            contains: word,
+          },
+        },
+        {
+          venueZipCode: {
+            contains: word,
+          },
+        },
+        {
+          subline: {
+            contains: word,
+          },
+        },
+        {
+          areas: {
+            some: {
+              area: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          types: {
+            some: {
+              eventType: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          experienceLevel: {
+            title: {
+              contains: word,
+            },
+          },
+        },
+        {
+          stage: {
+            title: {
+              contains: word,
+            },
+          },
+        },
+        {
+          focuses: {
+            some: {
+              focus: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          tags: {
+            some: {
+              tag: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          targetGroups: {
+            some: {
+              targetGroup: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const events = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parentEventId: true,
+      startTime: true,
+      endTime: true,
+      participationUntil: true,
+      participationFrom: true,
+      participantLimit: true,
+      background: true,
+      published: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      canceled: true,
+      subline: true,
+      description: true,
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          responsibleOrganizations: true,
+          waitingList: true,
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: [{ published: true }, ...whereQueries],
+    },
+  });
+  console.timeEnd("Events");
+  console.log("\n********************************************\n");
+
+  return events;
+}
+
+async function searchProjectsViaLike(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return [];
+  }
+  console.log("\n********************************************\n");
+  console.time("Projects");
+  let whereQueries = [];
+  for (const word of searchQuery) {
+    const contains = {
+      OR: [
+        {
+          name: {
+            contains: word,
+          },
+        },
+        {
+          slug: {
+            contains: word,
+          },
+        },
+        {
+          headline: {
+            contains: word,
+          },
+        },
+        {
+          excerpt: {
+            contains: word,
+          },
+        },
+        {
+          description: {
+            contains: word,
+          },
+        },
+        {
+          email: {
+            contains: word,
+          },
+        },
+        {
+          phone: {
+            contains: word,
+          },
+        },
+        {
+          website: {
+            contains: word,
+          },
+        },
+        {
+          street: {
+            contains: word,
+          },
+        },
+        {
+          streetNumber: {
+            contains: word,
+          },
+        },
+        {
+          zipCode: {
+            contains: word,
+          },
+        },
+        {
+          city: {
+            contains: word,
+          },
+        },
+        {
+          awards: {
+            some: {
+              award: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          disciplines: {
+            some: {
+              discipline: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          targetGroups: {
+            some: {
+              targetGroup: {
+                title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const projects = await prismaClient.project.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      background: true,
+      excerpt: true,
+      awards: {
+        select: {
+          award: {
+            select: {
+              id: true,
+              title: true,
+              shortTitle: true,
+              date: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: whereQueries,
+    },
+  });
+  console.timeEnd("Projects");
+  console.log("\n********************************************\n");
+
+  return projects;
 }
 
 async function prismasFtsQuery(searchQuery: string) {
