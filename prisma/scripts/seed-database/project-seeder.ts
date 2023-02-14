@@ -36,7 +36,6 @@ type SocialMediaService =
 
 export function getProjectData(
   structure: ProjectStructure,
-  index: number,
   bucketData: BucketData,
   useRealNames: boolean
 ) {

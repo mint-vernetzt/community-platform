@@ -41,7 +41,6 @@ type SocialMediaService =
 
 export function getOrganizationData(
   structure: OrganizationStructure,
-  index: number,
   bucketData: BucketData,
   useRealNames: boolean
 ) {
