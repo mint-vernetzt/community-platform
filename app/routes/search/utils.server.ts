@@ -1,5 +1,16 @@
 import { prismaClient } from "~/prisma";
 
+// **************
+// Prismas like filtering with where contains
+// - Performance: ~30 ms for full profile on search query 'Kontakt zu Unternehmen'
+// - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-like
+// - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see likeQueryMultiple()
+// - Simple substring search is possibe
+// - How to sort by relevance?
+// - Search on arrays is possible
+// - Search on relations is possible
+// - Case sensitive!
+
 export async function searchProfilesViaLike(
   searchQuery: string[],
   skip?: number,
@@ -8,8 +19,6 @@ export async function searchProfilesViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
-  console.log("\n********************************************\n");
-  console.time("Profiles");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -139,8 +148,6 @@ export async function searchProfilesViaLike(
     // skip: skip,
     // take: take,
   });
-  console.timeEnd("Profiles");
-  console.log("\n********************************************\n");
 
   return profiles;
 }
@@ -153,8 +160,6 @@ export async function searchOrganizationsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
-  console.log("\n********************************************\n");
-  console.time("Organizations");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -285,8 +290,6 @@ export async function searchOrganizationsViaLike(
     // skip: skip,
     // take: take,
   });
-  console.timeEnd("Organizations");
-  console.log("\n********************************************\n");
 
   return organizations;
 }
@@ -299,8 +302,6 @@ export async function searchEventsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
-  console.log("\n********************************************\n");
-  console.time("Events");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -471,8 +472,6 @@ export async function searchEventsViaLike(
     // skip: skip,
     // take: take,
   });
-  console.timeEnd("Events");
-  console.log("\n********************************************\n");
 
   return events;
 }
@@ -485,8 +484,6 @@ export async function searchProjectsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
-  console.log("\n********************************************\n");
-  console.time("Projects");
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -626,12 +623,21 @@ export async function searchProjectsViaLike(
     // skip: skip,
     // take: take,
   });
-  console.timeEnd("Projects");
-  console.log("\n********************************************\n");
 
   return projects;
 }
 
+// **************
+// 1. Prismas preview feature of Postgresql Full-Text Search
+// - Performance: ~15 ms for full profile on search query 'Kontakt zu Unternehmen'
+// - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-postgres-fts
+// - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see prismasFtsQuery()
+// - No substring search
+// - How to search on string arrays ? -> see profile.skills
+
+// How to format search query to make it prisma fts compatible
+//const searchQueryForFTS = "'Unicode'"; // Mind the single quotes!
+//const searchQueryForFTSMultiple = "'Kontakt' | 'zu' | 'Unternehmen'"; // Mind the single quotes!
 export async function prismasFtsQuery(searchQuery: string) {
   console.log("\n********************************************\n");
   console.time();
@@ -767,6 +773,17 @@ export async function prismasFtsQuery(searchQuery: string) {
   return profiles;
 }
 
+// Other postgres search options:
+// **************
+// Build full text index inside schema with ts vector/ ts query
+
+// **************
+// Own full text search field
+
+// **************
+// Creating a postgres view
+
+// Enable prisma logging
 export function prismaLog() {
   prismaClient.$on("query", (e) => {
     console.log("Query: " + e.query);
