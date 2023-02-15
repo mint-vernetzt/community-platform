@@ -1,66 +1,10 @@
-import type { LoaderArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { prismaClient } from "~/prisma";
 
-export const loader = async (args: LoaderArgs) => {
-  const searchQueryForFTS = "'Unicode'"; // Mind the single quotes!
-  const searchQueryForFTSMultiple = "'Kontakt' | 'zu' | 'Unternehmen'"; // Mind the single quotes!
-  const searchQueryForLike = "Unicode";
-  const searchQueryForLikeMultiple = ["Kontakt", "zu", "Unternehmen"];
-
-  console.time("Overall time");
-
-  // Prisma logging
-  //prismaLog(); // <-- Restart dev server to use this
-
-  // **************
-  // 1. Prismas preview feature of Postgresql Full-Text Search
-  // - Performance: ~15 ms for full profile on search query 'Kontakt zu Unternehmen'
-  // - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-postgres-fts
-  // - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see prismasFtsQuery()
-  // - No substring search
-  // - How to search on string arrays ? -> see profile.skills
-  //const profiles = await prismasFtsQuery(searchQueryForFTS);
-  //const profiles = await prismasFtsQuery(searchQueryForFTSMultiple);
-
-  // **************
-  // 2. prismas like filtering with where contains
-  // - Performance: ~30 ms for full profile on search query 'Kontakt zu Unternehmen'
-  // - Raw query: see ./poc-full-text-search-sql-queries/prisma-query-like
-  // - Fast implemented -> We have to write the where statement for each field on Profiles/Events, etc... -> see likeQueryMultiple()
-  // - Simple substring search is possibe
-  // - How to sort by relevance?
-  // - Search on arrays is possible
-  // - Search on relations is possible
-  // - Case sensitive!
-  const profiles = await searchProfilesViaLike(searchQueryForLikeMultiple);
-  const organizations = await searchOrganizationsViaLike(
-    searchQueryForLikeMultiple
-  );
-  const events = await searchEventsViaLike(searchQueryForLikeMultiple);
-  const projects = await searchProjectsViaLike(searchQueryForLikeMultiple);
-
-  // **************
-  // 3. Build full text index inside schema with ts vector/ ts query
-
-  // **************
-  // 4. Own full text search field
-  // TODO
-
-  // **************
-  // 5. Creating a postgres view
-  //const profiles = await createPostgresView();
-
-  //console.log(profiles);
-
-  console.log("\n-------------------------------------------\n");
-  console.timeEnd("Overall time");
-  console.log("\n-------------------------------------------\n");
-
-  return { profiles, organizations, events, projects };
-};
-
-async function searchProfilesViaLike(searchQuery: string[]) {
+export async function searchProfilesViaLike(
+  searchQuery: string[],
+  skip?: number,
+  take?: number
+) {
   if (searchQuery.length === 0) {
     return [];
   }
@@ -192,8 +136,8 @@ async function searchProfilesViaLike(searchQuery: string[]) {
       AND: whereQueries,
     },
     // Pagination boosts performance
-    skip: 0,
-    take: 6,
+    // skip: skip,
+    // take: take,
   });
   console.timeEnd("Profiles");
   console.log("\n********************************************\n");
@@ -201,7 +145,11 @@ async function searchProfilesViaLike(searchQuery: string[]) {
   return profiles;
 }
 
-async function searchOrganizationsViaLike(searchQuery: string[]) {
+export async function searchOrganizationsViaLike(
+  searchQuery: string[],
+  skip?: number,
+  take?: number
+) {
   if (searchQuery.length === 0) {
     return [];
   }
@@ -334,8 +282,8 @@ async function searchOrganizationsViaLike(searchQuery: string[]) {
       AND: whereQueries,
     },
     // Pagination boosts performance
-    skip: 0,
-    take: 6,
+    // skip: skip,
+    // take: take,
   });
   console.timeEnd("Organizations");
   console.log("\n********************************************\n");
@@ -343,7 +291,11 @@ async function searchOrganizationsViaLike(searchQuery: string[]) {
   return organizations;
 }
 
-async function searchEventsViaLike(searchQuery: string[]) {
+export async function searchEventsViaLike(
+  searchQuery: string[],
+  skip?: number,
+  take?: number
+) {
   if (searchQuery.length === 0) {
     return [];
   }
@@ -516,8 +468,8 @@ async function searchEventsViaLike(searchQuery: string[]) {
       AND: [{ published: true }, ...whereQueries],
     },
     // Pagination boosts performance
-    skip: 0,
-    take: 6,
+    // skip: skip,
+    // take: take,
   });
   console.timeEnd("Events");
   console.log("\n********************************************\n");
@@ -525,7 +477,11 @@ async function searchEventsViaLike(searchQuery: string[]) {
   return events;
 }
 
-async function searchProjectsViaLike(searchQuery: string[]) {
+export async function searchProjectsViaLike(
+  searchQuery: string[],
+  skip?: number,
+  take?: number
+) {
   if (searchQuery.length === 0) {
     return [];
   }
@@ -667,8 +623,8 @@ async function searchProjectsViaLike(searchQuery: string[]) {
       AND: whereQueries,
     },
     // Pagination boosts performance
-    skip: 0,
-    take: 6,
+    // skip: skip,
+    // take: take,
   });
   console.timeEnd("Projects");
   console.log("\n********************************************\n");
@@ -676,7 +632,7 @@ async function searchProjectsViaLike(searchQuery: string[]) {
   return projects;
 }
 
-async function prismasFtsQuery(searchQuery: string) {
+export async function prismasFtsQuery(searchQuery: string) {
   console.log("\n********************************************\n");
   console.time();
   const profiles = await prismaClient.profile.findMany({
@@ -811,15 +767,10 @@ async function prismasFtsQuery(searchQuery: string) {
   return profiles;
 }
 
-function prismaLog() {
+export function prismaLog() {
   prismaClient.$on("query", (e) => {
     console.log("Query: " + e.query);
     console.log("Params: " + e.params);
     console.log("Duration: " + e.duration + "ms");
   });
-}
-
-export default function PocFullTextSearch() {
-  const loaderData = useLoaderData<typeof loader>();
-  return <></>;
 }
