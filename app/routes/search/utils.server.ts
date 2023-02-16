@@ -19,6 +19,52 @@ export async function searchProfilesViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
+  const whereQueries = getProfileWhereQueries(searchQuery);
+  const profiles = await prismaClient.profile.findMany({
+    select: {
+      _count: true,
+      id: true,
+      publicFields: true,
+      academicTitle: true,
+      firstName: true,
+      lastName: true,
+      username: true,
+      bio: true,
+      avatar: true,
+      position: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: whereQueries,
+    },
+    skip: skip,
+    take: take,
+  });
+  return profiles;
+}
+
+export async function countSearchedProfiles(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return 0;
+  }
+  const whereQueries = getProfileWhereQueries(searchQuery);
+  const profileCount = await prismaClient.profile.count({
+    where: {
+      AND: whereQueries,
+    },
+  });
+  return profileCount;
+}
+
+function getProfileWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -120,36 +166,7 @@ export async function searchProfilesViaLike(
     };
     whereQueries.push(contains);
   }
-  const profiles = await prismaClient.profile.findMany({
-    select: {
-      id: true,
-      publicFields: true,
-      academicTitle: true,
-      firstName: true,
-      lastName: true,
-      username: true,
-      bio: true,
-      avatar: true,
-      position: true,
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      AND: whereQueries,
-    },
-    // Pagination boosts performance
-    skip: skip,
-    take: take,
-  });
-
-  return profiles;
+  return whereQueries;
 }
 
 export async function searchOrganizationsViaLike(
@@ -160,6 +177,57 @@ export async function searchOrganizationsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
+  const whereQueries = getOrganizationWhereQueries(searchQuery);
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      publicFields: true,
+      slug: true,
+      name: true,
+      logo: true,
+      bio: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: whereQueries,
+    },
+    skip: skip,
+    take: take,
+  });
+  return organizations;
+}
+
+export async function countSearchedOrganizations(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return 0;
+  }
+  const whereQueries = getOrganizationWhereQueries(searchQuery);
+  const organizationCount = await prismaClient.organization.count({
+    where: {
+      AND: whereQueries,
+    },
+  });
+  return organizationCount;
+}
+
+function getOrganizationWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -256,51 +324,7 @@ export async function searchOrganizationsViaLike(
     };
     whereQueries.push(contains);
   }
-  const organizations = await prismaClient.organization.findMany({
-    select: {
-      id: true,
-      publicFields: true,
-      slug: true,
-      name: true,
-      logo: true,
-      bio: true,
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      AND: whereQueries,
-      // types: {
-      //   some: {
-      //     organizationType: {
-      //       title: {
-      //         contains: searchQuery[0],
-      //       },
-      //     },
-      //   },
-      // },
-    },
-    // Pagination boosts performance
-    skip: skip,
-    take: take,
-  });
-
-  return organizations;
+  return whereQueries;
 }
 
 export async function searchEventsViaLike(
@@ -311,6 +335,71 @@ export async function searchEventsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
+  const whereQueries = getEventWhereQueries(searchQuery);
+  const events = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parentEventId: true,
+      startTime: true,
+      endTime: true,
+      participationUntil: true,
+      participationFrom: true,
+      participantLimit: true,
+      background: true,
+      published: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      canceled: true,
+      subline: true,
+      description: true,
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          responsibleOrganizations: true,
+          waitingList: true,
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: [{ published: true }, ...whereQueries],
+    },
+    skip: skip,
+    take: take,
+  });
+  return events;
+}
+
+export async function countSearchedEvents(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return 0;
+  }
+  const whereQueries = getEventWhereQueries(searchQuery);
+  const eventCount = await prismaClient.event.count({
+    where: {
+      AND: [{ published: true }, ...whereQueries],
+    },
+  });
+  return eventCount;
+}
+
+function getEventWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -433,56 +522,7 @@ export async function searchEventsViaLike(
     };
     whereQueries.push(contains);
   }
-  const events = await prismaClient.event.findMany({
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      parentEventId: true,
-      startTime: true,
-      endTime: true,
-      participationUntil: true,
-      participationFrom: true,
-      participantLimit: true,
-      background: true,
-      published: true,
-      stage: {
-        select: {
-          title: true,
-        },
-      },
-      canceled: true,
-      subline: true,
-      description: true,
-      _count: {
-        select: {
-          childEvents: true,
-          participants: true,
-          responsibleOrganizations: true,
-          waitingList: true,
-        },
-      },
-      responsibleOrganizations: {
-        select: {
-          organization: {
-            select: {
-              name: true,
-              slug: true,
-              logo: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      AND: [{ published: true }, ...whereQueries],
-    },
-    // Pagination boosts performance
-    skip: skip,
-    take: take,
-  });
-
-  return events;
+  return whereQueries;
 }
 
 export async function searchProjectsViaLike(
@@ -493,6 +533,61 @@ export async function searchProjectsViaLike(
   if (searchQuery.length === 0) {
     return [];
   }
+  const whereQueries = getProjectWhereQueries(searchQuery);
+  const projects = await prismaClient.project.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      background: true,
+      excerpt: true,
+      awards: {
+        select: {
+          award: {
+            select: {
+              id: true,
+              title: true,
+              shortTitle: true,
+              date: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: whereQueries,
+    },
+    skip: skip,
+    take: take,
+  });
+  return projects;
+}
+
+export async function countSearchedProjects(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return 0;
+  }
+  const whereQueries = getProjectWhereQueries(searchQuery);
+  const projectCount = await prismaClient.project.count({
+    where: {
+      AND: whereQueries,
+    },
+  });
+  return projectCount;
+}
+
+function getProjectWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains = {
@@ -594,46 +689,7 @@ export async function searchProjectsViaLike(
     };
     whereQueries.push(contains);
   }
-  const projects = await prismaClient.project.findMany({
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      logo: true,
-      background: true,
-      excerpt: true,
-      awards: {
-        select: {
-          award: {
-            select: {
-              id: true,
-              title: true,
-              shortTitle: true,
-              date: true,
-              logo: true,
-            },
-          },
-        },
-      },
-      responsibleOrganizations: {
-        select: {
-          organization: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      AND: whereQueries,
-    },
-    // Pagination boosts performance
-    skip: skip,
-    take: take,
-  });
-
-  return projects;
+  return whereQueries;
 }
 
 // **************

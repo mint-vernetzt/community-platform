@@ -21,10 +21,16 @@ import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
 import type { MaybeEnhancedEvents } from "../explore/utils.server";
-import { enhanceEventsWithParticipationStatus } from "../explore/utils.server";
 import {
+  enhanceEventsWithParticipationStatus,
+  getPaginationValues,
+} from "../explore/utils.server";
+import {
+  countSearchedEvents,
+  countSearchedOrganizations,
+  countSearchedProfiles,
+  countSearchedProjects,
   getQueryValue,
-  prismaLog,
   searchEventsViaLike,
   searchOrganizationsViaLike,
   searchProfilesViaLike,
@@ -36,43 +42,43 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
 
-  // TODO: Limit search query length (>1?) Look in the prisma logs why it is running multiple times when length 1
-  //prismaLog();
   const searchQuery = getQueryValue(request);
+  const paginationValues = getPaginationValues(request);
 
   //console.time("Overall time");
-
+  // TODO: type issue with count -> make two functions -> both use same where defined in a different shared function
+  let count = false;
   const [profiles, organizations, events, projects] = await Promise.all([
-    searchProfilesViaLike(searchQuery, 0, 6),
-    searchOrganizationsViaLike(searchQuery, 0, 6),
-    searchEventsViaLike(searchQuery, 0, 6),
-    searchProjectsViaLike(searchQuery, 0, 6),
+    searchProfilesViaLike(
+      searchQuery,
+      paginationValues.skip,
+      paginationValues.take
+    ),
+    searchOrganizationsViaLike(
+      searchQuery,
+      paginationValues.skip,
+      paginationValues.take
+    ),
+    searchEventsViaLike(
+      searchQuery,
+      paginationValues.skip,
+      paginationValues.take
+    ),
+    searchProjectsViaLike(
+      searchQuery,
+      paginationValues.skip,
+      paginationValues.take
+    ),
   ]);
 
-  // console.log("\n********************************************\n");
-  // console.time("Profiles");
-  // const profiles = await searchProfilesViaLike(searchQuery);
-  // console.timeEnd("Profiles");
-  // console.log("\n********************************************\n");
-  // console.log("\n********************************************\n");
-  // console.time("Organizations");
-
-  // const organizations = await searchOrganizationsViaLike(
-  //   searchQuery
-  // );
-  // console.timeEnd("Organizations");
-  // console.log("\n********************************************\n");
-  // console.log("\n********************************************\n");
-  // console.time("Events");
-  // const events = await searchEventsViaLike(searchQuery);
-  // console.timeEnd("Events");
-  // console.log("\n********************************************\n");
-  // console.log("\n********************************************\n");
-  // console.time("Projects");
-
-  // const projects = await searchProjectsViaLike(searchQuery);
-  // console.timeEnd("Projects");
-  // console.log("\n********************************************\n");
+  count = true;
+  const [profilesCount, organizationsCount, eventsCount, projectsCount] =
+    await Promise.all([
+      countSearchedProfiles(searchQuery),
+      countSearchedOrganizations(searchQuery),
+      countSearchedEvents(searchQuery),
+      countSearchedProjects(searchQuery),
+    ]);
 
   //console.log("\n-------------------------------------------\n");
   //console.timeEnd("Overall time");
@@ -179,23 +185,26 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   });
 
   // TODO:
-  // - Get pagination values (skip, take) from searchParams
-  // - Get the query from searchParams
+  // - Pagination with Manu
+  // - Define search fields on entities
+  // - How to order results?
+  // - Styling with Sirko (Navbar Icon, Header, Button, Tabs)
+  // - Accessibilty of tabs
   // - Who has access?
   // - Filter public fields if everyone has access
 
   return json(
     {
       profiles: enhancedProfiles,
-      // profiles: [],
+      profilesCount: profilesCount,
       organizations: enhancedOrganizations,
-      // organizations: [],
+      organizationsCount: organizationsCount,
       events: enhancedEvents,
-      // events: [],
+      eventsCount: eventsCount,
       userId: sessionUser?.id || undefined,
       email: sessionUser?.email || undefined,
       projects: enhancedProjects,
-      // projects: [],
+      projectsCount: projectsCount,
     },
     { headers: response.headers }
   );
@@ -206,10 +215,39 @@ export default function SearchView() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   // TODO: Pagination -> see explore routes
+  const profiles = loaderData.profiles;
+  // const {
+  //   items: profiles,
+  //   refCallback: profilesRefCallback,
+  // }: {
+  //   items: typeof loaderData["profiles"];
+  //   refCallback: (node: HTMLDivElement) => void;
+  // } = useInfiniteItems(
+  //   loaderData.profiles,
+  //   "/search",
+  //   "profiles",
+  //   searchParams
+  // );
 
+  let initialActiveElement:
+    | "profiles"
+    | "organizations"
+    | "events"
+    | "projects";
+  if (loaderData.profiles.length > 0) {
+    initialActiveElement = "profiles";
+  } else if (loaderData.organizations.length > 0) {
+    initialActiveElement = "organizations";
+  } else if (loaderData.events.length > 0) {
+    initialActiveElement = "events";
+  } else if (loaderData.projects.length > 0) {
+    initialActiveElement = "projects";
+  } else {
+    initialActiveElement = "profiles";
+  }
   const [activeElement, setActiveElement] = React.useState<
     "profiles" | "organizations" | "events" | "projects"
-  >("profiles");
+  >(initialActiveElement);
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active
@@ -219,26 +257,24 @@ export default function SearchView() {
   return (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Suchergebnisse</H1>
-        <Form method="get">
+        <H1 like="h0">Suche</H1>
+        <Form method="get" reloadDocument>
           <InputText
             id="query"
             label=""
             defaultValue={query || undefined}
+            placeholder="Suche mit min. zwei Buchstaben"
             centered={true}
           />
-
-          <input hidden name="page" defaultValue={1} readOnly />
-          <button id="submitButton" type="submit" hidden></button>
-          <noscript>
-            <button
-              id="noScriptSubmitButton"
-              type="submit"
-              className="btn btn-primary mt-2"
-            >
-              Suchen
-            </button>
-          </noscript>
+          {/* TODO: Pagination */}
+          {/* <input hidden name="page" defaultValue={1} readOnly /> */}
+          <button
+            id="submitButton"
+            type="submit"
+            className="btn btn-primary mt-2"
+          >
+            Suchen
+          </button>
         </Form>
       </section>
       <section className="container my-8 md:my-10" id="search-results">
@@ -257,7 +293,7 @@ export default function SearchView() {
             `}
             onClick={() => setActiveElement("profiles")}
           >
-            Profile
+            Profile (<>{loaderData.profilesCount}</>)
           </li>
           <li
             id="organization-tab"
@@ -270,7 +306,7 @@ export default function SearchView() {
             `}
             onClick={() => setActiveElement("organizations")}
           >
-            Organisationen
+            Organisationen (<>{loaderData.organizationsCount}</>)
           </li>
           <li
             id="event-tab"
@@ -283,7 +319,7 @@ export default function SearchView() {
             `}
             onClick={() => setActiveElement("events")}
           >
-            Veranstaltungen
+            Veranstaltungen (<>{loaderData.eventsCount}</>)
           </li>
           <li
             id="project-tab"
@@ -296,13 +332,14 @@ export default function SearchView() {
             `}
             onClick={() => setActiveElement("projects")}
           >
-            Projekte
+            Projekte (<>{loaderData.projectsCount}</>)
           </li>
         </ul>
       </section>
 
       {activeElement === "profiles" ? (
         <section
+          // ref={profilesRefCallback}
           className="container my-8 md:my-10"
           id="search-results-profiles"
         >
@@ -310,8 +347,8 @@ export default function SearchView() {
             data-testid="grid"
             className="flex flex-wrap justify-center -mx-4 items-stretch"
           >
-            {loaderData.profiles.length > 0 ? (
-              loaderData.profiles.map((profile) => {
+            {profiles.length > 0 ? (
+              profiles.map((profile) => {
                 let slug, image, initials, name, subtitle;
                 slug = `/profile/${profile.username}`;
                 image = profile.avatar;
