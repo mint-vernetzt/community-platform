@@ -7,13 +7,15 @@ export interface InputTextProps {
   isPublic?: boolean;
   errorMessage?: string;
   withClearButton?: boolean;
+  centered?: boolean;
 }
 
 const InputText = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const id = props.id ?? props.label;
-    const { isPublic, errorMessage, withClearButton, ...rest } = props;
+    const { isPublic, errorMessage, withClearButton, centered, ...rest } =
+      props;
     const formContext = useFormContext();
     const setValue = formContext ? formContext.setValue : null;
 
@@ -30,11 +32,11 @@ const InputText = React.forwardRef(
     };
 
     return (
-      <div className="form-control w-full">
+      <div className={`form-control w-full${centered ? " items-center" : ""}`}>
         {props.label && (
           <label
             htmlFor={id}
-            className={`label ${errorMessage ? " text-red-500" : ""}`}
+            className={`label${errorMessage ? " text-red-500" : ""}`}
             title={props.errorMessage}
           >
             {props.label} {props.required !== undefined ? "*" : ""}

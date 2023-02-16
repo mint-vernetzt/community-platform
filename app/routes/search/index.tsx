@@ -1,11 +1,12 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import InputText from "~/components/FormElements/InputText/InputText";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import {
@@ -22,6 +23,7 @@ import { AddToWaitingListButton } from "../event/$slug/settings/participants/add
 import type { MaybeEnhancedEvents } from "../explore/utils.server";
 import { enhanceEventsWithParticipationStatus } from "../explore/utils.server";
 import {
+  getQueryValue,
   prismaLog,
   searchEventsViaLike,
   searchOrganizationsViaLike,
@@ -35,37 +37,46 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   // TODO: Limit search query length (>1?) Look in the prisma logs why it is running multiple times when length 1
-  // prismaLog();
-  const searchQueryForLikeMultiple = ["and"];
+  //prismaLog();
+  const searchQuery = getQueryValue(request);
 
-  // console.time("Overall time");
+  //console.time("Overall time");
+
+  const [profiles, organizations, events, projects] = await Promise.all([
+    searchProfilesViaLike(searchQuery, 0, 6),
+    searchOrganizationsViaLike(searchQuery, 0, 6),
+    searchEventsViaLike(searchQuery, 0, 6),
+    searchProjectsViaLike(searchQuery, 0, 6),
+  ]);
 
   // console.log("\n********************************************\n");
   // console.time("Profiles");
-  const profiles = await searchProfilesViaLike(searchQueryForLikeMultiple);
+  // const profiles = await searchProfilesViaLike(searchQuery);
   // console.timeEnd("Profiles");
   // console.log("\n********************************************\n");
   // console.log("\n********************************************\n");
   // console.time("Organizations");
-  const organizations = await searchOrganizationsViaLike(
-    searchQueryForLikeMultiple
-  );
+
+  // const organizations = await searchOrganizationsViaLike(
+  //   searchQuery
+  // );
   // console.timeEnd("Organizations");
   // console.log("\n********************************************\n");
   // console.log("\n********************************************\n");
   // console.time("Events");
-  const events = await searchEventsViaLike(searchQueryForLikeMultiple);
+  // const events = await searchEventsViaLike(searchQuery);
   // console.timeEnd("Events");
   // console.log("\n********************************************\n");
   // console.log("\n********************************************\n");
   // console.time("Projects");
-  const projects = await searchProjectsViaLike(searchQueryForLikeMultiple);
+
+  // const projects = await searchProjectsViaLike(searchQuery);
   // console.timeEnd("Projects");
   // console.log("\n********************************************\n");
 
-  // console.log("\n-------------------------------------------\n");
-  // console.timeEnd("Overall time");
-  // console.log("\n-------------------------------------------\n");
+  //console.log("\n-------------------------------------------\n");
+  //console.timeEnd("Overall time");
+  //console.log("\n-------------------------------------------\n");
 
   const enhancedProfiles = profiles.map((profile) => {
     const { avatar, ...otherFields } = profile;
@@ -96,6 +107,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     }
     return { ...otherFields, logo: logoImage };
   });
+
   let enhancedEvents: MaybeEnhancedEvents = events;
   if (sessionUser !== null) {
     enhancedEvents = await enhanceEventsWithParticipationStatus(
@@ -114,7 +126,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     }
     return item;
   });
-
   enhancedEvents = enhancedEvents.map((event) => {
     if (event.responsibleOrganizations.length > 0) {
       event.responsibleOrganizations = event.responsibleOrganizations.map(
@@ -176,11 +187,15 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return json(
     {
       profiles: enhancedProfiles,
+      // profiles: [],
       organizations: enhancedOrganizations,
+      // organizations: [],
       events: enhancedEvents,
+      // events: [],
       userId: sessionUser?.id || undefined,
       email: sessionUser?.email || undefined,
       projects: enhancedProjects,
+      // projects: [],
     },
     { headers: response.headers }
   );
@@ -188,8 +203,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function SearchView() {
   const loaderData = useLoaderData<typeof loader>();
-  // TODO: Search input via searchParams -> see explore/profiles filter form
-  // const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
   // TODO: Pagination -> see explore routes
 
   const [activeElement, setActiveElement] = React.useState<
@@ -205,11 +220,30 @@ export default function SearchView() {
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Suchergebnisse</H1>
-        <p className="">TODO: Search Input</p>
+        <Form method="get">
+          <InputText
+            id="query"
+            label=""
+            defaultValue={query || undefined}
+            centered={true}
+          />
+
+          <input hidden name="page" defaultValue={1} readOnly />
+          <button id="submitButton" type="submit" hidden></button>
+          <noscript>
+            <button
+              id="noScriptSubmitButton"
+              type="submit"
+              className="btn btn-primary mt-2"
+            >
+              Suchen
+            </button>
+          </noscript>
+        </Form>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20" id="search-results">
+      <section className="container my-8 md:my-10" id="search-results">
         <ul
-          className="flex flex-col md:flex-row flex-wrap mb-4 justify-around text-center"
+          className="flex flex-col md:flex-row flex-wrap justify-around text-center"
           id="search-result-tablist"
         >
           <li
@@ -269,7 +303,7 @@ export default function SearchView() {
 
       {activeElement === "profiles" ? (
         <section
-          className="container my-8 md:my-10 lg:my-20"
+          className="container my-8 md:my-10"
           id="search-results-profiles"
         >
           <div
@@ -345,7 +379,7 @@ export default function SearchView() {
 
       {activeElement === "organizations" ? (
         <section
-          className="container my-8 md:my-10 lg:my-20"
+          className="container my-8 md:my-10"
           id="search-results-organizations"
         >
           <div
@@ -434,7 +468,7 @@ export default function SearchView() {
       {activeElement === "events" ? (
         <>
           {loaderData.events.length > 0 ? (
-            <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            <section className="container my-8 md:my-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
               <>
                 {loaderData.events.map((event) => {
                   const startTime = utcToZonedTime(
@@ -717,7 +751,7 @@ export default function SearchView() {
       {activeElement === "projects" ? (
         <>
           {loaderData.projects.length > 0 ? (
-            <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
+            <section className="container my-8 md:my-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
               {loaderData.projects.map((project) => {
                 return (
                   <div

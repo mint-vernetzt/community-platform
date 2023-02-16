@@ -145,8 +145,8 @@ export async function searchProfilesViaLike(
       AND: whereQueries,
     },
     // Pagination boosts performance
-    // skip: skip,
-    // take: take,
+    skip: skip,
+    take: take,
   });
 
   return profiles;
@@ -285,10 +285,19 @@ export async function searchOrganizationsViaLike(
     },
     where: {
       AND: whereQueries,
+      // types: {
+      //   some: {
+      //     organizationType: {
+      //       title: {
+      //         contains: searchQuery[0],
+      //       },
+      //     },
+      //   },
+      // },
     },
     // Pagination boosts performance
-    // skip: skip,
-    // take: take,
+    skip: skip,
+    take: take,
   });
 
   return organizations;
@@ -469,8 +478,8 @@ export async function searchEventsViaLike(
       AND: [{ published: true }, ...whereQueries],
     },
     // Pagination boosts performance
-    // skip: skip,
-    // take: take,
+    skip: skip,
+    take: take,
   });
 
   return events;
@@ -620,8 +629,8 @@ export async function searchProjectsViaLike(
       AND: whereQueries,
     },
     // Pagination boosts performance
-    // skip: skip,
-    // take: take,
+    skip: skip,
+    take: take,
   });
 
   return projects;
@@ -782,6 +791,16 @@ export async function prismasFtsQuery(searchQuery: string) {
 
 // **************
 // Creating a postgres view
+
+export function getQueryValue(request: Request) {
+  const url = new URL(request.url);
+  const queryString = url.searchParams.get("query") || undefined;
+  const query =
+    queryString === undefined || queryString === ""
+      ? []
+      : queryString.split(" ");
+  return query;
+}
 
 // Enable prisma logging
 export function prismaLog() {
