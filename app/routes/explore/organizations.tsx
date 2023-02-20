@@ -269,7 +269,7 @@ export default function Index() {
 
   const { items, refCallback } = useInfiniteItems(
     loaderData.organizations,
-    "/explore/organizations",
+    "/explore/organizations?",
     "organizations"
   );
 

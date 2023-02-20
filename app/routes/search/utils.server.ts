@@ -22,7 +22,6 @@ export async function searchProfilesViaLike(
   const whereQueries = getProfileWhereQueries(searchQuery);
   const profiles = await prismaClient.profile.findMany({
     select: {
-      _count: true,
       id: true,
       publicFields: true,
       academicTitle: true,
@@ -32,6 +31,7 @@ export async function searchProfilesViaLike(
       bio: true,
       avatar: true,
       position: true,
+      score: true,
       areas: {
         select: {
           area: {
@@ -47,9 +47,13 @@ export async function searchProfilesViaLike(
     },
     skip: skip,
     take: take,
-    orderBy: {
-      score: "asc",
-    },
+    orderBy: [
+      {
+        score: "desc",
+      },
+      { updatedAt: "desc" },
+      { firstName: "asc" },
+    ],
   });
   return profiles;
 }
@@ -213,9 +217,13 @@ export async function searchOrganizationsViaLike(
     },
     skip: skip,
     take: take,
-    orderBy: {
-      score: "asc",
-    },
+    orderBy: [
+      {
+        score: "desc",
+      },
+      { updatedAt: "desc" },
+      { name: "asc" },
+    ],
   });
   return organizations;
 }

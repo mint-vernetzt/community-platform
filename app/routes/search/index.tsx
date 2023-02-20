@@ -212,7 +212,6 @@ export const loader = async ({ request }: LoaderArgs) => {
   //console.log("\n-------------------------------------------\n");
 
   // TODO:
-  // - Set active tab where we have results (f.e. only results on organizations should initially focus the organization tab via search param)
   // - Define search fields on entities -> Prepare proposal
   // - Styling with Sirko (Navbar Icon, Header, Button, Tabs)
   // - poc: trgm index
@@ -242,8 +241,7 @@ export default function SearchView() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   // TODO: Type issue
-  // TODO: Where to set the type value? (Direct switch to first result entity, don't show tabs on initial visit)
-  const type: "profiles" | "organizations" | "events" | "projects" =
+  let type: "profiles" | "organizations" | "events" | "projects" =
     searchParams.get("type") || "profiles";
   const {
     items,
@@ -284,10 +282,7 @@ export default function SearchView() {
           </button>
         </Form>
       </section>
-      {loaderData.profilesCount > 0 ||
-      loaderData.organizationsCount > 0 ||
-      loaderData.eventsCount > 0 ||
-      loaderData.projectsCount > 0 ? (
+      {query !== null ? (
         <>
           <section className="container my-8 md:my-10" id="search-results">
             <ul
@@ -300,6 +295,7 @@ export default function SearchView() {
               ${type === "profiles" ? getClassName(true) : getClassName(false)}
             `}
                 to={`/search?index&page=1&query=${query}&type=profiles`}
+                reloadDocument
               >
                 Profile (<>{loaderData.profilesCount}</>)
               </Link>
@@ -313,6 +309,7 @@ export default function SearchView() {
               }
             `}
                 to={`/search?index&page=1&query=${query}&type=organizations`}
+                reloadDocument
               >
                 Organisationen (<>{loaderData.organizationsCount}</>)
               </Link>
@@ -322,6 +319,7 @@ export default function SearchView() {
               ${type === "events" ? getClassName(true) : getClassName(false)}
             `}
                 to={`/search?index&page=1&query=${query}&type=events`}
+                reloadDocument
               >
                 Veranstaltungen (<>{loaderData.eventsCount}</>)
               </Link>
@@ -331,6 +329,7 @@ export default function SearchView() {
               ${type === "projects" ? getClassName(true) : getClassName(false)}
             `}
                 to={`/search?index&page=1&query=${query}&type=projects`}
+                reloadDocument
               >
                 Projekte (<>{loaderData.projectsCount}</>)
               </Link>
@@ -430,6 +429,7 @@ export default function SearchView() {
                 data-testid="grid"
                 className="flex flex-wrap justify-center -mx-4 items-stretch"
               >
+                {/* TODO: Type issue */}
                 {/* TODO: Type issue */}
                 {items.length > 0 ? (
                   items.map((organization) => {
