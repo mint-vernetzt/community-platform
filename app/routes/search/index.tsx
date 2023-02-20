@@ -4,9 +4,8 @@ import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
-import { left } from "inquirer/lib/utils/readline";
-import React from "react";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import { FocusEvent } from "react";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
@@ -22,7 +21,6 @@ import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
-import type { MaybeEnhancedEvents } from "../explore/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
   getPaginationValues,
@@ -40,10 +38,10 @@ import {
   searchProjectsViaLike,
 } from "./utils.server";
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUser(authClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const searchQuery = getQueryValue(request);
   const type = getTypeValue(request);
@@ -156,14 +154,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
         }
         return event;
       });
-      if (sessionUser !== null) {
-        searchData.events = await enhanceEventsWithParticipationStatus(
-          sessionUser.id,
-          enhancedEvents
-        );
-      } else {
-        searchData.events = enhancedEvents;
-      }
+      searchData.events = await enhanceEventsWithParticipationStatus(
+        sessionUser.id,
+        enhancedEvents
+      );
     } else if (type === "projects") {
       const rawProjects = await searchProjectsViaLike(
         searchQuery,
@@ -222,8 +216,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   // - How to order results? -> Score (Events: startTime)
   // - Styling with Sirko (Navbar Icon, Header, Button, Tabs)
   // - poc: trgm index
-  // - Who has access? -> authenticated
-  // - Filter public fields if everyone has access
   // - Accessibilty of tabs
   // - Tests
 
@@ -277,6 +269,7 @@ export default function SearchView() {
             defaultValue={query || undefined}
             placeholder="Suche mit min. zwei Buchstaben"
             centered={true}
+            // TODO: auto select input value
             autoFocus={true}
           />
           <input hidden name="page" defaultValue={1} readOnly />
