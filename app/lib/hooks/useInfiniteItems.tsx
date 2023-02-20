@@ -61,7 +61,7 @@ export function useInfiniteItems(
           searchParamsQuery += `&${key}=${value}`;
         });
       }
-      fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
+      fetcher.load(`${route}page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
   }, [clientHeight, scrollPosition]);

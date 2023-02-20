@@ -858,6 +858,12 @@ export function getQueryValue(request: Request) {
   return query;
 }
 
+export function getTypeValue(request: Request) {
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type");
+  return type;
+}
+
 // Enable prisma logging
 export function prismaLog() {
   prismaClient.$on("query", (e) => {
