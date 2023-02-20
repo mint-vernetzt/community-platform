@@ -47,6 +47,9 @@ export async function searchProfilesViaLike(
     },
     skip: skip,
     take: take,
+    orderBy: {
+      score: "asc",
+    },
   });
   return profiles;
 }
@@ -210,6 +213,9 @@ export async function searchOrganizationsViaLike(
     },
     skip: skip,
     take: take,
+    orderBy: {
+      score: "asc",
+    },
   });
   return organizations;
 }
@@ -382,6 +388,9 @@ export async function searchEventsViaLike(
     },
     skip: skip,
     take: take,
+    orderBy: {
+      startTime: "desc",
+    },
   });
   return events;
 }
@@ -570,6 +579,9 @@ export async function searchProjectsViaLike(
     },
     skip: skip,
     take: take,
+    orderBy: {
+      name: "asc",
+    },
   });
   return projects;
 }

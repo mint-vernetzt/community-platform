@@ -212,10 +212,11 @@ export const loader = async ({ request }: LoaderArgs) => {
   //console.log("\n-------------------------------------------\n");
 
   // TODO:
+  // - Set active tab where we have results (f.e. only results on organizations should initially focus the organization tab via search param)
   // - Define search fields on entities -> Prepare proposal
-  // - How to order results? -> Score (Events: startTime)
   // - Styling with Sirko (Navbar Icon, Header, Button, Tabs)
   // - poc: trgm index
+  // - type issues
   // - Accessibilty of tabs
   // - Tests
 
