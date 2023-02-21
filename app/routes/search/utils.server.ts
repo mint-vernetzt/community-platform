@@ -77,11 +77,6 @@ function getProfileWhereQueries(searchQuery: string[]) {
     const contains = {
       OR: [
         {
-          firstName: {
-            contains: word,
-          },
-        },
-        {
           username: {
             contains: word,
           },
@@ -92,23 +87,18 @@ function getProfileWhereQueries(searchQuery: string[]) {
           },
         },
         {
-          phone: {
-            contains: word,
-          },
-        },
-        {
-          website: {
-            contains: word,
-          },
-        },
-        {
           bio: {
             contains: word,
           },
         },
         {
-          academicTitle: {
-            contains: word,
+          skills: {
+            has: word,
+          },
+        },
+        {
+          interests: {
+            has: word,
           },
         },
         {
@@ -127,19 +117,20 @@ function getProfileWhereQueries(searchQuery: string[]) {
           },
         },
         {
-          skills: {
-            has: word,
-          },
-        },
-        {
-          interests: {
-            has: word,
-          },
-        },
-        {
           areas: {
             some: {
               area: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          memberOf: {
+            some: {
+              organization: {
                 name: {
                   contains: word,
                 },
@@ -163,6 +154,17 @@ function getProfileWhereQueries(searchQuery: string[]) {
             some: {
               offer: {
                 title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          teamMemberOfProjects: {
+            some: {
+              project: {
+                name: {
                   contains: word,
                 },
               },
@@ -262,11 +264,6 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
           },
         },
         {
-          phone: {
-            contains: word,
-          },
-        },
-        {
           street: {
             contains: word,
           },
@@ -277,22 +274,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
           },
         },
         {
-          website: {
-            contains: word,
-          },
-        },
-        {
           bio: {
-            contains: word,
-          },
-        },
-        {
-          streetNumber: {
-            contains: word,
-          },
-        },
-        {
-          zipCode: {
             contains: word,
           },
         },
@@ -324,10 +306,65 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
           },
         },
         {
+          networkMembers: {
+            some: {
+              networkMember: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          memberOf: {
+            some: {
+              network: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profile: {
+                firstName: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profile: {
+                lastName: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
           types: {
             some: {
               organizationType: {
                 title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          responsibleForProject: {
+            some: {
+              project: {
+                name: {
                   contains: word,
                 },
               },
@@ -453,11 +490,6 @@ function getEventWhereQueries(searchQuery: string[]) {
         },
         {
           venueCity: {
-            contains: word,
-          },
-        },
-        {
-          venueZipCode: {
             contains: word,
           },
         },
@@ -643,31 +675,6 @@ function getProjectWhereQueries(searchQuery: string[]) {
           },
         },
         {
-          phone: {
-            contains: word,
-          },
-        },
-        {
-          website: {
-            contains: word,
-          },
-        },
-        {
-          street: {
-            contains: word,
-          },
-        },
-        {
-          streetNumber: {
-            contains: word,
-          },
-        },
-        {
-          zipCode: {
-            contains: word,
-          },
-        },
-        {
           city: {
             contains: word,
           },
@@ -695,10 +702,43 @@ function getProjectWhereQueries(searchQuery: string[]) {
           },
         },
         {
+          responsibleOrganizations: {
+            some: {
+              organization: {
+                name: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
           targetGroups: {
             some: {
               targetGroup: {
                 title: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profile: {
+                firstName: {
+                  contains: word,
+                },
+              },
+            },
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profile: {
+                lastName: {
                   contains: word,
                 },
               },
