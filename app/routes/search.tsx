@@ -10,6 +10,7 @@ import {
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H1 } from "~/components/Heading/Heading";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import {
   countSearchedEvents,
   countSearchedOrganizations,
@@ -21,6 +22,7 @@ import {
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "search");
   await getSessionUserOrThrow(authClient);
 
   const searchQuery = getQueryValue(request);
