@@ -60,12 +60,12 @@ function Events() {
   const { items: futureEvents, refCallback: futureRefCallback } =
     useInfiniteItems(
       loaderData.futureEvents,
-      "/explore/events",
+      "/explore/events?",
       "futureEvents"
     );
   const { items: pastEvents, refCallback: pastRefCallback } = useInfiniteItems(
     loaderData.pastEvents,
-    "/explore/events",
+    "/explore/events?",
     "pastEvents"
   );
 

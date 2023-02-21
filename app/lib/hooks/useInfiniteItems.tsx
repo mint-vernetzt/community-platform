@@ -58,10 +58,12 @@ export function useInfiniteItems(
       let searchParamsQuery = "";
       if (searchParams !== undefined) {
         searchParams.forEach((value, key) => {
+          // if (key !== "page") {
           searchParamsQuery += `&${key}=${value}`;
+          // }
         });
       }
-      fetcher.load(`${route}?page=${page}${searchParamsQuery}`);
+      fetcher.load(`${route}page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
   }, [clientHeight, scrollPosition]);

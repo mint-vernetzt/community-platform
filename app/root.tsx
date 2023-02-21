@@ -56,7 +56,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const { abilities } = await validateFeatureAccess(
     authClient,
-    ["events", "projects"],
+    ["events", "projects", "search"],
     { throw: false }
   );
 
@@ -203,6 +203,17 @@ function NavBar(props: NavBarProps) {
                   Projekte
                 </Link>
               </li>
+              {props.sessionUserInfo !== undefined &&
+              props.abilities.search.hasAccess === true ? (
+                <li className="px-2 md:px-5">
+                  <Link
+                    to="/search"
+                    className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
+                  >
+                    TODO: Suchicon
+                  </Link>
+                </li>
+              ) : null}
             </ul>
           </div>
 

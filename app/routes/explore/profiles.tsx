@@ -117,7 +117,7 @@ export default function Index() {
     refCallback: (node: HTMLDivElement) => void;
   } = useInfiniteItems(
     loaderData.profiles,
-    "/explore/profiles",
+    "/explore/profiles?",
     "profiles",
     searchParams
   );
