@@ -43,6 +43,7 @@ export async function searchProfilesViaLike(
       },
     },
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -65,6 +66,7 @@ export async function countSearchedProfiles(searchQuery: string[]) {
   const whereQueries = getProfileWhereQueries(searchQuery);
   const profileCount = await prismaClient.profile.count({
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -79,16 +81,19 @@ function getProfileWhereQueries(searchQuery: string[]) {
         {
           username: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           email: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           bio: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
@@ -104,16 +109,19 @@ function getProfileWhereQueries(searchQuery: string[]) {
         {
           firstName: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           lastName: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           position: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
@@ -122,6 +130,7 @@ function getProfileWhereQueries(searchQuery: string[]) {
               area: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -133,6 +142,7 @@ function getProfileWhereQueries(searchQuery: string[]) {
               organization: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -144,6 +154,7 @@ function getProfileWhereQueries(searchQuery: string[]) {
               offer: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -155,6 +166,7 @@ function getProfileWhereQueries(searchQuery: string[]) {
               offer: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -166,6 +178,7 @@ function getProfileWhereQueries(searchQuery: string[]) {
               project: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -215,6 +228,7 @@ export async function searchOrganizationsViaLike(
       },
     },
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -237,6 +251,7 @@ export async function countSearchedOrganizations(searchQuery: string[]) {
   const whereQueries = getOrganizationWhereQueries(searchQuery);
   const organizationCount = await prismaClient.organization.count({
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -251,31 +266,37 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
         {
           name: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           slug: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           email: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           street: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           city: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           bio: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
@@ -289,6 +310,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               area: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -300,6 +322,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               focus: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -311,6 +334,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               networkMember: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -322,6 +346,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               network: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -333,6 +358,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               profile: {
                 firstName: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -344,6 +370,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               profile: {
                 lastName: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -355,6 +382,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               organizationType: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -366,6 +394,7 @@ function getOrganizationWhereQueries(searchQuery: string[]) {
               project: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -429,6 +458,7 @@ export async function searchEventsViaLike(
       },
     },
     where: {
+      // TODO: Fix type issue
       AND: [{ published: true }, ...whereQueries],
     },
     skip: skip,
@@ -447,6 +477,7 @@ export async function countSearchedEvents(searchQuery: string[]) {
   const whereQueries = getEventWhereQueries(searchQuery);
   const eventCount = await prismaClient.event.count({
     where: {
+      // TODO: Fix type issue
       AND: [{ published: true }, ...whereQueries],
     },
   });
@@ -461,41 +492,49 @@ function getEventWhereQueries(searchQuery: string[]) {
         {
           name: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           slug: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           description: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           venueName: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           venueStreet: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           venueStreetNumber: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           venueCity: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           subline: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
@@ -504,6 +543,7 @@ function getEventWhereQueries(searchQuery: string[]) {
               area: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -515,6 +555,7 @@ function getEventWhereQueries(searchQuery: string[]) {
               eventType: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -524,6 +565,7 @@ function getEventWhereQueries(searchQuery: string[]) {
           experienceLevel: {
             title: {
               contains: word,
+              mode: "insensitive",
             },
           },
         },
@@ -531,6 +573,7 @@ function getEventWhereQueries(searchQuery: string[]) {
           stage: {
             title: {
               contains: word,
+              mode: "insensitive",
             },
           },
         },
@@ -540,6 +583,7 @@ function getEventWhereQueries(searchQuery: string[]) {
               focus: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -551,6 +595,7 @@ function getEventWhereQueries(searchQuery: string[]) {
               tag: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -562,6 +607,7 @@ function getEventWhereQueries(searchQuery: string[]) {
               targetGroup: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -615,6 +661,7 @@ export async function searchProjectsViaLike(
       },
     },
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -633,6 +680,7 @@ export async function countSearchedProjects(searchQuery: string[]) {
   const whereQueries = getProjectWhereQueries(searchQuery);
   const projectCount = await prismaClient.project.count({
     where: {
+      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -647,36 +695,43 @@ function getProjectWhereQueries(searchQuery: string[]) {
         {
           name: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           slug: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           headline: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           excerpt: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           description: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           email: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
           city: {
             contains: word,
+            mode: "insensitive",
           },
         },
         {
@@ -685,6 +740,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               award: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -696,6 +752,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               discipline: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -707,6 +764,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               organization: {
                 name: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -718,6 +776,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               targetGroup: {
                 title: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -729,6 +788,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               profile: {
                 firstName: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
@@ -740,6 +800,7 @@ function getProjectWhereQueries(searchQuery: string[]) {
               profile: {
                 lastName: {
                   contains: word,
+                  mode: "insensitive",
                 },
               },
             },
