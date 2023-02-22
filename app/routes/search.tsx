@@ -62,9 +62,9 @@ function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   const getClassName = (active: boolean) =>
-    `block text-lg font-semibold border-b ${
-      active ? "text-primary border-b-primary" : "text-neutral-500"
-    }  hover:text-primary hover:border-b-primary cursor-pointer`;
+    `block text-lg font-semibold border-b text-primary ${
+      active ? "border-b-primary" : "border-b-transparent"
+    } hover:border-b-primary cursor-pointer`;
   return query !== null && query !== "" ? (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
