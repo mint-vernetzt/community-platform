@@ -62,11 +62,9 @@ function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   const getClassName = (active: boolean) =>
-    `block text-3xl ${
-      active
-        ? "text-primary border-b-primary"
-        : "text-neutral-500 border-transparent"
-    }  hover:text-primary py-3 border-y hover:border-b-primary cursor-pointer`;
+    `block text-lg font-semibold border-b ${
+      active ? "text-primary border-b-primary" : "text-neutral-500"
+    }  hover:text-primary hover:border-b-primary cursor-pointer`;
   return query !== null && query !== "" ? (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
