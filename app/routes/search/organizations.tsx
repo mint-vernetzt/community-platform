@@ -145,7 +145,7 @@ export default function SearchView() {
             );
           })
         ) : (
-          <p>
+          <p className="text-center text-primary">
             Für Deine Suche konnten leider keine Organisationen gefunden werden.
           </p>
         )}

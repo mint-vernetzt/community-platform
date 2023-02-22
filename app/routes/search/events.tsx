@@ -358,7 +358,7 @@ export default function SearchView() {
           </>
         </section>
       ) : (
-        <p className="text-center">
+        <p className="text-center text-primary">
           Für Deine Suche konnten leider keine Veranstaltungen gefunden werden.
         </p>
       )}
