@@ -1,4 +1,8 @@
-import { LinksFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -19,6 +23,7 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
 import InputText from "./components/FormElements/InputText/InputText";
+import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import type { getFeatureAbilities } from "./lib/utils/application";
@@ -211,14 +216,7 @@ function NavBar(props: NavBarProps) {
           props.abilities.search.hasAccess === true ? (
             <div className="flex-initial w-full lg:w-1/2 order-last lg:order-2">
               <Form method="get" action="/search/profiles">
-                <InputText
-                  id="query"
-                  label=""
-                  defaultValue={query || undefined}
-                  placeholder="Suche (mind. 3 Buchstaben)"
-                  centered={true}
-                  minLength={3}
-                />
+                <Search name="query" query={query} />
               </Form>
             </div>
           ) : null}
