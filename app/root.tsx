@@ -1,8 +1,4 @@
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import { LinksFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -15,12 +11,14 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useSearchParams,
 } from "@remix-run/react";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
+import InputText from "./components/FormElements/InputText/InputText";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import type { getFeatureAbilities } from "./lib/utils/application";
@@ -159,6 +157,9 @@ function NavBar(props: NavBarProps) {
     }
   };
 
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
+
   return (
     <header id="header" className="shadow-md mb-8">
       <div className="container relative z-10">
@@ -203,19 +204,24 @@ function NavBar(props: NavBarProps) {
                   Projekte
                 </Link>
               </li>
-              {props.sessionUserInfo !== undefined &&
-              props.abilities.search.hasAccess === true ? (
-                <li className="px-2 md:px-5">
-                  <Link
-                    to="/search"
-                    className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
-                  >
-                    TODO: Suchicon
-                  </Link>
-                </li>
-              ) : null}
             </ul>
           </div>
+
+          {props.sessionUserInfo !== undefined &&
+          props.abilities.search.hasAccess === true ? (
+            <div className="flex-initial w-full lg:w-1/2 order-last lg:order-2">
+              <Form method="get" action="/search/profiles">
+                <InputText
+                  id="query"
+                  label=""
+                  defaultValue={query || undefined}
+                  placeholder="Suche (mind. 3 Buchstaben)"
+                  centered={true}
+                  minLength={3}
+                />
+              </Form>
+            </div>
+          ) : null}
 
           {/* TODO: link to login on anon*/}
           {props.sessionUserInfo !== undefined ? (
