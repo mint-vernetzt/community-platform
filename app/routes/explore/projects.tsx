@@ -69,7 +69,7 @@ function Projects() {
 
   const { items, refCallback } = useInfiniteItems(
     loaderData.projects,
-    "/explore/projects",
+    "/explore/projects?",
     "projects"
   );
 

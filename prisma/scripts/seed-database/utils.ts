@@ -18,6 +18,7 @@ import {
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
 import { createHashFromString } from "../../../app/utils.server";
+import fs from "fs-extra";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -227,74 +228,6 @@ export function setFakerSeed(seed: number) {
   faker.seed(seed);
 }
 
-export async function truncateTables() {
-  const tablenames = await prismaClient.$queryRaw<
-    Array<{ tablename: string }>
-  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-  const tables = tablenames
-    .map(({ tablename }) => tablename)
-    .filter((name) => name !== "_prisma_migrations")
-    .map((name) => `"public"."${name}"`)
-    .join(", ");
-
-  try {
-    await prismaClient.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
-    console.log(`Successfully truncated tables: ${tables}`);
-  } catch (error) {
-    console.log({ error });
-  }
-}
-
-export async function emptyBuckets(
-  authClient: SupabaseClient<any, "public", any>
-) {
-  const { error: imageBucketError } = await authClient.storage.emptyBucket(
-    "images"
-  );
-  const { error: documentBucketError } = await authClient.storage.emptyBucket(
-    "documents"
-  );
-  if (imageBucketError !== null) {
-    console.error(
-      "The image bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio) and run the seed script again. If you don't have a bucket named 'images', please run the supabase.enhancements.sql (located in the root directory) in Supabase Studio -> SQL Queries."
-    );
-  }
-  if (documentBucketError !== null) {
-    console.error(
-      "The document bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio) and run the seed script again. If you don't have a bucket named 'documents', please run the supabase.enhancements.sql (located in the root directory) in Supabase Studio -> SQL Queries."
-    );
-  }
-  console.log(`Successfully emptied buckets: "images", "documents"`);
-}
-
-export async function deleteUsers(
-  authClient: SupabaseClient<any, "public", any>
-) {
-  const {
-    data: { users },
-    error: listUsersError,
-  } = await authClient.auth.admin.listUsers();
-
-  if (listUsersError !== null || users.length === 0) {
-    console.error(
-      "Could not fetch already existing users from auth.users table. Skipped deleting all users from auth.users table. Either there were no users in auth.users table before running this script or the users could not be fetched."
-    );
-  } else {
-    for (let user of users) {
-      const { error: deleteUserError } = await authClient.auth.admin.deleteUser(
-        user.id
-      );
-      if (deleteUserError !== null) {
-        console.error(
-          `The user with the id "${user.id}" and the email "${user.email}" could not be deleted. Please try to manually delete it (f.e. via Supabase Studio) and run the seed script again.`
-        );
-      }
-      console.log(`Successfully deleted user: ${user.email}`);
-    }
-  }
-}
-
 export async function uploadImageBucketData(
   authClient: SupabaseClient<any, "public", any>,
   numberOfImages: number
@@ -375,10 +308,64 @@ export async function uploadImageBucketData(
         );
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     console.log(e);
-    console.error("\nCould not fetch images from pravatar.cc:\n");
-    throw e;
+    console.error(
+      "\nCould not fetch images from pravatar.cc. Continueing with one fallback image.\n"
+    );
+    if (e.cause.code === "ENOTFOUND") {
+      console.error(
+        "Either you have no internet connection or the faker image server is down. Skipped fetching and uploading images to bucket."
+      );
+    }
+    try {
+      const data = await fs.readFile(
+        "./public/images/default-event-background.jpg"
+      );
+      const fileTypeResult = await fromBuffer(data);
+      if (fileTypeResult === undefined) {
+        console.error(
+          "The MIME-type could not be read. The file was left out."
+        );
+      } else if (!fileTypeResult.mime.includes("image/")) {
+        console.error(
+          "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
+        );
+      } else {
+        extension = fileTypeResult.ext;
+        mimeType = fileTypeResult.mime;
+        const hash = await createHashFromString(data.toString());
+        for (const imageType in bucketData) {
+          const path = generatePathName(
+            extension,
+            hash,
+            imageType.substring(0, imageType.length - 1)
+          );
+          const { error: uploadObjectError } = await authClient.storage
+            .from("images")
+            .upload(path, data, {
+              upsert: true,
+              contentType: mimeType,
+            });
+          if (uploadObjectError) {
+            console.error(
+              "The image could not be uploaded and was left out. Following error occured:",
+              uploadObjectError
+            );
+          }
+          bucketData[imageType as ImageType].push(path);
+          console.log(
+            `Successfully added fallback ${imageType} to bucket images.`
+          );
+        }
+      }
+    } catch (err) {
+      console.error(
+        "\nCould not upload the fallback image. Seeding canceled, as some entities require an image.\n"
+      );
+      console.error(err);
+      throw err;
+    }
   }
   return bucketData;
 }
