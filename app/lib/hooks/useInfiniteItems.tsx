@@ -27,6 +27,7 @@ export function useInfiniteItems(
   );
 
   React.useEffect(() => {
+    setShouldFetch(true);
     setItems(initialItems);
     setPage(2);
   }, [initialItems]);
