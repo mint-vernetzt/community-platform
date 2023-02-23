@@ -35,7 +35,7 @@ export default function Index() {
     const loginRedirect = urlSearchParams.get("login_redirect");
     const error = urlHashParams.get("error");
     const errorCode = urlHashParams.get("error_code");
-    const errorDescription = urlSearchParams.get("error_description");
+    const errorDescription = urlHashParams.get("error_description");
 
     if (accessToken !== null && refreshToken !== null) {
       if (type === "signup") {
@@ -86,12 +86,12 @@ export default function Index() {
         );
         return;
       }
-      if (error !== null && errorCode !== null && errorDescription !== null) {
-        alert(
-          `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
-        );
-        return;
-      }
+    }
+    if (error !== null || errorCode !== null || errorDescription !== null) {
+      alert(
+        `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
+      );
+      return;
     }
 
     // Redirect when user is logged in
