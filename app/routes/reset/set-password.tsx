@@ -94,7 +94,7 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   if (result.success) {
-    return redirect(result.data.loginRedirect || "/explore", {
+    return redirect(result.data.loginRedirect || "/explore?reason=5", {
       headers: response.headers,
     });
   }

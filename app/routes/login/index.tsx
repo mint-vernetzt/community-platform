@@ -76,7 +76,7 @@ export const loader: LoaderFunction = async (args) => {
     if (loginRedirect !== null) {
       return redirect(loginRedirect, { headers: response.headers });
     } else {
-      return redirect("/explore", { headers: response.headers });
+      return redirect("/explore?reason=3", { headers: response.headers });
     }
   }
 
@@ -128,7 +128,7 @@ export const action: ActionFunction = async ({ request }) => {
       });
     } else {
       // Default redirect after login
-      return redirect("/explore", { headers: response.headers });
+      return redirect("/explore?reason=4", { headers: response.headers });
     }
   }
 
