@@ -135,7 +135,9 @@ export default function Profiles() {
             }
           })
         ) : (
-          <p>Für Deine Suche konnten leider keine Profile gefunden werden.</p>
+          <p className="text-center text-primary">
+            Für Deine Suche konnten leider keine Profile gefunden werden.
+          </p>
         )}
       </div>
     </section>

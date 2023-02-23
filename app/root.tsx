@@ -15,12 +15,14 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useSearchParams,
 } from "@remix-run/react";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
+import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import type { getFeatureAbilities } from "./lib/utils/application";
@@ -159,18 +161,21 @@ function NavBar(props: NavBarProps) {
     }
   };
 
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
+
   return (
     <header id="header" className="shadow-md mb-8">
       <div className="container relative z-10">
-        <div className="pt-3 md:pb-3 flex flex-row flex-wrap lg:flex-nowrap md:items-center lg:justify-between">
-          <div className="flex-initial w-1/2 lg:w-1/4 lg:order-1">
+        <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
+          <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
             <Link to="/explore">
               <HeaderLogo />
             </Link>
           </div>
 
-          <div className="flex-initial w-full lg:w-1/2 order-last lg:order-2">
-            <ul className="flex -mx-2 md:-mx-5 pt-3 lg:pt-0 justify-between sm:justify-center text-sm sm:text-base">
+          <div className="flex-initial w-full xl:w-auto order-last xl:order-2 flex flex-col lg:flex-row lg:flex-nowrap items-center justify-center">
+            <ul className="flex pt-3 lg:pt-0 w-full lg:w-auto justify-between sm:justify-center text-sm sm:text-base">
               <li className="px-2 md:px-5">
                 <Link
                   to="/explore/profiles"
@@ -203,23 +208,20 @@ function NavBar(props: NavBarProps) {
                   Projekte
                 </Link>
               </li>
-              {props.sessionUserInfo !== undefined &&
-              props.abilities.search.hasAccess === true ? (
-                <li className="px-2 md:px-5">
-                  <Link
-                    to="/search"
-                    className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
-                  >
-                    TODO: Suchicon
-                  </Link>
-                </li>
-              ) : null}
             </ul>
+            {props.sessionUserInfo !== undefined &&
+            props.abilities.search.hasAccess === true ? (
+              <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
+                <Form method="get" action="/search/profiles">
+                  <Search name="query" query={query} />
+                </Form>
+              </div>
+            ) : null}
           </div>
 
           {/* TODO: link to login on anon*/}
           {props.sessionUserInfo !== undefined ? (
-            <div className="flex-initial h-10 w-1/2 lg:w-1/4 flex justify-end items-center lg:order-3">
+            <div className="flex-initial h-10 w-1/2 xl:w-[150px] flex justify-end items-center xl:order-3">
               <div className="dropdown dropdown-end">
                 <label
                   tabIndex={0}
