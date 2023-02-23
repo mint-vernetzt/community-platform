@@ -25,15 +25,21 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
   };
 
   React.useEffect(() => {
-    if (window) {
-      window.addEventListener("keydown", (evt) => {
-        if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
-          if (inputRef.current !== null) {
-            inputRef.current.focus();
-          }
+    const handler = (evt: any) => {
+      if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
+        if (inputRef.current !== null) {
+          inputRef.current.focus();
         }
-      });
+      }
+    };
+    if (window) {
+      window.addEventListener("keydown", handler);
     }
+    return () => {
+      if (window) {
+        window.removeEventListener("keydown", handler);
+      }
+    };
   }, []);
 
   return (
