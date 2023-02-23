@@ -6,6 +6,7 @@ export interface SearchProps {
 
 function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
   const [value, setValue] = React.useState(props.query || "");
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const {
     placeholder = "Suche (mind. 3 Buchstaben)",
@@ -22,6 +23,24 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
     event.preventDefault();
     setValue("");
   };
+
+  React.useEffect(() => {
+    const handler = (evt: any) => {
+      if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
+        if (inputRef.current !== null) {
+          inputRef.current.focus();
+        }
+      }
+    };
+    if (window) {
+      window.addEventListener("keydown", handler);
+    }
+    return () => {
+      if (window) {
+        window.removeEventListener("keydown", handler);
+      }
+    };
+  }, []);
 
   return (
     <div className="form-control w-full">
@@ -41,6 +60,7 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
           minLength={minLength}
           value={value}
           onChange={handleChange}
+          ref={inputRef}
           {...inputProps}
         />
         {value.length > 0 && (
