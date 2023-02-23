@@ -97,10 +97,10 @@ export default function Index() {
     // Redirect when user is logged in
     // Remove the else case when the landing page is implemented in this route
     if (loaderData.hasSession) {
-      submit(null, { action: "/explore" });
+      submit(null, { action: "/explore?reason=1" });
       return;
     } else {
-      submit(null, { action: "/explore" });
+      submit(null, { action: "/explore?reason=2" });
       return;
     }
   }, [submit, loaderData.hasSession, urlSearchParams]);
