@@ -22,7 +22,6 @@ import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Footer from "./components/Footer/Footer";
-import InputText from "./components/FormElements/InputText/InputText";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
