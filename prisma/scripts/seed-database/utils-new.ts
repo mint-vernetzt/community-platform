@@ -40,16 +40,16 @@ export type EntitiesContainer = {
       Awaited<ReturnType<typeof getDocumentData>>
     >;
   };
-  areas: Array<Awaited<ReturnType<typeof getAllAreas>>>;
-  offersAndSeekings: Array<Awaited<ReturnType<typeof getAllOffersAndSeekings>>>;
-  organizationTypes: Array<Awaited<ReturnType<typeof getAllOrganizationTypes>>>;
-  focuses: Array<Awaited<ReturnType<typeof getAllFocuses>>>;
-  targetGroups: Array<Awaited<ReturnType<typeof getAllTargetGroups>>>;
-  experienceLevels: Array<Awaited<ReturnType<typeof getAllExperienceLevels>>>;
-  eventTypes: Array<Awaited<ReturnType<typeof getAllEventTypes>>>;
-  tags: Array<Awaited<ReturnType<typeof getAllTags>>>;
-  stages: Array<Awaited<ReturnType<typeof getAllStages>>>;
-  disciplines: Array<Awaited<ReturnType<typeof getAllDisciplines>>>;
+  areas: Awaited<ReturnType<typeof getAllAreas>>;
+  offersAndSeekings: Awaited<ReturnType<typeof getAllOffersAndSeekings>>;
+  organizationTypes: Awaited<ReturnType<typeof getAllOrganizationTypes>>;
+  focuses: Awaited<ReturnType<typeof getAllFocuses>>;
+  targetGroups: Awaited<ReturnType<typeof getAllTargetGroups>>;
+  experienceLevels: Awaited<ReturnType<typeof getAllExperienceLevels>>;
+  eventTypes: Awaited<ReturnType<typeof getAllEventTypes>>;
+  tags: Awaited<ReturnType<typeof getAllTags>>;
+  stages: Awaited<ReturnType<typeof getAllStages>>;
+  disciplines: Awaited<ReturnType<typeof getAllDisciplines>>;
 };
 
 type ImageType = "logos" | "backgrounds" | "avatars";
