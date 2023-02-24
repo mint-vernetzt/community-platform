@@ -212,7 +212,7 @@ function NavBar(props: NavBarProps) {
             {props.sessionUserInfo !== undefined &&
             props.abilities.search.hasAccess === true ? (
               <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
-                <Form method="get" action="/search/profiles">
+                <Form method="get" action="/search">
                   <Search name="query" query={query} />
                 </Form>
               </div>

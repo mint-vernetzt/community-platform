@@ -16,14 +16,17 @@ import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
 import { getPaginationValues } from "../explore/utils.server";
-import { getQueryValue, searchEventsViaLike } from "./utils.server";
+import {
+  getQueryValueAsArrayOfWords,
+  searchEventsViaLike,
+} from "./utils.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const searchQuery = getQueryValue(request);
+  const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
   const rawEvents = await searchEventsViaLike(

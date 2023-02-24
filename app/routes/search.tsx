@@ -8,17 +8,16 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import Search from "~/components/Search/Search";
 import { H1 } from "~/components/Heading/Heading";
+import Search from "~/components/Search/Search";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import {
   countSearchedEvents,
   countSearchedOrganizations,
   countSearchedProfiles,
   countSearchedProjects,
-  getQueryValue,
+  getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
-import { event } from "cypress/types/jquery";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -26,7 +25,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "search");
   await getSessionUserOrThrow(authClient);
 
-  const searchQuery = getQueryValue(request);
+  const searchQuery = getQueryValueAsArrayOfWords(request);
 
   let countData = {
     profiles: 0,
@@ -47,6 +46,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     countData.events = eventsCount;
     countData.projects = projectsCount;
   }
+
   return json(
     {
       profilesCount: countData.profiles,
@@ -119,7 +119,7 @@ function SearchView() {
           event.preventDefault();
           const query = event.target["search-query"].value;
           if (query.length >= 2) {
-            window.location.href = `/search/profiles?query=${query}`;
+            window.location.href = `/search?query=${query}`;
           }
         }}
       >
