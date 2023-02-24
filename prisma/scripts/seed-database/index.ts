@@ -20,7 +20,8 @@ x - eventSeeder.ts -> same as above
 x - documentSeeder.ts -> same as above
 x - awardSeeder.ts -> same as above
 x - entityConnector -> Store all functions that connect entities (f.e. connectProfileWithOrganization(profileId, organizationId), ...)
-- utils.ts -> Store all other functions (f.e. bucket and table handling, checking environment, seedAllEntities(), ...)
+- seed-manager.ts -> Controls all seed modules and the connector module to seed all entities
+- utils.ts -> Store all other functions (f.e. bucket and table handling, checking environment, database calls, types, etc...)
 */
 
 // TODO: Add this to script flags with default values

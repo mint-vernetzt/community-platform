@@ -2,12 +2,12 @@ import { faker } from "@faker-js/faker";
 import type { Document } from "@prisma/client";
 import { prismaClient } from "../../../app/prisma";
 
-type DocumentStructure =
-  | "Standard"
-  | "Smallest"
-  | "Largest"
-  | "Empty Strings"
-  | "Unicode";
+export type DocumentStructure =
+  | "standard"
+  | "smallest"
+  | "emptyStrings"
+  | "unicode"
+  | "largest";
 
 type BucketData = {
   document: {
@@ -47,19 +47,19 @@ export async function seedDocument(
 
 function generateTitle(structure: DocumentStructure) {
   let title = null;
-  if (structure === "Standard") {
+  if (structure === "standard") {
     title = "Standard document title";
   }
-  if (structure === "Unicode") {
-    title = "Standard document title_Γ";
+  if (structure === "unicode") {
+    title = "Unicode document title_Γ";
   }
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     title = null;
   }
-  if (structure === "Largest") {
+  if (structure === "largest") {
     title = "A very large document title";
   }
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     title = "";
   }
   return title;
@@ -92,13 +92,13 @@ function setSizeInMB(bucketData: BucketData) {
 
 function generateDescription(structure: DocumentStructure) {
   let description;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     description = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     description = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     description = "A description containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     description = faker.lorem.sentences(5).substring(0, 100);
   } else {
     description = faker.lorem.sentence();

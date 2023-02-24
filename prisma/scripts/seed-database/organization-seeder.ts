@@ -4,21 +4,21 @@ import { prismaClient } from "~/prisma";
 import { generateOrganizationSlug } from "../../../app/utils";
 import { getScoreOfEntity } from "../update-score/utils";
 
-type OrganizationStructure =
-  | "Developer"
-  | "Standard"
-  | "Large Team"
-  | "Small Team"
-  | "Event Companion"
-  | "Project Companion"
-  | "Network"
-  | "Coordinator"
-  | "Private"
-  | "Public"
-  | "Smallest"
-  | "Empty Strings"
-  | "Unicode"
-  | "Largest";
+export type OrganizationStructure =
+  | "developer"
+  | "standard"
+  | "largeTeam"
+  | "smallTeam"
+  | "eventCompanion"
+  | "projectCompanion"
+  | "network"
+  | "coordinator"
+  | "private"
+  | "public"
+  | "smallest"
+  | "emptyStrings"
+  | "unicode"
+  | "largest";
 
 type BucketData =
   | {
@@ -101,11 +101,11 @@ function generateName(structure: OrganizationStructure, useRealNames: boolean) {
   if (useRealNames) {
     name = faker.company.name();
   } else {
-    if (structure === "Developer") {
+    if (structure === "developer") {
       name = `0_${structure} Organization`;
-    } else if (structure === "Standard") {
+    } else if (structure === "standard") {
       name = `Y_${structure} Organization`;
-    } else if (structure === "Unicode") {
+    } else if (structure === "unicode") {
       name = `${structure} Organization_Γ`;
     } else {
       name = `${structure} Organization`;
@@ -116,11 +116,11 @@ function generateName(structure: OrganizationStructure, useRealNames: boolean) {
 
 function generateSlug(structure: OrganizationStructure) {
   let slug;
-  if (structure === "Developer") {
+  if (structure === "developer") {
     slug = generateOrganizationSlug(`0_${structure} Organization`);
-  } else if (structure === "Standard") {
+  } else if (structure === "standard") {
     slug = generateOrganizationSlug(`Y_${structure} Organization`);
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     slug = generateOrganizationSlug(`${structure} Organization_Γ`);
   } else {
     slug = generateOrganizationSlug(`${structure} Organization`);
@@ -130,13 +130,13 @@ function generateSlug(structure: OrganizationStructure) {
 
 function generateEmail(structure: OrganizationStructure) {
   let email;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     email = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     email = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     email = "unicode_Γ@email.org";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     email = "a.very.large.email.address@LargeEmailAdresses.com";
   } else {
     email = faker.internet.email();
@@ -147,11 +147,11 @@ function generateEmail(structure: OrganizationStructure) {
 function generatePhone(structure: OrganizationStructure) {
   let phone;
   faker.locale = "de";
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     phone = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     phone = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     phone = "0123456/7891011121314151617181920";
   } else {
     phone = faker.phone.number();
@@ -162,13 +162,13 @@ function generatePhone(structure: OrganizationStructure) {
 
 function generateStreet(structure: OrganizationStructure) {
   let street;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     street = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     street = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     street = "Unicodestreet_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
   } else {
     street = faker.address.street();
@@ -178,11 +178,11 @@ function generateStreet(structure: OrganizationStructure) {
 
 function generateStreetNumber(structure: OrganizationStructure) {
   let streetNumber;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     streetNumber = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     streetNumber = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     streetNumber = faker.datatype.number({ min: 1000, max: 9999 }).toString();
   } else {
     streetNumber = faker.datatype.number({ min: 1, max: 999 }).toString();
@@ -192,13 +192,13 @@ function generateStreetNumber(structure: OrganizationStructure) {
 
 function generateCity(structure: OrganizationStructure) {
   let city;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     city = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     city = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     city = "Unicode City_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     city = "The City Of The Greatest And Largest";
   } else {
     city = faker.address.cityName();
@@ -208,11 +208,11 @@ function generateCity(structure: OrganizationStructure) {
 
 function generateZipCode(structure: OrganizationStructure) {
   let zipCode;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     zipCode = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     zipCode = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     zipCode = faker.datatype
       .number({ min: 1000000000, max: 9999999999 })
       .toString();
@@ -224,13 +224,13 @@ function generateZipCode(structure: OrganizationStructure) {
 
 function generateWebsite(structure: OrganizationStructure) {
   let website;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     website = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     website = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     website = "https://unicode.website.org/Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     website =
       "https://www.veeeeeeeeeeeeery-laaaaaaaaaaaaaaaaaaarge-website.com/with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param";
   } else {
@@ -242,7 +242,7 @@ function generateWebsite(structure: OrganizationStructure) {
 function setLogo(structure: OrganizationStructure, bucketData: BucketData) {
   let logoPath;
   if (bucketData !== undefined) {
-    if (structure === "Smallest") {
+    if (structure === "smallest") {
       logoPath = null;
     } else {
       logoPath = bucketData.logo.path;
@@ -259,7 +259,7 @@ function setBackground(
 ) {
   let backgroundPath;
   if (bucketData !== undefined) {
-    if (structure === "Smallest") {
+    if (structure === "smallest") {
       backgroundPath = null;
     } else {
       backgroundPath = bucketData.background.path;
@@ -282,15 +282,15 @@ function generateSocialMediaUrl(
   if (socialMediaService === "xing") {
     slugDifference = "pages/";
   }
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     website = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     website = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     website = `https://www.${socialMediaService}.com/${
       slugDifference || ""
     }with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param`;
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     website = `https://www.${socialMediaService}.com/${
       slugDifference || ""
     }unicode-slug-Γ`;
@@ -306,13 +306,13 @@ function generateBio(structure: OrganizationStructure) {
   let bio;
   const bioForLargest = faker.lorem.paragraphs(7).substring(0, 500);
   const bioForStandard = faker.lorem.paragraphs(1);
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     bio = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     bio = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     bio = "A bio containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     bio = bioForLargest;
   } else {
     bio = bioForStandard;
@@ -324,13 +324,13 @@ function generateQuote(structure: OrganizationStructure) {
   let quote;
   const quoteForLargest = faker.lorem.paragraphs(3).substring(0, 300);
   const quoteForStandard = faker.lorem.paragraphs(1);
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     quote = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     quote = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     quote = "A quote containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     quote = quoteForLargest;
   } else {
     quote = quoteForStandard;
@@ -340,13 +340,13 @@ function generateQuote(structure: OrganizationStructure) {
 
 function generateQuoteAuthor(structure: OrganizationStructure) {
   let quoteAuthor;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     quoteAuthor = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     quoteAuthor = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     quoteAuthor = "Mister Unicode_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     quoteAuthor =
       "Oscar Wiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiilde";
   } else {
@@ -357,13 +357,13 @@ function generateQuoteAuthor(structure: OrganizationStructure) {
 
 function generateQuoteAuthorInformation(structure: OrganizationStructure) {
   let quoteAuthorInformation;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     quoteAuthorInformation = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     quoteAuthorInformation = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     quoteAuthorInformation = "Involved in unicode business_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     quoteAuthorInformation =
       "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title of the author";
   } else {
@@ -374,13 +374,13 @@ function generateQuoteAuthorInformation(structure: OrganizationStructure) {
 
 function generateSupportedBy(structure: OrganizationStructure) {
   let supportedBy: string[];
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     supportedBy = [];
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     supportedBy = ["", "", ""];
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     supportedBy = ["Unicode company_Γ"];
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     supportedBy = [];
     for (let i = 0; i < 30; i++) {
       supportedBy.push(faker.company.name());
@@ -435,9 +435,9 @@ function generatePublicFields(structure: OrganizationStructure) {
     "youtube",
     "focuses",
   ];
-  if (structure === "Public") {
+  if (structure === "public") {
     publicFields = [...alwaysPublicFields, ...privateFields];
-  } else if (structure === "Private") {
+  } else if (structure === "private") {
     publicFields = alwaysPublicFields;
   } else {
     publicFields = [

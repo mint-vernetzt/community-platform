@@ -5,18 +5,18 @@ import { prismaClient } from "~/prisma";
 import { generateUsername as generateUsername_app } from "../../../app/utils";
 import { getScoreOfEntity } from "../update-score/utils";
 
-type ProfileStructure =
-  | "Developer"
-  | "Standard"
-  | "Private"
-  | "Public"
-  | "Smallest"
-  | "Empty Strings"
-  | "Event Manager"
-  | "Maker"
-  | "Coordinator"
-  | "Unicode"
-  | "Largest";
+export type ProfileStructure =
+  | "developer"
+  | "standard"
+  | "private"
+  | "public"
+  | "smallest"
+  | "emptyStrings"
+  | "eventManager"
+  | "maker"
+  | "coordinator"
+  | "unicode"
+  | "largest";
 
 type BucketData =
   | {
@@ -127,12 +127,12 @@ export async function seedProfile(
 
 function generateUsername(structure: ProfileStructure, index: number) {
   let username;
-  if (structure === "Developer") {
-    username = generateUsername_app("0_Developer", `Profile${index}`);
-  } else if (structure === "Unicode") {
+  if (structure === "developer") {
+    username = generateUsername_app("0_developer", `Profile${index}`);
+  } else if (structure === "unicode") {
     username = generateUsername_app(`${structure}_Γ`, `Profile_Γ${index}`);
-  } else if (structure === "Standard") {
-    username = generateUsername_app("Y_Standard", `Profile${index}`);
+  } else if (structure === "standard") {
+    username = generateUsername_app("Y_standard", `Profile${index}`);
   } else {
     username = generateUsername_app(structure, `Profile${index}`);
   }
@@ -148,11 +148,11 @@ function generateEmail(structure: ProfileStructure, index: number) {
 function generatePhone(structure: ProfileStructure) {
   let phone;
   faker.locale = "de";
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     phone = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     phone = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     phone = "0123456/7891011121314151617181920";
   } else {
     phone = faker.phone.number();
@@ -163,13 +163,13 @@ function generatePhone(structure: ProfileStructure) {
 
 function generateWebsite(structure: ProfileStructure) {
   let website;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     website = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     website = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     website = "https://unicode.website.org/Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     website =
       "https://www.veeeeeeeeeeeeery-laaaaaaaaaaaaaaaaaaarge-website.com/with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param";
   } else {
@@ -181,7 +181,7 @@ function generateWebsite(structure: ProfileStructure) {
 function setAvatar(structure: ProfileStructure, bucketData: BucketData) {
   let avatarPath;
   if (bucketData !== undefined) {
-    if (structure === "Smallest") {
+    if (structure === "smallest") {
       avatarPath = null;
     } else {
       avatarPath = bucketData.avatar.path;
@@ -195,7 +195,7 @@ function setAvatar(structure: ProfileStructure, bucketData: BucketData) {
 function setBackground(structure: ProfileStructure, bucketData: BucketData) {
   let backgroundPath;
   if (bucketData !== undefined) {
-    if (structure === "Smallest") {
+    if (structure === "smallest") {
       backgroundPath = null;
     } else {
       backgroundPath = bucketData.background.path;
@@ -218,15 +218,15 @@ function generateSocialMediaUrl(
   if (socialMediaService === "xing") {
     slugDifference = "profile/";
   }
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     website = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     website = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     website = `https://www.${socialMediaService}.com/${
       slugDifference || ""
     }with-an-enourmus-sluuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuug?andsomerandom=param`;
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     website = `https://www.${socialMediaService}.com/${
       slugDifference || ""
     }unicode-slug-Γ`;
@@ -242,13 +242,13 @@ function generateBio(structure: ProfileStructure) {
   let bio;
   const bioForLargest = faker.lorem.paragraphs(7).substring(0, 500);
   const bioForStandard = faker.lorem.paragraphs(1);
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     bio = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     bio = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     bio = "A bio containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     bio = bioForLargest;
   } else {
     bio = bioForStandard;
@@ -259,11 +259,11 @@ function generateBio(structure: ProfileStructure) {
 
 function generateSkills(structure: ProfileStructure) {
   let skills = [];
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     skills = ["", "", ""];
-  } else if (structure === "Unicode") {
-    skills = ["Unicode skill_Γ"];
-  } else if (structure === "Largest") {
+  } else if (structure === "unicode") {
+    skills = ["unicode skill_Γ"];
+  } else if (structure === "largest") {
     for (let i = 0; i < 30; i++) {
       skills.push(faker.name.jobArea());
     }
@@ -278,11 +278,11 @@ function generateSkills(structure: ProfileStructure) {
 
 function generateInterests(structure: ProfileStructure) {
   let interests = [];
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     interests = ["", "", ""];
-  } else if (structure === "Unicode") {
-    interests = ["Unicode interest_Γ"];
-  } else if (structure === "Largest") {
+  } else if (structure === "unicode") {
+    interests = ["unicode interest_Γ"];
+  } else if (structure === "largest") {
     for (let i = 0; i < 30; i++) {
       interests.push(faker.hacker.phrase());
     }
@@ -298,11 +298,11 @@ function generateInterests(structure: ProfileStructure) {
 function generateAcademicTitle(structure: ProfileStructure) {
   let academicTitle;
   const academicTitles = [null, "", "Dr.", "Prof.", "Prof. Dr."];
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     academicTitle = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     academicTitle = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     academicTitle = "Prof. Dr.";
   } else {
     let index = faker.datatype.number({ min: 0, max: 4 });
@@ -315,15 +315,15 @@ function generateAcademicTitle(structure: ProfileStructure) {
 function generateFirstName(structure: ProfileStructure, useRealNames: boolean) {
   let firstName;
   if (useRealNames) {
-    if (structure === "Largest") {
+    if (structure === "largest") {
       firstName = "Alexandros-Lukas-Nikolai-Ioanis-Giorgios-Petros";
     } else {
       firstName = faker.name.firstName();
     }
   } else {
-    if (structure === "Developer") {
+    if (structure === "developer") {
       firstName = `0_${structure}`;
-    } else if (structure === "Standard") {
+    } else if (structure === "standard") {
       firstName = `Y_${structure}`;
     } else {
       firstName = structure;
@@ -336,7 +336,7 @@ function generateFirstName(structure: ProfileStructure, useRealNames: boolean) {
 function generateLastName(structure: ProfileStructure, useRealNames: boolean) {
   let lastName;
   if (useRealNames) {
-    if (structure === "Largest") {
+    if (structure === "largest") {
       lastName = "Di-Savoia-Aosta-Carignano-Genova-Montferrat-Casa-Nuova";
     } else {
       lastName = faker.name.lastName();
@@ -386,9 +386,9 @@ function generatePublicFields(structure: ProfileStructure) {
     "teamMemberOfEvents",
     "waitingForEvents",
   ];
-  if (structure === "Public") {
+  if (structure === "public") {
     publicFields = [...alwaysPublicFields, ...privateFields];
-  } else if (structure === "Private") {
+  } else if (structure === "private") {
     publicFields = alwaysPublicFields;
   } else {
     publicFields = [
@@ -412,13 +412,13 @@ function generateTermsAccepted() {
 
 function generatePosition(structure: ProfileStructure) {
   let position;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     position = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     position = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     position = "Involved in unicode business_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     position =
       "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title";
   } else {

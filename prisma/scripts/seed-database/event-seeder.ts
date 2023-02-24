@@ -3,25 +3,25 @@ import type { Event } from "@prisma/client";
 import { prismaClient } from "~/prisma";
 import { generateEventSlug } from "../../../app/utils";
 
-type EventStructure =
-  | "Developer"
-  | "Standard"
-  | "Large Team"
-  | "Small Team"
-  | "Depth2"
-  | "Depth3"
-  | "Full Participants"
-  | "Overfull Participants"
-  | "Canceled"
-  | "Unpublished"
-  | "Many Documents"
-  | "Many Responsible Organizations"
-  | "Many Speakers"
-  | "Many Participants"
-  | "Smallest"
-  | "Empty Strings"
-  | "Unicode"
-  | "Largest";
+export type EventStructure =
+  | "developer"
+  | "standard"
+  | "largeTeam"
+  | "smallTeam"
+  | "depth2"
+  | "depth3"
+  | "fullParticipants"
+  | "overfullParticipants"
+  | "canceled"
+  | "unpublished"
+  | "manyDocuments"
+  | "manyResponsibleOrganizations"
+  | "manySpeakers"
+  | "manyParticipants"
+  | "smallest"
+  | "emptyStrings"
+  | "unicode"
+  | "largest";
 
 type BucketData =
   | {
@@ -97,11 +97,11 @@ function generateName(structure: EventStructure, useRealNames: boolean) {
   if (useRealNames) {
     name = faker.music.genre();
   } else {
-    if (structure === "Developer") {
+    if (structure === "developer") {
       name = `0_${structure} Event`;
-    } else if (structure === "Standard") {
+    } else if (structure === "standard") {
       name = `Y_${structure} Event`;
-    } else if (structure === "Unicode") {
+    } else if (structure === "unicode") {
       name = `${structure} Event_Γ`;
     } else {
       name = `${structure} Event`;
@@ -112,11 +112,11 @@ function generateName(structure: EventStructure, useRealNames: boolean) {
 
 function generateSlug(structure: EventStructure) {
   let slug;
-  if (structure === "Developer") {
+  if (structure === "developer") {
     slug = generateEventSlug(`0_${structure} Event`);
-  } else if (structure === "Standard") {
+  } else if (structure === "standard") {
     slug = generateEventSlug(`Y_${structure} Event`);
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     slug = generateEventSlug(`${structure} Event_Γ`);
   } else {
     slug = generateEventSlug(`${structure} Event`);
@@ -165,13 +165,13 @@ function generateFutureAndPastTimes(
 
 function generateStartTime(structure: EventStructure, index: number) {
   let startTime;
-  if (structure === "Depth2") {
+  if (structure === "depth2") {
     // Depth 2 events start 6 hours earlier to better add childEvents
     const timeDelta = {
       hours: -6,
     };
     startTime = generateFutureAndPastTimes(index, timeDelta);
-  } else if (structure === "Depth3") {
+  } else if (structure === "depth3") {
     // Depth 2 events start 12 hours earlier to better add childEvents
     const timeDelta = {
       hours: -12,
@@ -185,14 +185,14 @@ function generateStartTime(structure: EventStructure, index: number) {
 
 function generateEndTime(structure: EventStructure, index: number) {
   let endTime;
-  if (structure === "Depth2") {
+  if (structure === "depth2") {
     // 2 day long event (to be able to add the one day seperated child events)
     const timeDelta = {
       days: 2,
     };
     endTime = generateFutureAndPastTimes(index, timeDelta);
-  } else if (structure === "Depth3") {
-    // 4 day long event (to be able to add the two day long child events (see Depth2))
+  } else if (structure === "depth3") {
+    // 4 day long event (to be able to add the two day long child events (see depth2))
     const timeDelta = {
       days: 4,
     };
@@ -209,13 +209,13 @@ function generateEndTime(structure: EventStructure, index: number) {
 
 function generateDescription(structure: EventStructure) {
   let description;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     description = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     description = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     description = "A description containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     description = faker.lorem.paragraphs(7).substring(0, 1000);
   } else {
     description = faker.lorem.paragraphs(3);
@@ -225,13 +225,13 @@ function generateDescription(structure: EventStructure) {
 
 function generateSubline(structure: EventStructure) {
   let subline;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     subline = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     subline = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     subline = "A subline containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     subline = faker.lorem.sentences(5).substring(0, 70);
   } else {
     subline = faker.lorem.sentence();
@@ -241,7 +241,7 @@ function generateSubline(structure: EventStructure) {
 
 function generatePublished(structure: EventStructure) {
   let published;
-  if (structure === "Unpublished") {
+  if (structure === "unpublished") {
     published = false;
   } else {
     published = true;
@@ -251,11 +251,11 @@ function generatePublished(structure: EventStructure) {
 
 function generateConferenceLink(structure: EventStructure) {
   let conferenceLink;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     conferenceLink = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     conferenceLink = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     conferenceLink = "https://unicode.conference.link/Γ";
   } else {
     conferenceLink = faker.internet.url();
@@ -265,9 +265,9 @@ function generateConferenceLink(structure: EventStructure) {
 
 function generateConferenceCode(structure: EventStructure) {
   let conferenceCode;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     conferenceCode = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     conferenceCode = "";
   } else {
     conferenceCode = faker.datatype
@@ -285,12 +285,12 @@ function generateParticipantLimit(
   let participantLimit;
   const participantLimitSwitcher =
     index % 2 === 0 ? null : faker.datatype.number({ min: 1, max: 300 });
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     participantLimit = null;
   } else if (
-    structure === "Full Participants" ||
-    structure === "Overfull Participants" ||
-    structure === "Largest"
+    structure === "fullParticipants" ||
+    structure === "overfullParticipants" ||
+    structure === "largest"
   ) {
     participantLimit = numberOfStandardEntities / 2;
   } else {
@@ -317,13 +317,13 @@ function generateParticipationUntil(index: number) {
 
 function generateVenueName(structure: EventStructure) {
   let venueName;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     venueName = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     venueName = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     venueName = "Unicode venue_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     venueName =
       "Large Event Space With A Large Name And Also Large Rooms - Almost Everything Is Large";
   } else {
@@ -334,13 +334,13 @@ function generateVenueName(structure: EventStructure) {
 
 function generateVenueStreet(structure: EventStructure) {
   let venueStreet;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     venueStreet = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     venueStreet = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     venueStreet = "Unicodestreet_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
   } else {
     venueStreet = faker.address.street();
@@ -350,11 +350,11 @@ function generateVenueStreet(structure: EventStructure) {
 
 function generateVenueStreetNumber(structure: EventStructure) {
   let venueStreetNumber;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     venueStreetNumber = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     venueStreetNumber = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     venueStreetNumber = faker.datatype
       .number({ min: 1000, max: 9999 })
       .toString();
@@ -366,13 +366,13 @@ function generateVenueStreetNumber(structure: EventStructure) {
 
 function generateVenueCity(structure: EventStructure) {
   let venueCity;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     venueCity = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     venueCity = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     venueCity = "Unicode City_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     venueCity = "The City Of The Greatest And Largest";
   } else {
     venueCity = faker.address.cityName();
@@ -382,11 +382,11 @@ function generateVenueCity(structure: EventStructure) {
 
 function generateVenueZipCode(structure: EventStructure) {
   let venueZipCode;
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     venueZipCode = null;
-  } else if (structure === "Empty Strings") {
+  } else if (structure === "emptyStrings") {
     venueZipCode = "";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     venueZipCode = faker.datatype
       .number({ min: 1000000000, max: 9999999999 })
       .toString();
@@ -398,7 +398,7 @@ function generateVenueZipCode(structure: EventStructure) {
 
 function generateCanceled(structure: EventStructure) {
   let canceled;
-  if (structure === "Canceled") {
+  if (structure === "canceled") {
     canceled = true;
   } else {
     canceled = false;
@@ -409,7 +409,7 @@ function generateCanceled(structure: EventStructure) {
 function setBackground(structure: EventStructure, bucketData: BucketData) {
   let backgroundPath;
   if (bucketData !== undefined) {
-    if (structure === "Smallest") {
+    if (structure === "smallest") {
       backgroundPath = null;
     } else {
       backgroundPath = bucketData.background.path;

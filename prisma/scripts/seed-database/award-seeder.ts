@@ -3,12 +3,12 @@ import type { Award } from "@prisma/client";
 import { prismaClient } from "../../../app/prisma";
 import { generateProjectSlug } from "../../../app/utils";
 
-type AwardStructure =
-  | "Standard"
-  | "Smallest"
-  | "Largest"
-  | "Empty Strings"
-  | "Unicode";
+export type AwardStructure =
+  | "standard"
+  | "smallest"
+  | "emptyStrings"
+  | "unicode"
+  | "largest";
 
 type BucketData = {
   logo: {
@@ -42,19 +42,19 @@ export async function seedAward(awardData: Omit<Award, "id">) {
 
 function generateTitle(structure: AwardStructure) {
   let title = "";
-  if (structure === "Standard") {
+  if (structure === "standard") {
     title = "Best Practice Project";
   }
-  if (structure === "Unicode") {
+  if (structure === "unicode") {
     title = "Best Practice Project_Γ";
   }
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     title = "A-Level";
   }
-  if (structure === "Largest") {
+  if (structure === "largest") {
     title = "Best Practice Project In The Education Sector";
   }
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     title = "";
   }
   return title;
@@ -67,19 +67,19 @@ function generateDate(index: number) {
 
 function generateShortTitle(structure: AwardStructure) {
   let shortTitle = null;
-  if (structure === "Standard") {
+  if (structure === "standard") {
     shortTitle = "Best Practice";
   }
-  if (structure === "Unicode") {
+  if (structure === "unicode") {
     shortTitle = "Best Practice_Γ";
   }
-  if (structure === "Smallest") {
+  if (structure === "smallest") {
     shortTitle = "A";
   }
-  if (structure === "Largest") {
+  if (structure === "largest") {
     shortTitle = "Best Practice Education";
   }
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     shortTitle = "";
   }
   return shortTitle;
@@ -92,11 +92,11 @@ function generateSlug(structure: AwardStructure, index: number) {
 
 function generateSubline(structure: AwardStructure) {
   let subline;
-  if (structure === "Empty Strings") {
+  if (structure === "emptyStrings") {
     subline = "";
-  } else if (structure === "Unicode") {
+  } else if (structure === "unicode") {
     subline = "A subline containing unicode character_Γ";
-  } else if (structure === "Largest") {
+  } else if (structure === "largest") {
     subline = faker.lorem.paragraphs(3);
   } else {
     subline = faker.lorem.sentence();
