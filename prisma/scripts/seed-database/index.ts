@@ -19,7 +19,7 @@ x - projectSeeder.ts -> same as above
 x - eventSeeder.ts -> same as above
 x - documentSeeder.ts -> same as above
 x - awardSeeder.ts -> same as above
-- entityConnector -> Store all functions that connect entities (f.e. connectProfileWithOrganization(profileId, organizationId), ...)
+x - entityConnector -> Store all functions that connect entities (f.e. connectProfileWithOrganization(profileId, organizationId), ...)
 - utils.ts -> Store all other functions (f.e. bucket and table handling, checking environment, seedAllEntities(), ...)
 */
 
