@@ -58,7 +58,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const { abilities } = await validateFeatureAccess(
     authClient,
-    ["events", "projects", "search"],
+    ["events", "projects"],
     { throw: false }
   );
 
@@ -209,8 +209,7 @@ function NavBar(props: NavBarProps) {
                 </Link>
               </li>
             </ul>
-            {props.sessionUserInfo !== undefined &&
-            props.abilities.search.hasAccess === true ? (
+            {props.sessionUserInfo !== undefined ? (
               <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
                 <Form method="get" action="/search">
                   <Search name="query" query={query} />
