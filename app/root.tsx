@@ -221,7 +221,7 @@ function NavBar(props: NavBarProps) {
 
           {/* TODO: link to login on anon*/}
           {props.sessionUserInfo !== undefined ? (
-            <div className="flex-initial h-10 w-1/2 xl:w-[150px] flex justify-end items-center xl:order-3">
+            <div className="flex-initial h-10 w-1/2 xl:w-[250px] flex justify-end items-center xl:order-3">
               <div className="dropdown dropdown-end">
                 <label
                   tabIndex={0}
