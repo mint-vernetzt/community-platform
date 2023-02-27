@@ -9,14 +9,17 @@ import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
-import { getQueryValue, searchOrganizationsViaLike } from "./utils.server";
+import {
+  getQueryValueAsArrayOfWords,
+  searchOrganizationsViaLike,
+} from "./utils.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await getSessionUserOrThrow(authClient);
 
-  const searchQuery = getQueryValue(request);
+  const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
   const rawOrganizations = await searchOrganizationsViaLike(

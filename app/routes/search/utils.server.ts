@@ -969,13 +969,19 @@ export async function prismasFtsQuery(searchQuery: string) {
 // **************
 // Creating a postgres view
 
-export function getQueryValue(request: Request) {
+export function getQueryValueAsArrayOfWords(request: Request) {
   const url = new URL(request.url);
   const queryString = url.searchParams.get("query") || undefined;
   const query =
     queryString === undefined || queryString === ""
       ? []
       : queryString.split(" ");
+  return query;
+}
+
+export function getQuerySearchParam(request: Request) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get("query") || undefined;
   return query;
 }
 

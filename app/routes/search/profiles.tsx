@@ -10,14 +10,17 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
-import { getQueryValue, searchProfilesViaLike } from "./utils.server";
+import {
+  getQueryValueAsArrayOfWords,
+  searchProfilesViaLike,
+} from "./utils.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await getSessionUserOrThrow(authClient);
 
-  const searchQuery = getQueryValue(request);
+  const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
   const rawProfiles = await searchProfilesViaLike(
