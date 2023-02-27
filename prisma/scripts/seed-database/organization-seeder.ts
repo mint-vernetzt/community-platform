@@ -20,7 +20,7 @@ export type OrganizationStructure =
   | "unicode"
   | "largest";
 
-type BucketData =
+export type OrganizationBucketData =
   | {
       logo: {
         path: string;
@@ -41,7 +41,7 @@ type SocialMediaService =
 
 export function getOrganizationData(
   structure: OrganizationStructure,
-  bucketData: BucketData,
+  bucketData: OrganizationBucketData,
   useRealNames: boolean
 ) {
   const organizationData: Omit<
@@ -239,7 +239,10 @@ function generateWebsite(structure: OrganizationStructure) {
   return website;
 }
 
-function setLogo(structure: OrganizationStructure, bucketData: BucketData) {
+function setLogo(
+  structure: OrganizationStructure,
+  bucketData: OrganizationBucketData
+) {
   let logoPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {
@@ -255,7 +258,7 @@ function setLogo(structure: OrganizationStructure, bucketData: BucketData) {
 
 function setBackground(
   structure: OrganizationStructure,
-  bucketData: BucketData
+  bucketData: OrganizationBucketData
 ) {
   let backgroundPath;
   if (bucketData !== undefined) {

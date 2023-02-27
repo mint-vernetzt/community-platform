@@ -15,7 +15,7 @@ export type ProjectStructure =
   | "unicode"
   | "largest";
 
-type BucketData =
+export type ProjectBucketData =
   | {
       logo: {
         path: string;
@@ -36,7 +36,7 @@ type SocialMediaService =
 
 export function getProjectData(
   structure: ProjectStructure,
-  bucketData: BucketData,
+  bucketData: ProjectBucketData,
   useRealNames: boolean
 ) {
   const projectData: Omit<Project, "id" | "updatedAt" | "createdAt"> = {
@@ -270,7 +270,7 @@ function generateWebsite(structure: ProjectStructure) {
   return website;
 }
 
-function setLogo(structure: ProjectStructure, bucketData: BucketData) {
+function setLogo(structure: ProjectStructure, bucketData: ProjectBucketData) {
   let logoPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {
@@ -284,7 +284,10 @@ function setLogo(structure: ProjectStructure, bucketData: BucketData) {
   return logoPath;
 }
 
-function setBackground(structure: ProjectStructure, bucketData: BucketData) {
+function setBackground(
+  structure: ProjectStructure,
+  bucketData: ProjectBucketData
+) {
   let backgroundPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {

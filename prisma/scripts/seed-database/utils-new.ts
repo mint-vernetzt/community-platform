@@ -7,38 +7,31 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { prismaClient } from "../../../app/prisma";
 import { generatePathName } from "../../../app/storage.server";
 import { createHashFromString } from "../../../app/utils.server";
-import type { AwardStructure, getAwardData } from "./award-seeder";
-import type { DocumentStructure, getDocumentData } from "./document-seeder";
-import type { EventStructure, getEventData } from "./event-seeder";
-import type {
-  getOrganizationData,
-  OrganizationStructure,
-} from "./organization-seeder";
-import type { getProfileData, ProfileStructure } from "./profile-seeder";
-import type { getProjectData, ProjectStructure } from "./project-seeder";
+import type { AwardStructure } from "./award-seeder";
+import type { DocumentStructure } from "./document-seeder";
+import type { EventStructure } from "./event-seeder";
+import type { OrganizationStructure } from "./organization-seeder";
+import type { ProfileStructure } from "./profile-seeder";
+import type { ProjectStructure } from "./project-seeder";
 
 export type EntitiesContainer = {
   profiles: {
-    [K in ProfileStructure]: Array<Awaited<ReturnType<typeof getProfileData>>>;
+    [K in ProfileStructure]: { id: string; email: string }[];
   };
   organizations: {
-    [K in OrganizationStructure]: Array<
-      Awaited<ReturnType<typeof getOrganizationData>>
-    >;
+    [K in OrganizationStructure]: { id: string }[];
   };
   events: {
-    [K in EventStructure]: Array<Awaited<ReturnType<typeof getEventData>>>;
+    [K in EventStructure]: { id: string }[];
   };
   projects: {
-    [K in ProjectStructure]: Array<Awaited<ReturnType<typeof getProjectData>>>;
+    [K in ProjectStructure]: { id: string }[];
   };
   awards: {
-    [K in AwardStructure]: Array<Awaited<ReturnType<typeof getAwardData>>>;
+    [K in AwardStructure]: { id: string }[];
   };
   documents: {
-    [K in DocumentStructure]: Array<
-      Awaited<ReturnType<typeof getDocumentData>>
-    >;
+    [K in DocumentStructure]: { id: string }[];
   };
   areas: Awaited<ReturnType<typeof getAllAreas>>;
   offersAndSeekings: Awaited<ReturnType<typeof getAllOffersAndSeekings>>;
@@ -261,7 +254,7 @@ export async function uploadDocumentBucketData(
       mimeType: string;
       filename: string;
       extension: string;
-      sizeInMB: Number;
+      sizeInMB: number;
     }[];
   } = {
     documents: [],
@@ -510,4 +503,60 @@ export async function getAllDisciplines() {
     },
   });
   return disciplines;
+}
+
+export function getRandomAvatar(
+  avatars: Awaited<ReturnType<typeof uploadImageBucketData>>["avatars"]
+) {
+  if (avatars.length === null) {
+    throw new Error("Please provide at least one avatar image.");
+  }
+  return avatars[
+    faker.datatype.number({
+      min: 0,
+      max: avatars.length - 1,
+    })
+  ];
+}
+
+export function getRandomBackground(
+  backgrounds: Awaited<ReturnType<typeof uploadImageBucketData>>["backgrounds"]
+) {
+  if (backgrounds.length === null) {
+    throw new Error("Please provide at least one background image.");
+  }
+  return backgrounds[
+    faker.datatype.number({
+      min: 0,
+      max: backgrounds.length - 1,
+    })
+  ];
+}
+
+export function getRandomLogo(
+  logos: Awaited<ReturnType<typeof uploadImageBucketData>>["logos"]
+) {
+  if (logos.length === null) {
+    throw new Error("Please provide at least one logo image.");
+  }
+  return logos[
+    faker.datatype.number({
+      min: 0,
+      max: logos.length - 1,
+    })
+  ];
+}
+
+export function getRandomDocument(
+  documents: Awaited<ReturnType<typeof uploadDocumentBucketData>>["documents"]
+) {
+  if (documents.length === null) {
+    throw new Error("Please provide at least one document.");
+  }
+  return documents[
+    faker.datatype.number({
+      min: 0,
+      max: documents.length - 1,
+    })
+  ];
 }

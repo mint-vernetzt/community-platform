@@ -9,7 +9,7 @@ export type DocumentStructure =
   | "unicode"
   | "largest";
 
-type BucketData = {
+export type DocumentBucketData = {
   document: {
     path: string;
     mimeType: string;
@@ -21,7 +21,7 @@ type BucketData = {
 
 export function getDocumentData(
   structure: DocumentStructure,
-  bucketData: BucketData
+  bucketData: DocumentBucketData
 ) {
   const documentData: Omit<Document, "id" | "updatedAt" | "createdAt"> = {
     title: generateTitle(structure),
@@ -65,27 +65,27 @@ function generateTitle(structure: DocumentStructure) {
   return title;
 }
 
-function setPath(bucketData: BucketData) {
+function setPath(bucketData: DocumentBucketData) {
   const path = bucketData.document.path;
   return path;
 }
 
-function setMimeType(bucketData: BucketData) {
+function setMimeType(bucketData: DocumentBucketData) {
   const mimeType = bucketData.document.mimeType;
   return mimeType;
 }
 
-function setExtension(bucketData: BucketData) {
+function setExtension(bucketData: DocumentBucketData) {
   const extension = bucketData.document.extension;
   return extension;
 }
 
-function setFilename(bucketData: BucketData) {
+function setFilename(bucketData: DocumentBucketData) {
   const filename = bucketData.document.filename;
   return filename;
 }
 
-function setSizeInMB(bucketData: BucketData) {
+function setSizeInMB(bucketData: DocumentBucketData) {
   const sizeInMB = bucketData.document.sizeInMB;
   return sizeInMB;
 }

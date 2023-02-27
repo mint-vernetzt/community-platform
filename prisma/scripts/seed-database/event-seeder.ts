@@ -23,7 +23,7 @@ export type EventStructure =
   | "unicode"
   | "largest";
 
-type BucketData =
+export type EventBucketData =
   | {
       background: {
         path: string;
@@ -34,7 +34,7 @@ type BucketData =
 export function getEventData(
   structure: EventStructure,
   index: number,
-  bucketData: BucketData,
+  bucketData: EventBucketData,
   useRealNames: boolean,
   numberOfStandardEntities: number
 ) {
@@ -406,7 +406,7 @@ function generateCanceled(structure: EventStructure) {
   return canceled;
 }
 
-function setBackground(structure: EventStructure, bucketData: BucketData) {
+function setBackground(structure: EventStructure, bucketData: EventBucketData) {
   let backgroundPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {

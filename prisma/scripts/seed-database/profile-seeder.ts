@@ -18,7 +18,7 @@ export type ProfileStructure =
   | "unicode"
   | "largest";
 
-type BucketData =
+export type ProfileBucketData =
   | {
       avatar: {
         path: string;
@@ -40,7 +40,7 @@ type SocialMediaService =
 export function getProfileData(
   structure: ProfileStructure,
   index: number,
-  bucketData: BucketData,
+  bucketData: ProfileBucketData,
   useRealNames: boolean
 ) {
   const profileData: Omit<
@@ -178,7 +178,7 @@ function generateWebsite(structure: ProfileStructure) {
   return website;
 }
 
-function setAvatar(structure: ProfileStructure, bucketData: BucketData) {
+function setAvatar(structure: ProfileStructure, bucketData: ProfileBucketData) {
   let avatarPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {
@@ -192,7 +192,10 @@ function setAvatar(structure: ProfileStructure, bucketData: BucketData) {
   return avatarPath;
 }
 
-function setBackground(structure: ProfileStructure, bucketData: BucketData) {
+function setBackground(
+  structure: ProfileStructure,
+  bucketData: ProfileBucketData
+) {
   let backgroundPath;
   if (bucketData !== undefined) {
     if (structure === "smallest") {

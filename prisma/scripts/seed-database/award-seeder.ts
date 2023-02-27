@@ -10,7 +10,7 @@ export type AwardStructure =
   | "unicode"
   | "largest";
 
-type BucketData = {
+export type AwardBucketData = {
   logo: {
     path: string;
   };
@@ -19,7 +19,7 @@ type BucketData = {
 export function getAwardData(
   structure: AwardStructure,
   index: number,
-  bucketData: BucketData
+  bucketData: AwardBucketData
 ) {
   const awardData: Omit<Award, "id"> = {
     title: generateTitle(structure),
@@ -104,7 +104,7 @@ function generateSubline(structure: AwardStructure) {
   return subline;
 }
 
-function setLogo(bucketData: BucketData) {
+function setLogo(bucketData: AwardBucketData) {
   const logoPath = bucketData.logo.path;
   return logoPath;
 }
