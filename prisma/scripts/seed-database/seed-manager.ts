@@ -4,6 +4,11 @@ import type { AwardBucketData } from "./award-seeder";
 import { getAwardData, seedAward } from "./award-seeder";
 import type { DocumentBucketData } from "./document-seeder";
 import { getDocumentData, seedDocument } from "./document-seeder";
+import {
+  connectProfileWithArea,
+  connectProfileWithOffer,
+  connectProfileWithSeeking,
+} from "./entity-connector";
 import type { EventBucketData } from "./event-seeder";
 import { getEventData, seedEvent } from "./event-seeder";
 import type { OrganizationBucketData } from "./organization-seeder";
@@ -32,6 +37,7 @@ import {
   getRandomBackground,
   getRandomDocument,
   getRandomLogo,
+  getSomeRandomEntries,
   initializeEntitiesContainer,
 } from "./utils-new";
 
@@ -201,4 +207,45 @@ export async function seedAllEntities(
 
 export async function connectAllEntities(entities: EntitiesContainer) {
   // TODO: utils.ts -> connecting entities with the new connector module
+  for (let structureIterator in entities.profiles) {
+    const structure = structureIterator as keyof typeof entities.profiles;
+    for (let profile of entities.profiles[structure]) {
+      // All profile structures except largest and smallest connect with some areas/offers/seekings
+      if (structure !== "smallest" && structure !== "largest") {
+        const someAreas = getSomeRandomEntries(entities.areas, {
+          min: 1,
+          max: 3,
+        });
+        const someOffers = getSomeRandomEntries(entities.offersAndSeekings, {
+          min: 1,
+          max: 3,
+        });
+        const someSeekings = getSomeRandomEntries(entities.offersAndSeekings, {
+          min: 1,
+          max: 3,
+        });
+        for (let area of someAreas) {
+          connectProfileWithArea(profile.id, area.id);
+        }
+        for (let offer of someOffers) {
+          connectProfileWithOffer(profile.id, offer.id);
+        }
+        for (let seeking of someSeekings) {
+          connectProfileWithSeeking(profile.id, seeking.id);
+        }
+      } else {
+        // Largest profile connects with all areas/offers/seekings
+        if (structure === "largest") {
+          for (let area of entities.areas) {
+            connectProfileWithArea(profile.id, area.id);
+          }
+          for (let offerAndSeeking of entities.offersAndSeekings) {
+            connectProfileWithOffer(profile.id, offerAndSeeking.id);
+            connectProfileWithSeeking(profile.id, offerAndSeeking.id);
+          }
+        }
+        // else -> structure === "smallest" -> No relations for this structure
+      }
+    }
+  }
 }

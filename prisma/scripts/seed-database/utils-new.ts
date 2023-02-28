@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import { fromBuffer } from "file-type";
 import fs from "fs-extra";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { getRandomUniqueSubset } from "~/lib/utils/array";
+import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "../../../app/prisma";
 import { generatePathName } from "../../../app/storage.server";
 import { createHashFromString } from "../../../app/utils.server";
@@ -559,4 +561,23 @@ export function getRandomDocument(
       max: documents.length - 1,
     })
   ];
+}
+
+export function getSomeRandomEntries(
+  data: { id: string }[],
+  limit: { min: number; max: number }
+) {
+  if (data.length === 0) {
+    throw new Error("Cannot get some random entries when none are given");
+  }
+  if (limit.min <= 0) {
+    throw new Error("The minimum must be greater than 0");
+  }
+  if (limit.min > limit.max) {
+    throw new Error("The maximum must be greater than the minimum");
+  }
+  return getRandomUniqueSubset<ArrayElement<typeof data>>(
+    data,
+    faker.datatype.number({ min: limit.min, max: limit.max })
+  );
 }
