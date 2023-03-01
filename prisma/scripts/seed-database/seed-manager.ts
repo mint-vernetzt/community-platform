@@ -13,6 +13,13 @@ import {
   connectProfileWithSeeking,
   connectProfileWithOrganization,
   connectOrganizationWithNetwork,
+  connectEventWithArea,
+  connectEventWithFocus,
+  connectEventWithEventType,
+  connectEventWithExperienceLevel,
+  connectEventWithStage,
+  connectEventWithTag,
+  connectEventWithTargetGroup,
 } from "./entity-connector";
 import type { EventBucketData } from "./event-seeder";
 import { getEventData, seedEvent } from "./event-seeder";
@@ -109,6 +116,7 @@ export async function seedAllEntities(
 export async function connectAllEntities(entities: EntitiesContainer) {
   await connectAllProfiles(entities);
   await connectAllOrganizations(entities);
+  await connectAllEvents(entities);
 }
 
 async function seedAllProfileStructures(
@@ -373,7 +381,7 @@ async function connectAllProfiles(entities: EntitiesContainer) {
 }
 
 async function connectAllOrganizations(entities: EntitiesContainer) {
-  // Connecting organizations with areas/focuses/organizationTypes/profiles
+  // Connecting organizations with areas/focuses/organizationTypes/profiles as members/organizations as networkMembers
   for (let structureIterator in entities.organizations) {
     const structure = structureIterator as keyof typeof entities.organizations;
     for (let organization of entities.organizations[structure]) {
@@ -582,6 +590,266 @@ async function connectAllOrganizations(entities: EntitiesContainer) {
           await connectProfileWithOrganization(
             profile.id,
             organization.id,
+            isPrivileged
+          );
+        }
+      }
+    }
+  }
+}
+
+async function connectAllEvents(entities: EntitiesContainer) {
+  // Connecting events with areas/focuses/eventTypes/experienceLevels/stages/tags/targetGroups/profiles as participants/profiles as teamMembers/profiles as speaker/profiles as waitingParticipants/organizations as responsibleOrganizations/events as childEvents
+  for (let structureIterator in entities.events) {
+    const structure = structureIterator as keyof typeof entities.events;
+    for (let event of entities.events[structure]) {
+      // All events structures except largest and smallest connect with some areas/focuses/eventTypes/experienceLevels/stages/tags/targetGroups
+      if (structure !== "smallest" && structure !== "largest") {
+        const someAreas = getSomeRandomEntities(entities.areas, {
+          min: 1,
+          max: 3,
+        });
+        const someFocuses = getSomeRandomEntities(entities.focuses, {
+          min: 1,
+          max: 3,
+        });
+        const someEventTypes = getSomeRandomEntities(entities.eventTypes, {
+          min: 1,
+          max: 3,
+        });
+        const someExperienceLevel = getSomeRandomEntities(
+          entities.experienceLevels,
+          {
+            min: 1,
+            max: 1,
+          }
+        );
+        const someStage = getSomeRandomEntities(entities.stages, {
+          min: 1,
+          max: 1,
+        });
+        const someTags = getSomeRandomEntities(entities.tags, {
+          min: 1,
+          max: 3,
+        });
+        const someTargetGroups = getSomeRandomEntities(entities.targetGroups, {
+          min: 1,
+          max: 3,
+        });
+        for (let area of someAreas) {
+          await connectEventWithArea(event.id, area.id);
+        }
+        for (let focus of someFocuses) {
+          await connectEventWithFocus(event.id, focus.id);
+        }
+        for (let eventType of someEventTypes) {
+          await connectEventWithEventType(event.id, eventType.id);
+        }
+        for (let experienceLevel of someExperienceLevel) {
+          await connectEventWithExperienceLevel(event.id, experienceLevel.id);
+        }
+        for (let stage of someStage) {
+          await connectEventWithStage(event.id, stage.id);
+        }
+        for (let tag of someTags) {
+          await connectEventWithTag(event.id, tag.id);
+        }
+        for (let targetGroup of someTargetGroups) {
+          await connectEventWithTargetGroup(event.id, targetGroup.id);
+        }
+      } else {
+        // Largest event connects with all areas/focuses/eventTypes/tags/targetGroups and one experienceLevel/stage
+        if (structure === "largest") {
+          const someExperienceLevel = getSomeRandomEntities(
+            entities.experienceLevels,
+            {
+              min: 1,
+              max: 1,
+            }
+          );
+          const someStage = getSomeRandomEntities(entities.stages, {
+            min: 1,
+            max: 1,
+          });
+          for (let area of entities.areas) {
+            await connectEventWithArea(event.id, area.id);
+          }
+          for (let focus of entities.focuses) {
+            await connectEventWithFocus(event.id, focus.id);
+          }
+          for (let eventType of entities.eventTypes) {
+            await connectEventWithEventType(event.id, eventType.id);
+          }
+          for (let experienceLevel of someExperienceLevel) {
+            await connectEventWithExperienceLevel(event.id, experienceLevel.id);
+          }
+          for (let stage of someStage) {
+            await connectEventWithStage(event.id, stage.id);
+          }
+          for (let tag of entities.tags) {
+            await connectEventWithTag(event.id, tag.id);
+          }
+          for (let targetGroup of entities.targetGroups) {
+            await connectEventWithTargetGroup(event.id, targetGroup.id);
+          }
+        }
+        // else -> structure === "smallest" -> No relations for this structure
+      }
+
+      // TODO: Connect events with profiles/organizations/childEvents
+
+      // All organization structures connect with adminProfile as memberOfOrganization who is privileged
+      let isPrivileged = true;
+      for (let profile of entities.profiles.admin) {
+        await connectProfileWithOrganization(
+          profile.id,
+          event.id,
+          isPrivileged
+        );
+      }
+      // All organization structures except largest, smallest, largeTeam, smallTeam connect with some standardProfiles as membersOfOrganization
+      isPrivileged = false;
+      if (
+        structure !== "smallest" &&
+        structure !== "largest" &&
+        structure !== "smallTeam" &&
+        structure !== "largeTeam"
+      ) {
+        const someProfiles = getSomeRandomEntities(entities.profiles.standard, {
+          min: 1,
+          max: 10,
+        });
+        for (let profile of someProfiles) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      } else {
+        // Largest and largeTeam organization connects with all standardProfiles as memberOfOrganization
+        if (structure === "largest" || structure === "largeTeam") {
+          for (let profile of entities.profiles.standard) {
+            await connectProfileWithOrganization(
+              profile.id,
+              event.id,
+              isPrivileged
+            );
+          }
+        }
+        // smallTeam and smallest organization connects with one standardProfile as memberOfOrganization
+        if (structure === "smallTeam" || structure === "smallest") {
+          if (entities.profiles.standard[0] !== null) {
+            await connectProfileWithOrganization(
+              entities.profiles.standard[0].id,
+              event.id,
+              isPrivileged
+            );
+          }
+        }
+      }
+      // Specific organization structures connect with specific profiles as membersOfOrganization
+      if (structure === "private") {
+        for (let profile of entities.profiles.private) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "public") {
+        for (let profile of entities.profiles.public) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "emptyStrings") {
+        for (let profile of entities.profiles.emptyStrings) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "eventCompanion") {
+        for (let profile of entities.profiles.eventManager) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "projectCompanion") {
+        for (let profile of entities.profiles.maker) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "network" || structure === "coordinator") {
+        for (let profile of entities.profiles.coordinator) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+        if (structure === "network") {
+          const someNetworkMembers = getSomeRandomEntities(
+            entities.organizations.standard,
+            {
+              min: 1,
+              max: 10,
+            }
+          );
+          for (let networkMember of someNetworkMembers) {
+            await connectOrganizationWithNetwork(networkMember.id, event.id);
+          }
+          for (let networkMember of entities.organizations.coordinator) {
+            await connectOrganizationWithNetwork(networkMember.id, event.id);
+          }
+        }
+      }
+      if (structure === "developer") {
+        for (let profile of entities.profiles.developer) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "smallest") {
+        for (let profile of entities.profiles.smallest) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "largest") {
+        for (let profile of entities.profiles.largest) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "unicode") {
+        for (let profile of entities.profiles.unicode) {
+          await connectProfileWithOrganization(
+            profile.id,
+            event.id,
             isPrivileged
           );
         }
