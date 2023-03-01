@@ -12,6 +12,7 @@ import {
   connectProfileWithOffer,
   connectProfileWithSeeking,
   connectProfileWithOrganization,
+  connectOrganizationWithNetwork,
 } from "./entity-connector";
 import type { EventBucketData } from "./event-seeder";
 import { getEventData, seedEvent } from "./event-seeder";
@@ -527,6 +528,27 @@ async function connectAllOrganizations(entities: EntitiesContainer) {
             isPrivileged
           );
         }
+        if (structure === "network") {
+          const someNetworkMembers = getSomeRandomEntities(
+            entities.organizations.standard,
+            {
+              min: 1,
+              max: 10,
+            }
+          );
+          for (let networkMember of someNetworkMembers) {
+            await connectOrganizationWithNetwork(
+              networkMember.id,
+              organization.id
+            );
+          }
+          for (let networkMember of entities.organizations.coordinator) {
+            await connectOrganizationWithNetwork(
+              networkMember.id,
+              organization.id
+            );
+          }
+        }
       }
       if (structure === "developer") {
         for (let profile of entities.profiles.developer) {
@@ -564,16 +586,6 @@ async function connectAllOrganizations(entities: EntitiesContainer) {
           );
         }
       }
-
-      // Don't allow self connection
-      // Connecting with some standard organizations (memberOfNetwork)
-      // standard organization
-
-      // Connecting with all standard organizations (memberOfNetwork)
-      //
-
-      // Connecting with specific organizations (memberOfNetwork)
-      //
     }
   }
 }
