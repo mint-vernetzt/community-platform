@@ -8,6 +8,7 @@ import { getScoreOfEntity } from "../update-score/utils";
 export type ProfileStructure =
   | "developer"
   | "standard"
+  | "admin"
   | "private"
   | "public"
   | "smallest"

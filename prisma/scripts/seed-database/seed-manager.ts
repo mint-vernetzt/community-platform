@@ -5,9 +5,13 @@ import { getAwardData, seedAward } from "./award-seeder";
 import type { DocumentBucketData } from "./document-seeder";
 import { getDocumentData, seedDocument } from "./document-seeder";
 import {
+  connectOrganizationWithArea,
+  connectOrganizationWithFocus,
+  connectOrganizationWithOrganizationType,
   connectProfileWithArea,
   connectProfileWithOffer,
   connectProfileWithSeeking,
+  connectProfileWithOrganization,
 } from "./entity-connector";
 import type { EventBucketData } from "./event-seeder";
 import { getEventData, seedEvent } from "./event-seeder";
@@ -37,7 +41,7 @@ import {
   getRandomBackground,
   getRandomDocument,
   getRandomLogo,
-  getSomeRandomEntries,
+  getSomeRandomEntities,
   initializeEntitiesContainer,
 } from "./utils-new";
 
@@ -51,9 +55,6 @@ export async function seedAllEntities(
   numberOfStandardEntities: number
 ) {
   let entities: EntitiesContainer = initializeEntitiesContainer();
-  let entityData;
-  let id;
-  let score;
   entities.areas = await getAllAreas();
   entities.offersAndSeekings = await getAllOffersAndSeekings();
   entities.organizationTypes = await getAllOrganizationTypes();
@@ -64,9 +65,66 @@ export async function seedAllEntities(
   entities.tags = await getAllTags();
   entities.stages = await getAllStages();
   entities.disciplines = await getAllDisciplines();
+  entities.profiles = await seedAllProfileStructures(
+    entities.profiles,
+    imageBucketData,
+    numberOfStandardEntities,
+    useRealNames,
+    authClient,
+    defaultPassword
+  );
+  entities.organizations = await seedAllOrganizationStructures(
+    entities.organizations,
+    imageBucketData,
+    numberOfStandardEntities,
+    useRealNames
+  );
+  entities.events = await seedAllEventStructures(
+    entities.events,
+    imageBucketData,
+    numberOfStandardEntities,
+    useRealNames,
+    numberOfEventsPerStructure
+  );
+  entities.projects = await seedAllProjectStructures(
+    entities.projects,
+    imageBucketData,
+    numberOfStandardEntities,
+    useRealNames
+  );
+  entities.documents = await seedAllDocumentStructures(
+    entities.documents,
+    documentBucketData,
+    numberOfStandardEntities
+  );
+  entities.awards = await seedAllAwardStructures(
+    entities.awards,
+    imageBucketData,
+    numberOfStandardEntities
+  );
+  return entities;
+}
 
-  for (let structureIterator in entities.profiles) {
-    const structure = structureIterator as keyof typeof entities.profiles;
+export async function connectAllEntities(entities: EntitiesContainer) {
+  await connectAllProfiles(entities);
+  await connectAllOrganizations(entities);
+}
+
+async function seedAllProfileStructures(
+  profilesContainer: EntitiesContainer["profiles"],
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  numberOfStandardEntities: number,
+  useRealNames: boolean,
+  authClient: SupabaseClient<any, "public", any>,
+  defaultPassword: string
+) {
+  const seededProfilesContainer = profilesContainer;
+  let entityData;
+  let id;
+  let score;
+
+  for (let structureIterator in profilesContainer) {
+    const structure = structureIterator as keyof typeof profilesContainer;
     let bucketData: ProfileBucketData = {
       avatar: {
         path: getRandomAvatar(imageBucketData.avatars),
@@ -91,13 +149,29 @@ export async function seedAllEntities(
         defaultPassword
       );
       if (id !== undefined) {
-        entities.profiles[structure].push({ id, email: entityData.email });
+        seededProfilesContainer[structure].push({
+          id,
+          email: entityData.email,
+        });
       }
     }
   }
+  return seededProfilesContainer;
+}
 
-  for (let structureIterator in entities.organizations) {
-    const structure = structureIterator as keyof typeof entities.organizations;
+async function seedAllOrganizationStructures(
+  organizationsContainer: EntitiesContainer["organizations"],
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  numberOfStandardEntities: number,
+  useRealNames: boolean
+) {
+  const seededOrganizationsContainer = organizationsContainer;
+  let entityData;
+  let id;
+  let score;
+
+  for (let structureIterator in organizationsContainer) {
+    const structure = structureIterator as keyof typeof organizationsContainer;
     let bucketData: OrganizationBucketData = {
       logo: {
         path: getRandomLogo(imageBucketData.logos),
@@ -117,12 +191,25 @@ export async function seedAllEntities(
       entityData = getOrganizationData(structure, bucketData, useRealNames);
       score = getScoreOfEntity(entityData);
       id = await seedOrganization({ ...entityData, score });
-      entities.organizations[structure].push({ id });
+      seededOrganizationsContainer[structure].push({ id });
     }
   }
+  return seededOrganizationsContainer;
+}
 
-  for (let structureIterator in entities.events) {
-    const structure = structureIterator as keyof typeof entities.events;
+async function seedAllEventStructures(
+  eventsContainer: EntitiesContainer["events"],
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  numberOfStandardEntities: number,
+  useRealNames: boolean,
+  numberOfEventsPerStructure: number
+) {
+  const seededEventsContainer = eventsContainer;
+  let entityData;
+  let id;
+
+  for (let structureIterator in eventsContainer) {
+    const structure = structureIterator as keyof typeof eventsContainer;
     let bucketData: EventBucketData = {
       background: {
         path: getRandomBackground(imageBucketData.backgrounds),
@@ -141,12 +228,24 @@ export async function seedAllEntities(
         numberOfStandardEntities
       );
       id = await seedEvent(entityData);
-      entities.events[structure].push({ id });
+      seededEventsContainer[structure].push({ id });
     }
   }
+  return seededEventsContainer;
+}
 
-  for (let structureIterator in entities.projects) {
-    const structure = structureIterator as keyof typeof entities.projects;
+async function seedAllProjectStructures(
+  projectsContainer: EntitiesContainer["projects"],
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  numberOfStandardEntities: number,
+  useRealNames: boolean
+) {
+  const seededProjectsContainer = projectsContainer;
+  let entityData;
+  let id;
+
+  for (let structureIterator in projectsContainer) {
+    const structure = structureIterator as keyof typeof projectsContainer;
     let bucketData: ProjectBucketData = {
       logo: {
         path: getRandomLogo(imageBucketData.logos),
@@ -165,12 +264,23 @@ export async function seedAllEntities(
     for (let i = 0; i < iterations; i++) {
       entityData = getProjectData(structure, bucketData, useRealNames);
       id = await seedProject(entityData);
-      entities.projects[structure].push({ id });
+      seededProjectsContainer[structure].push({ id });
     }
   }
+  return seededProjectsContainer;
+}
 
-  for (let structureIterator in entities.documents) {
-    const structure = structureIterator as keyof typeof entities.documents;
+async function seedAllDocumentStructures(
+  documentsContainer: EntitiesContainer["documents"],
+  documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
+  numberOfStandardEntities: number
+) {
+  const seededDocumentsContainer = documentsContainer;
+  let entityData;
+  let id;
+
+  for (let structureIterator in documentsContainer) {
+    const structure = structureIterator as keyof typeof documentsContainer;
     const bucketData: DocumentBucketData = {
       document: getRandomDocument(documentBucketData.documents),
     };
@@ -181,12 +291,23 @@ export async function seedAllEntities(
     for (let i = 0; i < iterations; i++) {
       entityData = getDocumentData(structure, bucketData);
       id = await seedDocument(entityData);
-      entities.documents[structure].push({ id });
+      seededDocumentsContainer[structure].push({ id });
     }
   }
+  return seededDocumentsContainer;
+}
 
-  for (let structureIterator in entities.awards) {
-    const structure = structureIterator as keyof typeof entities.awards;
+async function seedAllAwardStructures(
+  awardsContainer: EntitiesContainer["awards"],
+  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
+  numberOfStandardEntities: number
+) {
+  const seededAwardsContainer = awardsContainer;
+  let entityData;
+  let id;
+
+  for (let structureIterator in awardsContainer) {
+    const structure = structureIterator as keyof typeof awardsContainer;
     const bucketData: AwardBucketData = {
       logo: {
         path: getRandomLogo(imageBucketData.logos),
@@ -199,53 +320,260 @@ export async function seedAllEntities(
     for (let i = 0; i < iterations; i++) {
       entityData = getAwardData(structure, i, bucketData);
       id = await seedAward(entityData);
-      entities.awards[structure].push({ id });
+      seededAwardsContainer[structure].push({ id });
     }
   }
-  return entities;
+  return seededAwardsContainer;
 }
 
-export async function connectAllEntities(entities: EntitiesContainer) {
-  // TODO: utils.ts -> connecting entities with the new connector module
+async function connectAllProfiles(entities: EntitiesContainer) {
+  // Connecting profiles with areas/offers/seekings
   for (let structureIterator in entities.profiles) {
     const structure = structureIterator as keyof typeof entities.profiles;
     for (let profile of entities.profiles[structure]) {
       // All profile structures except largest and smallest connect with some areas/offers/seekings
       if (structure !== "smallest" && structure !== "largest") {
-        const someAreas = getSomeRandomEntries(entities.areas, {
+        const someAreas = getSomeRandomEntities(entities.areas, {
           min: 1,
           max: 3,
         });
-        const someOffers = getSomeRandomEntries(entities.offersAndSeekings, {
+        const someOffers = getSomeRandomEntities(entities.offersAndSeekings, {
           min: 1,
           max: 3,
         });
-        const someSeekings = getSomeRandomEntries(entities.offersAndSeekings, {
+        const someSeekings = getSomeRandomEntities(entities.offersAndSeekings, {
           min: 1,
           max: 3,
         });
         for (let area of someAreas) {
-          connectProfileWithArea(profile.id, area.id);
+          await connectProfileWithArea(profile.id, area.id);
         }
         for (let offer of someOffers) {
-          connectProfileWithOffer(profile.id, offer.id);
+          await connectProfileWithOffer(profile.id, offer.id);
         }
         for (let seeking of someSeekings) {
-          connectProfileWithSeeking(profile.id, seeking.id);
+          await connectProfileWithSeeking(profile.id, seeking.id);
         }
       } else {
         // Largest profile connects with all areas/offers/seekings
         if (structure === "largest") {
           for (let area of entities.areas) {
-            connectProfileWithArea(profile.id, area.id);
+            await connectProfileWithArea(profile.id, area.id);
           }
           for (let offerAndSeeking of entities.offersAndSeekings) {
-            connectProfileWithOffer(profile.id, offerAndSeeking.id);
-            connectProfileWithSeeking(profile.id, offerAndSeeking.id);
+            await connectProfileWithOffer(profile.id, offerAndSeeking.id);
+            await connectProfileWithSeeking(profile.id, offerAndSeeking.id);
           }
         }
         // else -> structure === "smallest" -> No relations for this structure
       }
+    }
+  }
+}
+
+async function connectAllOrganizations(entities: EntitiesContainer) {
+  // Connecting organizations with areas/focuses/organizationTypes/profiles
+  for (let structureIterator in entities.organizations) {
+    const structure = structureIterator as keyof typeof entities.organizations;
+    for (let organization of entities.organizations[structure]) {
+      // All organization structures except largest and smallest connect with some areas/focuses/organizationTypes
+      if (structure !== "smallest" && structure !== "largest") {
+        const someAreas = getSomeRandomEntities(entities.areas, {
+          min: 1,
+          max: 3,
+        });
+        const someFocuses = getSomeRandomEntities(entities.focuses, {
+          min: 1,
+          max: 3,
+        });
+        const someOrganizationTypes = getSomeRandomEntities(
+          entities.organizationTypes,
+          {
+            min: 1,
+            max: 3,
+          }
+        );
+        for (let area of someAreas) {
+          await connectOrganizationWithArea(organization.id, area.id);
+        }
+        for (let focus of someFocuses) {
+          await connectOrganizationWithFocus(organization.id, focus.id);
+        }
+        for (let organizationType of someOrganizationTypes) {
+          await connectOrganizationWithOrganizationType(
+            organization.id,
+            organizationType.id
+          );
+        }
+      } else {
+        // Largest organization connects with all areas/focuses/organizationTypes
+        if (structure === "largest") {
+          for (let area of entities.areas) {
+            await connectOrganizationWithArea(organization.id, area.id);
+          }
+          for (let focus of entities.focuses) {
+            await connectOrganizationWithFocus(organization.id, focus.id);
+          }
+          for (let organizationType of entities.organizationTypes) {
+            await connectOrganizationWithOrganizationType(
+              organization.id,
+              organizationType.id
+            );
+          }
+        }
+        // else -> structure === "smallest" -> No relations for this structure
+      }
+      // All organization structures connect with adminProfile as memberOfOrganization who is privileged
+      let isPrivileged = true;
+      for (let profile of entities.profiles.admin) {
+        await connectProfileWithOrganization(
+          profile.id,
+          organization.id,
+          isPrivileged
+        );
+      }
+      // All organization structures except largest, smallest, largeTeam, smallTeam connect with some standardProfiles as membersOfOrganization
+      isPrivileged = false;
+      if (
+        structure !== "smallest" &&
+        structure !== "largest" &&
+        structure !== "smallTeam" &&
+        structure !== "largeTeam"
+      ) {
+        const someProfiles = getSomeRandomEntities(entities.profiles.standard, {
+          min: 1,
+          max: 10,
+        });
+        for (let profile of someProfiles) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      } else {
+        // Largest and largeTeam organization connects with all standardProfiles as memberOfOrganization
+        if (structure === "largest" || structure === "largeTeam") {
+          for (let profile of entities.profiles.standard) {
+            await connectProfileWithOrganization(
+              profile.id,
+              organization.id,
+              isPrivileged
+            );
+          }
+        }
+        // smallTeam and smallest organization connects with one standardProfile as memberOfOrganization
+        if (structure === "smallTeam" || structure === "smallest") {
+          if (entities.profiles.standard[0] !== null) {
+            await connectProfileWithOrganization(
+              entities.profiles.standard[0].id,
+              organization.id,
+              isPrivileged
+            );
+          }
+        }
+      }
+      // Specific organization structures connect with specific profiles as membersOfOrganization
+      if (structure === "private") {
+        for (let profile of entities.profiles.private) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "public") {
+        for (let profile of entities.profiles.public) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "emptyStrings") {
+        for (let profile of entities.profiles.emptyStrings) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "eventCompanion") {
+        for (let profile of entities.profiles.eventManager) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "projectCompanion") {
+        for (let profile of entities.profiles.maker) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "network" || structure === "coordinator") {
+        for (let profile of entities.profiles.coordinator) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "developer") {
+        for (let profile of entities.profiles.developer) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "smallest") {
+        for (let profile of entities.profiles.smallest) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "largest") {
+        for (let profile of entities.profiles.largest) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+      if (structure === "unicode") {
+        for (let profile of entities.profiles.unicode) {
+          await connectProfileWithOrganization(
+            profile.id,
+            organization.id,
+            isPrivileged
+          );
+        }
+      }
+
+      // Don't allow self connection
+      // Connecting with some standard organizations (memberOfNetwork)
+      // standard organization
+
+      // Connecting with all standard organizations (memberOfNetwork)
+      //
+
+      // Connecting with specific organizations (memberOfNetwork)
+      //
     }
   }
 }

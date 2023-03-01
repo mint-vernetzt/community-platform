@@ -331,6 +331,7 @@ export function initializeEntitiesContainer(): EntitiesContainer {
     profiles: {
       developer: [],
       standard: [],
+      admin: [],
       private: [],
       public: [],
       smallest: [],
@@ -563,7 +564,7 @@ export function getRandomDocument(
   ];
 }
 
-export function getSomeRandomEntries(
+export function getSomeRandomEntities(
   data: { id: string }[],
   limit: { min: number; max: number }
 ) {
