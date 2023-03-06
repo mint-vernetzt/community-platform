@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { Form } from "remix-forms";
 import { createAuthClient } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
@@ -79,7 +79,7 @@ function Index() {
         Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
         oder entferne sie.
       </p>
-      <div className="mb-8">
+      <div className="mb-4">
         {loaderData.members.map((profile) => {
           const initials = getInitials(profile);
           return (
@@ -87,7 +87,7 @@ function Index() {
               key={`team-member-${profile.id}`}
               className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
                 {profile.avatar !== null && profile.avatar !== "" ? (
                   <img src={profile.avatar} alt={initials} />
                 ) : (
@@ -95,11 +95,18 @@ function Index() {
                 )}
               </div>
               <div className="pl-4">
-                <H3 like="h4" className="text-xl mb-1">
-                  {profile.firstName} {profile.lastName}
-                </H3>
+                <Link to={`/profile/${profile.username}`}>
+                  <H3
+                    like="h4"
+                    className="text-xl mb-1 no-underline hover:underline"
+                  >
+                    {profile.firstName} {profile.lastName}
+                  </H3>
+                </Link>
                 {profile.position ? (
-                  <p className="font-bold text-sm">{profile.position}</p>
+                  <p className="font-bold text-sm cursor-default">
+                    {profile.position}
+                  </p>
                 ) : null}
               </div>
               <Form
@@ -120,6 +127,7 @@ function Index() {
                   organizationId: loaderData.organizationId,
                   isPrivileged: !profile.isPrivileged,
                 }}
+                className="ml-auto"
               >
                 {(props) => {
                   const { Field, Button } = props;

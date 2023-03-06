@@ -117,6 +117,8 @@ export async function getEventByField(field: string, value: string) {
               firstName: true,
               lastName: true,
               username: true,
+              avatar: true,
+              position: true,
             },
           },
         },
@@ -133,6 +135,16 @@ export async function getEventByField(field: string, value: string) {
               id: true,
               name: true,
               slug: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -150,6 +162,8 @@ export async function getEventByField(field: string, value: string) {
               firstName: true,
               lastName: true,
               username: true,
+              avatar: true,
+              position: true,
             },
           },
         },
@@ -169,6 +183,8 @@ export async function getEventByField(field: string, value: string) {
               lastName: true,
               username: true,
               email: true,
+              position: true,
+              avatar: true,
               position: true,
               memberOf: {
                 select: {
@@ -198,6 +214,8 @@ export async function getEventByField(field: string, value: string) {
               lastName: true,
               username: true,
               email: true,
+              position: true,
+              avatar: true,
               position: true,
               memberOf: {
                 select: {
