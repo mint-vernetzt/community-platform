@@ -416,7 +416,7 @@ export default function App() {
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
-      window._paq.push(["setCustomUrl", location.pathname]);
+      window._paq.push(["setCustomUrl", window.location.href]);
       window._paq.push(["trackPageView"]);
     }
   }, [location, matomoSiteId]);
