@@ -16,6 +16,10 @@ export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
 >;
 
+export type NetworkMemberSuggestions =
+  | Awaited<ReturnType<typeof getNetworkMembersSuggestions>>
+  | undefined;
+
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
@@ -32,12 +36,12 @@ export const loader = async (args: LoaderArgs) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("query") || undefined;
 
-  let addNetworkMemberSuggestions;
+  let networkMemberSuggestions;
   if (query !== undefined && query !== "") {
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
-    addNetworkMemberSuggestions = await getNetworkMembersSuggestions(
+    networkMemberSuggestions = await getNetworkMembersSuggestions(
       authClient,
       slug,
       alreadyMemberSlugs,
@@ -45,10 +49,8 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  console.log(addNetworkMemberSuggestions);
-
   return json(
-    { networkMembers, addNetworkMemberSuggestions },
+    { networkMembers, networkMemberSuggestions },
     { headers: response.headers }
   );
 };
@@ -75,13 +77,7 @@ function Index() {
           );
         })}
       </div>
-      <Add />
-      <div className="mb-4">
-        {loaderData.addNetworkMemberSuggestions !== undefined &&
-          loaderData.addNetworkMemberSuggestions.map((member) => {
-            return <div key={member.id}>{member.name}</div>;
-          })}
-      </div>
+      <Add networkMemberSuggestions={loaderData.networkMemberSuggestions} />
     </>
   );
 }

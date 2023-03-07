@@ -9,6 +9,7 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { NetworkMemberSuggestions } from ".";
 import {
   connectOrganizationToNetwork,
   getOrganizationByName,
@@ -106,7 +107,11 @@ export const action: ActionFunction = async (args) => {
   return json<FailureActionData>(result, { headers: response.headers });
 };
 
-function Add() {
+type NetworkMemberProps = {
+  networkMemberSuggestions: NetworkMemberSuggestions;
+};
+
+function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
   const submit = useSubmit();
   const fetcher = useFetcher<SuccessActionData | FailureActionData>();
