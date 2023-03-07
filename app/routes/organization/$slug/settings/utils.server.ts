@@ -423,6 +423,72 @@ export async function getNetworkMembersOfOrganization(
   return enhancedNetworkMembers;
 }
 
+export async function getNetworkMembersSuggestions(
+  authClient: SupabaseClient,
+  ownOrganizationSlug: string,
+  alreadyMemberSlugs: string[],
+  query: string
+) {
+  const networkMemberSuggestions = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: [
+        {
+          NOT: {
+            slug: ownOrganizationSlug,
+          },
+        },
+        {
+          slug: {
+            notIn: alreadyMemberSlugs,
+          },
+        },
+        {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedNetworkMemberSuggestions = networkMemberSuggestions.map(
+    (networkMember) => {
+      if (networkMember.logo !== null) {
+        const publicURL = getPublicURL(authClient, networkMember.logo);
+        if (publicURL !== null) {
+          networkMember.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return networkMember;
+    }
+  );
+
+  return enhancedNetworkMemberSuggestions;
+}
+
 export async function handleAuthorization(
   authClient: SupabaseClient,
   slug: string

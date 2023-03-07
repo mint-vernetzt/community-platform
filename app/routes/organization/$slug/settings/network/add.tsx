@@ -1,6 +1,7 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useFetcher, useParams } from "@remix-run/react";
+import { useFetcher, useParams, useSubmit } from "@remix-run/react";
+import React from "react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
@@ -107,7 +108,22 @@ export const action: ActionFunction = async (args) => {
 
 function Add() {
   const { slug } = useParams();
+  const submit = useSubmit();
   const fetcher = useFetcher<SuccessActionData | FailureActionData>();
+
+  const handleChange: React.FormEventHandler = (
+    event: React.ChangeEvent<HTMLFormElement>
+  ) => {
+    submit(
+      {
+        query: event.target.value,
+      },
+      {
+        method: "get",
+        action: `/organization/${slug}/settings/network`,
+      }
+    );
+  };
 
   return (
     <>
@@ -146,6 +162,8 @@ function Add() {
                         id="name"
                         name="name"
                         className="input input-bordered w-full"
+                        onChange={handleChange}
+                        autoComplete="off"
                       />
                       <Errors />
                     </>

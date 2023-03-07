@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
@@ -6,6 +6,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
+  getNetworkMembersSuggestions,
   handleAuthorization,
 } from "../utils.server";
 import Add from "./add";
@@ -15,9 +16,7 @@ export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
 >;
 
-type LoaderData = { networkMembers: NetworkMember[] };
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -30,12 +29,33 @@ export const loader: LoaderFunction = async (args) => {
     organization.id
   );
 
-  return json<LoaderData>({ networkMembers }, { headers: response.headers });
+  const url = new URL(request.url);
+  const query = url.searchParams.get("query") || undefined;
+
+  let addNetworkMemberSuggestions;
+  if (query !== undefined && query !== "") {
+    const alreadyMemberSlugs = networkMembers.map((member) => {
+      return member.networkMember.slug;
+    });
+    addNetworkMemberSuggestions = await getNetworkMembersSuggestions(
+      authClient,
+      slug,
+      alreadyMemberSlugs,
+      query
+    );
+  }
+
+  console.log(addNetworkMemberSuggestions);
+
+  return json(
+    { networkMembers, addNetworkMemberSuggestions },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -56,6 +76,12 @@ function Index() {
         })}
       </div>
       <Add />
+      <div className="mb-4">
+        {loaderData.addNetworkMemberSuggestions !== undefined &&
+          loaderData.addNetworkMemberSuggestions.map((member) => {
+            return <div key={member.id}>{member.name}</div>;
+          })}
+      </div>
     </>
   );
 }
