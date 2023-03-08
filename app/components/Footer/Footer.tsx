@@ -21,12 +21,14 @@ function Footer(props: FooterProps) {
         >
           <div
             className={`${
-              isNonAppBaseRoute && "basis-full md:basis-6/12 px-4"
+              isNonAppBaseRoute
+                ? "basis-full md:basis-6/12 px-4"
+                : "flex flex-100"
             }`}
           >
             <ul
-              className={`flex-100 md:flex-auto md:justify-center meta_nav text-neutral-600 text-sm leading-4 font-semibold ${
-                !isNonAppBaseRoute && "md:flex"
+              className={`flex-100 md:flex-auto meta_nav text-neutral-600 text-sm leading-4 font-semibold ${
+                isNonAppBaseRoute ? "md:justify-center" : "flex md:justify-end"
               }`.trimEnd()}
             >
               {/* <ul className="flex-100 md:flex-auto md:justify-end meta_nav md:flex <-- text-neutral-600 text-sm leading-4 font-semibold"> */}
