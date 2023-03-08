@@ -1,13 +1,20 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useFetcher, useParams, useSubmit } from "@remix-run/react";
+import {
+  useFetcher,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import React from "react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
+import { resetTask } from "simple-git/dist/src/lib/tasks/reset";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMemberSuggestions } from ".";
 import {
@@ -113,22 +120,10 @@ type NetworkMemberProps = {
 
 function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
-  const submit = useSubmit();
   const fetcher = useFetcher<SuccessActionData | FailureActionData>();
-
-  const handleChange: React.FormEventHandler = (
-    event: React.ChangeEvent<HTMLFormElement>
-  ) => {
-    submit(
-      {
-        query: event.target.value,
-      },
-      {
-        method: "get",
-        action: `/organization/${slug}/settings/network`,
-      }
-    );
-  };
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("suggestions_query");
+  const submit = useSubmit();
 
   return (
     <>
@@ -142,13 +137,14 @@ function Add(props: NetworkMemberProps) {
         action={`/organization/${slug}/settings/network/add`}
         hiddenFields={["slug"]}
         values={{ slug }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/organization/${slug}/settings/network`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <div className="form-control w-full">
               <div className="flex flex-row items-center mb-2">
@@ -163,14 +159,13 @@ function Add(props: NetworkMemberProps) {
                 <Field name="name" className="flex-auto">
                   {({ Errors }) => (
                     <>
-                      <input
-                        id="name"
-                        name="name"
-                        className="input input-bordered w-full"
-                        onChange={handleChange}
-                        autoComplete="off"
-                      />
                       <Errors />
+                      <Autocomplete
+                        suggestions={props.networkMemberSuggestions || []}
+                        suggestionsLoaderPath={`/organization/${slug}/settings/network`}
+                        value={suggestionsQuery || ""}
+                        {...register("name")}
+                      />
                     </>
                   )}
                 </Field>

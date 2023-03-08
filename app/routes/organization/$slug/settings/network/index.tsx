@@ -34,10 +34,11 @@ export const loader = async (args: LoaderArgs) => {
   );
 
   const url = new URL(request.url);
-  const query = url.searchParams.get("query") || undefined;
+  const suggestionsQuery =
+    url.searchParams.get("suggestions_query") || undefined;
 
   let networkMemberSuggestions;
-  if (query !== undefined && query !== "") {
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
@@ -45,7 +46,7 @@ export const loader = async (args: LoaderArgs) => {
       authClient,
       slug,
       alreadyMemberSlugs,
-      query
+      suggestionsQuery
     );
   }
 
