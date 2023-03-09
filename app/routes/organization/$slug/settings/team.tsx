@@ -43,6 +43,10 @@ export const loader = async (args: LoaderArgs) => {
   );
 
   const members = await getMembersOfOrganization(authClient, organization.id);
+  const enhancedMembers = getTeamMemberProfileDataFromOrganization(
+    members,
+    sessionUser.id
+  );
 
   const url = new URL(request.url);
   const suggestionsQuery =
@@ -58,11 +62,6 @@ export const loader = async (args: LoaderArgs) => {
       suggestionsQuery
     );
   }
-
-  const enhancedMembers = getTeamMemberProfileDataFromOrganization(
-    members,
-    sessionUser.id
-  );
 
   return json(
     {
