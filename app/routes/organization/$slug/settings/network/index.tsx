@@ -6,7 +6,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
-  getNetworkMembersSuggestions,
+  getNetworkMemberSuggestions,
   handleAuthorization,
 } from "../utils.server";
 import Add from "./add";
@@ -17,7 +17,7 @@ export type NetworkMember = ArrayElement<
 >;
 
 export type NetworkMemberSuggestions =
-  | Awaited<ReturnType<typeof getNetworkMembersSuggestions>>
+  | Awaited<ReturnType<typeof getNetworkMemberSuggestions>>
   | undefined;
 
 export const loader = async (args: LoaderArgs) => {
@@ -42,7 +42,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
-    networkMemberSuggestions = await getNetworkMembersSuggestions(
+    networkMemberSuggestions = await getNetworkMemberSuggestions(
       authClient,
       slug,
       alreadyMemberSlugs,

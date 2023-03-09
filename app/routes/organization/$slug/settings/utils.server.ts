@@ -442,7 +442,7 @@ export async function getNetworkMembersOfOrganization(
   return enhancedNetworkMembers;
 }
 
-export async function getNetworkMembersSuggestions(
+export async function getNetworkMemberSuggestions(
   authClient: SupabaseClient,
   ownOrganizationSlug: string,
   alreadyMemberSlugs: string[],
