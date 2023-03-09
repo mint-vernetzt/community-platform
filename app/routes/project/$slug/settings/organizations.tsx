@@ -1,31 +1,37 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
-import type { ActionData as AddOrganizationActionData } from "./organizations/add-organization";
+import type {
+  FailureActionData,
+  SuccessActionData,
+} from "./organizations/add-organization";
 import { addOrganizationSchema } from "./organizations/add-organization";
 import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
 import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
+  getResponsibleOrganizationSuggestions,
 } from "./utils.server";
 
-type LoaderData = {
-  userId: string;
-  projectId: string;
-  organizations: ReturnType<typeof getResponsibleOrganizationDataFromProject>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -38,7 +44,6 @@ export const loader: LoaderFunction = async (args) => {
   await checkOwnershipOrThrow(project, sessionUser);
 
   const organizations = getResponsibleOrganizationDataFromProject(project);
-
   const enhancedOrganizations = organizations.map((organization) => {
     if (organization.logo !== null) {
       const publicURL = getPublicURL(authClient, organization.logo);
@@ -52,11 +57,28 @@ export const loader: LoaderFunction = async (args) => {
     return organization;
   });
 
-  return json<LoaderData>(
+  const url = new URL(request.url);
+  const suggestionsQuery =
+    url.searchParams.get("autocomplete_query") || undefined;
+  let responsibleOrganizationSuggestions;
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const alreadyMemberSlugs = organizations.map((organization) => {
+      return organization.slug;
+    });
+    responsibleOrganizationSuggestions =
+      await getResponsibleOrganizationSuggestions(
+        authClient,
+        alreadyMemberSlugs,
+        suggestionsQuery
+      );
+  }
+
+  return json(
     {
       userId: sessionUser.id,
       projectId: project.id,
-      organizations: enhancedOrganizations,
+      responbsibleOrganizations: enhancedOrganizations,
+      responsibleOrganizationSuggestions,
     },
     { headers: response.headers }
   );
@@ -64,9 +86,14 @@ export const loader: LoaderFunction = async (args) => {
 
 function Organizations() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
-  const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
+  const loaderData = useLoaderData<typeof loader>();
+  const addOrganizationFetcher = useFetcher<
+    SuccessActionData | FailureActionData
+  >();
   const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const submit = useSubmit();
 
   return (
     <>
@@ -76,7 +103,7 @@ function Organizations() {
         weitere Organisationen hinzu oder entferne sie.
       </p>
       <ul>
-        {loaderData.organizations.map((organization) => {
+        {loaderData.responbsibleOrganizations.map((organization) => {
           const initials = getInitialsOfName(organization.name);
           return (
             <li
@@ -122,9 +149,10 @@ function Organizations() {
                 className="ml-auto"
               >
                 {(props) => {
-                  const { Field, Button } = props;
+                  const { Field, Button, Errors } = props;
                   return (
                     <>
+                      <Errors />
                       <Field name="userId" />
                       <Field name="projectId" />
                       <Field name="organizationId" />
@@ -161,15 +189,17 @@ function Organizations() {
         action={`/project/${slug}/settings/organizations/add-organization`}
         hiddenFields={["projectId", "userId"]}
         values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/organization/${slug}/settings/network`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <>
+              <Errors />
               <Field name="projectId" />
               <Field name="userId" />
               <div className="form-control w-full">
@@ -186,23 +216,25 @@ function Organizations() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="organizationName" className="flex-auto">
+                  <Field name="id" className="flex-auto">
                     {({ Errors }) => (
                       <>
-                        <input
-                          id="organizationName"
-                          name="organizationName"
-                          className="input input-bordered w-full"
-                        />
                         <Errors />
+                        <Autocomplete
+                          suggestions={
+                            loaderData.responsibleOrganizationSuggestions || []
+                          }
+                          suggestionsLoaderPath={`/project/${slug}/settings/organizations`}
+                          value={suggestionsQuery || ""}
+                          {...register("id")}
+                        />
                       </>
                     )}
                   </Field>
                   <div className="ml-2">
-                    <Button className="btn btn-outline-primary ml-auto btn-small">
-                      Hinzufügen
+                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                      +
                     </Button>
-                    <Errors />
                   </div>
                 </div>
               </div>
@@ -210,6 +242,12 @@ function Organizations() {
           );
         }}
       </Form>
+      {addOrganizationFetcher.data !== undefined &&
+      "message" in addOrganizationFetcher.data ? (
+        <div className="p-4 bg-green-200 rounded-md mt-4 animate-fade-out">
+          {addOrganizationFetcher.data.message}
+        </div>
+      ) : null}
     </>
   );
 }

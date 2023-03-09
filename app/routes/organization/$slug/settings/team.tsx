@@ -145,9 +145,10 @@ function Index() {
                 className="ml-auto"
               >
                 {(props) => {
-                  const { Field, Button } = props;
+                  const { Field, Button, Errors } = props;
                   return (
                     <>
+                      <Errors />
                       <Field name="userId" />
                       <Field name="slug" />
                       <Field name="teamMemberId" />
@@ -240,6 +241,7 @@ function Index() {
         {({ Field, Errors, Button, register }) => {
           return (
             <div className="form-control w-full">
+              <Errors />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
@@ -266,7 +268,6 @@ function Index() {
                   <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
                     +
                   </Button>
-                  <Errors />
                 </div>
               </div>
               <Field name="slug" />

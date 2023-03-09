@@ -1,7 +1,10 @@
 import type { Project } from "@prisma/client";
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { GravityType } from "imgproxy/dist/types";
 import { badRequest, unauthorized } from "remix-utils";
+import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
+import { getPublicURL } from "~/storage.server";
 import type { getProjectBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
@@ -57,6 +60,26 @@ export function transformFormToProject(form: any) {
   };
 }
 
+export async function getOrganizationById(id: string) {
+  const organization = await prismaClient.organization.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      responsibleForProject: {
+        select: {
+          project: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organization;
+}
+
 export async function updateProjectById(id: string, data: any) {
   await prismaClient.project.update({
     where: { id },
@@ -110,6 +133,65 @@ export function getResponsibleOrganizationDataFromProject(
     return item.organization;
   });
   return organizationData;
+}
+
+export async function getResponsibleOrganizationSuggestions(
+  authClient: SupabaseClient,
+  alreadyResponsibleOrganizationSlugs: string[],
+  query: string
+) {
+  const responsibleOrganizationSuggestions =
+    await prismaClient.organization.findMany({
+      select: {
+        id: true,
+        name: true,
+        logo: true,
+        types: {
+          select: {
+            organizationType: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        AND: [
+          {
+            slug: {
+              notIn: alreadyResponsibleOrganizationSlugs,
+            },
+          },
+          {
+            name: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      take: 6,
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+  const enhancedResponsibleOrganizationSuggestions =
+    responsibleOrganizationSuggestions.map((networkMember) => {
+      if (networkMember.logo !== null) {
+        const publicURL = getPublicURL(authClient, networkMember.logo);
+        if (publicURL !== null) {
+          networkMember.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return networkMember;
+    });
+
+  return enhancedResponsibleOrganizationSuggestions;
 }
 
 export async function checkSameProjectOrThrow(

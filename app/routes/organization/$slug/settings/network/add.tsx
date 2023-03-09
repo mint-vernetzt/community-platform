@@ -145,6 +145,7 @@ function Add(props: NetworkMemberProps) {
         {({ Field, Errors, Button, register }) => {
           return (
             <div className="form-control w-full">
+              <Errors />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
