@@ -1,6 +1,13 @@
 import type { Organization, Profile } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
-import React, { useEffect, useRef, useState } from "react";
+import { debounce } from "lodash";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
@@ -53,23 +60,35 @@ const Autocomplete = React.forwardRef(
       }
     }, [suggestions.length]);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-      submit(
-        {
-          autocomplete_query: event.target.value,
-        },
-        {
-          method: "get",
-          action: suggestionsLoaderPath,
-        }
-      );
+    const handleChange = useCallback(
+      debounce((value: string) => {
+        submit(
+          {
+            autocomplete_query: value,
+          },
+          {
+            method: "get",
+            action: suggestionsLoaderPath,
+          }
+        );
+      }, 300),
+      []
+    );
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchedValue(event.target.value);
+      handleChange(event.target.value);
     };
+
+    useEffect(() => {
+      return () => {
+        handleChange.cancel();
+      };
+    }, []);
 
     const handleKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>
     ): void => {
-      // TODO: Scroll when selection is out of screen
       if (event.key === "ArrowDown" && activeSuggestion < suggestions.length) {
         event.preventDefault();
         event.stopPropagation();
@@ -99,7 +118,7 @@ const Autocomplete = React.forwardRef(
           ref={inputRef}
           className="input input-bordered w-full mb-2"
           value={searchedValue}
-          onChange={handleChange}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           autoComplete="off"
         />
