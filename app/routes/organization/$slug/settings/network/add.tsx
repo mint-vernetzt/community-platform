@@ -120,7 +120,7 @@ function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
   const fetcher = useFetcher<SuccessActionData | FailureActionData>();
   const [searchParams] = useSearchParams();
-  const suggestionsQuery = searchParams.get("suggestions_query");
+  const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
 
   return (
@@ -179,7 +179,7 @@ function Add(props: NetworkMemberProps) {
         }}
       </Form>
       {fetcher.data !== undefined && "message" in fetcher.data ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
+        <div className="p-4 bg-green-200 rounded-md mt-4 animate-fade-out">
           {fetcher.data.message}
         </div>
       ) : null}

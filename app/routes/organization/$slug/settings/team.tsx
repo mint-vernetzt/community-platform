@@ -46,7 +46,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const url = new URL(request.url);
   const suggestionsQuery =
-    url.searchParams.get("suggestions_query") || undefined;
+    url.searchParams.get("autocomplete_query") || undefined;
   let memberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const alreadyMemberIds = members.map((member) => {
@@ -85,7 +85,7 @@ function Index() {
   const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
   const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
   const [searchParams] = useSearchParams();
-  const suggestionsQuery = searchParams.get("suggestions_query");
+  const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
 
   return (
@@ -279,7 +279,7 @@ function Index() {
       </Form>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
+        <div className="p-4 bg-green-200 rounded-md mt-4 animate-fade-out">
           {addMemberFetcher.data.message}
         </div>
       ) : null}

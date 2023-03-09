@@ -56,7 +56,7 @@ const Autocomplete = React.forwardRef(
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
       submit(
         {
-          suggestions_query: event.target.value,
+          autocomplete_query: event.target.value,
         },
         {
           method: "get",

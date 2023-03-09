@@ -35,7 +35,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const url = new URL(request.url);
   const suggestionsQuery =
-    url.searchParams.get("suggestions_query") || undefined;
+    url.searchParams.get("autocomplete_query") || undefined;
 
   let networkMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
