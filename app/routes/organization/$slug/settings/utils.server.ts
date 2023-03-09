@@ -70,6 +70,7 @@ export async function getProfileByEmail(email: string) {
   });
   return profile;
 }
+
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findFirst({
     where: { id },

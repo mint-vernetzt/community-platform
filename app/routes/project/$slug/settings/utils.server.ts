@@ -218,3 +218,83 @@ export function getTeamMemberProfileDataFromProject(
   });
   return profileData;
 }
+
+export async function getTeamMemberSuggestions(
+  authClient: SupabaseClient,
+  alreadyMemberIds: string[],
+  query: string
+) {
+  const teamMemberSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyMemberIds,
+          },
+        },
+        {
+          OR: [
+            {
+              firstName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedTeamMemberSuggestions = teamMemberSuggestions.map((member) => {
+    if (member.avatar !== null) {
+      const publicURL = getPublicURL(authClient, member.avatar);
+      if (publicURL !== null) {
+        member.avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return member;
+  });
+  return enhancedTeamMemberSuggestions;
+}
+
+export async function getProfileById(id: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      teamMemberOfProjects: {
+        select: {
+          project: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return profile;
+}
