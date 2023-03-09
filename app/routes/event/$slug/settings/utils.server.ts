@@ -1,9 +1,12 @@
 import type { Event } from "@prisma/client";
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
+import { GravityType } from "imgproxy/dist/types";
 import { unauthorized } from "remix-utils";
+import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
+import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
@@ -326,4 +329,163 @@ export function getParticipantsDataFromEvent(
     return { ...item.profile, createdAt: item.createdAt };
   });
   return { participants: participantsData, waitingList: waitingListData };
+}
+
+export async function getResponsibleOrganizationSuggestions(
+  authClient: SupabaseClient,
+  alreadyResponsibleOrganizationSlugs: string[],
+  query: string
+) {
+  const responsibleOrganizationSuggestions =
+    await prismaClient.organization.findMany({
+      select: {
+        id: true,
+        name: true,
+        logo: true,
+        types: {
+          select: {
+            organizationType: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        AND: [
+          {
+            slug: {
+              notIn: alreadyResponsibleOrganizationSlugs,
+            },
+          },
+          {
+            name: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      take: 6,
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+  const enhancedResponsibleOrganizationSuggestions =
+    responsibleOrganizationSuggestions.map((networkMember) => {
+      if (networkMember.logo !== null) {
+        const publicURL = getPublicURL(authClient, networkMember.logo);
+        if (publicURL !== null) {
+          networkMember.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return networkMember;
+    });
+
+  return enhancedResponsibleOrganizationSuggestions;
+}
+
+export async function getOrganizationById(id: string) {
+  const organization = await prismaClient.organization.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      responsibleForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organization;
+}
+
+export async function getTeamMemberSuggestions(
+  authClient: SupabaseClient,
+  alreadyTeamMemberIds: string[],
+  query: string
+) {
+  const teamMemberSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyTeamMemberIds,
+          },
+        },
+        {
+          OR: [
+            {
+              firstName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedTeamMemberSuggestions = teamMemberSuggestions.map((member) => {
+    if (member.avatar !== null) {
+      const publicURL = getPublicURL(authClient, member.avatar);
+      if (publicURL !== null) {
+        member.avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return member;
+  });
+  return enhancedTeamMemberSuggestions;
+}
+
+export async function getProfileById(id: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      teamMemberOfEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return profile;
 }

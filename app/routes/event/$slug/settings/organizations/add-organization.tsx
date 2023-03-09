@@ -7,25 +7,28 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import {
+  checkIdentityOrThrow,
+  checkOwnershipOrThrow,
+  getOrganizationById,
+} from "../utils.server";
 import { connectOrganizationToEvent } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  organizationName: z.string(),
+  id: z.string(),
 });
 
 export const addOrganizationSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationByName(values.organizationName);
+  const organization = await getOrganizationById(values.id);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation mit diesem Namen.",
-      "organizationName"
+      "id"
     );
   }
   const alreadyMember = organization.responsibleForEvents.some((entry) => {
@@ -34,13 +37,17 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (alreadyMember) {
     throw new InputError(
       "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich.",
-      "organizationName"
+      "id"
     );
   }
-  return values;
+  return { ...values, name: organization.name };
 });
 
-export type ActionData = PerformMutation<
+export type SuccessActionData = {
+  message: string;
+};
+
+export type FailureActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema>
 >;
@@ -59,12 +66,16 @@ export const action: ActionFunction = async (args) => {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
-    const organization = await getOrganizationByName(
-      result.data.organizationName
-    );
+    const organization = await getOrganizationById(result.data.id);
     if (organization !== null) {
       await connectOrganizationToEvent(event.id, organization.id);
     }
+    return json<SuccessActionData>(
+      {
+        message: `Die Organisation "${result.data.name}" ist jetzt verantwortlich für Eure Veranstaltung.`,
+      },
+      { headers: response.headers }
+    );
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json<FailureActionData>(result, { headers: response.headers });
 };

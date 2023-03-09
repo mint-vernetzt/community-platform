@@ -221,7 +221,7 @@ export function getTeamMemberProfileDataFromProject(
 
 export async function getTeamMemberSuggestions(
   authClient: SupabaseClient,
-  alreadyMemberIds: string[],
+  alreadyTeamMemberIds: string[],
   query: string
 ) {
   const teamMemberSuggestions = await prismaClient.profile.findMany({
@@ -236,7 +236,7 @@ export async function getTeamMemberSuggestions(
       AND: [
         {
           id: {
-            notIn: alreadyMemberIds,
+            notIn: alreadyTeamMemberIds,
           },
         },
         {

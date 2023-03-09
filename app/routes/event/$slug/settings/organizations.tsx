@@ -1,9 +1,18 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+  useSubmit,
+  useTransition,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -11,22 +20,20 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type { ActionData as AddOrganizationActionData } from "./organizations/add-organization";
+import type {
+  FailureActionData,
+  SuccessActionData,
+} from "./organizations/add-organization";
 import { addOrganizationSchema } from "./organizations/add-organization";
 import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
 import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromEvent,
+  getResponsibleOrganizationSuggestions,
 } from "./utils.server";
 
-type LoaderData = {
-  userId: string;
-  eventId: string;
-  organizations: ReturnType<typeof getResponsibleOrganizationDataFromEvent>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -51,11 +58,30 @@ export const loader: LoaderFunction = async (args) => {
     return organization;
   });
 
-  return json<LoaderData>(
+  const url = new URL(request.url);
+  const suggestionsQuery =
+    url.searchParams.get("autocomplete_query") || undefined;
+  let responsibleOrganizationSuggestions;
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const alreadyResponsibleOrganizationSlugs = organizations.map(
+      (organization) => {
+        return organization.slug;
+      }
+    );
+    responsibleOrganizationSuggestions =
+      await getResponsibleOrganizationSuggestions(
+        authClient,
+        alreadyResponsibleOrganizationSlugs,
+        suggestionsQuery
+      );
+  }
+
+  return json(
     {
       userId: sessionUser.id,
       eventId: event.id,
-      organizations: enhancedOrganizations,
+      responsibleOrganizations: enhancedOrganizations,
+      responsibleOrganizationSuggestions,
     },
     { headers: response.headers }
   );
@@ -63,9 +89,15 @@ export const loader: LoaderFunction = async (args) => {
 
 function Organizations() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
-  const addOrganizationFetcher = useFetcher<AddOrganizationActionData>();
+  const loaderData = useLoaderData<typeof loader>();
+  const addOrganizationFetcher = useFetcher<
+    SuccessActionData | FailureActionData
+  >();
   const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const submit = useSubmit();
+  const transition = useTransition();
 
   return (
     <>
@@ -75,7 +107,7 @@ function Organizations() {
         weitere Organisationen hinzu oder entferne sie.
       </p>
       <ul>
-        {loaderData.organizations.map((organization) => {
+        {loaderData.responsibleOrganizations.map((organization) => {
           const initials = getInitialsOfName(organization.name);
           return (
             <li
@@ -121,9 +153,10 @@ function Organizations() {
                 className="ml-auto"
               >
                 {(props) => {
-                  const { Field, Button } = props;
+                  const { Field, Button, Errors } = props;
                   return (
                     <>
+                      <Errors />
                       <Field name="userId" />
                       <Field name="eventId" />
                       <Field name="organizationId" />
@@ -160,48 +193,48 @@ function Organizations() {
         action={`/event/${slug}/settings/organizations/add-organization`}
         hiddenFields={["eventId", "userId"]}
         values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/event/${slug}/settings/organizations`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <>
+              <Errors />
               <Field name="eventId" />
               <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
-                    <label
-                      id="label-for-email"
-                      htmlFor="Email"
-                      className="label"
-                    >
+                    <label id="label-for-name" htmlFor="Name" className="label">
                       Name der Organisation
                     </label>
                   </div>
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="organizationName" className="flex-auto">
+                  <Field name="id" className="flex-auto">
                     {({ Errors }) => (
                       <>
-                        <input
-                          id="organizationName"
-                          name="organizationName"
-                          className="input input-bordered w-full"
-                        />
                         <Errors />
+                        <Autocomplete
+                          suggestions={
+                            loaderData.responsibleOrganizationSuggestions || []
+                          }
+                          suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
+                          value={suggestionsQuery || ""}
+                          {...register("id")}
+                        />
                       </>
                     )}
                   </Field>
                   <div className="ml-2">
-                    <Button className="btn btn-outline-primary ml-auto btn-small">
-                      Hinzufügen
+                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                      +
                     </Button>
-                    <Errors />
                   </div>
                 </div>
               </div>
@@ -209,8 +242,13 @@ function Organizations() {
           );
         }}
       </Form>
-      {addOrganizationFetcher.data?.message ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
+      {addOrganizationFetcher.data !== undefined &&
+      "message" in addOrganizationFetcher.data ? (
+        <div
+          className={`p-4 bg-green-200 rounded-md mt-4 ${
+            transition.state === "idle" ? "animate-fade-out" : "hidden"
+          }`}
+        >
           {addOrganizationFetcher.data.message}
         </div>
       ) : null}

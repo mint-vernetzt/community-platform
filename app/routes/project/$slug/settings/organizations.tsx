@@ -7,6 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  useTransition,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
@@ -62,13 +63,15 @@ export const loader = async (args: LoaderArgs) => {
     url.searchParams.get("autocomplete_query") || undefined;
   let responsibleOrganizationSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
-    const alreadyMemberSlugs = organizations.map((organization) => {
-      return organization.slug;
-    });
+    const alreadyResponsibleOrganizationSlugs = organizations.map(
+      (organization) => {
+        return organization.slug;
+      }
+    );
     responsibleOrganizationSuggestions =
       await getResponsibleOrganizationSuggestions(
         authClient,
-        alreadyMemberSlugs,
+        alreadyResponsibleOrganizationSlugs,
         suggestionsQuery
       );
   }
@@ -94,6 +97,7 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const transition = useTransition();
 
   return (
     <>
@@ -205,11 +209,7 @@ function Organizations() {
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
-                    <label
-                      id="label-for-email"
-                      htmlFor="Email"
-                      className="label"
-                    >
+                    <label id="label-for-name" htmlFor="Name" className="label">
                       Name der Organisation
                     </label>
                   </div>
@@ -244,7 +244,11 @@ function Organizations() {
       </Form>
       {addOrganizationFetcher.data !== undefined &&
       "message" in addOrganizationFetcher.data ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4 animate-fade-out">
+        <div
+          className={`p-4 bg-green-200 rounded-md mt-4 ${
+            transition.state === "idle" ? "animate-fade-out" : "hidden"
+          }`}
+        >
           {addOrganizationFetcher.data.message}
         </div>
       ) : null}

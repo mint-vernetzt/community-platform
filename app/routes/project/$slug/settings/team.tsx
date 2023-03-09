@@ -7,6 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  useTransition,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
@@ -62,12 +63,12 @@ export const loader = async (args: LoaderArgs) => {
     url.searchParams.get("autocomplete_query") || undefined;
   let teamMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
-    const alreadyMemberIds = teamMembers.map((member) => {
+    const alreadyTeamMemberIds = teamMembers.map((member) => {
       return member.id;
     });
     teamMemberSuggestions = await getTeamMemberSuggestions(
       authClient,
-      alreadyMemberIds,
+      alreadyTeamMemberIds,
       suggestionsQuery
     );
   }
@@ -92,6 +93,7 @@ function Team() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const transition = useTransition();
 
   return (
     <>
@@ -279,7 +281,11 @@ function Team() {
       </Form>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4 animate-fade-out">
+        <div
+          className={`p-4 bg-green-200 rounded-md mt-4 ${
+            transition.state === "idle" ? "animate-fade-out" : "hidden"
+          }`}
+        >
           {addMemberFetcher.data.message}
         </div>
       ) : null}
