@@ -1,12 +1,19 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { Form } from "remix-forms";
 import { createAuthClient } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import type { ArrayElement } from "~/lib/utils/types";
 import type {
   FailureActionData as AddMemberFailureActionData,
   SuccessActionData as AddMemberSuccessActionData,
@@ -18,22 +25,12 @@ import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege"
 import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   getMembersOfOrganization,
+  getMemberSuggestions,
   getTeamMemberProfileDataFromOrganization,
   handleAuthorization,
 } from "./utils.server";
 
-export type Member = ArrayElement<
-  Awaited<ReturnType<typeof getTeamMemberProfileDataFromOrganization>>
->;
-
-type LoaderData = {
-  userId: string;
-  organizationId: string;
-  slug: string;
-  members: Member[];
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -47,14 +44,30 @@ export const loader: LoaderFunction = async (args) => {
 
   const members = await getMembersOfOrganization(authClient, organization.id);
 
+  const url = new URL(request.url);
+  const suggestionsQuery =
+    url.searchParams.get("suggestions_query") || undefined;
+  let memberSuggestions;
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const alreadyMemberIds = members.map((member) => {
+      return member.profile.id;
+    });
+    memberSuggestions = await getMemberSuggestions(
+      authClient,
+      alreadyMemberIds,
+      suggestionsQuery
+    );
+  }
+
   const enhancedMembers = getTeamMemberProfileDataFromOrganization(
     members,
     sessionUser.id
   );
 
-  return json<LoaderData>(
+  return json(
     {
       members: enhancedMembers,
+      memberSuggestions,
       userId: sessionUser.id,
       organizationId: organization.id,
       slug: slug,
@@ -65,12 +78,15 @@ export const loader: LoaderFunction = async (args) => {
 
 function Index() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const addMemberFetcher = useFetcher<
     AddMemberSuccessActionData | AddMemberFailureActionData
   >();
   const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
   const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("suggestions_query");
+  const submit = useSubmit();
 
   return (
     <>
@@ -215,33 +231,35 @@ function Index() {
           userId: loaderData.userId,
           organizationId: loaderData.organizationId,
         }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/organization/${slug}/settings/team`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <div className="form-control w-full">
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
-                  <label id="label-for-email" htmlFor="Email" className="label">
-                    E-Mail
+                  <label id="label-for-name" htmlFor="Name" className="label">
+                    Name des Teammitglieds
                   </label>
                 </div>
               </div>
 
               <div className="flex flex-row">
-                <Field name="email" className="flex-auto">
+                <Field name="id" className="flex-auto">
                   {({ Errors }) => (
                     <>
-                      <input
-                        id="email"
-                        name="email"
-                        className="input input-bordered w-full"
-                      />
                       <Errors />
+                      <Autocomplete
+                        suggestions={loaderData.memberSuggestions || []}
+                        suggestionsLoaderPath={`/organization/${slug}/settings/team`}
+                        value={suggestionsQuery || ""}
+                        {...register("id")}
+                      />
                     </>
                   )}
                 </Field>
@@ -259,6 +277,12 @@ function Index() {
           );
         }}
       </Form>
+      {addMemberFetcher.data !== undefined &&
+      "message" in addMemberFetcher.data ? (
+        <div className="p-4 bg-green-200 rounded-md mt-4">
+          {addMemberFetcher.data.message}
+        </div>
+      ) : null}
     </>
   );
 }

@@ -70,6 +70,26 @@ export async function getProfileByEmail(email: string) {
   });
   return profile;
 }
+export async function getProfileById(id: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      memberOf: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return profile;
+}
 
 export async function getWholeOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findFirst({
@@ -375,6 +395,65 @@ export async function getMembersOfOrganization(
   return enhancedMembers;
 }
 
+export async function getMemberSuggestions(
+  authClient: SupabaseClient,
+  alreadyMemberIds: string[],
+  query: string
+) {
+  const memberSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyMemberIds,
+          },
+        },
+        {
+          OR: [
+            {
+              firstName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedMemberSuggestions = memberSuggestions.map((member) => {
+    if (member.avatar !== null) {
+      const publicURL = getPublicURL(authClient, member.avatar);
+      if (publicURL !== null) {
+        member.avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return member;
+  });
+  return enhancedMemberSuggestions;
+}
+
 export function getTeamMemberProfileDataFromOrganization(
   members: Awaited<ReturnType<typeof getMembersOfOrganization>>,
   currentUserId: string
@@ -451,7 +530,6 @@ export async function getNetworkMemberSuggestions(
   const networkMemberSuggestions = await prismaClient.organization.findMany({
     select: {
       id: true,
-      slug: true,
       name: true,
       logo: true,
       types: {

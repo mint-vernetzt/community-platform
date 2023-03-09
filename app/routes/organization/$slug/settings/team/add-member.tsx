@@ -14,21 +14,21 @@ import {
 import {
   connectProfileToOrganization,
   getOrganizationIdBySlug,
-  getProfileByEmail,
+  getProfileById,
   handleAuthorization,
 } from "../utils.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
   organizationId: z.string().uuid(),
-  email: z.string().email(),
+  id: z.string(),
   slug: z.string(),
 });
 
 export const addMemberSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { email, slug } = values;
+  const { id, slug } = values;
   // TODO: Duplicate code - see utils.server.ts handleAuthorization()
   // Problem:
   // - organization.id is required inside the mutation scope
@@ -39,12 +39,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw "Die Organisation konnte nicht gefunden werden.";
   }
 
-  const profile = await getProfileByEmail(email);
+  const profile = await getProfileById(id);
 
   if (profile === null) {
     throw new InputError(
-      "Es existiert noch kein Profil unter dieser E-Mail.",
-      "email"
+      "Es existiert noch kein Profil unter diesem Namen.",
+      "id"
     );
   }
 
@@ -54,8 +54,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
   if (alreadyMember) {
     throw new InputError(
-      "Das Profil unter dieser E-Mail ist bereits Mitglied Eurer Organisation.",
-      "email"
+      "Das Profil unter diesem Namen ist bereits Mitglied Eurer Organisation.",
+      "id"
     );
   }
 
@@ -64,10 +64,14 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     organization.id
   );
   if (result === null) {
-    throw "Das profil unter dieser E-Mail konnte leider nicht hinzugefügt werden.";
+    throw "Das profil unter diesem Namen konnte leider nicht hinzugefügt werden.";
   }
 
-  return values;
+  return {
+    ...values,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+  };
 });
 
 export type SuccessActionData = {
@@ -97,7 +101,7 @@ export const action: ActionFunction = async (args) => {
   if (result.success) {
     return json<SuccessActionData>(
       {
-        message: `Ein neues Teammitglied mit der E-Mail "${result.data.email}" wurde hinzugefügt.`,
+        message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
       },
       { headers: response.headers }
     );
