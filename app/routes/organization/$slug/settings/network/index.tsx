@@ -38,6 +38,7 @@ export const loader = async (args: LoaderArgs) => {
     url.searchParams.get("autocomplete_query") || undefined;
   let networkMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const query = suggestionsQuery.split(" ");
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
@@ -45,7 +46,7 @@ export const loader = async (args: LoaderArgs) => {
       authClient,
       slug,
       alreadyMemberSlugs,
-      suggestionsQuery
+      query
     );
   }
 

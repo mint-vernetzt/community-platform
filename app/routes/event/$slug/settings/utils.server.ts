@@ -334,8 +334,22 @@ export function getParticipantsDataFromEvent(
 export async function getResponsibleOrganizationSuggestions(
   authClient: SupabaseClient,
   alreadyResponsibleOrganizationSlugs: string[],
-  query: string
+  query: string[]
 ) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
   const responsibleOrganizationSuggestions =
     await prismaClient.organization.findMany({
       select: {
@@ -359,12 +373,7 @@ export async function getResponsibleOrganizationSuggestions(
               notIn: alreadyResponsibleOrganizationSlugs,
             },
           },
-          {
-            name: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
+          ...whereQueries,
         ],
       },
       take: 6,
@@ -413,8 +422,28 @@ export async function getOrganizationById(id: string) {
 export async function getTeamMemberSuggestions(
   authClient: SupabaseClient,
   alreadyTeamMemberIds: string[],
-  query: string
+  query: string[]
 ) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
   const teamMemberSuggestions = await prismaClient.profile.findMany({
     select: {
       id: true,
@@ -430,22 +459,7 @@ export async function getTeamMemberSuggestions(
             notIn: alreadyTeamMemberIds,
           },
         },
-        {
-          OR: [
-            {
-              firstName: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-            {
-              lastName: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
+        ...whereQueries,
       ],
     },
     take: 6,

@@ -71,7 +71,7 @@ const Autocomplete = React.forwardRef(
             action: suggestionsLoaderPath,
           }
         );
-      }, 300),
+      }, 500),
       []
     );
 

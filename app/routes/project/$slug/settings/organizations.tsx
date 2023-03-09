@@ -63,6 +63,7 @@ export const loader = async (args: LoaderArgs) => {
     url.searchParams.get("autocomplete_query") || undefined;
   let responsibleOrganizationSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const query = suggestionsQuery.split(" ");
     const alreadyResponsibleOrganizationSlugs = organizations.map(
       (organization) => {
         return organization.slug;
@@ -72,7 +73,7 @@ export const loader = async (args: LoaderArgs) => {
       await getResponsibleOrganizationSuggestions(
         authClient,
         alreadyResponsibleOrganizationSlugs,
-        suggestionsQuery
+        query
       );
   }
 

@@ -399,8 +399,28 @@ export async function getMembersOfOrganization(
 export async function getMemberSuggestions(
   authClient: SupabaseClient,
   alreadyMemberIds: string[],
-  query: string
+  query: string[]
 ) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
   const memberSuggestions = await prismaClient.profile.findMany({
     select: {
       id: true,
@@ -416,22 +436,7 @@ export async function getMemberSuggestions(
             notIn: alreadyMemberIds,
           },
         },
-        {
-          OR: [
-            {
-              firstName: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-            {
-              lastName: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
+        ...whereQueries,
       ],
     },
     take: 6,
@@ -526,8 +531,22 @@ export async function getNetworkMemberSuggestions(
   authClient: SupabaseClient,
   ownOrganizationSlug: string,
   alreadyMemberSlugs: string[],
-  query: string
+  query: string[]
 ) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
   const networkMemberSuggestions = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -555,12 +574,7 @@ export async function getNetworkMemberSuggestions(
             notIn: alreadyMemberSlugs,
           },
         },
-        {
-          name: {
-            contains: query,
-            mode: "insensitive",
-          },
-        },
+        ...whereQueries,
       ],
     },
     take: 6,

@@ -54,13 +54,14 @@ export const loader = async (args: LoaderArgs) => {
     url.searchParams.get("autocomplete_query") || undefined;
   let memberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const query = suggestionsQuery.split(" ");
     const alreadyMemberIds = members.map((member) => {
       return member.profile.id;
     });
     memberSuggestions = await getMemberSuggestions(
       authClient,
       alreadyMemberIds,
-      suggestionsQuery
+      query
     );
   }
 
