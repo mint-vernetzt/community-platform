@@ -1,10 +1,20 @@
+import type { Organization, Profile } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
 
 export interface AutocompleteProps {
-  suggestions: any[];
+  suggestions:
+    | Pick<Profile, "firstName" | "lastName" | "id" | "avatar" | "position">[]
+    | (Pick<Organization, "name" | "logo" | "id"> & {
+        types: {
+          organizationType: {
+            title: string;
+          };
+        }[];
+      })[];
   suggestionsLoaderPath: string;
   value: String;
 }
@@ -17,12 +27,31 @@ const Autocomplete = React.forwardRef(
     const { suggestions, suggestionsLoaderPath, value, ...rest } = props;
 
     const [searchedValue, setSearchedValue] = useState(value);
+    const [submitValue, setSubmitValue] = useState(value);
     const [activeSuggestion, setActiveSuggestion] = useState(0);
     const submit = useSubmit();
+    const suggestionsContainerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
       setSearchedValue(value);
+      setSubmitValue("");
     }, [value]);
+
+    useEffect(() => {
+      if (inputRef.current !== null) {
+        inputRef.current.focus();
+      }
+    }, []);
+
+    useEffect(() => {
+      if (suggestionsContainerRef.current !== null) {
+        suggestionsContainerRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }
+    }, [suggestions.length]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
       submit(
@@ -50,7 +79,7 @@ const Autocomplete = React.forwardRef(
         event.stopPropagation();
         setActiveSuggestion(activeSuggestion - 1);
       } else if (event.key === "Enter") {
-        setSearchedValue(suggestions[activeSuggestion - 1].name);
+        setSubmitValue(suggestions[activeSuggestion - 1].id);
         setActiveSuggestion(0);
       }
     };
@@ -60,61 +89,96 @@ const Autocomplete = React.forwardRef(
     };
 
     const handleClick = () => {
-      setSearchedValue(suggestions[activeSuggestion - 1].name);
+      setSubmitValue(suggestions[activeSuggestion - 1].id);
       setActiveSuggestion(0);
     };
 
     return (
       <>
         <input
-          {...rest}
-          ref={forwardRef as React.RefObject<HTMLInputElement>}
+          ref={inputRef}
           className="input input-bordered w-full mb-2"
           value={searchedValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           autoComplete="off"
         />
-        {suggestions.length >= 0
-          ? suggestions.map((suggestion, index) => {
-              // TODO: Outsource this as child element to props
-              // ChildElements should have boolean property active
-              // This property should be passed inside here as follows: active={index === activeSuggestion - 1}
-              const initials = getInitialsOfName(suggestion.name);
-              return (
-                <button
-                  key={suggestion.id}
-                  className={`${
-                    index === activeSuggestion - 1 ? "bg-blue-100 " : ""
-                  }w-full flex items-center flex-row border-b border-neutral-400 p-4 cursor-pointer rounded-lg`}
-                  onClick={() => handleClick()}
-                  onMouseOver={() => handleMouseOver(index)}
-                >
-                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
-                    {suggestion.logo !== null && suggestion.logo !== "" ? (
-                      <img src={suggestion.logo} alt={suggestion.name} />
-                    ) : (
-                      <>{initials}</>
-                    )}
-                  </div>
-                  <div className="pl-4">
-                    <H3 like="h4" className="text-xl mb-1">
-                      {suggestion.name}
-                    </H3>
-                    {suggestion.types.length !== 0 ? (
-                      <p className="font-bold text-sm">
-                        {suggestion.types
-                          .map((item) => {
-                            return item.organizationType.title;
-                          })
-                          .join(" / ")}
-                      </p>
-                    ) : null}
-                  </div>
-                </button>
-              );
-            })
-          : null}
+        <input {...rest} hidden value={submitValue} />
+        {suggestions.length > 0 ? (
+          <div id="suggestions-container" ref={suggestionsContainerRef}>
+            {suggestions.map((suggestion, index) => {
+              if ("name" in suggestion) {
+                const initials = getInitialsOfName(suggestion.name);
+                return (
+                  <button
+                    key={suggestion.id}
+                    className={`${
+                      index === activeSuggestion - 1 ? "bg-blue-100 " : ""
+                    }w-full flex items-center flex-row border-b border-neutral-400 p-4 cursor-pointer rounded-lg`}
+                    onClick={() => handleClick()}
+                    onMouseOver={() => handleMouseOver(index)}
+                  >
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+                      {suggestion.logo !== null && suggestion.logo !== "" ? (
+                        <img src={suggestion.logo} alt={suggestion.name} />
+                      ) : (
+                        <>{initials}</>
+                      )}
+                    </div>
+                    <div className="pl-4">
+                      <H3 like="h4" className="text-xl mb-1">
+                        {suggestion.name}
+                      </H3>
+                      {suggestion.types.length !== 0 ? (
+                        <p className="font-bold text-sm">
+                          {suggestion.types
+                            .map((item) => {
+                              return item.organizationType.title;
+                            })
+                            .join(" / ")}
+                        </p>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              } else {
+                const initials = getInitials(suggestion);
+                return (
+                  <button
+                    key={suggestion.id}
+                    className={`${
+                      index === activeSuggestion - 1 ? "bg-blue-100 " : ""
+                    }w-full flex items-center flex-row border-b border-neutral-400 p-4`}
+                    onClick={() => handleClick()}
+                    onMouseOver={() => handleMouseOver(index)}
+                  >
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+                      {suggestion.avatar !== null &&
+                      suggestion.avatar !== "" ? (
+                        <img src={suggestion.avatar} alt={initials} />
+                      ) : (
+                        <>{initials}</>
+                      )}
+                    </div>
+                    <div className="pl-4">
+                      <H3
+                        like="h4"
+                        className="text-xl mb-1 no-underline hover:underline"
+                      >
+                        {suggestion.firstName} {suggestion.lastName}
+                      </H3>
+                      {suggestion.position ? (
+                        <p className="font-bold text-sm cursor-default">
+                          {suggestion.position}
+                        </p>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              }
+            })}
+          </div>
+        ) : null}
       </>
     );
   }

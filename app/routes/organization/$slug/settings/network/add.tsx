@@ -6,11 +6,9 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import React from "react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import { resetTask } from "simple-git/dist/src/lib/tasks/reset";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
@@ -19,36 +17,36 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMemberSuggestions } from ".";
 import {
   connectOrganizationToNetwork,
-  getOrganizationByName,
+  getOrganizationById,
   getOrganizationIdBySlug,
   handleAuthorization,
 } from "../utils.server";
 
 const schema = z.object({
-  name: z.string(),
+  id: z.string(),
   slug: z.string(),
 });
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { name, slug } = values;
+  const { id, slug } = values;
 
   const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
     throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
-  const organization = await getOrganizationByName(name);
+  const organization = await getOrganizationById(id);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation unter diesem Namen.",
-      "name"
+      "id"
     );
   }
 
   if (network.id === organization.id) {
     throw new InputError(
       "Eure Organisation ist bereits Teil Eures Netzwerks.",
-      "name"
+      "id"
     );
   }
 
@@ -59,7 +57,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (stillMember) {
     throw new InputError(
       "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
-      "name"
+      "id"
     );
   }
 
@@ -71,7 +69,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.";
   }
 
-  return values;
+  return { ...values, name: organization.name };
 });
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -156,7 +154,7 @@ function Add(props: NetworkMemberProps) {
               </div>
 
               <div className="flex flex-row">
-                <Field name="name" className="flex-auto">
+                <Field name="id" className="flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -164,7 +162,7 @@ function Add(props: NetworkMemberProps) {
                         suggestions={props.networkMemberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/network`}
                         value={suggestionsQuery || ""}
-                        {...register("name")}
+                        {...register("id")}
                       />
                     </>
                   )}

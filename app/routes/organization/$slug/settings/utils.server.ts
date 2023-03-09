@@ -155,6 +155,26 @@ export async function getOrganizationByName(name: string) {
   return organization;
 }
 
+export async function getOrganizationById(id: string) {
+  const organization = await prismaClient.organization.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      memberOf: {
+        select: {
+          network: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organization;
+}
+
 export async function updateOrganizationById(
   id: string,
   data: Omit<
@@ -280,7 +300,6 @@ export async function disconnectOrganizationFromNetwork(
       },
     },
   });
-  console.log(result);
   return result;
 }
 
