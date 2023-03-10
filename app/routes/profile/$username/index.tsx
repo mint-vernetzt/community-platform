@@ -30,7 +30,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { getProfileByUsername } from "~/profile.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
+import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import {
@@ -57,7 +57,6 @@ type LoaderData = {
   futureEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
   pastEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
   userId?: string;
-  userEmail?: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -168,7 +167,6 @@ export const loader: LoaderFunction = async (args) => {
       futureEvents: profileFutureEvents,
       pastEvents: profilePastEvents,
       userId: sessionUser?.id,
-      userEmail: sessionUser?.email,
     },
     { headers: response.headers }
   );
@@ -849,7 +847,7 @@ export default function Index() {
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -864,10 +862,10 @@ export default function Index() {
                               canUserBeAddedToWaitingList(event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1012,7 +1010,7 @@ export default function Index() {
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1025,10 +1023,10 @@ export default function Index() {
                               canUserBeAddedToWaitingList(event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1170,7 +1168,7 @@ export default function Index() {
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1182,10 +1180,10 @@ export default function Index() {
                               {canUserBeAddedToWaitingList(event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}

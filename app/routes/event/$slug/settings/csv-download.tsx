@@ -4,11 +4,8 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  getEventBySlugOrThrow,
-  getFullDepthProfiles,
-} from "../../utils.server";
-import { checkOwnershipOrThrow } from "../utils.server";
+import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
+import { checkOwnershipOrThrow } from "./utils.server";
 
 async function getProfilesBySearchParams(
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,

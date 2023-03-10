@@ -32,7 +32,7 @@ import {
   prepareOrganizationEvents,
 } from "~/organization.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "~/routes/event/$slug/settings/participants/add-to-waiting-list";
+import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
@@ -56,7 +56,6 @@ type LoaderData = {
   futureEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
   pastEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
   userId?: string;
-  userEmail?: string;
   mode: Mode;
 };
 
@@ -238,7 +237,6 @@ export const loader: LoaderFunction = async (args) => {
       futureEvents: organizationFutureEvents,
       pastEvents: organizationPastEvents,
       userId: sessionUser?.id,
-      userEmail: sessionUser?.email,
       mode,
     },
     { headers: response.headers }
@@ -917,7 +915,7 @@ export default function Index() {
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -930,10 +928,10 @@ export default function Index() {
                               canUserBeAddedToWaitingList(event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     userId={loaderData.userId}
                                     eventId={event.id}
-                                    email={loaderData.userEmail}
+                                    id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}

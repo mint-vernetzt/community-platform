@@ -392,17 +392,17 @@ export async function getResponsibleOrganizationSuggestions(
     });
 
   const enhancedResponsibleOrganizationSuggestions =
-    responsibleOrganizationSuggestions.map((networkMember) => {
-      if (networkMember.logo !== null) {
-        const publicURL = getPublicURL(authClient, networkMember.logo);
+    responsibleOrganizationSuggestions.map((organization) => {
+      if (organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, organization.logo);
         if (publicURL !== null) {
-          networkMember.logo = getImageURL(publicURL, {
+          organization.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      return networkMember;
+      return organization;
     });
 
   return enhancedResponsibleOrganizationSuggestions;
@@ -521,6 +521,24 @@ export async function getProfileById(id: string) {
           },
         },
       },
+      participatedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      waitingForEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return profile;
@@ -579,17 +597,156 @@ export async function getSpeakerSuggestions(
     },
   });
 
-  const enhancedSpeakerSuggestions = speakerSuggestions.map((member) => {
-    if (member.avatar !== null) {
-      const publicURL = getPublicURL(authClient, member.avatar);
+  const enhancedSpeakerSuggestions = speakerSuggestions.map((speaker) => {
+    if (speaker.avatar !== null) {
+      const publicURL = getPublicURL(authClient, speaker.avatar);
       if (publicURL !== null) {
-        member.avatar = getImageURL(publicURL, {
+        speaker.avatar = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
           gravity: GravityType.center,
         });
       }
     }
-    return member;
+    return speaker;
   });
   return enhancedSpeakerSuggestions;
+}
+
+export async function getParticipantSuggestions(
+  authClient: SupabaseClient,
+  alreadyParticipantIds: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const participantSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyParticipantIds,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedParticipantsSuggestions = participantSuggestions.map(
+    (participant) => {
+      if (participant.avatar !== null) {
+        const publicURL = getPublicURL(authClient, participant.avatar);
+        if (publicURL !== null) {
+          participant.avatar = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return participant;
+    }
+  );
+  return enhancedParticipantsSuggestions;
+}
+
+export async function getWaitingParticipantSuggestions(
+  authClient: SupabaseClient,
+  alreadyWaitingParticipantIds: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const waitingParticipantSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyWaitingParticipantIds,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedWaitingParticipantSuggestions =
+    waitingParticipantSuggestions.map((waitingParticipant) => {
+      if (waitingParticipant.avatar !== null) {
+        const publicURL = getPublicURL(authClient, waitingParticipant.avatar);
+        if (publicURL !== null) {
+          waitingParticipant.avatar = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return waitingParticipant;
+    });
+  return enhancedWaitingParticipantSuggestions;
 }

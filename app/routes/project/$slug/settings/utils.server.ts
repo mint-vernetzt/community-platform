@@ -194,17 +194,17 @@ export async function getResponsibleOrganizationSuggestions(
     });
 
   const enhancedResponsibleOrganizationSuggestions =
-    responsibleOrganizationSuggestions.map((networkMember) => {
-      if (networkMember.logo !== null) {
-        const publicURL = getPublicURL(authClient, networkMember.logo);
+    responsibleOrganizationSuggestions.map((organization) => {
+      if (organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, organization.logo);
         if (publicURL !== null) {
-          networkMember.logo = getImageURL(publicURL, {
+          organization.logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      return networkMember;
+      return organization;
     });
 
   return enhancedResponsibleOrganizationSuggestions;

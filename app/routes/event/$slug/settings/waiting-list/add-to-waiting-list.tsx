@@ -7,25 +7,28 @@ import { Form, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import {
+  checkIdentityOrThrow,
+  checkOwnershipOrThrow,
+  getProfileById,
+} from "../utils.server";
 import { connectToWaitingListOfEvent } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  email: z.string(),
+  id: z.string(),
 });
 
 export const addToWaitingListSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const profile = await getProfileByEmail(values.email);
+  const profile = await getProfileById(values.id);
   if (profile === null) {
     throw new InputError(
-      "Es existiert noch kein Profil unter dieser E-Mail.",
-      "email"
+      "Es existiert noch kein Profil unter diesem Namen.",
+      "id"
     );
   }
   const alreadyMember = profile.waitingForEvents.some((entry) => {
@@ -33,14 +36,22 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
   if (alreadyMember) {
     throw new InputError(
-      "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung.",
-      "email"
+      "Das Profil unter diesem Namen ist bereits auf der Warteliste Eurer Veranstaltung.",
+      "id"
     );
   }
-  return values;
+  return {
+    ...values,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+  };
 });
 
-export type ActionData = PerformMutation<
+export type SuccessActionData = {
+  message: string;
+};
+
+export type FailureActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema>
 >;
@@ -57,24 +68,30 @@ export const action: ActionFunction = async (args) => {
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkSameEventOrThrow(request, event.id);
-    if (sessionUser.email !== result.data.email) {
+    if (sessionUser.id !== result.data.id) {
       await checkOwnershipOrThrow(event, sessionUser);
-      const profile = await getProfileByEmail(result.data.email);
+      const profile = await getProfileById(result.data.id);
       if (profile !== null) {
         await connectToWaitingListOfEvent(event.id, profile.id);
       }
     } else {
       await connectToWaitingListOfEvent(event.id, sessionUser.id);
     }
+    return json<SuccessActionData>(
+      {
+        message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde zur Warteliste hinzugefügt.`,
+      },
+      { headers: response.headers }
+    );
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json<FailureActionData>(result, { headers: response.headers });
 };
 
 type AddToWaitingListButtonProps = {
   action: string;
   userId?: string;
   eventId?: string;
-  email?: string;
+  id?: string;
 };
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
@@ -84,11 +101,11 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
       action={props.action}
       fetcher={fetcher}
       schema={schema}
-      hiddenFields={["eventId", "userId", "email"]}
+      hiddenFields={["eventId", "userId", "id"]}
       values={{
         userId: props.userId,
         eventId: props.eventId,
-        email: props.email,
+        id: props.id,
       }}
     >
       {(props) => {
@@ -97,7 +114,7 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
           <>
             <Field name="userId" />
             <Field name="eventId" />
-            <Field name="email" />
+            <Field name="id" />
             <button className="btn btn-primary" type="submit">
               Warteliste
             </button>

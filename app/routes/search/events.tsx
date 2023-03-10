@@ -14,7 +14,7 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
+import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPaginationValues } from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
@@ -65,7 +65,6 @@ export const loader = async ({ request }: LoaderArgs) => {
     {
       events: enhancedEvents,
       userId: sessionUser?.id || undefined,
-      email: sessionUser?.email || undefined,
     },
     { headers: response.headers }
   );
@@ -303,7 +302,7 @@ export default function SearchView() {
                           action={`/event/${event.slug}/settings/participants/add-participant`}
                           userId={loaderData.userId}
                           eventId={event.id}
-                          email={loaderData.email}
+                          id={loaderData.userId}
                         />
                       </div>
                     ) : null}
@@ -318,10 +317,10 @@ export default function SearchView() {
                     canUserBeAddedToWaitingList(event) ? (
                       <div className="ml-auto">
                         <AddToWaitingListButton
-                          action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                          action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                           userId={loaderData.userId}
                           eventId={event.id}
-                          email={loaderData.email}
+                          id={loaderData.userId}
                         />
                       </div>
                     ) : null}
