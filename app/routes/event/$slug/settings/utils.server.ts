@@ -512,7 +512,84 @@ export async function getProfileById(id: string) {
           },
         },
       },
+      contributedEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return profile;
+}
+
+export async function getSpeakerSuggestions(
+  authClient: SupabaseClient,
+  alreadySpeakerIds: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const speakerSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadySpeakerIds,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedSpeakerSuggestions = speakerSuggestions.map((member) => {
+    if (member.avatar !== null) {
+      const publicURL = getPublicURL(authClient, member.avatar);
+      if (publicURL !== null) {
+        member.avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return member;
+  });
+  return enhancedSpeakerSuggestions;
 }

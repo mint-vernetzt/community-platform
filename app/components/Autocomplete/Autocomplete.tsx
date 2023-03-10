@@ -1,13 +1,7 @@
 import type { Organization, Profile } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
 import { debounce } from "lodash";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
@@ -180,10 +174,7 @@ const Autocomplete = React.forwardRef(
                       )}
                     </div>
                     <div className="pl-4">
-                      <H3
-                        like="h4"
-                        className="text-xl mb-1 no-underline hover:underline"
-                      >
+                      <H3 like="h4" className="text-xl mb-1">
                         {suggestion.firstName} {suggestion.lastName}
                       </H3>
                       {suggestion.position ? (

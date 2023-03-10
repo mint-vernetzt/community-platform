@@ -1,9 +1,17 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
@@ -11,22 +19,20 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type { ActionData as AddSpeakerActionData } from "./speakers/add-speaker";
+import type {
+  FailureActionData,
+  SuccessActionData,
+} from "./speakers/add-speaker";
 import { addSpeakerSchema } from "./speakers/add-speaker";
 import type { ActionData as RemoveSpeakerActionData } from "./speakers/remove-speaker";
 import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
   getSpeakerProfileDataFromEvent,
+  getSpeakerSuggestions,
 } from "./utils.server";
 
-type LoaderData = {
-  userId: string;
-  eventId: string;
-  speakers: ReturnType<typeof getSpeakerProfileDataFromEvent>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -37,7 +43,6 @@ export const loader: LoaderFunction = async (args) => {
   await checkOwnershipOrThrow(event, sessionUser);
 
   const speakers = getSpeakerProfileDataFromEvent(event);
-
   const enhancedSpeakers = speakers.map((speaker) => {
     if (speaker.avatar !== null) {
       const publicURL = getPublicURL(authClient, speaker.avatar);
@@ -51,18 +56,42 @@ export const loader: LoaderFunction = async (args) => {
     return speaker;
   });
 
-  return json<LoaderData>(
-    { userId: sessionUser.id, eventId: event.id, speakers: enhancedSpeakers },
+  const url = new URL(request.url);
+  const suggestionsQuery =
+    url.searchParams.get("autocomplete_query") || undefined;
+  let speakerSuggestions;
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const query = suggestionsQuery.split(" ");
+    const alreadySpeakerIds = speakers.map((speaker) => {
+      return speaker.id;
+    });
+    speakerSuggestions = await getSpeakerSuggestions(
+      authClient,
+      alreadySpeakerIds,
+      query
+    );
+  }
+
+  return json(
+    {
+      userId: sessionUser.id,
+      eventId: event.id,
+      speakers: enhancedSpeakers,
+      speakerSuggestions,
+    },
     { headers: response.headers }
   );
 };
 
 function Speakers() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
-  const addSpeakerFetcher = useFetcher<AddSpeakerActionData>();
+  const addSpeakerFetcher = useFetcher<SuccessActionData | FailureActionData>();
   const removeSpeakerFetcher = useFetcher<RemoveSpeakerActionData>();
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const submit = useSubmit();
 
   return (
     <>
@@ -115,9 +144,10 @@ function Speakers() {
                 className="ml-auto"
               >
                 {(props) => {
-                  const { Field, Button } = props;
+                  const { Field, Button, Errors } = props;
                   return (
                     <>
+                      <Errors />
                       <Field name="userId" />
                       <Field name="eventId" />
                       <Field name="speakerId" />
@@ -143,11 +173,6 @@ function Speakers() {
           );
         })}
       </ul>
-      {removeSpeakerFetcher.data?.message ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {removeSpeakerFetcher.data.message}
-        </div>
-      ) : null}
       <h4 className="mb-4 mt-4 font-semibold">Vortragende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
@@ -158,48 +183,46 @@ function Speakers() {
         action={`/event/${slug}/settings/speakers/add-speaker`}
         hiddenFields={["eventId", "userId"]}
         values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/event/${slug}/settings/speakers`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <>
+              <Errors />
               <Field name="eventId" />
               <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
-                    <label
-                      id="label-for-email"
-                      htmlFor="Email"
-                      className="label"
-                    >
-                      E-Mail
+                    <label id="label-for-name" htmlFor="Name" className="label">
+                      Name der Speaker:in
                     </label>
                   </div>
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="email" className="flex-auto">
+                  <Field name="id" className="flex-auto">
                     {({ Errors }) => (
                       <>
-                        <input
-                          id="email"
-                          name="email"
-                          className="input input-bordered w-full"
-                        />
                         <Errors />
+                        <Autocomplete
+                          suggestions={loaderData.speakerSuggestions || []}
+                          suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
+                          value={suggestionsQuery || ""}
+                          {...register("id")}
+                        />
                       </>
                     )}
                   </Field>
                   <div className="ml-2">
-                    <Button className="btn btn-outline-primary ml-auto btn-small">
-                      Hinzufügen
+                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                      +
                     </Button>
-                    <Errors />
                   </div>
                 </div>
               </div>
@@ -207,8 +230,9 @@ function Speakers() {
           );
         }}
       </Form>
-      {addSpeakerFetcher.data?.message ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
+      {addSpeakerFetcher.data !== undefined &&
+      "message" in addSpeakerFetcher.data ? (
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {addSpeakerFetcher.data.message}
         </div>
       ) : null}

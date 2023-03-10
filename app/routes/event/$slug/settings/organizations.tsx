@@ -7,7 +7,6 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
-  useTransition,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
@@ -98,7 +97,6 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const transition = useTransition();
 
   return (
     <>
@@ -245,11 +243,7 @@ function Organizations() {
       </Form>
       {addOrganizationFetcher.data !== undefined &&
       "message" in addOrganizationFetcher.data ? (
-        <div
-          className={`p-4 bg-green-200 rounded-md mt-4 ${
-            transition.state === "idle" ? "animate-fade-out" : "hidden"
-          }`}
-        >
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {addOrganizationFetcher.data.message}
         </div>
       ) : null}

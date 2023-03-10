@@ -5,7 +5,6 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
-  useTransition,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
@@ -123,7 +122,6 @@ function Add(props: NetworkMemberProps) {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const transition = useTransition();
 
   return (
     <>
@@ -182,11 +180,7 @@ function Add(props: NetworkMemberProps) {
         }}
       </Form>
       {fetcher.data !== undefined && "message" in fetcher.data ? (
-        <div
-          className={`p-4 bg-green-200 rounded-md mt-4 ${
-            transition.state === "idle" ? "animate-fade-out" : "hidden"
-          }`}
-        >
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {fetcher.data.message}
         </div>
       ) : null}

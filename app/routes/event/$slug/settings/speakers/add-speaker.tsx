@@ -7,25 +7,28 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { getProfileByEmail } from "~/routes/organization/$slug/settings/utils.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import {
+  checkIdentityOrThrow,
+  checkOwnershipOrThrow,
+  getProfileById,
+} from "../utils.server";
 import { connectSpeakerProfileToEvent } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),
-  email: z.string().email(),
+  id: z.string(),
 });
 
 export const addSpeakerSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const profile = await getProfileByEmail(values.email);
+  const profile = await getProfileById(values.id);
   if (profile === null) {
     throw new InputError(
-      "Es existiert noch kein Profil unter dieser E-Mail.",
-      "email"
+      "Es existiert noch kein Profil unter diesem Namen.",
+      "id"
     );
   }
   const alreadyMember = profile.contributedEvents.some((entry) => {
@@ -33,14 +36,22 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   });
   if (alreadyMember) {
     throw new InputError(
-      "Das Profil unter dieser E-Mail ist bereits Speaker Eurer Veranstaltung.",
-      "email"
+      "Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung.",
+      "id"
     );
   }
-  return values;
+  return {
+    ...values,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+  };
 });
 
-export type ActionData = PerformMutation<
+export type SuccessActionData = {
+  message: string;
+};
+
+export type FailureActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema>
 >;
@@ -59,11 +70,17 @@ export const action: ActionFunction = async (args) => {
     const event = await getEventByIdOrThrow(result.data.eventId);
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
-    const profile = await getProfileByEmail(result.data.email);
+    const profile = await getProfileById(result.data.id);
     if (profile !== null) {
       await connectSpeakerProfileToEvent(result.data.eventId, profile.id);
     }
+    return json<SuccessActionData>(
+      {
+        message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde als Speaker:in hinzugefügt.`,
+      },
+      { headers: response.headers }
+    );
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json<FailureActionData>(result, { headers: response.headers });
 };
