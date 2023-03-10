@@ -10,7 +10,9 @@ function Footer(props: FooterProps) {
   return (
     <div
       className={`footer-section py-4 lg:py-4 border-t border-neutral-400 overflow-hidden ${
-        isDifferentFooterRoute && "mb-16 md:mb-28"
+        isDifferentFooterRoute
+          ? "mb-16 md:mb-28"
+          : !isNonAppBaseRoute && "md:fixed md:inset-x-0 md:bottom-0 bg-white"
       }`.trimEnd()}
     >
       <div className="container">
@@ -21,12 +23,14 @@ function Footer(props: FooterProps) {
         >
           <div
             className={`${
-              isNonAppBaseRoute && "basis-full md:basis-6/12 px-4"
+              isNonAppBaseRoute
+                ? "basis-full md:basis-6/12 px-4"
+                : "flex flex-100"
             }`}
           >
             <ul
-              className={`flex-100 md:flex-auto md:justify-center meta_nav text-neutral-600 text-sm leading-4 font-semibold ${
-                !isNonAppBaseRoute && "md:flex"
+              className={`flex-100 md:flex-auto meta_nav text-neutral-600 text-sm leading-4 font-semibold ${
+                isNonAppBaseRoute ? "md:justify-center" : "flex md:justify-end"
               }`.trimEnd()}
             >
               {/* <ul className="flex-100 md:flex-auto md:justify-end meta_nav md:flex <-- text-neutral-600 text-sm leading-4 font-semibold"> */}
