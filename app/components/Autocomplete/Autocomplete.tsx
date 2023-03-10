@@ -49,7 +49,7 @@ const Autocomplete = React.forwardRef(
       if (suggestionsContainerRef.current !== null) {
         suggestionsContainerRef.current.scrollIntoView({
           behavior: "smooth",
-          block: "end",
+          block: "nearest",
         });
       }
     }, [suggestions.length]);
