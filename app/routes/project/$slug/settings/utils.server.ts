@@ -1,4 +1,4 @@
-import type { Project } from "@prisma/client";
+import type { Organization, Prisma, Profile, Project } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, unauthorized } from "remix-utils";
@@ -142,7 +142,14 @@ export async function getResponsibleOrganizationSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: {
+        [K in Organization as string]: {
+          contains: string;
+          mode: Prisma.QueryMode;
+        };
+      }[];
+    } = {
       OR: [
         {
           name: {
@@ -235,7 +242,11 @@ export async function getTeamMemberSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
       OR: [
         {
           firstName: {

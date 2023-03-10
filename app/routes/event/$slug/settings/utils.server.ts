@@ -1,4 +1,4 @@
-import type { Event } from "@prisma/client";
+import type { Event, Organization, Prisma, Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
@@ -338,7 +338,16 @@ export async function getResponsibleOrganizationSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: [
+        {
+          [K in Organization as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }
+      ];
+    } = {
       OR: [
         {
           name: {
@@ -426,7 +435,11 @@ export async function getTeamMemberSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
       OR: [
         {
           firstName: {

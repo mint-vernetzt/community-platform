@@ -1,4 +1,4 @@
-import type { Organization } from "@prisma/client";
+import type { Organization, Prisma, Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
@@ -403,7 +403,11 @@ export async function getMemberSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
       OR: [
         {
           firstName: {
@@ -535,7 +539,14 @@ export async function getNetworkMemberSuggestions(
 ) {
   let whereQueries = [];
   for (const word of query) {
-    const contains = {
+    const contains: {
+      OR: {
+        [K in Organization as string]: {
+          contains: string;
+          mode: Prisma.QueryMode;
+        };
+      }[];
+    } = {
       OR: [
         {
           name: {
