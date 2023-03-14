@@ -31,7 +31,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
+describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -60,7 +60,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -88,7 +88,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -151,7 +151,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -189,7 +189,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -221,8 +221,8 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.email).toContain(
-      "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung."
+    expect(responseBody.errors.id).toContain(
+      "Das Profil unter diesem Namen ist bereits auf der Warteliste Eurer Veranstaltung."
     );
   });
 
@@ -232,7 +232,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -248,7 +248,11 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
+      return {
+        waitingForEvents: [],
+        firstName: "some-user-firstname",
+        lastName: "some-user-latsname",
+      };
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
@@ -271,7 +275,9 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Das Profil mit dem Namen "some-user-firstname some-user-latsname" wurde zur Warteliste hinzugefügt.'
+    );
   });
 
   test("add to waiting list (self)", async () => {
@@ -280,12 +286,11 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "someuser@mail.com",
+      id: "some-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({
       id: "some-user-id",
-      email: "someuser@mail.com",
     } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
@@ -293,7 +298,11 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       };
     });
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
+      return {
+        waitingForEvents: [],
+        firstName: "some-user-firstname",
+        lastName: "some-user-latsname",
+      };
     });
 
     const response = await action({
@@ -310,7 +319,9 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
         profileId: "some-user-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Das Profil mit dem Namen "some-user-firstname some-user-latsname" wurde zur Warteliste hinzugefügt.'
+    );
   });
 
   afterAll(() => {

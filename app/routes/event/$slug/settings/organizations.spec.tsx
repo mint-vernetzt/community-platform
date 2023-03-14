@@ -130,6 +130,7 @@ describe("/event/$slug/settings/organizations", () => {
               id: "some-organization-id",
               name: "Some Organization",
               slug: "someorganization",
+              logo: null,
             },
           },
           {
@@ -137,6 +138,7 @@ describe("/event/$slug/settings/organizations", () => {
               id: "another-organization-id",
               name: "Another Organization",
               slug: "anotherorganization",
+              logo: null,
             },
           },
           {
@@ -144,6 +146,7 @@ describe("/event/$slug/settings/organizations", () => {
               id: "yet-another-organization-id",
               name: "Yet Another Organization",
               slug: "yetanotherorganization",
+              logo: null,
             },
           },
         ],
@@ -158,24 +161,23 @@ describe("/event/$slug/settings/organizations", () => {
 
     const responseBody = await response.json();
 
-    expect(responseBody.organizations.length).toBe(3);
-    expect(responseBody.organizations).toEqual(
-      expect.arrayContaining([
-        {
-          id: "some-organization-id",
-          name: "Some Organization",
-          slug: "someorganization",
-        },
-        expect.objectContaining({
-          id: "another-organization-id",
-          name: "Another Organization",
-        }),
-        expect.objectContaining({
-          id: "yet-another-organization-id",
-          slug: "yetanotherorganization",
-        }),
-      ])
-    );
+    expect(responseBody.responsibleOrganizations.length).toBe(3);
+    expect(responseBody.responsibleOrganizations).toEqual([
+      {
+        id: "some-organization-id",
+        name: "Some Organization",
+        slug: "someorganization",
+        logo: null,
+      },
+      expect.objectContaining({
+        id: "another-organization-id",
+        name: "Another Organization",
+      }),
+      expect.objectContaining({
+        id: "yet-another-organization-id",
+        slug: "yetanotherorganization",
+      }),
+    ]);
   });
 
   afterAll(() => {

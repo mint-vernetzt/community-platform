@@ -60,7 +60,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -88,7 +88,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -150,7 +150,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -187,7 +187,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -219,8 +219,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.email).toContain(
-      "Das Profil unter dieser E-Mail nimmt bereits an Eurer Veranstaltung teil."
+    expect(responseBody.errors.id).toContain(
+      "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil."
     );
   });
 
@@ -230,7 +230,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -241,7 +241,11 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { participatedEvents: [] };
+      return {
+        participatedEvents: [],
+        firstName: "some-first-name",
+        lastName: "some-last-name",
+      };
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
@@ -262,7 +266,9 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
+    );
   });
 
   test("add participant (self)", async () => {
@@ -271,27 +277,23 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "someuser@mail.com",
+      id: "some-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({
       id: "some-user-id",
-      email: "someuser@mail.com",
     } as User);
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
       };
     });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "another-user-id",
+        firstName: "some-first-name",
+        lastName: "some-last-name",
         participatedEvents: [],
       };
     });
@@ -308,7 +310,9 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "some-user-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
+    );
   });
 
   afterAll(() => {

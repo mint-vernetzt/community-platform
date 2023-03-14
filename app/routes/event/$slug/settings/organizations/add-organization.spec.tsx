@@ -60,8 +60,8 @@ describe("/event/$slug/settings/organization/add-organization", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      email: "anotheruser@mail.com",
-      organizationName: "some-organization",
+      eventId: "some-event-id",
+      id: "some-organization-id",
     });
 
     expect.assertions(2);
@@ -87,8 +87,8 @@ describe("/event/$slug/settings/organization/add-organization", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      email: "anotheruser@mail.com",
-      organizationName: "some-organization",
+      eventId: "some-event-id",
+      id: "some-organization-id",
     });
 
     expect.assertions(2);
@@ -150,8 +150,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
-      organizationName: "some-organization",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -188,8 +187,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
-      organizationName: "some-organization",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -219,7 +217,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.organizationName).toContain(
+    expect(responseBody.errors.id).toContain(
       "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich."
     );
   });
@@ -230,7 +228,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      organizationName: "Some Organization",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -249,6 +247,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       () => {
         return {
           id: "some-organization-id",
+          name: "some-organization",
           responsibleForEvents: [],
         };
       }
@@ -268,7 +267,9 @@ describe("/event/$slug/settings/organization/add-organization", () => {
         organizationId: "some-organization-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Die Organisation "some-organization" ist jetzt verantwortlich für Eure Veranstaltung.'
+    );
   });
 
   afterAll(() => {

@@ -163,6 +163,7 @@ describe("/event/$slug/settings/team", () => {
                 firstName: "Some",
                 lastName: "User",
                 username: "someuser",
+                avatar: null,
               },
             },
             {
@@ -172,6 +173,7 @@ describe("/event/$slug/settings/team", () => {
                 firstName: "Another",
                 lastName: "User",
                 username: "anotheruser",
+                avatar: null,
               },
             },
             {
@@ -181,6 +183,7 @@ describe("/event/$slug/settings/team", () => {
                 firstName: "Yet Another",
                 lastName: "User",
                 username: "yetanotheruser",
+                avatar: null,
               },
             },
           ],
@@ -203,6 +206,7 @@ describe("/event/$slug/settings/team", () => {
             firstName: "Some",
             lastName: "User",
             username: "someuser",
+            avatar: null,
             isPrivileged: true,
             isCurrentUser: true,
           },

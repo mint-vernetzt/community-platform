@@ -115,7 +115,7 @@ describe("/event/$slug/settings/participants", () => {
     });
 
     test("privileged user", async () => {
-      expect.assertions(5);
+      expect.assertions(2);
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -127,7 +127,6 @@ describe("/event/$slug/settings/participants", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,
-          participantLimit: 1,
           participants: [
             {
               profile: {
@@ -135,6 +134,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Some",
                 lastName: "User",
                 username: "someuser",
+                avatar: null,
               },
             },
           ],
@@ -145,6 +145,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Another",
                 lastName: "User",
                 username: "anotheruser",
+                avatar: null,
               },
             },
             {
@@ -153,6 +154,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Yet Another",
                 lastName: "User",
                 username: "yetanotheruser",
+                avatar: null,
               },
             },
           ],
@@ -174,22 +176,7 @@ describe("/event/$slug/settings/participants", () => {
           firstName: "Some",
           lastName: "User",
           username: "someuser",
-        },
-      ]);
-      expect(responseBody.participantLimit).toBe(1);
-      expect(responseBody.waitingList.length).toBe(2);
-      expect(responseBody.waitingList).toEqual([
-        {
-          id: "another-user-id",
-          firstName: "Another",
-          lastName: "User",
-          username: "anotheruser",
-        },
-        {
-          id: "yet-another-user-id",
-          firstName: "Yet Another",
-          lastName: "User",
-          username: "yetanotheruser",
+          avatar: null,
         },
       ]);
     });

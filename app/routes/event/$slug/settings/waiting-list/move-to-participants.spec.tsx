@@ -35,7 +35,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/participants/move-to-participants", () => {
+describe("/event/$slug/settings/waiting-list/move-to-participants", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -63,7 +63,7 @@ describe("/event/$slug/settings/participants/move-to-participants", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -86,7 +86,7 @@ describe("/event/$slug/settings/participants/move-to-participants", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -145,7 +145,7 @@ describe("/event/$slug/settings/participants/move-to-participants", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);

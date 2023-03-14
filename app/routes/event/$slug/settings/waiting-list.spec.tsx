@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { loader } from "./participants";
+import { loader } from "./waiting-list";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -27,7 +27,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/participants", () => {
+describe("/event/$slug/settings/waiting-list", () => {
   describe("loader", () => {
     beforeAll(() => {
       process.env.FEATURES = "events";
@@ -115,7 +115,7 @@ describe("/event/$slug/settings/participants", () => {
     });
 
     test("privileged user", async () => {
-      expect.assertions(5);
+      expect.assertions(2);
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
@@ -127,7 +127,6 @@ describe("/event/$slug/settings/participants", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,
-          participantLimit: 1,
           participants: [
             {
               profile: {
@@ -135,6 +134,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Some",
                 lastName: "User",
                 username: "someuser",
+                avatar: null,
               },
             },
           ],
@@ -145,6 +145,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Another",
                 lastName: "User",
                 username: "anotheruser",
+                avatar: null,
               },
             },
             {
@@ -153,6 +154,7 @@ describe("/event/$slug/settings/participants", () => {
                 firstName: "Yet Another",
                 lastName: "User",
                 username: "yetanotheruser",
+                avatar: null,
               },
             },
           ],
@@ -167,16 +169,6 @@ describe("/event/$slug/settings/participants", () => {
 
       const responseBody = await response.json();
 
-      expect(responseBody.participants.length).toBe(1);
-      expect(responseBody.participants).toEqual([
-        {
-          id: "some-user-id",
-          firstName: "Some",
-          lastName: "User",
-          username: "someuser",
-        },
-      ]);
-      expect(responseBody.participantLimit).toBe(1);
       expect(responseBody.waitingList.length).toBe(2);
       expect(responseBody.waitingList).toEqual([
         {
@@ -184,12 +176,14 @@ describe("/event/$slug/settings/participants", () => {
           firstName: "Another",
           lastName: "User",
           username: "anotheruser",
+          avatar: null,
         },
         {
           id: "yet-another-user-id",
           firstName: "Yet Another",
           lastName: "User",
           username: "yetanotheruser",
+          avatar: null,
         },
       ]);
     });
