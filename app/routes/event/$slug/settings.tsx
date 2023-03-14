@@ -43,6 +43,12 @@ function Settings() {
                 Teilnehmende
               </NavLink>
               <NavLink
+                to="waiting-list"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Warteliste
+              </NavLink>
+              <NavLink
                 to="organizations"
                 className={({ isActive }) => getClassName(isActive)}
               >

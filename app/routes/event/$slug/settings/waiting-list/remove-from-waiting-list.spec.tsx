@@ -31,7 +31,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/participants/remove-from-waiting-list", () => {
+describe("/event/$slug/settings/waiting-list/remove-from-waiting-list", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });

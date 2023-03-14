@@ -1,45 +1,52 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useFetcher, useParams } from "@remix-run/react";
+import {
+  useFetcher,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { NetworkMemberSuggestions } from ".";
 import {
   connectOrganizationToNetwork,
-  getOrganizationByName,
+  getOrganizationById,
   getOrganizationIdBySlug,
   handleAuthorization,
 } from "../utils.server";
 
 const schema = z.object({
-  name: z.string(),
+  id: z.string(),
   slug: z.string(),
 });
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const { name, slug } = values;
+  const { id, slug } = values;
 
   const network = await getOrganizationIdBySlug(slug);
   if (network === null) {
     throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
-  const organization = await getOrganizationByName(name);
+  const organization = await getOrganizationById(id);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation unter diesem Namen.",
-      "name"
+      "id"
     );
   }
 
   if (network.id === organization.id) {
     throw new InputError(
       "Eure Organisation ist bereits Teil Eures Netzwerks.",
-      "name"
+      "id"
     );
   }
 
@@ -50,7 +57,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (stillMember) {
     throw new InputError(
       "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
-      "name"
+      "id"
     );
   }
 
@@ -62,7 +69,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
     throw "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.";
   }
 
-  return values;
+  return { ...values, name: organization.name };
 });
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -105,9 +112,16 @@ export const action: ActionFunction = async (args) => {
   return json<FailureActionData>(result, { headers: response.headers });
 };
 
-function Add() {
+type NetworkMemberProps = {
+  networkMemberSuggestions: NetworkMemberSuggestions;
+};
+
+function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
   const fetcher = useFetcher<SuccessActionData | FailureActionData>();
+  const [searchParams] = useSearchParams();
+  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const submit = useSubmit();
 
   return (
     <>
@@ -121,15 +135,17 @@ function Add() {
         action={`/organization/${slug}/settings/network/add`}
         hiddenFields={["slug"]}
         values={{ slug }}
-        onTransition={({ reset, formState }) => {
-          if (formState.isSubmitSuccessful) {
-            reset();
-          }
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/organization/${slug}/settings/network`,
+          });
         }}
       >
-        {({ Field, Errors, Button }) => {
+        {({ Field, Errors, Button, register }) => {
           return (
             <div className="form-control w-full">
+              <Errors />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
@@ -139,15 +155,16 @@ function Add() {
               </div>
 
               <div className="flex flex-row">
-                <Field name="name" className="flex-auto">
+                <Field name="id" className="flex-auto">
                   {({ Errors }) => (
                     <>
-                      <input
-                        id="name"
-                        name="name"
-                        className="input input-bordered w-full"
-                      />
                       <Errors />
+                      <Autocomplete
+                        suggestions={props.networkMemberSuggestions || []}
+                        suggestionsLoaderPath={`/organization/${slug}/settings/network`}
+                        value={suggestionsQuery || ""}
+                        {...register("id")}
+                      />
                     </>
                   )}
                 </Field>
@@ -163,7 +180,7 @@ function Add() {
         }}
       </Form>
       {fetcher.data !== undefined && "message" in fetcher.data ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {fetcher.data.message}
         </div>
       ) : null}

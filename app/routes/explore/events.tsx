@@ -13,14 +13,13 @@ import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "../event/$slug/settings/participants/add-to-waiting-list";
+import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
 type LoaderData = {
   futureEvents: Awaited<ReturnType<typeof prepareEvents>>;
   pastEvents: Awaited<ReturnType<typeof prepareEvents>>;
   userId?: string;
-  email?: string;
 };
 
 export const loader: LoaderFunction = async (args) => {
@@ -48,7 +47,6 @@ export const loader: LoaderFunction = async (args) => {
       futureEvents: futureEvents,
       pastEvents: pastEvents,
       userId: sessionUser?.id || undefined,
-      email: sessionUser?.email || undefined,
     },
     { headers: response.headers }
   );
@@ -271,7 +269,7 @@ function Events() {
                       action={`/event/${event.slug}/settings/participants/add-participant`}
                       userId={loaderData.userId}
                       eventId={event.id}
-                      email={loaderData.email}
+                      id={loaderData.userId}
                     />
                   </div>
                 ) : null}
@@ -286,10 +284,10 @@ function Events() {
                 canUserBeAddedToWaitingList(event) ? (
                   <div className="ml-auto">
                     <AddToWaitingListButton
-                      action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                      action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                       userId={loaderData.userId}
                       eventId={event.id}
-                      email={loaderData.email}
+                      id={loaderData.userId}
                     />
                   </div>
                 ) : null}

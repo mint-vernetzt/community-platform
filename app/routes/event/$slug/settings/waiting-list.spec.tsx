@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { loader } from "./team";
+import { loader } from "./waiting-list";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -27,7 +27,7 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team", () => {
+describe("/event/$slug/settings/waiting-list", () => {
   describe("loader", () => {
     beforeAll(() => {
       process.env.FEATURES = "events";
@@ -85,35 +85,6 @@ describe("/event/$slug/settings/team", () => {
       }
     });
 
-    test("authenticated user", async () => {
-      expect.assertions(2);
-
-      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      try {
-        await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
     test("not privileged user", async () => {
       expect.assertions(2);
 
@@ -145,6 +116,7 @@ describe("/event/$slug/settings/team", () => {
 
     test("privileged user", async () => {
       expect.assertions(2);
+
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
       (
@@ -155,9 +127,8 @@ describe("/event/$slug/settings/team", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,
-          teamMembers: [
+          participants: [
             {
-              isPrivileged: true,
               profile: {
                 id: "some-user-id",
                 firstName: "Some",
@@ -166,8 +137,9 @@ describe("/event/$slug/settings/team", () => {
                 avatar: null,
               },
             },
+          ],
+          waitingList: [
             {
-              isPrivileged: true,
               profile: {
                 id: "another-user-id",
                 firstName: "Another",
@@ -177,7 +149,6 @@ describe("/event/$slug/settings/team", () => {
               },
             },
             {
-              isPrivileged: false,
               profile: {
                 id: "yet-another-user-id",
                 firstName: "Yet Another",
@@ -198,25 +169,23 @@ describe("/event/$slug/settings/team", () => {
 
       const responseBody = await response.json();
 
-      expect(responseBody.teamMembers.length).toBe(3);
-      expect(responseBody.teamMembers).toEqual(
-        expect.arrayContaining([
-          {
-            id: "some-user-id",
-            firstName: "Some",
-            lastName: "User",
-            username: "someuser",
-            avatar: null,
-            isPrivileged: true,
-            isCurrentUser: true,
-          },
-          expect.objectContaining({
-            id: "yet-another-user-id",
-            isPrivileged: false,
-            isCurrentUser: false,
-          }),
-        ])
-      );
+      expect(responseBody.waitingList.length).toBe(2);
+      expect(responseBody.waitingList).toEqual([
+        {
+          id: "another-user-id",
+          firstName: "Another",
+          lastName: "User",
+          username: "anotheruser",
+          avatar: null,
+        },
+        {
+          id: "yet-another-user-id",
+          firstName: "Yet Another",
+          lastName: "User",
+          username: "yetanotheruser",
+          avatar: null,
+        },
+      ]);
     });
 
     afterAll(() => {

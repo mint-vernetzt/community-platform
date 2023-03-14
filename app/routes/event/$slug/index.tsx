@@ -24,8 +24,8 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
-import { AddToWaitingListButton } from "./settings/participants/add-to-waiting-list";
-import { RemoveFromWaitingListButton } from "./settings/participants/remove-from-waiting-list";
+import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
+import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import type { MaybeEnhancedEvent } from "./utils.server";
 import {
@@ -57,7 +57,6 @@ type LoaderData = {
   isSpeaker: boolean | undefined;
   isTeamMember: boolean | undefined;
   userId?: string;
-  email?: string;
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
   // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
@@ -254,7 +253,6 @@ export const loader: LoaderFunction = async (args) => {
       mode,
       event: enhancedEvent,
       userId: sessionUser?.id || undefined,
-      email: sessionUser?.email || undefined,
       isParticipant,
       isOnWaitingList,
       isSpeaker,
@@ -287,7 +285,7 @@ function getForm(loaderData: LoaderData) {
   } else if (isOnWaitingList) {
     return (
       <RemoveFromWaitingListButton
-        action="./settings/participants/remove-from-waiting-list"
+        action="./settings/waiting-list/remove-from-waiting-list"
         userId={loaderData.userId}
         profileId={loaderData.userId}
         eventId={loaderData.event.id}
@@ -297,10 +295,10 @@ function getForm(loaderData: LoaderData) {
     if (participantLimitReached) {
       return (
         <AddToWaitingListButton
-          action="./settings/participants/add-to-waiting-list"
+          action="./settings/waiting-list/add-to-waiting-list"
           userId={loaderData.userId}
           eventId={loaderData.event.id}
-          email={loaderData.email}
+          id={loaderData.userId}
         />
       );
     } else {
@@ -309,7 +307,7 @@ function getForm(loaderData: LoaderData) {
           action="./settings/participants/add-participant"
           userId={loaderData.userId}
           eventId={loaderData.event.id}
-          email={loaderData.email}
+          id={loaderData.userId}
         />
       );
     }
@@ -1039,7 +1037,7 @@ function Index() {
                               action={`/event/${event.slug}/settings/participants/add-participant`}
                               userId={loaderData.userId}
                               eventId={event.id}
-                              email={loaderData.email}
+                              id={loaderData.userId}
                             />
                           </div>
                         ) : null}
@@ -1055,10 +1053,10 @@ function Index() {
                         canUserBeAddedToWaitingList(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
-                              action={`/event/${event.slug}/settings/participants/add-to-waiting-list`}
+                              action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                               userId={loaderData.userId}
                               eventId={event.id}
-                              email={loaderData.email}
+                              id={loaderData.userId}
                             />
                           </div>
                         ) : null}

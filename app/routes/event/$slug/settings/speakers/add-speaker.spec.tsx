@@ -60,7 +60,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -88,7 +88,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -150,7 +150,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -188,7 +188,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -220,8 +220,8 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.email).toContain(
-      "Das Profil unter dieser E-Mail ist bereits Speaker Eurer Veranstaltung."
+    expect(responseBody.errors.id).toContain(
+      "Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung."
     );
   });
 
@@ -231,7 +231,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -247,7 +247,11 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { contributedEvents: [] };
+      return {
+        contributedEvents: [],
+        firstName: "some-user-firstname",
+        lastName: "some-user-latsname",
+      };
     });
 
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
@@ -268,7 +272,9 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe(
+      'Das Profil mit dem Namen "some-user-firstname some-user-latsname" wurde als Speaker:in hinzugefügt.'
+    );
   });
 
   afterAll(() => {

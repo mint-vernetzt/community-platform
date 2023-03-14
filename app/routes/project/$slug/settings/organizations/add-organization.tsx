@@ -12,23 +12,24 @@ import { getProjectByIdOrThrow } from "../../utils.server";
 import {
   checkOwnershipOrThrow,
   checkSameProjectOrThrow,
+  getOrganizationById,
 } from "../utils.server";
 import { connectOrganizationToProject } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
   projectId: z.string(),
-  organizationName: z.string(),
+  id: z.string(),
 });
 
 export const addOrganizationSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationByName(values.organizationName);
+  const organization = await getOrganizationById(values.id);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation mit diesem Namen.",
-      "organizationName"
+      "id"
     );
   }
   const alreadyMember = organization.responsibleForProject.some((entry) => {
@@ -37,13 +38,17 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   if (alreadyMember) {
     throw new InputError(
       "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
-      "organizationName"
+      "id"
     );
   }
-  return values;
+  return { ...values, name: organization.name };
 });
 
-export type ActionData = PerformMutation<
+export type SuccessActionData = {
+  message: string;
+};
+
+export type FailureActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema>
 >;
@@ -62,12 +67,16 @@ export const action: ActionFunction = async (args) => {
     const project = await getProjectByIdOrThrow(result.data.projectId);
     await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
-    const organization = await getOrganizationByName(
-      result.data.organizationName
-    );
+    const organization = await getOrganizationByName(result.data.name);
     if (organization !== null) {
       await connectOrganizationToProject(project.id, organization.id);
     }
+    return json<SuccessActionData>(
+      {
+        message: `Die Organisation "${result.data.name}" ist jetzt verantwortlich für Euer Projekt.`,
+      },
+      { headers: response.headers }
+    );
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json<FailureActionData>(result, { headers: response.headers });
 };

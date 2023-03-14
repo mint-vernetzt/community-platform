@@ -1,6 +1,6 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
@@ -73,25 +73,34 @@ export function NetworkMemberRemoveForm(
       fetcher={fetcher}
     >
       {({ Field, Button, Errors }) => {
+        const initials = getInitialsOfName(networkMember.name);
         return (
           <div className="w-full flex items-center flex-row border-b border-neutral-400 p-4">
-            {networkMember.logo !== "" && networkMember.logo !== null ? (
-              <div className="h-16 w-16 flex items-center justify-center relative">
-                <img
-                  className="max-w-full w-auto max-h-16 h-auto"
-                  src={networkMember.logo}
-                  alt={networkMember.name}
-                />
-              </div>
-            ) : (
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md overflow-hidden">
-                {getInitialsOfName(networkMember.name)}
-              </div>
-            )}
+            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+              {networkMember.logo !== null && networkMember.logo !== "" ? (
+                <img src={networkMember.logo} alt={networkMember.name} />
+              ) : (
+                <>{initials}</>
+              )}
+            </div>
             <div className="pl-4">
-              <H3 like="h4" className="text-xl mb-1">
-                {networkMember.name}
-              </H3>
+              <Link to={`/organization/${networkMember.slug}`}>
+                <H3
+                  like="h4"
+                  className="text-xl mb-1 no-underline hover:underline"
+                >
+                  {networkMember.name}
+                </H3>
+              </Link>
+              {networkMember.types.length !== 0 ? (
+                <p className="font-bold text-sm cursor-default">
+                  {networkMember.types
+                    .map(({ organizationType }) => {
+                      return organizationType.title;
+                    })
+                    .join(" / ")}
+                </p>
+              ) : null}
             </div>
             <Button className="ml-auto btn-none" title="entfernen">
               <svg

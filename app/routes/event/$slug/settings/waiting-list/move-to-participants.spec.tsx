@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
-import { action } from "./add-to-waiting-list";
+import { action } from "./move-to-participants";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -18,20 +18,24 @@ jest.mock("~/prisma", () => {
       event: {
         findFirst: jest.fn(),
       },
-      waitingParticipantOfEvent: {
+      participantOfEvent: {
         create: jest.fn(),
+      },
+      waitingParticipantOfEvent: {
+        delete: jest.fn(),
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
       },
       profile: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
       },
     },
   };
 });
 
-describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
+describe("/event/$slug/settings/waiting-list/move-to-participants", () => {
   beforeAll(() => {
     process.env.FEATURES = "events";
   });
@@ -59,8 +63,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
   test("event not found", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -68,10 +71,6 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
-    });
 
     try {
       await action({ request, context: {}, params: {} });
@@ -87,8 +86,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
   test("not privileged user", async () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
-      eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     expect.assertions(2);
@@ -96,16 +94,12 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-event-id" };
+      return {};
     });
     (
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return null;
-    });
-
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
     });
 
     try {
@@ -151,7 +145,7 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -162,10 +156,6 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       prismaClient.teamMemberOfEvent.findFirst as jest.Mock
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
-    });
-
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
     });
 
     try {
@@ -183,56 +173,13 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     }
   });
 
-  test("already member", async () => {
-    expect.assertions(2);
+  test("move profile from waiting list to participants", async () => {
+    expect.assertions(3);
 
     const request = createRequestWithFormData({
       userId: "some-user-id",
       eventId: "some-event-id",
-      email: "anotheruser@mail.com",
-    });
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-event-id" };
-    });
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        waitingForEvents: [
-          {
-            event: {
-              id: "some-event-id",
-            },
-          },
-        ],
-      };
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    const response = await action({
-      request,
-      context: {},
-      params: {},
-    });
-    const responseBody = await response.json();
-
-    expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.email).toContain(
-      "Das Profil unter dieser E-Mail ist bereits auf der Warteliste Eurer Veranstaltung."
-    );
-  });
-
-  test("add to waiting list (privileged user)", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
-      email: "anotheruser@mail.com",
+      profileId: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -247,15 +194,13 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
       return { isPrivileged: true };
     });
 
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
-    });
-
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "another-user-id",
-      };
-    });
+    (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(
+      () => {
+        return {
+          id: "another-user-id",
+        };
+      }
+    );
 
     const response = await action({
       request,
@@ -264,50 +209,19 @@ describe("/event/$slug/settings/participants/add-to-waiting-list", () => {
     });
     const responseBody = await response.json();
     expect(
-      prismaClient.waitingParticipantOfEvent.create
+      prismaClient.waitingParticipantOfEvent.delete
     ).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "another-user-id",
+        },
+      },
+    });
+    expect(prismaClient.participantOfEvent.create).toHaveBeenLastCalledWith({
       data: {
         eventId: "some-event-id",
         profileId: "another-user-id",
-      },
-    });
-    expect(responseBody.success).toBe(true);
-  });
-
-  test("add to waiting list (self)", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
-      email: "someuser@mail.com",
-    });
-
-    getSessionUserOrThrow.mockResolvedValue({
-      id: "some-user-id",
-      email: "someuser@mail.com",
-    } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "some-event-id",
-      };
-    });
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { waitingForEvents: [] };
-    });
-
-    const response = await action({
-      request,
-      context: {},
-      params: {},
-    });
-    const responseBody = await response.json();
-    expect(
-      prismaClient.waitingParticipantOfEvent.create
-    ).toHaveBeenLastCalledWith({
-      data: {
-        eventId: "some-event-id",
-        profileId: "some-user-id",
       },
     });
     expect(responseBody.success).toBe(true);

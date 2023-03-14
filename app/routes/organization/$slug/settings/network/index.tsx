@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
@@ -6,6 +6,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
+  getNetworkMemberSuggestions,
   handleAuthorization,
 } from "../utils.server";
 import Add from "./add";
@@ -15,9 +16,11 @@ export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
 >;
 
-type LoaderData = { networkMembers: NetworkMember[] };
+export type NetworkMemberSuggestions =
+  | Awaited<ReturnType<typeof getNetworkMemberSuggestions>>
+  | undefined;
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -30,12 +33,32 @@ export const loader: LoaderFunction = async (args) => {
     organization.id
   );
 
-  return json<LoaderData>({ networkMembers }, { headers: response.headers });
+  const url = new URL(request.url);
+  const suggestionsQuery =
+    url.searchParams.get("autocomplete_query") || undefined;
+  let networkMemberSuggestions;
+  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
+    const query = suggestionsQuery.split(" ");
+    const alreadyMemberSlugs = networkMembers.map((member) => {
+      return member.networkMember.slug;
+    });
+    networkMemberSuggestions = await getNetworkMemberSuggestions(
+      authClient,
+      slug,
+      alreadyMemberSlugs,
+      query
+    );
+  }
+
+  return json(
+    { networkMembers, networkMemberSuggestions },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -44,7 +67,7 @@ function Index() {
         Wer ist Teil Eures Netzwerks? Füge hier weitere Organisationen hinzu
         oder entferne sie.
       </p>
-      <div className="mb-8">
+      <div className="mb-4">
         {loaderData.networkMembers.map((member) => {
           return (
             <NetworkMemberRemoveForm
@@ -55,7 +78,7 @@ function Index() {
           );
         })}
       </div>
-      <Add />
+      <Add networkMemberSuggestions={loaderData.networkMemberSuggestions} />
     </>
   );
 }

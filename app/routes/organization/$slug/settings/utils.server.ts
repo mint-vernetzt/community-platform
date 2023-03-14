@@ -1,4 +1,4 @@
-import type { Organization } from "@prisma/client";
+import type { Organization, Prisma, Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
@@ -62,6 +62,27 @@ export async function getProfileByEmail(email: string) {
           event: {
             select: {
               id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return profile;
+}
+
+export async function getProfileById(id: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      memberOf: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
             },
           },
         },
@@ -146,6 +167,26 @@ export async function getOrganizationByName(name: string) {
           project: {
             select: {
               id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return organization;
+}
+
+export async function getOrganizationById(id: string) {
+  const organization = await prismaClient.organization.findFirst({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      memberOf: {
+        select: {
+          network: {
+            select: {
+              slug: true,
             },
           },
         },
@@ -280,7 +321,6 @@ export async function disconnectOrganizationFromNetwork(
       },
     },
   });
-  console.log(result);
   return result;
 }
 
@@ -356,6 +396,74 @@ export async function getMembersOfOrganization(
   return enhancedMembers;
 }
 
+export async function getMemberSuggestions(
+  authClient: SupabaseClient,
+  alreadyMemberIds: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const memberSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyMemberIds,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedMemberSuggestions = memberSuggestions.map((member) => {
+    if (member.avatar !== null) {
+      const publicURL = getPublicURL(authClient, member.avatar);
+      if (publicURL !== null) {
+        member.avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return member;
+  });
+  return enhancedMemberSuggestions;
+}
+
 export function getTeamMemberProfileDataFromOrganization(
   members: Awaited<ReturnType<typeof getMembersOfOrganization>>,
   currentUserId: string
@@ -421,6 +529,87 @@ export async function getNetworkMembersOfOrganization(
   });
 
   return enhancedNetworkMembers;
+}
+
+export async function getNetworkMemberSuggestions(
+  authClient: SupabaseClient,
+  ownOrganizationSlug: string,
+  alreadyMemberSlugs: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Organization as string]: {
+          contains: string;
+          mode: Prisma.QueryMode;
+        };
+      }[];
+    } = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const networkMemberSuggestions = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+      logo: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      AND: [
+        {
+          NOT: {
+            slug: ownOrganizationSlug,
+          },
+        },
+        {
+          slug: {
+            notIn: alreadyMemberSlugs,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedNetworkMemberSuggestions = networkMemberSuggestions.map(
+    (networkMember) => {
+      if (networkMember.logo !== null) {
+        const publicURL = getPublicURL(authClient, networkMember.logo);
+        if (publicURL !== null) {
+          networkMember.logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return networkMember;
+    }
+  );
+
+  return enhancedNetworkMemberSuggestions;
 }
 
 export async function handleAuthorization(

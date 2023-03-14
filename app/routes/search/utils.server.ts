@@ -1,3 +1,10 @@
+import type {
+  Event,
+  Organization,
+  Prisma,
+  Profile,
+  Project,
+} from "@prisma/client";
 import { prismaClient } from "~/prisma";
 
 // **************
@@ -43,7 +50,6 @@ export async function searchProfilesViaLike(
       },
     },
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -66,7 +72,6 @@ export async function countSearchedProfiles(searchQuery: string[]) {
   const whereQueries = getProfileWhereQueries(searchQuery);
   const profileCount = await prismaClient.profile.count({
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -76,7 +81,38 @@ export async function countSearchedProfiles(searchQuery: string[]) {
 function getProfileWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
-    const contains = {
+    const contains: {
+      OR: (
+        | {
+            [K in Profile as string]: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          }
+        | {
+            [K in
+              | "areas"
+              | "memberOf"
+              | "offers"
+              | "seekings"
+              | "teamMemberOfProjects"]?: {
+              some: {
+                [K in "area" | "organization" | "offer" | "project"]?: {
+                  [K in "name" | "title"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+        | {
+            [K in "skills" | "interests"]?: {
+              has: string;
+            };
+          }
+      )[];
+    } = {
       OR: [
         {
           username: {
@@ -228,7 +264,6 @@ export async function searchOrganizationsViaLike(
       },
     },
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -251,7 +286,6 @@ export async function countSearchedOrganizations(searchQuery: string[]) {
   const whereQueries = getOrganizationWhereQueries(searchQuery);
   const organizationCount = await prismaClient.organization.count({
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -261,7 +295,47 @@ export async function countSearchedOrganizations(searchQuery: string[]) {
 function getOrganizationWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
-    const contains = {
+    const contains: {
+      OR: (
+        | {
+            [K in Organization as string]: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          }
+        | {
+            [K in
+              | "areas"
+              | "types"
+              | "focuses"
+              | "networkMembers"
+              | "memberOf"
+              | "teamMembers"
+              | "responsibleForProject"]?: {
+              some: {
+                [K in
+                  | "area"
+                  | "organizationType"
+                  | "focus"
+                  | "networkMember"
+                  | "network"
+                  | "profile"
+                  | "project"]?: {
+                  [K in "name" | "title" | "firstName" | "lastName"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+        | {
+            supportedBy: {
+              has: string;
+            };
+          }
+      )[];
+    } = {
       OR: [
         {
           name: {
@@ -458,7 +532,6 @@ export async function searchEventsViaLike(
       },
     },
     where: {
-      // TODO: Fix type issue
       AND: [{ published: true }, ...whereQueries],
     },
     skip: skip,
@@ -477,7 +550,6 @@ export async function countSearchedEvents(searchQuery: string[]) {
   const whereQueries = getEventWhereQueries(searchQuery);
   const eventCount = await prismaClient.event.count({
     where: {
-      // TODO: Fix type issue
       AND: [{ published: true }, ...whereQueries],
     },
   });
@@ -487,7 +559,41 @@ export async function countSearchedEvents(searchQuery: string[]) {
 function getEventWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
-    const contains = {
+    const contains: {
+      OR: (
+        | {
+            [K in Event as string]: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          }
+        | {
+            [K in "areas" | "types" | "focuses" | "tags" | "targetGroups"]?: {
+              some: {
+                [K in
+                  | "area"
+                  | "eventType"
+                  | "focus"
+                  | "tag"
+                  | "targetGroup"]?: {
+                  [K in "name" | "title"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+        | {
+            [K in "experienceLevel" | "stage"]?: {
+              title: {
+                contains: string;
+                mode: Prisma.QueryMode;
+              };
+            };
+          }
+      )[];
+    } = {
       OR: [
         {
           name: {
@@ -661,7 +767,6 @@ export async function searchProjectsViaLike(
       },
     },
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
     skip: skip,
@@ -680,7 +785,6 @@ export async function countSearchedProjects(searchQuery: string[]) {
   const whereQueries = getProjectWhereQueries(searchQuery);
   const projectCount = await prismaClient.project.count({
     where: {
-      // TODO: Fix type issue
       AND: whereQueries,
     },
   });
@@ -690,7 +794,38 @@ export async function countSearchedProjects(searchQuery: string[]) {
 function getProjectWhereQueries(searchQuery: string[]) {
   let whereQueries = [];
   for (const word of searchQuery) {
-    const contains = {
+    const contains: {
+      OR: (
+        | {
+            [K in Project as string]: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          }
+        | {
+            [K in
+              | "awards"
+              | "disciplines"
+              | "responsibleOrganizations"
+              | "targetGroups"
+              | "teamMembers"]?: {
+              some: {
+                [K in
+                  | "award"
+                  | "discipline"
+                  | "organization"
+                  | "targetGroup"
+                  | "profile"]?: {
+                  [K in "name" | "title" | "firstName" | "lastName"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+      )[];
+    } = {
       OR: [
         {
           name: {
