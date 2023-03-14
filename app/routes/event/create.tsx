@@ -31,7 +31,7 @@ const schema = object({
     })
     .nullable()
     .required("Bitte ein Startdatum angeben"),
-  startTime: string().required("Bitte eine Startzeit angeben"),
+  startTime: string().nullable().required("Bitte eine Startzeit angeben"),
   endDate: date()
     .nullable()
     .transform((current, original) => {
@@ -60,6 +60,7 @@ const schema = object({
         : schema
     ),
   endTime: string()
+    .nullable()
     .required("Bitte eine Endzeit angeben")
     .when("startTime", (startTime, schema) =>
       startTime

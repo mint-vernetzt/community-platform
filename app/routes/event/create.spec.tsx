@@ -152,9 +152,20 @@ describe("action", () => {
     expect(responseBody.data.userId).toBe("some-user-id");
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
-    expect(responseBody.errors.name.message).toBe("Please add event name");
+    expect(responseBody.errors.name.message).toBe(
+      "Bitte einen Veranstaltungsnamen angeben"
+    );
     expect(responseBody.errors.startDate.message).toBe(
-      "Please add a start date"
+      "Bitte ein Startdatum angeben"
+    );
+    expect(responseBody.errors.startTime.message).toBe(
+      "Bitte eine Startzeit angeben"
+    );
+    expect(responseBody.errors.endDate.message).toBe(
+      "Bitte ein Enddatum angeben"
+    );
+    expect(responseBody.errors.endTime.message).toBe(
+      "Bitte eine Endzeit angeben"
     );
   });
 
@@ -171,9 +182,13 @@ describe("action", () => {
       userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
+      startTime: "09:00",
+      endDate: "2022-09-19",
+      endTime: "10:00",
     });
 
-    const startTime = new Date("2022-09-18 22:00Z");
+    const startTime = new Date("2022-09-19 07:00Z");
+    const endTime = new Date("2022-09-19 08:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -183,7 +198,7 @@ describe("action", () => {
         slug: "some-slug",
         name: "Some Event",
         startTime,
-        endTime: startTime,
+        endTime,
         participationUntil: startTime,
       },
       { parent: null, child: null }
