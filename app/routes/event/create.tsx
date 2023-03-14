@@ -1,10 +1,15 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { format, zonedTimeToUtc } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import { badRequest } from "remix-utils";
-import type { InferType } from "yup";
+import type { InferType, TestContext } from "yup";
 import { date, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -16,7 +21,7 @@ import { checkIdentityOrThrow, createEventOnProfile } from "./utils.server";
 
 const schema = object({
   userId: string().uuid().required(),
-  name: string().required("Please add event name"),
+  name: string().required("Bitte einen Veranstaltungsnamen angeben"),
   startDate: date()
     .transform((current, original) => {
       if (original === "") {
@@ -25,8 +30,8 @@ const schema = object({
       return current;
     })
     .nullable()
-    .required("Please add a start date"),
-  startTime: nullOrString(string()),
+    .required("Bitte ein Startdatum angeben"),
+  startTime: string().required("Bitte eine Startzeit angeben"),
   endDate: date()
     .nullable()
     .transform((current, original) => {
@@ -35,8 +40,67 @@ const schema = object({
       }
       return current;
     })
-    .defined(),
-  endTime: nullOrString(string()),
+    .defined()
+    .required("Bitte ein Enddatum angeben")
+    .when("startDate", (startDate, schema) =>
+      startDate
+        ? schema.test(
+            "greaterThanStartDate",
+            "Das Enddatum darf nicht vor dem Startdatum liegen",
+            (endDate: string | null | undefined) => {
+              if (endDate !== null && endDate !== undefined) {
+                return (
+                  new Date(startDate).getTime() <= new Date(endDate).getTime()
+                );
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
+  endTime: string()
+    .required("Bitte eine Endzeit angeben")
+    .when("startTime", (startTime, schema) =>
+      startTime
+        ? schema.test(
+            "greaterThanEndTimeOnSameDate",
+            "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
+            (endTime: string | null | undefined, testContext: TestContext) => {
+              if (
+                endTime &&
+                testContext.parent.endDate &&
+                testContext.parent.startDate
+              ) {
+                const endTimeArray = endTime.split(":");
+                const endTimeHours = parseInt(endTimeArray[0]);
+                const endTimeMinutes = parseInt(endTimeArray[1]);
+                const startTimeArray = testContext.parent.startTime.split(":");
+                const startTimeHours = parseInt(startTimeArray[0]);
+                const startTimeMinutes = parseInt(startTimeArray[1]);
+                const startDateObject = new Date(testContext.parent.startDate);
+                const endDateObject = new Date(testContext.parent.endDate);
+                if (
+                  startDateObject.getFullYear() ===
+                    endDateObject.getFullYear() &&
+                  startDateObject.getMonth() === endDateObject.getMonth() &&
+                  startDateObject.getDate() === endDateObject.getDate()
+                ) {
+                  if (startTimeHours === endTimeHours) {
+                    return startTimeMinutes < endTimeMinutes;
+                  } else {
+                    return startTimeHours < endTimeHours;
+                  }
+                } else {
+                  return true;
+                }
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   child: nullOrString(string()),
   parent: nullOrString(string()),
 });
@@ -44,13 +108,7 @@ const schema = object({
 type SchemaType = typeof schema;
 type FormType = InferType<typeof schema>;
 
-type LoaderData = {
-  id: string;
-  child: string;
-  parent: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -62,7 +120,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await validateFeatureAccess(authClient, "events");
 
-  return json<LoaderData>(
+  return json(
     { id: sessionUser.id, child, parent },
     { headers: response.headers }
   );
@@ -78,12 +136,7 @@ function getDateTime(date: Date, time: string | null) {
   return dateTime;
 }
 
-type ActionData = {
-  data: FormType;
-  errors: FormError | null;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -128,13 +181,20 @@ export const action: ActionFunction = async (args) => {
     return redirect(`/event/${slug}`, { headers: response.headers });
   }
 
-  return json<ActionData>({ data, errors }, { headers: response.headers });
+  return json({ data, errors }, { headers: response.headers });
 };
 
 export default function Create() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { register } = useForm<FormType>();
+  let errorMessages = [];
+  if (actionData !== undefined) {
+    for (let field in actionData.errors) {
+      errorMessages.push(actionData.errors[field].message);
+    }
+  }
 
   return (
     <>
@@ -168,57 +228,78 @@ export default function Create() {
                 <input name="userId" defaultValue={loaderData.id} hidden />
                 <input name="child" defaultValue={loaderData.child} hidden />
                 <input name="parent" defaultValue={loaderData.parent} hidden />
-                <div className="mb-4">
+                <div className="mb-2">
                   <Input
                     id="name"
-                    label="Name der Veranstaltung*"
+                    label="Name der Veranstaltung"
+                    required
                     {...register("name")}
                   />
                 </div>
-                <div className="mb-4">
+                <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
-                  <label htmlFor="startDate">Start Date*</label>
+                  <label className="label" htmlFor="startDate">
+                    Startdatum *
+                  </label>
                   <input
                     id="startDate"
                     name="startDate"
                     type="date"
-                    className="mx-2 border"
+                    className="input input-bordered input-lg w-full"
                     required
                   />
                 </div>
-                <div className="mb-4">
+                <div className="mb-2 form-control w-full">
                   {/* TODO: Time Input Component */}
-                  <label htmlFor="startTime">Start Time</label>
+                  <label className="label" htmlFor="startTime">
+                    Startzeit *
+                  </label>
                   <input
                     id="startTime"
                     name="startTime"
                     type="time"
-                    className="mx-2 border"
+                    className="input input-bordered input-lg w-full"
+                    required
                   />
                 </div>
-                <div className="mb-4">
+                <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
-                  <label htmlFor="endDate">End Date</label>
+                  <label className="label" htmlFor="endDate">
+                    Enddatum *
+                  </label>
                   <input
                     id="endDate"
                     name="endDate"
                     type="date"
-                    className="mx-2 border"
+                    className="input input-bordered input-lg w-full"
+                    required
                   />
                 </div>
-                <div className="mb-4">
+                <div className="mb-4 form-control w-full">
                   {/* TODO: Time Input Component */}
-                  <label htmlFor="endTime">End Time</label>
+                  <label className="label" htmlFor="endTime">
+                    Endzeit *
+                  </label>
                   <input
                     id="endTime"
                     name="endTime"
                     type="time"
-                    className="mx-2 border"
+                    className="input input-bordered input-lg w-full"
+                    required
                   />
                 </div>
+                {errorMessages !== undefined
+                  ? errorMessages.map((message, index) => {
+                      return (
+                        <div className="mb-2" key={index}>
+                          {message}
+                        </div>
+                      );
+                    })
+                  : null}
                 <button
                   type="submit"
-                  className="btn btn-outline-primary ml-auto btn-small mb-8"
+                  className="btn btn-outline-primary ml-auto btn-small"
                 >
                   Anlegen
                 </button>
