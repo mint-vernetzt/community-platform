@@ -1,11 +1,13 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import { format, zonedTimeToUtc } from "date-fns-tz";
+import { useForm } from "react-hook-form";
 import { badRequest } from "remix-utils";
 import type { InferType } from "yup";
 import { date, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import type { FormError } from "~/lib/utils/yup";
 import { getFormValues, nullOrString, validateForm } from "~/lib/utils/yup";
@@ -131,61 +133,100 @@ export const action: ActionFunction = async (args) => {
 
 export default function Create() {
   const loaderData = useLoaderData<LoaderData>();
+  const navigate = useNavigate();
+  const { register } = useForm<FormType>();
 
   return (
-    <Form method="post">
-      <h1>create event</h1>
-      <input name="userId" defaultValue={loaderData.id} hidden />
-      <input name="child" defaultValue={loaderData.child} hidden />
-      <input name="parent" defaultValue={loaderData.parent} hidden />
-      <div className="m-2">
-        <label htmlFor="name">Name*</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          className="mx-2 border"
-          required
-        />
+    <>
+      <section className="container md:mt-2">
+        <div className="font-semi text-neutral-600 flex items-center">
+          {/* TODO: get back route from loader */}
+          <button onClick={() => navigate(-1)} className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              className="h-auto w-6"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
+              />
+            </svg>
+            <span className="ml-2">Zurück</span>
+          </button>
+        </div>
+      </section>
+      <div className="container relative pt-20 pb-44">
+        <div className="flex -mx-4 justify-center">
+          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
+            <h4 className="font-semibold">Veranstaltung anlegen</h4>
+            <div className="pt-10 lg:pt-0">
+              <Form method="post">
+                <input name="userId" defaultValue={loaderData.id} hidden />
+                <input name="child" defaultValue={loaderData.child} hidden />
+                <input name="parent" defaultValue={loaderData.parent} hidden />
+                <div className="mb-4">
+                  <Input
+                    id="name"
+                    label="Name der Veranstaltung*"
+                    {...register("name")}
+                  />
+                </div>
+                <div className="mb-4">
+                  {/* TODO: Date Input Component */}
+                  <label htmlFor="startDate">Start Date*</label>
+                  <input
+                    id="startDate"
+                    name="startDate"
+                    type="date"
+                    className="mx-2 border"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  {/* TODO: Time Input Component */}
+                  <label htmlFor="startTime">Start Time</label>
+                  <input
+                    id="startTime"
+                    name="startTime"
+                    type="time"
+                    className="mx-2 border"
+                  />
+                </div>
+                <div className="mb-4">
+                  {/* TODO: Date Input Component */}
+                  <label htmlFor="endDate">End Date</label>
+                  <input
+                    id="endDate"
+                    name="endDate"
+                    type="date"
+                    className="mx-2 border"
+                  />
+                </div>
+                <div className="mb-4">
+                  {/* TODO: Time Input Component */}
+                  <label htmlFor="endTime">End Time</label>
+                  <input
+                    id="endTime"
+                    name="endTime"
+                    type="time"
+                    className="mx-2 border"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary ml-auto btn-small mb-8"
+                >
+                  Anlegen
+                </button>
+              </Form>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="m-2">
-        <label htmlFor="startDate">Start Date*</label>
-        <input
-          id="startDate"
-          name="startDate"
-          type="date"
-          className="mx-2 border"
-          required
-        />
-        <label htmlFor="startTime">Start Time</label>
-        <input
-          id="startTime"
-          name="startTime"
-          type="time"
-          className="mx-2 border"
-        />
-      </div>
-      <div className="m-2">
-        <label htmlFor="endDate">End Date</label>
-        <input
-          id="endDate"
-          name="endDate"
-          type="date"
-          className="mx-2 border"
-        />
-        <label htmlFor="endTime">End Time</label>
-        <input
-          id="endTime"
-          name="endTime"
-          type="time"
-          className="mx-2 border"
-        />
-      </div>
-      <div className="m-2">
-        <button className="btn btn-primary" type="submit">
-          Submit
-        </button>
-      </div>
-    </Form>
+    </>
   );
 }
