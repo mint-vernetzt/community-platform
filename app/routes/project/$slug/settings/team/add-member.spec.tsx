@@ -58,7 +58,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -86,7 +86,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -124,7 +124,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     expect.assertions(2);
@@ -186,7 +186,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -223,7 +223,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -255,8 +255,8 @@ describe("/project/$slug/settings/team/add-member", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.email).toContain(
-      "Das Profil unter dieser E-Mail ist bereits Mitglied Eures Projektes."
+    expect(responseBody.errors.id).toContain(
+      "Das Profil unter diesem Namen ist bereits Mitglied Eures Projektes."
     );
   });
 
@@ -266,7 +266,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "another-user-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -281,7 +281,11 @@ describe("/project/$slug/settings/team/add-member", () => {
       return { isPrivileged: true };
     });
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { teamMemberOfProjects: [] };
+      return {
+        teamMemberOfProjects: [],
+        firstName: "some-firstname",
+        lastName: "some-lastname",
+      };
     });
     (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
@@ -289,20 +293,22 @@ describe("/project/$slug/settings/team/add-member", () => {
       };
     });
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(prismaClient.teamMemberOfProject.create).toHaveBeenLastCalledWith({
-        data: {
-          projectId: "some-project-id",
-          profileId: "another-user-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+
+    const responseBody = await response.json();
+    expect(prismaClient.teamMemberOfProject.create).toHaveBeenLastCalledWith({
+      data: {
+        projectId: "some-project-id",
+        profileId: "another-user-id",
+      },
+    });
+    expect(responseBody.message).toBe(
+      'Ein neues Teammitglied mit dem Namen "some-firstname some-lastname" wurde hinzugefügt.'
+    );
   });
 
   afterAll(() => {

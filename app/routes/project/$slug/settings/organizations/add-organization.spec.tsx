@@ -61,7 +61,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const request = await createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "some-organization-id",
     });
 
     expect.assertions(2);
@@ -92,7 +92,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "some-organization-id",
     });
 
     expect.assertions(2);
@@ -156,7 +156,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -195,7 +195,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      email: "anotheruser@mail.com",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -232,7 +232,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.organizationName).toContain(
+    expect(responseBody.errors.id).toContain(
       "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich."
     );
   });
@@ -243,7 +243,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     const request = createRequestWithFormData({
       userId: "some-user-id",
       projectId: "some-project-id",
-      organizationName: "Some Organization",
+      id: "some-organization-id",
     });
 
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
@@ -260,7 +260,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
 
     (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
       () => {
-        return { responsibleForProject: [] };
+        return { responsibleForProject: [], name: "some-organization-name" };
       }
     );
     (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
@@ -271,22 +271,23 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       }
     );
 
-    try {
-      const result = await action({
-        request,
-        context: {},
-        params: {},
-      });
-      expect(
-        prismaClient.responsibleOrganizationOfProject.create
-      ).toHaveBeenLastCalledWith({
-        data: {
-          projectId: "some-project-id",
-          organizationId: "some-organization-id",
-        },
-      });
-      expect(result.success).toBe(true);
-    } catch (error) {}
+    const response = await action({
+      request,
+      context: {},
+      params: {},
+    });
+    const responseBody = await response.json();
+    expect(
+      prismaClient.responsibleOrganizationOfProject.create
+    ).toHaveBeenLastCalledWith({
+      data: {
+        projectId: "some-project-id",
+        organizationId: "some-organization-id",
+      },
+    });
+    expect(responseBody.message).toBe(
+      'Die Organisation "some-organization-name" ist jetzt verantwortlich für Euer Projekt.'
+    );
   });
 
   afterAll(() => {

@@ -130,6 +130,7 @@ describe("/project/$slug/settings/organizations", () => {
               id: "some-organization-id",
               name: "Some Organization",
               slug: "someorganization",
+              logo: null,
             },
           },
           {
@@ -137,6 +138,7 @@ describe("/project/$slug/settings/organizations", () => {
               id: "another-organization-id",
               name: "Another Organization",
               slug: "anotherorganization",
+              logo: null,
             },
           },
           {
@@ -144,6 +146,7 @@ describe("/project/$slug/settings/organizations", () => {
               id: "yet-another-organization-id",
               name: "Yet Another Organization",
               slug: "yetanotherorganization",
+              logo: null,
             },
           },
         ],
@@ -158,13 +161,14 @@ describe("/project/$slug/settings/organizations", () => {
 
     const responseBody = await response.json();
 
-    expect(responseBody.organizations.length).toBe(3);
-    expect(responseBody.organizations).toEqual(
+    expect(responseBody.responsibleOrganizations.length).toBe(3);
+    expect(responseBody.responsibleOrganizations).toEqual(
       expect.arrayContaining([
         {
           id: "some-organization-id",
           name: "Some Organization",
           slug: "someorganization",
+          logo: null,
         },
         expect.objectContaining({
           id: "another-organization-id",

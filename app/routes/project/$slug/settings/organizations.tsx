@@ -80,7 +80,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       projectId: project.id,
-      responbsibleOrganizations: enhancedOrganizations,
+      responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
     },
     { headers: response.headers }
@@ -106,7 +106,7 @@ function Organizations() {
         weitere Organisationen hinzu oder entferne sie.
       </p>
       <ul>
-        {loaderData.responbsibleOrganizations.map((organization) => {
+        {loaderData.responsibleOrganizations.map((organization) => {
           const initials = getInitialsOfName(organization.name);
           return (
             <li
