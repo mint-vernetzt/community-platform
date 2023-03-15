@@ -221,7 +221,7 @@ function Participants() {
           </Link>
         </p>
       ) : null}
-      <div className="mb-4 mt-8 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
         {loaderData.waitingList.map((waitingParticipant) => {
           const initials = getInitials(waitingParticipant);
           return (

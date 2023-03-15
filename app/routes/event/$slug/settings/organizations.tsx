@@ -176,7 +176,7 @@ function Organizations() {
         Hier siehst du alle für die Veranstaltung verantwortlichen
         Organisationen auf einen Blick.
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 md:max-h-[630px] overflow-auto">
         <ul>
           {loaderData.responsibleOrganizations.map((organization) => {
             const initials = getInitialsOfName(organization.name);

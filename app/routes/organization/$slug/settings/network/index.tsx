@@ -73,7 +73,7 @@ function Index() {
         Hier siehst du alle Organisationen, die Teil eures Netzwerkes sind, auf
         einen Blick.{" "}
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.networkMembers.map((member) => {
           return (
             <NetworkMemberRemoveForm
