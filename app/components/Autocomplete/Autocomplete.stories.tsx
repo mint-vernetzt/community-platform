@@ -10,7 +10,12 @@ export default {
 export const Default: ComponentStory<typeof Autocomplete> = (
   args: AutocompleteProps
 ) => (
-  <Autocomplete {...args} suggestions={[]} suggestionsLoaderPath="" value="" />
+  <Autocomplete
+    {...args}
+    suggestions={[]}
+    suggestionsLoaderPath=""
+    defaultValue=""
+  />
 );
 
 Default.storyName = "default";
@@ -58,7 +63,7 @@ export const WithOrganizationInput: ComponentStory<typeof Autocomplete> = (
       },
     ]}
     suggestionsLoaderPath="/some/loader/path/to/get/suggestions"
-    value="organi"
+    defaultValue="organi"
   />
 );
 
@@ -87,7 +92,7 @@ export const WithProfileInput: ComponentStory<typeof Autocomplete> = (
       },
     ]}
     suggestionsLoaderPath="/some/loader/path/to/get/suggestions"
-    value="garden"
+    defaultValue="garden"
   />
 );
 

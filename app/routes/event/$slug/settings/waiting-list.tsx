@@ -168,7 +168,7 @@ function Participants() {
                             loaderData.waitingParticipantSuggestions || []
                           }
                           suggestionsLoaderPath={`/event/${slug}/settings/waiting-list`}
-                          value={suggestionsQuery || ""}
+                          defaultValue={suggestionsQuery || ""}
                           {...register("id")}
                         />
                       </>

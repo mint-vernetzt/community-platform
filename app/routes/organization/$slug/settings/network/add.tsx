@@ -162,7 +162,7 @@ function Add(props: NetworkMemberProps) {
                       <Autocomplete
                         suggestions={props.networkMemberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/network`}
-                        value={suggestionsQuery || ""}
+                        defaultValue={suggestionsQuery || ""}
                         {...register("id")}
                       />
                     </>
