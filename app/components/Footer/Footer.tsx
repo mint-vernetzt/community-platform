@@ -30,7 +30,9 @@ function Footer(props: FooterProps) {
           >
             <ul
               className={`flex-100 md:flex-auto meta_nav text-neutral-600 text-sm leading-4 font-semibold ${
-                isNonAppBaseRoute ? "md:justify-center" : "flex md:justify-end"
+                isNonAppBaseRoute
+                  ? "md:justify-center"
+                  : "md:flex md:justify-end"
               }`.trimEnd()}
             >
               {/* <ul className="flex-100 md:flex-auto md:justify-end meta_nav md:flex <-- text-neutral-600 text-sm leading-4 font-semibold"> */}
