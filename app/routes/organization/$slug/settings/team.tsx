@@ -95,129 +95,6 @@ function Index() {
         Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
         oder entferne sie.
       </p>
-      <div className="mb-4">
-        {loaderData.members.map((profile) => {
-          const initials = getInitials(profile);
-          return (
-            <div
-              key={`team-member-${profile.id}`}
-              className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
-            >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
-                {profile.avatar !== null && profile.avatar !== "" ? (
-                  <img src={profile.avatar} alt={initials} />
-                ) : (
-                  <>{initials}</>
-                )}
-              </div>
-              <div className="pl-4">
-                <Link to={`/profile/${profile.username}`}>
-                  <H3
-                    like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
-                  >
-                    {profile.firstName} {profile.lastName}
-                  </H3>
-                </Link>
-                {profile.position ? (
-                  <p className="font-bold text-sm cursor-default">
-                    {profile.position}
-                  </p>
-                ) : null}
-              </div>
-              <Form
-                schema={setPrivilegeSchema}
-                fetcher={setPrivilegeFetcher}
-                action={`/organization/${slug}/settings/team/set-privilege`}
-                hiddenFields={[
-                  "userId",
-                  "slug",
-                  "teamMemberId",
-                  "organizationId",
-                  "isPrivileged",
-                ]}
-                values={{
-                  userId: loaderData.userId,
-                  slug: loaderData.slug,
-                  teamMemberId: profile.id,
-                  organizationId: loaderData.organizationId,
-                  isPrivileged: !profile.isPrivileged,
-                }}
-                className="ml-auto"
-              >
-                {(props) => {
-                  const { Field, Button, Errors } = props;
-                  return (
-                    <>
-                      <Errors />
-                      <Field name="userId" />
-                      <Field name="slug" />
-                      <Field name="teamMemberId" />
-                      <Field name="organizationId" />
-                      <Field name="isPrivileged" />
-                      {profile.isCurrentUser === false ? (
-                        <div className="ml-2">
-                          <Button
-                            className="btn btn-outline-primary ml-auto btn-small"
-                            title={
-                              profile.isPrivileged
-                                ? "Privileg entziehen"
-                                : "Privileg hinzufügen"
-                            }
-                          >
-                            {profile.isPrivileged
-                              ? "Privileg entziehen"
-                              : "Privileg hinzufügen"}
-                          </Button>
-                        </div>
-                      ) : null}
-                    </>
-                  );
-                }}
-              </Form>
-              <Form
-                method="post"
-                action={`/organization/${slug}/settings/team/remove-member`}
-                schema={removeMemberSchema}
-                hiddenFields={["teamMemberId", "organizationId", "userId"]}
-                values={{
-                  teamMemberId: profile.id,
-                  organizationId: loaderData.organizationId,
-                  userId: loaderData.userId,
-                }}
-                fetcher={removeMemberFetcher}
-              >
-                {({ Field, Button, Errors }) => {
-                  return (
-                    <>
-                      {profile.isCurrentUser === false ? (
-                        <Button className="ml-auto btn-none" title="entfernen">
-                          <svg
-                            viewBox="0 0 10 10"
-                            width="10px"
-                            height="10px"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                        </Button>
-                      ) : null}
-                      <Field name="userId" />
-                      <Field name="teamMemberId" />
-                      <Field name="organizationId" />
-                      <Errors />
-                    </>
-                  );
-                }}
-              </Form>
-            </div>
-          );
-        })}
-      </div>
       <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.
@@ -284,6 +161,138 @@ function Index() {
           {addMemberFetcher.data.message}
         </div>
       ) : null}
+      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teammitglieder</h4>
+      <p className="mb-8">
+        Hier siehst du alle Teammitglieder auf einen Blick.{" "}
+      </p>
+      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+        {loaderData.members.map((profile) => {
+          const initials = getInitials(profile);
+          return (
+            <div
+              key={`team-member-${profile.id}`}
+              className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
+            >
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                {profile.avatar !== null && profile.avatar !== "" ? (
+                  <img src={profile.avatar} alt={initials} />
+                ) : (
+                  <>{initials}</>
+                )}
+              </div>
+              <div className="pl-4">
+                <Link to={`/profile/${profile.username}`}>
+                  <H3
+                    like="h4"
+                    className="text-xl mb-1 no-underline hover:underline"
+                  >
+                    {profile.firstName} {profile.lastName}
+                  </H3>
+                </Link>
+                {profile.position ? (
+                  <p className="font-bold text-sm cursor-default">
+                    {profile.position}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
+                <Form
+                  schema={setPrivilegeSchema}
+                  fetcher={setPrivilegeFetcher}
+                  action={`/organization/${slug}/settings/team/set-privilege`}
+                  hiddenFields={[
+                    "userId",
+                    "slug",
+                    "teamMemberId",
+                    "organizationId",
+                    "isPrivileged",
+                  ]}
+                  values={{
+                    userId: loaderData.userId,
+                    slug: loaderData.slug,
+                    teamMemberId: profile.id,
+                    organizationId: loaderData.organizationId,
+                    isPrivileged: !profile.isPrivileged,
+                  }}
+                  className=""
+                >
+                  {(props) => {
+                    const { Field, Button, Errors } = props;
+                    return (
+                      <>
+                        <Errors />
+                        <Field name="userId" />
+                        <Field name="slug" />
+                        <Field name="teamMemberId" />
+                        <Field name="organizationId" />
+                        <Field name="isPrivileged" />
+                        {profile.isCurrentUser === false ? (
+                          <div className="ml-2">
+                            <Button
+                              className="btn btn-outline-primary ml-auto btn-small"
+                              title={
+                                profile.isPrivileged
+                                  ? "Privileg entziehen"
+                                  : "Privileg hinzufügen"
+                              }
+                            >
+                              {profile.isPrivileged
+                                ? "Privileg entziehen"
+                                : "Privileg hinzufügen"}
+                            </Button>
+                          </div>
+                        ) : null}
+                      </>
+                    );
+                  }}
+                </Form>
+                <Form
+                  method="post"
+                  action={`/organization/${slug}/settings/team/remove-member`}
+                  schema={removeMemberSchema}
+                  hiddenFields={["teamMemberId", "organizationId", "userId"]}
+                  values={{
+                    teamMemberId: profile.id,
+                    organizationId: loaderData.organizationId,
+                    userId: loaderData.userId,
+                  }}
+                  fetcher={removeMemberFetcher}
+                >
+                  {({ Field, Button, Errors }) => {
+                    return (
+                      <>
+                        {profile.isCurrentUser === false ? (
+                          <Button
+                            className="ml-auto btn-none"
+                            title="entfernen"
+                          >
+                            <svg
+                              viewBox="0 0 10 10"
+                              width="10px"
+                              height="10px"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </Button>
+                        ) : null}
+                        <Field name="userId" />
+                        <Field name="teamMemberId" />
+                        <Field name="organizationId" />
+                        <Errors />
+                      </>
+                    );
+                  }}
+                </Form>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }

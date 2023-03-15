@@ -121,96 +121,6 @@ function Participants() {
         Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende
         hinzu oder entferne sie.
       </p>
-      <ul>
-        {loaderData.participants.map((participant) => {
-          const initials = getInitials(participant);
-          return (
-            <div
-              key={participant.id}
-              className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
-            >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
-                {participant.avatar !== null && participant.avatar !== "" ? (
-                  <img src={participant.avatar} alt={initials} />
-                ) : (
-                  <>{initials}</>
-                )}
-              </div>
-              <div className="pl-4">
-                <Link to={`/profile/${participant.username}`}>
-                  <H3
-                    like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
-                  >
-                    {participant.firstName} {participant.lastName}
-                  </H3>
-                </Link>
-                {participant.position ? (
-                  <p className="font-bold text-sm cursor-default">
-                    {participant.position}
-                  </p>
-                ) : null}
-              </div>
-              <Form
-                schema={removeParticipantSchema}
-                fetcher={removeParticipantFetcher}
-                action={`/event/${slug}/settings/participants/remove-participant`}
-                hiddenFields={["userId", "eventId", "profileId"]}
-                values={{
-                  userId: loaderData.userId,
-                  eventId: loaderData.eventId,
-                  profileId: participant.id,
-                }}
-                className="ml-auto"
-              >
-                {(props) => {
-                  const { Field, Button, Errors } = props;
-                  return (
-                    <>
-                      <Errors />
-                      <Field name="userId" />
-                      <Field name="eventId" />
-                      <Field name="profileId" />
-                      <Button className="ml-auto btn-none" title="entfernen">
-                        <svg
-                          viewBox="0 0 10 10"
-                          width="10px"
-                          height="10px"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </Button>
-                    </>
-                  );
-                }}
-              </Form>
-            </div>
-          );
-        })}
-      </ul>
-      {loaderData.participants.length > 0 ? (
-        <Link
-          className="btn btn-outline btn-primary mt-4 mb-4"
-          to="../csv-download?type=participants&amp;depth=single"
-          reloadDocument
-        >
-          Teilnehmerliste herunterladen
-        </Link>
-      ) : null}
-      {loaderData.hasFullDepthParticipants ? (
-        <Link
-          className="btn btn-outline btn-primary mt-4 mb-4"
-          to="../csv-download?type=participants&amp;depth=full"
-          reloadDocument
-        >
-          Teilnehmerliste aller Subveranstaltungen herunterladen
-        </Link>
-      ) : null}
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
@@ -281,6 +191,102 @@ function Participants() {
             {addParticipantFetcher.data.message}
           </div>
         ) : null}
+      </div>
+      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teilnehmende</h4>
+      <p className="mb-4">Hier siehst du alle Teilnehmenden auf einen Blick.</p>
+      {loaderData.participants.length > 0 ? (
+        <p className="mb-4">
+          <Link
+            className="btn btn-outline btn-primary mt-4 mb-4"
+            to="../csv-download?type=participants&amp;depth=single"
+            reloadDocument
+          >
+            Teilnehmerliste herunterladen
+          </Link>
+        </p>
+      ) : null}
+      {loaderData.hasFullDepthParticipants ? (
+        <p className="mb-4">
+          <Link
+            className="btn btn-outline btn-primary mt-4 mb-4"
+            to="../csv-download?type=participants&amp;depth=full"
+            reloadDocument
+          >
+            Teilnehmerliste aller Subveranstaltungen herunterladen
+          </Link>
+        </p>
+      ) : null}
+      <div className="mb-4 mt-8 md:max-h-[630px] overflow-scroll">
+        {loaderData.participants.map((participant) => {
+          const initials = getInitials(participant);
+          return (
+            <div
+              key={participant.id}
+              className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+            >
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                {participant.avatar !== null && participant.avatar !== "" ? (
+                  <img src={participant.avatar} alt={initials} />
+                ) : (
+                  <>{initials}</>
+                )}
+              </div>
+              <div className="pl-4">
+                <Link to={`/profile/${participant.username}`}>
+                  <H3
+                    like="h4"
+                    className="text-xl mb-1 no-underline hover:underline"
+                  >
+                    {participant.firstName} {participant.lastName}
+                  </H3>
+                </Link>
+                {participant.position ? (
+                  <p className="font-bold text-sm cursor-default">
+                    {participant.position}
+                  </p>
+                ) : null}
+              </div>
+              <Form
+                schema={removeParticipantSchema}
+                fetcher={removeParticipantFetcher}
+                action={`/event/${slug}/settings/participants/remove-participant`}
+                hiddenFields={["userId", "eventId", "profileId"]}
+                values={{
+                  userId: loaderData.userId,
+                  eventId: loaderData.eventId,
+                  profileId: participant.id,
+                }}
+                className="ml-auto"
+              >
+                {(props) => {
+                  const { Field, Button, Errors } = props;
+                  return (
+                    <>
+                      <Errors />
+                      <Field name="userId" />
+                      <Field name="eventId" />
+                      <Field name="profileId" />
+                      <Button className="ml-auto btn-none" title="entfernen">
+                        <svg
+                          viewBox="0 0 10 10"
+                          width="10px"
+                          height="10px"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </Button>
+                    </>
+                  );
+                }}
+              </Form>
+            </div>
+          );
+        })}
       </div>
     </>
   );

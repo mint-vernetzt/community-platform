@@ -110,7 +110,7 @@ const Autocomplete = React.forwardRef(
       <>
         <input
           ref={inputRef}
-          className="input input-bordered w-full mb-2"
+          className="input input-bordered w-full mt-1"
           value={searchedValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -131,7 +131,7 @@ const Autocomplete = React.forwardRef(
                     onClick={() => handleClick()}
                     onMouseOver={() => handleMouseOver(index)}
                   >
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.logo !== null && suggestion.logo !== "" ? (
                         <img src={suggestion.logo} alt={suggestion.name} />
                       ) : (
@@ -139,11 +139,11 @@ const Autocomplete = React.forwardRef(
                       )}
                     </div>
                     <div className="pl-4">
-                      <H3 like="h4" className="text-xl mb-1">
+                      <H3 like="h4" className="text-xl mb-1 text-left">
                         {suggestion.name}
                       </H3>
                       {suggestion.types.length !== 0 ? (
-                        <p className="font-bold text-sm">
+                        <p className="font-bold text-sm text-left">
                           {suggestion.types
                             .map((item) => {
                               return item.organizationType.title;
@@ -165,7 +165,7 @@ const Autocomplete = React.forwardRef(
                     onClick={() => handleClick()}
                     onMouseOver={() => handleMouseOver(index)}
                   >
-                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.avatar !== null &&
                       suggestion.avatar !== "" ? (
                         <img src={suggestion.avatar} alt={initials} />
@@ -174,11 +174,11 @@ const Autocomplete = React.forwardRef(
                       )}
                     </div>
                     <div className="pl-4">
-                      <H3 like="h4" className="text-xl mb-1">
+                      <H3 like="h4" className="text-xl mb-1 text-left">
                         {suggestion.firstName} {suggestion.lastName}
                       </H3>
                       {suggestion.position ? (
-                        <p className="font-bold text-sm cursor-default">
+                        <p className="font-bold text-sm cursor-default text-left">
                           {suggestion.position}
                         </p>
                       ) : null}
