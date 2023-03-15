@@ -97,37 +97,118 @@ function Documents() {
                   key={`document-${item.document.id}`}
                   className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
                 >
-                  <p>{item.document.title || item.document.filename}</p>
-                  <p className="mx-4">{item.document.sizeInMB} MB</p>
-                  <Link
-                    className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
-                    to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
-                    reloadDocument
-                  >
-                    Herunterladen
-                  </Link>
-                  <label
-                    htmlFor={`modal-edit-document-${item.document.id}`}
-                    className="btn btn-outline-primary ml-auto btn-small mt-2 mx-2"
-                  >
-                    Editieren
-                  </label>
-                  <Modal id={`modal-edit-document-${item.document.id}`}>
+                  <div className="mr-2">
+                    <p>{item.document.title || item.document.filename}</p>
+                    <p>({Math.round(item.document.sizeInMB * 100) / 100} MB)</p>
+                  </div>
+                  <div className="ml-auto flex-1/2 sm:flex">
+                    <Link
+                      className="btn btn-outline-primary btn-small mt-2 mr-2"
+                      to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
+                      reloadDocument
+                    >
+                      Herunterladen
+                    </Link>
+                    <label
+                      htmlFor={`modal-edit-document-${item.document.id}`}
+                      className="btn btn-outline-primary btn-small mt-2 mr-2"
+                    >
+                      Editieren
+                    </label>
+                    <Modal id={`modal-edit-document-${item.document.id}`}>
+                      <RemixForm
+                        method="post"
+                        fetcher={editDocumentFetcher}
+                        action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
+                        schema={editDocumentSchema}
+                        onSubmit={(event) => {
+                          closeModal(item.document.id);
+                          // @ts-ignore
+                          if (event.nativeEvent.submitter.name === "cancel") {
+                            event.preventDefault();
+                            event.currentTarget.reset();
+                          }
+                        }}
+                      >
+                        {({ Field, Errors, register }) => (
+                          <>
+                            <Field
+                              name="userId"
+                              hidden
+                              value={loaderData.userId}
+                            />
+                            <Field
+                              name="documentId"
+                              hidden
+                              value={item.document.id}
+                            />
+                            <Field
+                              name="eventId"
+                              hidden
+                              value={loaderData.event.id}
+                            />
+                            <Field
+                              name="extension"
+                              hidden
+                              value={item.document.extension}
+                            />
+                            <Field name="title">
+                              {({ Errors }) => (
+                                <>
+                                  <InputText
+                                    {...register("title")}
+                                    id="title"
+                                    label="Titel"
+                                    defaultValue={
+                                      item.document.title ||
+                                      item.document.filename
+                                    }
+                                  />
+                                  <Errors />
+                                </>
+                              )}
+                            </Field>
+                            <Field name="description">
+                              {({ Errors }) => (
+                                <>
+                                  <TextAreaWithCounter
+                                    {...register("description")}
+                                    id="description"
+                                    label="Beschreibung"
+                                    defaultValue={
+                                      item.document.description || ""
+                                    }
+                                    maxCharacters={100}
+                                  />
+                                  <Errors />
+                                </>
+                              )}
+                            </Field>
+                            <button
+                              type="submit"
+                              className="btn btn-outline-primary ml-auto btn-small mt-2"
+                            >
+                              Speichern
+                            </button>
+                            <button
+                              type="submit"
+                              name="cancel"
+                              className="btn btn-outline-primary ml-auto btn-small mt-2"
+                            >
+                              Abbrechen
+                            </button>
+                            <Errors />
+                          </>
+                        )}
+                      </RemixForm>
+                    </Modal>
                     <RemixForm
                       method="post"
-                      fetcher={editDocumentFetcher}
-                      action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
-                      schema={editDocumentSchema}
-                      onSubmit={(event) => {
-                        closeModal(item.document.id);
-                        // @ts-ignore
-                        if (event.nativeEvent.submitter.name === "cancel") {
-                          event.preventDefault();
-                          event.currentTarget.reset();
-                        }
-                      }}
+                      fetcher={deleteDocumentFetcher}
+                      action={`/event/${loaderData.event.slug}/settings/documents/delete-document`}
+                      schema={deleteDocumentSchema}
                     >
-                      {({ Field, Errors, register }) => (
+                      {({ Field, Errors }) => (
                         <>
                           <Field
                             name="userId"
@@ -144,88 +225,17 @@ function Documents() {
                             hidden
                             value={loaderData.event.id}
                           />
-                          <Field
-                            name="extension"
-                            hidden
-                            value={item.document.extension}
-                          />
-                          <Field name="title">
-                            {({ Errors }) => (
-                              <>
-                                <InputText
-                                  {...register("title")}
-                                  id="title"
-                                  label="Titel"
-                                  defaultValue={
-                                    item.document.title ||
-                                    item.document.filename
-                                  }
-                                />
-                                <Errors />
-                              </>
-                            )}
-                          </Field>
-                          <Field name="description">
-                            {({ Errors }) => (
-                              <>
-                                <TextAreaWithCounter
-                                  {...register("description")}
-                                  id="description"
-                                  label="Beschreibung"
-                                  defaultValue={item.document.description || ""}
-                                  maxCharacters={100}
-                                />
-                                <Errors />
-                              </>
-                            )}
-                          </Field>
                           <button
                             type="submit"
                             className="btn btn-outline-primary ml-auto btn-small mt-2"
                           >
-                            Speichern
-                          </button>
-                          <button
-                            type="submit"
-                            name="cancel"
-                            className="btn btn-outline-primary ml-auto btn-small mt-2"
-                          >
-                            Abbrechen
+                            Löschen
                           </button>
                           <Errors />
                         </>
                       )}
                     </RemixForm>
-                  </Modal>
-                  <RemixForm
-                    method="post"
-                    fetcher={deleteDocumentFetcher}
-                    action={`/event/${loaderData.event.slug}/settings/documents/delete-document`}
-                    schema={deleteDocumentSchema}
-                  >
-                    {({ Field, Errors }) => (
-                      <>
-                        <Field name="userId" hidden value={loaderData.userId} />
-                        <Field
-                          name="documentId"
-                          hidden
-                          value={item.document.id}
-                        />
-                        <Field
-                          name="eventId"
-                          hidden
-                          value={loaderData.event.id}
-                        />
-                        <button
-                          type="submit"
-                          className="btn btn-outline-primary ml-auto btn-small mt-2"
-                        >
-                          Löschen
-                        </button>
-                        <Errors />
-                      </>
-                    )}
-                  </RemixForm>
+                  </div>
                 </div>
               );
             })}
