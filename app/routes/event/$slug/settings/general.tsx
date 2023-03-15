@@ -15,6 +15,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
 import type { InferType, TestContext } from "yup";
 import { array, mixed, number, object, string } from "yup";
+import type { Defined } from "yup/lib/util/types";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -377,6 +378,7 @@ const schema = object({
   tags: array(string().required()).required(),
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
+  participantCount: string().required(),
   participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
     .test((value) => {
       return (
@@ -386,6 +388,28 @@ const schema = object({
         number().isValidSync(value)
       );
     })
+    .when("participantCount", (participantCount, schema) =>
+      participantCount
+        ? schema.test(
+            "lessThanParticipantCount",
+            "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+            (participantLimit: string | null | undefined) => {
+              if (
+                !(
+                  participantLimit === null ||
+                  participantLimit === undefined ||
+                  participantLimit === "" ||
+                  participantLimit === "0"
+                )
+              ) {
+                return participantLimit > participantCount;
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    )
     .transform((value) => {
       return value === null || value === "" || value === "0"
         ? null
@@ -519,13 +543,14 @@ function General() {
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
+  const newEvent = actionData?.data;
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event: typeof loaderData["event"] | typeof actionData["data"];
-  if (actionData !== undefined) {
-    event = actionData.data;
+  let event: typeof loaderData["event"] | Defined<typeof newEvent>;
+  if (newEvent !== undefined) {
+    event = newEvent;
   } else {
     event = originalEvent;
   }
@@ -757,6 +782,11 @@ function General() {
           {errors?.published?.message}
         </p> */}
           <input name="userId" defaultValue={userId} hidden />
+          <input
+            name="participantCount"
+            defaultValue={loaderData.event._count.participants}
+            hidden
+          />
           <div className="mb-6">
             <InputText
               {...register("name")}

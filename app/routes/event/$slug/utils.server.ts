@@ -185,7 +185,6 @@ export async function getEventByField(field: string, value: string) {
               email: true,
               position: true,
               avatar: true,
-              position: true,
               memberOf: {
                 select: {
                   organization: {
@@ -216,7 +215,6 @@ export async function getEventByField(field: string, value: string) {
               email: true,
               position: true,
               avatar: true,
-              position: true,
               memberOf: {
                 select: {
                   organization: {
@@ -253,6 +251,7 @@ export async function getEventByField(field: string, value: string) {
       _count: {
         select: {
           childEvents: true,
+          participants: true,
         },
       },
     },

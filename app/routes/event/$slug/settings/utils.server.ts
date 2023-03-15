@@ -111,6 +111,7 @@ export function transformFormToEvent(form: any) {
   const {
     userId: _userId,
     submit: _submit,
+    participantCount: _participantCount,
     // experienceLevel: _experienceLevel,
     startDate,
     endDate,
