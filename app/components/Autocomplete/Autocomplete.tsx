@@ -116,7 +116,11 @@ const Autocomplete = React.forwardRef(
         />
         <input {...rest} hidden value={submitValue} />
         {suggestions.length > 0 ? (
-          <div id="suggestions-container" ref={suggestionsContainerRef}>
+          <div
+            className="mt-2 pb-4 md:pb-14"
+            id="suggestions-container"
+            ref={suggestionsContainerRef}
+          >
             {suggestions.map((suggestion, index) => {
               if ("name" in suggestion) {
                 const initials = getInitialsOfName(suggestion.name);
