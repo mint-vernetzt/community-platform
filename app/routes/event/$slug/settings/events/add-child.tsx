@@ -11,6 +11,7 @@ import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
 import { addChildEventRelationOrThrow } from "./utils.server";
 
+// TODO: Validate start and end time
 const schema = z.object({
   userId: z.string(),
   eventId: z.string(),

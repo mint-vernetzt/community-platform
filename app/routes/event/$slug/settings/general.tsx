@@ -523,6 +523,7 @@ export const action = async (args: ActionArgs) => {
   );
 };
 
+// TODO: Display error messages as text
 function General() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
