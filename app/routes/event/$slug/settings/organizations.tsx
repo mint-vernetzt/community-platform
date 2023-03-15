@@ -148,7 +148,7 @@ function Organizations() {
                             loaderData.responsibleOrganizationSuggestions || []
                           }
                           suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
-                          value={suggestionsQuery || ""}
+                          defaultValue={suggestionsQuery || ""}
                           {...register("id")}
                         />
                       </>

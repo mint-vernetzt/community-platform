@@ -168,7 +168,7 @@ function Participants() {
                               loaderData.participantSuggestions || []
                             }
                             suggestionsLoaderPath={`/event/${slug}/settings/participants`}
-                            value={suggestionsQuery || ""}
+                            defaultValue={suggestionsQuery || ""}
                             {...register("id")}
                           />
                         </>

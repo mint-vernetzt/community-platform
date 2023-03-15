@@ -141,7 +141,7 @@ function Team() {
                         <Autocomplete
                           suggestions={loaderData.teamMemberSuggestions || []}
                           suggestionsLoaderPath={`/project/${slug}/settings/team`}
-                          value={suggestionsQuery || ""}
+                          defaultValue={suggestionsQuery || ""}
                           {...register("id")}
                         />
                       </>

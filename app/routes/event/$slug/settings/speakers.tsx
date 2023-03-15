@@ -140,7 +140,7 @@ function Speakers() {
                         <Autocomplete
                           suggestions={loaderData.speakerSuggestions || []}
                           suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
-                          value={suggestionsQuery || ""}
+                          defaultValue={suggestionsQuery || ""}
                           {...register("id")}
                         />
                       </>

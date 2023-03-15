@@ -136,7 +136,7 @@ function Index() {
                       <Autocomplete
                         suggestions={loaderData.memberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/team`}
-                        value={suggestionsQuery || ""}
+                        defaultValue={suggestionsQuery || ""}
                         {...register("id")}
                       />
                     </>

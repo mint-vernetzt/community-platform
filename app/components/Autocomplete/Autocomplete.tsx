@@ -1,7 +1,6 @@
 import type { Organization, Profile } from "@prisma/client";
-import { useSubmit } from "@remix-run/react";
-import { debounce } from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams, useSubmit } from "@remix-run/react";
+import React, { useEffect, useRef, useState } from "react";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
@@ -17,7 +16,7 @@ export interface AutocompleteProps {
         }[];
       })[];
   suggestionsLoaderPath: string;
-  value: String;
+  defaultValue: string;
 }
 
 const Autocomplete = React.forwardRef(
@@ -25,23 +24,21 @@ const Autocomplete = React.forwardRef(
     props: React.HTMLProps<HTMLInputElement> & AutocompleteProps,
     forwardRef
   ) => {
-    const { suggestions, suggestionsLoaderPath, value, ...rest } = props;
+    const { suggestions, suggestionsLoaderPath, defaultValue, ...rest } = props;
 
-    const [searchedValue, setSearchedValue] = useState(value);
-    const [submitValue, setSubmitValue] = useState(value);
+    const [searchedValue, setSearchedValue] = useState("");
+    const [submitValue, setSubmitValue] = useState("");
     const [activeSuggestion, setActiveSuggestion] = useState(0);
     const submit = useSubmit();
     const suggestionsContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-      setSearchedValue(value);
-      setSubmitValue("");
-    }, [value]);
+    const [searchParams] = useSearchParams();
+    const suggestionsQuery = searchParams.get("autocomplete_query");
 
     useEffect(() => {
       if (inputRef.current !== null) {
         inputRef.current.focus();
+        setSearchedValue(defaultValue);
       }
     }, []);
 
@@ -54,31 +51,32 @@ const Autocomplete = React.forwardRef(
       }
     }, [suggestions.length]);
 
-    const handleChange = useCallback(
-      debounce((value: string) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchedValue(event.target.value);
+      if (event.target.value.length >= 3) {
         submit(
           {
-            autocomplete_query: value,
+            autocomplete_query: event.target.value,
           },
           {
             method: "get",
             action: suggestionsLoaderPath,
           }
         );
-      }, 500),
-      []
-    );
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchedValue(event.target.value);
-      handleChange(event.target.value);
+      } else {
+        if (suggestionsQuery !== "") {
+          submit(
+            {
+              autocomplete_query: "",
+            },
+            {
+              method: "get",
+              action: suggestionsLoaderPath,
+            }
+          );
+        }
+      }
     };
-
-    useEffect(() => {
-      return () => {
-        handleChange.cancel();
-      };
-    }, []);
 
     const handleKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>
