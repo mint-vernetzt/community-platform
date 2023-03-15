@@ -99,6 +99,24 @@ export async function getEventByField(field: string, value: string) {
           id: true,
           name: true,
           slug: true,
+          startTime: true,
+          endTime: true,
+          background: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          _count: {
+            select: {
+              childEvents: true,
+              participants: true,
+              waitingList: true,
+            },
+          },
+          participantLimit: true,
+          subline: true,
+          description: true,
         },
       },
       childEvents: {
@@ -106,6 +124,24 @@ export async function getEventByField(field: string, value: string) {
           id: true,
           name: true,
           slug: true,
+          startTime: true,
+          endTime: true,
+          background: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          _count: {
+            select: {
+              childEvents: true,
+              participants: true,
+              waitingList: true,
+            },
+          },
+          participantLimit: true,
+          subline: true,
+          description: true,
         },
       },
       teamMembers: {

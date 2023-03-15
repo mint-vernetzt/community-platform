@@ -1,11 +1,14 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { H3 } from "~/components/Heading/Heading";
+import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getDuration } from "~/lib/utils/time";
+import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import type { ActionData as AddChildActionData } from "./events/add-child";
 import { addChildSchema } from "./events/add-child";
@@ -19,16 +22,7 @@ import {
   getOptionsFromEvents,
 } from "./utils.server";
 
-type LoaderData = {
-  userId: string;
-  eventId: string;
-  options: ReturnType<typeof getOptionsFromEvents>;
-  childEvents: { id: string; slug: string; name: string }[];
-  parentEventId: string | null;
-  parentEventName: string | null;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -53,12 +47,31 @@ export const loader: LoaderFunction = async (args) => {
     parentEventName = event.parentEvent.name;
   }
 
-  return json<LoaderData>(
+  const enhancedChildEvents = event.childEvents.map((childEvent) => {
+    if (childEvent.background !== null) {
+      const publicURL = getPublicURL(authClient, childEvent.background);
+      if (publicURL) {
+        childEvent.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return childEvent;
+  });
+  if (event.parentEvent !== null && event.parentEvent.background !== null) {
+    const publicURL = getPublicURL(authClient, event.parentEvent.background);
+    if (publicURL) {
+      event.parentEvent.background = getImageURL(publicURL, {
+        resize: { type: "fit", width: 160, height: 160 },
+      });
+    }
+  }
+
+  return json(
     {
       options,
-      parentEventId,
-      parentEventName,
-      childEvents: event.childEvents,
+      parentEvent: event.parentEvent,
+      childEvents: enhancedChildEvents,
       eventId: event.id,
       userId: sessionUser.id,
     },
@@ -68,14 +81,33 @@ export const loader: LoaderFunction = async (args) => {
 
 function Events() {
   const { slug } = useParams();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const setParentFetcher = useFetcher<SetParentActionData>();
   const addChildFetcher = useFetcher<AddChildActionData>();
   const removeChildFetcher = useFetcher<RemoveChildActionData>();
+  let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
+  let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
+  if (loaderData.parentEvent !== null) {
+    parentEventStartTime = utcToZonedTime(
+      loaderData.parentEvent.startTime,
+      "Europe/Berlin"
+    );
+    parentEventEndTime = utcToZonedTime(
+      loaderData.parentEvent.endTime,
+      "Europe/Berlin"
+    );
+  }
 
   return (
     <>
-      <h1>Veranstaltungen</h1>
+      <h1 className="mb-8">Verknüpfte Veranstaltungen</h1>
+      <h4 className="mb-4 font-semibold">Rahmenveranstaltung</h4>
+
+      <p className="mb-4">
+        Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie
+        beispielsweise im Rahmen einer Tagung statt? Füge hier deiner
+        Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.
+      </p>
       <Form
         schema={setParentSchema}
         fetcher={setParentFetcher}
@@ -95,7 +127,7 @@ function Events() {
                     htmlFor="parentEventId"
                     className="label"
                   >
-                    Rahmenveranstaltung
+                    Rahmenveranstaltung zuweisen
                   </label>
                 </div>
               </div>
@@ -111,7 +143,6 @@ function Events() {
                         {...register("parentEventId")}
                         name="parentEventId"
                         className="select w-full select-bordered"
-                        defaultValue={loaderData.parentEventId || ""}
                       >
                         <option></option>
                         {loaderData.options.map((option, index) => {
@@ -145,65 +176,131 @@ function Events() {
           {setParentFetcher.data.message}
         </div>
       ) : null}
-      <hr className="border-neutral-400 my-4 lg:my-8" />
-      {loaderData.childEvents.length > 0 ? (
-        <div className="mb-8">
-          <h3>Zugehörige Veranstaltungen</h3>
-          <ul>
-            {loaderData.childEvents.map((childEvent) => {
-              return (
-                <Form
-                  key={`remove-child-${childEvent.id}`}
-                  schema={removeChildSchema}
-                  fetcher={removeChildFetcher}
-                  action={`/event/${slug}/settings/events/remove-child`}
-                  hiddenFields={["userId", "eventId", "childEventId"]}
-                  values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    childEventId: childEvent.id,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button } = props;
-                    return (
-                      <div className="w-full flex items-center flex-row border-b border-neutral-400 p-4">
-                        <div className="pl-4">
-                          <H3 like="h4" className="text-xl mb-1">
-                            <Link
-                              className="underline hover:no-underline"
-                              to={`/event/${childEvent.slug}`}
-                            >
-                              {childEvent.name}
-                            </Link>
-                          </H3>
-                        </div>
-                        <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="childEventId" />
-                        <Button className="ml-auto btn-none" title="entfernen">
-                          <svg
-                            viewBox="0 0 10 10"
-                            width="10px"
-                            height="10px"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                        </Button>
+      {loaderData.parentEvent !== null ? (
+        <div className="mt-6">
+          <Form
+            schema={setParentSchema}
+            fetcher={setParentFetcher}
+            action={`/event/${slug}/settings/events/set-parent`}
+            hiddenFields={["userId", "eventId", "parentEventId"]}
+            values={{
+              userId: loaderData.userId,
+              eventId: loaderData.eventId,
+              parentEventId: "",
+            }}
+          >
+            {(props) => {
+              if (
+                loaderData.parentEvent !== null &&
+                parentEventStartTime !== undefined &&
+                parentEventEndTime !== undefined
+              ) {
+                const { Field, Button } = props;
+                return (
+                  <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
+                    <Link
+                      className="flex"
+                      to={`/event/${loaderData.parentEvent.slug}`}
+                    >
+                      <div className="hidden xl:block w-40 shrink-0">
+                        <img
+                          src={
+                            loaderData.parentEvent.background ||
+                            "/images/default-event-background.jpg"
+                          }
+                          alt={loaderData.parentEvent.name}
+                          className="object-cover w-full h-full"
+                        />
                       </div>
-                    );
-                  }}
-                </Form>
-              );
-            })}
-          </ul>
+                      <div className="px-4 py-6">
+                        <p className="text-xs mb-1">
+                          {/* TODO: Display icons (see figma) */}
+                          {loaderData.parentEvent.stage !== null
+                            ? loaderData.parentEvent.stage.title + " | "
+                            : ""}
+                          {getDuration(
+                            parentEventStartTime,
+                            parentEventEndTime
+                          )}
+                          {loaderData.parentEvent._count.childEvents === 0 ? (
+                            <>
+                              {loaderData.parentEvent.participantLimit === null
+                                ? " | Unbegrenzte Plätze"
+                                : ` | ${
+                                    loaderData.parentEvent.participantLimit -
+                                    loaderData.parentEvent._count.participants
+                                  } / ${
+                                    loaderData.parentEvent.participantLimit
+                                  } Plätzen frei`}
+                            </>
+                          ) : (
+                            ""
+                          )}
+                          {loaderData.parentEvent.participantLimit !== null &&
+                          loaderData.parentEvent._count.participants >=
+                            loaderData.parentEvent.participantLimit ? (
+                            <>
+                              {" "}
+                              |{" "}
+                              <span>
+                                {loaderData.parentEvent._count.waitingList} auf
+                                der Warteliste
+                              </span>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </p>
+                        <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                          {loaderData.parentEvent.name}
+                        </h4>
+                        {loaderData.parentEvent.subline !== null ? (
+                          <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                            {loaderData.parentEvent.subline}
+                          </p>
+                        ) : (
+                          <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                            {loaderData.parentEvent.description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="parentEventId" />
+                    <Button className="ml-auto btn-none" title="entfernen">
+                      <svg
+                        viewBox="0 0 10 10"
+                        width="10px"
+                        height="10px"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </Button>
+                  </div>
+                );
+              } else {
+                return null;
+              }
+            }}
+          </Form>
         </div>
       ) : null}
+      <hr className="border-neutral-400 my-4 lg:my-8" />
+      <h4 className="mb-4 font-semibold">Zugehörige Veranstaltungen</h4>
+
+      <p className="mb-4">
+        Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist
+        deine Veranstaltung beispielsweise eine Tagung und hat mehrere
+        Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches?
+        Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne
+        sie.
+      </p>
       <Form
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -223,7 +320,7 @@ function Events() {
                     htmlFor="parentEventId"
                     className="label"
                   >
-                    Zugehörige Veranstaltungen
+                    Veranstaltung hinzufügen
                   </label>
                 </div>
               </div>
@@ -245,9 +342,9 @@ function Events() {
                           .filter((option) => {
                             let isNotParent = true;
                             let isNotChild = true;
-                            if (loaderData.parentEventId !== null) {
+                            if (loaderData.parentEvent !== null) {
                               isNotParent =
-                                option.value !== loaderData.parentEventId;
+                                option.value !== loaderData.parentEvent.id;
                             }
                             if (loaderData.childEvents.length > 0) {
                               const index = loaderData.childEvents.findIndex(
@@ -290,6 +387,122 @@ function Events() {
       {addChildFetcher.data?.message ? (
         <div className="p-4 bg-green-200 rounded-md mt-4">
           {addChildFetcher.data.message}
+        </div>
+      ) : null}
+      {loaderData.childEvents.length > 0 ? (
+        <div className="mt-6">
+          <ul>
+            {loaderData.childEvents.map((childEvent) => {
+              const eventStartTime = utcToZonedTime(
+                childEvent.startTime,
+                "Europe/Berlin"
+              );
+              const eventEndTime = utcToZonedTime(
+                childEvent.endTime,
+                "Europe/Berlin"
+              );
+              return (
+                <Form
+                  key={`remove-child-${childEvent.id}`}
+                  schema={removeChildSchema}
+                  fetcher={removeChildFetcher}
+                  action={`/event/${slug}/settings/events/remove-child`}
+                  hiddenFields={["userId", "eventId", "childEventId"]}
+                  values={{
+                    userId: loaderData.userId,
+                    eventId: loaderData.eventId,
+                    childEventId: childEvent.id,
+                  }}
+                >
+                  {(props) => {
+                    const { Field, Button } = props;
+                    return (
+                      <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
+                        <Link className="flex" to={`/event/${childEvent.slug}`}>
+                          <div className="hidden xl:block w-40 shrink-0">
+                            <img
+                              src={
+                                childEvent.background ||
+                                "/images/default-event-background.jpg"
+                              }
+                              alt={childEvent.name}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                          <div className="px-4 py-6">
+                            <p className="text-xs mb-1">
+                              {/* TODO: Display icons (see figma) */}
+                              {childEvent.stage !== null
+                                ? childEvent.stage.title + " | "
+                                : ""}
+                              {getDuration(eventStartTime, eventEndTime)}
+                              {childEvent._count.childEvents === 0 ? (
+                                <>
+                                  {childEvent.participantLimit === null
+                                    ? " | Unbegrenzte Plätze"
+                                    : ` | ${
+                                        childEvent.participantLimit -
+                                        childEvent._count.participants
+                                      } / ${
+                                        childEvent.participantLimit
+                                      } Plätzen frei`}
+                                </>
+                              ) : (
+                                ""
+                              )}
+                              {childEvent.participantLimit !== null &&
+                              childEvent._count.participants >=
+                                childEvent.participantLimit ? (
+                                <>
+                                  {" "}
+                                  |{" "}
+                                  <span>
+                                    {childEvent._count.waitingList} auf der
+                                    Warteliste
+                                  </span>
+                                </>
+                              ) : (
+                                ""
+                              )}
+                            </p>
+                            <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                              {childEvent.name}
+                            </h4>
+                            {childEvent.subline !== null ? (
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                                {childEvent.subline}
+                              </p>
+                            ) : (
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                                {childEvent.description}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+                        <Field name="userId" />
+                        <Field name="eventId" />
+                        <Field name="childEventId" />
+                        <Button className="ml-auto btn-none" title="entfernen">
+                          <svg
+                            viewBox="0 0 10 10"
+                            width="10px"
+                            height="10px"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </Button>
+                      </div>
+                    );
+                  }}
+                </Form>
+              );
+            })}
+          </ul>
         </div>
       ) : null}
     </>
