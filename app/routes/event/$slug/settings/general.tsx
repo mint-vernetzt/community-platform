@@ -1,4 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type {
+  ActionArgs,
+  ActionFunction,
+  LoaderArgs,
+  LoaderFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -185,19 +190,7 @@ const schema = object({
 type SchemaType = typeof schema;
 type FormType = InferType<typeof schema>;
 
-type LoaderData = {
-  event: ReturnType<typeof transformEventToForm>;
-  userId: string;
-  focuses: Awaited<ReturnType<typeof getFocuses>>;
-  types: Awaited<ReturnType<typeof getTypes>>;
-  targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
-  tags: Awaited<ReturnType<typeof getTags>>;
-  experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
-  stages: Awaited<ReturnType<typeof getStages>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -218,7 +211,7 @@ export const loader: LoaderFunction = async (args) => {
   const stages = await getStages();
   const areas = await getAreas();
 
-  return json<LoaderData>(
+  return json(
     {
       event: transformEventToForm(event),
       userId: sessionUser.id,
@@ -234,14 +227,7 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-type ActionData = {
-  data: FormType;
-  errors: FormError | null;
-  updated: boolean;
-  lastSubmit: string;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -288,7 +274,7 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(
+  return json(
     {
       data,
       errors,
@@ -301,6 +287,7 @@ export const action: ActionFunction = async (args) => {
 
 function General() {
   const { slug } = useParams();
+  const loaderData = useLoaderData<typeof loader>();
   const {
     event: originalEvent,
     userId,
@@ -311,18 +298,18 @@ function General() {
     experienceLevels,
     stages,
     areas,
-  } = useLoaderData<LoaderData>();
+  } = loaderData;
 
   const publishFetcher = useFetcher<PublishActionData>();
   const cancelFetcher = useFetcher<CancelActionData>();
 
   const transition = useTransition();
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event: LoaderData["event"] | ActionData["data"];
+  let event: typeof loaderData["event"] | typeof actionData["data"];
   if (actionData !== undefined) {
     event = actionData.data;
   } else {
