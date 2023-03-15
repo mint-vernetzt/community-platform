@@ -100,15 +100,82 @@ function Speakers() {
         Wer ist Speaker:in bei Eurer Veranstaltung? Füge hier weitere
         Speaker:innen hinzu oder entferne sie.
       </p>
-      <ul>
+      <h4 className="mb-4 mt-4 font-semibold">Vortragende hinzufügen</h4>
+      <p className="mb-8">
+        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
+      </p>
+      <Form
+        schema={addSpeakerSchema}
+        fetcher={addSpeakerFetcher}
+        action={`/event/${slug}/settings/speakers/add-speaker`}
+        hiddenFields={["eventId", "userId"]}
+        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/event/${slug}/settings/speakers`,
+          });
+        }}
+      >
+        {({ Field, Errors, Button, register }) => {
+          return (
+            <>
+              <Errors />
+              <Field name="eventId" />
+              <Field name="userId" />
+              <div className="form-control w-full">
+                <div className="flex flex-row items-center mb-2">
+                  <div className="flex-auto">
+                    <label id="label-for-name" htmlFor="Name" className="label">
+                      Name der Speaker:in
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex flex-row">
+                  <Field name="id" className="flex-auto">
+                    {({ Errors }) => (
+                      <>
+                        <Errors />
+                        <Autocomplete
+                          suggestions={loaderData.speakerSuggestions || []}
+                          suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
+                          defaultValue={suggestionsQuery || ""}
+                          {...register("id")}
+                        />
+                      </>
+                    )}
+                  </Field>
+                  <div className="ml-2">
+                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                      +
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        }}
+      </Form>
+      {addSpeakerFetcher.data !== undefined &&
+      "message" in addSpeakerFetcher.data ? (
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+          {addSpeakerFetcher.data.message}
+        </div>
+      ) : null}
+      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Speaker:innen</h4>
+      <p className="mb-8">
+        Hier siehst du alle Speaker:innen der Veranstaltung auf einen Blick.{" "}
+      </p>
+      <div className="mb-4 md:max-h-[630px] overflow-scroll">
         {loaderData.speakers.map((profile) => {
           const initials = getInitials(profile);
           return (
             <div
               key={`team-member-${profile.id}`}
-              className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+              className="w-full flex items-center flex-row flex-nowrap border-b border-neutral-400 py-4 md:px-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {profile.avatar !== null && profile.avatar !== "" ? (
                   <img src={profile.avatar} alt={initials} />
                 ) : (
@@ -172,70 +239,7 @@ function Speakers() {
             </div>
           );
         })}
-      </ul>
-      <h4 className="mb-4 mt-4 font-semibold">Vortragende hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
-        schema={addSpeakerSchema}
-        fetcher={addSpeakerFetcher}
-        action={`/event/${slug}/settings/speakers/add-speaker`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
-        onSubmit={() => {
-          submit({
-            method: "get",
-            action: `/event/${slug}/settings/speakers`,
-          });
-        }}
-      >
-        {({ Field, Errors, Button, register }) => {
-          return (
-            <>
-              <Errors />
-              <Field name="eventId" />
-              <Field name="userId" />
-              <div className="form-control w-full">
-                <div className="flex flex-row items-center mb-2">
-                  <div className="flex-auto">
-                    <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der Speaker:in
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.speakerSuggestions || []}
-                          suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
-                          value={suggestionsQuery || ""}
-                          {...register("id")}
-                        />
-                      </>
-                    )}
-                  </Field>
-                  <div className="ml-2">
-                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
-                      +
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </>
-          );
-        }}
-      </Form>
-      {addSpeakerFetcher.data !== undefined &&
-      "message" in addSpeakerFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
-          {addSpeakerFetcher.data.message}
-        </div>
-      ) : null}
+      </div>
     </>
   );
 }

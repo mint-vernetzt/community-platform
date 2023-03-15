@@ -121,7 +121,102 @@ function Participants() {
         Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende
         hinzu oder entferne sie.
       </p>
-      <ul>
+      <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
+      <p className="mb-8">
+        Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
+        Teilnehmende hinzu.
+      </p>
+      <div className="mb-8">
+        <Form
+          schema={addParticipantSchema}
+          fetcher={addParticipantFetcher}
+          action={`/event/${slug}/settings/participants/add-participant`}
+          hiddenFields={["eventId", "userId"]}
+          values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+          onSubmit={() => {
+            submit({
+              method: "get",
+              action: `/event/${slug}/settings/participants`,
+            });
+          }}
+        >
+          {({ Field, Errors, Button, register }) => {
+            return (
+              <>
+                <Field name="eventId" />
+                <Field name="userId" />
+                <div className="form-control w-full">
+                  <div className="flex flex-row items-center mb-2">
+                    <div className="flex-auto">
+                      <label
+                        id="label-for-name"
+                        htmlFor="Name"
+                        className="label"
+                      >
+                        Name der Teilnehmer:in
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row">
+                    <Field name="id" className="flex-auto">
+                      {({ Errors }) => (
+                        <>
+                          <Errors />
+                          <Autocomplete
+                            suggestions={
+                              loaderData.participantSuggestions || []
+                            }
+                            suggestionsLoaderPath={`/event/${slug}/settings/participants`}
+                            defaultValue={suggestionsQuery || ""}
+                            {...register("id")}
+                          />
+                        </>
+                      )}
+                    </Field>
+                    <div className="ml-2">
+                      <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          }}
+        </Form>
+        {addParticipantFetcher.data !== undefined &&
+        "message" in addParticipantFetcher.data ? (
+          <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+            {addParticipantFetcher.data.message}
+          </div>
+        ) : null}
+      </div>
+      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teilnehmende</h4>
+      <p className="mb-4">Hier siehst du alle Teilnehmenden auf einen Blick.</p>
+      {loaderData.participants.length > 0 ? (
+        <p className="mb-4">
+          <Link
+            className="btn btn-outline btn-primary mt-4 mb-4"
+            to="../csv-download?type=participants&amp;depth=single"
+            reloadDocument
+          >
+            Teilnehmerliste herunterladen
+          </Link>
+        </p>
+      ) : null}
+      {loaderData.hasFullDepthParticipants ? (
+        <p className="mb-4">
+          <Link
+            className="btn btn-outline btn-primary mt-4 mb-4"
+            to="../csv-download?type=participants&amp;depth=full"
+            reloadDocument
+          >
+            Teilnehmerliste aller Subveranstaltungen herunterladen
+          </Link>
+        </p>
+      ) : null}
+      <div className="mb-4 mt-8 md:max-h-[630px] overflow-scroll">
         {loaderData.participants.map((participant) => {
           const initials = getInitials(participant);
           return (
@@ -129,7 +224,7 @@ function Participants() {
               key={participant.id}
               className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {participant.avatar !== null && participant.avatar !== "" ? (
                   <img src={participant.avatar} alt={initials} />
                 ) : (
@@ -192,95 +287,6 @@ function Participants() {
             </div>
           );
         })}
-      </ul>
-      {loaderData.participants.length > 0 ? (
-        <Link
-          className="btn btn-outline btn-primary mt-4 mb-4"
-          to="../csv-download?type=participants&amp;depth=single"
-          reloadDocument
-        >
-          Teilnehmerliste herunterladen
-        </Link>
-      ) : null}
-      {loaderData.hasFullDepthParticipants ? (
-        <Link
-          className="btn btn-outline btn-primary mt-4 mb-4"
-          to="../csv-download?type=participants&amp;depth=full"
-          reloadDocument
-        >
-          Teilnehmerliste aller Subveranstaltungen herunterladen
-        </Link>
-      ) : null}
-      <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
-        Teilnehmende hinzu.
-      </p>
-      <div className="mb-8">
-        <Form
-          schema={addParticipantSchema}
-          fetcher={addParticipantFetcher}
-          action={`/event/${slug}/settings/participants/add-participant`}
-          hiddenFields={["eventId", "userId"]}
-          values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
-          onSubmit={() => {
-            submit({
-              method: "get",
-              action: `/event/${slug}/settings/participants`,
-            });
-          }}
-        >
-          {({ Field, Errors, Button, register }) => {
-            return (
-              <>
-                <Field name="eventId" />
-                <Field name="userId" />
-                <div className="form-control w-full">
-                  <div className="flex flex-row items-center mb-2">
-                    <div className="flex-auto">
-                      <label
-                        id="label-for-name"
-                        htmlFor="Name"
-                        className="label"
-                      >
-                        Name der Teilnehmer:in
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-row">
-                    <Field name="id" className="flex-auto">
-                      {({ Errors }) => (
-                        <>
-                          <Errors />
-                          <Autocomplete
-                            suggestions={
-                              loaderData.participantSuggestions || []
-                            }
-                            suggestionsLoaderPath={`/event/${slug}/settings/participants`}
-                            value={suggestionsQuery || ""}
-                            {...register("id")}
-                          />
-                        </>
-                      )}
-                    </Field>
-                    <div className="ml-2">
-                      <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
-                        +
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            );
-          }}
-        </Form>
-        {addParticipantFetcher.data !== undefined &&
-        "message" in addParticipantFetcher.data ? (
-          <div className={`p-4 bg-green-200 rounded-md mt-4`}>
-            {addParticipantFetcher.data.message}
-          </div>
-        ) : null}
       </div>
     </>
   );

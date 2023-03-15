@@ -67,7 +67,13 @@ function Index() {
         Wer ist Teil Eures Netzwerks? Füge hier weitere Organisationen hinzu
         oder entferne sie.
       </p>
-      <div className="mb-4">
+      <Add networkMemberSuggestions={loaderData.networkMemberSuggestions} />
+      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Netzwerkmitglieder</h4>
+      <p className="mb-8">
+        Hier siehst du alle Organisationen, die Teil eures Netzwerkes sind, auf
+        einen Blick.{" "}
+      </p>
+      <div className="mb-4 md:max-h-[630px] overflow-scroll">
         {loaderData.networkMembers.map((member) => {
           return (
             <NetworkMemberRemoveForm
@@ -78,7 +84,6 @@ function Index() {
           );
         })}
       </div>
-      <Add networkMemberSuggestions={loaderData.networkMemberSuggestions} />
     </>
   );
 }
