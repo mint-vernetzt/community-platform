@@ -696,66 +696,79 @@ function General() {
 
   return (
     <>
-      <RemixForm
-        schema={publishSchema}
-        fetcher={publishFetcher}
-        action={`/event/${slug}/settings/events/publish`}
-        hiddenFields={["eventId", "userId", "publish"]}
-        values={{
-          // TODO: Fix type issue
-          // @ts-ignore
-          eventId: event.id,
-          userId: userId,
-          publish: !originalEvent.published,
-        }}
-      >
-        {(props) => {
-          const { Button, Field } = props;
-          return (
-            <>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="publish"></Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
-                </Button>
-              </div>
-            </>
-          );
-        }}
-      </RemixForm>
-      <RemixForm
-        schema={cancelSchema}
-        fetcher={cancelFetcher}
-        action={`/event/${slug}/settings/events/cancel`}
-        hiddenFields={["eventId", "userId", "cancel"]}
-        values={{
-          // TODO: Fix type issue
-          // @ts-ignore
-          eventId: event.id,
-          userId: userId,
-          cancel: !originalEvent.canceled,
-        }}
-      >
-        {(props) => {
-          const { Button, Field } = props;
-          return (
-            <>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="cancel"></Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {originalEvent.canceled
-                    ? "Absage rückgängig machen"
-                    : "Absagen"}
-                </Button>
-              </div>
-            </>
-          );
-        }}
-      </RemixForm>
+      <h1 className="mb-8">Deine Veranstaltung</h1>
+      <h4 className="mb-4 font-semibold">Start und Registrierung</h4>
+
+      <p className="mb-4">
+        Wann startet deine Veranstaltung, wie lange dauert sie und wie viele
+        Personen können teilnehmen? Hier kannst du Einstellungen rund um das
+        Thema Start und Registrierung vornehmen. Außerdem kannst du die
+        Veranstaltung veröffentlichen oder verstecken und gegebenenfalls
+        absagen.
+      </p>
+      <div className="flex mb-4">
+        <RemixForm
+          schema={publishSchema}
+          fetcher={publishFetcher}
+          action={`/event/${slug}/settings/events/publish`}
+          hiddenFields={["eventId", "userId", "publish"]}
+          values={{
+            // TODO: Fix type issue
+            // @ts-ignore
+            eventId: event.id,
+            userId: userId,
+            publish: !originalEvent.published,
+          }}
+          className="mr-2"
+        >
+          {(props) => {
+            const { Button, Field } = props;
+            return (
+              <>
+                <Field name="userId" />
+                <Field name="eventId" />
+                <Field name="publish"></Field>
+                <div className="mt-2">
+                  <Button className="btn btn-outline-primary ml-auto btn-small">
+                    {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
+                  </Button>
+                </div>
+              </>
+            );
+          }}
+        </RemixForm>
+        <RemixForm
+          schema={cancelSchema}
+          fetcher={cancelFetcher}
+          action={`/event/${slug}/settings/events/cancel`}
+          hiddenFields={["eventId", "userId", "cancel"]}
+          values={{
+            // TODO: Fix type issue
+            // @ts-ignore
+            eventId: event.id,
+            userId: userId,
+            cancel: !originalEvent.canceled,
+          }}
+        >
+          {(props) => {
+            const { Button, Field } = props;
+            return (
+              <>
+                <Field name="userId" />
+                <Field name="eventId" />
+                <Field name="cancel"></Field>
+                <div className="mt-2">
+                  <Button className="btn btn-outline-primary ml-auto btn-small">
+                    {originalEvent.canceled
+                      ? "Absage rückgängig machen"
+                      : "Absagen"}
+                  </Button>
+                </div>
+              </>
+            );
+          }}
+        </RemixForm>
+      </div>
       <FormProvider {...methods}>
         <Form
           ref={formRef}
@@ -764,38 +777,13 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">Deine Veranstaltung</h1>
-          <h4 className="mb-4 font-semibold">Allgemein</h4>
-          <p className="mb-8">Lorem ipsum</p>
-          {/* <label htmlFor="published">Veröffentlicht?</label>
-        <input
-          {...register("published")}
-          id="published"
-          name="published"
-          type="checkbox"
-          defaultChecked={event.published}
-        />
-        <p
-          className="text-red-600"
-          hidden={errors === null || errors.published === undefined}
-        >
-          {errors?.published?.message}
-        </p> */}
           <input name="userId" defaultValue={userId} hidden />
           <input
             name="participantCount"
             defaultValue={loaderData.event._count.participants}
             hidden
           />
-          <div className="mb-6">
-            <InputText
-              {...register("name")}
-              id="name"
-              label="Name"
-              defaultValue={event.name}
-              errorMessage={errors?.name?.message}
-            />
-          </div>
+
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -840,9 +828,7 @@ function General() {
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Registrierung</h4>
 
-          <p className="mb-8">Lorem Ipsum</p>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -958,6 +944,45 @@ function General() {
               />
             </div>
           </div>
+          <div className="basis-full mb-6">
+            <InputText
+              {...register("conferenceLink")}
+              id="conferenceLink"
+              label="Konferenzlink"
+              defaultValue={event.conferenceLink || ""}
+              placeholder=""
+              errorMessage={errors?.conferenceLink?.message}
+              withClearButton
+            />
+          </div>
+          <div className="mb-6">
+            <InputText
+              {...register("conferenceCode")}
+              id="conferenceCode"
+              label="Zugangscode zur Konferenz"
+              defaultValue={event.conferenceCode || ""}
+              errorMessage={errors?.conferenceCode?.message}
+              withClearButton
+            />
+          </div>
+
+          <h4 className="mb-4 font-semibold">Allgemein</h4>
+          <p className="mb-8">
+            Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende
+            erwarten und wen möchtest du damit abholen? Nehme hier allgemeine
+            Einstellungen vor, wie beispielsweise der Name, die Beschreibung
+            oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst du
+            außerdem Schlagworte und die Veranstaltungstypen festlegen.
+          </p>
+          <div className="mb-6">
+            <InputText
+              {...register("name")}
+              id="name"
+              label="Name"
+              defaultValue={event.name}
+              errorMessage={errors?.name?.message}
+            />
+          </div>
 
           <div className="mb-4">
             <TextAreaWithCounter
@@ -977,40 +1002,6 @@ function General() {
               label="Beschreibung"
               errorMessage={errors?.description?.message}
               maxCharacters={1000}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="focuses"
-              label={"MINT-Schwerpunkte"}
-              placeholder="Füge die MINT-Schwerpunkte hinzu."
-              entries={selectedFocuses.map((focus) => ({
-                label: focus.title,
-                value: focus.id,
-              }))}
-              options={focusOptions}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="targetGroups"
-              label={"Zielgruppen"}
-              placeholder="Füge die Zielgruppen hinzu."
-              entries={selectedTargetGroups.map((targetGroup) => ({
-                label: targetGroup.title,
-                value: targetGroup.id,
-              }))}
-              options={targetGroupOptions}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectField
-              {...register("experienceLevel")}
-              name="experienceLevel"
-              label={"Erfahrungsstufe"}
-              placeholder="Wähle die Erfahrungsstufe aus."
-              options={experienceLevelOptions}
-              defaultValue={event.experienceLevel || ""}
             />
           </div>
           <div className="mb-4">
@@ -1037,6 +1028,41 @@ function General() {
               options={tagOptions}
             />
           </div>
+
+          <div className="mb-4">
+            <SelectAdd
+              name="targetGroups"
+              label={"Zielgruppen"}
+              placeholder="Füge die Zielgruppen hinzu."
+              entries={selectedTargetGroups.map((targetGroup) => ({
+                label: targetGroup.title,
+                value: targetGroup.id,
+              }))}
+              options={targetGroupOptions}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectField
+              {...register("experienceLevel")}
+              name="experienceLevel"
+              label={"Erfahrungsstufe"}
+              placeholder="Wähle die Erfahrungsstufe aus."
+              options={experienceLevelOptions}
+              defaultValue={event.experienceLevel || ""}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
+              name="focuses"
+              label={"MINT-Schwerpunkte"}
+              placeholder="Füge die MINT-Schwerpunkte hinzu."
+              entries={selectedFocuses.map((focus) => ({
+                label: focus.title,
+                value: focus.id,
+              }))}
+              options={focusOptions}
+            />
+          </div>
           <div className="mb-4">
             <SelectAdd
               name="areas"
@@ -1047,30 +1073,6 @@ function General() {
                 value: area.id,
               }))}
               options={areaOptions}
-            />
-          </div>
-          <h4 className="mb-4 font-semibold">Konferenz</h4>
-
-          <p className="mb-8">Lorem Ipsum</p>
-          <div className="basis-full mb-4">
-            <InputText
-              {...register("conferenceLink")}
-              id="conferenceLink"
-              label="Konferenzlink"
-              defaultValue={event.conferenceLink || ""}
-              placeholder=""
-              errorMessage={errors?.conferenceLink?.message}
-              withClearButton
-            />
-          </div>
-          <div className="mb-6">
-            <InputText
-              {...register("conferenceCode")}
-              id="conferenceCode"
-              label="Zugangscode zur Konferenz"
-              defaultValue={event.conferenceCode || ""}
-              errorMessage={errors?.conferenceCode?.message}
-              withClearButton
             />
           </div>
           <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
