@@ -75,8 +75,8 @@ export function NetworkMemberRemoveForm(
       {({ Field, Button, Errors }) => {
         const initials = getInitialsOfName(networkMember.name);
         return (
-          <div className="w-full flex items-center flex-row border-b border-neutral-400 p-4">
-            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden">
+          <div className="w-full flex items-center flex-row flex-nowrap border-b border-neutral-400 py-4 md:px-4">
+            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
               {networkMember.logo !== null && networkMember.logo !== "" ? (
                 <img src={networkMember.logo} alt={networkMember.name} />
               ) : (
