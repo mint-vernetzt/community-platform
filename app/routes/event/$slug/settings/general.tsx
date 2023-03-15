@@ -1,9 +1,4 @@
-import type {
-  ActionArgs,
-  ActionFunction,
-  LoaderArgs,
-  LoaderFunction,
-} from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -18,7 +13,7 @@ import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
-import type { InferType } from "yup";
+import type { InferType, TestContext } from "yup";
 import { array, mixed, number, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -92,7 +87,24 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib das Ende der Veranstaltung an"),
+    .required("Bitte gib das Ende der Veranstaltung an")
+    .when("startDate", (startDate, schema) =>
+      startDate
+        ? schema.test(
+            "greaterThanStartDate",
+            "Das Enddatum darf nicht vor dem Startdatum liegen",
+            (endDate: string | null | undefined) => {
+              if (endDate !== null && endDate !== undefined) {
+                return (
+                  new Date(startDate).getTime() <= new Date(endDate).getTime()
+                );
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   endTime: string()
     .transform((value) => {
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
@@ -100,7 +112,47 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib das Ende der Veranstaltung an"),
+    .required("Bitte gib das Ende der Veranstaltung an")
+    .when("startTime", (startTime, schema) =>
+      startTime
+        ? schema.test(
+            "greaterThanEndTimeOnSameDate",
+            "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
+            (endTime: string | null | undefined, testContext: TestContext) => {
+              if (
+                endTime &&
+                testContext.parent.endDate &&
+                testContext.parent.startDate
+              ) {
+                const endTimeArray = endTime.split(":");
+                const endTimeHours = parseInt(endTimeArray[0]);
+                const endTimeMinutes = parseInt(endTimeArray[1]);
+                const startTimeArray = testContext.parent.startTime.split(":");
+                const startTimeHours = parseInt(startTimeArray[0]);
+                const startTimeMinutes = parseInt(startTimeArray[1]);
+                const startDateObject = new Date(testContext.parent.startDate);
+                const endDateObject = new Date(testContext.parent.endDate);
+                if (
+                  startDateObject.getFullYear() ===
+                    endDateObject.getFullYear() &&
+                  startDateObject.getMonth() === endDateObject.getMonth() &&
+                  startDateObject.getDate() === endDateObject.getDate()
+                ) {
+                  if (startTimeHours === endTimeHours) {
+                    return startTimeMinutes < endTimeMinutes;
+                  } else {
+                    return startTimeHours < endTimeHours;
+                  }
+                } else {
+                  return true;
+                }
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   participationUntilDate: string()
     .transform((value) => {
       try {
@@ -111,7 +163,28 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib das Ende für die Registrierung an"),
+    .required("Bitte gib das Ende für die Registrierung an")
+    .when("participationFromDate", (participationFromDate, schema) =>
+      participationFromDate
+        ? schema.test(
+            "greaterThanStartDate",
+            "Das Registrierungsende darf nicht vor dem Registrierungsstart liegen",
+            (participationUntilDate: string | null | undefined) => {
+              if (
+                participationUntilDate !== null &&
+                participationUntilDate !== undefined
+              ) {
+                return (
+                  new Date(participationFromDate).getTime() <=
+                  new Date(participationUntilDate).getTime()
+                );
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   participationUntilTime: string()
     .transform((value) => {
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
@@ -119,7 +192,73 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib das Ende für die Registrierung an"),
+    .required("Bitte gib das Ende für die Registrierung an")
+    .when("participationFromTime", (participationFromTime, schema) =>
+      participationFromTime
+        ? schema.test(
+            "greaterThanParticipationUntilTimeOnSameDate",
+            "Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen",
+            (
+              participationUntilTime: string | null | undefined,
+              testContext: TestContext
+            ) => {
+              if (
+                participationUntilTime &&
+                testContext.parent.endDate &&
+                testContext.parent.startDate
+              ) {
+                const participationUntilTimeArray =
+                  participationUntilTime.split(":");
+                const participationUntilTimeHours = parseInt(
+                  participationUntilTimeArray[0]
+                );
+                const participationUntilTimeMinutes = parseInt(
+                  participationUntilTimeArray[1]
+                );
+                const participationFromTimeArray =
+                  testContext.parent.participationFromTime.split(":");
+                const participationFromTimeHours = parseInt(
+                  participationFromTimeArray[0]
+                );
+                const participationFromTimeMinutes = parseInt(
+                  participationFromTimeArray[1]
+                );
+                const participationFromDateObject = new Date(
+                  testContext.parent.participationFromDate
+                );
+                const participationUntilDateObject = new Date(
+                  testContext.parent.participationUntilDate
+                );
+                if (
+                  participationFromDateObject.getFullYear() ===
+                    participationUntilDateObject.getFullYear() &&
+                  participationFromDateObject.getMonth() ===
+                    participationUntilDateObject.getMonth() &&
+                  participationFromDateObject.getDate() ===
+                    participationUntilDateObject.getDate()
+                ) {
+                  if (
+                    participationFromTimeHours === participationUntilTimeHours
+                  ) {
+                    return (
+                      participationFromTimeMinutes <
+                      participationUntilTimeMinutes
+                    );
+                  } else {
+                    return (
+                      participationFromTimeHours < participationUntilTimeHours
+                    );
+                  }
+                } else {
+                  return true;
+                }
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   participationFromDate: string()
     .transform((value) => {
       try {
@@ -130,7 +269,28 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib den Beginn für die Registrierung an"),
+    .required("Bitte gib den Beginn für die Registrierung an")
+    .when("startDate", (startDate, schema) =>
+      startDate
+        ? schema.test(
+            "greaterThanStartDate",
+            "Das Startdatum darf nicht vor dem Registrierungsstart liegen",
+            (participationFromDate: string | null | undefined) => {
+              if (
+                participationFromDate !== null &&
+                participationFromDate !== undefined
+              ) {
+                return (
+                  new Date(startDate).getTime() >=
+                  new Date(participationFromDate).getTime()
+                );
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
   participationFromTime: string()
     .transform((value) => {
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
@@ -138,7 +298,59 @@ const schema = object({
       }
       return "";
     })
-    .required("Bitte gib den Beginn für die Registrierung an"),
+    .required("Bitte gib den Beginn für die Registrierung an")
+    .when("startTime", (startTime, schema) =>
+      startTime
+        ? schema.test(
+            "greaterThanStartTimeOnSameDate",
+            "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen",
+            (
+              participationFromTime: string | null | undefined,
+              testContext: TestContext
+            ) => {
+              if (
+                participationFromTime &&
+                testContext.parent.endDate &&
+                testContext.parent.startDate
+              ) {
+                const participationFromTimeArray =
+                  participationFromTime.split(":");
+                const participationFromTimeHours = parseInt(
+                  participationFromTimeArray[0]
+                );
+                const participationFromTimeMinutes = parseInt(
+                  participationFromTimeArray[1]
+                );
+                const startTimeArray = testContext.parent.startTime.split(":");
+                const startTimeHours = parseInt(startTimeArray[0]);
+                const startTimeMinutes = parseInt(startTimeArray[1]);
+                const startDateObject = new Date(testContext.parent.startDate);
+                const participationFromDateObject = new Date(
+                  testContext.parent.participationFromDate
+                );
+                if (
+                  startDateObject.getFullYear() ===
+                    participationFromDateObject.getFullYear() &&
+                  startDateObject.getMonth() ===
+                    participationFromDateObject.getMonth() &&
+                  startDateObject.getDate() ===
+                    participationFromDateObject.getDate()
+                ) {
+                  if (startTimeHours === participationFromTimeHours) {
+                    return startTimeMinutes > participationFromTimeMinutes;
+                  } else {
+                    return startTimeHours > participationFromTimeHours;
+                  }
+                } else {
+                  return true;
+                }
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    ),
 
   subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
@@ -174,9 +386,11 @@ const schema = object({
         number().isValidSync(value)
       );
     })
-    .transform((value) =>
-      value === null || value === "" || value === 0 ? null : Number(value)
-    )
+    .transform((value) => {
+      return value === null || value === "" || value === "0"
+        ? null
+        : Number(value);
+    })
     .nullable(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
@@ -596,6 +810,63 @@ function General() {
               />
             </div>
           </div>
+          <h4 className="mb-4 font-semibold">Registrierung</h4>
+
+          <p className="mb-8">Lorem Ipsum</p>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromDate")}
+                id="participationFromDate"
+                label="Registrierung startet am"
+                defaultValue={event.participationFromDate}
+                errorMessage={errors?.participationFromDate?.message}
+                type="date"
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromTime")}
+                id="participationFromTime"
+                label="Registrierung startet um"
+                defaultValue={event.participationFromTime}
+                errorMessage={errors?.participationFromTime?.message}
+                type="time"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationUntilDate")}
+                id="participationUntilDate"
+                label="Registrierung endet am"
+                defaultValue={event.participationUntilDate}
+                errorMessage={errors?.participationUntilDate?.message}
+                type="date"
+              />
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationUntilTime")}
+                id="participationUntilTime"
+                label="Registrierung endet um"
+                defaultValue={event.participationUntilTime}
+                errorMessage={errors?.participationUntilTime?.message}
+                type="time"
+              />
+            </div>
+          </div>
+          <div className="mb-6">
+            <InputText
+              {...register("participantLimit")}
+              id="participantLimit"
+              label="Begrenzung der Teilnehmenden"
+              defaultValue={event.participantLimit || ""}
+              errorMessage={errors?.participantLimit?.message}
+              type="number"
+            />
+          </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
           <div className="mb-4">
             <SelectField
@@ -657,63 +928,7 @@ function General() {
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Registrierung</h4>
 
-          <p className="mb-8">Lorem Ipsum</p>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationFromDate")}
-                id="participationFromDate"
-                label="Registrierung startet am"
-                defaultValue={event.participationFromDate}
-                errorMessage={errors?.participationFromDate?.message}
-                type="date"
-              />
-            </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationFromTime")}
-                id="participationFromTime"
-                label="Registrierung startet um"
-                defaultValue={event.participationFromTime}
-                errorMessage={errors?.participationFromTime?.message}
-                type="time"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationUntilDate")}
-                id="participationUntilDate"
-                label="Registrierung endet am"
-                defaultValue={event.participationUntilDate}
-                errorMessage={errors?.participationUntilDate?.message}
-                type="date"
-              />
-            </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationUntilTime")}
-                id="participationUntilTime"
-                label="Registrierung endet um"
-                defaultValue={event.participationUntilTime}
-                errorMessage={errors?.participationUntilTime?.message}
-                type="time"
-              />
-            </div>
-          </div>
-          <div className="mb-6">
-            <InputText
-              {...register("participantLimit")}
-              id="participantLimit"
-              label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit || ""}
-              errorMessage={errors?.participantLimit?.message}
-              type="number"
-            />
-          </div>
           <div className="mb-4">
             <TextAreaWithCounter
               {...register("subline")}
