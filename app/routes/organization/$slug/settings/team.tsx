@@ -138,6 +138,7 @@ function Index() {
                         suggestionsLoaderPath={`/organization/${slug}/settings/team`}
                         defaultValue={suggestionsQuery || ""}
                         {...register("id")}
+                        searchParameter="autocomplete_query"
                       />
                     </>
                   )}

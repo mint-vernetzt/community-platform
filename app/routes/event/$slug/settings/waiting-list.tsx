@@ -170,6 +170,7 @@ function Participants() {
                           suggestionsLoaderPath={`/event/${slug}/settings/waiting-list`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}

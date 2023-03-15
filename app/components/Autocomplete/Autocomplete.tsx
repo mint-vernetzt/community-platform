@@ -17,6 +17,7 @@ export interface AutocompleteProps {
       })[];
   suggestionsLoaderPath: string;
   defaultValue: string;
+  searchParameter: string;
 }
 
 const Autocomplete = React.forwardRef(
@@ -24,7 +25,13 @@ const Autocomplete = React.forwardRef(
     props: React.HTMLProps<HTMLInputElement> & AutocompleteProps,
     forwardRef
   ) => {
-    const { suggestions, suggestionsLoaderPath, defaultValue, ...rest } = props;
+    const {
+      suggestions,
+      suggestionsLoaderPath,
+      defaultValue,
+      searchParameter,
+      ...rest
+    } = props;
 
     const [searchedValue, setSearchedValue] = useState("");
     const [submitValue, setSubmitValue] = useState("");
@@ -33,7 +40,7 @@ const Autocomplete = React.forwardRef(
     const suggestionsContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const [searchParams] = useSearchParams();
-    const suggestionsQuery = searchParams.get("autocomplete_query");
+    const suggestionsQuery = searchParams.get(searchParameter);
 
     useEffect(() => {
       if (inputRef.current !== null) {
@@ -54,26 +61,22 @@ const Autocomplete = React.forwardRef(
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchedValue(event.target.value);
       if (event.target.value.length >= 3) {
-        submit(
-          {
-            autocomplete_query: event.target.value,
-          },
-          {
-            method: "get",
-            action: suggestionsLoaderPath,
-          }
-        );
+        const searchParams = {
+          [searchParameter]: event.target.value,
+        };
+        submit(searchParams, {
+          method: "get",
+          action: suggestionsLoaderPath,
+        });
       } else {
         if (suggestionsQuery !== "") {
-          submit(
-            {
-              autocomplete_query: "",
-            },
-            {
-              method: "get",
-              action: suggestionsLoaderPath,
-            }
-          );
+          const searchParams = {
+            [searchParameter]: "",
+          };
+          submit(searchParams, {
+            method: "get",
+            action: suggestionsLoaderPath,
+          });
         }
       }
     };

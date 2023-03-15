@@ -142,6 +142,7 @@ function Speakers() {
                           suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}

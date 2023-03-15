@@ -150,6 +150,7 @@ function Organizations() {
                           suggestionsLoaderPath={`/project/${slug}/settings/organizations`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}

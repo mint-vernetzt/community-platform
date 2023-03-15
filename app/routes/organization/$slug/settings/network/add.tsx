@@ -164,6 +164,7 @@ function Add(props: NetworkMemberProps) {
                         suggestionsLoaderPath={`/organization/${slug}/settings/network`}
                         defaultValue={suggestionsQuery || ""}
                         {...register("id")}
+                        searchParameter="autocomplete_query"
                       />
                     </>
                   )}

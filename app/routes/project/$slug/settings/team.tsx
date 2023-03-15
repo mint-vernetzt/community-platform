@@ -143,6 +143,7 @@ function Team() {
                           suggestionsLoaderPath={`/project/${slug}/settings/team`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}
