@@ -1,9 +1,17 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -18,8 +26,10 @@ import type { ActionData as SetParentActionData } from "./events/set-parent";
 import { setParentSchema } from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
+  getChildEventSuggestions,
   getEventsOfPrivilegedMemberExceptOfGivenEvent,
   getOptionsFromEvents,
+  getParentEventSuggestions,
 } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
@@ -38,14 +48,6 @@ export const loader = async (args: LoaderArgs) => {
   );
 
   const options = getOptionsFromEvents(events);
-
-  let parentEventId: string | null = null;
-  let parentEventName: string | null = null;
-
-  if (event.parentEvent !== null) {
-    parentEventId = event.parentEvent.id;
-    parentEventName = event.parentEvent.name;
-  }
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     if (childEvent.background !== null) {
@@ -67,11 +69,47 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
+  const url = new URL(request.url);
+  const parentSuggestionsQuery =
+    url.searchParams.get("parent_autocomplete_query") || undefined;
+  let parentEventSuggestions;
+  if (parentSuggestionsQuery !== undefined && parentSuggestionsQuery !== "") {
+    const query = parentSuggestionsQuery.split(" ");
+    const alreadyParentId = event.parentEvent?.id || undefined;
+    parentEventSuggestions = await getParentEventSuggestions(
+      authClient,
+      alreadyParentId,
+      query,
+      event.startTime,
+      event.endTime,
+      sessionUser.id
+    );
+  }
+  const childSuggestionsQuery =
+    url.searchParams.get("child_autocomplete_query") || undefined;
+  let childEventSuggestions;
+  if (childSuggestionsQuery !== undefined && childSuggestionsQuery !== "") {
+    const query = childSuggestionsQuery.split(" ");
+    const alreadyChildIds = event.childEvents.map((childEvent) => {
+      return childEvent.id;
+    });
+    childEventSuggestions = await getChildEventSuggestions(
+      authClient,
+      alreadyChildIds,
+      query,
+      event.startTime,
+      event.endTime,
+      sessionUser.id
+    );
+  }
+
   return json(
     {
       options,
       parentEvent: event.parentEvent,
+      parentEventSuggestions,
       childEvents: enhancedChildEvents,
+      childEventSuggestions,
       eventId: event.id,
       userId: sessionUser.id,
     },
@@ -97,16 +135,26 @@ function Events() {
       "Europe/Berlin"
     );
   }
+  const [searchParams] = useSearchParams();
+  const parentEventSuggestionsQuery = searchParams.get(
+    "parent_autocomplete_query"
+  );
+  const childEventSuggestionsQuery = searchParams.get(
+    "child_autocomplete_query"
+  );
+  const submit = useSubmit();
 
   return (
     <>
       <h1 className="mb-8">Verknüpfte Veranstaltungen</h1>
-      <h4 className="mb-4 font-semibold">Rahmenveranstaltung</h4>
+      <h4 className="mb-4 font-semibold">Rahmenveranstaltung zuweisen</h4>
 
       <p className="mb-4">
         Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie
         beispielsweise im Rahmen einer Tagung statt? Füge hier deiner
         Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.
+        Allerdings musst du priviligiertes Teammitglied der Rahmenveranstaltung
+        sein.
       </p>
       <Form
         schema={setParentSchema}
@@ -114,70 +162,64 @@ function Events() {
         action={`/event/${slug}/settings/events/set-parent`}
         hiddenFields={["userId", "eventId"]}
         values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/event/${slug}/settings/events`,
+          });
+        }}
       >
         {(props) => {
           const { Button, Field, Errors, register } = props;
 
           return (
             <div className="form-control w-full">
+              <Errors />
+              <Field name="userId" />
+              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
-                  <label
-                    id="label-for-parentEventId"
-                    htmlFor="parentEventId"
-                    className="label"
-                  >
-                    Rahmenveranstaltung zuweisen
+                  <label id="label-for-name" htmlFor="Name" className="label">
+                    Name der Veranstaltung
                   </label>
                 </div>
               </div>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="parentEventId">
-                {(props) => {
-                  const { Errors } = props;
-                  return (
-                    <div className="form-control w-full">
-                      <select
-                        id="parentEventId"
-                        {...register("parentEventId")}
-                        name="parentEventId"
-                        className="select w-full select-bordered"
-                      >
-                        <option></option>
-                        {loaderData.options.map((option, index) => {
-                          return (
-                            <option
-                              key={`parentEventId-option-${index}`}
-                              value={option.value}
-                            >
-                              {option.label}
-                            </option>
-                          );
-                        })}
-                      </select>
+
+              <div className="flex flex-row">
+                <Field name="parentEventId" className="flex-auto">
+                  {({ Errors }) => (
+                    <>
                       <Errors />
-                    </div>
-                  );
-                }}
-              </Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  Speichern
-                </Button>
-                <Errors />
+                      <Autocomplete
+                        suggestions={loaderData.parentEventSuggestions || []}
+                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                        defaultValue={parentEventSuggestionsQuery || ""}
+                        {...register("parentEventId")}
+                        searchParameter="parent_autocomplete_query"
+                      />
+                    </>
+                  )}
+                </Field>
+                <div className="ml-2">
+                  <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                    +
+                  </Button>
+                </div>
               </div>
             </div>
           );
         }}
       </Form>
-      {setParentFetcher.data?.message ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {setParentFetcher.data.message}
-        </div>
-      ) : null}
+      <h4 className="mb-4 mt-4 font-semibold">Aktuelle Rahmenveranstaltung</h4>
+      <p className="mb-8">
+        Hier siehst du die aktuelle Rahmenveranstaltung deiner Veranstaltung.
+        <br></br>
+        {loaderData.parentEvent === null
+          ? "\nAktuell ist deiner Veranstaltung keine Rahmenveranstaltung zugewiesen."
+          : ""}
+      </p>
       {loaderData.parentEvent !== null ? (
-        <div className="mt-6">
+        <div>
           <Form
             schema={setParentSchema}
             fetcher={setParentFetcher}
@@ -292,14 +334,17 @@ function Events() {
         </div>
       ) : null}
       <hr className="border-neutral-400 my-4 lg:my-8" />
-      <h4 className="mb-4 font-semibold">Zugehörige Veranstaltungen</h4>
+      <h4 className="mb-4 font-semibold">
+        Zugehörige Veranstaltungen hinzufügen
+      </h4>
 
       <p className="mb-4">
         Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist
         deine Veranstaltung beispielsweise eine Tagung und hat mehrere
         Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches?
         Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne
-        sie.
+        sie. Beachte, dass du priviligiertes Teammitglied in den zugehörigen
+        Veranstaltungen sein musst.
       </p>
       <Form
         schema={addChildSchema}
@@ -307,88 +352,65 @@ function Events() {
         action={`/event/${slug}/settings/events/add-child`}
         hiddenFields={["userId", "eventId"]}
         values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
+        onSubmit={() => {
+          submit({
+            method: "get",
+            action: `/event/${slug}/settings/events`,
+          });
+        }}
       >
         {(props) => {
           const { Button, Field, Errors, register } = props;
 
           return (
             <div className="form-control w-full">
+              <Errors />
+              <Field name="userId" />
+              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
-                  <label
-                    id="label-for-parentEventId"
-                    htmlFor="parentEventId"
-                    className="label"
-                  >
-                    Veranstaltung hinzufügen
+                  <label id="label-for-name" htmlFor="Name" className="label">
+                    Name der Veranstaltung
                   </label>
                 </div>
               </div>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="childEventId">
-                {(props) => {
-                  const { Errors } = props;
-                  return (
-                    <div className="form-control w-full">
-                      <select
-                        id="childEventId"
+
+              <div className="flex flex-row">
+                <Field name="childEventId" className="flex-auto">
+                  {({ Errors }) => (
+                    <>
+                      <Autocomplete
+                        suggestions={loaderData.childEventSuggestions || []}
+                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                        defaultValue={childEventSuggestionsQuery || ""}
                         {...register("childEventId")}
-                        name="childEventId"
-                        className="select w-full select-bordered"
-                      >
-                        <option></option>
-                        {loaderData.options
-                          .filter((option) => {
-                            let isNotParent = true;
-                            let isNotChild = true;
-                            if (loaderData.parentEvent !== null) {
-                              isNotParent =
-                                option.value !== loaderData.parentEvent.id;
-                            }
-                            if (loaderData.childEvents.length > 0) {
-                              const index = loaderData.childEvents.findIndex(
-                                (item) => item.id === option.value
-                              );
-                              isNotChild = index === -1;
-                            }
-                            return (
-                              isNotParent &&
-                              isNotChild &&
-                              option.hasParent === false
-                            );
-                          })
-                          .map((option, index) => {
-                            return (
-                              <option
-                                key={`parentEventId-option-${index}`}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </option>
-                            );
-                          })}
-                      </select>
+                        searchParameter="child_autocomplete_query"
+                      />
                       <Errors />
-                    </div>
-                  );
-                }}
-              </Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  Hinzufügen
-                </Button>
-                <Errors />
+                    </>
+                  )}
+                </Field>
+                <div className="ml-2">
+                  <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                    +
+                  </Button>
+                </div>
               </div>
             </div>
           );
         }}
       </Form>
-      {addChildFetcher.data?.message ? (
-        <div className="p-4 bg-green-200 rounded-md mt-4">
-          {addChildFetcher.data.message}
-        </div>
-      ) : null}
+      <h4 className="mb-4 mt-4 font-semibold">
+        Aktuelle zugehörige Veranstaltungen
+      </h4>
+      <p className="mb-8">
+        Hier siehst du die aktuellen zugehörigen Veranstaltung deiner
+        Veranstaltung.
+        <br></br>
+        {loaderData.childEvents.length === 0
+          ? "\nAktuell besitzt deine Veranstaltung keine zugehörigen Veranstaltungen."
+          : ""}
+      </p>
       {loaderData.childEvents.length > 0 ? (
         <div className="mt-6">
           <ul>

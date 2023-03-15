@@ -751,3 +751,203 @@ export async function getWaitingParticipantSuggestions(
     });
   return enhancedWaitingParticipantSuggestions;
 }
+
+export async function getParentEventSuggestions(
+  authClient: SupabaseClient,
+  alreadyParentId: string | undefined,
+  query: string[],
+  startTime: Date,
+  endTime: Date,
+  userId: string
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Event as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const parentEventSuggestions = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      background: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          waitingList: true,
+        },
+      },
+      participantLimit: true,
+      subline: true,
+      description: true,
+    },
+    where: {
+      AND: [
+        {
+          NOT: {
+            id: alreadyParentId,
+          },
+        },
+        ...whereQueries,
+        {
+          startTime: {
+            lte: startTime,
+          },
+        },
+        {
+          endTime: {
+            gte: endTime,
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profileId: userId,
+              isPrivileged: true,
+            },
+          },
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedParentEventSuggestions = parentEventSuggestions.map(
+    (parentEvent) => {
+      if (parentEvent.background !== null) {
+        const publicURL = getPublicURL(authClient, parentEvent.background);
+        if (publicURL !== null) {
+          parentEvent.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return parentEvent;
+    }
+  );
+  return enhancedParentEventSuggestions;
+}
+
+export async function getChildEventSuggestions(
+  authClient: SupabaseClient,
+  alreadyChildIds: string[],
+  query: string[],
+  startTime: Date,
+  endTime: Date,
+  userId: string
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Event as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const childEventSuggestions = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      background: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          waitingList: true,
+        },
+      },
+      participantLimit: true,
+      subline: true,
+      description: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyChildIds,
+          },
+        },
+        ...whereQueries,
+        {
+          startTime: {
+            gte: startTime,
+          },
+        },
+        {
+          endTime: {
+            lte: endTime,
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profileId: userId,
+              isPrivileged: true,
+            },
+          },
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedChildEventSuggestions = childEventSuggestions.map(
+    (childEvent) => {
+      if (childEvent.background !== null) {
+        const publicURL = getPublicURL(authClient, childEvent.background);
+        if (publicURL !== null) {
+          childEvent.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return childEvent;
+    }
+  );
+  return enhancedChildEventSuggestions;
+}

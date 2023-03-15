@@ -1,8 +1,10 @@
-import type { Organization, Profile } from "@prisma/client";
+import type { Event, Organization, Profile } from "@prisma/client";
 import { useSearchParams, useSubmit } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import React, { useEffect, useRef, useState } from "react";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { getDuration } from "~/lib/utils/time";
 import { H3 } from "../Heading/Heading";
 
 export interface AutocompleteProps {
@@ -14,6 +16,27 @@ export interface AutocompleteProps {
             title: string;
           };
         }[];
+      })[]
+    | (Pick<
+        Event,
+        | "id"
+        | "name"
+        | "slug"
+        | "background"
+        | "participantLimit"
+        | "subline"
+        | "description"
+      > & {
+        stage: {
+          title: string;
+        } | null;
+        _count: {
+          childEvents: number;
+          participants: number;
+          waitingList: number;
+        };
+        startTime: string;
+        endTime: string;
       })[];
   suggestionsLoaderPath: string;
   defaultValue: string;
@@ -125,7 +148,7 @@ const Autocomplete = React.forwardRef(
             ref={suggestionsContainerRef}
           >
             {suggestions.map((suggestion, index) => {
-              if ("name" in suggestion) {
+              if ("logo" in suggestion) {
                 const initials = getInitialsOfName(suggestion.name);
                 return (
                   <button
@@ -159,7 +182,7 @@ const Autocomplete = React.forwardRef(
                     </div>
                   </button>
                 );
-              } else {
+              } else if ("firstName" in suggestion) {
                 const initials = getInitials(suggestion);
                 return (
                   <button
@@ -187,6 +210,84 @@ const Autocomplete = React.forwardRef(
                           {suggestion.position}
                         </p>
                       ) : null}
+                    </div>
+                  </button>
+                );
+              } else {
+                const eventStartTime = utcToZonedTime(
+                  suggestion.startTime,
+                  "Europe/Berlin"
+                );
+                const eventEndTime = utcToZonedTime(
+                  suggestion.endTime,
+                  "Europe/Berlin"
+                );
+                return (
+                  <button
+                    key={suggestion.id}
+                    onClick={() => handleClick()}
+                    onMouseOver={() => handleMouseOver(index)}
+                    className={`${
+                      index === activeSuggestion - 1 ? "bg-blue-100 " : ""
+                    }w-full text-left border-b border-neutral-400 p-1 flex items-stretch overflow-hidden`}
+                  >
+                    <div className="hidden xl:block w-40 shrink-0">
+                      <img
+                        src={
+                          suggestion.background ||
+                          "/images/default-event-background.jpg"
+                        }
+                        alt={suggestion.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="px-4 py-6">
+                      <p className="text-xs mb-1">
+                        {/* TODO: Display icons (see figma) */}
+                        {suggestion.stage !== null
+                          ? suggestion.stage.title + " | "
+                          : ""}
+                        {getDuration(eventStartTime, eventEndTime)}
+                        {suggestion._count.childEvents === 0 ? (
+                          <>
+                            {suggestion.participantLimit === null
+                              ? " | Unbegrenzte Plätze"
+                              : ` | ${
+                                  suggestion.participantLimit -
+                                  suggestion._count.participants
+                                } / ${
+                                  suggestion.participantLimit
+                                } Plätzen frei`}
+                          </>
+                        ) : (
+                          ""
+                        )}
+                        {suggestion.participantLimit !== null &&
+                        suggestion._count.participants >=
+                          suggestion.participantLimit ? (
+                          <>
+                            {" "}
+                            |{" "}
+                            <span>
+                              {suggestion._count.waitingList} auf der Warteliste
+                            </span>
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </p>
+                      <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                        {suggestion.name}
+                      </h4>
+                      {suggestion.subline !== null ? (
+                        <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                          {suggestion.subline}
+                        </p>
+                      ) : (
+                        <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                          {suggestion.description}
+                        </p>
+                      )}
                     </div>
                   </button>
                 );
