@@ -181,7 +181,6 @@ export const action = async (args: ActionArgs) => {
     );
     return redirect(`/event/${slug}`, { headers: response.headers });
   }
-
   return json({ data, errors }, { headers: response.headers });
 };
 
@@ -235,58 +234,51 @@ export default function Create() {
                     label="Name der Veranstaltung"
                     required
                     {...register("name")}
+                    errorMessage={actionData?.errors?.name?.message}
                   />
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
-                  <label className="label" htmlFor="startDate">
-                    Startdatum *
-                  </label>
-                  <input
+                  <Input
                     id="startDate"
-                    name="startDate"
+                    label="Startdatum"
                     type="date"
-                    className="input input-bordered input-lg w-full"
+                    {...register("startDate")}
                     required
+                    errorMessage={actionData?.errors?.startDate?.message}
                   />
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Time Input Component */}
-                  <label className="label" htmlFor="startTime">
-                    Startzeit *
-                  </label>
-                  <input
+                  <Input
                     id="startTime"
-                    name="startTime"
+                    label="Startzeit"
                     type="time"
-                    className="input input-bordered input-lg w-full"
+                    {...register("startTime")}
                     required
+                    errorMessage={actionData?.errors?.startTime?.message}
                   />
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
-                  <label className="label" htmlFor="endDate">
-                    Enddatum *
-                  </label>
-                  <input
+                  <Input
                     id="endDate"
-                    name="endDate"
+                    label="Enddatum"
                     type="date"
-                    className="input input-bordered input-lg w-full"
+                    {...register("endDate")}
                     required
+                    errorMessage={actionData?.errors?.endDate?.message}
                   />
                 </div>
                 <div className="mb-4 form-control w-full">
                   {/* TODO: Time Input Component */}
-                  <label className="label" htmlFor="endTime">
-                    Endzeit *
-                  </label>
-                  <input
+                  <Input
                     id="endTime"
-                    name="endTime"
+                    label="Endzeit"
                     type="time"
-                    className="input input-bordered input-lg w-full"
+                    {...register("endTime")}
                     required
+                    errorMessage={actionData?.errors?.endTime?.message}
                   />
                 </div>
                 {errorMessages !== undefined
