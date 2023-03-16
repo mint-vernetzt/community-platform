@@ -495,7 +495,7 @@ export const action = async (args: ActionArgs) => {
 
   if (result.data.submit === "submit") {
     if (result.errors === null) {
-      const data = transformFormToEvent(result.data);
+      data = transformFormToEvent(result.data);
       await updateEventById(event.id, data);
       updated = true;
     }
@@ -514,7 +514,7 @@ export const action = async (args: ActionArgs) => {
 
   return json(
     {
-      data,
+      data: { ...data, id: event.id },
       errors,
       updated,
       lastSubmit: (formData.get("submit") as string) ?? "",
@@ -713,8 +713,6 @@ function General() {
           action={`/event/${slug}/settings/events/publish`}
           hiddenFields={["eventId", "userId", "publish"]}
           values={{
-            // TODO: Fix type issue
-            // @ts-ignore
             eventId: event.id,
             userId: userId,
             publish: !originalEvent.published,
@@ -743,8 +741,6 @@ function General() {
           action={`/event/${slug}/settings/events/cancel`}
           hiddenFields={["eventId", "userId", "cancel"]}
           values={{
-            // TODO: Fix type issue
-            // @ts-ignore
             eventId: event.id,
             userId: userId,
             cancel: !originalEvent.canceled,
