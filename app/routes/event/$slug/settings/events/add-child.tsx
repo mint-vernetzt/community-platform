@@ -1,6 +1,6 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
@@ -21,6 +21,20 @@ const schema = z.object({
 export const addChildSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
+  const event = await getEventByIdOrThrow(values.eventId);
+  if (values.childEventId !== undefined) {
+    const childEvent = await getEventByIdOrThrow(values.childEventId);
+    const childStartTime = new Date(childEvent.startTime).getTime();
+    const childEndTime = new Date(childEvent.endTime).getTime();
+    const eventStartTime = new Date(event.startTime).getTime();
+    const eventEndTime = new Date(event.endTime).getTime();
+    if (childStartTime < eventStartTime || childEndTime > eventEndTime) {
+      throw new InputError(
+        "Die zugehörige Veranstaltung liegt nicht im Zeitraum deiner Veranstaltung.",
+        "childEventId"
+      );
+    }
+  }
   return values;
 });
 
