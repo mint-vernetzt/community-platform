@@ -24,7 +24,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export type ActionData = PerformMutation<
+export type SuccessActionData = {
+  message: string;
+};
+
+export type FailureActionData = PerformMutation<
   z.infer<Schema>,
   z.infer<typeof schema>
 >;
@@ -41,9 +45,16 @@ export const action: ActionFunction = async (args) => {
 
   if (result.success === true) {
     const event = await getEventByIdOrThrow(result.data.eventId);
+    const childEvent = await getEventByIdOrThrow(result.data.childEventId);
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     await addChildEventRelationOrThrow(event.id, result.data.childEventId);
+    return json<SuccessActionData>(
+      {
+        message: `Die Veranstaltung "${childEvent.name}" ist jetzt Eurer Veranstaltung zugehörig.`,
+      },
+      { headers: response.headers }
+    );
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json<FailureActionData>(result, { headers: response.headers });
 };

@@ -22,7 +22,7 @@ import type { ActionData as AddChildActionData } from "./events/add-child";
 import { addChildSchema } from "./events/add-child";
 import type { ActionData as RemoveChildActionData } from "./events/remove-child";
 import { removeChildSchema } from "./events/remove-child";
-import type { ActionData as SetParentActionData } from "./events/set-parent";
+import type { FailureActionData, SuccessActionData } from "./events/set-parent";
 import { setParentSchema } from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
@@ -120,7 +120,7 @@ export const loader = async (args: LoaderArgs) => {
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const setParentFetcher = useFetcher<SetParentActionData>();
+  const setParentFetcher = useFetcher<SuccessActionData | FailureActionData>();
   const addChildFetcher = useFetcher<AddChildActionData>();
   const removeChildFetcher = useFetcher<RemoveChildActionData>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
@@ -211,6 +211,12 @@ function Events() {
           );
         }}
       </Form>
+      {setParentFetcher.data !== undefined &&
+      "message" in setParentFetcher.data ? (
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+          {setParentFetcher.data.message}
+        </div>
+      ) : null}
       <h4 className="mb-4 mt-4 font-semibold">Aktuelle Rahmenveranstaltung</h4>
       <p className="mb-8">
         Hier siehst du die aktuelle Rahmenveranstaltung deiner Veranstaltung.
@@ -402,6 +408,12 @@ function Events() {
           );
         }}
       </Form>
+      {addChildFetcher.data !== undefined &&
+      "message" in addChildFetcher.data ? (
+        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+          {addChildFetcher.data.message}
+        </div>
+      ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
         Aktuelle zugehörige Veranstaltungen
       </h4>
