@@ -57,6 +57,7 @@ import {
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
+  validateTimePeriods,
 } from "./utils.server";
 
 const schema = object({
@@ -214,10 +215,21 @@ export const action = async (args: ActionArgs) => {
 
   const formData = await request.clone().formData();
 
+  const eventData = transformFormToEvent(result.data);
+  // Time Period Validation
+  // startTime and endTime of this event is in the boundary of parentEvents startTime and endTime
+  // startTime and endTime of all childEvents is in the boundary of this event
+  // Did not add this to schema as it is much more code and worse to read
+  errors = validateTimePeriods(
+    eventData,
+    event.parentEvent,
+    event.childEvents,
+    errors
+  );
+
   if (result.data.submit === "submit") {
     if (result.errors === null) {
-      const data = transformFormToEvent(result.data);
-      await updateEventById(event.id, data);
+      await updateEventById(event.id, eventData);
       updated = true;
     }
   } else {

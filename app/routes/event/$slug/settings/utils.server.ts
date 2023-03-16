@@ -5,6 +5,7 @@ import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import { unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
+import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
@@ -57,6 +58,84 @@ export async function checkIdentityOrThrow(
   if (formSenderId === null || formSenderId !== sessionUser.id) {
     throw unauthorized({ message: "Identity check failed" });
   }
+}
+
+export function validateTimePeriods(
+  newEventData: any,
+  parentEvent: { startTime: Date; endTime: Date } | null,
+  childEvents: { startTime: Date; endTime: Date }[],
+  currentErrors: FormError | null
+): FormError | null {
+  let errors = currentErrors;
+  if (parentEvent !== null) {
+    if (
+      newEventData.startTime.getTime() < parentEvent.startTime.getTime() ||
+      newEventData.endTime.getTime() > parentEvent.endTime.getTime()
+    ) {
+      const error = {
+        endDate: {
+          message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+          errors: [
+            {
+              type: "notInParentPeriodOfTime",
+              message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+            },
+          ],
+        },
+      };
+      if (errors === null) {
+        errors = error;
+      } else {
+        errors = { ...errors, ...error };
+      }
+    }
+  }
+  if (childEvents.length > 0) {
+    let firstIteration = true;
+    let earliestStartTime;
+    let latestEndTime;
+    for (let childEvent of childEvents) {
+      if (firstIteration) {
+        firstIteration = false;
+        earliestStartTime = childEvent.startTime;
+        latestEndTime = childEvent.endTime;
+      } else {
+        earliestStartTime =
+          earliestStartTime !== undefined &&
+          childEvent.startTime < earliestStartTime
+            ? childEvent.startTime
+            : earliestStartTime;
+        latestEndTime =
+          latestEndTime !== undefined && childEvent.endTime > latestEndTime
+            ? childEvent.endTime
+            : latestEndTime;
+      }
+    }
+    if (
+      earliestStartTime !== undefined &&
+      latestEndTime !== undefined &&
+      (earliestStartTime.getTime() < newEventData.startTime.getTime() ||
+        latestEndTime.getTime() > newEventData.endTime.getTime())
+    ) {
+      const error = {
+        endDate: {
+          message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+          errors: [
+            {
+              type: "notInChildPeriodOfTime",
+              message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+            },
+          ],
+        },
+      };
+      if (errors === null) {
+        errors = error;
+      } else {
+        errors = { ...errors, ...error };
+      }
+    }
+  }
+  return errors;
 }
 
 export function transformEventToForm(
