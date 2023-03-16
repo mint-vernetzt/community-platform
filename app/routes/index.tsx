@@ -23,6 +23,11 @@ import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { getProfileByUserId } from "~/profile.server";
 import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
+import {
+  getEventCount,
+  getOrganizationCount,
+  getProfileCount,
+} from "./utils.server";
 
 const schema = z.object({
   email: z
@@ -89,7 +94,18 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  return response;
+  const profileCount = await getProfileCount();
+  const organizationCount = await getOrganizationCount();
+  const eventCount = await getEventCount();
+
+  return json(
+    {
+      profileCount,
+      organizationCount,
+      eventCount,
+    },
+    { headers: response.headers }
+  );
 };
 
 const mutation = makeDomainFunction(
@@ -236,60 +252,100 @@ export default function Index() {
   }, [submit /*loaderData.hasSession*/, , urlSearchParams]);
 
   return (
-    <LoginForm
-      method="post"
-      schema={schema}
-      hiddenFields={["loginRedirect"]}
-      values={{
-        loginRedirect: loginRedirect || undefined,
-      }}
-      onKeyDown={handleKeyPress}
-    >
-      {({ Field, Button, Errors, register }) => (
-        <>
-          <Errors className="alert-error p-3 mb-3 text-white" />
+    <>
+      <div>Willkommen in Deiner MINT-Community</div>
+      <div>
+        Entdecke auf der MINTvernetzt Community Plattform andere
+        MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich
+        für Deine Arbeit inspirieren.
+      </div>
+      <LoginForm
+        method="post"
+        schema={schema}
+        hiddenFields={["loginRedirect"]}
+        values={{
+          loginRedirect: loginRedirect || undefined,
+        }}
+        onKeyDown={handleKeyPress}
+      >
+        {({ Field, Button, Errors, register }) => (
+          <>
+            <Errors className="alert-error p-3 mb-3 text-white" />
 
-          <Field name="email" label="E-Mail">
-            {({ Errors }) => (
-              <>
-                <Input id="email" label="E-Mail" {...register("email")} />
-                <Errors />
-              </>
-            )}
-          </Field>
-          <Field name="password" label="Passwort">
-            {({ Errors }) => (
-              <>
-                <InputPassword
-                  id="password"
-                  label="Passwort"
-                  {...register("password")}
-                />
-                <Errors />
-              </>
-            )}
-          </Field>
+            <Field name="email" label="E-Mail">
+              {({ Errors }) => (
+                <>
+                  <Input id="email" label="E-Mail" {...register("email")} />
+                  <Errors />
+                </>
+              )}
+            </Field>
+            <Field name="password" label="Passwort">
+              {({ Errors }) => (
+                <>
+                  <InputPassword
+                    id="password"
+                    label="Passwort"
+                    {...register("password")}
+                  />
+                  <Errors />
+                </>
+              )}
+            </Field>
 
-          <Field name="loginRedirect" />
+            <Field name="loginRedirect" />
 
-          <button type="submit">Login</button>
-
-          <Link
-            to={`/reset${
-              loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-            }`}
-          >
-            Passwort vergessen?
-          </Link>
-          <Link
-            to={`/register${
-              loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-            }`}
-          >
-            Registrieren
-          </Link>
-        </>
-      )}
-    </LoginForm>
+            <button type="submit">Login</button>
+          </>
+        )}
+      </LoginForm>
+      <Link
+        to={`/reset${loginRedirect ? `?login_redirect=${loginRedirect}` : ""}`}
+      >
+        Passwort vergessen?
+      </Link>
+      <div>Noch kein Mitglied?</div>
+      <Link
+        to={`/register${
+          loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+        }`}
+      >
+        Registrieren
+      </Link>
+      <div>
+        Erstelle Profilseiten für Dich, für Deine Organisation und lege Projekte
+        oder Veranstaltungen an.
+      </div>
+      <div>Miteinander Bildung gestalten</div>
+      <div>
+        Die Community-Plattform unterstützt Dich darin, Dich mit anderen
+        MINT-Akteur:innen und -Organisationen zu vernetzen, Inspiration oder
+        Expert:innen zu konkreten Themen in Deiner Umgebung zu finden oder
+        spannende Veranstaltungen zu entdecken. Hier wird Zukunft gestaltet.
+        Schön, dass Du dabei bist.
+      </div>
+      <Link
+        to={`/register${
+          loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+        }`}
+      >
+        Jetzt registrieren
+      </Link>
+      <div>WIE UNSERE COMMUNITY WÄCHST</div>
+      <div>{loaderData.profileCount} Profile</div>
+      <div>{loaderData.organizationCount} Organisationen</div>
+      <div>{loaderData.eventCount} Veranstaltungen</div>
+      <div>Werde auch Du Teil unserer ständig wachsenden MINT-Community.</div>
+      <div>MEHR ZUR INITIATIVE ERFAHREN</div>
+      <div>
+        Die MINTvernetzt Community-Plattform ist eines unserer Projekte, um die
+        MINT-Community zu stärken. Erfahre mehr über die Arbeit von
+        MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen in
+        Deutschland auf unserer Website.
+      </div>
+      <a href="https://mint-vernetzt.de/" target="_blank" rel="noreferrer">
+        MINTvernetzt Website besuchen
+      </a>
+    </>
   );
 }
