@@ -13,8 +13,8 @@ import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
-import type { InferType, TestContext } from "yup";
-import { array, mixed, number, object, string } from "yup";
+import type { InferType } from "yup";
+import { array, object, string } from "yup";
 import type { Defined } from "yup/lib/util/types";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
@@ -27,11 +27,14 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { greaterThanDate } from "~/lib/utils/yup";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormDataValidationResultOrThrow,
+  greaterThanTimeOnSameDate,
   multiline,
   nullOrString,
+  participantLimit,
   website,
 } from "~/lib/utils/yup";
 import {
@@ -61,315 +64,69 @@ const schema = object({
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
+      value = value.trim();
       try {
         const date = new Date(value);
         return format(date, "yyyy-MM-dd");
       } catch (error) {
         console.log(error);
       }
-      return "";
+      return undefined;
     })
     .required("Bitte gib den Beginn der Veranstaltung an"),
   startTime: string()
-    .transform((value) => {
+    .transform((value: string) => {
+      value = value.trim();
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
         return value;
       }
-      return "";
+      return undefined;
     })
     .required("Bitte gib den Beginn der Veranstaltung an"),
-  endDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende der Veranstaltung an")
-    .when("startDate", (startDate, schema) =>
-      startDate
-        ? schema.test(
-            "greaterThanStartDate",
-            "Das Enddatum darf nicht vor dem Startdatum liegen",
-            (endDate: string | null | undefined) => {
-              if (endDate !== null && endDate !== undefined) {
-                return (
-                  new Date(startDate).getTime() <= new Date(endDate).getTime()
-                );
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  endTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende der Veranstaltung an")
-    .when("startTime", (startTime, schema) =>
-      startTime
-        ? schema.test(
-            "greaterThanEndTimeOnSameDate",
-            "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
-            (endTime: string | null | undefined, testContext: TestContext) => {
-              if (
-                endTime &&
-                testContext.parent.endDate &&
-                testContext.parent.startDate
-              ) {
-                const endTimeArray = endTime.split(":");
-                const endTimeHours = parseInt(endTimeArray[0]);
-                const endTimeMinutes = parseInt(endTimeArray[1]);
-                const startTimeArray = testContext.parent.startTime.split(":");
-                const startTimeHours = parseInt(startTimeArray[0]);
-                const startTimeMinutes = parseInt(startTimeArray[1]);
-                const startDateObject = new Date(testContext.parent.startDate);
-                const endDateObject = new Date(testContext.parent.endDate);
-                if (
-                  startDateObject.getFullYear() ===
-                    endDateObject.getFullYear() &&
-                  startDateObject.getMonth() === endDateObject.getMonth() &&
-                  startDateObject.getDate() === endDateObject.getDate()
-                ) {
-                  if (startTimeHours === endTimeHours) {
-                    return startTimeMinutes < endTimeMinutes;
-                  } else {
-                    return startTimeHours < endTimeHours;
-                  }
-                } else {
-                  return true;
-                }
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  participationUntilDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende für die Registrierung an")
-    .when("participationFromDate", (participationFromDate, schema) =>
-      participationFromDate
-        ? schema.test(
-            "greaterThanStartDate",
-            "Das Registrierungsende darf nicht vor dem Registrierungsstart liegen",
-            (participationUntilDate: string | null | undefined) => {
-              if (
-                participationUntilDate !== null &&
-                participationUntilDate !== undefined
-              ) {
-                return (
-                  new Date(participationFromDate).getTime() <=
-                  new Date(participationUntilDate).getTime()
-                );
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  participationUntilTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende für die Registrierung an")
-    .when("participationFromTime", (participationFromTime, schema) =>
-      participationFromTime
-        ? schema.test(
-            "greaterThanParticipationUntilTimeOnSameDate",
-            "Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen",
-            (
-              participationUntilTime: string | null | undefined,
-              testContext: TestContext
-            ) => {
-              if (
-                participationUntilTime &&
-                testContext.parent.endDate &&
-                testContext.parent.startDate
-              ) {
-                const participationUntilTimeArray =
-                  participationUntilTime.split(":");
-                const participationUntilTimeHours = parseInt(
-                  participationUntilTimeArray[0]
-                );
-                const participationUntilTimeMinutes = parseInt(
-                  participationUntilTimeArray[1]
-                );
-                const participationFromTimeArray =
-                  testContext.parent.participationFromTime.split(":");
-                const participationFromTimeHours = parseInt(
-                  participationFromTimeArray[0]
-                );
-                const participationFromTimeMinutes = parseInt(
-                  participationFromTimeArray[1]
-                );
-                const participationFromDateObject = new Date(
-                  testContext.parent.participationFromDate
-                );
-                const participationUntilDateObject = new Date(
-                  testContext.parent.participationUntilDate
-                );
-                if (
-                  participationFromDateObject.getFullYear() ===
-                    participationUntilDateObject.getFullYear() &&
-                  participationFromDateObject.getMonth() ===
-                    participationUntilDateObject.getMonth() &&
-                  participationFromDateObject.getDate() ===
-                    participationUntilDateObject.getDate()
-                ) {
-                  if (
-                    participationFromTimeHours === participationUntilTimeHours
-                  ) {
-                    return (
-                      participationFromTimeMinutes <
-                      participationUntilTimeMinutes
-                    );
-                  } else {
-                    return (
-                      participationFromTimeHours < participationUntilTimeHours
-                    );
-                  }
-                } else {
-                  return true;
-                }
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  participationFromDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib den Beginn für die Registrierung an")
-    .when("startDate", (startDate, schema) =>
-      startDate
-        ? schema.test(
-            "greaterThanStartDate",
-            "Das Startdatum darf nicht vor dem Registrierungsstart liegen",
-            (participationFromDate: string | null | undefined) => {
-              if (
-                participationFromDate !== null &&
-                participationFromDate !== undefined
-              ) {
-                return (
-                  new Date(startDate).getTime() >=
-                  new Date(participationFromDate).getTime()
-                );
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  participationFromTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib den Beginn für die Registrierung an")
-    .when("startTime", (startTime, schema) =>
-      startTime
-        ? schema.test(
-            "greaterThanStartTimeOnSameDate",
-            "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen",
-            (
-              participationFromTime: string | null | undefined,
-              testContext: TestContext
-            ) => {
-              if (
-                participationFromTime &&
-                testContext.parent.endDate &&
-                testContext.parent.startDate
-              ) {
-                const participationFromTimeArray =
-                  participationFromTime.split(":");
-                const participationFromTimeHours = parseInt(
-                  participationFromTimeArray[0]
-                );
-                const participationFromTimeMinutes = parseInt(
-                  participationFromTimeArray[1]
-                );
-                const startTimeArray = testContext.parent.startTime.split(":");
-                const startTimeHours = parseInt(startTimeArray[0]);
-                const startTimeMinutes = parseInt(startTimeArray[1]);
-                const startDateObject = new Date(testContext.parent.startDate);
-                const participationFromDateObject = new Date(
-                  testContext.parent.participationFromDate
-                );
-                if (
-                  startDateObject.getFullYear() ===
-                    participationFromDateObject.getFullYear() &&
-                  startDateObject.getMonth() ===
-                    participationFromDateObject.getMonth() &&
-                  startDateObject.getDate() ===
-                    participationFromDateObject.getDate()
-                ) {
-                  if (startTimeHours === participationFromTimeHours) {
-                    return startTimeMinutes > participationFromTimeMinutes;
-                  } else {
-                    return startTimeHours > participationFromTimeHours;
-                  }
-                } else {
-                  return true;
-                }
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-
+  endDate: greaterThanDate(
+    "endDate",
+    "startDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Das Enddatum darf nicht vor dem Startdatum liegen"
+  ),
+  endTime: greaterThanTimeOnSameDate(
+    "endTime",
+    "startTime",
+    "startDate",
+    "endDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+  ),
+  participationUntilDate: greaterThanDate(
+    "participationUntilDate",
+    "participationFromDate",
+    "Bitte gib das Ende für die Registrierung an",
+    "Das Registrierungsende darf nicht vor dem Registrierungsstart liegen"
+  ),
+  participationUntilTime: greaterThanTimeOnSameDate(
+    "participationUntilTime",
+    "participationFromTime",
+    "participationUntilDate",
+    "participationFromDate",
+    "Bitte gib das Ende für die Registrierung an",
+    "Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen"
+  ),
+  participationFromDate: greaterThanDate(
+    "startDate",
+    "participationFromDate",
+    "Bitte gib den Beginn für die Registrierung an",
+    "Das Startdatum darf nicht vor dem Registrierungsstart liegen"
+  ),
+  participationFromTime: greaterThanTimeOnSameDate(
+    "startTime",
+    "participationFromTime",
+    "startDate",
+    "participationFromDate",
+    "Bitte gib den Beginn für die Registrierung an",
+    "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen"
+  ),
   subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
-  // published: mixed()
-  //   .test((value) => {
-  //     return (
-  //       value === "on" ||
-  //       value === "off" ||
-  //       value === null ||
-  //       value === true ||
-  //       value === false
-  //     );
-  //   })
-  //   .transform((value) => {
-  //     return value === "on" || value === true;
-  //   })
-  //   .nullable()
-  //   .required(),
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
@@ -379,43 +136,7 @@ const schema = object({
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
   participantCount: string().required(),
-  participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
-    .test((value) => {
-      return (
-        value === null ||
-        value === "" ||
-        value === 0 ||
-        number().isValidSync(value)
-      );
-    })
-    .when("participantCount", (participantCount, schema) =>
-      participantCount
-        ? schema.test(
-            "lessThanParticipantCount",
-            "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
-            (participantLimit: string | null | undefined) => {
-              if (
-                !(
-                  participantLimit === null ||
-                  participantLimit === undefined ||
-                  participantLimit === "" ||
-                  participantLimit === "0"
-                )
-              ) {
-                return participantLimit > participantCount;
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    )
-    .transform((value) => {
-      return value === null || value === "" || value === "0"
-        ? null
-        : Number(value);
-    })
-    .nullable(),
+  participantLimit: participantLimit(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
@@ -495,7 +216,7 @@ export const action = async (args: ActionArgs) => {
 
   if (result.data.submit === "submit") {
     if (result.errors === null) {
-      data = transformFormToEvent(result.data);
+      const data = transformFormToEvent(result.data);
       await updateEventById(event.id, data);
       updated = true;
     }
