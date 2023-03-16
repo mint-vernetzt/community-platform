@@ -103,7 +103,7 @@ function Documents() {
                   </div>
                   <div className="ml-auto flex-1/2 sm:flex">
                     <Link
-                      className="btn btn-outline-primary btn-small mt-2 mr-2"
+                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
                       to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
@@ -111,7 +111,7 @@ function Documents() {
                     </Link>
                     <label
                       htmlFor={`modal-edit-document-${item.document.id}`}
-                      className="btn btn-outline-primary btn-small mt-2 mr-2"
+                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
                     >
                       Editieren
                     </label>
@@ -227,7 +227,7 @@ function Documents() {
                           />
                           <button
                             type="submit"
-                            className="btn btn-outline-primary ml-auto btn-small mt-2"
+                            className="btn btn-outline-primary ml-auto btn-small mt-2 w-full sm:w-auto"
                           >
                             Löschen
                           </button>
