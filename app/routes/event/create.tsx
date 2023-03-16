@@ -6,102 +6,61 @@ import {
   useLoaderData,
   useNavigate,
 } from "@remix-run/react";
-import { format, zonedTimeToUtc } from "date-fns-tz";
+import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import { badRequest } from "remix-utils";
-import type { InferType, TestContext } from "yup";
-import { date, object, string } from "yup";
+import type { InferType } from "yup";
+import { object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { validateFeatureAccess } from "~/lib/utils/application";
 import type { FormError } from "~/lib/utils/yup";
-import { getFormValues, nullOrString, validateForm } from "~/lib/utils/yup";
+import {
+  getFormValues,
+  greaterThanDate,
+  greaterThanTimeOnSameDate,
+  nullOrString,
+  validateForm,
+} from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils";
-import { checkIdentityOrThrow, createEventOnProfile } from "./utils.server";
+import { validateTimePeriods } from "./$slug/settings/utils.server";
+import { getEventById } from "./$slug/utils.server";
+import {
+  checkIdentityOrThrow,
+  createEventOnProfile,
+  transformFormToEvent,
+} from "./utils.server";
 
 const schema = object({
   userId: string().uuid().required(),
   name: string().required("Bitte einen Veranstaltungsnamen angeben"),
-  startDate: date()
-    .transform((current, original) => {
-      if (original === "") {
-        return null;
+  startDate: string()
+    .transform((value) => {
+      value = value.trim();
+      try {
+        const date = new Date(value);
+        return format(date, "yyyy-MM-dd");
+      } catch (error) {
+        console.log(error);
       }
-      return current;
+      return undefined;
     })
-    .nullable()
-    .required("Bitte ein Startdatum angeben"),
-  startTime: string().nullable().required("Bitte eine Startzeit angeben"),
-  endDate: date()
-    .nullable()
-    .transform((current, original) => {
-      if (original === "") {
-        return null;
-      }
-      return current;
-    })
-    .defined()
-    .required("Bitte ein Enddatum angeben")
-    .when("startDate", (startDate, schema) =>
-      startDate
-        ? schema.test(
-            "greaterThanStartDate",
-            "Das Enddatum darf nicht vor dem Startdatum liegen",
-            (endDate: string | null | undefined) => {
-              if (endDate !== null && endDate !== undefined) {
-                return (
-                  new Date(startDate).getTime() <= new Date(endDate).getTime()
-                );
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
-  endTime: string()
-    .nullable()
-    .required("Bitte eine Endzeit angeben")
-    .when("startTime", (startTime, schema) =>
-      startTime
-        ? schema.test(
-            "greaterThanEndTimeOnSameDate",
-            "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
-            (endTime: string | null | undefined, testContext: TestContext) => {
-              if (
-                endTime &&
-                testContext.parent.endDate &&
-                testContext.parent.startDate
-              ) {
-                const endTimeArray = endTime.split(":");
-                const endTimeHours = parseInt(endTimeArray[0]);
-                const endTimeMinutes = parseInt(endTimeArray[1]);
-                const startTimeArray = testContext.parent.startTime.split(":");
-                const startTimeHours = parseInt(startTimeArray[0]);
-                const startTimeMinutes = parseInt(startTimeArray[1]);
-                const startDateObject = new Date(testContext.parent.startDate);
-                const endDateObject = new Date(testContext.parent.endDate);
-                if (
-                  startDateObject.getFullYear() ===
-                    endDateObject.getFullYear() &&
-                  startDateObject.getMonth() === endDateObject.getMonth() &&
-                  startDateObject.getDate() === endDateObject.getDate()
-                ) {
-                  if (startTimeHours === endTimeHours) {
-                    return startTimeMinutes < endTimeMinutes;
-                  } else {
-                    return startTimeHours < endTimeHours;
-                  }
-                } else {
-                  return true;
-                }
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    ),
+    .required("Bitte gib den Beginn der Veranstaltung an"),
+  startTime: string().required("Bitte eine Startzeit angeben"),
+  endDate: greaterThanDate(
+    "endDate",
+    "startDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Das Enddatum darf nicht vor dem Startdatum liegen"
+  ),
+  endTime: greaterThanTimeOnSameDate(
+    "endTime",
+    "startTime",
+    "startDate",
+    "endDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+  ),
   child: nullOrString(string()),
   parent: nullOrString(string()),
 });
@@ -127,16 +86,6 @@ export const loader = async (args: LoaderArgs) => {
   );
 };
 
-function getDateTime(date: Date, time: string | null) {
-  const jsDate = new Date(date);
-  const formattedDate = format(jsDate, "yyyy-MM-dd");
-  let dateTime = zonedTimeToUtc(
-    `${formattedDate} ${time || "".trimEnd()}`,
-    "Europe/Berlin"
-  );
-  return dateTime;
-}
-
 export const action = async (args: ActionArgs) => {
   const { request } = args;
   const response = new Response();
@@ -147,7 +96,7 @@ export const action = async (args: ActionArgs) => {
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
 
   let errors: FormError | null;
-  let data: FormType;
+  let data;
 
   try {
     let result = await validateForm<SchemaType>(schema, parsedFormData);
@@ -157,27 +106,30 @@ export const action = async (args: ActionArgs) => {
     throw badRequest({ message: "Validation failed" });
   }
 
+  const eventData = transformFormToEvent(data);
+  // Time Period Validation
+  // startTime and endTime of this event is in the boundary of parentEvents startTime and endTime
+  // startTime and endTime of all childEvents is in the boundary of this event
+  // Did not add this to schema as it is much more code and worse to read
+  if (data.parent !== null) {
+    const parentEvent = await getEventById(data.parent);
+    errors = validateTimePeriods(eventData, parentEvent, [], errors);
+  }
+
   if (errors === null) {
     const slug = generateEventSlug(data.name);
-    const startTime = getDateTime(data.startDate, data.startTime);
-
-    let endTime;
-    if (data.endDate !== null) {
-      endTime = getDateTime(data.endDate, data.endTime);
-    } else {
-      endTime = startTime;
-    }
 
     await createEventOnProfile(
       sessionUser.id,
       {
         slug,
-        name: data.name,
-        startTime,
-        endTime,
-        participationUntil: startTime,
+        name: eventData.name,
+        startTime: eventData.startTime,
+        endTime: eventData.endTime,
+        participationUntil: eventData.participationUntil,
+        participationFrom: eventData.participationFrom,
       },
-      { child: data.child, parent: data.parent }
+      { child: eventData.child, parent: eventData.parent }
     );
     return redirect(`/event/${slug}`, { headers: response.headers });
   }
@@ -189,12 +141,6 @@ export default function Create() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { register } = useForm<FormType>();
-  let errorMessages = [];
-  if (actionData !== undefined) {
-    for (let field in actionData.errors) {
-      errorMessages.push(actionData.errors[field].message);
-    }
-  }
 
   return (
     <>
@@ -236,6 +182,9 @@ export default function Create() {
                     {...register("name")}
                     errorMessage={actionData?.errors?.name?.message}
                   />
+                  {actionData?.errors?.name?.message ? (
+                    <div>{actionData.errors.name.message}</div>
+                  ) : null}
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
@@ -247,6 +196,9 @@ export default function Create() {
                     required
                     errorMessage={actionData?.errors?.startDate?.message}
                   />
+                  {actionData?.errors?.startDate?.message ? (
+                    <div>{actionData.errors.startDate.message}</div>
+                  ) : null}
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Time Input Component */}
@@ -258,6 +210,9 @@ export default function Create() {
                     required
                     errorMessage={actionData?.errors?.startTime?.message}
                   />
+                  {actionData?.errors?.startTime?.message ? (
+                    <div>{actionData.errors.startTime.message}</div>
+                  ) : null}
                 </div>
                 <div className="mb-2 form-control w-full">
                   {/* TODO: Date Input Component */}
@@ -269,6 +224,9 @@ export default function Create() {
                     required
                     errorMessage={actionData?.errors?.endDate?.message}
                   />
+                  {actionData?.errors?.endDate?.message ? (
+                    <div>{actionData.errors.endDate.message}</div>
+                  ) : null}
                 </div>
                 <div className="mb-4 form-control w-full">
                   {/* TODO: Time Input Component */}
@@ -280,16 +238,10 @@ export default function Create() {
                     required
                     errorMessage={actionData?.errors?.endTime?.message}
                   />
+                  {actionData?.errors?.endTime?.message ? (
+                    <div>{actionData.errors.endTime.message}</div>
+                  ) : null}
                 </div>
-                {errorMessages !== undefined
-                  ? errorMessages.map((message, index) => {
-                      return (
-                        <div className="mb-2" key={index}>
-                          {message}
-                        </div>
-                      );
-                    })
-                  : null}
                 <button
                   type="submit"
                   className="btn btn-outline-primary ml-auto btn-small"
