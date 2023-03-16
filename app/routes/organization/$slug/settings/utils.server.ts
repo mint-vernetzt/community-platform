@@ -71,6 +71,21 @@ export async function getProfileByEmail(email: string) {
   return profile;
 }
 
+export async function getProfileByEmailCaseInsensitive(email: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: {
+      email: {
+        contains: email,
+        mode: "insensitive",
+      },
+    },
+    select: {
+      username: true,
+    },
+  });
+  return profile;
+}
+
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findFirst({
     where: { id },

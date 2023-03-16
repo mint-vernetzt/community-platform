@@ -29,9 +29,9 @@ jest.mock("~/auth.server", () => {
 });
 
 const url = testURL;
-const urlWithLoginRedirect = `${testURL}/login?login_redirect=${testURL}/event/some-event-slug`;
-const urlWithTokens = `${testURL}/login?access_token=abcde&refresh_token=fghij`;
-const urlWithTokensAfterEmailChange = `${testURL}/login?access_token=abcde&refresh_token=fghij&type=sign_up`;
+const urlWithLoginRedirect = `${testURL}/?login_redirect=${testURL}/event/some-event-slug`;
+const urlWithTokens = `${testURL}/?access_token=abcde&refresh_token=fghij`;
+const urlWithTokensAfterEmailChange = `${testURL}/?access_token=abcde&refresh_token=fghij&type=sign_up`;
 
 const actionRequest = createRequestWithFormData({
   email: "some@email.de",

@@ -541,7 +541,7 @@ function Index() {
                               loaderData.event.childEvents.length === 0 ? (
                                 <Link
                                   className="btn btn-primary"
-                                  to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                                  to={`/?login_redirect=/event/${loaderData.event.slug}`}
                                 >
                                   Anmelden um teilzunehmen
                                 </Link>
@@ -580,7 +580,7 @@ function Index() {
                         loaderData.event.childEvents.length === 0 ? (
                           <Link
                             className="btn btn-primary"
-                            to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                            to={`/?login_redirect=/event/${loaderData.event.slug}`}
                           >
                             Anmelden um teilzunehmen
                           </Link>
@@ -1083,7 +1083,7 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <Link
                               className="btn btn-primary"
-                              to={`/login?login_redirect=/event/${event.slug}`}
+                              to={`/?login_redirect=/event/${event.slug}`}
                             >
                               Anmelden
                             </Link>

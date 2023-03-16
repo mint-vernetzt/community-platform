@@ -48,11 +48,11 @@ before(async () => {
 });
 
 it("redirect after login", () => {
-  cy.visit("http://localhost:3000/login");
+  cy.visit("http://localhost:3000/");
   cy.findByLabelText("E-Mail").type("hello@songsforthe.dev");
   cy.findByLabelText("Passwort").type("password");
   cy.findByText("Login").click();
-  cy.url().should("eq", "http://localhost:3000/");
+  cy.url().should("eq", "http://localhost:3000/peterhollo");
 });
 
 after(async () => {

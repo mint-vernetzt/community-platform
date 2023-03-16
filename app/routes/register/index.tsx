@@ -140,7 +140,7 @@ export default function Register() {
             <div className="ml-auto">
               Bereits Mitglied?{" "}
               <Link
-                to={`/login${
+                to={`/${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                 }`}
                 className="text-primary font-bold"

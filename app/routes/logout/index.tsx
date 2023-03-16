@@ -15,5 +15,5 @@ export const action: ActionFunction = async (args) => {
     throw serverError({ message: error.message });
   }
 
-  return redirect("/login", { headers: response.headers });
+  return redirect("/", { headers: response.headers });
 };

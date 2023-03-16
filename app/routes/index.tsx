@@ -1,29 +1,162 @@
-import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import {
+  Link,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
+import type { KeyboardEvent } from "react";
 import React from "react";
-import { createAuthClient, getSession } from "~/auth.server";
+import { makeDomainFunction } from "remix-domains";
+import type { FormProps } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
+import type { SomeZodObject } from "zod";
+import { z } from "zod";
+import {
+  createAuthClient,
+  getSessionUser,
+  setSession,
+  signIn,
+} from "~/auth.server";
+import Input from "~/components/FormElements/Input/Input";
+import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { getProfileByUserId } from "~/profile.server";
+import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
 
-type LoaderData = {
-  hasSession: boolean;
-};
+const schema = z.object({
+  email: z
+    .string()
+    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
+    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
+  password: z
+    .string()
+    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
+  loginRedirect: z.string().optional(),
+});
 
-export const loader: LoaderFunction = async (args) => {
+const environmentSchema = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
+
+function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
+  return <Form<Schema> {...props} />;
+}
+
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
+
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
 
-  const session = await getSession(authClient);
-  const hasSession = session !== null;
+  const url = new URL(request.url);
+  const urlSearchParams = new URLSearchParams(url.searchParams);
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const accessToken = urlSearchParams.get("access_token");
+  const refreshToken = urlSearchParams.get("refresh_token");
+  const type = urlSearchParams.get("type");
 
-  return json<LoaderData>({ hasSession }, { headers: response.headers });
+  if (accessToken !== null && refreshToken !== null) {
+    // This automatically logs in the user
+    // Throws error on invalid refreshToken, accessToken combination
+    const { user: sessionUser } = await setSession(
+      authClient,
+      accessToken,
+      refreshToken
+    );
+    if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
+      // Default redirect to profile of sessionUser after sign up confirmation
+      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+      return redirect(`/profile/${profile.username}`, {
+        headers: response.headers,
+      });
+    }
+  }
+
+  const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    if (loginRedirect !== null) {
+      return redirect(loginRedirect, { headers: response.headers });
+    } else {
+      // Default redirect to profile of sessionUser after sign up confirmation
+      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+      return redirect(`/profile/${profile.username}`, {
+        headers: response.headers,
+      });
+    }
+  }
+
+  return response;
+};
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { error } = await signIn(
+    environment.authClient,
+    values.email,
+    values.password
+  );
+
+  if (error !== null) {
+    if (error.message === "Invalid login credentials") {
+      throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
+    } else {
+      throw error.message;
+    }
+  }
+
+  return { ...values };
+});
+
+export const action = async ({ request }: ActionArgs) => {
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { authClient: authClient },
+  });
+
+  if (result.success) {
+    if (result.data.loginRedirect) {
+      return redirect(result.data.loginRedirect, {
+        headers: response.headers,
+      });
+    } else {
+      // Default redirect after login
+      const profile = await getProfileByEmailCaseInsensitive(result.data.email);
+      if (profile !== null) {
+        return redirect(`/profile/${profile.username}`, {
+          headers: response.headers,
+        });
+      } else {
+        return redirect(`/explore`, { headers: response.headers });
+      }
+    }
+  }
+
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {
   const submit = useSubmit();
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
+  const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      submit(event.currentTarget);
+    }
+  };
 
   // Access point for confirmation links
   // Must be called on the client because hash parameters can only be accessed from the client
@@ -53,7 +186,7 @@ export default function Index() {
                 type: type,
               },
           {
-            action: "/login",
+            action: "/",
           }
         );
         return;
@@ -94,16 +227,69 @@ export default function Index() {
       return;
     }
 
-    // Redirect when user is logged in
-    // Remove the else case when the landing page is implemented in this route
-    if (loaderData.hasSession) {
-      submit(null, { action: "/explore?reason=1" });
-      return;
-    } else {
-      submit(null, { action: "/explore?reason=2" });
-      return;
-    }
-  }, [submit, loaderData.hasSession, urlSearchParams]);
+    // // Redirect when user is logged in
+    // // Remove the else case when the landing page is implemented in this route
+    // if (loaderData.hasSession) {
+    //   submit(null, { action: "/explore?reason=1" });
+    //   return;
+    // }
+  }, [submit /*loaderData.hasSession*/, , urlSearchParams]);
 
-  return null;
+  return (
+    <LoginForm
+      method="post"
+      schema={schema}
+      hiddenFields={["loginRedirect"]}
+      values={{
+        loginRedirect: loginRedirect || undefined,
+      }}
+      onKeyDown={handleKeyPress}
+    >
+      {({ Field, Button, Errors, register }) => (
+        <>
+          <Errors className="alert-error p-3 mb-3 text-white" />
+
+          <Field name="email" label="E-Mail">
+            {({ Errors }) => (
+              <>
+                <Input id="email" label="E-Mail" {...register("email")} />
+                <Errors />
+              </>
+            )}
+          </Field>
+          <Field name="password" label="Passwort">
+            {({ Errors }) => (
+              <>
+                <InputPassword
+                  id="password"
+                  label="Passwort"
+                  {...register("password")}
+                />
+                <Errors />
+              </>
+            )}
+          </Field>
+
+          <Field name="loginRedirect" />
+
+          <button type="submit">Login</button>
+
+          <Link
+            to={`/reset${
+              loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+            }`}
+          >
+            Passwort vergessen?
+          </Link>
+          <Link
+            to={`/register${
+              loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+            }`}
+          >
+            Registrieren
+          </Link>
+        </>
+      )}
+    </LoginForm>
+  );
 }

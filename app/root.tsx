@@ -385,7 +385,7 @@ function NavBar(props: NavBarProps) {
           ) : (
             <div className="flex-initial h-10 w-1/2 lg:w-1/4 flex justify-end items-center lg:order-3">
               <Link
-                to="/login"
+                to="/"
                 className="text-primary font-semibold hover:underline"
               >
                 Anmelden

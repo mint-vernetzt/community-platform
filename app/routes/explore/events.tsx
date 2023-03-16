@@ -314,7 +314,7 @@ function Events() {
                   <div className="ml-auto">
                     <Link
                       className="btn btn-primary"
-                      to={`/login?login_redirect=/event/${event.slug}`}
+                      to={`/?login_redirect=/event/${event.slug}`}
                     >
                       Anmelden
                     </Link>

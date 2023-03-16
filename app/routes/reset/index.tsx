@@ -92,7 +92,7 @@ export default function Index() {
             </div>
             <div className="ml-auto">
               <Link
-                to={`/login${
+                to={`/${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                 }`}
                 className="text-primary font-bold"
