@@ -523,7 +523,6 @@ export const action = async (args: ActionArgs) => {
   );
 };
 
-// TODO: Display error messages as text
 function General() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
@@ -795,6 +794,9 @@ function General() {
                 errorMessage={errors?.startDate?.message}
                 type="date"
               />
+              {errors?.startDate?.message ? (
+                <div>{errors.startDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -805,6 +807,9 @@ function General() {
                 errorMessage={errors?.startTime?.message}
                 type="time"
               />
+              {errors?.startTime?.message ? (
+                <div>{errors.startTime.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -817,6 +822,9 @@ function General() {
                 errorMessage={errors?.endDate?.message}
                 type="date"
               />
+              {errors?.endDate?.message ? (
+                <div>{errors.endDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -827,6 +835,9 @@ function General() {
                 errorMessage={errors?.endTime?.message}
                 type="time"
               />
+              {errors?.endTime?.message ? (
+                <div>{errors.endTime.message}</div>
+              ) : null}
             </div>
           </div>
 
@@ -840,6 +851,9 @@ function General() {
                 errorMessage={errors?.participationFromDate?.message}
                 type="date"
               />
+              {errors?.participationFromDate?.message ? (
+                <div>{errors.participationFromDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -850,6 +864,9 @@ function General() {
                 errorMessage={errors?.participationFromTime?.message}
                 type="time"
               />
+              {errors?.participationFromTime?.message ? (
+                <div>{errors.participationFromTime.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -862,6 +879,9 @@ function General() {
                 errorMessage={errors?.participationUntilDate?.message}
                 type="date"
               />
+              {errors?.participationUntilDate?.message ? (
+                <div>{errors.participationUntilDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -872,6 +892,9 @@ function General() {
                 errorMessage={errors?.participationUntilTime?.message}
                 type="time"
               />
+              {errors?.participationUntilTime?.message ? (
+                <div>{errors.participationUntilTime.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="mb-6">
@@ -883,6 +906,9 @@ function General() {
               errorMessage={errors?.participantLimit?.message}
               type="number"
             />
+            {errors?.participantLimit?.message ? (
+              <div>{errors.participantLimit.message}</div>
+            ) : null}
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
           <div className="mb-4">
@@ -904,6 +930,9 @@ function General() {
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
             />
+            {errors?.venueName?.message ? (
+              <div>{errors.venueName.message}</div>
+            ) : null}
           </div>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -914,6 +943,9 @@ function General() {
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
               />
+              {errors?.venueStreet?.message ? (
+                <div>{errors.venueStreet.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -923,6 +955,9 @@ function General() {
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
               />
+              {errors?.venueStreetNumber?.message ? (
+                <div>{errors.venueStreetNumber.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -934,6 +969,9 @@ function General() {
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
               />
+              {errors?.venueZipCode?.message ? (
+                <div>{errors.venueZipCode.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -943,6 +981,9 @@ function General() {
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
               />
+              {errors?.venueCity?.message ? (
+                <div>{errors.venueCity.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="basis-full mb-6">
@@ -955,6 +996,9 @@ function General() {
               errorMessage={errors?.conferenceLink?.message}
               withClearButton
             />
+            {errors?.conferenceLink?.message ? (
+              <div>{errors.conferenceLink.message}</div>
+            ) : null}
           </div>
           <div className="mb-6">
             <InputText
@@ -965,6 +1009,9 @@ function General() {
               errorMessage={errors?.conferenceCode?.message}
               withClearButton
             />
+            {errors?.conferenceCode?.message ? (
+              <div>{errors.conferenceCode.message}</div>
+            ) : null}
           </div>
 
           <h4 className="mb-4 font-semibold">Allgemein</h4>
@@ -983,6 +1030,7 @@ function General() {
               defaultValue={event.name}
               errorMessage={errors?.name?.message}
             />
+            {errors?.name?.message ? <div>{errors.name.message}</div> : null}
           </div>
 
           <div className="mb-4">
@@ -994,6 +1042,9 @@ function General() {
               errorMessage={errors?.subline?.message}
               maxCharacters={70}
             />
+            {errors?.subline?.message ? (
+              <div>{errors.subline.message}</div>
+            ) : null}
           </div>
           <div className="mb-4">
             <TextAreaWithCounter
@@ -1004,6 +1055,9 @@ function General() {
               errorMessage={errors?.description?.message}
               maxCharacters={1000}
             />
+            {errors?.description?.message ? (
+              <div>{errors.description.message}</div>
+            ) : null}
           </div>
           <div className="mb-4">
             <SelectAdd
