@@ -154,7 +154,8 @@ function Events() {
         beispielsweise im Rahmen einer Tagung statt? Füge hier deiner
         Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.
         Allerdings musst du priviligiertes Teammitglied der Rahmenveranstaltung
-        sein.
+        sein und deine Veranstaltung muss sich innerhalb des Zeitraums der
+        Rahmenveranstaltung befinden.
       </p>
       <Form
         schema={setParentSchema}
@@ -344,7 +345,8 @@ function Events() {
         Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches?
         Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne
         sie. Beachte, dass du priviligiertes Teammitglied in den zugehörigen
-        Veranstaltungen sein musst.
+        Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im
+        Zeitraum deiner Veranstaltung stattfinden müssen.
       </p>
       <Form
         schema={addChildSchema}
