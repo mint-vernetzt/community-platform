@@ -14,6 +14,7 @@ jest.mock("~/prisma", () => {
     prismaClient: {
       profile: {
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
       },
     },
   };
@@ -52,13 +53,19 @@ test("redirect on existing session", async () => {
     };
   });
 
+  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
+    return {
+      username: "some-username",
+    };
+  });
+
   const res = await loader({
     request: new Request(url),
     params: {},
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore?reason=3"));
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
 test("redirect on existing session with login redirect param", async () => {
@@ -95,13 +102,19 @@ test("set new session in loader with token params", async () => {
     };
   });
 
+  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
+    return {
+      username: "some-username",
+    };
+  });
+
   const res = await loader({
     request: new Request(urlWithTokens),
     params: {},
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore?reason=3"));
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
 test("set new session in loader with token params after sign up confirmation", async () => {
@@ -147,13 +160,19 @@ test("call login action success with default redirect", async () => {
     return { error: null };
   });
 
+  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+    return {
+      username: "some-username",
+    };
+  });
+
   const res = await action({
     request: actionRequest,
     params: {},
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore?reason=4"));
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
 test("call login action with wrong credentials", async () => {
