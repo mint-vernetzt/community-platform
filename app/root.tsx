@@ -169,7 +169,7 @@ function NavBar(props: NavBarProps) {
       <div className="container relative z-10">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
-            <Link to="/explore">
+            <Link to="/">
               <HeaderLogo />
             </Link>
           </div>
@@ -385,7 +385,7 @@ function NavBar(props: NavBarProps) {
           ) : (
             <div className="flex-initial h-10 w-1/2 xl:w-[150px] flex justify-end items-center lg:order-3">
               <Link
-                to="/"
+                to="/login"
                 className="text-primary font-semibold hover:underline"
               >
                 Anmelden

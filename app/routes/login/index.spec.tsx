@@ -65,7 +65,7 @@ test("redirect on existing session", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
+  expect(res).toStrictEqual(redirect("/explore?reason=3"));
 });
 
 test("redirect on existing session with login redirect param", async () => {
