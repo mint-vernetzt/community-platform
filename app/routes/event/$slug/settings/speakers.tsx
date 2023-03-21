@@ -142,6 +142,7 @@ function Speakers() {
                           suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}
@@ -167,7 +168,7 @@ function Speakers() {
       <p className="mb-8">
         Hier siehst du alle Speaker:innen der Veranstaltung auf einen Blick.{" "}
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.speakers.map((profile) => {
           const initials = getInitials(profile);
           return (

@@ -123,7 +123,7 @@ function Create() {
                         <>
                           <Input
                             id="projectName"
-                            label="Name des Projekts"
+                            label="Name des Projekts*"
                             {...register("projectName")}
                           />
                           <Errors />

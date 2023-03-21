@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -14,7 +14,8 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
-import { array, mixed, number, object, string } from "yup";
+import { array, object, string } from "yup";
+import type { Defined } from "yup/lib/util/types";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -26,11 +27,14 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { greaterThanDate } from "~/lib/utils/yup";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormDataValidationResultOrThrow,
+  greaterThanTimeOnSameDate,
   multiline,
   nullOrString,
+  participantLimit,
   website,
 } from "~/lib/utils/yup";
 import {
@@ -53,6 +57,7 @@ import {
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
+  validateTimePeriods,
 } from "./utils.server";
 
 const schema = object({
@@ -60,98 +65,69 @@ const schema = object({
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
+      value = value.trim();
       try {
         const date = new Date(value);
         return format(date, "yyyy-MM-dd");
       } catch (error) {
         console.log(error);
       }
-      return "";
+      return undefined;
     })
     .required("Bitte gib den Beginn der Veranstaltung an"),
   startTime: string()
-    .transform((value) => {
+    .transform((value: string) => {
+      value = value.trim();
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
         return value;
       }
-      return "";
+      return undefined;
     })
     .required("Bitte gib den Beginn der Veranstaltung an"),
-  endDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende der Veranstaltung an"),
-  endTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende der Veranstaltung an"),
-  participationUntilDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende für die Registrierung an"),
-  participationUntilTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib das Ende für die Registrierung an"),
-  participationFromDate: string()
-    .transform((value) => {
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return "";
-    })
-    .required("Bitte gib den Beginn für die Registrierung an"),
-  participationFromTime: string()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return "";
-    })
-    .required("Bitte gib den Beginn für die Registrierung an"),
-
+  endDate: greaterThanDate(
+    "endDate",
+    "startDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Das Enddatum darf nicht vor dem Startdatum liegen"
+  ),
+  endTime: greaterThanTimeOnSameDate(
+    "endTime",
+    "startTime",
+    "startDate",
+    "endDate",
+    "Bitte gib das Ende der Veranstaltung an",
+    "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+  ),
+  participationUntilDate: greaterThanDate(
+    "participationUntilDate",
+    "participationFromDate",
+    "Bitte gib das Ende für die Registrierung an",
+    "Das Registrierungsende darf nicht vor dem Registrierungsstart liegen"
+  ),
+  participationUntilTime: greaterThanTimeOnSameDate(
+    "participationUntilTime",
+    "participationFromTime",
+    "participationUntilDate",
+    "participationFromDate",
+    "Bitte gib das Ende für die Registrierung an",
+    "Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen"
+  ),
+  participationFromDate: greaterThanDate(
+    "startDate",
+    "participationFromDate",
+    "Bitte gib den Beginn für die Registrierung an",
+    "Das Startdatum darf nicht vor dem Registrierungsstart liegen"
+  ),
+  participationFromTime: greaterThanTimeOnSameDate(
+    "startTime",
+    "participationFromTime",
+    "startDate",
+    "participationFromDate",
+    "Bitte gib den Beginn für die Registrierung an",
+    "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen"
+  ),
   subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
-  // published: mixed()
-  //   .test((value) => {
-  //     return (
-  //       value === "on" ||
-  //       value === "off" ||
-  //       value === null ||
-  //       value === true ||
-  //       value === false
-  //     );
-  //   })
-  //   .transform((value) => {
-  //     return value === "on" || value === true;
-  //   })
-  //   .nullable()
-  //   .required(),
   focuses: array(string().required()).required(),
   targetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
@@ -160,19 +136,8 @@ const schema = object({
   tags: array(string().required()).required(),
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
-  participantLimit: mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
-    .test((value) => {
-      return (
-        value === null ||
-        value === "" ||
-        value === 0 ||
-        number().isValidSync(value)
-      );
-    })
-    .transform((value) =>
-      value === null || value === "" || value === 0 ? null : Number(value)
-    )
-    .nullable(),
+  participantCount: string().required(),
+  participantLimit: participantLimit(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
@@ -185,19 +150,7 @@ const schema = object({
 type SchemaType = typeof schema;
 type FormType = InferType<typeof schema>;
 
-type LoaderData = {
-  event: ReturnType<typeof transformEventToForm>;
-  userId: string;
-  focuses: Awaited<ReturnType<typeof getFocuses>>;
-  types: Awaited<ReturnType<typeof getTypes>>;
-  targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
-  tags: Awaited<ReturnType<typeof getTags>>;
-  experienceLevels: Awaited<ReturnType<typeof getExperienceLevels>>;
-  stages: Awaited<ReturnType<typeof getStages>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -218,7 +171,7 @@ export const loader: LoaderFunction = async (args) => {
   const stages = await getStages();
   const areas = await getAreas();
 
-  return json<LoaderData>(
+  return json(
     {
       event: transformEventToForm(event),
       userId: sessionUser.id,
@@ -234,14 +187,7 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-type ActionData = {
-  data: FormType;
-  errors: FormError | null;
-  updated: boolean;
-  lastSubmit: string;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -269,10 +215,21 @@ export const action: ActionFunction = async (args) => {
 
   const formData = await request.clone().formData();
 
+  const eventData = transformFormToEvent(result.data);
+  // Time Period Validation
+  // startTime and endTime of this event is in the boundary of parentEvents startTime and endTime
+  // startTime and endTime of all childEvents is in the boundary of this event
+  // Did not add this to schema as it is much more code and worse to read
+  errors = validateTimePeriods(
+    eventData,
+    event.parentEvent,
+    event.childEvents,
+    errors
+  );
+
   if (result.data.submit === "submit") {
     if (result.errors === null) {
-      const data = transformFormToEvent(result.data);
-      await updateEventById(event.id, data);
+      await updateEventById(event.id, eventData);
       updated = true;
     }
   } else {
@@ -288,9 +245,9 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(
+  return json(
     {
-      data,
+      data: { ...data, id: event.id },
       errors,
       updated,
       lastSubmit: (formData.get("submit") as string) ?? "",
@@ -301,6 +258,7 @@ export const action: ActionFunction = async (args) => {
 
 function General() {
   const { slug } = useParams();
+  const loaderData = useLoaderData<typeof loader>();
   const {
     event: originalEvent,
     userId,
@@ -311,20 +269,21 @@ function General() {
     experienceLevels,
     stages,
     areas,
-  } = useLoaderData<LoaderData>();
+  } = loaderData;
 
   const publishFetcher = useFetcher<PublishActionData>();
   const cancelFetcher = useFetcher<CancelActionData>();
 
   const transition = useTransition();
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
+  const newEvent = actionData?.data;
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
 
-  let event: LoaderData["event"] | ActionData["data"];
-  if (actionData !== undefined) {
-    event = actionData.data;
+  let event: typeof loaderData["event"] | Defined<typeof newEvent>;
+  if (newEvent !== undefined) {
+    event = newEvent;
   } else {
     event = originalEvent;
   }
@@ -470,66 +429,75 @@ function General() {
 
   return (
     <>
-      <RemixForm
-        schema={publishSchema}
-        fetcher={publishFetcher}
-        action={`/event/${slug}/settings/events/publish`}
-        hiddenFields={["eventId", "userId", "publish"]}
-        values={{
-          // TODO: Fix type issue
-          // @ts-ignore
-          eventId: event.id,
-          userId: userId,
-          publish: !originalEvent.published,
-        }}
-      >
-        {(props) => {
-          const { Button, Field } = props;
-          return (
-            <>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="publish"></Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
-                </Button>
-              </div>
-            </>
-          );
-        }}
-      </RemixForm>
-      <RemixForm
-        schema={cancelSchema}
-        fetcher={cancelFetcher}
-        action={`/event/${slug}/settings/events/cancel`}
-        hiddenFields={["eventId", "userId", "cancel"]}
-        values={{
-          // TODO: Fix type issue
-          // @ts-ignore
-          eventId: event.id,
-          userId: userId,
-          cancel: !originalEvent.canceled,
-        }}
-      >
-        {(props) => {
-          const { Button, Field } = props;
-          return (
-            <>
-              <Field name="userId" />
-              <Field name="eventId" />
-              <Field name="cancel"></Field>
-              <div className="mt-2">
-                <Button className="btn btn-outline-primary ml-auto btn-small">
-                  {originalEvent.canceled
-                    ? "Absage rückgängig machen"
-                    : "Absagen"}
-                </Button>
-              </div>
-            </>
-          );
-        }}
-      </RemixForm>
+      <h1 className="mb-8">Deine Veranstaltung</h1>
+      <h4 className="mb-4 font-semibold">Start und Registrierung</h4>
+
+      <p className="mb-4">
+        Wann startet deine Veranstaltung, wie lange dauert sie und wie viele
+        Personen können teilnehmen? Hier kannst du Einstellungen rund um das
+        Thema Start und Registrierung vornehmen. Außerdem kannst du die
+        Veranstaltung veröffentlichen oder verstecken und gegebenenfalls
+        absagen.
+      </p>
+      <div className="flex mb-4">
+        <RemixForm
+          schema={publishSchema}
+          fetcher={publishFetcher}
+          action={`/event/${slug}/settings/events/publish`}
+          hiddenFields={["eventId", "userId", "publish"]}
+          values={{
+            eventId: event.id,
+            userId: userId,
+            publish: !originalEvent.published,
+          }}
+          className="mr-2"
+        >
+          {(props) => {
+            const { Button, Field } = props;
+            return (
+              <>
+                <Field name="userId" />
+                <Field name="eventId" />
+                <Field name="publish"></Field>
+                <div className="mt-2">
+                  <Button className="btn btn-outline-primary ml-auto btn-small">
+                    {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
+                  </Button>
+                </div>
+              </>
+            );
+          }}
+        </RemixForm>
+        <RemixForm
+          schema={cancelSchema}
+          fetcher={cancelFetcher}
+          action={`/event/${slug}/settings/events/cancel`}
+          hiddenFields={["eventId", "userId", "cancel"]}
+          values={{
+            eventId: event.id,
+            userId: userId,
+            cancel: !originalEvent.canceled,
+          }}
+        >
+          {(props) => {
+            const { Button, Field } = props;
+            return (
+              <>
+                <Field name="userId" />
+                <Field name="eventId" />
+                <Field name="cancel"></Field>
+                <div className="mt-2">
+                  <Button className="btn btn-outline-primary ml-auto btn-small">
+                    {originalEvent.canceled
+                      ? "Absage rückgängig machen"
+                      : "Absagen"}
+                  </Button>
+                </div>
+              </>
+            );
+          }}
+        </RemixForm>
+      </div>
       <FormProvider {...methods}>
         <Form
           ref={formRef}
@@ -538,33 +506,13 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">Deine Veranstaltung</h1>
-          <h4 className="mb-4 font-semibold">Allgemein</h4>
-          <p className="mb-8">Lorem ipsum</p>
-          {/* <label htmlFor="published">Veröffentlicht?</label>
-        <input
-          {...register("published")}
-          id="published"
-          name="published"
-          type="checkbox"
-          defaultChecked={event.published}
-        />
-        <p
-          className="text-red-600"
-          hidden={errors === null || errors.published === undefined}
-        >
-          {errors?.published?.message}
-        </p> */}
           <input name="userId" defaultValue={userId} hidden />
-          <div className="mb-6">
-            <InputText
-              {...register("name")}
-              id="name"
-              label="Name"
-              defaultValue={event.name}
-              errorMessage={errors?.name?.message}
-            />
-          </div>
+          <input
+            name="participantCount"
+            defaultValue={loaderData.event._count.participants}
+            hidden
+          />
+
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -575,6 +523,9 @@ function General() {
                 errorMessage={errors?.startDate?.message}
                 type="date"
               />
+              {errors?.startDate?.message ? (
+                <div>{errors.startDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -585,6 +536,9 @@ function General() {
                 errorMessage={errors?.startTime?.message}
                 type="time"
               />
+              {errors?.startTime?.message ? (
+                <div>{errors.startTime.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -597,6 +551,9 @@ function General() {
                 errorMessage={errors?.endDate?.message}
                 type="date"
               />
+              {errors?.endDate?.message ? (
+                <div>{errors.endDate.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -607,7 +564,80 @@ function General() {
                 errorMessage={errors?.endTime?.message}
                 type="time"
               />
+              {errors?.endTime?.message ? (
+                <div>{errors.endTime.message}</div>
+              ) : null}
             </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromDate")}
+                id="participationFromDate"
+                label="Registrierung startet am"
+                defaultValue={event.participationFromDate}
+                errorMessage={errors?.participationFromDate?.message}
+                type="date"
+              />
+              {errors?.participationFromDate?.message ? (
+                <div>{errors.participationFromDate.message}</div>
+              ) : null}
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationFromTime")}
+                id="participationFromTime"
+                label="Registrierung startet um"
+                defaultValue={event.participationFromTime}
+                errorMessage={errors?.participationFromTime?.message}
+                type="time"
+              />
+              {errors?.participationFromTime?.message ? (
+                <div>{errors.participationFromTime.message}</div>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row -mx-4 mb-2">
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationUntilDate")}
+                id="participationUntilDate"
+                label="Registrierung endet am"
+                defaultValue={event.participationUntilDate}
+                errorMessage={errors?.participationUntilDate?.message}
+                type="date"
+              />
+              {errors?.participationUntilDate?.message ? (
+                <div>{errors.participationUntilDate.message}</div>
+              ) : null}
+            </div>
+            <div className="basis-full md:basis-6/12 px-4 mb-6">
+              <InputText
+                {...register("participationUntilTime")}
+                id="participationUntilTime"
+                label="Registrierung endet um"
+                defaultValue={event.participationUntilTime}
+                errorMessage={errors?.participationUntilTime?.message}
+                type="time"
+              />
+              {errors?.participationUntilTime?.message ? (
+                <div>{errors.participationUntilTime.message}</div>
+              ) : null}
+            </div>
+          </div>
+          <div className="mb-6">
+            <InputText
+              {...register("participantLimit")}
+              id="participantLimit"
+              label="Begrenzung der Teilnehmenden"
+              defaultValue={event.participantLimit || ""}
+              errorMessage={errors?.participantLimit?.message}
+              type="number"
+            />
+            {errors?.participantLimit?.message ? (
+              <div>{errors.participantLimit.message}</div>
+            ) : null}
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
           <div className="mb-4">
@@ -629,6 +659,9 @@ function General() {
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
             />
+            {errors?.venueName?.message ? (
+              <div>{errors.venueName.message}</div>
+            ) : null}
           </div>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -639,6 +672,9 @@ function General() {
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
               />
+              {errors?.venueStreet?.message ? (
+                <div>{errors.venueStreet.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -648,6 +684,9 @@ function General() {
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
               />
+              {errors?.venueStreetNumber?.message ? (
+                <div>{errors.venueStreetNumber.message}</div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -659,6 +698,9 @@ function General() {
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
               />
+              {errors?.venueZipCode?.message ? (
+                <div>{errors.venueZipCode.message}</div>
+              ) : null}
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -668,65 +710,58 @@ function General() {
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
               />
+              {errors?.venueCity?.message ? (
+                <div>{errors.venueCity.message}</div>
+              ) : null}
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Registrierung</h4>
-
-          <p className="mb-8">Lorem Ipsum</p>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationFromDate")}
-                id="participationFromDate"
-                label="Registrierung startet am"
-                defaultValue={event.participationFromDate}
-                errorMessage={errors?.participationFromDate?.message}
-                type="date"
-              />
-            </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationFromTime")}
-                id="participationFromTime"
-                label="Registrierung startet um"
-                defaultValue={event.participationFromTime}
-                errorMessage={errors?.participationFromTime?.message}
-                type="time"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationUntilDate")}
-                id="participationUntilDate"
-                label="Registrierung endet am"
-                defaultValue={event.participationUntilDate}
-                errorMessage={errors?.participationUntilDate?.message}
-                type="date"
-              />
-            </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("participationUntilTime")}
-                id="participationUntilTime"
-                label="Registrierung endet um"
-                defaultValue={event.participationUntilTime}
-                errorMessage={errors?.participationUntilTime?.message}
-                type="time"
-              />
-            </div>
+          <div className="basis-full mb-6">
+            <InputText
+              {...register("conferenceLink")}
+              id="conferenceLink"
+              label="Konferenzlink"
+              defaultValue={event.conferenceLink || ""}
+              placeholder=""
+              errorMessage={errors?.conferenceLink?.message}
+              withClearButton
+            />
+            {errors?.conferenceLink?.message ? (
+              <div>{errors.conferenceLink.message}</div>
+            ) : null}
           </div>
           <div className="mb-6">
             <InputText
-              {...register("participantLimit")}
-              id="participantLimit"
-              label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit || ""}
-              errorMessage={errors?.participantLimit?.message}
-              type="number"
+              {...register("conferenceCode")}
+              id="conferenceCode"
+              label="Zugangscode zur Konferenz"
+              defaultValue={event.conferenceCode || ""}
+              errorMessage={errors?.conferenceCode?.message}
+              withClearButton
             />
+            {errors?.conferenceCode?.message ? (
+              <div>{errors.conferenceCode.message}</div>
+            ) : null}
           </div>
+
+          <h4 className="mb-4 font-semibold">Allgemein</h4>
+          <p className="mb-8">
+            Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende
+            erwarten und wen möchtest du damit abholen? Nehme hier allgemeine
+            Einstellungen vor, wie beispielsweise der Name, die Beschreibung
+            oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst du
+            außerdem Schlagworte und die Veranstaltungstypen festlegen.
+          </p>
+          <div className="mb-6">
+            <InputText
+              {...register("name")}
+              id="name"
+              label="Name"
+              defaultValue={event.name}
+              errorMessage={errors?.name?.message}
+            />
+            {errors?.name?.message ? <div>{errors.name.message}</div> : null}
+          </div>
+
           <div className="mb-4">
             <TextAreaWithCounter
               {...register("subline")}
@@ -736,6 +771,9 @@ function General() {
               errorMessage={errors?.subline?.message}
               maxCharacters={70}
             />
+            {errors?.subline?.message ? (
+              <div>{errors.subline.message}</div>
+            ) : null}
           </div>
           <div className="mb-4">
             <TextAreaWithCounter
@@ -746,40 +784,9 @@ function General() {
               errorMessage={errors?.description?.message}
               maxCharacters={1000}
             />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="focuses"
-              label={"MINT-Schwerpunkte"}
-              placeholder="Füge die MINT-Schwerpunkte hinzu."
-              entries={selectedFocuses.map((focus) => ({
-                label: focus.title,
-                value: focus.id,
-              }))}
-              options={focusOptions}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="targetGroups"
-              label={"Zielgruppen"}
-              placeholder="Füge die Zielgruppen hinzu."
-              entries={selectedTargetGroups.map((targetGroup) => ({
-                label: targetGroup.title,
-                value: targetGroup.id,
-              }))}
-              options={targetGroupOptions}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectField
-              {...register("experienceLevel")}
-              name="experienceLevel"
-              label={"Erfahrungsstufe"}
-              placeholder="Wähle die Erfahrungsstufe aus."
-              options={experienceLevelOptions}
-              defaultValue={event.experienceLevel || ""}
-            />
+            {errors?.description?.message ? (
+              <div>{errors.description.message}</div>
+            ) : null}
           </div>
           <div className="mb-4">
             <SelectAdd
@@ -805,6 +812,41 @@ function General() {
               options={tagOptions}
             />
           </div>
+
+          <div className="mb-4">
+            <SelectAdd
+              name="targetGroups"
+              label={"Zielgruppen"}
+              placeholder="Füge die Zielgruppen hinzu."
+              entries={selectedTargetGroups.map((targetGroup) => ({
+                label: targetGroup.title,
+                value: targetGroup.id,
+              }))}
+              options={targetGroupOptions}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectField
+              {...register("experienceLevel")}
+              name="experienceLevel"
+              label={"Erfahrungsstufe"}
+              placeholder="Wähle die Erfahrungsstufe aus."
+              options={experienceLevelOptions}
+              defaultValue={event.experienceLevel || ""}
+            />
+          </div>
+          <div className="mb-4">
+            <SelectAdd
+              name="focuses"
+              label={"MINT-Schwerpunkte"}
+              placeholder="Füge die MINT-Schwerpunkte hinzu."
+              entries={selectedFocuses.map((focus) => ({
+                label: focus.title,
+                value: focus.id,
+              }))}
+              options={focusOptions}
+            />
+          </div>
           <div className="mb-4">
             <SelectAdd
               name="areas"
@@ -815,30 +857,6 @@ function General() {
                 value: area.id,
               }))}
               options={areaOptions}
-            />
-          </div>
-          <h4 className="mb-4 font-semibold">Konferenz</h4>
-
-          <p className="mb-8">Lorem Ipsum</p>
-          <div className="basis-full mb-4">
-            <InputText
-              {...register("conferenceLink")}
-              id="conferenceLink"
-              label="Konferenzlink"
-              defaultValue={event.conferenceLink || ""}
-              placeholder=""
-              errorMessage={errors?.conferenceLink?.message}
-              withClearButton
-            />
-          </div>
-          <div className="mb-6">
-            <InputText
-              {...register("conferenceCode")}
-              id="conferenceCode"
-              label="Zugangscode zur Konferenz"
-              defaultValue={event.conferenceCode || ""}
-              errorMessage={errors?.conferenceCode?.message}
-              withClearButton
             />
           </div>
           <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">

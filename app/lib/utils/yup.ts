@@ -1,7 +1,9 @@
 import { badRequest } from "remix-utils";
-import { string, ValidationError } from "yup";
 import type { Asserts, InferType, StringSchema } from "yup";
+import { mixed, number, string, ValidationError } from "yup";
+import type { TestContext } from "yup";
 import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
+import { format } from "date-fns";
 
 type Error = {
   type: string;
@@ -96,6 +98,145 @@ function removeMoreThan2ConsecutiveLineBreaks(string: string) {
 
 export function multiline() {
   return string().transform(removeMoreThan2ConsecutiveLineBreaks);
+}
+
+export function greaterThanTimeOnSameDate(
+  referenceTime: string,
+  greaterTime: string,
+  referenceStartDate: string,
+  referenceEndDate: string,
+  requiredMessage: string,
+  greaterThanReferenceTimeMessage: string
+) {
+  return string()
+    .transform((value) => {
+      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+        return value;
+      }
+      return undefined;
+    })
+    .required(requiredMessage)
+    .test(
+      "greaterThanReferenceTimeOnSameDate",
+      greaterThanReferenceTimeMessage,
+      (value: string | null | undefined, testContext: TestContext) => {
+        if (
+          testContext.parent[referenceTime] &&
+          testContext.parent[greaterTime] &&
+          testContext.parent[referenceEndDate] &&
+          testContext.parent[referenceStartDate]
+        ) {
+          const greaterTimeArray = testContext.parent[greaterTime].split(":");
+          const greaterTimeHours = parseInt(greaterTimeArray[0]);
+          const greaterTimeMinutes = parseInt(greaterTimeArray[1]);
+          const referenceTimeArray =
+            testContext.parent[referenceTime].split(":");
+          const referenceTimeHours = parseInt(referenceTimeArray[0]);
+          const referenceTimeMinutes = parseInt(referenceTimeArray[1]);
+          const referenceStartDateObject = new Date(
+            testContext.parent[referenceStartDate]
+          );
+          const referenceEndDateObject = new Date(
+            testContext.parent[referenceEndDate]
+          );
+          if (
+            referenceStartDateObject.getFullYear() ===
+              referenceEndDateObject.getFullYear() &&
+            referenceStartDateObject.getMonth() ===
+              referenceEndDateObject.getMonth() &&
+            referenceStartDateObject.getDate() ===
+              referenceEndDateObject.getDate()
+          ) {
+            if (referenceTimeHours === greaterTimeHours) {
+              return referenceTimeMinutes > greaterTimeMinutes;
+            } else {
+              return referenceTimeHours > greaterTimeHours;
+            }
+          } else {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+    );
+}
+
+export function greaterThanDate(
+  referenceDate: string,
+  greaterDate: string,
+  requiredMessage: string,
+  greaterThanReferenceDateMessage: string
+) {
+  return string()
+    .transform((value) => {
+      value = value.trim();
+      try {
+        const date = new Date(value);
+        return format(date, "yyyy-MM-dd");
+      } catch (error) {
+        console.log(error);
+      }
+      return undefined;
+    })
+    .required(requiredMessage)
+    .test(
+      "greaterThanReferenceTimeOnSameDate",
+      greaterThanReferenceDateMessage,
+      (value: string | null | undefined, testContext: TestContext) => {
+        if (
+          testContext.parent[referenceDate] &&
+          testContext.parent[greaterDate]
+        ) {
+          return (
+            new Date(testContext.parent[referenceDate]).getTime() >=
+            new Date(testContext.parent[greaterDate]).getTime()
+          );
+        } else {
+          return true;
+        }
+      }
+    );
+}
+
+export function participantLimit() {
+  return mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
+    .test((value) => {
+      return (
+        value === null ||
+        value === "" ||
+        value === 0 ||
+        number().isValidSync(value)
+      );
+    })
+    .when("participantCount", (participantCount, schema) =>
+      participantCount
+        ? schema.test(
+            "lessThanParticipantCount",
+            "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+            (participantLimit: string | null | undefined) => {
+              if (
+                !(
+                  participantLimit === null ||
+                  participantLimit === undefined ||
+                  participantLimit === "" ||
+                  participantLimit === "0"
+                )
+              ) {
+                return participantLimit > participantCount;
+              } else {
+                return true;
+              }
+            }
+          )
+        : schema
+    )
+    .transform((value) => {
+      return value === null || value === "" || value === "0"
+        ? null
+        : Number(value);
+    })
+    .nullable();
 }
 
 export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(

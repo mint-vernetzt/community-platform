@@ -170,6 +170,7 @@ function Participants() {
                             suggestionsLoaderPath={`/event/${slug}/settings/participants`}
                             defaultValue={suggestionsQuery || ""}
                             {...register("id")}
+                            searchParameter="autocomplete_query"
                           />
                         </>
                       )}
@@ -216,7 +217,7 @@ function Participants() {
           </Link>
         </p>
       ) : null}
-      <div className="mb-4 mt-8 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
         {loaderData.participants.map((participant) => {
           const initials = getInitials(participant);
           return (

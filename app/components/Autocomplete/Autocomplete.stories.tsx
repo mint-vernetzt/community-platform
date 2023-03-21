@@ -15,6 +15,7 @@ export const Default: ComponentStory<typeof Autocomplete> = (
     suggestions={[]}
     suggestionsLoaderPath=""
     defaultValue=""
+    searchParameter=""
   />
 );
 
@@ -64,6 +65,7 @@ export const WithOrganizationInput: ComponentStory<typeof Autocomplete> = (
     ]}
     suggestionsLoaderPath="/some/loader/path/to/get/suggestions"
     defaultValue="organi"
+    searchParameter="autocomplete_query"
   />
 );
 
@@ -93,6 +95,7 @@ export const WithProfileInput: ComponentStory<typeof Autocomplete> = (
     ]}
     suggestionsLoaderPath="/some/loader/path/to/get/suggestions"
     defaultValue="garden"
+    searchParameter="autocomplete_query"
   />
 );
 

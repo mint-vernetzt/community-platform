@@ -62,7 +62,6 @@ export const loader = async (args: LoaderArgs) => {
   let teamMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    console.log(query);
     const alreadyTeamMemberIds = teamMembers.map((member) => {
       return member.id;
     });
@@ -143,6 +142,7 @@ function Team() {
                           suggestionsLoaderPath={`/event/${slug}/settings/team`}
                           defaultValue={suggestionsQuery || ""}
                           {...register("id")}
+                          searchParameter="autocomplete_query"
                         />
                       </>
                     )}
@@ -168,7 +168,7 @@ function Team() {
       <p className="mb-8">
         Hier siehst du alle Mitglieder des Veranstaltungsteams auf einen Blick.{" "}
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.teamMembers.map((teamMember) => {
           const initials = getInitials(teamMember);
           return (

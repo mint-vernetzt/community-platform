@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import * as crypto from "crypto";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import { prismaClient } from "~/prisma";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
 import { createEventOnProfile } from "./utils.server";
@@ -25,6 +26,16 @@ jest.mock("./utils.server", () => {
   return {
     ...jest.requireActual("./utils.server"),
     createEventOnProfile: jest.fn(),
+  };
+});
+
+jest.mock("~/prisma", () => {
+  return {
+    prismaClient: {
+      event: {
+        findFirst: jest.fn(),
+      },
+    },
   };
 });
 
@@ -145,6 +156,13 @@ describe("action", () => {
       userId: "some-user-id",
       name: "",
       startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+    });
+
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return null;
     });
 
     const response = await action({ request, context: {}, params: {} });
@@ -152,16 +170,84 @@ describe("action", () => {
     expect(responseBody.data.userId).toBe("some-user-id");
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
-    expect(responseBody.errors.name.message).toBe("Please add event name");
-    expect(responseBody.errors.startDate.message).toBe(
-      "Please add a start date"
+    expect(responseBody.errors.name.message).toBe(
+      "Bitte einen Veranstaltungsnamen angeben"
     );
+    expect(responseBody.errors.startDate.message).toBe(
+      "Bitte gib den Beginn der Veranstaltung an"
+    );
+    expect(responseBody.errors.startTime.message).toBe(
+      "Bitte eine Startzeit angeben"
+    );
+    expect(responseBody.errors.endDate.message).toBe(
+      "Bitte gib das Ende der Veranstaltung an"
+    );
+    expect(responseBody.errors.endTime.message).toBe(
+      "Bitte gib das Ende der Veranstaltung an"
+    );
+  });
+  test("invalid time values (end before start", async () => {
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      name: "some-event",
+      startDate: "2022-09-20",
+      startTime: "09:00",
+      endDate: "2022-09-20",
+      endTime: "09:00",
+    });
+
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return null;
+    });
+
+    const response = await action({ request, context: {}, params: {} });
+    const responseBody = await response.json();
+    expect(responseBody.data.userId).toBe("some-user-id");
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.endTime.message).toBe(
+      "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+    );
+  });
+  test("invalid time values (not in parent time span)", async () => {
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    const request = createRequestWithFormData({
+      userId: "some-user-id",
+      name: "some-event",
+      startDate: "2022-09-19",
+      startTime: "09:00",
+      endDate: "2022-09-20",
+      endTime: "09:00",
+      parent: "some-parent-id",
+    });
+
+    (prismaClient.event.findFirst as jest.Mock)
+      .mockReset()
+      .mockImplementationOnce(() => {
+        return {
+          startTime: new Date("2022-10-18 07:00Z"),
+          endTime: new Date("2022-10-21 16:00Z"),
+        };
+      });
+
+    const response = await action({ request, context: {}, params: {} });
+    const responseBody = await response.json();
+    expect(responseBody.data.userId).toBe("some-user-id");
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+
+    expect(responseBody.errors.endDate).toBeDefined();
   });
 
   test("required fields", async () => {
     const uuid = crypto.randomUUID();
 
-    getSessionUserOrThrow.mockResolvedValueOnce({ id: uuid } as User);
+    getSessionUserOrThrow
+      .mockReset()
+      .mockResolvedValueOnce({ id: uuid } as User);
 
     (generateEventSlug as jest.Mock).mockImplementationOnce(() => {
       return "some-slug";
@@ -171,9 +257,15 @@ describe("action", () => {
       userId: uuid,
       name: "Some Event",
       startDate: "2022-09-19",
+      startTime: "09:00",
+      endDate: "2022-09-19",
+      endTime: "10:00",
     });
 
-    const startTime = new Date("2022-09-18 22:00Z");
+    const startTime = new Date("2022-09-19 07:00Z");
+    const endTime = new Date("2022-09-19 08:00Z");
+    // participation from defaults to one day before event start
+    const participationFrom = new Date("2022-09-18 07:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -183,8 +275,9 @@ describe("action", () => {
         slug: "some-slug",
         name: "Some Event",
         startTime,
-        endTime: startTime,
+        endTime,
         participationUntil: startTime,
+        participationFrom: participationFrom,
       },
       { parent: null, child: null }
     );
@@ -212,6 +305,8 @@ describe("action", () => {
 
     const startTime = new Date("2022-09-19 07:00Z");
     const endTime = new Date("2022-09-20 16:00Z");
+    // participation from defaults to one day before event start
+    const participationFrom = new Date("2022-09-18 07:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -223,6 +318,7 @@ describe("action", () => {
         startTime,
         endTime,
         participationUntil: startTime,
+        participationFrom,
       },
       { parent: null, child: null }
     );
@@ -239,6 +335,13 @@ describe("action", () => {
       return "some-slug";
     });
 
+    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+      return {
+        startTime: new Date("2022-09-18 07:00Z"),
+        endTime: new Date("2022-09-21 16:00Z"),
+      };
+    });
+
     const request = createRequestWithFormData({
       userId: uuid,
       name: "Some Event",
@@ -252,6 +355,8 @@ describe("action", () => {
 
     const startTime = new Date("2022-09-19 07:00Z");
     const endTime = new Date("2022-09-20 16:00Z");
+    // participation from defaults to one day before event start
+    const participationFrom = new Date("2022-09-18 07:00Z");
 
     const response = await action({ request, context: {}, params: {} });
 
@@ -263,6 +368,7 @@ describe("action", () => {
         startTime,
         endTime,
         participationUntil: startTime,
+        participationFrom,
       },
       { parent: "parent-event-id", child: "child-event-id" }
     );

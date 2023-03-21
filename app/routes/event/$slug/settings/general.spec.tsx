@@ -17,6 +17,7 @@ jest.mock("~/prisma", () => {
     prismaClient: {
       event: {
         findFirst: jest.fn(),
+        update: jest.fn(),
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
@@ -405,13 +406,15 @@ describe("/event/$slug/settings/general", () => {
         venueStreetNumber: "",
         venueCity: "",
         venueZipCode: "",
+        submit: "",
+        participantCount: "",
       };
 
       beforeAll(() => {
         getSessionUserOrThrow.mockResolvedValue({ id: userId } as User);
 
         (prismaClient.event.findFirst as jest.Mock).mockImplementation(() => {
-          return { slug };
+          return { slug: slug, parentEvent: null, childEvents: [] };
         });
         (
           prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -475,8 +478,8 @@ describe("/event/$slug/settings/general", () => {
         // expect(Object.keys(response.errors).length).toBe(3);
       });
 
-      test("validate date time fields", async () => {
-        const requestInvalidDateTimeValues = createRequestWithFormData({
+      test("invalid date time fields (format)", async () => {
+        const request = createRequestWithFormData({
           ...formDefaults,
           name: "Some Event",
           startDate: "2022x09x19",
@@ -486,46 +489,114 @@ describe("/event/$slug/settings/general", () => {
           participationUntilDate: "2022|09|12",
           participationUntilTime: "11:59pm",
           participationFromDate: "2022|09|12",
-          participationFromTime: "11:59pm",
+          participationFromTime: "11:50pm",
         });
 
-        expect.assertions(12);
+        expect.assertions(10);
 
-        const responseInvalidDateTimeValues = await action({
-          request: requestInvalidDateTimeValues,
+        const response = await action({
+          request: request,
           context: {},
           params: { slug },
         });
 
-        const responseBodyInvalidDateTimeValues =
-          await responseInvalidDateTimeValues.json();
+        const responseBody = await response.json();
 
-        expect(
-          responseBodyInvalidDateTimeValues.errors.startDate
-        ).toBeDefined();
-        expect(
-          responseBodyInvalidDateTimeValues.errors.startTime
-        ).toBeDefined();
-        expect(responseBodyInvalidDateTimeValues.errors.endDate).toBeDefined();
-        expect(responseBodyInvalidDateTimeValues.errors.endTime).toBeDefined();
-        expect(
-          responseBodyInvalidDateTimeValues.errors.participationUntilDate
-        ).toBeDefined();
-        expect(
-          responseBodyInvalidDateTimeValues.errors.participationUntilTime
-        ).toBeDefined();
-        expect(
-          responseBodyInvalidDateTimeValues.errors.participationFromDate
-        ).toBeDefined();
-        expect(
-          responseBodyInvalidDateTimeValues.errors.participationFromTime
-        ).toBeDefined();
-        expect(responseBodyInvalidDateTimeValues.errors.submit).toBeDefined();
-        expect(
-          Object.keys(responseBodyInvalidDateTimeValues.errors).length
-        ).toBe(9);
+        expect(responseBody.errors.startDate).toBeDefined();
+        expect(responseBody.errors.startTime).toBeDefined();
+        expect(responseBody.errors.endDate).toBeDefined();
+        expect(responseBody.errors.endTime).toBeDefined();
+        expect(responseBody.errors.participationUntilDate).toBeDefined();
+        expect(responseBody.errors.participationUntilTime).toBeDefined();
+        expect(responseBody.errors.participationFromDate).toBeDefined();
+        expect(responseBody.errors.participationFromTime).toBeDefined();
+        expect(responseBody.errors.submit).toBeDefined();
+        expect(Object.keys(responseBody.errors).length).toBe(10);
+      });
 
-        const requestValidDateTimeValues = createRequestWithFormData({
+      test("invalid date time fields (end before start)", async () => {
+        const request = createRequestWithFormData({
+          ...formDefaults,
+          name: "Some Event",
+          startDate: "2022-09-20",
+          startTime: "09:00",
+          endDate: "2022-09-20",
+          endTime: "09:00",
+          participationUntilDate: "2022-09-21",
+          participationUntilTime: "23:00",
+          participationFromDate: "2022-09-21",
+          participationFromTime: "23:00",
+          submit: "submit",
+          participantCount: "0",
+        });
+
+        expect.assertions(4);
+
+        const response = await action({
+          request: request,
+          context: {},
+          params: { slug },
+        });
+
+        const responseBody = await response.json();
+
+        expect(responseBody.errors.endTime).toBeDefined();
+        expect(responseBody.errors.participationUntilTime).toBeDefined();
+        expect(responseBody.errors.participationFromDate).toBeDefined();
+        expect(Object.keys(responseBody.errors).length).toBe(3);
+      });
+      test("invalid date time fields (not inside parent/child event time span)", async () => {
+        const request = createRequestWithFormData({
+          ...formDefaults,
+          name: "Some Event",
+          startDate: "2022-09-20",
+          startTime: "09:00",
+          endDate: "2022-09-20",
+          endTime: "09:00",
+          participationUntilDate: "2022-09-21",
+          participationUntilTime: "23:00",
+          participationFromDate: "2022-09-21",
+          participationFromTime: "23:00",
+          submit: "submit",
+          participantCount: "0",
+        });
+
+        expect.assertions(5);
+
+        (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(
+          () => {
+            return {
+              slug: slug,
+              parentEvent: {
+                startTime: new Date("2022-09-30 07:00Z"),
+                endTime: new Date("2022-10-10 07:00Z"),
+              },
+              childEvents: [
+                {
+                  startTime: new Date("2022-10-01 07:00Z"),
+                  endTime: new Date("2022-10-02 07:00Z"),
+                },
+              ],
+            };
+          }
+        );
+
+        const response = await action({
+          request: request,
+          context: {},
+          params: { slug },
+        });
+
+        const responseBody = await response.json();
+
+        expect(responseBody.errors.endTime).toBeDefined();
+        expect(responseBody.errors.participationUntilTime).toBeDefined();
+        expect(responseBody.errors.participationFromDate).toBeDefined();
+        expect(responseBody.errors.endDate).toBeDefined();
+        expect(Object.keys(responseBody.errors).length).toBe(4);
+      });
+      test("valid update call of event settings general", async () => {
+        const request = createRequestWithFormData({
           ...formDefaults,
           name: "Some Event",
           startDate: "2022-09-19",
@@ -535,21 +606,19 @@ describe("/event/$slug/settings/general", () => {
           participationUntilDate: "2022-09-12",
           participationUntilTime: "23:59",
           participationFromDate: "2022-09-12",
-          participationFromTime: "23:59",
+          participationFromTime: "23:00",
+          submit: "submit",
+          participantCount: "0",
         });
-        const responseValidDateTimeValues = await action({
-          request: requestValidDateTimeValues,
+        const response = await action({
+          request: request,
           context: {},
           params: { slug },
         });
 
-        const responseBodyValidDateTimeValues =
-          await responseValidDateTimeValues.json();
+        const responseBody = await response.json();
 
-        expect(responseBodyValidDateTimeValues.errors.submit).toBeDefined();
-        expect(Object.keys(responseBodyValidDateTimeValues.errors).length).toBe(
-          1
-        );
+        expect(responseBody.errors).toBe(null);
       });
 
       test("add list item", async () => {
@@ -568,7 +637,8 @@ describe("/event/$slug/settings/general", () => {
           participationUntilDate: "2022-09-12",
           participationUntilTime: "23:59",
           participationFromDate: "2022-09-12",
-          participationFromTime: "23:59",
+          participationFromTime: "23:00",
+          participantCount: "0",
           [listAction]: listActionItemId,
         });
         const response = await action({

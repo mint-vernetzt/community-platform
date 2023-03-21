@@ -22,7 +22,7 @@ function Settings() {
                 to="events"
                 className={({ isActive }) => getClassName(isActive)}
               >
-                Veranstaltungen
+                Verknüpfte Veranstaltungen
               </NavLink>
               <NavLink
                 to="team"

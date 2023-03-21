@@ -1,4 +1,5 @@
 import type { User } from "@supabase/auth-helpers-remix";
+import { zonedTimeToUtc } from "date-fns-tz";
 import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma";
 
@@ -15,6 +16,28 @@ export async function checkIdentityOrThrow(
   }
 }
 
+export function transformFormToEvent(form: any) {
+  const { startDate, endDate, ...event } = form;
+
+  const startTime = zonedTimeToUtc(
+    `${startDate} ${event.startTime}`,
+    "Europe/Berlin"
+  );
+  const endTime = zonedTimeToUtc(
+    `${endDate} ${event.endTime}`,
+    "Europe/Berlin"
+  );
+  const oneDayInMillis = 86_400_000;
+
+  return {
+    ...event,
+    startTime,
+    endTime,
+    participationUntil: startTime,
+    participationFrom: new Date(startTime.getTime() - oneDayInMillis),
+  };
+}
+
 export async function createEventOnProfile(
   profileId: string,
   eventOptions: {
@@ -23,6 +46,7 @@ export async function createEventOnProfile(
     startTime: Date;
     endTime: Date;
     participationUntil: Date;
+    participationFrom: Date;
   },
   relationOptions?: {
     child: string | null;

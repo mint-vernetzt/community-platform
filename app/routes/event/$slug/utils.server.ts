@@ -99,6 +99,24 @@ export async function getEventByField(field: string, value: string) {
           id: true,
           name: true,
           slug: true,
+          startTime: true,
+          endTime: true,
+          background: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          _count: {
+            select: {
+              childEvents: true,
+              participants: true,
+              waitingList: true,
+            },
+          },
+          participantLimit: true,
+          subline: true,
+          description: true,
         },
       },
       childEvents: {
@@ -106,6 +124,24 @@ export async function getEventByField(field: string, value: string) {
           id: true,
           name: true,
           slug: true,
+          startTime: true,
+          endTime: true,
+          background: true,
+          stage: {
+            select: {
+              title: true,
+            },
+          },
+          _count: {
+            select: {
+              childEvents: true,
+              participants: true,
+              waitingList: true,
+            },
+          },
+          participantLimit: true,
+          subline: true,
+          description: true,
         },
       },
       teamMembers: {
@@ -185,7 +221,6 @@ export async function getEventByField(field: string, value: string) {
               email: true,
               position: true,
               avatar: true,
-              position: true,
               memberOf: {
                 select: {
                   organization: {
@@ -216,7 +251,6 @@ export async function getEventByField(field: string, value: string) {
               email: true,
               position: true,
               avatar: true,
-              position: true,
               memberOf: {
                 select: {
                   organization: {
@@ -253,6 +287,7 @@ export async function getEventByField(field: string, value: string) {
       _count: {
         select: {
           childEvents: true,
+          participants: true,
         },
       },
     },
@@ -288,7 +323,6 @@ export async function checkSameEventOrThrow(request: Request, eventId: string) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
   const value = formData.get("eventId") as string | null;
-
   if (value === null || value !== eventId) {
     throw badRequest({ message: "Event IDs differ" });
   }

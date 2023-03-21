@@ -163,7 +163,7 @@ export default function Create() {
                         <>
                           <Input
                             id="organizationName"
-                            label="Name der Organisation"
+                            label="Name der Organisation*"
                             {...register("organizationName")}
                           />
                           <Errors />

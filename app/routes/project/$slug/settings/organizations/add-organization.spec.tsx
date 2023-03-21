@@ -80,7 +80,6 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       await action({ request, context: {}, params: {} });
     } catch (error) {
       const response = error as Response;
-      console.log(response);
       expect(response.status).toBe(404);
 
       const json = await response.json();

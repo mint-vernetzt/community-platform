@@ -5,6 +5,7 @@ import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import { unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
+import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
@@ -59,6 +60,84 @@ export async function checkIdentityOrThrow(
   }
 }
 
+export function validateTimePeriods(
+  newEventData: any,
+  parentEvent: { startTime: Date; endTime: Date } | null,
+  childEvents: { startTime: Date; endTime: Date }[],
+  currentErrors: FormError | null
+): FormError | null {
+  let errors = currentErrors;
+  if (parentEvent !== null) {
+    if (
+      newEventData.startTime.getTime() < parentEvent.startTime.getTime() ||
+      newEventData.endTime.getTime() > parentEvent.endTime.getTime()
+    ) {
+      const error = {
+        endDate: {
+          message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+          errors: [
+            {
+              type: "notInParentPeriodOfTime",
+              message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+            },
+          ],
+        },
+      };
+      if (errors === null) {
+        errors = error;
+      } else {
+        errors = { ...errors, ...error };
+      }
+    }
+  }
+  if (childEvents.length > 0) {
+    let firstIteration = true;
+    let earliestStartTime;
+    let latestEndTime;
+    for (let childEvent of childEvents) {
+      if (firstIteration) {
+        firstIteration = false;
+        earliestStartTime = childEvent.startTime;
+        latestEndTime = childEvent.endTime;
+      } else {
+        earliestStartTime =
+          earliestStartTime !== undefined &&
+          childEvent.startTime < earliestStartTime
+            ? childEvent.startTime
+            : earliestStartTime;
+        latestEndTime =
+          latestEndTime !== undefined && childEvent.endTime > latestEndTime
+            ? childEvent.endTime
+            : latestEndTime;
+      }
+    }
+    if (
+      earliestStartTime !== undefined &&
+      latestEndTime !== undefined &&
+      (earliestStartTime.getTime() < newEventData.startTime.getTime() ||
+        latestEndTime.getTime() > newEventData.endTime.getTime())
+    ) {
+      const error = {
+        endDate: {
+          message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+          errors: [
+            {
+              type: "notInChildPeriodOfTime",
+              message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+            },
+          ],
+        },
+      };
+      if (errors === null) {
+        errors = error;
+      } else {
+        errors = { ...errors, ...error };
+      }
+    }
+  }
+  return errors;
+}
+
 export function transformEventToForm(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlugOrThrow>>>
 ) {
@@ -111,6 +190,7 @@ export function transformFormToEvent(form: any) {
   const {
     userId: _userId,
     submit: _submit,
+    participantCount: _participantCount,
     // experienceLevel: _experienceLevel,
     startDate,
     endDate,
@@ -749,4 +829,204 @@ export async function getWaitingParticipantSuggestions(
       return waitingParticipant;
     });
   return enhancedWaitingParticipantSuggestions;
+}
+
+export async function getParentEventSuggestions(
+  authClient: SupabaseClient,
+  alreadyParentId: string | undefined,
+  query: string[],
+  startTime: Date,
+  endTime: Date,
+  userId: string
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Event as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const parentEventSuggestions = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      background: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          waitingList: true,
+        },
+      },
+      participantLimit: true,
+      subline: true,
+      description: true,
+    },
+    where: {
+      AND: [
+        {
+          NOT: {
+            id: alreadyParentId,
+          },
+        },
+        ...whereQueries,
+        {
+          startTime: {
+            lte: startTime,
+          },
+        },
+        {
+          endTime: {
+            gte: endTime,
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profileId: userId,
+              isPrivileged: true,
+            },
+          },
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedParentEventSuggestions = parentEventSuggestions.map(
+    (parentEvent) => {
+      if (parentEvent.background !== null) {
+        const publicURL = getPublicURL(authClient, parentEvent.background);
+        if (publicURL !== null) {
+          parentEvent.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return parentEvent;
+    }
+  );
+  return enhancedParentEventSuggestions;
+}
+
+export async function getChildEventSuggestions(
+  authClient: SupabaseClient,
+  alreadyChildIds: string[],
+  query: string[],
+  startTime: Date,
+  endTime: Date,
+  userId: string
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Event as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const childEventSuggestions = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      background: true,
+      stage: {
+        select: {
+          title: true,
+        },
+      },
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          waitingList: true,
+        },
+      },
+      participantLimit: true,
+      subline: true,
+      description: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: alreadyChildIds,
+          },
+        },
+        ...whereQueries,
+        {
+          startTime: {
+            gte: startTime,
+          },
+        },
+        {
+          endTime: {
+            lte: endTime,
+          },
+        },
+        {
+          teamMembers: {
+            some: {
+              profileId: userId,
+              isPrivileged: true,
+            },
+          },
+        },
+      ],
+    },
+    take: 6,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedChildEventSuggestions = childEventSuggestions.map(
+    (childEvent) => {
+      if (childEvent.background !== null) {
+        const publicURL = getPublicURL(authClient, childEvent.background);
+        if (publicURL !== null) {
+          childEvent.background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
+      }
+      return childEvent;
+    }
+  );
+  return enhancedChildEventSuggestions;
 }

@@ -138,6 +138,7 @@ function Index() {
                         suggestionsLoaderPath={`/organization/${slug}/settings/team`}
                         defaultValue={suggestionsQuery || ""}
                         {...register("id")}
+                        searchParameter="autocomplete_query"
                       />
                     </>
                   )}
@@ -165,7 +166,7 @@ function Index() {
       <p className="mb-8">
         Hier siehst du alle Teammitglieder auf einen Blick.{" "}
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-scroll">
+      <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.members.map((profile) => {
           const initials = getInitials(profile);
           return (
