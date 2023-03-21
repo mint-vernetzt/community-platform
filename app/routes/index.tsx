@@ -504,10 +504,10 @@ export default function Index() {
       <section className="pt-16 pb-32 lg:pt-24 relative overflow-hidden lg:min-h-[700px]">
         <div className="absolute top-0 left-1/2 lg:ml-[calc(992px/12*5)] 2xl:ml-[calc(1488px/12*5)] hidden lg:block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
-            <g fill="none" fill-rule="evenodd">
+            <g fill="none" fillRule="evenodd">
               <path
                 fill="#BE88BA"
-                fill-rule="nonzero"
+                fillRule="nonzero"
                 d="M281.794 16.486c62.702-16.409 135.5 28.338 147.57 33.153 12.071 4.815 140.949 64.953 209.862 118.26 86.142 66.634 45.138 159.988-35.185 362.317-80.323 202.329-161.219 172.422-415.959 42.912C-79.241 437.222 44.349 297.002 92.047 213.345c47.698-83.658 127.046-180.449 189.747-196.859Z"
               />
               <path
@@ -552,22 +552,22 @@ export default function Index() {
                     >
                       <path
                         fill="currentColor"
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeWidth=".3"
                         d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                       />
                       <path
                         fill="currentColor"
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth=".3"
                         d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                       />
                     </svg>
                   </span>
