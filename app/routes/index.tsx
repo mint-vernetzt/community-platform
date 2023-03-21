@@ -290,10 +290,12 @@ export default function Index() {
 
           <div className="container relative">
             <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
-              <div className="md:col-start-1 md:col-span-7 xl:col-start-3 xl:col-span-4 md:flex md:items-center">
+              <div className="md:col-start-1 md:col-span-7 xl:col-start-2 xl:col-span-5 md:flex md:items-center">
                 <div>
-                  <H1>Willkommen in Deiner MINT-Community</H1>
-                  <p className="mt-8 mb-8 lg:mb-0">
+                  <H1 className="text-center sm:text-left leading-none">
+                    Willkommen in Deiner MINT-Community
+                  </H1>
+                  <p className="mt-8 mb-8 lg:mb-0 text-primary">
                     Entdecke auf der MINTvernetzt Community Plattform andere
                     MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen
                     und lass Dich für Deine Arbeit inspirieren.
@@ -301,7 +303,7 @@ export default function Index() {
                 </div>
               </div>
 
-              <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-3">
+              <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-4">
                 <div className="bg-white rounded-lg p-6 shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   <LoginForm
                     method="post"
@@ -359,7 +361,7 @@ export default function Index() {
                       to={`/reset${
                         loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                       }`}
-                      className="text-primary font-bold"
+                      className="text-primary font-bold underline"
                     >
                       Passwort vergessen?
                     </Link>
@@ -371,14 +373,14 @@ export default function Index() {
                       to={`/register${
                         loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                       }`}
-                      className="text-primary font-bold"
+                      className="text-primary font-bold underline"
                     >
                       Registrieren
                     </Link>
                   </div>
                 </div>
 
-                <div className="text-center p-4 pb-0 text-primary">
+                <div className="text-center p-4 pb-0 text-primary text-sm">
                   <p>
                     <span className="font-bold">Erstelle Profilseiten</span> für
                     Dich, für Deine{" "}
@@ -420,10 +422,10 @@ export default function Index() {
               <H3 className="text-center font-semibold all-small-caps mb-12">
                 miteinander bildung gestalten
               </H3>
-              <p className="text-5xl font-semibold text-primary mb-12 hyphens-auto">
+              <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die Community-Plattform unterstützt Dich darin, Dich mit anderen{" "}
                 <span className="bg-lilac-200">
-                  MINT-Akteur:innen und -Organisationen zu vernetzen
+                  MINT-Akteur:innen und -Organisati&shy;onen zu vernetzen
                 </span>
                 ,{" "}
                 <span className="bg-lilac-200">
@@ -522,7 +524,7 @@ export default function Index() {
               <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
                 Mehr zur INITIVATIVE erfahren
               </H3>
-              <p className="text-5xl font-semibold text-primary mb-12 hyphens-auto">
+              <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die MINTvernetzt Community-Plattform ist ein Projekt von
                 MINTvernetzt, das 2021 gestartet ist, um die{" "}
                 <span className="bg-lilac-200">
@@ -540,7 +542,7 @@ export default function Index() {
                   href="https://mint-vernetzt.de/"
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline-primary inline-flex items-center gap-2"
+                  className="btn btn-outline-primary inline-flex items-center gap-2 hover:border-primary"
                 >
                   <span>
                     <svg
@@ -549,18 +551,18 @@ export default function Index() {
                       className="w-4 h-4"
                     >
                       <path
-                        fill="#154194"
+                        fill="currentColor"
                         fill-rule="evenodd"
-                        stroke="#154194"
+                        stroke="currentColor"
                         strokeLinecap="round"
                         strokeWidth=".3"
                         d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
                         clip-rule="evenodd"
                       />
                       <path
-                        fill="#154194"
+                        fill="currentColor"
                         fill-rule="evenodd"
-                        stroke="#154194"
+                        stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth=".3"
@@ -569,7 +571,7 @@ export default function Index() {
                       />
                     </svg>
                   </span>
-                  <span>MINTvernetzt Website besuchen</span>
+                  <span>MINTvernetzt-Website besuchen</span>
                 </a>
               </p>
             </div>
