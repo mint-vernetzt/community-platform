@@ -455,7 +455,7 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
-                WIE Unsere Community wächst
+                Wie unsere Community wächst
               </H3>
               <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
                 <div className="text-center mb-8">
@@ -465,6 +465,7 @@ export default function Index() {
                       enableScrollSpy={true}
                       scrollSpyDelay={100}
                       scrollSpyOnce={true}
+                      separator="."
                     />
                   </p>
                   <p className="font-bold">Profile</p>
@@ -476,6 +477,7 @@ export default function Index() {
                       enableScrollSpy={true}
                       scrollSpyDelay={100}
                       scrollSpyOnce={true}
+                      separator="."
                     />
                   </p>
                   <p className="font-bold">Organisationen</p>
@@ -487,6 +489,7 @@ export default function Index() {
                       enableScrollSpy={true}
                       scrollSpyDelay={100}
                       scrollSpyOnce={true}
+                      separator="."
                     />
                   </p>
                   <p className="font-bold">Veranstaltungen</p>
