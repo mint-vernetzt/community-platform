@@ -441,7 +441,7 @@ export default function Index() {
                   }`}
                   className="btn btn-primary"
                 >
-                  Jetzt Registrieren
+                  Jetzt registrieren
                 </Link>
               </p>
             </div>
