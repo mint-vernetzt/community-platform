@@ -21,6 +21,7 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { H1, H2, H3 } from "~/components/Heading/Heading";
 import { getProfileByUserId } from "~/profile.server";
 import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
 import {
@@ -251,101 +252,314 @@ export default function Index() {
     // }
   }, [submit /*loaderData.hasSession*/, , urlSearchParams]);
 
+  ///* Verlauf (weiß) */
+  //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
+
   return (
     <>
-      <div>Willkommen in Deiner MINT-Community</div>
-      <div>
-        Entdecke auf der MINTvernetzt Community Plattform andere
-        MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich
-        für Deine Arbeit inspirieren.
-      </div>
-      <LoginForm
-        method="post"
-        schema={schema}
-        hiddenFields={["loginRedirect"]}
-        values={{
-          loginRedirect: loginRedirect || undefined,
-        }}
-        onKeyDown={handleKeyPress}
-      >
-        {({ Field, Button, Errors, register }) => (
-          <>
-            <Errors className="alert-error p-3 mb-3 text-white" />
+      <section className="-mt-8 bg-lilac-50">
+        <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center bg-[linear-gradient(0deg,_rgba(255,255,255,0.5)_0%,_rgba(255,255,255,1)_75%)]">
+          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="579"
+              height="544"
+              fill="none"
+            >
+              <path
+                fill="#FFCF53"
+                d="M291.146 532.638S105.447 474.955 40.529 432.061C-24.39 389.168-1.023 154 40.528 54.714 72.893-22.624 225.11-4.286 393.83 32.2c197.157 42.635 202.564 117.989 167.847 345.815C533.904 560.277 393.83 555 291.146 532.638Z"
+              />
+            </svg>
+          </div>
 
-            <Field name="email" label="E-Mail">
-              {({ Errors }) => (
-                <>
-                  <Input id="email" label="E-Mail" {...register("email")} />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="password" label="Passwort">
-              {({ Errors }) => (
-                <>
-                  <InputPassword
-                    id="password"
-                    label="Passwort"
-                    {...register("password")}
+          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden lg:block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="945"
+              height="947"
+              fill="none"
+            >
+              <path
+                fill="#FFCF53"
+                d="M508.34 945.443c-89.582 9.463-180.276-67.216-195.857-76.352-15.581-9.136-180.122-118.666-263.692-206.297-104.462-109.538-28.635-229.26 123.96-490.517 152.596-261.258 257.514-203.28 580.525 27.841 338.964 242.537 139.878 409.42 56.878 514.42-83 105-212.232 221.442-301.814 230.905Z"
+              />
+            </svg>
+          </div>
+
+          <div className="container relative">
+            <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
+              <div className="md:col-start-1 md:col-span-7 xl:col-start-3 xl:col-span-4 md:flex md:items-center">
+                <div>
+                  <H1>Willkommen in Deiner MINT-Community</H1>
+                  <p className="mt-8 mb-8 lg:mb-0">
+                    Entdecke auf der MINTvernetzt Community Plattform andere
+                    MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen
+                    und lass Dich für Deine Arbeit inspirieren.
+                  </p>
+                </div>
+              </div>
+
+              <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-3">
+                <div className="bg-white rounded-lg p-6 shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                  <LoginForm
+                    method="post"
+                    schema={schema}
+                    hiddenFields={["loginRedirect"]}
+                    values={{
+                      loginRedirect: loginRedirect || undefined,
+                    }}
+                    onKeyDown={handleKeyPress}
+                  >
+                    {({ Field, Button, Errors, register }) => (
+                      <>
+                        <Errors className="alert-error p-3 mb-3 text-white" />
+
+                        <Field name="email" label="E-Mail">
+                          {({ Errors }) => (
+                            <div className="mb-4">
+                              <Input
+                                id="email"
+                                label="E-Mail"
+                                {...register("email")}
+                              />
+                              <Errors />
+                            </div>
+                          )}
+                        </Field>
+                        <Field name="password" label="Passwort">
+                          {({ Errors }) => (
+                            <div className="mb-4">
+                              <InputPassword
+                                id="password"
+                                label="Passwort"
+                                {...register("password")}
+                              />
+                              <Errors />
+                            </div>
+                          )}
+                        </Field>
+
+                        <Field name="loginRedirect" />
+                        <div className="mt-8 mb-4">
+                          <button
+                            type="submit"
+                            className="btn btn-primary w-full"
+                          >
+                            Anmelden
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </LoginForm>
+
+                  <div className="mb-8 text-center">
+                    <Link
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      className="text-primary font-bold"
+                    >
+                      Passwort vergessen?
+                    </Link>
+                  </div>
+
+                  <div className="text-center">
+                    Noch kein Mitglied?{" "}
+                    <Link
+                      to={`/register${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      className="text-primary font-bold"
+                    >
+                      Registrieren
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="text-center p-4 pb-0 text-primary">
+                  <p>
+                    <span className="font-bold">Erstelle Profilseiten</span> für
+                    Dich, für Deine{" "}
+                    <span className="font-bold">Organisation</span> und lege{" "}
+                    <span className="font-bold">Projekte</span> oder{" "}
+                    <span className="font-bold">Veranstaltungen</span> an.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute left-1/2 bottom-8 hidden xl:block">
+            <a href="#intro">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="55"
+                height="37"
+                className="drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
+              >
+                <g>
+                  <path
+                    fill="#154194"
+                    fill-rule="evenodd"
+                    d="M4.531.587c.168-.186.367-.334.587-.434a1.658 1.658 0 0 1 1.385 0c.22.1.42.248.587.434L27.5 23.17 47.91.587a1.81 1.81 0 0 1 .588-.434 1.66 1.66 0 0 1 1.385 0c.22.101.419.249.587.434.168.186.301.407.392.65a2.187 2.187 0 0 1 0 1.532c-.09.243-.224.464-.392.65L28.78 27.413a1.808 1.808 0 0 1-.587.434 1.658 1.658 0 0 1-1.385 0c-.22-.1-.42-.248-.587-.434L4.53 3.419a2.025 2.025 0 0 1-.393-.65 2.185 2.185 0 0 1 0-1.532c.091-.243.225-.464.393-.65Z"
+                    clip-rule="evenodd"
                   />
-                  <Errors />
-                </>
-              )}
-            </Field>
+                </g>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
 
-            <Field name="loginRedirect" />
+      <section className="py-16 lg:py-24 relative" id="intro">
+        <div className="container relative">
+          <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
+            <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
+              <H3 className="text-center font-semibold all-small-caps mb-12">
+                miteinander bildung gestalten
+              </H3>
+              <p className="text-5xl font-semibold text-primary mb-12 hyphens-auto">
+                Die Community-Plattform unterstützt Dich darin, Dich mit anderen{" "}
+                <span className="bg-lilac-200">
+                  MINT-Akteur:innen und -Organisationen zu vernetzen
+                </span>
+                ,{" "}
+                <span className="bg-lilac-200">
+                  Inspiration oder Expert:innen
+                </span>{" "}
+                zu konkreten Themen in Deiner Umgebung zu finden oder{" "}
+                <span className="bg-lilac-200">spannende Veranstaltungen</span>{" "}
+                zu entdecken. Hier wird Zukunft gestaltet. Schön, dass Du dabei
+                bist.
+              </p>
+              <p className="text-center">
+                <Link
+                  to={`/register${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="btn btn-primary"
+                >
+                  Jetzt Registrieren
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <button type="submit">Login</button>
-          </>
-        )}
-      </LoginForm>
-      <Link
-        to={`/reset${loginRedirect ? `?login_redirect=${loginRedirect}` : ""}`}
-      >
-        Passwort vergessen?
-      </Link>
-      <div>Noch kein Mitglied?</div>
-      <Link
-        to={`/register${
-          loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-        }`}
-      >
-        Registrieren
-      </Link>
-      <div>
-        Erstelle Profilseiten für Dich, für Deine Organisation und lege Projekte
-        oder Veranstaltungen an.
-      </div>
-      <div>Miteinander Bildung gestalten</div>
-      <div>
-        Die Community-Plattform unterstützt Dich darin, Dich mit anderen
-        MINT-Akteur:innen und -Organisationen zu vernetzen, Inspiration oder
-        Expert:innen zu konkreten Themen in Deiner Umgebung zu finden oder
-        spannende Veranstaltungen zu entdecken. Hier wird Zukunft gestaltet.
-        Schön, dass Du dabei bist.
-      </div>
-      <Link
-        to={`/register${
-          loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-        }`}
-      >
-        Jetzt registrieren
-      </Link>
-      <div>WIE UNSERE COMMUNITY WÄCHST</div>
-      <div>{loaderData.profileCount} Profile</div>
-      <div>{loaderData.organizationCount} Organisationen</div>
-      <div>{loaderData.eventCount} Veranstaltungen</div>
-      <div>Werde auch Du Teil unserer ständig wachsenden MINT-Community.</div>
-      <div>MEHR ZUR INITIATIVE ERFAHREN</div>
-      <div>
-        Die MINTvernetzt Community-Plattform ist eines unserer Projekte, um die
-        MINT-Community zu stärken. Erfahre mehr über die Arbeit von
-        MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen in
-        Deutschland auf unserer Website.
-      </div>
-      <a href="https://mint-vernetzt.de/" target="_blank" rel="noreferrer">
-        MINTvernetzt Website besuchen
-      </a>
+      <section className="py-16 lg:py-24 relative bg-primary text-white">
+        <div className="container relative">
+          <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
+            <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
+              <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
+                WIE Unsere Community wächst
+              </H3>
+              <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
+                <div className="text-center mb-8">
+                  <p className="text-7xl leading-tight font-bold">
+                    {loaderData.profileCount}
+                  </p>
+                  <p className="font-bold">Profile</p>
+                </div>
+                <div className="text-center mb-8">
+                  <p className="text-7xl leading-tight font-bold">
+                    {loaderData.organizationCount}
+                  </p>
+                  <p className="font-bold">Organisationen</p>
+                </div>
+                <div className="text-center mb-8">
+                  <p className="text-7xl leading-tight font-bold">
+                    {loaderData.eventCount}
+                  </p>
+                  <p className="font-bold">Veranstaltungen</p>
+                </div>
+              </div>
+              <p className="text-center font-bold">
+                Werde auch Du Teil unserer ständig wachsenden MINT-Community.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="pt-16 pb-32 lg:pt-24 relative overflow-hidden lg:min-h-[700px]">
+        <div className="absolute top-0 left-1/2 lg:ml-[calc(992px/12*5)] 2xl:ml-[calc(1488px/12*5)] hidden lg:block">
+          <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
+            <g fill="none" fill-rule="evenodd">
+              <path
+                fill="#BE88BA"
+                fill-rule="nonzero"
+                d="M281.794 16.486c62.702-16.409 135.5 28.338 147.57 33.153 12.071 4.815 140.949 64.953 209.862 118.26 86.142 66.634 45.138 159.988-35.185 362.317-80.323 202.329-161.219 172.422-415.959 42.912C-79.241 437.222 44.349 297.002 92.047 213.345c47.698-83.658 127.046-180.449 189.747-196.859Z"
+              />
+              <path
+                stroke="#1B54C0"
+                strokeWidth="3"
+                d="M727.79 409.534c-8.146 67.976-80.306 122.201-89.711 132.2-9.406 9.998-118.402 113.381-197.47 160.474-98.836 58.866-174.713-17.574-342.47-174.842C-69.618 370.097-8.907 302.169 216.992 101.943 454.05-108.172 544.015 67.576 607.77 146.839c63.755 79.264 128.165 194.719 120.02 262.695Z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="container relative">
+          <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
+            <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
+              <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
+                Mehr zur INITIVATIVE erfahren
+              </H3>
+              <p className="text-5xl font-semibold text-primary mb-12 hyphens-auto">
+                Die MINTvernetzt Community-Plattform ist ein Projekt von
+                MINTvernetzt, das 2021 gestartet ist, um die{" "}
+                <span className="bg-lilac-200">
+                  MINT-Community deutschlandweit nachhaltig zu stärken.
+                </span>{" "}
+                Erfahre mehr über die Projekte von{" "}
+                <span className="bg-lilac-200">
+                  MINTvernetzt, der Service- und Anlaufstelle für
+                  MINT-Akteur:innen
+                </span>{" "}
+                auf der MINTvernetzt-Website.
+              </p>
+              <p className="text-center">
+                <a
+                  href="https://mint-vernetzt.de/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline-primary inline-flex items-center gap-2"
+                >
+                  <span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-4 h-4"
+                    >
+                      <path
+                        fill="#154194"
+                        fill-rule="evenodd"
+                        stroke="#154194"
+                        strokeLinecap="round"
+                        strokeWidth=".3"
+                        d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
+                        clip-rule="evenodd"
+                      />
+                      <path
+                        fill="#154194"
+                        fill-rule="evenodd"
+                        stroke="#154194"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth=".3"
+                        d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </span>
+                  <span>MINTvernetzt Website besuchen</span>
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
