@@ -419,21 +419,21 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12">
-                miteinander bildung gestalten
+                Miteinander Bildung gestalten
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
-                Die Community-Plattform unterstützt Dich darin, Dich mit anderen{" "}
+                Die bundesweite MINT-Community lebt davon,{" "}
                 <span className="bg-lilac-200">
-                  MINT-Akteur:innen und -Organisati&shy;onen zu vernetzen
+                  sich auszutauschen, Wissen zu teilen, von- und miteinander zu
+                  lernen
                 </span>
-                ,{" "}
+                . Auf der Community-Plattform könnt Ihr Euch{" "}
                 <span className="bg-lilac-200">
-                  Inspiration oder Expert:innen
+                  untereinander und mit Organisationen vernetzen und Inspiration
+                  oder <span className="hyphens-manual">Expert:innen</span>
                 </span>{" "}
-                zu konkreten Themen in Deiner Umgebung zu finden oder{" "}
-                <span className="bg-lilac-200">spannende Veranstaltungen</span>{" "}
-                zu entdecken. Hier wird Zukunft gestaltet. Schön, dass Du dabei
-                bist.
+                zu konkreten Themen in Eurer Umgebung{" "}
+                <span className="bg-lilac-200">finden</span>.
               </p>
               <p className="text-center">
                 <Link
@@ -521,7 +521,7 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
-                Mehr zur INITIVATIVE erfahren
+                Mehr erfahren
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die MINTvernetzt Community-Plattform ist ein Projekt von

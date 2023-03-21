@@ -219,3 +219,10 @@
   -ms-hyphens: auto;
   hyphens: auto;
 }
+
+.hyphens-manual {
+  -webkit-hyphens: manual;
+  -moz-hyphens: manual;
+  -ms-hyphens: manual;
+  hyphens: manual;
+}
