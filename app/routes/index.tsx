@@ -296,7 +296,7 @@ export default function Index() {
                     Willkommen in Deiner MINT-Community
                   </H1>
                   <p className="mt-8 mb-8 lg:mb-0 text-primary">
-                    Entdecke auf der MINTvernetzt Community Plattform andere
+                    Entdecke auf der MINTvernetzt Community-Plattform andere
                     MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen
                     und lass Dich für Deine Arbeit inspirieren.
                   </p>
