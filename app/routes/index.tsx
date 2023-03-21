@@ -89,8 +89,7 @@ export const loader = async (args: LoaderArgs) => {
       return redirect(loginRedirect, { headers: response.headers });
     } else {
       // Default redirect to profile of sessionUser after sign up confirmation
-      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      return redirect(`/profile/${profile.username}`, {
+      return redirect("/explore/profiles", {
         headers: response.headers,
       });
     }
