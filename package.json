@@ -54,6 +54,7 @@
     "postcss": "^8.4.19",
     "rc-slider": "^10.0.1",
     "react": "^18.2.0",
+    "react-countup": "^6.4.2",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.30.0",
     "react-image-crop": "^10.0.6",
@@ -63,6 +64,7 @@
     "remix-forms": "^0.16.1",
     "remix-utils": "^4.2.1",
     "simple-git": "^3.15.0",
+    "tailwindcss-opentype": "^1.1.0",
     "ts-node": "^10.7.0",
     "yup": "^0.32.11",
     "zod": "^3.17.3"

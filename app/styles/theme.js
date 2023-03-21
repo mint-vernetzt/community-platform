@@ -9,6 +9,8 @@ const colors = {
   "lilac-500": "#b16fab",
   "lilac-400": "#D0A9CD",
   "lilac-300": "#d0a9cd",
+  "lilac-200": "#DCBED9",
+  "lilac-50": "#F7F1F7",
   "green-500": "#00a87a",
   "green-300": "#66cbaf",
   "yellow-500": "#fcc433",

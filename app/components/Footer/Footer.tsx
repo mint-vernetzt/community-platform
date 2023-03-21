@@ -12,7 +12,8 @@ function Footer(props: FooterProps) {
       className={`footer-section py-4 lg:py-4 border-t border-neutral-400 overflow-hidden ${
         isDifferentFooterRoute
           ? "mb-16 md:mb-28"
-          : !isNonAppBaseRoute && "md:fixed md:inset-x-0 md:bottom-0 bg-white"
+          : !isNonAppBaseRoute &&
+            "md:fixed md:inset-x-0 md:bottom-0 bg-white z-20"
       }`.trimEnd()}
     >
       <div className="container">
