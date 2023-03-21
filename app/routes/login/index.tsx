@@ -18,6 +18,7 @@ import {
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
 
 const schema = z.object({
   email: z
@@ -76,7 +77,7 @@ export const loader: LoaderFunction = async (args) => {
     if (loginRedirect !== null) {
       return redirect(loginRedirect, { headers: response.headers });
     } else {
-      return redirect("/explore?reason=3", { headers: response.headers });
+      return redirect("/explore", { headers: response.headers });
     }
   }
 
@@ -93,15 +94,18 @@ const mutation = makeDomainFunction(
     values.password
   );
 
+  let profile;
   if (error !== null) {
     if (error.message === "Invalid login credentials") {
       throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
     } else {
       throw error.message;
     }
+  } else {
+    profile = await getProfileByEmailCaseInsensitive(values.email);
   }
 
-  return { values };
+  return { values: { ...values, username: profile?.username } };
 });
 
 export type ActionData = PerformMutation<
@@ -128,7 +132,9 @@ export const action: ActionFunction = async ({ request }) => {
       });
     } else {
       // Default redirect after login
-      return redirect("/explore?reason=4", { headers: response.headers });
+      return redirect(`/profile/${result.data.values.username}`, {
+        headers: response.headers,
+      });
     }
   }
 

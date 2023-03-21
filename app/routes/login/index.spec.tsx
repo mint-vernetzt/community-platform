@@ -65,7 +65,7 @@ test("redirect on existing session", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore?reason=3"));
+  expect(res).toStrictEqual(redirect("/explore"));
 });
 
 test("redirect on existing session with login redirect param", async () => {
@@ -114,7 +114,7 @@ test("set new session in loader with token params", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
+  expect(res).toStrictEqual(redirect("/explore"));
 });
 
 test("set new session in loader with token params after sign up confirmation", async () => {
