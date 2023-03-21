@@ -115,7 +115,6 @@ export const action = async (args: ActionArgs) => {
     const parentEvent = await getEventById(data.parent);
     errors = validateTimePeriods(eventData, parentEvent, [], errors);
   }
-
   if (errors === null) {
     const slug = generateEventSlug(data.name);
 

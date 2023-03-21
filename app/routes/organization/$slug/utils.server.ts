@@ -33,10 +33,7 @@ export async function checkSameOrganizationOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-  console.log(formData);
   const value = formData.get("organizationId") as string | null;
-
-  console.log(value, organizationId);
 
   if (value === null || value !== organizationId) {
     throw badRequest({ message: "Organization IDs differ" });

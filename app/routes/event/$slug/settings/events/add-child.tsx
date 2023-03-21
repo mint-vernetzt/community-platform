@@ -57,9 +57,13 @@ export const action: ActionFunction = async (args) => {
 
   const result = await performMutation({ request, schema, mutation });
 
+  const eventId =
+    "data" in result ? result.data.eventId : result.values.eventId;
+  const childEventId =
+    "data" in result ? result.data.childEventId : result.values.childEventId;
+  const event = await getEventByIdOrThrow(eventId);
+  const childEvent = await getEventByIdOrThrow(childEventId);
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    const childEvent = await getEventByIdOrThrow(result.data.childEventId);
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     await addChildEventRelationOrThrow(event.id, result.data.childEventId);

@@ -57,14 +57,20 @@ export const action: ActionFunction = async (args) => {
   await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({ request, schema, mutation });
-
+  const eventId =
+    "data" in result ? result.data.eventId : result.values.eventId;
+  const parentEventId =
+    "data" in result ? result.data.parentEventId : result.values.parentEventId;
+  let parentEvent;
+  const event = await getEventByIdOrThrow(eventId);
+  if (parentEventId !== undefined) {
+    parentEvent = await getEventByIdOrThrow(parentEventId);
+  }
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     await updateParentEventRelationOrThrow(event.id, result.data.parentEventId);
-    if (result.data.parentEventId !== undefined) {
-      const parentEvent = await getEventByIdOrThrow(result.data.parentEventId);
+    if (parentEvent !== undefined) {
       return json<SuccessActionData>(
         {
           message: `Die Veranstaltung "${parentEvent.name}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,

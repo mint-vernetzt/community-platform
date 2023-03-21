@@ -62,7 +62,6 @@ export const loader = async (args: LoaderArgs) => {
   let teamMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    console.log(query);
     const alreadyTeamMemberIds = teamMembers.map((member) => {
       return member.id;
     });

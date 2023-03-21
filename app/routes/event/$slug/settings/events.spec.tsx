@@ -39,7 +39,7 @@ describe("/event/$slug/settings/events", () => {
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug, parentEvent: null };
+        return { slug, childEvents: [], parentEvent: null };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -66,7 +66,7 @@ describe("/event/$slug/settings/events", () => {
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug, parentEvent: null };
+        return { slug, childEvents: [], parentEvent: null };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -121,7 +121,12 @@ describe("/event/$slug/settings/events", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
           slug,
-          parentEvent: { id: "parent-event-id", name: "Parent Event" },
+          childEvents: [],
+          parentEvent: {
+            id: "parent-event-id",
+            name: "Parent Event",
+            background: null,
+          },
         };
       });
       (
@@ -141,8 +146,8 @@ describe("/event/$slug/settings/events", () => {
         params: { slug },
       });
       const responseBody = await response.json();
-      expect(responseBody.parentEventId).toBe("parent-event-id");
-      expect(responseBody.parentEventName).toBe("Parent Event");
+      expect(responseBody.parentEvent.id).toBe("parent-event-id");
+      expect(responseBody.parentEvent.name).toBe("Parent Event");
     });
 
     afterAll(() => {
