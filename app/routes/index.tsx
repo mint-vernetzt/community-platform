@@ -8,6 +8,7 @@ import {
 } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
 import React from "react";
+import CountUp from "react-countup";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
@@ -458,19 +459,34 @@ export default function Index() {
               <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
-                    {loaderData.profileCount}
+                    <CountUp
+                      end={loaderData.profileCount}
+                      enableScrollSpy={true}
+                      scrollSpyDelay={100}
+                      scrollSpyOnce={true}
+                    />
                   </p>
                   <p className="font-bold">Profile</p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
-                    {loaderData.organizationCount}
+                    <CountUp
+                      end={loaderData.organizationCount}
+                      enableScrollSpy={true}
+                      scrollSpyDelay={100}
+                      scrollSpyOnce={true}
+                    />
                   </p>
                   <p className="font-bold">Organisationen</p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
-                    {loaderData.eventCount}
+                    <CountUp
+                      end={loaderData.eventCount}
+                      enableScrollSpy={true}
+                      scrollSpyDelay={100}
+                      scrollSpyOnce={true}
+                    />
                   </p>
                   <p className="font-bold">Veranstaltungen</p>
                 </div>
