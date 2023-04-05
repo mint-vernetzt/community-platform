@@ -178,6 +178,8 @@ export const loader = async (args: LoaderArgs) => {
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
+        minWidth: 1488,
+        minHeight: 480,
       });
     }
   }
