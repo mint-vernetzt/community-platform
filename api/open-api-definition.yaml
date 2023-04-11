@@ -1,0 +1,419 @@
+openapi: 3.0.0
+
+info:
+  title: Community Platform API
+  description: TBD -> Description of what is exposed via the API. -> Description of how to get access.
+  version: 0.1.0
+
+servers:
+  - url: TBD -> http://api.example.com/v1
+    description: TBD -> Optional server description, e.g. Main (production) server
+  - url: TBD -> http://staging-api.example.com
+    description: TBD -> Optional server description, e.g. Internal staging server for testing
+
+components:
+  # Define the api key name and location
+  securitySchemes:
+    ApiKeyAuth: # arbitrary name for the security scheme
+      type: apiKey
+      in: query # can be "header", "query" or "cookie"
+      name: api_key # name of the header, query parameter or cookie
+  
+  # Define a unauthorized response
+  responses:
+    UnauthorizedError:
+      description: API key is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+  
+  # Define pagination parameters
+  parameters:
+    skip: # <-- Arbitrary name for the definition that will be used to refer to it. Not necessarily the same as the parameter name.
+      in: query
+      name: skip
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    take:
+      in: query
+      name: take
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50 # TBD
+        default: 20 # TBD
+      description: The numbers of items to return.
+  
+  # Define schemas of our entities
+  schemas:
+    PublicOrganization:
+      type: object
+      properties:
+        id: # Do we need this?
+          type: string
+          description: The organization ID.
+        url:
+          type: string
+          description: The organization url on the platform.
+        name:
+          type: string
+          description: The organization name.
+        logo:
+          type: string
+          description: The public url of the organization logo image.
+        background:
+          type: string
+          description: The public url of the organization background image.
+        street:
+          type: string
+          description: The organization street.
+        streetNumber:
+          type: string
+          description: The organization street number.
+        city:
+          type: string
+          description: The organization city.
+        zipCode:
+          type: string
+          description: The organization city zip code.
+        supportedBy:
+          type: array
+          items: string
+          description: The organization supporters.
+        # Note: Relations are not part of the briefing but eventually
+        # areas are the most important property for schultransform
+        # and they are easy to provide
+        # areas:
+        #   type: array
+        #   items: string
+        #   description: The organization areas of activities.
+        # Same for types
+        # types:
+        #   type: array
+        #   items: string
+        #   description: The organization types.
+      example:
+        id: 07d185a9-bebb-4819-a72b-bb65d24e9d5a # Do we need this?
+        url: https://community.platform.org/url/to/organization
+        name: Association For Love And Harmony
+        logo: https://img.platform.org/public/url/of/organization/logo
+        background: https://img.platform.org/public/url/of/organization/background
+        street: Freedom Road
+        streetNumber: "22"
+        city: City of Relief
+        zipCode: "12345"
+        supportedBy: ["Aung San Suu Kyi", "Rigoberta Menchú", "Nelson Mandela", "Jody Williams"]
+        # Note: Relations are not part of the briefing but eventually
+        # areas are the most important property for schultransform
+        # and they are easy to provide
+        # areas: TBD -> [""] 
+        # Same for types
+        # types: ["Association", "Foundation", "Company", "Initiative"]
+    PublicEvent:
+      type: object
+      properties:
+        id: # Do we need this?
+          type: string
+          description: The event ID.
+        url:
+          type: string
+          description: The event url on the platform.
+        name:
+          type: string
+          description: The event name.
+        background:
+          type: string
+          description: The public url of the event background image.
+        description:
+          type: string
+          description: The event description.
+        subline:
+          type: string
+          description: The event subline.
+        startTime:
+          type: string
+          description: The event start time as UTC string.
+        endTime:
+          type: string
+          description: The event end time as UTC string.
+        participationFrom:
+          type: string
+          description: The start of the event registration period as UTC string.
+        participationUntil:
+          type: string
+          description: The end of the event registration period as UTC string.
+        participantLimit:
+          type: integer
+          description: The event participant limit.
+        venueName:
+          type: string
+          description: The event venue name.
+        venueStreet:
+          type: string
+          description: The event venue street.
+        venueStreetNumber:
+          type: string
+          description: The event venue street number.
+        venueCity:
+          type: string
+          description: The event venue city.
+        venueZipCode:
+          type: string
+          description: The event venue city zip code.
+        canceled: # Do we need this or do we filter out canceled events?
+          type: boolean
+          description: The event cancellation status.
+        # Note: Relations are not part of the briefing but eventually
+        # areas are the most important property for schultransform
+        # and they are easy to provide
+        # areas:
+        #   type: array
+        #   items: string
+        #   description: The event areas of activities.
+        # Same for types
+        # types:
+        #   type: array
+        #   items: string
+        #   description: The event types.
+        # Same for focuses
+        # focuses:
+        #   type: array
+        #   items: string
+        #   description: The event focuses.
+        # tags:
+        #   type: array
+        #   items: string
+        #   description: The event tags.
+        # targetGroups:
+        #   type: array
+        #   items: string
+        #   description: The event targetGroups.
+        # Same for experience level
+        # experienceLevel:
+        #   type: string
+        #   description: The event experience level.
+        # Same for stage
+        # stage:
+        #   type: string
+        #   description: The event stage.
+      example:
+        id: 903d495b-7f0e-4ddc-bc30-49b13d04691d # Do we need this?
+        url: https://community.platform.org/url/to/event
+        name: Consensus in heterogeneous groups
+        background: https://img.platform.org/public/url/of/event/background
+        description: Welcome to our event where we present and discuss multiple ways to find consensus in heterogeneous groups. In multiple workshops and keynote speeches we will explore strategies to ...
+        subline: Discussing different approaches to find consensus
+        startTime: Sat, 17 Jun 2017 10:00:00 GMT
+        endTime: Sun, 18 Jun 2017 18:00:00 GMT
+        participationFrom: Mon, 12 Jun 2017 00:00:00 GMT
+        participationUntil: Fri, 16 Jun 2017 00:00:00 GMT
+        participantLimit: 20
+        venueName: Meetingpalace
+        venueStreet: Gatheringstreet
+        venueStreetNumber: "12"
+        venueCity: City of Happenings
+        venueZipCode: "12345"
+        canceled: false # Do we need this or do we filter out canceled events?
+        # Note: Relations are not part of the briefing but eventually
+        # areas are the most important property for schultransform
+        # and they are easy to provide
+        # areas: TBD -> []
+        # Same for types
+        # types: ["Exchange", "Keynote", "Workshop"]
+        # Same for focuses
+        # focuses:["Social Media Management", "Politics", "Science", "Career Orientation"]
+        # Same for tags
+        # tags: ["Didactics", "Gender", "Innovation", "Networking"]
+        # Same for target groups
+        # targetGroups: ["Elementary School", "Early Childhood Education", "Teachers"]
+        # Same for experience level
+        # experienceLevel: Beginner
+        # Same for stage
+        # stage: Online
+    PublicProject:
+      type: object
+      properties:
+        id: # Do we need this?
+          type: string
+          description: The project ID.
+        url:
+          type: string
+          description: The project url on the platform.
+        name:
+          type: string
+          description: The project name.
+        logo:
+          type: string
+          description: The public url of the project logo image.
+        background:
+          type: string
+          description: The public url of the project background image.
+        headline:
+          type: string
+          description: The project headline.
+        excerpt:
+          type: string
+          description: The project excerpt.
+        description:
+          type: string
+          description: The project description.
+        email:
+          type: string
+          description: The project email.
+        phone:
+          type: string
+          description: The project phone number.
+        street:
+          type: string
+          description: The project street.
+        streetNumber:
+          type: string
+          description: The project street number.
+        city:
+          type: string
+          description: The project city.
+        zipCode:
+          type: string
+          description: The project city zip code.
+        website:
+          type: string
+          description: The project website.
+        facebook:
+          type: string
+          description: The project facebook account.
+        linkedin:
+          type: string
+          description: The project linkedin account.
+        twitter:
+          type: string
+          description: The project twitter account.
+        youtube:
+          type: string
+          description: The project youtube channel.
+        instagram:
+          type: string
+          description: The project instagram channel.
+        xing:
+          type: string
+          description: The project xing account.
+        # Note: Relations are not part of the briefing but eventually
+        # they are important for schultransform and they are easy to provide
+        # awards:
+        #   type: array
+        #   items: string
+        #   description: The project awards.
+        # Same for disciplines
+        # disciplines:
+        #   type: array
+        #   items: string
+        #   description: The project disciplines.
+        # Same for target groups
+        # targetGroups:
+        #   type: array
+        #   items: string
+        #   description: The project targetGroups.
+      example:
+        id: e34e1089-d74b-42e2-8fe3-7802ed6b11c1 # Do we need this?
+        url: https://community.platform.org/url/to/project
+        name: Learning Strategies
+        logo: https://img.platform.org/public/url/of/project/logo
+        background: https://img.platform.org/public/url/of/project/background
+        headline: Using Different Learning Strategies In The Context Of Computer Science
+        excerpt: Find new learning strategies that fit for individuals with different learning styles and ...
+        description: Welcome to our project where we present and discuss multiple learning strategies in the context of computer science. In multiple workshops and keynote speeches we will explore strategies to ...
+        email: learning@strategies.org
+        phone: "+49 176 / 123456789"
+        street: Learning Avenue
+        streetNumber: "181"
+        city: Educationtown
+        zipCode: "12345"
+        website: https://learning.strategies.org/
+        facebook: https://facebook.com/learningStrategies
+        linkedin: https://linkedin.com/company/learningStrategies
+        twitter: https://twitter.com/learningStrategies
+        youtube: https://youtube.com/learningStrategies
+        instagram: https://instagram.com/learningStrategies
+        xing: https://xing.com/pages/learningStrategies
+        # Note: Relations are not part of the briefing but eventually
+        # they are important for schultransform and they are easy to provide
+        # awards: ["Best Didactic Project of 2022"]
+        # Same for disciplines
+        # disciplines: ["Math", "Computer Science"]
+        # Same for target groups
+        # targetGroups: ["Elementary School", "Early Childhood Education", "Teachers"]
+
+# Apply the api key globally to all operations
+security:
+  - ApiKeyAuth: [] # use the same name as under securitySchemes
+
+paths:
+  /organizations:
+    get:
+      summary: Returns a list of organizations without relations and without private (Community only) fields.
+      description: TBD -> Description of how to use this path (pagination).
+      parameters:
+        $ref: "#/components/parameters/skip"
+        $ref: "#/components/parameters/take"
+      # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
+      # security:
+      #   - ApiKeyAuth: []
+      responses:
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "200":
+          description: A JSON array of organization objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicOrganization'
+                  
+
+  /events:
+    get:
+      summary: Returns a list of events without relations and without private (Community only) fields.
+      description: TBD -> Description of how to use this path (pagination).
+      parameters:
+        $ref: "#/components/parameters/skip"
+        $ref: "#/components/parameters/take"
+      # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
+      # security:
+      #   - ApiKeyAuth: []
+      responses:
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "200":
+          description: A JSON array of event objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicEvent'
+  /projects:
+    get:
+      summary: Returns a list of projects without relations and without private (Community only) fields.
+      description: TBD -> Description of how to use this path (pagination).
+      parameters:
+        $ref: "#/components/parameters/skip"
+        $ref: "#/components/parameters/take"
+      # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
+      # security:
+      #   - ApiKeyAuth: []
+      responses:
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "200":
+          description: A JSON array of project objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicProject'
