@@ -7,6 +7,7 @@ type GetImageURLArguments = {
     type?: ResizingType;
     width?: number;
     height?: number;
+    enlarge?: boolean;
   };
   gravity?: GravityType;
   dpr?: string | number;
@@ -16,7 +17,7 @@ export function getImageURL(url: string, args?: GetImageURLArguments) {
   const { resize = {}, gravity = GravityType.center, dpr = 2 } = args ?? {};
 
   const imageURL = builder
-    .resize(resize.type, resize.width, resize.height)
+    .resize(resize.type, resize.width, resize.height, resize.enlarge)
     .gravity(gravity)
     .dpr(dpr)
     .generateUrl(url);

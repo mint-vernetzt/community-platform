@@ -1,4 +1,4 @@
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -48,28 +48,13 @@ export function links() {
   ];
 }
 
-type LoaderData = {
-  mode: Awaited<ReturnType<typeof deriveMode>>;
-  event: MaybeEnhancedEvent;
-  // TODO: move "is"-Properties to event
-  isParticipant: boolean | undefined;
-  isOnWaitingList: boolean | undefined;
-  isSpeaker: boolean | undefined;
-  isTeamMember: boolean | undefined;
-  userId?: string;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  // fullDepthParticipants: Awaited<ReturnType<typeof getFullDepthParticipants>>;
-  // fullDepthSpeaker: Awaited<ReturnType<typeof getFullDepthSpeaker>>;
-  // fullDepthOrganizers: Awaited<ReturnType<typeof getFullDepthOrganizers>>;
-};
-
 export const meta: MetaFunction = (args) => {
   return {
     title: `MINTvernetzt Community Plattform | ${args.data.event.name}`,
   };
 };
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const { slug } = params;
   const response = new Response();
@@ -192,7 +177,7 @@ export const loader: LoaderFunction = async (args) => {
     const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
+        resize: { type: "fill", width: 1488, height: 480, enlarge: true },
       });
     }
   }
@@ -248,7 +233,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
-  return json<LoaderData>(
+  return json(
     {
       mode,
       event: enhancedEvent,
@@ -263,7 +248,18 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-function getForm(loaderData: LoaderData) {
+function getForm(loaderData: {
+  userId?: string;
+  isParticipant?: boolean;
+  isOnWaitingList?: boolean;
+  event: {
+    id: string;
+    participantLimit: number | null;
+    _count: {
+      participants: number;
+    };
+  };
+}) {
   const isParticipating = loaderData.isParticipant || false;
   const isOnWaitingList = loaderData.isOnWaitingList || false;
 
@@ -327,7 +323,7 @@ function formatDateTime(date: Date) {
 }
 
 function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
 
