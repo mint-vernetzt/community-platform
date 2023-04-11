@@ -177,9 +177,7 @@ export const loader = async (args: LoaderArgs) => {
     const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
-        minWidth: 1488,
-        minHeight: 480,
+        resize: { type: "fill", width: 1488, height: 480, enlarge: true },
       });
     }
   }
