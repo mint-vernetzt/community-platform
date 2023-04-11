@@ -36,6 +36,18 @@ export function Colors() {
         <Color backgroundColor="bg-neutral-800" />
         <Color backgroundColor="bg-neutral-900" />
       </div>
+      <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+        <Color backgroundColor="bg-primary-50" />
+        <Color backgroundColor="bg-primary-100" />
+        <Color backgroundColor="bg-primary-200" />
+        <Color backgroundColor="bg-primary-300" />
+        <Color backgroundColor="bg-primary-400" />
+        <Color backgroundColor="bg-primary-500" />
+        <Color backgroundColor="bg-primary-600" />
+        <Color backgroundColor="bg-primary-700" />
+        <Color backgroundColor="bg-primary-800" />
+        <Color backgroundColor="bg-primary-900" />
+      </div>
     </>
   );
 }
