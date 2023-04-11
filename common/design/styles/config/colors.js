@@ -29,6 +29,16 @@ const colors = {
   "secondary-700": "#5D335A",
   "secondary-800": "#4B2848",
   "secondary-900": "#2F192D",
+  "accent-50": "#FDFDFC",
+  "accent-100": "#FCFAFA",
+  "accent-200": "#F9F6F5",
+  "accent-300": "#F4EFEE",
+  "accent-400": "#F1EBEA",
+  "accent-500": "#EFE8E6",
+  "accent-600": "#D4C1BB",
+  "accent-700": "#9D7265",
+  "accent-800": "#725249",
+  "accent-900": "#392925",
 };
 
 module.exports = colors;

@@ -12,7 +12,7 @@ function Color(props: ColorProps) {
 
   return (
     <div className="w-32 text-xs">
-      <div className={`rounded-[5px] w-32 h-12 mb-2 ${backgroundColor}`} />
+      <div className={`rounded-[5px] w-full h-12 mb-2 ${backgroundColor}`} />
       <div className="flex justify-between">
         <p>{color}</p>
         <p>{hex}</p>
@@ -59,6 +59,18 @@ export function Colors() {
         <Color backgroundColor="bg-secondary-700" />
         <Color backgroundColor="bg-secondary-800" />
         <Color backgroundColor="bg-secondary-900" />
+      </div>
+      <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+        <Color backgroundColor="bg-accent-50" />
+        <Color backgroundColor="bg-accent-100" />
+        <Color backgroundColor="bg-accent-200" />
+        <Color backgroundColor="bg-accent-300" />
+        <Color backgroundColor="bg-accent-400" />
+        <Color backgroundColor="bg-accent-500" />
+        <Color backgroundColor="bg-accent-600" />
+        <Color backgroundColor="bg-accent-700" />
+        <Color backgroundColor="bg-accent-800" />
+        <Color backgroundColor="bg-accent-900" />
       </div>
     </>
   );
