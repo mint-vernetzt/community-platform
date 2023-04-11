@@ -72,6 +72,42 @@ export function Colors() {
         <Color backgroundColor="bg-accent-800" />
         <Color backgroundColor="bg-accent-900" />
       </div>
+      <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+        <Color backgroundColor="bg-success-50" />
+        <Color backgroundColor="bg-success-100" />
+        <Color backgroundColor="bg-success-200" />
+        <Color backgroundColor="bg-success-300" />
+        <Color backgroundColor="bg-success-400" />
+        <Color backgroundColor="bg-success-500" />
+        <Color backgroundColor="bg-success-600" />
+        <Color backgroundColor="bg-success-700" />
+        <Color backgroundColor="bg-success-800" />
+        <Color backgroundColor="bg-success-900" />
+      </div>
+      <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+        <Color backgroundColor="bg-warning-50" />
+        <Color backgroundColor="bg-warning-100" />
+        <Color backgroundColor="bg-warning-200" />
+        <Color backgroundColor="bg-warning-300" />
+        <Color backgroundColor="bg-warning-400" />
+        <Color backgroundColor="bg-warning-500" />
+        <Color backgroundColor="bg-warning-600" />
+        <Color backgroundColor="bg-warning-700" />
+        <Color backgroundColor="bg-warning-800" />
+        <Color backgroundColor="bg-warning-900" />
+      </div>
+      <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+        <Color backgroundColor="bg-error-50" />
+        <Color backgroundColor="bg-error-100" />
+        <Color backgroundColor="bg-error-200" />
+        <Color backgroundColor="bg-error-300" />
+        <Color backgroundColor="bg-error-400" />
+        <Color backgroundColor="bg-error-500" />
+        <Color backgroundColor="bg-error-600" />
+        <Color backgroundColor="bg-error-700" />
+        <Color backgroundColor="bg-error-800" />
+        <Color backgroundColor="bg-error-900" />
+      </div>
     </>
   );
 }
