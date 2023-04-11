@@ -19,6 +19,16 @@ const colors = {
   "primary-700": "#113476",
   "primary-800": "#091D43",
   "primary-900": "#040D1E",
+  "secondary-50": "#F7F1F7",
+  "secondary-100": "#ECDBEA",
+  "secondary-200": "#DCBED9",
+  "secondary-300": "#D0A9CD",
+  "secondary-400": "#BE88BA",
+  "secondary-500": "#B16FAB",
+  "secondary-600": "#703D6B",
+  "secondary-700": "#5D335A",
+  "secondary-800": "#4B2848",
+  "secondary-900": "#2F192D",
 };
 
 module.exports = colors;
