@@ -8,8 +8,6 @@ const config = {
     {
       name: "@storybook/addon-styling",
       options: {
-        // Check out https://github.com/storybookjs/addon-styling/blob/main/docs/api.md
-        // For more details on this addon's options.
         postCss: true,
       },
     },
@@ -21,8 +19,8 @@ const config = {
   docs: {
     autodocs: "tag",
   },
-  telemetry: {
-    enabled: false,
+  core: {
+    disableTelemetry: true,
   },
 };
 export default config;
