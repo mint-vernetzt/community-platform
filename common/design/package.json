@@ -27,6 +27,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "styles::build": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/styles.css",
-    "styles::watch": "npm run styles::build -- --watch"
+    "styles::watch": "npm run styles::build -- --watch",
+    "dev": "npm run styles::watch | npm run storybook"
   }
 }

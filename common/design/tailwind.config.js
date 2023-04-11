@@ -1,13 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 
-const colors = require("./styles/config/colors");
+const theme = require("./styles/theme");
 
 module.exports = {
   content: ["stories/**/*.mdx", "stories/**/*.stories.@(js|jsx|ts|tsx)"],
-  theme: {
-    extend: {
-      colors,
-    },
-  },
+  theme,
   plugins: [],
 };
