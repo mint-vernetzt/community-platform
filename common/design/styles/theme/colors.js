@@ -85,4 +85,14 @@ const colors = {
   },
 };
 
-module.exports = colors;
+const aliases = {
+  neutral: colors.gray,
+  primary: colors.blue,
+  secondary: colors.lilac,
+  accent: colors.beige,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.salmon,
+};
+
+module.exports = { ...colors, ...aliases };
