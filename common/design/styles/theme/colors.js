@@ -1,4 +1,4 @@
-const colors = {
+const theme = {
   gray: {
     50: "#FCFCFD",
     100: "#F4F5F6",
@@ -86,13 +86,13 @@ const colors = {
 };
 
 const aliases = {
-  neutral: colors.gray,
-  primary: colors.blue,
-  secondary: colors.lilac,
-  accent: colors.beige,
-  success: colors.green,
-  warning: colors.yellow,
-  error: colors.salmon,
+  neutral: theme.gray,
+  primary: theme.blue,
+  secondary: theme.lilac,
+  accent: theme.beige,
+  success: theme.green,
+  warning: theme.yellow,
+  error: theme.salmon,
 };
 
-module.exports = { ...colors, ...aliases };
+module.exports = { theme, aliases };

@@ -1,5 +1,5 @@
 import type { Meta } from "@storybook/react";
-import colors from "../styles/theme/colors";
+import { aliases as colors } from "../styles/theme/colors";
 
 const shapes = [
   "50",
@@ -59,13 +59,11 @@ function Color(props: { colorName: keyof typeof colors }) {
 export function Colors() {
   return (
     <>
-      <Color colorName="neutral" />
-      <Color colorName="primary" />
-      <Color colorName="secondary" />
-      <Color colorName="accent" />
-      <Color colorName="success" />
-      <Color colorName="warning" />
-      <Color colorName="error" />
+      {Object.keys(colors).map((colorName) => {
+        return (
+          <Color key={colorName} colorName={colorName as keyof typeof colors} />
+        );
+      })}
     </>
   );
 }
