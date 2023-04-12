@@ -4,6 +4,9 @@
   "description": "",
   "license": "",
   "sideEffects": false,
+  "workspaces": [
+    "./common/*"
+  ],
   "scripts": {
     "prepare": "husky install",
     "build": "npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
