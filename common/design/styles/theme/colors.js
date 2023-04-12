@@ -1,4 +1,4 @@
-const theme = {
+const colors = {
   gray: {
     50: "#FCFCFD",
     100: "#F4F5F6",
@@ -84,6 +84,12 @@ const theme = {
     900: "#991B1B",
   },
 };
+
+const theme = Object.keys(colors).reduce((theme, color) => {
+  const variants = colors[color];
+  variants.DEFAULT = colors[color][500];
+  return { ...theme, [color]: variants };
+}, {});
 
 const aliases = {
   neutral: theme.gray,
