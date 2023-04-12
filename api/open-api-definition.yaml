@@ -11,6 +11,10 @@ servers:
   - url: TBD -> http://staging-api.example.com
     description: TBD -> Optional server description, e.g. Internal staging server for testing
 
+tags:
+  - name: TBD -> Get public data
+    description: TBD -> All community entities containing their public fields. Private/Community only entities and fields are left out (f.e. profiles, email of organizations, participants of events, ...)
+
 components:
   # Define the api key name and location
   securitySchemes:
@@ -371,6 +375,8 @@ security:
 paths:
   /organizations:
     get:
+      tags:
+        - TBD -> Get public data
       summary: Returns a list of organizations without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
@@ -393,6 +399,8 @@ paths:
 
   /events:
     get:
+      tags:
+        - TBD -> Get public data
       summary: Returns a list of events without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
@@ -414,6 +422,8 @@ paths:
                   $ref: "#/components/schemas/PublicEvent"
   /projects:
     get:
+      tags:
+        - TBD -> Get public data
       summary: Returns a list of projects without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
