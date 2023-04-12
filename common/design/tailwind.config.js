@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
+const daisyui = require("daisyui");
 const theme = require("./styles/theme");
 
 const safelist = Object.keys(theme.colors.aliases).reduce(
@@ -15,8 +16,16 @@ const safelist = Object.keys(theme.colors.aliases).reduce(
 );
 
 module.exports = {
-  content: ["stories/**/*.mdx", "stories/**/*.stories.@(js|jsx|ts|tsx)"],
-  theme: { colors: theme.colors.aliases },
-  plugins: [],
+  content: [
+    "stories/**/*.mdx",
+    "stories/**/*.@(js|jsx|ts|tsx)",
+    "../components/src/**/*.@(js|jsx|ts|tsx)",
+  ],
+  plugins: [daisyui],
+  theme: { extend: { colors: theme.colors.aliases } },
   safelist,
+  daisyui: {
+    styled: false,
+    themes: false,
+  },
 };

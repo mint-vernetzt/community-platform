@@ -15,6 +15,7 @@
     "@storybook/react-webpack5": "^7.0.2",
     "@storybook/testing-library": "^0.0.14-next.2",
     "autoprefixer": "^10.4.14",
+    "daisyui": "^2.51.5",
     "postcss": "^8.4.21",
     "postcss-loader": "^7.2.4",
     "prop-types": "^15.8.1",
