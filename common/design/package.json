@@ -24,10 +24,11 @@
     "tailwindcss": "^3.3.1"
   },
   "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook::develop": "storybook dev -p 6006",
+    "storybook::build": "storybook build -o build",
     "styles::build": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/styles.css",
-    "styles::watch": "npm run styles::build -- --watch",
-    "dev": "npm run styles::watch | npm run storybook"
+    "styles::develop": "npm run styles::build -- --watch",
+    "develop": "npm run styles::develop | npm run storybook::develop",
+    "build": "npm run styles::build && npm run storybook::build"
   }
 }
