@@ -18,7 +18,7 @@ components:
       type: apiKey
       in: query # can be "header", "query" or "cookie"
       name: api_key # name of the header, query parameter or cookie
-  
+
   # Define a unauthorized response
   responses:
     UnauthorizedError:
@@ -27,7 +27,7 @@ components:
         WWW_Authenticate:
           schema:
             type: string
-  
+
   # Define pagination parameters
   parameters:
     skip: # <-- Arbitrary name for the definition that will be used to refer to it. Not necessarily the same as the parameter name.
@@ -48,7 +48,7 @@ components:
         maximum: 50 # TBD
         default: 20 # TBD
       description: The numbers of items to return.
-  
+
   # Define schemas of our entities
   schemas:
     PublicOrganization:
@@ -83,19 +83,22 @@ components:
           description: The organization city zip code.
         supportedBy:
           type: array
-          items: string
+          items:
+            type: string
           description: The organization supporters.
         # Note: Relations are not part of the briefing but eventually
         # areas are the most important property for schultransform
         # and they are easy to provide
         # areas:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The organization areas of activities.
         # Same for types
         # types:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The organization types.
       example:
         id: 07d185a9-bebb-4819-a72b-bb65d24e9d5a # Do we need this?
@@ -107,11 +110,17 @@ components:
         streetNumber: "22"
         city: City of Relief
         zipCode: "12345"
-        supportedBy: ["Aung San Suu Kyi", "Rigoberta Menchú", "Nelson Mandela", "Jody Williams"]
+        supportedBy:
+          [
+            "Aung San Suu Kyi",
+            "Rigoberta Menchú",
+            "Nelson Mandela",
+            "Jody Williams",
+          ]
         # Note: Relations are not part of the briefing but eventually
         # areas are the most important property for schultransform
         # and they are easy to provide
-        # areas: TBD -> [""] 
+        # areas: TBD -> [""]
         # Same for types
         # types: ["Association", "Foundation", "Company", "Initiative"]
     PublicEvent:
@@ -173,25 +182,30 @@ components:
         # and they are easy to provide
         # areas:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The event areas of activities.
         # Same for types
         # types:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The event types.
         # Same for focuses
         # focuses:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The event focuses.
         # tags:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The event tags.
         # targetGroups:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The event targetGroups.
         # Same for experience level
         # experienceLevel:
@@ -305,17 +319,20 @@ components:
         # they are important for schultransform and they are easy to provide
         # awards:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The project awards.
         # Same for disciplines
         # disciplines:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The project disciplines.
         # Same for target groups
         # targetGroups:
         #   type: array
-        #   items: string
+        #   items:
+        #     type: string
         #   description: The project targetGroups.
       example:
         id: e34e1089-d74b-42e2-8fe3-7802ed6b11c1 # Do we need this?
@@ -354,11 +371,11 @@ security:
 paths:
   /organizations:
     get:
-      summary: Returns a list of organizations without relations and without private (Community only) fields.
+      summary: Returns a list of organizations without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
-        $ref: "#/components/parameters/skip"
-        $ref: "#/components/parameters/take"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/take"
       # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
       # security:
       #   - ApiKeyAuth: []
@@ -372,16 +389,15 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PublicOrganization'
-                  
+                  $ref: "#/components/schemas/PublicOrganization"
 
   /events:
     get:
-      summary: Returns a list of events without relations and without private (Community only) fields.
+      summary: Returns a list of events without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
-        $ref: "#/components/parameters/skip"
-        $ref: "#/components/parameters/take"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/take"
       # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
       # security:
       #   - ApiKeyAuth: []
@@ -395,14 +411,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PublicEvent'
+                  $ref: "#/components/schemas/PublicEvent"
   /projects:
     get:
-      summary: Returns a list of projects without relations and without private (Community only) fields.
+      summary: Returns a list of projects without relations and without private/community only fields.
       description: TBD -> Description of how to use this path (pagination).
       parameters:
-        $ref: "#/components/parameters/skip"
-        $ref: "#/components/parameters/take"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/take"
       # Operation-specific security: -> Commented out as the API Key is applied to all operations globally (see above under "security:" section)
       # security:
       #   - ApiKeyAuth: []
@@ -416,4 +432,4 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PublicProject'
+                  $ref: "#/components/schemas/PublicProject"
