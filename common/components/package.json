@@ -1,5 +1,8 @@
 {
   "name": "components",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "classnames": "^2.3.2"
+  }
 }
