@@ -25,9 +25,14 @@ export function DisabledMedium() {
 DisabledMedium.storyName = "primary-medium-disabled";
 
 export function GhostMedium() {
-  return <Button variant={"ghost"}>Button</Button>;
+  return <Button variant="ghost">Button</Button>;
 }
-GhostMedium.storyName = "primary-medium-ghost";
+GhostMedium.storyName = "ghost-medium";
+
+export function SecondaryMedium() {
+  return <Button variant="secondary">Button</Button>;
+}
+SecondaryMedium.storyName = "secondary-medium";
 
 export default {
   title: "Molecules/Controls/Buttons",
