@@ -1,10 +1,10 @@
 import React from "react";
 import classnames from "classnames";
 
-type ButtonSize = "small" | "medium" | "large";
-type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonSize = "small" | "medium" | "large";
+export type ButtonVariant = "primary" | "secondary" | "ghost";
 
-type ButtonProps = {
+export type ButtonProps = {
   size?: ButtonSize;
   loading?: boolean;
   variant?: ButtonVariant;
@@ -62,7 +62,9 @@ function Button(
       "focus:border-primary-400": variant === "secondary",
       "active:border-primary-700": variant === "secondary",
     },
-    { loading: otherProps.loading !== undefined },
+    {
+      loading: otherProps.loading !== undefined && otherProps.loading !== false,
+    },
     "disabled:opacity-50"
   );
 

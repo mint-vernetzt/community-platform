@@ -1,4 +1,4 @@
-import Button from "./Button";
+import Button, { ButtonProps } from "./Button";
 
 export function Small() {
   return <Button size="small">Button</Button>;
@@ -33,6 +33,30 @@ export function SecondaryMedium() {
   return <Button variant="secondary">Button</Button>;
 }
 SecondaryMedium.storyName = "secondary-medium";
+
+export function ButtonPlayground(args: ButtonProps) {
+  return <Button {...args}>Button</Button>;
+}
+ButtonPlayground.storyName = "Playground";
+ButtonPlayground.args = {
+  size: "medium",
+  variant: "primary",
+  loading: false,
+  disabled: false,
+};
+ButtonPlayground.argTypes = {
+  size: {
+    control: "select",
+    options: ["small", "medium", "large"],
+  },
+  variant: {
+    control: "select",
+    options: ["primary", "secondary", "ghost"],
+  },
+};
+ButtonPlayground.parameters = {
+  controls: { disable: false },
+};
 
 export default {
   title: "Molecules/Controls/Buttons",
