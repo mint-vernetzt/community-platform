@@ -39,7 +39,8 @@ function Button(
     "hover:bg-primary-400",
     "active:bg-primary-700",
     "text-neutral-50",
-    { loading: otherProps.loading !== undefined }
+    { loading: otherProps.loading !== undefined },
+    "disabled:opacity-50"
   );
 
   return <button {...otherProps} className={classes} />;

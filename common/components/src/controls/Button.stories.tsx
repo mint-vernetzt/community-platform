@@ -19,6 +19,11 @@ export function LoadingMedium() {
 }
 LoadingMedium.storyName = "primary-medium-loading";
 
+export function DisabledMedium() {
+  return <Button disabled>Button</Button>;
+}
+DisabledMedium.storyName = "primary-medium-disabled";
+
 export default {
   title: "Molecules/Controls/Buttons",
   component: Button,
