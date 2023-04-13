@@ -2,16 +2,18 @@ import React from "react";
 import classnames from "classnames";
 
 type ButtonSize = "small" | "medium" | "large";
+type ButtonVariant = "primary" | "secondary" | "ghost";
 
 type ButtonProps = {
   size?: ButtonSize;
   loading?: boolean;
+  variant?: ButtonVariant;
 };
 
 function Button(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonProps
 ) {
-  const { size = "medium", ...otherProps } = props;
+  const { size = "medium", variant: type = "primary", ...otherProps } = props;
 
   const classes = classnames(
     "btn",
@@ -35,10 +37,15 @@ function Button(
         Array.isArray(otherProps.children) && otherProps.children.length > 1,
     },
     "font-semibold",
-    "bg-primary",
+    { "bg-primary": type === "primary" },
     "hover:bg-primary-400",
     "active:bg-primary-700",
-    "text-neutral-50",
+    {
+      "text-neutral-50": type === "primary",
+      "text-primary": type === "ghost",
+      "hover:text-neutral-50": type === "ghost",
+      "active:text-neutral-50": type === "ghost",
+    },
     { loading: otherProps.loading !== undefined },
     "disabled:opacity-50"
   );

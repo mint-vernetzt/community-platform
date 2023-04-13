@@ -24,6 +24,11 @@ export function DisabledMedium() {
 }
 DisabledMedium.storyName = "primary-medium-disabled";
 
+export function GhostMedium() {
+  return <Button variant={"ghost"}>Button</Button>;
+}
+GhostMedium.storyName = "primary-medium-ghost";
+
 export default {
   title: "Molecules/Controls/Buttons",
   component: Button,
