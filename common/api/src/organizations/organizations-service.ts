@@ -1,28 +1,25 @@
-import type { Organization } from "@prisma/client";
+import { prismaClient } from "./../../prisma";
 
-export type PublicOrganization = Pick<Organization, "id" | "name">;
+export type PublicOrganizations = Awaited<
+  ReturnType<typeof getPublicOrganizations>
+>;
 
-export class OrganizationsService {
-  public getAll(
-    skip: number,
-    take: number
-  ): { skip: number; take: number; result: PublicOrganization[] } {
-    // TODO: get all public organizations from prisma based on skip and take params
+async function getPublicOrganizations(skip: number, take: number) {
+  const publicOrganizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    skip,
+    take,
+  });
+  return publicOrganizations;
+}
 
-    console.log(skip, take);
-
-    const publicOrganizations = [
-      {
-        id: "some-id",
-
-        name: "Jane Doe",
-      },
-      {
-        id: "another-id",
-
-        name: "John Doe",
-      },
-    ];
-    return { skip, take, result: publicOrganizations };
-  }
+export async function getAllPublicOrganizations(
+  skip: number,
+  take: number
+): Promise<{ skip: number; take: number; result: PublicOrganizations }> {
+  const publicOrganizations = await getPublicOrganizations(skip, take);
+  return { skip, take, result: publicOrganizations };
 }
