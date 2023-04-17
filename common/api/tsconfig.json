@@ -35,6 +35,7 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Additional Stuff */
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   }
 }
