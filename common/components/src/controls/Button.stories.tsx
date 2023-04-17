@@ -35,6 +35,65 @@ export function SecondaryMedium() {
 }
 SecondaryMedium.storyName = "secondary-medium";
 
+function ButtonVariants({
+  level,
+  variant,
+}: {
+  level: ButtonProps["level"];
+  variant: ButtonProps["variant"];
+}) {
+  return (
+    <div className="flex gap-2 items-center">
+      <Button size="small" level={level} variant={variant}>
+        Button
+      </Button>
+      <Button level={level} variant={variant}>
+        Button
+      </Button>
+      <Button size="large" level={level} variant={variant}>
+        Button
+      </Button>
+      <Button loading size="small" level={level} variant={variant}>
+        Button
+      </Button>
+      <Button loading level={level} variant={variant}>
+        Button
+      </Button>
+      <Button loading size="large" level={level} variant={variant}>
+        Button
+      </Button>
+      <Button disabled size="small" level={level} variant={variant}>
+        Button
+      </Button>
+      <Button disabled level={level} variant={variant}>
+        Button
+      </Button>
+      <Button disabled size="large" level={level} variant={variant}>
+        Button
+      </Button>
+    </div>
+  );
+}
+
+export function Variants() {
+  return (
+    <div className="flex flex-col gap-2">
+      <ButtonVariants variant="primary" level="normal" />
+      <ButtonVariants variant="primary" level="success" />
+      <ButtonVariants variant="primary" level="warning" />
+      <ButtonVariants variant="primary" level="danger" />
+      <ButtonVariants variant="secondary" level="normal" />
+      <ButtonVariants variant="secondary" level="success" />
+      <ButtonVariants variant="secondary" level="warning" />
+      <ButtonVariants variant="secondary" level="danger" />
+      <ButtonVariants variant="ghost" level="normal" />
+      <ButtonVariants variant="ghost" level="success" />
+      <ButtonVariants variant="ghost" level="warning" />
+      <ButtonVariants variant="ghost" level="danger" />
+    </div>
+  );
+}
+
 export function ButtonPlayground(args: ButtonProps) {
   return <Button {...args}>Button</Button>;
 }
