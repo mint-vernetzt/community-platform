@@ -1,4 +1,5 @@
-import Button, { ButtonProps } from "./Button";
+import type { ButtonProps } from "./Button";
+import Button from "./Button";
 
 export function Small() {
   return <Button size="small">Button</Button>;
@@ -41,6 +42,7 @@ ButtonPlayground.storyName = "Playground";
 ButtonPlayground.args = {
   size: "medium",
   variant: "primary",
+  level: "normal",
   loading: false,
   disabled: false,
 };
@@ -52,6 +54,10 @@ ButtonPlayground.argTypes = {
   variant: {
     control: "select",
     options: ["primary", "secondary", "ghost"],
+  },
+  level: {
+    control: "select",
+    options: ["normal", "success", "warning", "danger"],
   },
 };
 ButtonPlayground.parameters = {
