@@ -98,7 +98,7 @@ const aliases = {
   accent: theme.beige,
   success: theme.green,
   warning: theme.yellow,
-  error: theme.salmon,
+  danger: theme.salmon,
 };
 
 module.exports = { theme, aliases };
