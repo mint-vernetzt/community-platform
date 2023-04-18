@@ -26,6 +26,13 @@ app.use(
 
 RegisterRoutes(app);
 
+// Global not found handler (see https://tsoa-community.github.io/docs/error-handling.html)
+app.use(function notFoundHandler(_req, res: ExResponse) {
+  res.status(404).send({
+    message: "Not Found",
+  });
+});
+
 // Global express error handler (see https://tsoa-community.github.io/docs/error-handling.html)
 app.use(function errorHandler(
   err: unknown,
