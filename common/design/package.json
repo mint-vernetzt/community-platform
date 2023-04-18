@@ -31,5 +31,8 @@
     "styles::develop": "npm run styles::build -- --watch",
     "develop": "npm run styles::develop | npm run storybook::develop",
     "build": "npm run styles::build && npm run storybook::build"
+  },
+  "dependencies": {
+    "@fontsource/source-sans-pro": "^4.5.11"
   }
 }

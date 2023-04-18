@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
+const defaultTheme = require("tailwindcss/defaultTheme");
 const daisyui = require("daisyui");
 const theme = require("./styles/theme");
 
@@ -22,7 +23,14 @@ module.exports = {
     "../components/src/**/*.@(js|jsx|ts|tsx)",
   ],
   plugins: [daisyui],
-  theme: { extend: { colors: theme.colors.aliases } },
+  theme: {
+    extend: {
+      colors: theme.colors.aliases,
+      fontFamily: {
+        sans: ["'Source Sans Pro'", ...defaultTheme.fontFamily.sans],
+      },
+    },
+  },
   safelist,
   daisyui: {
     styled: false,
