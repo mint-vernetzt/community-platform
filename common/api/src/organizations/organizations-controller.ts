@@ -1,6 +1,5 @@
-import { Controller, Get, Query, Route, Response } from "tsoa";
+import { Controller, Get, Query, Route, Response, Security } from "tsoa";
 import { getAllOrganizations } from "./organizations-service";
-// import type { Organizations } from "./organizations-service";
 
 interface InternalServerErrorJSON {
   message: "Internal Server Error";
@@ -24,6 +23,7 @@ type GetOrganizationsResult = ReturnType<typeof getAllOrganizations>;
 export class OrganizationsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @Response<InternalServerErrorJSON>(500, "Internal Server Error")
+  @Security("api_key")
   @Get()
   public async getAllOrganizations(
     @Query("skip") skip: number,
