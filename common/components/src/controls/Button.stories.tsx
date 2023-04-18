@@ -1,98 +1,127 @@
 import type { ButtonProps } from "./Button";
 import Button from "./Button";
 
+function Icon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
+    </svg>
+  );
+}
+
+function ButtonVariants(props: { size: ButtonProps["size"] }) {
+  const { size } = props;
+  return (
+    <div className="flex gap-2 flex-col">
+      <div className="flex gap-2">
+        <Button size={size}>Button</Button>
+        <Button size={size} level="success">
+          Button
+        </Button>
+        <Button size={size} level="warning">
+          Button
+        </Button>
+        <Button size={size} level="danger">
+          Button
+        </Button>
+        <Button size={size}>
+          <Icon />
+          Button
+        </Button>
+        <Button size={size}>
+          Button
+          <Icon />
+        </Button>
+        <Button size={size} loading>
+          Button
+        </Button>
+        <Button size={size} disabled>
+          Button
+        </Button>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="secondary" size={size}>
+          Button
+        </Button>
+        <Button variant="secondary" size={size} level="success">
+          Button
+        </Button>
+        <Button variant="secondary" size={size} level="warning">
+          Button
+        </Button>
+        <Button variant="secondary" size={size} level="danger">
+          Button
+        </Button>
+        <Button variant="secondary" size={size}>
+          <Icon />
+          Button
+        </Button>
+        <Button variant="secondary" size={size}>
+          Button
+          <Icon />
+        </Button>
+        <Button variant="secondary" size={size} loading>
+          Button
+        </Button>
+        <Button variant="secondary" size={size} disabled>
+          Button
+        </Button>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="ghost" size={size}>
+          Button
+        </Button>
+        <Button variant="ghost" size={size} level="success">
+          Button
+        </Button>
+        <Button variant="ghost" size={size} level="warning">
+          Button
+        </Button>
+        <Button variant="ghost" size={size} level="danger">
+          Button
+        </Button>
+        <Button variant="ghost" size={size}>
+          <Icon />
+          Button
+        </Button>
+        <Button variant="ghost" size={size}>
+          Button
+          <Icon />
+        </Button>
+        <Button variant="ghost" size={size} loading>
+          Button
+        </Button>
+        <Button variant="ghost" size={size} disabled>
+          Button
+        </Button>
+      </div>
+    </div>
+  );
+}
 export function Small() {
-  return <Button size="small">Button</Button>;
+  return <ButtonVariants size="small" />;
 }
-Small.storyName = "primary-small";
+Small.storyName = "small";
 export function Medium() {
-  return <Button>Button</Button>;
+  return <ButtonVariants size="medium" />;
 }
-Medium.storyName = "primary-medium";
+Medium.storyName = "medium";
 
 export function Large() {
-  return <Button size="large">Button</Button>;
+  return <ButtonVariants size="large" />;
 }
-Large.storyName = "primary-large";
-
-export function LoadingMedium() {
-  return <Button loading>Button</Button>;
-}
-LoadingMedium.storyName = "primary-medium-loading";
-
-export function DisabledMedium() {
-  return <Button disabled>Button</Button>;
-}
-DisabledMedium.storyName = "primary-medium-disabled";
-
-export function GhostMedium() {
-  return <Button variant="ghost">Button</Button>;
-}
-GhostMedium.storyName = "ghost-medium";
-
-export function SecondaryMedium() {
-  return <Button variant="secondary">Button</Button>;
-}
-SecondaryMedium.storyName = "secondary-medium";
-
-function ButtonVariants({
-  level,
-  variant,
-}: {
-  level: ButtonProps["level"];
-  variant: ButtonProps["variant"];
-}) {
-  return (
-    <div className="flex gap-2 items-center">
-      <Button size="small" level={level} variant={variant}>
-        Button
-      </Button>
-      <Button level={level} variant={variant}>
-        Button
-      </Button>
-      <Button size="large" level={level} variant={variant}>
-        Button
-      </Button>
-      <Button loading size="small" level={level} variant={variant}>
-        Button
-      </Button>
-      <Button loading level={level} variant={variant}>
-        Button
-      </Button>
-      <Button loading size="large" level={level} variant={variant}>
-        Button
-      </Button>
-      <Button disabled size="small" level={level} variant={variant}>
-        Button
-      </Button>
-      <Button disabled level={level} variant={variant}>
-        Button
-      </Button>
-      <Button disabled size="large" level={level} variant={variant}>
-        Button
-      </Button>
-    </div>
-  );
-}
-
-export function Variants() {
-  return (
-    <div className="flex flex-col gap-2">
-      <ButtonVariants variant="primary" level="normal" />
-      <ButtonVariants variant="primary" level="success" />
-      <ButtonVariants variant="primary" level="warning" />
-      <ButtonVariants variant="primary" level="danger" />
-      <ButtonVariants variant="secondary" level="normal" />
-      <ButtonVariants variant="secondary" level="success" />
-      <ButtonVariants variant="secondary" level="warning" />
-      <ButtonVariants variant="secondary" level="danger" />
-      <ButtonVariants variant="ghost" level="normal" />
-      <ButtonVariants variant="ghost" level="success" />
-      <ButtonVariants variant="ghost" level="warning" />
-      <ButtonVariants variant="ghost" level="danger" />
-    </div>
-  );
-}
+Large.storyName = "large";
 
 export function ButtonPlayground(args: ButtonProps) {
   return <Button {...args}>Button</Button>;
