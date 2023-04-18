@@ -1,10 +1,8 @@
 import { prismaClient } from "./../../prisma";
 
-export type PublicOrganizations = Awaited<
-  ReturnType<typeof getPublicOrganizations>
->;
+type Organizations = Awaited<ReturnType<typeof getOrganizations>>;
 
-async function getPublicOrganizations(skip: number, take: number) {
+async function getOrganizations(skip: number, take: number) {
   const publicOrganizations = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -16,10 +14,10 @@ async function getPublicOrganizations(skip: number, take: number) {
   return publicOrganizations;
 }
 
-export async function getAllPublicOrganizations(
+export async function getAllOrganizations(
   skip: number,
   take: number
-): Promise<{ skip: number; take: number; result: PublicOrganizations }> {
-  const publicOrganizations = await getPublicOrganizations(skip, take);
+): Promise<{ skip: number; take: number; result: Organizations }> {
+  const publicOrganizations = await getOrganizations(skip, take);
   return { skip, take, result: publicOrganizations };
 }
