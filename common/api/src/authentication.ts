@@ -1,4 +1,8 @@
 import type * as express from "express";
+import { ValidateError } from "tsoa";
+
+// TODO: Create AuthenticationError (or find one in express)
+// type AuthenticationError =
 
 export function expressAuthentication(
   request: express.Request,
@@ -14,9 +18,21 @@ export function expressAuthentication(
     }
 
     if (token === "12345678") {
-      return Promise.resolve(request.body);
+      return Promise.resolve({
+        id: 1,
+      });
     } else {
-      return Promise.reject({});
+      return Promise.reject(
+        // TODO: Build AuthenticationError like ValidateError or find one in express
+        new ValidateError(
+          {
+            access_token: {
+              message: "Invalid access token",
+            },
+          },
+          "Authentication failed"
+        )
+      );
     }
   }
 }

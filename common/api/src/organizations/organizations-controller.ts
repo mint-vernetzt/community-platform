@@ -1,28 +1,14 @@
 import { Controller, Get, Query, Route, Response, Security } from "tsoa";
+import type { ValidateError } from "tsoa";
 import { getAllOrganizations } from "./organizations-service";
-
-interface InternalServerErrorJSON {
-  message: "Internal Server Error";
-}
-
-interface ValidateErrorJSON {
-  message: "Validation failed";
-  details: {
-    skip?: {
-      message: string;
-    };
-    take?: {
-      message: string;
-    };
-  };
-}
 
 type GetOrganizationsResult = ReturnType<typeof getAllOrganizations>;
 
 @Route("organizations")
 export class OrganizationsController extends Controller {
-  @Response<ValidateErrorJSON>(422, "Validation Failed")
-  @Response<InternalServerErrorJSON>(500, "Internal Server Error")
+  @Response<ValidateError>(422, "Validation Failed")
+  // @Response<AuthenticationError>(401, "Authentication failed") // TODO: Use created AuthenticationError
+  @Response<Error>(500, "Internal Server Error")
   @Security("api_key")
   @Get()
   public async getAllOrganizations(

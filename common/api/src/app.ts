@@ -40,10 +40,11 @@ app.use(function errorHandler(
   res: ExResponse,
   next: NextFunction
 ): ExResponse | void {
+  console.log(err);
   if (err instanceof ValidateError) {
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
-    return res.status(422).json({
-      message: "Validation Failed",
+    return res.status(err.status || 422).json({
+      message: err.message || "Validation Failed",
       details: err?.fields,
     });
   }
@@ -52,6 +53,7 @@ app.use(function errorHandler(
       message: "Internal Server Error",
     });
   }
+  // TODO: Add catch for AuthenticationError if (err instanceof AuthenticationError)
 
   next();
 });
