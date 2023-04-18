@@ -26,6 +26,9 @@ function ButtonVariants(props: { size: ButtonProps["size"] }) {
     <div className="flex gap-2 flex-col">
       <div className="flex gap-2">
         <Button size={size}>Button</Button>
+        <Button size={size} level="secondary">
+          Button
+        </Button>
         <Button size={size} level="success">
           Button
         </Button>
@@ -54,6 +57,9 @@ function ButtonVariants(props: { size: ButtonProps["size"] }) {
         <Button variant="secondary" size={size}>
           Button
         </Button>
+        <Button variant="secondary" size={size} level="secondary">
+          Button
+        </Button>
         <Button variant="secondary" size={size} level="success">
           Button
         </Button>
@@ -80,6 +86,9 @@ function ButtonVariants(props: { size: ButtonProps["size"] }) {
       </div>
       <div className="flex gap-2">
         <Button variant="ghost" size={size}>
+          Button
+        </Button>
+        <Button variant="ghost" size={size} level="secondary">
           Button
         </Button>
         <Button variant="ghost" size={size} level="success">
@@ -130,7 +139,7 @@ ButtonPlayground.storyName = "Playground";
 ButtonPlayground.args = {
   size: "medium",
   variant: "primary",
-  level: "normal",
+  level: "primary",
   loading: false,
   disabled: false,
 };
@@ -145,7 +154,7 @@ ButtonPlayground.argTypes = {
   },
   level: {
     control: "select",
-    options: ["normal", "success", "warning", "danger"],
+    options: ["primary", "secondary", "success", "warning", "danger"],
   },
 };
 ButtonPlayground.parameters = {
