@@ -7,7 +7,7 @@ type GetOrganizationsResult = ReturnType<typeof getAllOrganizations>;
 @Route("organizations")
 export class OrganizationsController extends Controller {
   @Response<ValidateError>(422, "Validation Failed")
-  // @Response<AuthenticationError>(401, "Authentication failed") // TODO: Use created AuthenticationError
+  @Response<ValidateError>(401, "Authentication failed")
   @Response<Error>(500, "Internal Server Error")
   @Security("api_key")
   @Get()

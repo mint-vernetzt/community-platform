@@ -43,17 +43,23 @@ app.use(function errorHandler(
   console.log(err);
   if (err instanceof ValidateError) {
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
-    return res.status(err.status || 422).json({
-      message: err.message || "Validation Failed",
-      details: err?.fields,
-    });
+    if (err.fields.access_token !== undefined) {
+      return res.status(401).json({
+        message: err.message || "Authentication Failed",
+        details: err?.fields,
+      });
+    } else {
+      return res.status(err.status || 422).json({
+        message: err.message || "Validation Failed",
+        details: err?.fields,
+      });
+    }
   }
   if (err instanceof Error) {
     return res.status(500).json({
-      message: "Internal Server Error",
+      message: err.message || "Internal Server Error",
     });
   }
-  // TODO: Add catch for AuthenticationError if (err instanceof AuthenticationError)
 
   next();
 });
