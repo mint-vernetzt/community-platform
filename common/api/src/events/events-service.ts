@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { getImageURL, getPublicURL } from "src/images.server";
+import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;

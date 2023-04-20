@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
-import { getImageURL, getPublicURL } from "src/images.server";
+import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
 
 type Projects = Awaited<ReturnType<typeof getProjects>>;
