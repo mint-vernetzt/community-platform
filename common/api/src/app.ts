@@ -45,18 +45,21 @@ app.use(function errorHandler(
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
     if (err.fields.access_token !== undefined) {
       return res.status(401).json({
+        status: 401,
         message: err.message || "Authentication Failed",
-        details: err?.fields,
+        fields: err?.fields,
       });
     } else {
       return res.status(err.status || 422).json({
+        status: err.status || 422,
         message: err.message || "Validation Failed",
-        details: err?.fields,
+        fields: err?.fields,
       });
     }
   }
   if (err instanceof Error) {
     return res.status(500).json({
+      status: 500,
       message: err.message || "Internal Server Error",
     });
   }
