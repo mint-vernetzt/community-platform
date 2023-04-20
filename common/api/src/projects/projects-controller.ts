@@ -33,10 +33,82 @@ export class ProjectsController extends Controller {
       {
         id: "d2bae762-e419-4a57-b12f-fdc01beb22d2",
         name: "Some Project",
+        url: "https://community.platform.org/url/to/project",
+        logo: "https://img.platform.org/public/url/of/project/logo",
+        background: "https://img.platform.org/public/url/of/project/background",
+        headline:
+          "Using Different Learning Strategies In The Context Of Computer Science",
+        excerpt:
+          "Find new learning strategies that fit for individuals with different learning styles and ...",
+        description:
+          "Welcome to our project where we present and discuss multiple learning strategies in the context of computer science. In multiple workshops and keynote speeches we will explore strategies to ...",
+        email: "learning@strategies.org",
+        phone: "(+49) 176 / 123456789",
+        street: "Learning Avenue",
+        streetNumber: "181",
+        city: "Educationtown",
+        zipCode: "12345",
+        website: "https://learning.strategies.org/",
+        facebook: "https://facebook.com/learningStrategies",
+        linkedin: "https://linkedin.com/company/learningStrategies",
+        twitter: "https://twitter.com/learningStrategies",
+        youtube: "https://youtube.com/learningStrategies",
+        instagram: "https://instagram.com/learningStrategies",
+        xing: "https://xing.com/pages/learningStrategies",
+        disciplines: [
+          {
+            discipline: {
+              title: "Math",
+            },
+          },
+          {
+            discipline: {
+              title: "Computer Science",
+            },
+          },
+        ],
+        targetGroups: [
+          {
+            targetGroup: {
+              title: "Elementary School",
+            },
+          },
+          {
+            targetGroup: {
+              title: "Early Childhood Education",
+            },
+          },
+          {
+            targetGroup: {
+              title: "Teachers",
+            },
+          },
+        ],
       },
       {
         id: "1916da3c-b401-49f3-91e6-173f01c6ddd8",
-        name: "Another Project",
+        name: "Smallest Project",
+        url: null,
+        logo: null,
+        background: null,
+        headline: null,
+        excerpt: null,
+        description: null,
+        email: null,
+        phone: null,
+        street: null,
+        streetNumber: null,
+        city: null,
+        zipCode: null,
+        website: null,
+        facebook: null,
+        linkedin: null,
+        twitter: null,
+        youtube: null,
+        instagram: null,
+        xing: null,
+        disciplines: [],
+        targetGroups: [],
       },
     ],
     skip: 0,

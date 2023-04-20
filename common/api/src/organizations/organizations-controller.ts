@@ -32,11 +32,69 @@ export class OrganizationsController extends Controller {
     result: [
       {
         id: "52907745-7672-470e-a803-a2f8feb52944",
-        name: "Some Organization AG",
+        name: "Association For Love And Harmony",
+        url: "https://community.platform.org/url/to/organization",
+        logo: "https://img.platform.org/public/url/of/organization/logo",
+        background:
+          "https://img.platform.org/public/url/of/organization/background",
+        street: "Freedom Road",
+        streetNumber: "22",
+        city: "City of Relief",
+        zipCode: "12345",
+        supportedBy: [
+          "Aung San Suu Kyi",
+          "Rigoberta Menchú",
+          "Nelson Mandela",
+          "Jody Williams",
+        ],
+        areas: [
+          {
+            area: {
+              name: "India",
+            },
+          },
+          {
+            area: {
+              name: "Bavaria",
+            },
+          },
+          {
+            area: {
+              name: "New York City",
+            },
+          },
+        ],
+        types: [
+          {
+            organizationType: {
+              title: "Association",
+            },
+          },
+          {
+            organizationType: {
+              title: "Company",
+            },
+          },
+          {
+            organizationType: {
+              title: "Initiative",
+            },
+          },
+        ],
       },
       {
         id: "87e17b22-4846-4234-9d88-01958ab61960",
-        name: "Another Organization GmbH",
+        name: "Smallest Organization",
+        url: null,
+        logo: null,
+        background: null,
+        street: null,
+        streetNumber: null,
+        city: null,
+        zipCode: null,
+        supportedBy: [],
+        areas: [],
+        types: [],
       },
     ],
     skip: 0,
