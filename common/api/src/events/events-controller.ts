@@ -9,14 +9,12 @@ import {
   Tags,
   Example,
 } from "tsoa";
-import type { FieldErrors } from "tsoa";
 import type { TsoaResponse } from "tsoa";
 import type { ValidateError } from "tsoa";
 import { getAllEvents } from "./events-service";
 
 type GetEventsResult = ReturnType<typeof getAllEvents>;
 
-const MAX_TAKE = 50;
 @Route("events")
 @Tags("Events")
 export class EventsController extends Controller {
@@ -181,19 +179,6 @@ export class EventsController extends Controller {
     skip: 0,
     take: 2,
   })
-  // @Response<Pick<ValidateError, "status" | "message" | "fields">>(
-  //   400,
-  //   "Parameter out of range",
-  //   {
-  //     status: 400,
-  //     message: "Parameter out of range",
-  //     fields: {
-  //       take: {
-  //         message: `A take parameter larger than ${MAX_TAKE} is not allowed`,
-  //       },
-  //     },
-  //   }
-  // )
   @Response<Pick<ValidateError, "status" | "message" | "fields">>(
     401,
     "Authentication failed",
@@ -239,16 +224,24 @@ export class EventsController extends Controller {
     @Res()
     badRequestResponse: TsoaResponse<
       400,
-      { status: number; message: string; fields: FieldErrors }
+      {
+        fields: {
+          take: {
+            message: "A take parameter larger than 50 is not allowed";
+          };
+        };
+        message: "Parameter out of range";
+        status: 400;
+      }
     >
   ): GetEventsResult {
-    if (take > MAX_TAKE) {
+    if (take > 50) {
       return badRequestResponse(400, {
         status: 400,
         message: "Parameter out of range",
         fields: {
           take: {
-            message: `A take parameter larger than ${MAX_TAKE} is not allowed`,
+            message: "A take parameter larger than 50 is not allowed",
           },
         },
       });
