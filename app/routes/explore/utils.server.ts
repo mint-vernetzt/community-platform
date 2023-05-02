@@ -14,23 +14,41 @@ export async function getAllProfiles(
     areaId: string | undefined;
     offerId: string | undefined;
     seekingId: string | undefined;
+    scoreEquals: number | undefined;
+    scoreGreaterThan: number | undefined;
+    scoreLessThan: number | undefined;
+    alreadyFetchedIds: string[] | undefined;
   } = {
     skip: undefined,
     take: undefined,
     areaId: undefined,
     offerId: undefined,
     seekingId: undefined,
+    scoreEquals: undefined,
+    scoreGreaterThan: undefined,
+    scoreLessThan: undefined,
+    alreadyFetchedIds: undefined,
   }
 ) {
-  const { skip, take, areaId, offerId, seekingId } = options;
+  const {
+    skip,
+    take,
+    areaId,
+    offerId,
+    seekingId,
+    scoreEquals,
+    scoreGreaterThan,
+    scoreLessThan,
+    alreadyFetchedIds,
+  } = options;
 
   let areaToFilter;
   let whereClauses = [];
   let whereClause = Prisma.empty;
   let offerJoin = Prisma.empty;
   let seekingJoin = Prisma.empty;
-  // Default ordering: first_name ASC
-  let orderByClause = Prisma.sql`ORDER BY "score" DESC, "updatedAt" DESC, "firstName" ASC`;
+  // Random ordering
+  let orderByClause = Prisma.sql`ORDER BY RANDOM ()`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
@@ -119,6 +137,23 @@ export async function getAllProfiles(
     /* Filter profiles that have the exact seeking */
     const seekingWhere = Prisma.sql`S.id = ${seekingId}`;
     whereClauses.push(seekingWhere);
+  }
+  if (scoreEquals !== undefined) {
+    const fromScoreWhere = Prisma.sql`profiles.score = ${scoreEquals}`;
+    whereClauses.push(fromScoreWhere);
+  }
+  if (scoreGreaterThan !== undefined) {
+    const toScoreWhere = Prisma.sql`profiles.score > ${scoreGreaterThan}`;
+    whereClauses.push(toScoreWhere);
+  }
+  if (scoreLessThan !== undefined) {
+    const toScoreWhere = Prisma.sql`profiles.score < ${scoreLessThan}`;
+    whereClauses.push(toScoreWhere);
+  }
+  if (alreadyFetchedIds !== undefined && alreadyFetchedIds.length !== 0) {
+    const idList = Prisma.join(alreadyFetchedIds);
+    const alreadyFetchedIdsWhere = Prisma.sql`NOT (profiles.id IN (${idList}))`;
+    whereClauses.push(alreadyFetchedIdsWhere);
   }
   if (whereClauses.length > 0) {
     /* All WHERE clauses must hold true and are therefore connected with an logical AND */
@@ -256,6 +291,17 @@ export function getFilterValues(request: Request) {
   const offerId = url.searchParams.get("offerId") || undefined;
   const seekingId = url.searchParams.get("seekingId") || undefined;
   return { areaId, offerId, seekingId };
+}
+
+export function getAlreadyFetchedIds(request: Request) {
+  const url = new URL(request.url);
+  const alreadyFetchedIdsString =
+    url.searchParams.get("alreadyFetchedIds") || undefined;
+  let alreadyFetchedIds: string[] = [];
+  if (alreadyFetchedIdsString !== undefined) {
+    alreadyFetchedIds = alreadyFetchedIdsString.split(",");
+  }
+  return alreadyFetchedIds;
 }
 
 export async function getEvents(

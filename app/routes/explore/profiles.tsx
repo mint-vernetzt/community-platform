@@ -21,6 +21,7 @@ import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
   getAllProfiles,
+  getAlreadyFetchedIds,
   getFilterValues,
   getPaginationValues,
 } from "./utils.server";
@@ -39,54 +40,97 @@ export const loader = async (args: LoaderArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
+  const alreadyFetchedIds = getAlreadyFetchedIds(request);
 
-  let profiles;
+  let rawProfiles: Awaited<ReturnType<typeof getAllProfiles>> = [];
 
-  const allProfiles = await getAllProfiles({
-    ...paginationValues,
-    ...filterValues,
+  // Fetch from highest score to lowest score until profiles.length = paginationValues.take.
+  for (let score = 4; score >= 0; score--) {
+    if (rawProfiles.length < paginationValues.take) {
+      let newPaginationValues: {
+        skip: number;
+        take: number;
+      } = {
+        // We don't need to skip because we take the alreadyFetchedIds list to paginate over the randomly ordered result set
+        skip: 0,
+        // We need to adjust the take to fill the resulting profiles array to the a length equal to the original take param
+        // Example with an original take parameter of 6:
+        // First iteration (profiles.length = 0, take = 6): Only fetched 3 profiles with score greater than 3
+        // Second iteration (profiles.length = 3, take = 3): Only fetched 2 profiles with score equal to 3
+        // Third iteration (profiles.length = 5, take = 1): Fetched 1 profile with score equal to 2
+        // Fourth iteration (profiles.length = 6): Skip iteration because profiles.length >= original take
+        take: paginationValues.take - rawProfiles.length,
+      };
+      let scoreOptions: {
+        scoreEquals: number | undefined;
+        scoreGreaterThan: number | undefined;
+        scoreLessThan: number | undefined;
+      } = {
+        scoreEquals: undefined,
+        scoreGreaterThan: undefined,
+        scoreLessThan: undefined,
+      };
+      if (score === 4) {
+        scoreOptions.scoreGreaterThan = 3;
+      } else {
+        scoreOptions.scoreEquals = score;
+      }
+      const profiles = await getAllProfiles({
+        ...newPaginationValues,
+        ...filterValues,
+        ...scoreOptions,
+        alreadyFetchedIds,
+      });
+      for (let profile of profiles) {
+        rawProfiles.push(profile);
+        alreadyFetchedIds.push(profile.id);
+      }
+    }
+  }
+
+  const profiles = rawProfiles.map((profile) => {
+    const { bio, position, avatar, publicFields, ...otherFields } = profile;
+    let extensions: { bio?: string; position?: string } = {};
+
+    if (
+      ((publicFields !== null && publicFields.includes("bio")) ||
+        sessionUser !== null) &&
+      bio !== null
+    ) {
+      extensions.bio = bio;
+    }
+    if (
+      ((publicFields !== null && publicFields.includes("position")) ||
+        sessionUser !== null) &&
+      position !== null
+    ) {
+      extensions.position = position;
+    }
+
+    let avatarImage: string | null = null;
+
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatarImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    // TODO: Remove this
+    console.log("SCORE:", profile.firstName, profile.score);
+
+    return { ...otherFields, ...extensions, avatar: avatarImage };
   });
 
-  if (allProfiles !== null) {
-    profiles = allProfiles.map((profile) => {
-      const { bio, position, avatar, publicFields, ...otherFields } = profile;
-      let extensions: { bio?: string; position?: string } = {};
-
-      if (
-        ((publicFields !== null && publicFields.includes("bio")) ||
-          sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
-      }
-      if (
-        ((publicFields !== null && publicFields.includes("position")) ||
-          sessionUser !== null) &&
-        position !== null
-      ) {
-        extensions.position = position;
-      }
-
-      let avatarImage: string | null = null;
-
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      return { ...otherFields, ...extensions, avatar: avatarImage };
-    });
-  }
+  console.log("SKIP:", paginationValues.skip);
+  console.log("TAKE:", paginationValues.take);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  // TODO: fix type issue
   return json(
     { isLoggedIn, profiles, areas, offers },
     { headers: response.headers }
@@ -109,7 +153,7 @@ export default function Index() {
     items: typeof loaderData.profiles;
     refCallback: (node: HTMLDivElement) => void;
   } = useInfiniteItems(
-    loaderData.profiles || [],
+    loaderData.profiles,
     "/explore/profiles?",
     "profiles",
     searchParams

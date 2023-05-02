@@ -59,12 +59,25 @@ export function useInfiniteItems(
       let searchParamsQuery = "";
       if (searchParams !== undefined) {
         searchParams.forEach((value, key) => {
-          // if (key !== "page") {
           searchParamsQuery += `&${key}=${value}`;
-          // }
         });
       }
-      fetcher.load(`${route}page=${page}${searchParamsQuery}`);
+      let alreadyFetchedIds;
+      if (items.length !== 0) {
+        alreadyFetchedIds = "&alreadyFetchedIds=";
+        for (let item of items) {
+          if (item.id !== undefined) {
+            alreadyFetchedIds += `${item.id},`;
+          }
+        }
+        alreadyFetchedIds = alreadyFetchedIds.substring(
+          0,
+          alreadyFetchedIds.length - 1
+        );
+      }
+      fetcher.load(
+        `${route}page=${page}${alreadyFetchedIds || ""}${searchParamsQuery}`
+      );
       setShouldFetch(false);
     }
   }, [clientHeight, scrollPosition]);
