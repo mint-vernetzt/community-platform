@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -25,14 +25,7 @@ import {
   getPaginationValues,
 } from "./utils.server";
 
-type LoaderData = {
-  isLoggedIn: boolean;
-  profiles: Awaited<ReturnType<typeof getAllProfiles>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  offers: Awaited<ReturnType<typeof getAllOffers>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -94,14 +87,14 @@ export const loader: LoaderFunction = async (args) => {
   const offers = await getAllOffers();
 
   // TODO: fix type issue
-  return json<LoaderData>(
+  return json(
     { isLoggedIn, profiles, areas, offers },
     { headers: response.headers }
   );
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
   const areaId = searchParams.get("areaId");
@@ -116,7 +109,7 @@ export default function Index() {
     items: typeof loaderData.profiles;
     refCallback: (node: HTMLDivElement) => void;
   } = useInfiniteItems(
-    loaderData.profiles,
+    loaderData.profiles || [],
     "/explore/profiles?",
     "profiles",
     searchParams
