@@ -27,7 +27,7 @@ export async function validateFeatureAccess(
     throw: boolean;
   } = { throw: true }
 ) {
-  const features = process.env.FEATURES;
+  const featureFlags = process.env.FEATURE_FLAGS;
 
   let error: Error | undefined;
 
@@ -45,7 +45,74 @@ export async function validateFeatureAccess(
     };
   } = {};
 
-  if (features === undefined) {
+  let featureList: Array<{
+    name: string;
+    idsWithAccess: string[];
+  }> = [];
+
+  if (featureFlags !== undefined) {
+    // Example format at this point: "events:1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760;projects:fb30b5e4-9daa-40e2-bd8f-71c6ce827c7a;"
+    featureList = featureFlags.split(";").map((featureFlag) => {
+      // Example format at this point: ["events:1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760", "projects:fb30b5e4-9daa-40e2-bd8f-71c6ce827c7a"]
+      let splittedFeatureFlag = featureFlag.trim().split(":");
+      // Example format at this point: ["events", "1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760"]
+      let featureListItem = {
+        name: splittedFeatureFlag[0].trim(),
+        idsWithAccess: splittedFeatureFlag[1]
+          ? splittedFeatureFlag[1]
+              .trim()
+              .split(",")
+              .map((id) => id.trim())
+          : [],
+        // Example format at this point: ["1798752d-3901-4247-b375-51285141d158", "5a39958c-a1de-4716-8081-ddcdefb6a760"]
+      };
+      return featureListItem;
+    });
+
+    for (const featureName of featureNames) {
+      // Feature flag not present in .env
+      if (!featureList.some((feature) => feature.name === featureName)) {
+        const message = `Feature flag for "${featureName}" not found`;
+        console.error(message);
+        if (options.throw) {
+          throw serverError({ message });
+        }
+        error = new Error(message);
+        abilities[featureName] = {
+          error,
+          hasAccess: false,
+        };
+      }
+      // Feature flag is present in .env
+      else {
+        const user = await getSessionUser(authClient);
+        // User id is present in the current looped feature of the featureList
+        if (
+          user !== null &&
+          featureList.some(
+            (feature) =>
+              feature.name === featureName &&
+              feature.idsWithAccess.includes(user.id)
+          )
+        ) {
+          abilities[featureName] = { hasAccess: true };
+        }
+        // User is null or not present in the current looped feature of the featureList
+        else {
+          const message = `User hasn't access to feature "${featureName}"`;
+          console.error(message);
+          if (options.throw) {
+            throw serverError({ message });
+          }
+          error = new Error(message);
+          abilities[featureName] = {
+            error,
+            hasAccess: false,
+          };
+        }
+      }
+    }
+  } else {
     const message = "No feature flags found";
     console.error(message);
     if (options.throw) {
@@ -61,54 +128,8 @@ export async function validateFeatureAccess(
     }
   }
 
-  let featureList = [];
-
-  if (features !== undefined) {
-    featureList = features
-      .split(",")
-      .map((value) => value.trimStart().trimEnd()); // remove whitespace
-
-    for (const featureName of featureNames) {
-      if (featureList.indexOf(featureName) === -1) {
-        const message = `Feature flag for "${featureName}" not found`;
-        if (options.throw) {
-          throw serverError({ message });
-        }
-        error = new Error(message);
-        abilities[featureName] = {
-          error,
-          hasAccess: false,
-        };
-      } else {
-        abilities[featureName] = { hasAccess: true };
-      }
-    }
-  }
-
-  const userIds = process.env.FEATURE_USER_IDS;
-
-  if (userIds !== undefined) {
-    const userIdList = userIds
-      .split(",")
-      .map((value) => value.trimStart().trimEnd()); // remove whitespace
-    const user = await getSessionUser(authClient);
-
-    if (user === null || userIdList.indexOf(user.id) === -1) {
-      for (const featureName of featureNames) {
-        const message = `User hasn't access to feature "${featureName}"`;
-        console.error(message);
-        if (options.throw) {
-          throw serverError({ message });
-        }
-        error = new Error(message);
-        abilities[featureName] = {
-          error,
-          hasAccess: false,
-        };
-      }
-    }
-  }
-
+  // Don't understand this object construction. Top Level functions only use result.abilities.
+  // error, hasAccess and featureName is duplicated as these fields are all present inside the abilities object
   let result;
   if (typeof featureNameOrNames === "string") {
     result = {
