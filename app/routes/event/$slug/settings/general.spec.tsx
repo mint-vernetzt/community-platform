@@ -47,14 +47,16 @@ jest.mock("~/prisma", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 const slug = "slug-test";
 
 describe("/event/$slug/settings/general", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       expect.assertions(2);
 
@@ -214,17 +216,9 @@ describe("/event/$slug/settings/general", () => {
       expect(responseBody.event.startDate).toBe("2022-09-19");
       expect(responseBody.event.startTime).toBe("09:00");
     });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
-    });
   });
 
   describe("action", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       const request = createRequestWithFormData({});
 
@@ -657,10 +651,6 @@ describe("/event/$slug/settings/general", () => {
         (prismaClient.event.findFirst as jest.Mock).mockClear();
         (prismaClient.teamMemberOfEvent.findFirst as jest.Mock).mockClear();
       });
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

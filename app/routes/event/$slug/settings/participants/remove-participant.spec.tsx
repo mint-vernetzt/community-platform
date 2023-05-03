@@ -32,10 +32,6 @@ jest.mock("~/prisma", () => {
 });
 
 describe("/event/$slug/settings/participants/remove-participant", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
-
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -237,9 +233,5 @@ describe("/event/$slug/settings/participants/remove-participant", () => {
       },
     });
     expect(responseBody.success).toBe(true);
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

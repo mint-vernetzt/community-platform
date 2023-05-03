@@ -27,12 +27,14 @@ jest.mock("~/prisma", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 describe("/event/$slug/settings/speakers", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       expect.assertions(2);
 
@@ -181,10 +183,6 @@ describe("/event/$slug/settings/speakers", () => {
           }),
         ])
       );
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

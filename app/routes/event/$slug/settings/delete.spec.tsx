@@ -13,6 +13,12 @@ const getSessionUserOrThrow = jest.spyOn(
   "getSessionUserOrThrow"
 );
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 jest.mock("~/prisma", () => {
   return {
     prismaClient: {
@@ -37,10 +43,6 @@ const slug = "slug-test";
 
 describe("/event/$slug/settings/delete", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       expect.assertions(2);
 
@@ -169,17 +171,9 @@ describe("/event/$slug/settings/delete", () => {
         },
       ]);
     });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
-    });
   });
 
   describe("action", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       const request = createRequestWithFormData({});
 
@@ -390,10 +384,6 @@ describe("/event/$slug/settings/delete", () => {
       });
 
       expect(response).toEqual(redirect("/profile/someuser"));
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

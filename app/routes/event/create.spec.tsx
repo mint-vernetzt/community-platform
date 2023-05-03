@@ -39,11 +39,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("loader", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("loader", () => {
   test("anon user", async () => {
     expect.assertions(2);
 
@@ -100,17 +102,9 @@ describe("loader", () => {
     expect(responseWithParametersBody.child).toBe("child-event-id");
     expect(responseWithParametersBody.parent).toBe("parent-event-id");
   });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
-  });
 });
 
 describe("action", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
-
   test("anon user", async () => {
     expect.assertions(2);
 
@@ -374,9 +368,5 @@ describe("action", () => {
     );
 
     expect(response).toEqual(redirect("/event/some-slug"));
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

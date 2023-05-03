@@ -32,10 +32,6 @@ jest.mock("~/prisma", () => {
 });
 
 describe("/event/$slug/settings/participants/add-participant", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
-
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -313,9 +309,5 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     expect(responseBody.message).toBe(
       'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

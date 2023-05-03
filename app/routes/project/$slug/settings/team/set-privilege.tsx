@@ -6,6 +6,7 @@ import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getProfileByUserId } from "~/profile.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import { getProjectByIdOrThrow } from "../../utils.server";
@@ -40,6 +41,7 @@ export const action: ActionFunction = async (args) => {
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const result = await performMutation({ request, schema, mutation });
 

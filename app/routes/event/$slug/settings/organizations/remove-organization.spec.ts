@@ -31,11 +31,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/add-member", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/team/add-member", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -204,9 +206,5 @@ describe("/event/$slug/settings/team/add-member", () => {
       },
     });
     expect(responseBody.success).toBe(true);
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });
