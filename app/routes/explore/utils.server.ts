@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import type { Profile } from "@prisma/client";
+import type { Profile, Organization } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
@@ -181,7 +181,8 @@ export async function getAllProfiles(
       profiles.public_fields as "publicFields",
       profiles.first_name as "firstName",
       profiles.last_name as "lastName",
-      profiles.username, profiles.academic_title as "academicTitle",
+      profiles.username,
+      profiles.academic_title as "academicTitle",
       profiles.position,
       profiles.bio,
       profiles.avatar,
@@ -197,7 +198,7 @@ export async function getAllProfiles(
       ${offerJoin}
       ${seekingJoin}
     /* Filtering with the where clauses from above if any exist */
-    ${whereClause || Prisma.empty}
+    ${whereClause}
     GROUP BY profiles.id
     ${orderByClause}
     LIMIT ${take}
@@ -208,19 +209,101 @@ export async function getAllProfiles(
 }
 
 export async function getAllOrganizations(
-  skip: number | undefined = undefined,
-  take: number | undefined = undefined
+  options: {
+    skip: number | undefined;
+    take: number | undefined;
+    scoreEquals: number | undefined;
+    scoreGreaterThan: number | undefined;
+    scoreLessThan: number | undefined;
+    alreadyFetchedIds: string[] | undefined;
+  } = {
+    skip: undefined,
+    take: undefined,
+    scoreEquals: undefined,
+    scoreGreaterThan: undefined,
+    scoreLessThan: undefined,
+    alreadyFetchedIds: undefined,
+  }
 ) {
-  const organizations = await prismaClient.organization.findMany({
+  const {
     skip,
     take,
-    include: {
-      areas: { select: { area: { select: { name: true } } } },
-      focuses: { select: { focus: { select: { title: true } } } },
-      types: { select: { organizationType: { select: { title: true } } } },
-    },
-    orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
-  });
+    scoreEquals,
+    scoreGreaterThan,
+    scoreLessThan,
+    alreadyFetchedIds,
+  } = options;
+
+  const whereClauses = [];
+  let whereClause = Prisma.empty;
+  if (scoreEquals !== undefined) {
+    const fromScoreWhere = Prisma.sql`organizations.score = ${scoreEquals}`;
+    whereClauses.push(fromScoreWhere);
+  }
+  if (scoreGreaterThan !== undefined) {
+    const toScoreWhere = Prisma.sql`organizations.score > ${scoreGreaterThan}`;
+    whereClauses.push(toScoreWhere);
+  }
+  if (scoreLessThan !== undefined) {
+    const toScoreWhere = Prisma.sql`organizations.score < ${scoreLessThan}`;
+    whereClauses.push(toScoreWhere);
+  }
+  if (alreadyFetchedIds !== undefined && alreadyFetchedIds.length !== 0) {
+    const idList = Prisma.join(alreadyFetchedIds);
+    const alreadyFetchedIdsWhere = Prisma.sql`NOT (organizations.id IN (${idList}))`;
+    whereClauses.push(alreadyFetchedIdsWhere);
+  }
+  if (whereClauses.length > 0) {
+    /* All WHERE clauses must hold true and are therefore connected with an logical AND */
+    whereClause = Prisma.join(whereClauses, ") AND (", "WHERE (", ")");
+  }
+  // const organizations = await prismaClient.organization.findMany({
+  //   where: {
+  //     AND: whereClauses,
+  //   },
+  //   skip,
+  //   take,
+  //   include: {
+  //     areas: { select: { area: { select: { name: true } } } },
+  //     focuses: { select: { focus: { select: { title: true } } } },
+  //     types: { select: { organizationType: { select: { title: true } } } },
+  //   },
+  //   orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
+  // });
+
+  const organizations: Array<
+    Pick<
+      Organization,
+      "id" | "publicFields" | "name" | "slug" | "bio" | "logo" | "score"
+    > & { areaNames: string[]; organizationTypeTitles: string[] }
+  > = await prismaClient.$queryRaw`
+  SELECT 
+    organizations.id,
+    organizations.public_fields as "publicFields",
+    organizations.name,
+    organizations.slug,
+    organizations.bio,
+    organizations.logo,
+    organizations.score,
+    array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
+    array_remove(array_agg(DISTINCT organization_types.title), null) as "organizationTypeTitles"
+  FROM organizations
+    /* Always joining areas and organization_types to get areaNames and organizationTypeTitles */
+    LEFT JOIN areas_on_organizations
+    ON organizations.id = areas_on_organizations."organizationId"
+    LEFT JOIN areas
+    ON areas_on_organizations."areaId" = areas.id
+    LEFT JOIN organization_types_on_organizations
+    ON organizations.id = organization_types_on_organizations."organizationId"
+    LEFT JOIN organization_types
+    ON organization_types_on_organizations."organizationTypeId" = organization_types.id
+  /* Filtering with the where clauses from above if any exist */
+  ${whereClause}
+  GROUP BY organizations.id
+  ORDER BY RANDOM ()
+  LIMIT ${take}
+  OFFSET ${skip}
+;`;
 
   return organizations;
 }

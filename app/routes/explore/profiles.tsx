@@ -48,11 +48,11 @@ export const loader = async (args: LoaderArgs) => {
   for (let score = 4; score >= 0; score--) {
     if (rawProfiles.length < paginationValues.take) {
       let newPaginationValues: {
-        skip: number;
+        skip: number | undefined;
         take: number;
       } = {
         // We don't need to skip because we take the alreadyFetchedIds list to paginate over the randomly ordered result set
-        skip: 0,
+        skip: undefined,
         // We need to adjust the take to fill the resulting profiles array to the a length equal to the original take param
         // Example with an original take parameter of 6:
         // First iteration (profiles.length = 0, take = 6): Only fetched 3 profiles with score greater than 3
@@ -119,14 +119,8 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
-    // TODO: Remove this
-    console.log("SCORE:", profile.firstName, profile.score);
-
     return { ...otherFields, ...extensions, avatar: avatarImage };
   });
-
-  console.log("SKIP:", paginationValues.skip);
-  console.log("TAKE:", paginationValues.take);
 
   const areas = await getAreas();
   const offers = await getAllOffers();

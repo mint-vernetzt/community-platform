@@ -1,12 +1,10 @@
 import type { Area } from "@prisma/client";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3 } from "~/components/Heading/Heading";
@@ -17,7 +15,11 @@ import { getFilteredOrganizations } from "~/organization.server";
 import { getAllOffers, getAreaById } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import { getAllOrganizations, getPaginationValues } from "./utils.server";
+import {
+  getAllOrganizations,
+  getAlreadyFetchedIds,
+  getPaginationValues,
+} from "./utils.server";
 
 const schema = z.object({
   areaId: z.string().optional(),
@@ -28,20 +30,11 @@ const environmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-type Organizations = Awaited<ReturnType<typeof getAllOrganizations>>;
-
-type LoaderData = {
-  isLoggedIn: boolean;
-  organizations: Organizations;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  offers: Awaited<ReturnType<typeof getAllOffers>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  const { skip, take } = getPaginationValues(request);
+  const { take } = getPaginationValues(request);
 
   const authClient = createAuthClient(request, response);
 
@@ -52,40 +45,80 @@ export const loader: LoaderFunction = async (args) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  let organizations;
+  const alreadyFetchedIds = getAlreadyFetchedIds(request);
 
-  const allOrganizations = await getAllOrganizations(skip, take);
+  let rawOrganizations: Awaited<ReturnType<typeof getAllOrganizations>> = [];
 
-  if (allOrganizations !== null) {
-    organizations = allOrganizations.map((organization) => {
-      const { bio, publicFields, logo, ...otherFields } = organization;
-      let extensions: { bio?: string } = {};
-
-      if (
-        (publicFields.includes("bio") || sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
+  // Fetch from highest score to lowest score until profiles.length = paginationValues.take.
+  for (let score = 4; score >= 0; score--) {
+    if (rawOrganizations.length < take) {
+      let newPaginationValues: {
+        skip: number | undefined;
+        take: number;
+      } = {
+        // We don't need to skip because we take the alreadyFetchedIds list to paginate over the randomly ordered result set
+        skip: undefined,
+        // We need to adjust the take to fill the resulting profiles array to the a length equal to the original take param
+        // Example with an original take parameter of 6:
+        // First iteration (profiles.length = 0, take = 6): Only fetched 3 profiles with score greater than 3
+        // Second iteration (profiles.length = 3, take = 3): Only fetched 2 profiles with score equal to 3
+        // Third iteration (profiles.length = 5, take = 1): Fetched 1 profile with score equal to 2
+        // Fourth iteration (profiles.length = 6): Skip iteration because profiles.length >= original take
+        take: take - rawOrganizations.length,
+      };
+      let scoreOptions: {
+        scoreEquals: number | undefined;
+        scoreGreaterThan: number | undefined;
+        scoreLessThan: number | undefined;
+      } = {
+        scoreEquals: undefined,
+        scoreGreaterThan: undefined,
+        scoreLessThan: undefined,
+      };
+      if (score === 4) {
+        scoreOptions.scoreGreaterThan = 3;
+      } else {
+        scoreOptions.scoreEquals = score;
       }
-
-      let logoImage: string | null = null;
-
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logoImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
+      const organizations = await getAllOrganizations({
+        ...newPaginationValues,
+        ...scoreOptions,
+        alreadyFetchedIds,
+      });
+      for (let organization of organizations) {
+        rawOrganizations.push(organization);
+        alreadyFetchedIds.push(organization.id);
       }
-
-      return { ...otherFields, ...extensions, logo: logoImage };
-    });
+    }
   }
-  // TODO: fix type issue
 
-  return json<LoaderData>(
+  const organizations = rawOrganizations.map((organization) => {
+    const { bio, publicFields, logo, ...otherFields } = organization;
+    let extensions: { bio?: string } = {};
+
+    if (
+      (publicFields.includes("bio") || sessionUser !== null) &&
+      bio !== null
+    ) {
+      extensions.bio = bio;
+    }
+
+    let logoImage: string | null = null;
+
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logoImage = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    return { ...otherFields, ...extensions, logo: logoImage };
+  });
+
+  return json(
     { isLoggedIn, organizations, areas, offers },
     { headers: response.headers }
   );
@@ -242,14 +275,7 @@ const mutation = makeDomainFunction(
   };
 });
 
-type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema> & {
-    organizations: Organizations;
-  }
->;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   // TODO: Do we need an identity/authorization check for the filter action?
@@ -260,14 +286,19 @@ export const action: ActionFunction = async ({ request }) => {
     environment: { authClient: authClient },
   });
 
-  // TODO: fix type issue
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
-  const { items, refCallback } = useInfiniteItems(
+  const {
+    items,
+    refCallback,
+  }: {
+    items: typeof loaderData.organizations;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(
     loaderData.organizations,
     "/explore/organizations?",
     "organizations"
@@ -296,9 +327,7 @@ export default function Index() {
               image = organization.logo;
               initials = getInitialsOfName(organization.name);
               name = organization.name;
-              subtitle = organization.types
-                .map(({ organizationType }) => organizationType.title)
-                .join(" / ");
+              subtitle = organization.organizationTypeTitles.join(" / ");
 
               return (
                 <div
@@ -328,7 +357,7 @@ export default function Index() {
                         <H3 like="h4" className="text-xl mb-1">
                           {name}
                         </H3>
-                        {subtitle !== null ? (
+                        {subtitle !== "" ? (
                           <p className="font-bold text-sm">{subtitle}</p>
                         ) : null}
                       </div>
@@ -338,18 +367,13 @@ export default function Index() {
                       <p className="mt-3 line-clamp-2">{organization.bio}</p>
                     ) : null}
 
-                    {organization.areas !== undefined &&
-                    organization.areas.length > 0 ? (
+                    {organization.areaNames.length > 0 ? (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
                         </div>
                         <div className="flex-auto line-clamp-3">
-                          <span>
-                            {organization.areas
-                              .map((area) => area.area.name)
-                              .join(" / ")}
-                          </span>
+                          <span>{organization.areaNames.join(" / ")}</span>
                         </div>
                       </div>
                     ) : null}
