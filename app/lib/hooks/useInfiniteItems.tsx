@@ -57,10 +57,11 @@ export function useInfiniteItems(
     }
     if (clientHeight + scrollPosition > height) {
       let searchParamsQuery = "";
-      console.log(searchParams);
       if (searchParams !== undefined) {
         searchParams.forEach((value, key) => {
-          searchParamsQuery += `&${key}=${value}`;
+          if (key !== "page") {
+            searchParamsQuery += `&${key}=${value}`;
+          }
         });
       }
       fetcher.load(`${route}page=${page}${searchParamsQuery}`);
