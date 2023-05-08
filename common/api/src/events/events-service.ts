@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
 import type { Request } from "express";
-import { decorate } from "src/lib/matomoUrlDecorator";
+import { decorate } from "../lib/matomoUrlDecorator";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
