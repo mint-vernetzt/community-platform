@@ -1,10 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
+import type { Request } from "express";
+import { decorate } from "src/lib/matomoUrlDecorator";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
-async function getEvents(skip: number, take: number) {
+async function getEvents(request: Request, skip: number, take: number) {
   const publicEvents = await prismaClient.event.findMany({
     select: {
       id: true,
@@ -121,7 +123,7 @@ async function getEvents(skip: number, take: number) {
 
     let url: string | null = null;
     if (process.env.COMMUNITY_BASE_URL !== undefined) {
-      url = `${process.env.COMMUNITY_BASE_URL}event/${slug}`;
+      url = decorate(request, `${process.env.COMMUNITY_BASE_URL}event/${slug}`);
     }
 
     return {
@@ -135,9 +137,10 @@ async function getEvents(skip: number, take: number) {
 }
 
 export async function getAllEvents(
+  request: Request,
   skip: number,
   take: number
 ): Promise<{ skip: number; take: number; result: Events }> {
-  const publicEvents = await getEvents(skip, take);
+  const publicEvents = await getEvents(request, skip, take);
   return { skip, take, result: publicEvents };
 }
