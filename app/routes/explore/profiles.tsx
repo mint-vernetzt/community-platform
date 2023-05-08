@@ -21,9 +21,9 @@ import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
   getAllProfiles,
-  getAlreadyFetchedIds,
   getFilterValues,
   getPaginationValues,
+  getRandomSeed,
 } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
@@ -40,53 +40,17 @@ export const loader = async (args: LoaderArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
-  const alreadyFetchedIds = getAlreadyFetchedIds(request);
-
-  let rawProfiles: Awaited<ReturnType<typeof getAllProfiles>> = [];
-
-  // Fetch from highest score to lowest score until profiles.length = paginationValues.take.
-  for (let score = 4; score >= 0; score--) {
-    if (rawProfiles.length < paginationValues.take) {
-      let newPaginationValues: {
-        skip: number | undefined;
-        take: number;
-      } = {
-        // We don't need to skip because we take the alreadyFetchedIds list to paginate over the randomly ordered result set
-        skip: undefined,
-        // We need to adjust the take to fill the resulting profiles array to the a length equal to the original take param
-        // Example with an original take parameter of 6:
-        // First iteration (profiles.length = 0, take = 6): Only fetched 3 profiles with score greater than 3
-        // Second iteration (profiles.length = 3, take = 3): Only fetched 2 profiles with score equal to 3
-        // Third iteration (profiles.length = 5, take = 1): Fetched 1 profile with score equal to 2
-        // Fourth iteration (profiles.length = 6): Skip iteration because profiles.length >= original take
-        take: paginationValues.take - rawProfiles.length,
-      };
-      let scoreOptions: {
-        scoreEquals: number | undefined;
-        scoreGreaterThan: number | undefined;
-        scoreLessThan: number | undefined;
-      } = {
-        scoreEquals: undefined,
-        scoreGreaterThan: undefined,
-        scoreLessThan: undefined,
-      };
-      if (score === 4) {
-        scoreOptions.scoreGreaterThan = 3;
-      } else {
-        scoreOptions.scoreEquals = score;
-      }
-      const profiles = await getAllProfiles({
-        ...newPaginationValues,
-        ...filterValues,
-        ...scoreOptions,
-        alreadyFetchedIds,
-      });
-      for (let profile of profiles) {
-        rawProfiles.push(profile);
-        alreadyFetchedIds.push(profile.id);
-      }
-    }
+  let randomSeed = getRandomSeed(request);
+  if (paginationValues.skip === 0) {
+    randomSeed = Math.random();
   }
+  console.log("RANDOM SEED", randomSeed);
+
+  const rawProfiles = await getAllProfiles({
+    ...paginationValues,
+    ...filterValues,
+    randomSeed,
+  });
 
   const profiles = rawProfiles.map((profile) => {
     const { bio, position, avatar, publicFields, ...otherFields } = profile;
@@ -119,14 +83,15 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
+    console.log("PROFILE: ", profile.firstName, profile.score);
+
     return { ...otherFields, ...extensions, avatar: avatarImage };
   });
 
   const areas = await getAreas();
   const offers = await getAllOffers();
-
   return json(
-    { isLoggedIn, profiles, areas, offers },
+    { isLoggedIn, profiles, areas, offers, randomSeed },
     { headers: response.headers }
   );
 };
@@ -138,6 +103,7 @@ export default function Index() {
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
   const seekingId = searchParams.get("seekingId");
+  searchParams.set("randomSeed", loaderData.randomSeed?.toString() || "0");
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
   const {
