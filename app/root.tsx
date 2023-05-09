@@ -40,7 +40,7 @@ export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
   sessionUserInfo?: SessionUserInfo;
-  abilities: Pick<Awaited<ReturnType<typeof getFeatureAbilities>>, "abilities">;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
 };
 
 type LoaderData = RootRouteData;
@@ -52,7 +52,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const authClient = createAuthClient(request, response);
 
-  const { abilities } = await getFeatureAbilities(authClient, [
+  const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
   ]);
@@ -96,7 +96,7 @@ export const loader: LoaderFunction = async (args) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
-      abilities, // TODO: fix type issue
+      abilities,
     },
     { headers: response.headers }
   );
@@ -320,7 +320,8 @@ function NavBar(props: NavBarProps) {
                         Veranstaltungen anzeigen
                       </Link>
                     </li>
-                    {props.abilities.events.hasAccess === true ? (
+                    {props.abilities.events !== undefined &&
+                    props.abilities.events.hasAccess === true ? (
                       <li>
                         <Link
                           to={`/event/create`}
@@ -349,7 +350,8 @@ function NavBar(props: NavBarProps) {
                       Projekte anzeigen
                     </Link>
                   </li>
-                  {props.abilities.projects.hasAccess === true ? (
+                  {props.abilities.projects !== undefined &&
+                  props.abilities.projects.hasAccess === true ? (
                     <li>
                       <Link
                         to={`/project/create`}
