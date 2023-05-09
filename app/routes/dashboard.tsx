@@ -1,6 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import ProfileCard from "common/components/src/organisms/cards/ProfileCard";
 import { useTransition } from "react";
 import { createAuthClient } from "~/auth.server";
 
@@ -19,27 +20,7 @@ function Dashboard() {
 
   return (
     <>
-      {/* <Layout> should be top level in root.tsx */}
-      <Layout>
-        <Heading></Heading>
-        {/* Container component for multiple buttons? */}
-        <Button></Button>
-        <Button></Button>
-        <CommunityCounter></CommunityCounter>
-        <Heading></Heading>
-        <Slider>
-          {/* MAP! */}
-          <ProfileCard></ProfileCard>
-        </Slider>
-        <Slider>
-          {/* MAP! */}
-          <OrganizationCard></OrganizationCard>
-        </Slider>
-        <Slider>
-          {/* MAP! */}
-          <EventCard></EventCard>
-        </Slider>
-      </Layout>
+      <ProfileCard />
     </>
   );
 }
