@@ -15,6 +15,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
@@ -42,6 +43,8 @@ export const loader = async (args: LoaderArgs) => {
   const project = await getProjectBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, sessionUser);
+
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const organizations = getResponsibleOrganizationDataFromProject(project);
   const enhancedOrganizations = organizations.map((organization) => {

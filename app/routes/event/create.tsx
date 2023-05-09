@@ -13,7 +13,7 @@ import type { InferType } from "yup";
 import { object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { validateFeatureAccess } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -78,7 +78,7 @@ export const loader = async (args: LoaderArgs) => {
   const child = url.searchParams.get("child") || "";
   const parent = url.searchParams.get("parent") || "";
 
-  await validateFeatureAccess(authClient, "events");
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   return json(
     { id: sessionUser.id, child, parent },

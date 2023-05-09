@@ -32,10 +32,6 @@ jest.mock("~/prisma", () => {
 });
 
 describe("/event/$slug/settings/waiting-list/remove-from-waiting-list", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
-
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -240,9 +236,5 @@ describe("/event/$slug/settings/waiting-list/remove-from-waiting-list", () => {
       },
     });
     expect(responseBody.success).toBe(true);
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

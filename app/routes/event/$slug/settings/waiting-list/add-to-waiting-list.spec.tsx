@@ -32,10 +32,6 @@ jest.mock("~/prisma", () => {
 });
 
 describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
-
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -322,9 +318,5 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
     expect(responseBody.message).toBe(
       'Das Profil mit dem Namen "some-user-firstname some-user-latsname" wurde zur Warteliste hinzugefügt.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

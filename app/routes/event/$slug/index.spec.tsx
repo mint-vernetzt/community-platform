@@ -13,6 +13,12 @@ jest.mock("~/auth.server", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    getFeatureAbilities: jest.fn(),
+  };
+});
+
 jest.mock("~/prisma", () => {
   return {
     prismaClient: {
@@ -32,9 +38,6 @@ const slug = "slug-test";
 
 describe("/event/$slug", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
     test("no params", async () => {
       expect.assertions(2);
 
@@ -245,9 +248,5 @@ describe("/event/$slug", () => {
     //   expect(response.mode).toBe("owner");
     //   expect(response.event.slug).toBe(slug);
     // });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
-    });
   });
 });
