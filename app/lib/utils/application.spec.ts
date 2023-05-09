@@ -159,38 +159,33 @@ describe("validateFeatureAccess()", () => {
       expect(featureName).toBe("a feature");
     });
 
-    // TODO Review: What is this test for?
+    test("feature set for public access", async () => {
+      process.env.FEATURE_FLAGS = "a feature: some-user-id; another feature";
 
-    // test("feature set for public access", async () => {
-    //   process.env.FEATURES = "a feature, another feature";
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-user-id" };
+      });
 
-    //   (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-    //     return { id: "some-user-id" };
-    //   });
+      let error;
+      let hasAccess: boolean | undefined = false;
+      let featureName: string | undefined;
 
-    //   let error;
-    //   let hasAccess: boolean | undefined = false;
-    //   let featureName: string | undefined;
+      try {
+        const result = await validateFeatureAccess(
+          authClient,
+          "another feature"
+        );
+        error = result.error;
+        hasAccess = result.hasAccess;
+        featureName = result.featureName;
+      } catch (err) {
+        error = err;
+      }
 
-    //   try {
-    //     const result = await validateFeatureAccess(
-    //       authClient,
-    //       "another feature"
-    //     );
-    //     error = result.error;
-    //     hasAccess = result.hasAccess;
-    //     featureName = result.featureName;
-    //   } catch (err) {
-    //     error = err;
-    //   }
-
-    //   expect(error).toBeUndefined();
-    //   // Why do we have access when .env holds a feature flag, but no ids are specified
-    //   // Shouldn't that lead to no access?
-    //   // If we remove the feature flag from .env we get the intended behaviour "feature set for public access"
-    //   expect(hasAccess).toBe(true);
-    //   expect(featureName).toBe("another feature");
-    // });
+      expect(error).toBeUndefined();
+      expect(hasAccess).toBe(true);
+      expect(featureName).toBe("another feature");
+    });
 
     afterAll(() => {
       delete process.env.FEATURE_FLAGS;
@@ -363,35 +358,30 @@ describe("validateFeatureAccess()", () => {
       expect(abilities["another feature"].hasAccess).toBe(true);
       expect(abilities["another feature"].error).toBe(undefined);
     });
+    test("feature set for public access", async () => {
+      process.env.FEATURE_FLAGS = "feature1;feature2;feature3";
 
-    // TODO Review: What is this test for?
-    // test("feature set for public access", async () => {
-    //   process.env.FEATURES = "feature1,feature2,feature3";
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+        return { id: "some-other-user-id" };
+      });
 
-    //   (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-    //     return { id: "some-other-user-id" };
-    //   });
+      expect.assertions(4);
 
-    //   expect.assertions(4);
+      const { abilities } = await validateFeatureAccess(authClient, [
+        "feature1",
+        "feature2",
+      ]);
 
-    //   const { abilities } = await validateFeatureAccess(authClient, [
-    //     "feature1",
-    //     "feature2",
-    //   ]);
+      if (abilities["feature1"] !== undefined) {
+        expect(abilities["feature1"].hasAccess).toBe(true);
+        expect(abilities["feature1"].error).toBeUndefined();
+      }
 
-    //   // Why do we have access when .env holds a feature flag, but no ids are specified
-    //   // Shouldn't that lead to no access?
-    //   // If we remove the feature flag from .env we get the intended behaviour "feature set for public access"
-    //   if (abilities["feature1"] !== undefined) {
-    //     expect(abilities["feature1"].hasAccess).toBe(true);
-    //     expect(abilities["feature1"].error).toBeUndefined();
-    //   }
-
-    //   if (abilities["feature2"] !== undefined) {
-    //     expect(abilities["feature2"].hasAccess).toBe(true);
-    //     expect(abilities["feature2"].error).toBeUndefined();
-    //   }
-    // });
+      if (abilities["feature2"] !== undefined) {
+        expect(abilities["feature2"].hasAccess).toBe(true);
+        expect(abilities["feature2"].error).toBeUndefined();
+      }
+    });
 
     afterAll(() => {
       delete process.env.FEATURE_FLAGS;

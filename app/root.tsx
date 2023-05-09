@@ -25,8 +25,7 @@ import Footer from "./components/Footer/Footer";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
-import type { getFeatureAbilities } from "./lib/utils/application";
-import { validateFeatureAccess } from "./lib/utils/application";
+import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css";
@@ -41,10 +40,7 @@ export type RootRouteData = {
   matomoUrl: string | undefined;
   matomoSiteId: string | undefined;
   sessionUserInfo?: SessionUserInfo;
-  abilities: Pick<
-    Awaited<ReturnType<typeof validateFeatureAccess>>,
-    "abilities"
-  >;
+  abilities: Pick<Awaited<ReturnType<typeof getFeatureAbilities>>, "abilities">;
 };
 
 type LoaderData = RootRouteData;
@@ -56,11 +52,10 @@ export const loader: LoaderFunction = async (args) => {
 
   const authClient = createAuthClient(request, response);
 
-  const { abilities } = await validateFeatureAccess(
-    authClient,
-    ["events", "projects"],
-    { throw: false }
-  );
+  const { abilities } = await getFeatureAbilities(authClient, [
+    "events",
+    "projects",
+  ]);
 
   const sessionUser = await getSessionUser(authClient);
 

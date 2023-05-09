@@ -20,6 +20,10 @@ export async function checkFeatureAbilitiesOrThrow(
   return result.abilities;
 }
 
+/**
+ * @description
+ * Please use getFeatureAbilities() or checkFeatureAbilitiesOrThrow()
+ */
 export async function validateFeatureAccess(
   authClient: SupabaseClient,
   featureNameOrNames: string | string[],
@@ -92,7 +96,8 @@ export async function validateFeatureAccess(
           featureList.some(
             (feature) =>
               feature.name === featureName &&
-              feature.idsWithAccess.includes(user.id)
+              (feature.idsWithAccess.includes(user.id) ||
+                feature.idsWithAccess.length === 0)
           )
         ) {
           abilities[featureName] = { hasAccess: true };
@@ -128,8 +133,6 @@ export async function validateFeatureAccess(
     }
   }
 
-  // Don't understand this object construction. Top Level functions only use result.abilities.
-  // error, hasAccess and featureName is duplicated as these fields are all present inside the abilities object
   let result;
   if (typeof featureNameOrNames === "string") {
     result = {
