@@ -1,5 +1,16 @@
+import { Card } from "./Card";
 import type { ProfileCardProps } from "./ProfileCard";
 import ProfileCard from "./ProfileCard";
+
+export function ProfileCardWithoutAvatarImage() {
+  return (
+    <div className="w-[352px]">
+      <Card>
+        <div>Sirko</div>
+      </Card>
+    </div>
+  );
+}
 
 export function ProfileCardPlayground(args: ProfileCardProps) {
   return (
