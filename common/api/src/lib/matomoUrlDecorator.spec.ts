@@ -13,7 +13,7 @@ describe("Matomo Url Decorator", () => {
     process.env = OLD_ENV; // Restore old environment
   });
 
-  process.env.API_KEY = "apiuser:token,apiuser2:token2,apiuser3:token3";
+  process.env.API_KEY = "apiuser:token;apiuser2:token2;apiuser3:token3";
 
   const mockRequest = {
     query: {
@@ -21,7 +21,7 @@ describe("Matomo Url Decorator", () => {
     },
   } as Partial<Request>;
 
-  test("decorate without prevoiusly existing search params", () => {
+  test("decorate without previously existing search params", () => {
     const newUrl = decorate(
       mockRequest as Request,
       "https://domain.tld/endpoint"

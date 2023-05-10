@@ -12,11 +12,16 @@ describe("API User", () => {
   });
 
   test("get user by token", () => {
-    process.env.API_KEY = "apiuser:token,apiuser2:token2,apiuser3:token3";
+    process.env.API_KEY = "apiuser:token;apiuser2:token2;apiuser3:token3";
     expect(getUserByToken("token2")).toBe("apiuser2");
   });
 
   test("expect false when token not found", () => {
     expect(getUserByToken("token")).toBe(false);
+  });
+
+  test("get user by token with whitespace in config", () => {
+    process.env.API_KEY = "apiuser:token;apiuser2 : token2 ;apiuser3:token3";
+    expect(getUserByToken("token2")).toBe("apiuser2");
   });
 });
