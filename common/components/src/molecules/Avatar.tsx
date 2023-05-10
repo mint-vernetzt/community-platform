@@ -1,15 +1,36 @@
 import classNames from "classnames";
+import { getFullName, getInitials } from "../utils";
 
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
 
-export type AvatarProps = {
-  name: string;
-  src: string;
-  size?: AvatarSize;
-};
+export type AvatarProps = { size?: AvatarSize } & (
+  | {
+      name: string;
+      logo?: string;
+    }
+  | {
+      firstName: string;
+      lastName: string;
+      avatar?: string;
+    }
+);
 
 function Avatar(props: AvatarProps) {
   const { size = "md" } = props;
+
+  let displayName = "";
+  let initials = getInitials(props);
+  let src;
+  if ("name" in props) {
+    displayName = props.name;
+    src = props.logo;
+  } else if ("firstName" in props) {
+    displayName = getFullName({
+      firstName: props.firstName,
+      lastName: props.lastName,
+    });
+    src = props.avatar;
+  }
 
   const classes = classNames(
     {
@@ -19,15 +40,22 @@ function Avatar(props: AvatarProps) {
       "h-[30px] w-[30px]": size === "sm",
     },
     {
+      "text-[70px]": size === "xl",
+      "text-[22px]": size === "lg",
+      "text-[20px]": size === "md",
+      "text-[14px]": size === "sm",
+    },
+    {
       "border-2": size === "xl",
       border: size === "lg" || size === "md" || size === "sm",
     },
-    "border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0"
+    "bg-primary border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0",
+    "text-white font-normal	flex items-center justify-center"
   );
 
   return (
     <div className={classes}>
-      <img src={props.src} alt={props.name} />
+      {src ? <img src={src} alt={displayName} /> : <>{initials}</>}
     </div>
   );
 }
