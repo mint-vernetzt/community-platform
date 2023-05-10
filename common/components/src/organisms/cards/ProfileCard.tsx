@@ -1,5 +1,7 @@
 import React from "react";
-import Chip from "~/components/Chip/Chip";
+import Chip from "../../../../../app/components/Chip/Chip";
+import Avatar from "../../molecules/Avatar";
+import { CardFooter } from "./Card";
 
 export type ProfileCardProps = {};
 
@@ -31,10 +33,10 @@ function ProfileCard(
 
         {/* Component Avatar Start */}
         <div className="flex justify-center -mt-24">
-          <img
-            src="https://picsum.photos/id/433/132/132"
-            className="rounded-full border-2 border-neutral-50"
-            alt="Name"
+          <Avatar
+            name="Name"
+            src="https://picsum.photos/id/433/500/500"
+            size="xl"
           />
         </div>
         {/* Component Avatar End */}
@@ -59,18 +61,23 @@ function ProfileCard(
             />
           </div>
         </div>
-        <div className="card-footer p-4 pt-2">
-          <hr className="h-0 border-t border-neutral-200 m-0 mb-4" />
-          <div className="flex gap-2">
-            <div className="">
-              <img
-                src="https://picsum.photos/id/433/32/32"
-                className="rounded-full border-2 border-neutral-50"
-                alt="Name"
-              />
-            </div>
-          </div>
-        </div>
+        <CardFooter>
+          <Avatar
+            name="Name"
+            src="https://picsum.photos/id/433/500/500"
+            size="sm"
+          />
+          <Avatar
+            name="Name"
+            src="https://picsum.photos/id/432/500/500"
+            size="sm"
+          />
+          <Avatar
+            name="Name"
+            src="https://picsum.photos/id/431/500/500"
+            size="sm"
+          />
+        </CardFooter>
       </div>
     </>
   );
