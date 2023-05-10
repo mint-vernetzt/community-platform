@@ -87,6 +87,11 @@ function wrapCardFooterChildren(children: React.ReactNode) {
   const validChildren = React.Children.toArray(children).filter((child) => {
     return React.isValidElement(child);
   });
+
+  if (validChildren.length === 0) {
+    return <div className="h-[30px]"></div>;
+  }
+
   return React.Children.map(validChildren, (child) => {
     return <div>{child}</div>;
   });
