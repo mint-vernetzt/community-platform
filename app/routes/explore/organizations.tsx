@@ -23,9 +23,8 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   let randomSeed = getRandomSeed(request);
-  console.log(randomSeed);
   if (randomSeed === undefined) {
-    randomSeed = Math.round(Math.random() * 1000) / 1000;
+    randomSeed = parseFloat(Math.random().toFixed(3));
     return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
       headers: response.headers,
     });
@@ -68,8 +67,6 @@ export const loader = async (args: LoaderArgs) => {
         });
       }
     }
-
-    console.log("ORGANIZATION: ", organization.name, organization.score);
 
     return { ...otherFields, ...extensions, logo: logoImage };
   });

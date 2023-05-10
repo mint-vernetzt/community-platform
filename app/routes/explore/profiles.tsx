@@ -33,14 +33,6 @@ export const loader = async (args: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
 
-  let randomSeed = getRandomSeed(request);
-  if (randomSeed === undefined) {
-    randomSeed = Math.round(Math.random() * 1000) / 1000;
-    return redirect(`/explore/profiles?randomSeed=${randomSeed}`, {
-      headers: response.headers,
-    });
-  }
-
   const sessionUser = await getSessionUser(authClient);
 
   const isLoggedIn = sessionUser !== null;
@@ -49,6 +41,21 @@ export const loader = async (args: LoaderArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
+
+  let randomSeed = getRandomSeed(request);
+  if (randomSeed === undefined) {
+    randomSeed = parseFloat(Math.random().toFixed(3));
+    return redirect(
+      `/explore/profiles?randomSeed=${randomSeed}${
+        filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
+      }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
+        filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
+      }`,
+      {
+        headers: response.headers,
+      }
+    );
+  }
 
   const rawProfiles = await getAllProfiles({
     ...paginationValues,
