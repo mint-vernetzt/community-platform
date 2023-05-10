@@ -24,8 +24,9 @@ const colors = {
   "neutral-500": "#b1b5c3",
   "neutral-400": "#e6e8ec",
   "neutral-300": "#f4f5f6",
-  "neutral-200": "#fcfcfd",
+  "neutral-200": "#E6E8EC",
   "neutral-100": "#ffffff",
+  "neutral-50": "#FCFCFD",
 };
 
 const extendedColors = {
@@ -57,6 +58,7 @@ const extendedColors = {
 };
 
 const fontSizes = {
+  xxs: "0.625rem", // 10px
   xs: "0.75rem", // 12px
   sm: "0.875rem", // 14px
   base: "1rem", // 16px
