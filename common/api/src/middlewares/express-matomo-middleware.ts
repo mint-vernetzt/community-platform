@@ -3,16 +3,6 @@ import PiwikTracker from "piwik-tracker";
 import { getUserByToken } from "../lib/apiUser";
 import { getApiTokenFromRequest } from "../lib/token";
 import { trackingRoutes } from "../lib/trackingRoutes";
-/**
- * https://stackoverflow.com/questions/10849687/express-js-how-to-get-remote-client-address
- * @todo:
- * - ip address is missing/empty
- * [x] getUserByToken
- * [x] getTokenFromRequest
- * - addUserToAllUrls
- * -
- * API_USERS="<slug>:<token>,<slug>:<token>"
- */
 
 export type Options = {
   siteId: number;
@@ -46,7 +36,10 @@ function matomoMiddleware(options: Options) {
             "2": ["HTTP method", request.method],
           }),
           token_auth: options.piwikToken,
-          cip: request.ip,
+          cip:
+            ((request.headers["x-forwarded-for"] as string) ||
+              request.socket.remoteAddress) ??
+            "",
         });
       }
     }

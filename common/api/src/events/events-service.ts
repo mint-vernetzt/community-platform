@@ -121,10 +121,10 @@ async function getEvents(request: Request, skip: number, take: number) {
       }
     }
 
-    let url: string | null = null;
-    if (process.env.COMMUNITY_BASE_URL !== undefined) {
-      url = decorate(request, `${process.env.COMMUNITY_BASE_URL}event/${slug}`);
-    }
+    const url =
+      process.env.COMMUNITY_BASE_URL !== undefined
+        ? decorate(request, `${process.env.COMMUNITY_BASE_URL}event/${slug}`)
+        : null;
 
     return {
       ...rest,

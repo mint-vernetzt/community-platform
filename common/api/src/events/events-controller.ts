@@ -10,8 +10,8 @@ import {
   Example,
   Request,
 } from "tsoa";
-import type { TsoaResponse } from "tsoa";
-import type { ValidateError } from "tsoa";
+import type { ValidateError, TsoaResponse } from "tsoa";
+
 import { getAllEvents } from "./events-service";
 import type { Request as ExpressRequest } from "express";
 

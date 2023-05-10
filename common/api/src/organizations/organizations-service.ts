@@ -2,10 +2,12 @@ import { prismaClient } from "./../prisma";
 import { getImageURL, getPublicURL } from "./../images.server";
 import { createClient } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
+import type { Request } from "express";
+import { decorate } from "../lib/matomoUrlDecorator";
 
 type Organizations = Awaited<ReturnType<typeof getOrganizations>>;
 
-async function getOrganizations(skip: number, take: number) {
+async function getOrganizations(request: Request, skip: number, take: number) {
   const publicOrganizations = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -83,10 +85,13 @@ async function getOrganizations(skip: number, take: number) {
       }
     }
 
-    let url: string | null = null;
-    if (process.env.COMMUNITY_BASE_URL !== undefined) {
-      url = `${process.env.COMMUNITY_BASE_URL}organization/${slug}`;
-    }
+    const url =
+      process.env.COMMUNITY_BASE_URL !== undefined
+        ? decorate(
+            request,
+            `${process.env.COMMUNITY_BASE_URL}organization/${slug}`
+          )
+        : null;
 
     return {
       ...rest,
@@ -100,9 +105,10 @@ async function getOrganizations(skip: number, take: number) {
 }
 
 export async function getAllOrganizations(
+  request: Request,
   skip: number,
   take: number
 ): Promise<{ skip: number; take: number; result: Organizations }> {
-  const publicOrganizations = await getOrganizations(skip, take);
+  const publicOrganizations = await getOrganizations(request, skip, take);
   return { skip, take, result: publicOrganizations };
 }
