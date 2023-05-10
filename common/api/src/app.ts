@@ -12,14 +12,17 @@ import matomoMiddleware from "./middlewares/express-matomo-middleware";
 
 export const app = express();
 
-app.use(
-  matomoMiddleware({
-    siteId: parseInt(process.env.MATOMO_SITE_ID ?? "") || 0,
-    piwikUrl: `${process.env.MATOMO_URL ?? ""}piwik.php`,
-    baseUrl: process.env.MATOMO_BASE_URL ?? "",
-    piwikToken: process.env.MATOMO_TOKEN ?? "",
-  })
-);
+if (process.env.MATOMO_API_ENABLED === "1") {
+  console.log("MATOMO API TRACKING ENABLED");
+  app.use(
+    matomoMiddleware({
+      siteId: parseInt(process.env.MATOMO_SITE_ID ?? "") || 0,
+      piwikUrl: `${process.env.MATOMO_URL ?? ""}piwik.php`,
+      baseUrl: process.env.MATOMO_BASE_URL ?? "",
+      piwikToken: process.env.MATOMO_TOKEN ?? "",
+    })
+  );
+}
 
 // Use body parser to read sent json payloads
 app.use(
