@@ -16,10 +16,10 @@ if (process.env.MATOMO_API_ENABLED === "1") {
   console.log("MATOMO API TRACKING ENABLED");
   app.use(
     matomoMiddleware({
-      siteId: parseInt(process.env.MATOMO_SITE_ID ?? "") || 0,
-      piwikUrl: `${process.env.MATOMO_URL ?? ""}piwik.php`,
-      baseUrl: process.env.MATOMO_BASE_URL ?? "",
-      piwikToken: process.env.MATOMO_TOKEN ?? "",
+      siteId: parseInt(process.env.MATOMO_API_SITE_ID ?? "") || 0,
+      piwikUrl: `${process.env.MATOMO_API_URL ?? ""}piwik.php`,
+      baseUrl: process.env.MATOMO_API_BASE_URL ?? "",
+      piwikToken: process.env.MATOMO_API_TOKEN ?? "",
     })
   );
 }
