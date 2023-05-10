@@ -136,17 +136,24 @@ export async function triggerEntityScore(options: {
   if (options.entity === "profile" && options.where.slug !== undefined) {
     return;
   }
-
-  // TODO: fix type issue
-  // @ts-ignore
-  const entity = await prismaClient[options.entity].findFirst({
-    where: options.where,
-    include: { areas: { select: { area: { select: { id: true } } } } },
-  });
-  const score = getScoreOfEntity(entity);
-  // @ts-ignore
-  await prismaClient[options.entity].update({
-    where: { id: entity.id },
-    data: { score },
-  });
+  let entity;
+  if (options.entity === "profile") {
+    entity = await prismaClient.profile.findFirst({
+      where: options.where,
+      include: { areas: true },
+    });
+  } else {
+    entity = await prismaClient.organization.findFirst({
+      where: options.where,
+      include: { areas: true, types: true },
+    });
+  }
+  if (entity !== null) {
+    const score = getScoreOfEntity(entity);
+    // @ts-ignore
+    await prismaClient[options.entity].update({
+      where: { id: entity.id },
+      data: { score },
+    });
+  }
 }
