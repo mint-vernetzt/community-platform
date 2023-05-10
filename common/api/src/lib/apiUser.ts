@@ -1,16 +1,16 @@
 function getTokenByCredential(credential: string) {
   const splittedCredential = credential.split(":");
-  return splittedCredential.length === 2 ? splittedCredential[1] : false;
+  return splittedCredential.length === 2 ? splittedCredential[1].trim() : false;
 }
 
 function getUserByCredential(credential: string) {
-  const splittedCredential = credential.split(":");
-  return splittedCredential.length === 2 ? splittedCredential[0] : false;
+  const splittedCredential = credential.split(":"); // ?
+  return splittedCredential.length === 2 ? splittedCredential[0].trim() : false;
 }
 
 function getUserByToken(token: string) {
   const matchingUsers = (process.env.API_KEY ?? "")
-    .split(",")
+    .split(";")
     .filter((credential) => getTokenByCredential(credential) === token); //?
 
   return matchingUsers.length === 1
