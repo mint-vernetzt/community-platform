@@ -144,7 +144,7 @@ export async function getAllProfiles(
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
-      profiles.public_fields as "publicFields",
+      COALESCE(profiles.public_fields, ARRAY[]::text[]) as "publicFields",
       profiles.first_name as "firstName",
       profiles.last_name as "lastName",
       profiles.username,
@@ -198,7 +198,7 @@ export async function getAllOrganizations(
   > = await prismaClient.$queryRaw`
   SELECT 
     organizations.id,
-    organizations.public_fields as "publicFields",
+    COALESCE(organizations.public_fields, ARRAY[]::text[]) as "publicFields",
     organizations.name,
     organizations.slug,
     organizations.bio,
