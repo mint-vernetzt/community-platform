@@ -4,7 +4,9 @@ import { getScoreOfEntity } from "./utils";
 async function main() {
   let transactions = [];
 
-  const profiles = await prismaClient.profile.findMany();
+  const profiles = await prismaClient.profile.findMany({
+    include: { areas: true },
+  });
 
   console.log(`Updating score of ${profiles.length} profiles.`);
 
@@ -21,7 +23,9 @@ async function main() {
     transactions.push(transaction);
   }
 
-  const organizations = await prismaClient.organization.findMany();
+  const organizations = await prismaClient.organization.findMany({
+    include: { areas: true, types: true },
+  });
 
   console.log(`Updating score of ${organizations.length} organizations.`);
 
