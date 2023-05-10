@@ -33,7 +33,7 @@ export async function getAllProfiles(
   let seekingJoin = Prisma.empty;
   // Default Ordering with no filter: Deterministic random ordering with seed
   // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}) AS TEXT);`;
+  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
   let orderByClause = Prisma.sql`ORDER BY "score" DESC, RANDOM()`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
@@ -188,7 +188,7 @@ export async function getAllOrganizations(
   const { skip, take, randomSeed } = options;
 
   // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}) AS TEXT);`;
+  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
 
   const organizations: Array<
     Pick<

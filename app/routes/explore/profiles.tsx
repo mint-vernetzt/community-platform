@@ -1,4 +1,5 @@
 import type { LoaderArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -32,6 +33,14 @@ export const loader = async (args: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
 
+  let randomSeed = getRandomSeed(request);
+  if (randomSeed === undefined) {
+    randomSeed = Math.round(Math.random() * 1000) / 1000;
+    return redirect(`/explore/profiles?randomSeed=${randomSeed}`, {
+      headers: response.headers,
+    });
+  }
+
   const sessionUser = await getSessionUser(authClient);
 
   const isLoggedIn = sessionUser !== null;
@@ -40,11 +49,6 @@ export const loader = async (args: LoaderArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
-  let randomSeed = getRandomSeed(request);
-  if (paginationValues.skip === 0) {
-    randomSeed = Math.random();
-  }
-  console.log("RANDOM SEED", randomSeed);
 
   const rawProfiles = await getAllProfiles({
     ...paginationValues,
@@ -83,15 +87,14 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
-    console.log("PROFILE: ", profile.firstName, profile.score);
-
     return { ...otherFields, ...extensions, avatar: avatarImage };
   });
 
   const areas = await getAreas();
   const offers = await getAllOffers();
+
   return json(
-    { isLoggedIn, profiles, areas, offers, randomSeed },
+    { isLoggedIn, profiles, areas, offers },
     { headers: response.headers }
   );
 };
@@ -103,7 +106,6 @@ export default function Index() {
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
   const seekingId = searchParams.get("seekingId");
-  searchParams.set("randomSeed", loaderData.randomSeed?.toString() || "0");
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
   const {

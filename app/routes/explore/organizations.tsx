@@ -1,5 +1,5 @@
 import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -20,9 +20,18 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  const { skip, take } = getPaginationValues(request);
-
   const authClient = createAuthClient(request, response);
+
+  let randomSeed = getRandomSeed(request);
+  console.log(randomSeed);
+  if (randomSeed === undefined) {
+    randomSeed = Math.round(Math.random() * 1000) / 1000;
+    return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
+      headers: response.headers,
+    });
+  }
+
+  const { skip, take } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -30,12 +39,6 @@ export const loader = async (args: LoaderArgs) => {
 
   const areas = await getAreas();
   const offers = await getAllOffers();
-
-  let randomSeed = getRandomSeed(request);
-  if (skip === 0) {
-    randomSeed = Math.random();
-  }
-  console.log("RANDOM SEED", randomSeed);
 
   const rawOrganizations = await getAllOrganizations({
     skip: skip,
@@ -72,7 +75,7 @@ export const loader = async (args: LoaderArgs) => {
   });
 
   return json(
-    { isLoggedIn, organizations, areas, offers, randomSeed },
+    { isLoggedIn, organizations, areas, offers },
     { headers: response.headers }
   );
 };
@@ -80,7 +83,6 @@ export const loader = async (args: LoaderArgs) => {
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  searchParams.set("randomSeed", loaderData.randomSeed?.toString() || "0");
 
   const {
     items,
