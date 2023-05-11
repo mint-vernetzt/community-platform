@@ -93,7 +93,11 @@ function ProfileCard(
           return <Avatar key={organization.slug} {...organization} size="sm" />;
         })}
         {profile.memberOf.length > 2 && (
-          <>{`+${profile.memberOf.length - 2}`}</>
+          <div className="w-[30px] h-[30px] bg-gray-200 text-gray-700 font-semibold rounded-full text-center">
+            <span className="inline-block align-middle">{`+${
+              profile.memberOf.length - 2
+            }`}</span>
+          </div>
         )}
       </CardFooter>
     </Card>
