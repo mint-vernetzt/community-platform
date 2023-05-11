@@ -7,7 +7,7 @@ export type CardProps = {
 
 export function Card(props: CardProps) {
   return (
-    <div className="bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
+    <div className="w-[253px] sm:w-[352px] max-w-full  bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
       {props.children}
     </div>
   );
@@ -67,16 +67,24 @@ export function CardStatus(props: CardStatusProps) {
   );
 }
 
-export function CardImage(props: { src: string; alt: string }) {
+export function CardImage(props: { src: string }) {
   return (
     <figure>
       <img
         src={props.src}
         className="absolute inset-0 w-full h-full object-cover"
-        alt={props.alt}
+        alt=""
       />
     </figure>
   );
+}
+
+export type CardBodyProps = {
+  children?: React.ReactNode;
+};
+
+export function CardBody(props: CardBodyProps) {
+  return <div className="p-4 pt-2">{props.children}</div>;
 }
 
 export type CardFooterProps = {
