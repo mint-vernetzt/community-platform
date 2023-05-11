@@ -7,7 +7,7 @@ export type CardProps = {
 
 export function Card(props: CardProps) {
   return (
-    <div className="bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden">
+    <div className="bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
       {props.children}
     </div>
   );
@@ -35,11 +35,21 @@ export function CardHeader(props: CardHeaderProps) {
   return (
     <>
       {status || null}
-      <div className="bg-green-500 h-40">{image || null}</div>
-      {avatar !== undefined ? (
-        <div className="flex justify-center -mt-24">{avatar}</div>
+      {status !== undefined ? (
+        <div className="bg-success-500 h-[124px] relative z-10">
+          {image || null}
+        </div>
       ) : (
-        <div className="mt-10"></div>
+        <div className="bg-success-500 h-40 relative z-10">{image || null}</div>
+      )}
+      {avatar !== undefined ? (
+        <div className="flex justify-center -mt-24 relative z-20">{avatar}</div>
+      ) : (
+        <div className="flex justify-center -mt-24 relative z-20">
+          <div className="border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0 h-[136px] w-[136px] text-white text-[4.375rem] bg-primary">
+            WW
+          </div>
+        </div>
       )}
     </>
   );
@@ -51,7 +61,7 @@ export type CardStatusProps = {
 
 export function CardStatus(props: CardStatusProps) {
   return (
-    <div className="absolute top-0 inset-x-0 text-center text-primary bg-primary-100 px-4 py-2 font-base leading-5 font-semibold">
+    <div className="text-center text-primary bg-primary-100 px-4 py-2 font-base leading-5 font-semibold">
       {props.children}
     </div>
   );
@@ -62,7 +72,7 @@ export function CardImage(props: { src: string; alt: string }) {
     <figure>
       <img
         src={props.src}
-        className="w-full h-40 object-cover"
+        className="absolute inset-0 w-full h-full object-cover"
         alt={props.alt}
       />
     </figure>
