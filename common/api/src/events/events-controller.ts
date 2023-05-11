@@ -8,10 +8,12 @@ import {
   Res,
   Tags,
   Example,
+  Request,
 } from "tsoa";
-import type { TsoaResponse } from "tsoa";
-import type { ValidateError } from "tsoa";
+import type { ValidateError, TsoaResponse } from "tsoa";
+
 import { getAllEvents } from "./events-service";
+import type { Request as ExpressRequest } from "express";
 
 type GetEventsResult = ReturnType<typeof getAllEvents>;
 
@@ -221,6 +223,7 @@ export class EventsController extends Controller {
   public async getAllEvents(
     @Query("skip") skip: number,
     @Query("take") take: number,
+    @Request() request: ExpressRequest,
     @Res()
     badRequestResponse: TsoaResponse<
       400,
@@ -246,6 +249,6 @@ export class EventsController extends Controller {
         },
       });
     }
-    return getAllEvents(skip, take);
+    return getAllEvents(request, skip, take);
   }
 }
