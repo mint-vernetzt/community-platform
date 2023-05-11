@@ -33,25 +33,17 @@ export function CardHeader(props: CardHeaderProps) {
     return (child as React.ReactElement).type === Avatar;
   });
   return (
-    <>
-      {status || null}
-      {status !== undefined ? (
-        <div className="bg-success-500 h-[124px] relative z-10">
-          {image || null}
-        </div>
-      ) : (
-        <div className="bg-success-500 h-40 relative z-10">{image || null}</div>
-      )}
-      {avatar !== undefined ? (
-        <div className="flex justify-center -mt-24 relative z-20">{avatar}</div>
-      ) : (
-        <div className="flex justify-center -mt-24 relative z-20">
-          <div className="border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0 h-[136px] w-[136px] text-white text-[4.375rem] bg-primary">
-            WW
-          </div>
-        </div>
-      )}
-    </>
+    <div className="bg-success-500 h-40 overflow-hidden">
+      <div className="absolute w-full h-40 overflow-hidden">
+        {image || null}
+      </div>
+      <div className="absolute w-full h-40 overflow-hidden">
+        {status || null}
+      </div>
+      <div className="absolute w-full h-full flex justify-center top-14">
+        {avatar || null}
+      </div>
+    </div>
   );
 }
 
@@ -72,7 +64,7 @@ export function CardImage(props: { src: string }) {
     <figure>
       <img
         src={props.src}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="inset-0 w-full h-full object-cover"
         alt=""
       />
     </figure>
