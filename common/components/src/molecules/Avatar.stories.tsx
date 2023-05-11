@@ -1,19 +1,30 @@
 import type { AvatarProps } from "./Avatar";
 import Avatar from "./Avatar";
 
-export function AvatarPlayground(props: AvatarProps) {
-  return <Avatar {...props} />;
+type AvatarPlaygroundProps = {
+  firstName: string;
+  lastName: string;
+  avatar?: string;
+  size?: AvatarProps["size"];
+};
+
+export function AvatarPlayground(props: AvatarPlaygroundProps) {
+  const { avatar, ...otherProps } = props;
+  return <Avatar avatar={avatar === "" ? undefined : avatar} {...otherProps} />;
 }
 AvatarPlayground.args = {
-  name: "Name",
-  src: "https://picsum.photos/id/433/500/500",
+  firstName: "Sirko",
+  lastName: "Kaiser",
   size: "md",
 };
 AvatarPlayground.argTypes = {
-  name: {
+  firstName: {
     control: "text",
   },
-  src: {
+  lastName: {
+    control: "text",
+  },
+  avatar: {
     control: "text",
   },
   size: {
@@ -28,7 +39,6 @@ AvatarPlayground.parameters = {
 
 export default {
   title: "Molecules/Avatar",
-  component: Avatar,
   parameters: {
     controls: { disable: true },
     actions: {
