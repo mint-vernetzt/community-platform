@@ -1,8 +1,6 @@
-import Chip from "../../../../../app/components/Chip/Chip";
-import { Card, CardFooter, CardHeader, CardImage, CardStatus } from "./Card";
-import type { ProfileCardProps } from "./ProfileCard";
-import ProfileCard from "./ProfileCard";
 import Avatar from "../../molecules/Avatar";
+import { Card, CardFooter, CardHeader } from "./Card";
+import ProfileCard from "./ProfileCard";
 
 export function ProfileCardWithoutAreaInfo() {
   return (
@@ -36,12 +34,12 @@ export function ProfileCardWithoutAreaInfo() {
         <CardFooter>
           <Avatar
             name="Name"
-            src="https://picsum.photos/id/433/500/500"
+            logo="https://picsum.photos/id/431/500/500"
             size="sm"
           />
           <Avatar
             name="Name"
-            src="https://picsum.photos/id/432/500/500"
+            logo="https://picsum.photos/id/432/500/500"
             size="sm"
           />
         </CardFooter>
@@ -51,14 +49,60 @@ export function ProfileCardWithoutAreaInfo() {
 }
 ProfileCardWithoutAreaInfo.storyName = "Keine Infos";
 
-export function ProfileCardPlayground(args: ProfileCardProps) {
+type ProfileCardPlaygroundProps = {
+  match?: number;
+  academicTitle?: string;
+  firstName: string;
+  lastName: string;
+  position?: string;
+  numberOfOrganizations: number;
+};
+
+function getOrganizations(numberOfOrganizations: number) {
+  const organizations = [];
+  for (let i = 0; i < numberOfOrganizations; i++) {
+    organizations.push({
+      name: `Organization ${i}`,
+      slug: "organization-name",
+      logo: i % 2 === 0 ? `https://picsum.photos/id/${i}/500/500` : undefined, // only every second organization has a logo
+    });
+  }
+  return organizations;
+}
+
+export function ProfileCardPlayground(args: ProfileCardPlaygroundProps) {
+  const { match, ...profileProps } = args;
+  const memberOf = getOrganizations(args.numberOfOrganizations);
   return (
     <div className="w-[352px]">
-      <ProfileCard {...args}>Button</ProfileCard>
+      <ProfileCard match={match} profile={{ ...profileProps, memberOf }} />
     </div>
   );
 }
 ProfileCardPlayground.storyName = "Playground";
+ProfileCardPlayground.args = {
+  firstName: "Sirko",
+  lastName: "Kaiser",
+  position: "Software Engineer",
+  avatar: "https://picsum.photos/id/433/500/500",
+  numberOfOrganizations: 0,
+};
+ProfileCardPlayground.argTypes = {
+  numberOfOrganizations: {
+    control: "number",
+    default: 0,
+  },
+  academicTitle: {
+    control: "select",
+    options: ["Dr.", "Prof.", "Prof. Dr."],
+  },
+  match: {
+    control: "number",
+  },
+};
+ProfileCardPlayground.parameters = {
+  controls: { disable: false },
+};
 
 export default {
   title: "Organism/Cards/ProfileCards",
