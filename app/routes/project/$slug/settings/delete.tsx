@@ -9,6 +9,7 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileByUserId } from "~/profile.server";
 import { checkIdentityOrThrow } from "../../utils.server";
@@ -85,6 +86,8 @@ export const action: ActionFunction = async (args) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   await checkIdentityOrThrow(request, sessionUser);
+
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const project = await getProjectBySlugOrThrow(slug);
 

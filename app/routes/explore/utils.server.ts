@@ -1,5 +1,5 @@
+import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
@@ -14,23 +14,27 @@ export async function getAllProfiles(
     areaId: string | undefined;
     offerId: string | undefined;
     seekingId: string | undefined;
+    randomSeed: number | undefined;
   } = {
     skip: undefined,
     take: undefined,
     areaId: undefined,
     offerId: undefined,
     seekingId: undefined,
+    randomSeed: 0,
   }
 ) {
-  const { skip, take, areaId, offerId, seekingId } = options;
+  const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
 
   let areaToFilter;
   let whereClauses = [];
   let whereClause = Prisma.empty;
   let offerJoin = Prisma.empty;
   let seekingJoin = Prisma.empty;
-  // Default ordering: first_name ASC
-  let orderByClause = Prisma.sql`ORDER BY "score" DESC, "updatedAt" DESC, "firstName" ASC`;
+  // Default Ordering with no filter: Deterministic random ordering with seed
+  // Set seed for deterministic random order
+  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
+  let orderByClause = Prisma.sql`ORDER BY "score" DESC, RANDOM()`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
@@ -48,8 +52,7 @@ export async function getAllProfiles(
                           END
                         ) ASC,
                         "score" DESC,
-                        "updatedAt" DESC,
-                        "firstName" ASC`;
+                        RANDOM()`;
       }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
@@ -69,8 +72,7 @@ export async function getAllProfiles(
                           END
                         ) ASC, 
                         "score" DESC,
-                        "updatedAt" DESC,
-                        "firstName" ASC`;
+                        RANDOM()`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
@@ -90,8 +92,7 @@ export async function getAllProfiles(
                           END
                         ) ASC, 
                         "score" DESC,
-                        "updatedAt" DESC,
-                        "firstName" ASC`;
+                        RANDOM()`;
       }
       if (areaWhere !== undefined) {
         whereClauses.push(areaWhere);
@@ -143,10 +144,11 @@ export async function getAllProfiles(
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
-      profiles.public_fields as "publicFields",
+      COALESCE(profiles.public_fields, ARRAY[]::text[]) as "publicFields",
       profiles.first_name as "firstName",
       profiles.last_name as "lastName",
-      profiles.username, profiles.academic_title as "academicTitle",
+      profiles.username,
+      profiles.academic_title as "academicTitle",
       profiles.position,
       profiles.bio,
       profiles.avatar,
@@ -162,7 +164,7 @@ export async function getAllProfiles(
       ${offerJoin}
       ${seekingJoin}
     /* Filtering with the where clauses from above if any exist */
-    ${whereClause || Prisma.empty}
+    ${whereClause}
     GROUP BY profiles.id
     ${orderByClause}
     LIMIT ${take}
@@ -173,19 +175,52 @@ export async function getAllProfiles(
 }
 
 export async function getAllOrganizations(
-  skip: number | undefined = undefined,
-  take: number | undefined = undefined
+  options: {
+    skip: number | undefined;
+    take: number | undefined;
+    randomSeed: number | undefined;
+  } = {
+    skip: undefined,
+    take: undefined,
+    randomSeed: 0,
+  }
 ) {
-  const organizations = await prismaClient.organization.findMany({
-    skip,
-    take,
-    include: {
-      areas: { select: { area: { select: { name: true } } } },
-      focuses: { select: { focus: { select: { title: true } } } },
-      types: { select: { organizationType: { select: { title: true } } } },
-    },
-    orderBy: [{ score: "desc" }, { updatedAt: "asc" }],
-  });
+  const { skip, take, randomSeed } = options;
+
+  // Set seed for deterministic random order
+  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
+
+  const organizations: Array<
+    Pick<
+      Organization,
+      "id" | "publicFields" | "name" | "slug" | "bio" | "logo" | "score"
+    > & { areaNames: string[]; organizationTypeTitles: string[] }
+  > = await prismaClient.$queryRaw`
+  SELECT 
+    organizations.id,
+    COALESCE(organizations.public_fields, ARRAY[]::text[]) as "publicFields",
+    organizations.name,
+    organizations.slug,
+    organizations.bio,
+    organizations.logo,
+    organizations.score,
+    array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
+    array_remove(array_agg(DISTINCT organization_types.title), null) as "organizationTypeTitles"
+  FROM organizations
+    /* Always joining areas and organization_types to get areaNames and organizationTypeTitles */
+    LEFT JOIN areas_on_organizations
+    ON organizations.id = areas_on_organizations."organizationId"
+    LEFT JOIN areas
+    ON areas_on_organizations."areaId" = areas.id
+    LEFT JOIN organization_types_on_organizations
+    ON organizations.id = organization_types_on_organizations."organizationId"
+    LEFT JOIN organization_types
+    ON organization_types_on_organizations."organizationTypeId" = organization_types.id
+  GROUP BY organizations.id
+  ORDER BY "score" DESC, RANDOM()
+  LIMIT ${take}
+  OFFSET ${skip}
+;`;
 
   return organizations;
 }
@@ -256,6 +291,16 @@ export function getFilterValues(request: Request) {
   const offerId = url.searchParams.get("offerId") || undefined;
   const seekingId = url.searchParams.get("seekingId") || undefined;
   return { areaId, offerId, seekingId };
+}
+
+export function getRandomSeed(request: Request) {
+  const url = new URL(request.url);
+  const randomSeedQueryString = url.searchParams.get("randomSeed") || undefined;
+  if (randomSeedQueryString !== undefined) {
+    return parseFloat(randomSeedQueryString);
+  } else {
+    return randomSeedQueryString;
+  }
 }
 
 export async function getEvents(

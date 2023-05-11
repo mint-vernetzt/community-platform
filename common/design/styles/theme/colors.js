@@ -18,8 +18,8 @@ const colors = {
     300: "#2D6BE1",
     400: "#1B54C0",
     500: "#154194",
-    600: "#143E8D",
-    700: "#113476",
+    600: "#113476",
+    700: "#112C5F",
     800: "#091D43",
     900: "#040D1E",
   },
@@ -98,7 +98,7 @@ const aliases = {
   accent: theme.beige,
   success: theme.green,
   warning: theme.yellow,
-  error: theme.salmon,
+  danger: theme.salmon,
 };
 
 module.exports = { theme, aliases };

@@ -215,7 +215,7 @@ export async function updateOrganizationById(
   id: string,
   data: Omit<
     Organization,
-    "id" | "slug" | "logo" | "background" | "createdAt" | "updatedAt"
+    "id" | "slug" | "logo" | "background" | "createdAt" | "updatedAt" | "score"
   > & {
     areas: string[];
   } & {

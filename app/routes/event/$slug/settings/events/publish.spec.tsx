@@ -27,11 +27,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/publish", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/events/publish", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -248,9 +250,5 @@ describe("/event/$slug/settings/events/publish", () => {
         },
       })
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

@@ -27,11 +27,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/cancel", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/events/cancel", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -222,9 +224,5 @@ describe("/event/$slug/settings/events/cancel", () => {
         data: expect.objectContaining({ canceled: true }),
       })
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

@@ -30,14 +30,16 @@ jest.mock("~/prisma", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 const slug = "slug-test";
 
 describe("/event/$slug/settings/delete", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "projects";
-    });
-
     test("no params", async () => {
       expect.assertions(2);
 
@@ -153,17 +155,9 @@ describe("/event/$slug/settings/delete", () => {
       expect(responseBody.userId).toBe("some-user-id");
       expect(responseBody.projectId).toBe("some-project-id");
     });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
-    });
   });
 
   describe("action", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "projects";
-    });
-
     test("no params", async () => {
       const request = createRequestWithFormData({});
 
@@ -397,10 +391,6 @@ describe("/event/$slug/settings/delete", () => {
       });
 
       expect(response).toEqual(redirect("/profile/someuser"));
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

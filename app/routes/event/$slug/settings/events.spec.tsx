@@ -28,12 +28,14 @@ jest.mock("~/prisma", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 describe("/event/$slug/settings/events", () => {
   describe("loader (privileged user)", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no other events where user is privileged", async () => {
       expect.assertions(1);
 
@@ -148,10 +150,6 @@ describe("/event/$slug/settings/events", () => {
       const responseBody = await response.json();
       expect(responseBody.parentEvent.id).toBe("parent-event-id");
       expect(responseBody.parentEvent.name).toBe("Parent Event");
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

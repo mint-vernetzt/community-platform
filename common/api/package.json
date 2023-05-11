@@ -4,7 +4,6 @@
   "dependencies": {
     "express": "^4.18.2",
     "imgproxy": "^1.1.1",
-    "matomo-tracker": "^2.2.4",
     "piwik-tracker": "^1.1.2",
     "swagger-ui-express": "^4.6.2",
     "tsoa": "^5.1.1"

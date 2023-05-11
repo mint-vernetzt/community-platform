@@ -32,11 +32,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/organization/add-organization", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/organization/add-organization", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -270,9 +272,5 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     expect(responseBody.message).toBe(
       'Die Organisation "some-organization" ist jetzt verantwortlich für Eure Veranstaltung.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

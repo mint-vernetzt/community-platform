@@ -31,11 +31,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/speakers/add-speaker", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/speakers/add-speaker", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -275,9 +277,5 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     expect(responseBody.message).toBe(
       'Das Profil mit dem Namen "some-user-firstname some-user-latsname" wurde als Speaker:in hinzugefügt.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });
