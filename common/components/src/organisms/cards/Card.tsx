@@ -1,5 +1,7 @@
+import classNames from "classnames";
 import React from "react";
 import Avatar from "../../molecules/Avatar";
+import { ChipContainer } from "../../molecules/Chip";
 
 export type CardProps = {
   children?: React.ReactNode;
@@ -7,7 +9,7 @@ export type CardProps = {
 
 export function Card(props: CardProps) {
   return (
-    <div className="w-[253px] sm:w-[352px] max-w-full  bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
+    <div className="w-[253px] sm:w-[352px] max-w-full bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
       {props.children}
     </div>
   );
@@ -76,7 +78,46 @@ export type CardBodyProps = {
 };
 
 export function CardBody(props: CardBodyProps) {
-  return <div className="p-4 pt-2">{props.children}</div>;
+  return <div className="mt-[30px] p-4">{props.children}</div>;
+}
+
+export type CardBodySectionProps = {
+  title: string;
+  children?: React.ReactNode;
+};
+
+export function CardBodySection(props: CardBodySectionProps) {
+  const validChildren = React.Children.toArray(props.children).filter(
+    (child) => {
+      return (
+        (React.isValidElement(child) && child.type === ChipContainer) ||
+        typeof child === "string"
+      );
+    }
+  );
+  const firstChild = validChildren[0];
+
+  return (
+    <div className="mb-4 last:mb-0">
+      <div className="text-xs font-semibold leading-4 mb-0.5">
+        {props.title}
+      </div>
+      {typeof firstChild === "string" && (
+        <p
+          className={classNames(
+            "text-base font-semibold leading-4 min-h-6 truncate",
+            { "text-gray-400": firstChild === "" }
+          )}
+        >
+          {firstChild === "" ? "nicht angegeben" : firstChild}
+        </p>
+      )}
+      {firstChild &&
+        (firstChild as React.ReactElement).type === ChipContainer && (
+          <div className="pt-1.5">{firstChild}</div>
+        )}
+    </div>
+  );
 }
 
 export type CardFooterProps = {
@@ -98,10 +139,25 @@ function wrapCardFooterChildren(children: React.ReactNode) {
 }
 
 export function CardFooter(props: CardFooterProps) {
+  const validChildren = React.Children.toArray(props.children).filter(
+    (child) => {
+      return React.isValidElement(child) && child.type === Avatar;
+    }
+  );
+
   return (
-    <div className="p-4 pt-2">
+    <div className="p-4 pt-0">
       <hr className="h-0 border-t border-neutral-200 m-0 mb-4" />
-      <div className="flex gap-2">{wrapCardFooterChildren(props.children)}</div>
+      <div className="flex gap-2">
+        {wrapCardFooterChildren(validChildren.slice(0, 2))}
+        {validChildren.length > 2 && (
+          <div className="w-[30px] h-[30px] bg-gray-200 text-gray-700 font-semibold rounded-full text-center">
+            <span className="inline-block align-middle">{`+${
+              validChildren.length - 2
+            }`}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
