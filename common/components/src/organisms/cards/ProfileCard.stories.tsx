@@ -1,6 +1,118 @@
 import Avatar from "../../molecules/Avatar";
-import { Card, CardFooter, CardHeader } from "./Card";
+import { Card, CardBody, CardFooter, CardHeader } from "./Card";
 import ProfileCard from "./ProfileCard";
+
+function getOrganizations(numberOfOrganizations: number) {
+  const organizations = [];
+  for (let i = 0; i < numberOfOrganizations; i++) {
+    organizations.push({
+      name: `Organization ${i}`,
+      slug: "organization-name",
+      logo: i % 2 === 0 ? `https://picsum.photos/id/${i}/50/50` : undefined, // only every second organization has a logo
+    });
+  }
+  return organizations;
+}
+
+function getRandomString(length: number) {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
+function getOffers(numberOfOffers: number) {
+  const offers = [];
+  for (let i = 0; i < numberOfOffers; i++) {
+    offers.push(getRandomString(Math.floor(Math.random() * 30) + 6));
+  }
+
+  return offers;
+}
+export function EmptyProfile() {
+  const profile = {
+    firstName: "Sirko",
+    lastName: "Kaiser",
+    memberOf: [],
+    areaNames: [],
+    offers: [],
+  };
+  return (
+    <div className="w-[352px]">
+      <ProfileCard profile={profile} />
+    </div>
+  );
+}
+EmptyProfile.storyName = "empty profile";
+
+export function Variants() {
+  const profile1 = {
+    firstName: "Sirko",
+    lastName: "Kaiser",
+    memberOf: [],
+    areaNames: [],
+    offers: [],
+  };
+  const profile2 = {
+    firstName: "Colin",
+    lastName: "König",
+    position: "UX Designer",
+    avatar: "https://picsum.photos/id/1084/500/500",
+    background: "https://picsum.photos/id/434/500/500",
+    memberOf: getOrganizations(1),
+    areaNames: ["Bundesweit"],
+    offers: ["Wirkungsorientierung/Qualitätsentwicklung"],
+  };
+  const profile3 = {
+    academicTitle: "Prof. Dr.",
+    firstName: "Julia",
+    lastName: "Langlang-Schmittberger",
+    position: "Software Engineer",
+    avatar: "https://picsum.photos/id/435/500/500",
+    background: "https://picsum.photos/id/436/500/500",
+    memberOf: getOrganizations(4),
+    areaNames: ["Hamburg", "Bundesweit", "Niedersachsen", "Schleswig-Holstein"],
+    offers: [
+      "Wirkungsorientierung/Qualitätsentwicklung",
+      "Beratung",
+      "Coaching",
+      "Moderation",
+    ],
+  };
+
+  return (
+    <>
+      <div className="flex gap-8 mb-8">
+        <div className="w-[352px]">
+          <ProfileCard profile={profile1} />
+        </div>
+        <div className="w-[352px]">
+          <ProfileCard profile={profile2} match={80} />
+        </div>
+        <div className="w-[352px]">
+          <ProfileCard profile={profile3} />
+        </div>
+      </div>
+      <div className="flex gap-8">
+        <div className="w-[253px]">
+          <ProfileCard profile={profile1} />
+        </div>
+        <div className="w-[253px]">
+          <ProfileCard profile={profile2} />
+        </div>
+        <div className="w-[253px]">
+          <ProfileCard profile={profile3} />
+        </div>
+      </div>
+    </>
+  );
+}
+Variants.storyName = "Variants";
 
 export function ProfileCardWithoutAreaInfo() {
   return (
@@ -8,14 +120,13 @@ export function ProfileCardWithoutAreaInfo() {
       <Card>
         <CardHeader></CardHeader>
 
-        <div className="card-header px-4 pt-0 pb-6">
-          <h4 className="text-primary text-base leading-5 font-bold mb-0">
-            Ines Kurz
-          </h4>
-          <p className="text-neutral-700 text-sm leading-5 font-bold">
-            Projektleiterin matrix gGmbH
-          </p>
-        </div>
+        <h4 className="text-primary text-base leading-5 font-bold mb-0">
+          Ines Kurz
+        </h4>
+        <p className="text-neutral-700 text-sm leading-5 font-bold">
+          Projektleiterin matrix gGmbH
+        </p>
+
         <div className="card-body p-4 pt-2 gap-0">
           <div className="text-xxs leading-4 mb-1">Aktivitätsgebiete</div>
           <div className="text-xs leading-4 mb-6 text-gray-400">
@@ -56,26 +167,28 @@ type ProfileCardPlaygroundProps = {
   lastName: string;
   position?: string;
   numberOfOrganizations: number;
+  numberOfOffers: number;
 };
-
-function getOrganizations(numberOfOrganizations: number) {
-  const organizations = [];
-  for (let i = 0; i < numberOfOrganizations; i++) {
-    organizations.push({
-      name: `Organization ${i}`,
-      slug: "organization-name",
-      logo: i % 2 === 0 ? `https://picsum.photos/id/${i}/500/500` : undefined, // only every second organization has a logo
-    });
-  }
-  return organizations;
-}
 
 export function ProfileCardPlayground(args: ProfileCardPlaygroundProps) {
   const { match, ...profileProps } = args;
   const memberOf = getOrganizations(args.numberOfOrganizations);
+  const areaNames: string[] = [];
+  const offers = getOffers(args.numberOfOffers);
   return (
-    <div className="w-[352px]">
-      <ProfileCard match={match} profile={{ ...profileProps, memberOf }} />
+    <div className="flex gap-8">
+      <div className="w-[352px]">
+        <ProfileCard
+          match={match}
+          profile={{ ...profileProps, memberOf, areaNames, offers }}
+        />
+      </div>
+      <div className="w-[253px]">
+        <ProfileCard
+          match={match}
+          profile={{ ...profileProps, memberOf, areaNames, offers }}
+        />
+      </div>
     </div>
   );
 }
@@ -85,10 +198,19 @@ ProfileCardPlayground.args = {
   lastName: "Kaiser",
   position: "Software Engineer",
   avatar: "https://picsum.photos/id/433/500/500",
+  background: "https://picsum.photos/id/423/500/500",
   numberOfOrganizations: 0,
+  numberOfOffers: 0,
 };
 ProfileCardPlayground.argTypes = {
+  background: {
+    control: "text",
+  },
   numberOfOrganizations: {
+    control: "number",
+    default: 0,
+  },
+  numberOfOffers: {
     control: "number",
     default: 0,
   },

@@ -1,7 +1,14 @@
 import React from "react";
-import Chip from "../../../../../app/components/Chip/Chip";
+import Chip, { ChipContainer } from "../../molecules/Chip";
 import Avatar from "../../molecules/Avatar";
-import { Card, CardFooter, CardHeader, CardImage, CardStatus } from "./Card";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardImage,
+  CardStatus,
+} from "./Card";
 import { getFullName } from "../../utils";
 
 export type ProfileCardProps = {
@@ -11,11 +18,14 @@ export type ProfileCardProps = {
     firstName: string;
     lastName: string;
     position?: string;
+    background?: string;
     memberOf: {
       name: string;
       slug: string;
       logo?: string;
     }[];
+    areaNames: string[];
+    offers: string[];
   };
 };
 
@@ -32,7 +42,7 @@ function ProfileCard(
         {/* Component MatchingHeader Start */}
 
         <Avatar {...profile} size="xl" />
-        <CardImage src="https://picsum.photos/id/431/304/160" alt="Name" />
+        {profile.background && <CardImage src={profile.background} />}
         {props.match !== undefined && (
           <CardStatus>{props.match}% Match</CardStatus>
         )}
@@ -43,23 +53,41 @@ function ProfileCard(
 
       {/* Component Avatar End */}
       {/* Component CardImgae Start */}
-      <div className="card-header px-4 pt-0 pb-6">
-        <h4 className="text-primary text-base leading-5 font-bold mb-0">
-          {fullName}
-        </h4>
-        <p className="text-neutral-700 text-sm leading-5 font-bold">
-          {profile.position}
-        </p>
-      </div>
-      <div className="card-body p-4 pt-2 gap-0">
-        <div className="text-xxs leading-4 mb-1">Aktivitätsgebiete</div>
-        <div className="text-xs leading-4 mb-6">Hamburg / Bundesweit</div>
-
-        <div className="text-xxs leading-4 mb-1">Ich biete</div>
-        <div className="text-xs leading-4 mb-1">
-          <Chip title={"Wirkungsorientierung/Qualitätsentwicklung"} slug={""} />
+      <CardBody>
+        <div className="min-h-[80px]">
+          {/* TODO: */}
+          {/* Issue with combination of line clamp with ellipsis (truncate) */}
+          {/* Maybe find a better solution */}
+          <div className="max-h-10 overflow-hidden">
+            <h4 className="text-primary text-base leading-5 font-bold mb-0 text-ellipsis overflow-hidden">
+              {fullName}
+            </h4>
+          </div>
+          <div className="h-5 overflow-hidden">
+            {profile.position && (
+              <p className="text-neutral-700 text-sm leading-5 font-bold truncate">
+                {profile.position}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+
+        <div className="">
+          <div className="text-xs font-semibold leading-4 mb-[2px]">
+            Aktivitätsgebiete
+          </div>
+          <p className="text-base font-semibold leading-4 mb-6 min-h-6 truncate">
+            {profile.areaNames.length > 0 ? profile.areaNames.join("/") : "-"}
+          </p>
+
+          <div className="text-xs font-semibold leading-4 mb-2">Ich biete</div>
+          <ChipContainer maxRows={2}>
+            {profile.offers.map((offer) => {
+              return <Chip key={offer}>{offer}</Chip>;
+            })}
+          </ChipContainer>
+        </div>
+      </CardBody>
       <CardFooter>
         {profile.memberOf.slice(0, 2).map((organization) => {
           return <Avatar key={organization.slug} {...organization} size="sm" />;
