@@ -14,11 +14,7 @@ function ProfileCard(
     <Card>
       <CardHeader>
         {/* Component MatchingHeader Start */}
-        <Avatar
-          name="Name"
-          src="https://picsum.photos/id/433/500/500"
-          size="xl"
-        />
+
         <CardImage src="https://picsum.photos/id/431/304/160" alt="Name" />
         <CardStatus>21% Match</CardStatus>
         {/* Component MatchingHeader End */}
