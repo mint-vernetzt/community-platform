@@ -1,5 +1,7 @@
 import type * as express from "express";
 import { ValidateError } from "tsoa";
+import { getApiTokenFromRequest } from "./lib/token";
+import { getUserByToken } from "./lib/apiUser";
 
 export function expressAuthentication(
   request: express.Request,
@@ -9,11 +11,9 @@ export function expressAuthentication(
   // @ts-ignore
 ): Promise<any> {
   if (securityName === "api_key") {
-    let token;
-    if (request.query && request.query.access_token) {
-      token = request.query.access_token;
-    }
-    if (token === process.env.API_KEY) {
+    const token = getApiTokenFromRequest(request);
+
+    if (typeof token === "string" && getUserByToken(token)) {
       return Promise.resolve();
     } else {
       return Promise.reject(

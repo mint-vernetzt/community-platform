@@ -2,10 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
 import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
+import type { Request } from "express";
+import { decorate } from "../lib/matomoUrlDecorator";
 
 type Projects = Awaited<ReturnType<typeof getProjects>>;
 
-async function getProjects(skip: number, take: number) {
+async function getProjects(request: Request, skip: number, take: number) {
   const publicProjects = await prismaClient.project.findMany({
     select: {
       id: true,
@@ -94,10 +96,10 @@ async function getProjects(skip: number, take: number) {
       }
     }
 
-    let url: string | null = null;
-    if (process.env.COMMUNITY_BASE_URL !== undefined) {
-      url = `${process.env.COMMUNITY_BASE_URL}project/${slug}`;
-    }
+    const url =
+      process.env.COMMUNITY_BASE_URL !== undefined
+        ? decorate(request, `${process.env.COMMUNITY_BASE_URL}project/${slug}`)
+        : null;
 
     return {
       ...rest,
@@ -111,9 +113,10 @@ async function getProjects(skip: number, take: number) {
 }
 
 export async function getAllProjects(
+  request: Request,
   skip: number,
   take: number
 ): Promise<{ skip: number; take: number; result: Projects }> {
-  const publicProjects = await getProjects(skip, take);
+  const publicProjects = await getProjects(request, skip, take);
   return { skip, take, result: publicProjects };
 }

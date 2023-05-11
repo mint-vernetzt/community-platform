@@ -5,12 +5,13 @@ import {
   Route,
   Response,
   Security,
+  Request,
   Res,
   Tags,
   Example,
 } from "tsoa";
-import type { TsoaResponse } from "tsoa";
-import type { ValidateError } from "tsoa";
+import type { TsoaResponse, ValidateError } from "tsoa";
+import type { Request as ExpressRequest } from "express";
 import { getAllProjects } from "./projects-service";
 
 type GetProjectsResult = ReturnType<typeof getAllProjects>;
@@ -154,6 +155,7 @@ export class ProjectsController extends Controller {
   public async getAllProjects(
     @Query("skip") skip: number,
     @Query("take") take: number,
+    @Request() request: ExpressRequest,
     @Res()
     badRequestResponse: TsoaResponse<
       400,
@@ -179,6 +181,6 @@ export class ProjectsController extends Controller {
         },
       });
     }
-    return getAllProjects(skip, take);
+    return getAllProjects(request, skip, take);
   }
 }

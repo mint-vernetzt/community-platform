@@ -8,8 +8,21 @@ import { RegisterRoutes } from "../build/routes";
 import swaggerUI from "swagger-ui-express";
 import swaggerDocument from "../build/swagger.json";
 import { ValidateError } from "tsoa";
+import matomoMiddleware from "./middlewares/express-matomo-middleware";
 
 export const app = express();
+
+if (process.env.MATOMO_API_ENABLED === "1") {
+  console.log("MATOMO API TRACKING ENABLED");
+  app.use(
+    matomoMiddleware({
+      siteId: parseInt(process.env.MATOMO_API_SITE_ID ?? "") || 0,
+      piwikUrl: `${process.env.MATOMO_API_URL ?? ""}piwik.php`,
+      baseUrl: process.env.MATOMO_API_BASE_URL ?? "",
+      piwikToken: process.env.MATOMO_API_TOKEN ?? "",
+    })
+  );
+}
 
 // Use body parser to read sent json payloads
 app.use(
