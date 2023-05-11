@@ -2,21 +2,40 @@ import React from "react";
 import Chip from "../../../../../app/components/Chip/Chip";
 import Avatar from "../../molecules/Avatar";
 import { Card, CardFooter, CardHeader, CardImage, CardStatus } from "./Card";
+import { getFullName } from "../../utils";
 
-export type ProfileCardProps = {};
+export type ProfileCardProps = {
+  match?: number;
+  profile: {
+    academicTitle?: string;
+    firstName: string;
+    lastName: string;
+    position?: string;
+    memberOf: {
+      name: string;
+      slug: string;
+      logo?: string;
+    }[];
+  };
+};
 
 function ProfileCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & ProfileCardProps
 ) {
-  const { ...otherProps } = props;
+  const { profile } = props;
+
+  const fullName = getFullName(profile);
 
   return (
     <Card>
       <CardHeader>
         {/* Component MatchingHeader Start */}
 
+        <Avatar {...profile} size="xl" />
         <CardImage src="https://picsum.photos/id/431/304/160" alt="Name" />
-        <CardStatus>21% Match</CardStatus>
+        {props.match !== undefined && (
+          <CardStatus>{props.match}% Match</CardStatus>
+        )}
         {/* Component MatchingHeader End */}
       </CardHeader>
 
@@ -26,10 +45,10 @@ function ProfileCard(
       {/* Component CardImgae Start */}
       <div className="card-header px-4 pt-0 pb-6">
         <h4 className="text-primary text-base leading-5 font-bold mb-0">
-          Ines Kurz
+          {fullName}
         </h4>
         <p className="text-neutral-700 text-sm leading-5 font-bold">
-          Projektleiterin matrix gGmbH
+          {profile.position}
         </p>
       </div>
       <div className="card-body p-4 pt-2 gap-0">
@@ -42,16 +61,12 @@ function ProfileCard(
         </div>
       </div>
       <CardFooter>
-        <Avatar
-          name="Name"
-          src="https://picsum.photos/id/433/500/500"
-          size="sm"
-        />
-        <Avatar
-          name="Name"
-          src="https://picsum.photos/id/432/500/500"
-          size="sm"
-        />
+        {profile.memberOf.slice(0, 2).map((organization) => {
+          return <Avatar key={organization.slug} {...organization} size="sm" />;
+        })}
+        {profile.memberOf.length > 2 && (
+          <>{`+${profile.memberOf.length - 2}`}</>
+        )}
       </CardFooter>
     </Card>
   );
