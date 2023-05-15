@@ -42,7 +42,7 @@ export function CardHeader(props: CardHeaderProps) {
       <div className="absolute w-full h-40 overflow-hidden">
         {status || null}
       </div>
-      <div className="absolute w-full h-full flex justify-center top-14">
+      <div className="absolute w-full flex justify-center top-14">
         {avatar || null}
       </div>
     </div>

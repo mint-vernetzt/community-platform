@@ -88,6 +88,19 @@ export function Variants() {
   return (
     <>
       <div className="container relative">
+        <div className="flex mb-4 lg:mb-8 flex-nowrap items-end justify-between">
+          <div className="font-bold text-gray-700 text-2xl leading-7 lg:text-5xl lg:leading-9">
+            Profile
+          </div>
+          <div className="text-right">
+            <a
+              href="/explore/profiles"
+              className="font-semibold text-gray-400 text-sm leading-4 lg:text-2xl lg:leading-7"
+            >
+              Alle Profile
+            </a>
+          </div>
+        </div>
         <div className="flex -mx-2 md:-mx-4 mb-8">
           <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">
             <ProfileCard profile={profile1} />
