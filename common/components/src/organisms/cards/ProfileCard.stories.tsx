@@ -1,4 +1,5 @@
 import Avatar from "../../molecules/Avatar";
+import Button from "../../molecules/Button";
 import { Card, CardBody, CardFooter, CardHeader } from "./Card";
 import ProfileCard from "./ProfileCard";
 
@@ -87,6 +88,21 @@ export function Variants() {
 
   return (
     <>
+      <div className="container py-12">
+        <h1 className="text-primary font-black text-5xl lg:text-7xl leading-xtight mb-2">
+          Willkommen,
+          <br />
+          Anna Schröter
+        </h1>
+        <p className="font-semibold mb-4 lg:mb-8">
+          in Deiner MINTvernetzt-Community!
+        </p>
+        <p>
+          <Button variant="secondary" size="small">
+            Mein Profil besuchen
+          </Button>
+        </p>
+      </div>
       <div className="container relative">
         <div className="flex mb-4 lg:mb-8 flex-nowrap items-end justify-between">
           <div className="font-bold text-gray-700 text-2xl leading-7 lg:text-5xl lg:leading-9">
