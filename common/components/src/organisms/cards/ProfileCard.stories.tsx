@@ -87,7 +87,20 @@ export function Variants() {
 
   return (
     <>
-      <div className="flex gap-8 mb-8">
+      <div className="container relative">
+        <div className="flex -mx-2 md:-mx-4 mb-8">
+          <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">
+            <ProfileCard profile={profile1} />
+          </div>
+          <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">
+            <ProfileCard profile={profile2} match={80} />
+          </div>
+          <div className="w-3/4 md:mr-0 md:w-1/3 px-2 md:px-4 shrink-0">
+            <ProfileCard profile={profile3} />
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-8 mb-8 hidden">
         <div className="w-[352px]">
           <ProfileCard profile={profile1} />
         </div>
@@ -98,7 +111,7 @@ export function Variants() {
           <ProfileCard profile={profile3} />
         </div>
       </div>
-      <div className="flex gap-8">
+      <div className="flex gap-8 hidden">
         <div className="w-[253px]">
           <ProfileCard profile={profile1} />
         </div>
