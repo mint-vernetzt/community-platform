@@ -9,7 +9,7 @@ export type CardProps = {
 
 export function Card(props: CardProps) {
   return (
-    <div className="w-[253px] sm:w-[352px] max-w-full bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700">
+    <div className="w-full h-full bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700 flex flex-col items-stretch">
       {props.children}
     </div>
   );
@@ -146,7 +146,7 @@ export function CardFooter(props: CardFooterProps) {
   );
 
   return (
-    <div className="p-4 pt-0">
+    <div className="p-4 pt-0 mt-auto">
       <hr className="h-0 border-t border-neutral-200 m-0 mb-4" />
       <div className="flex gap-2">
         {wrapCardFooterChildren(validChildren.slice(0, 2))}
