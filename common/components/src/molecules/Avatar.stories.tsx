@@ -1,11 +1,22 @@
-import type { AvatarProps } from "./Avatar";
-import Avatar from "./Avatar";
+import type { AvatarProps, MoreIndicatorProps } from "./Avatar";
+import Avatar, { MoreIndicator } from "./Avatar";
 
 type AvatarPlaygroundProps = {
   firstName: string;
   lastName: string;
   avatar?: string;
   size?: AvatarProps["size"];
+};
+
+export function MoreIndicatorPlayground(props: MoreIndicatorProps) {
+  return <MoreIndicator {...props} />;
+}
+MoreIndicatorPlayground.storyName = "More Indicator";
+MoreIndicatorPlayground.args = {
+  amount: 1,
+};
+MoreIndicatorPlayground.parameters = {
+  controls: { disable: false },
 };
 
 export function AvatarPlayground(props: AvatarPlaygroundProps) {

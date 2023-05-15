@@ -1,6 +1,23 @@
 import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 
+export type MoreIndicatorProps = {
+  amount: number;
+};
+
+export function MoreIndicator(props: MoreIndicatorProps) {
+  const amount = props.amount < 1000 ? `+${props.amount}` : ">999";
+
+  const classes = classNames(
+    {
+      "text-sm": props.amount < 100,
+      "text-xs": props.amount >= 100,
+    },
+    "w-[30px] h-[30px] bg-gray-200 text-gray-700 font-semibold rounded-full flex items-center justify-center"
+  );
+  return <div className={classes}>{amount}</div>;
+}
+
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
 
 export type AvatarProps = { size?: AvatarSize } & (

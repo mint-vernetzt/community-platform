@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import React from "react";
-import Avatar from "../../molecules/Avatar";
+import Avatar, { MoreIndicator } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 
 export type CardProps = {
@@ -151,11 +151,7 @@ export function CardFooter(props: CardFooterProps) {
       <div className="flex gap-2">
         {wrapCardFooterChildren(validChildren.slice(0, 2))}
         {validChildren.length > 2 && (
-          <div className="w-[30px] h-[30px] bg-gray-200 text-gray-700 font-semibold rounded-full text-center">
-            <span className="inline-block align-middle">{`+${
-              validChildren.length - 2
-            }`}</span>
-          </div>
+          <MoreIndicator amount={validChildren.length - 2} />
         )}
       </div>
     </div>
