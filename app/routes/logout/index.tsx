@@ -15,5 +15,10 @@ export const action: ActionFunction = async (args) => {
     throw serverError({ message: error.message });
   }
 
+  const cookie = response.headers.get("set-cookie");
+  if (cookie !== null) {
+    response.headers.set("set-cookie", cookie.replace("-code-verifier", ""));
+  }
+
   return redirect("/", { headers: response.headers });
 };
