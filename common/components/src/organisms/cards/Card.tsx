@@ -157,3 +157,42 @@ export function CardFooter(props: CardFooterProps) {
     </div>
   );
 }
+
+export type CardRowContainerProps = {
+  children?: React.ReactNode;
+};
+
+function wrapCardRowContainerChildren(
+  children: React.ReactNode,
+  itemsPerRow: number
+) {
+  const validChildren = React.Children.toArray(children).filter((child) => {
+    return React.isValidElement(child);
+  });
+
+  return React.Children.map(validChildren, (child) => {
+    return <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">{child}</div>;
+  });
+}
+
+export function CardRowContainer(props: CardRowContainerProps) {
+  const itemsPerRow = 3;
+
+  const validChildren = React.Children.toArray(props.children).filter(
+    (child) => {
+      return React.isValidElement(child);
+    }
+  );
+
+  const classes = classNames("flex -mx-2 md:-mx-4 mb-8", {
+    "flex-wrap": itemsPerRow < validChildren.length,
+  });
+
+  return (
+    <div className="container relative">
+      <div className={classes}>
+        {wrapCardRowContainerChildren(validChildren, itemsPerRow)}
+      </div>
+    </div>
+  );
+}
