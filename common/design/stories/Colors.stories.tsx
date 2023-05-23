@@ -24,13 +24,13 @@ function Shape(props: {
   const hex = colors[colorName][shapeNumber];
 
   return (
-    <div className="w-32 text-xs">
+    <div className="mv-w-32 mv-text-xs">
       <div
-        className={`rounded-[5px] w-full h-12 mb-2 bg-${colorName}-${shapeNumber}`}
+        className={`mv-rounded-[5px] mv-w-full mv-h-12 mv-mb-2 mv-bg-${colorName}-${shapeNumber}`}
       />
-      <div className="flex justify-between">
+      <div className="mv-flex mv-justify-between">
         <p>
-          {colorName}-{shapeNumber}
+          mv-{colorName}-{shapeNumber}
         </p>
         <p>{hex}</p>
       </div>
@@ -42,7 +42,7 @@ function Color(props: { colorName: keyof typeof colors }) {
   const { colorName } = props;
 
   return (
-    <div className="mb-2 grid grid-flow-col auto-cols-max gap-2">
+    <div className="mv-mb-2 mv-grid mv-grid-flow-col mv-auto-cols-max mv-gap-2">
       {shapes.map((shapeNumber) => {
         return (
           <Shape
