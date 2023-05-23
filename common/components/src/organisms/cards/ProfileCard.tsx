@@ -36,7 +36,6 @@ function ProfileCard(
   const { profile } = props;
 
   const fullName = getFullName(profile);
-  console.log(profile.areaNames);
 
   return (
     <Card>
