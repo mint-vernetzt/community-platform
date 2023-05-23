@@ -89,7 +89,7 @@ export function Variants() {
   return (
     <>
       <div className="container py-12">
-        <h1 className="text-primary font-black text-5xl lg:text-7xl leading-xtight mb-2">
+        <h1 className="text-primary font-black text-5xl lg:text-7xl leading-tight mb-2">
           Willkommen,
           <br />
           Anna Schröter
