@@ -1,0 +1,66 @@
+import type { LoaderFunction } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+
+import { useLoaderData } from "@remix-run/react";
+import { prismaClient } from "~/prisma";
+
+export const loader: LoaderFunction = async (args) => {
+  console.time("loader profile-public-query");
+
+  const profiles = await prismaClient.$queryRaw`
+    select
+      p.id,
+      p.username,
+      case when pv.email is true then p.email else '' end as email,
+      case when pv.position is true then p.position end as position,
+      case when pv.phone is true then p.phone end as phone,
+      case when pv.bio is true then p.bio end as bio,
+      case when pv.skills is true then p.skills end as skills,
+      case when pv.interests is true then p.interests end as interests,
+      case when pv.seekings is true then array_remove(array_agg(DISTINCT offer.title), null) end as seekings,
+      case when pv.offers is true then array_remove(array_agg(DISTINCT seeking.title), null) end as offers,
+      case when pv.website is true then p.website end as website,
+      case when pv.facebook is true then p.facebook end as facebook,
+      case when pv.linkedin is true then p.linkedin end as linkedin,
+      case when pv.twitter is true then p.twitter end as twitter,
+      case when pv.youtube is true then p.youtube end as youtube,
+      case when pv.instagram is true then p.instagram end as instagram,
+      case when pv.xing is true then p.xing end as xing,
+      p.score
+    from
+      profiles p
+    join seekings_on_profiles on p.id = seekings_on_profiles."profileId"
+    join offer seeking on seekings_on_profiles."offerId" = seeking.id
+    join offers_on_profiles on p.id = offers_on_profiles."profileId"
+    join offer on offers_on_profiles."offerId" = offer.id
+    join profile_visibilities pv on pv.profile_id = p.id
+    group by 
+      p.id, pv.email, pv.position, pv.phone, pv.bio, pv.skills, pv.interests, pv.seekings, pv.offers, pv.website, pv.facebook, pv.linkedin, pv.twitter, pv.youtube, pv.instagram, pv.xing
+    order by p.score asc
+    limit 30
+  `;
+
+  console.timeEnd("loader profile-public-query");
+
+  return json({ profiles });
+};
+
+export default function Public() {
+  const loaderData = useLoaderData<typeof loader>();
+  const { profiles } = loaderData;
+
+  return (
+    <>
+      {profiles.map((profile) => {
+        return (
+          <div key={profile.id}>
+            <h1>{profile.username}</h1>
+            <pre className="text-xs monospace">
+              {JSON.stringify(profile, null, 2)}
+            </pre>
+          </div>
+        );
+      })}
+    </>
+  );
+}

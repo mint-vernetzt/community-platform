@@ -486,3 +486,32 @@ export async function prepareEvents(
   });
   return enhancedEvents as MaybeEnhancedEvents;
 }
+
+export async function filterProfileDataByVisibilitySettings(
+  profiles: NonNullable<Profile>[]
+) {
+  const filteredProfiles: NonNullable<Profile>[] = [];
+
+  for (const profile of profiles) {
+    const profileVisibility = await prismaClient.profileVisibility.findFirst({
+      where: {
+        profileId: profile.id,
+      },
+    });
+
+    if (profileVisibility === null) {
+      continue;
+    }
+    const filteredFields: { [key: string]: any } = {};
+    for (const key in profileVisibility) {
+      if (key !== "id" && key !== "profileId") {
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : null;
+      }
+    }
+
+    filteredProfiles.push({ ...profile, ...filteredFields });
+  }
+
+  return filteredProfiles;
+}
