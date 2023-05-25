@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "views"]
 }
 
 datasource db {
@@ -34,6 +34,7 @@ model Profile {
   position             String?
   instagram            String?
   youtube              String?
+  score                Int                         @default(0)
   areas                AreasOnProfiles[]
   memberOf             MemberOfOrganization[]
   offers               OffersOnProfiles[]
@@ -43,7 +44,6 @@ model Profile {
   teamMemberOfEvents   TeamMemberOfEvent[]
   teamMemberOfProjects TeamMemberOfProject[]
   waitingForEvents     WaitingParticipantOfEvent[]
-  score                Int                         @default(0)
 
   @@map("profiles")
 }
@@ -127,6 +127,7 @@ model Organization {
   zipCode                String?                            @map("zip_code")
   instagram              String?
   youtube                String?
+  score                  Int                                @default(0)
   areas                  AreasOnOrganizations[]
   focuses                FocusesOnOrganizations[]
   networkMembers         MemberOfNetwork[]                  @relation("network")
@@ -135,7 +136,6 @@ model Organization {
   types                  OrganizationTypesOnOrganizations[]
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
   responsibleForProject  ResponsibleOrganizationOfProject[]
-  score                  Int                                @default(0)
 
   @@map("organizations")
 }
@@ -588,6 +588,29 @@ model TeamMemberOfProject {
 
   @@id([profileId, projectId])
   @@map("team_members_of_projects")
+}
+
+view PublicProfile {
+  id        String   @unique
+  username  String
+  email     String
+  position  String?
+  phone     String?
+  bio       String?
+  skills    String[]
+  interests String[]
+  seekings  String[]
+  offers    String[]
+  website   String?
+  facebook  String?
+  linkedin  String?
+  twitter   String?
+  youtube   String?
+  instagram String?
+  xing      String?
+  score     Int
+
+  @@map("public_profiles")
 }
 
 enum DistrictType {
