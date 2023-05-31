@@ -14,10 +14,10 @@ export function ChipContainer(props: ChipContainerProps) {
   );
   const classes = classNames(
     {
-      "h-[72px]": props.maxRows === 2,
-      "overflow-hidden": props.maxRows !== undefined,
+      "mv-h-[72px]": props.maxRows === 2,
+      "mv-overflow-hidden": props.maxRows !== undefined,
     },
-    "flex flex-wrap gap-2"
+    "mv-flex mv-flex-wrap gap-2"
   );
   return <div className={classes}>{validChildren}</div>;
 }
@@ -28,7 +28,7 @@ export type ChipProps = {
 
 function Chip(props: ChipProps) {
   return (
-    <div className="bg-secondary-50 text-secondary-600 text-xs py-1.5 px-3 rounded-lg font-semibold w-fit max-w-full h-fit text-left text-ellipsis overflow-hidden">
+    <div className="mv-bg-secondary-50 mv-text-secondary-600 mv-text-xs mv-py-1.5 mv-px-3 mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-overflow-hidden">
       {props.children}
     </div>
   );
