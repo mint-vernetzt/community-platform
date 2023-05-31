@@ -9,7 +9,7 @@ export type CardProps = {
 
 export function Card(props: CardProps) {
   return (
-    <div className="w-full h-full bg-neutral-50 shadow-xl rounded-3xl relative overflow-hidden text-gray-700 flex flex-col items-stretch">
+    <div className="mv-w-full mv-h-full mv-bg-neutral-50 mv-shadow-xl mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
       {props.children}
     </div>
   );
@@ -35,14 +35,14 @@ export function CardHeader(props: CardHeaderProps) {
     return (child as React.ReactElement).type === Avatar;
   });
   return (
-    <div className="bg-success-500 h-40 overflow-hidden">
-      <div className="absolute w-full h-40 overflow-hidden">
+    <div className="mv-bg-success-500 mv-h-40 mv-overflow-hidden">
+      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
         {image || null}
       </div>
-      <div className="absolute w-full h-40 overflow-hidden">
+      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
         {status || null}
       </div>
-      <div className="absolute w-full flex justify-center top-14">
+      <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
         {avatar || null}
       </div>
     </div>
@@ -55,7 +55,7 @@ export type CardStatusProps = {
 
 export function CardStatus(props: CardStatusProps) {
   return (
-    <div className="text-center text-primary bg-primary-100 px-4 py-2 font-base leading-5 font-semibold">
+    <div className="mv-text-center mv-text-primary mv-bg-primary-100 mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold">
       {props.children}
     </div>
   );
@@ -66,7 +66,7 @@ export function CardImage(props: { src: string }) {
     <figure>
       <img
         src={props.src}
-        className="inset-0 w-full h-full object-cover"
+        className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
         alt=""
       />
     </figure>
@@ -78,7 +78,7 @@ export type CardBodyProps = {
 };
 
 export function CardBody(props: CardBodyProps) {
-  return <div className="mt-[30px] p-4">{props.children}</div>;
+  return <div className="mv-mt-[30px] mv-p-4">{props.children}</div>;
 }
 
 export type CardBodySectionProps = {
@@ -98,15 +98,15 @@ export function CardBodySection(props: CardBodySectionProps) {
   const firstChild = validChildren[0];
 
   return (
-    <div className="mb-4 last:mb-0">
-      <div className="text-xs font-semibold leading-4 mb-0.5">
+    <div className="mv-mb-4 last:mv-mb-0">
+      <div className="mv-text-xs mv-font-semibold mv-leading-4 mv-mb-0.5">
         {props.title}
       </div>
       {typeof firstChild === "string" && (
         <p
           className={classNames(
-            "text-base font-semibold leading-4 min-h-6 truncate",
-            { "text-gray-400": firstChild === "" }
+            "mv-text-base mv-font-semibold mv-leading-4 mv-min-h-6 mv-truncate",
+            { "mv-text-gray-400": firstChild === "" }
           )}
         >
           {firstChild === "" ? "nicht angegeben" : firstChild}
@@ -114,7 +114,7 @@ export function CardBodySection(props: CardBodySectionProps) {
       )}
       {firstChild &&
         (firstChild as React.ReactElement).type === ChipContainer && (
-          <div className="pt-1.5">{firstChild}</div>
+          <div className="mv-pt-1.5">{firstChild}</div>
         )}
     </div>
   );
@@ -130,7 +130,7 @@ function wrapCardFooterChildren(children: React.ReactNode) {
   });
 
   if (validChildren.length === 0) {
-    return <div className="h-[30px]"></div>;
+    return <div className="mv-h-[30px]"></div>;
   }
 
   return React.Children.map(validChildren, (child) => {
@@ -146,9 +146,9 @@ export function CardFooter(props: CardFooterProps) {
   );
 
   return (
-    <div className="p-4 pt-0 mt-auto">
-      <hr className="h-0 border-t border-neutral-200 m-0 mb-4" />
-      <div className="flex gap-2">
+    <div className="mv-p-4 mv-pt-0 mv-mt-auto">
+      <hr className="mv-h-0 mv-border-t mv-border-neutral-200 mv-m-0 mv-mb-4" />
+      <div className="mv-flex mv-gap-2">
         {wrapCardFooterChildren(validChildren.slice(0, 2))}
         {validChildren.length > 2 && (
           <MoreIndicator amount={validChildren.length - 2} />
@@ -171,7 +171,11 @@ function wrapCardRowContainerChildren(
   });
 
   return React.Children.map(validChildren, (child) => {
-    return <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">{child}</div>;
+    return (
+      <div className="mv-w-3/4 md:mv-w-1/3 mv-px-2 md:mv-px-4 mv-shrink-0">
+        {child}
+      </div>
+    );
   });
 }
 
@@ -184,12 +188,12 @@ export function CardRowContainer(props: CardRowContainerProps) {
     }
   );
 
-  const classes = classNames("flex -mx-2 md:-mx-4 mb-8", {
+  const classes = classNames("mv-flex mv--mx-2 md:mv--mx-4 mv-mb-8", {
     "flex-wrap": itemsPerRow < validChildren.length,
   });
 
   return (
-    <div className="container relative">
+    <div className="mv-relative">
       <div className={classes}>
         {wrapCardRowContainerChildren(validChildren, itemsPerRow)}
       </div>

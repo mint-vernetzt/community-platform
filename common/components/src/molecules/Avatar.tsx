@@ -10,10 +10,10 @@ export function MoreIndicator(props: MoreIndicatorProps) {
 
   const classes = classNames(
     {
-      "text-sm": props.amount < 100,
-      "text-xs": props.amount >= 100,
+      "mv-text-sm": props.amount < 100,
+      "mv-text-xs": props.amount >= 100,
     },
-    "w-[30px] h-[30px] bg-gray-200 text-gray-700 font-semibold rounded-full flex items-center justify-center"
+    "mv-w-[30px] mv-h-[30px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center"
   );
   return <div className={classes}>{amount}</div>;
 }
@@ -51,23 +51,23 @@ function Avatar(props: AvatarProps) {
 
   const classes = classNames(
     {
-      "h-[136px] w-[136px]": size === "xl",
-      "h-[44px] w-[44px]": size === "lg",
-      "h-[40px] w-[40px]": size === "md",
-      "h-[30px] w-[30px]": size === "sm",
+      "mv-h-[136px] mv-w-[136px]": size === "xl",
+      "mv-h-[44px] mv-w-[44px]": size === "lg",
+      "mv-h-[40px] mv-w-[40px]": size === "md",
+      "mv-h-[30px] mv-w-[30px]": size === "sm",
     },
     {
-      "text-[70px]": size === "xl",
-      "text-[22px]": size === "lg",
-      "text-[20px]": size === "md",
-      "text-[14px]": size === "sm",
+      "mv-text-[70px]": size === "xl",
+      "mv-text-[22px]": size === "lg",
+      "mv-text-[20px]": size === "md",
+      "mv-text-[14px]": size === "sm",
     },
     {
-      "border-2": size === "xl",
-      border: size === "lg" || size === "md" || size === "sm",
+      "mv-border-2": size === "xl",
+      "mv-border": size === "lg" || size === "md" || size === "sm",
     },
-    "bg-primary border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0",
-    "text-white font-normal	flex items-center justify-center"
+    "mv-bg-primary mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
+    "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center"
   );
 
   return (

@@ -88,13 +88,13 @@ export function Variants() {
 
   return (
     <>
-      <div className="container py-12">
-        <h1 className="text-primary font-black text-5xl lg:text-7xl leading-tight mb-2">
+      <div className="mv-py-12">
+        <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
           Willkommen,
           <br />
           Anna Schröter
         </h1>
-        <p className="font-semibold mb-4 lg:mb-8">
+        <p className="mv-font-semibold mv-mb-4 lg:mv-mb-8">
           in Deiner MINTvernetzt-Community!
         </p>
         <p>
@@ -103,51 +103,51 @@ export function Variants() {
           </Button>
         </p>
       </div>
-      <div className="container relative">
-        <div className="flex mb-4 lg:mb-8 flex-nowrap items-end justify-between">
-          <div className="font-bold text-gray-700 text-2xl leading-7 lg:text-5xl lg:leading-9">
+      <div className="mv-relative">
+        <div className="mv-flex mv-mb-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
             Profile
           </div>
-          <div className="text-right">
+          <div className="mv-text-right">
             <a
               href="/explore/profiles"
-              className="font-semibold text-gray-400 text-sm leading-4 lg:text-2xl lg:leading-7"
+              className="mv-font-semibold mv-text-gray-400 mv-text-sm mv-leading-4 lg:mv-text-2xl lg:mv-leading-7"
             >
               Alle Profile
             </a>
           </div>
         </div>
-        <div className="flex -mx-2 md:-mx-4 mb-8">
-          <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">
+        <div className="mv-flex mv--mx-2 md:mv--mx-4 mv-mb-8">
+          <div className="mv-w-3/4 md:mv-w-1/3 mv-px-2 md:mv-px-4 mv-shrink-0">
             <ProfileCard profile={profile1} />
           </div>
-          <div className="w-3/4 md:w-1/3 px-2 md:px-4 shrink-0">
+          <div className="mv-w-3/4 md:mv-w-1/3 mv-px-2 md:mv-px-4 mv-shrink-0">
             <ProfileCard profile={profile2} match={80} />
           </div>
-          <div className="w-3/4 md:mr-0 md:w-1/3 px-2 md:px-4 shrink-0">
+          <div className="mv-w-3/4 md:mv-mr-0 md:mv-w-1/3 mv-px-2 md:mv-px-4 mv-shrink-0">
             <ProfileCard profile={profile3} />
           </div>
         </div>
       </div>
-      <div className="flex gap-8 mb-8 hidden">
-        <div className="w-[352px]">
+      <div className="mv-flex mv-gap-8 mv-mb-8 mv-hidden">
+        <div className="mv-w-[352px]">
           <ProfileCard profile={profile1} />
         </div>
-        <div className="w-[352px]">
+        <div className="mv-w-[352px]">
           <ProfileCard profile={profile2} match={80} />
         </div>
-        <div className="w-[352px]">
+        <div className="mv-w-[352px]">
           <ProfileCard profile={profile3} />
         </div>
       </div>
-      <div className="flex gap-8 hidden">
-        <div className="w-[253px]">
+      <div className="mv-flex mv-gap-8 mv-hidden">
+        <div className="mv-w-[253px]">
           <ProfileCard profile={profile1} />
         </div>
-        <div className="w-[253px]">
+        <div className="mv-w-[253px]">
           <ProfileCard profile={profile2} />
         </div>
-        <div className="w-[253px]">
+        <div className="mv-w-[253px]">
           <ProfileCard profile={profile3} />
         </div>
       </div>
@@ -158,27 +158,29 @@ Variants.storyName = "Variants";
 
 export function ProfileCardWithoutAreaInfo() {
   return (
-    <div className="w-[352px]">
+    <div className="mv-w-[352px]">
       <Card>
         <CardHeader></CardHeader>
 
-        <h4 className="text-primary text-base leading-5 font-bold mb-0">
+        <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0">
           Ines Kurz
         </h4>
-        <p className="text-neutral-700 text-sm leading-5 font-bold">
+        <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold">
           Projektleiterin matrix gGmbH
         </p>
 
-        <div className="card-body p-4 pt-2 gap-0">
-          <div className="text-xxs leading-4 mb-1">Aktivitätsgebiete</div>
-          <div className="text-xs leading-4 mb-6 text-gray-400">
+        <div className="mv-p-4 pt-2 mv-gap-0">
+          <div className="mv-text-xxs mv-leading-4 mv-mb-1">
+            Aktivitätsgebiete
+          </div>
+          <div className="mv-text-xs mv-leading-4 mv-mb-6 mv-text-gray-400">
             -nicht angegeben-
           </div>
 
-          <div className="text-xxs leading-4 mb-1">Ich biete</div>
-          <div className="flex flex-wrap gap-2">
-            <div className="bg-secondary-50 text-secondary-600 text-xs py-1.5 px-3 rounded-lg font-semibold">
-              <span className="text-ellipsis overflow-hidden text-left">
+          <div className="mv-text-xxs mv-leading-4 mv-mb-1">Ich biete</div>
+          <div className="mv-flex mv-flex-wrap mv-gap-2">
+            <div className="mv-bg-secondary-50 mv-text-secondary-600 mv-text-xs mv-py-1.5 mv-px-3 mv-rounded-lg mv-font-semibold">
+              <span className="mv-text-ellipsis mv-overflow-hidden mv-text-left">
                 Wirkungsorientierung/Qualitätsentwicklung
               </span>
             </div>
@@ -218,14 +220,14 @@ export function ProfileCardPlayground(args: ProfileCardPlaygroundProps) {
   const areaNames: string[] = [];
   const offers = getOffers(args.numberOfOffers);
   return (
-    <div className="flex gap-8">
-      <div className="w-[352px]">
+    <div className="mv-flex mv-gap-8">
+      <div className="mv-w-[352px]">
         <ProfileCard
           match={match}
           profile={{ ...profileProps, memberOf, areaNames, offers }}
         />
       </div>
-      <div className="w-[253px]">
+      <div className="mv-w-[253px]">
         <ProfileCard
           match={match}
           profile={{ ...profileProps, memberOf, areaNames, offers }}
