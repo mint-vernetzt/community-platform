@@ -5,15 +5,20 @@ type ChipPlaygroundProps = {
 };
 
 export function ChipPlayground(props: ChipPlaygroundProps) {
-  const { title } = props;
-  return <Chip>{title}</Chip>;
+  const { title, ...otherProps } = props;
+  return <Chip {...otherProps}>{title}</Chip>;
 }
 ChipPlayground.args = {
   title: "Title",
+  color: "primary",
 };
 ChipPlayground.argTypes = {
   title: {
     control: "text",
+  },
+  color: {
+    control: "select",
+    options: ["primary", "secondary"],
   },
 };
 ChipPlayground.storyName = "Playground";

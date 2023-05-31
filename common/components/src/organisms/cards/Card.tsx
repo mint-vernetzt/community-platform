@@ -189,7 +189,7 @@ export function CardRowContainer(props: CardRowContainerProps) {
   );
 
   const classes = classNames("mv-flex mv--mx-2 md:mv--mx-4 mv-mb-8", {
-    "flex-wrap": itemsPerRow < validChildren.length,
+    "mv-flex-wrap": itemsPerRow < validChildren.length,
   });
 
   return (
