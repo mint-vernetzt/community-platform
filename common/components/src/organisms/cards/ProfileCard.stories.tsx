@@ -27,9 +27,9 @@ function getRandomString(length: number) {
   return result;
 }
 
-function getOffers(numberOfOffers: number) {
+function getRandomStrings(numberOfStrings: number) {
   const offers = [];
-  for (let i = 0; i < numberOfOffers; i++) {
+  for (let i = 0; i < numberOfStrings; i++) {
     offers.push(getRandomString(Math.floor(Math.random() * 30) + 6));
   }
 
@@ -206,30 +206,34 @@ ProfileCardWithoutAreaInfo.storyName = "Keine Infos";
 
 type ProfileCardPlaygroundProps = {
   match?: number;
+  to?: string;
   academicTitle?: string;
   firstName: string;
   lastName: string;
   position?: string;
   numberOfOrganizations: number;
   numberOfOffers: number;
+  numberOfAreas: number;
 };
 
 export function ProfileCardPlayground(args: ProfileCardPlaygroundProps) {
-  const { match, ...profileProps } = args;
+  const { match, to, ...profileProps } = args;
   const memberOf = getOrganizations(args.numberOfOrganizations);
-  const areaNames: string[] = [];
-  const offers = getOffers(args.numberOfOffers);
+  const areaNames = getRandomStrings(args.numberOfAreas);
+  const offers = getRandomStrings(args.numberOfOffers);
   return (
     <div className="mv-flex mv-gap-8">
       <div className="mv-w-[352px]">
         <ProfileCard
           match={match}
+          to={to}
           profile={{ ...profileProps, memberOf, areaNames, offers }}
         />
       </div>
       <div className="mv-w-[253px]">
         <ProfileCard
           match={match}
+          to={to}
           profile={{ ...profileProps, memberOf, areaNames, offers }}
         />
       </div>
@@ -245,6 +249,7 @@ ProfileCardPlayground.args = {
   background: "https://picsum.photos/id/423/500/500",
   numberOfOrganizations: 0,
   numberOfOffers: 0,
+  numberOfAreas: 0,
 };
 ProfileCardPlayground.argTypes = {
   background: {
@@ -258,6 +263,10 @@ ProfileCardPlayground.argTypes = {
     control: "number",
     default: 0,
   },
+  numberOfAreas: {
+    control: "number",
+    default: 0,
+  },
   academicTitle: {
     control: "select",
     options: ["Dr.", "Prof.", "Prof. Dr."],
@@ -265,6 +274,7 @@ ProfileCardPlayground.argTypes = {
   match: {
     control: "number",
   },
+  to: { control: "text" },
 };
 ProfileCardPlayground.parameters = {
   controls: { disable: false },
