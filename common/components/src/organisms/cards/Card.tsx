@@ -5,12 +5,43 @@ import { ChipContainer } from "../../molecules/Chip";
 
 export type CardProps = {
   children?: React.ReactNode;
+  to?: string;
 };
 
 export function Card(props: CardProps) {
+  const children = React.Children.toArray(props.children);
+
+  const header = children.find((child) => {
+    return React.isValidElement(child) && child.type === CardHeader;
+  });
+
+  const body = children.find((child) => {
+    return React.isValidElement(child) && child.type === CardBody;
+  });
+
+  const footer = children.find((child) => {
+    return React.isValidElement(child) && child.type === CardFooter;
+  });
+
   return (
     <div className="mv-w-full mv-h-full mv-bg-neutral-50 mv-shadow-xl mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
-      {props.children}
+      {props.to !== undefined ? (
+        <>
+          <div className="hover:mv-bg-neutral-100">
+            <a href={props.to}>
+              {header || null}
+              {body || null}
+            </a>
+          </div>
+          {footer || null}
+        </>
+      ) : (
+        <>
+          {header || null}
+          {body || null}
+          {footer || null}
+        </>
+      )}
     </div>
   );
 }

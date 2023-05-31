@@ -14,6 +14,7 @@ import { getFullName } from "../../utils";
 
 export type ProfileCardProps = {
   match?: number;
+  to?: string;
   profile: {
     academicTitle?: string;
     firstName: string;
@@ -38,7 +39,7 @@ function ProfileCard(
   const fullName = getFullName(profile);
 
   return (
-    <Card>
+    <Card to={props.to}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
         {profile.background && <CardImage src={profile.background} />}
