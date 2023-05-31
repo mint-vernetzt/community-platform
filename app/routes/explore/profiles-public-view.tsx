@@ -1,4 +1,4 @@
-import type { LoaderArgs, LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 
 import { useLoaderData } from "@remix-run/react";
