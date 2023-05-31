@@ -133,6 +133,12 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (error !== null) {
       throw serverError({ message: error.message });
     }
+
+    const cookie = response.headers.get("set-cookie");
+    if (cookie !== null) {
+      response.headers.set("set-cookie", cookie.replace("-code-verifier", ""));
+    }
+
     return redirect("/goodbye", { headers: response.headers });
   }
   return json<ActionData>(result, { headers: response.headers });
