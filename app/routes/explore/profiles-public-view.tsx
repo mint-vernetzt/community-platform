@@ -7,7 +7,13 @@ import { prismaClient } from "~/prisma";
 export async function loader(args: LoaderArgs) {
   console.time("loader profile-public-query");
 
-  const profiles = await prismaClient.publicProfile.findMany({ take: 30 });
+  const profiles = await prismaClient.publicProfile.findMany({
+    select: {
+      id: true,
+      username: true,
+    },
+    take: 10,
+  });
 
   console.timeEnd("loader profile-public-query");
 
