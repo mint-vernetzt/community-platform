@@ -75,7 +75,11 @@ function ProfileCard(
           ) : (
             <ChipContainer maxRows={2}>
               {profile.offers.map((offer) => {
-                return <Chip key={offer}>{offer}</Chip>;
+                return (
+                  <Chip key={offer} color="secondary">
+                    {offer}
+                  </Chip>
+                );
               })}
             </ChipContainer>
           )}
