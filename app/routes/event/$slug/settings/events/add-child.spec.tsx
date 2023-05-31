@@ -26,11 +26,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/add-child", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/events/add-child", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -260,9 +262,5 @@ describe("/event/$slug/settings/events/add-child", () => {
     expect(responseBody.message).toBe(
       'Die Veranstaltung "some-child-name" ist jetzt Eurer Veranstaltung zugehörig.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

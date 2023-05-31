@@ -30,11 +30,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/team/set-privileged", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/team/set-privileged", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -247,9 +249,5 @@ describe("/event/$slug/settings/team/set-privileged", () => {
       },
     });
     expect(responseBody.success).toBe(true);
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

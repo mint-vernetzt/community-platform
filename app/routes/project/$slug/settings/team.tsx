@@ -15,6 +15,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
@@ -39,6 +40,7 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
   await checkOwnershipOrThrow(project, sessionUser);
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const teamMembers = getTeamMemberProfileDataFromProject(
     project,

@@ -28,144 +28,156 @@ function Button(
   } = props;
 
   const classes = classnames(
-    "btn",
-    "border-2",
+    "mv-btn",
+    "mv-border-2",
     {
-      "btn-sm": size === "small",
-      "btn-md": size === "medium",
-      "btn-lg": size === "large",
+      "mv-btn-sm": size === "small",
+      "mv-btn-md": size === "medium",
+      "mv-btn-lg": size === "large",
     },
     {
-      "text-xs": size === "small",
-      "text-sm": size === "medium",
-      "text-base": size === "large",
+      "mv-text-xs": size === "small",
+      "mv-text-sm": size === "medium",
+      "mv-text-base": size === "large",
     },
     {
-      "px-4": size === "small",
-      "px-7 py-2": size === "medium",
-      "px-10": size === "large",
+      "mv-px-4": size === "small",
+      "mv-px-7 mv-py-2": size === "medium",
+      "mv-px-10": size === "large",
     },
     {
-      "gap-2":
+      "mv-gap-2":
         Array.isArray(otherProps.children) && otherProps.children.length > 1,
     },
-    "font-semibold",
+    "mv-font-semibold",
     {
-      "bg-primary": variant === "primary" && level === "primary",
-      "bg-secondary": variant === "primary" && level === "secondary",
-      "bg-success": variant === "primary" && level === "success",
-      "bg-warning": variant === "primary" && level === "warning",
-      "bg-danger": variant === "primary" && level === "danger",
-      "bg-neutral-50":
+      "mv-bg-primary": variant === "primary" && level === "primary",
+      "mv-bg-secondary": variant === "primary" && level === "secondary",
+      "mv-bg-success": variant === "primary" && level === "success",
+      "mv-bg-warning": variant === "primary" && level === "warning",
+      "mv-bg-danger": variant === "primary" && level === "danger",
+      "mv-bg-neutral-50":
         variant === "secondary" &&
         (level === "primary" || level === "secondary"),
-      "bg-success-100": variant === "secondary" && level === "success",
-      "bg-warning-100": variant === "secondary" && level === "warning",
-      "bg-danger-100": variant === "secondary" && level === "danger",
-      "hover:bg-primary-400":
+      "mv-bg-success-100": variant === "secondary" && level === "success",
+      "mv-bg-warning-100": variant === "secondary" && level === "warning",
+      "mv-bg-danger-100": variant === "secondary" && level === "danger",
+      "hover:mv-bg-primary-400":
         (variant === "primary" || variant === "ghost") && level === "primary",
-      "hover:bg-secondary-400":
+      "hover:mv-bg-secondary-400":
         (variant === "primary" || variant === "ghost") && level === "secondary",
-      "hover:bg-success-400":
+      "hover:mv-bg-success-400":
         (variant === "primary" || variant === "ghost") && level === "success",
-      "hover:bg-warning-400":
+      "hover:mv-bg-warning-400":
         (variant === "primary" || variant === "ghost") && level === "warning",
-      "hover:bg-danger-400":
+      "hover:mv-bg-danger-400":
         (variant === "primary" || variant === "ghost") && level === "danger",
-      "focus:bg-primary-400":
+      "focus:mv-bg-primary-400":
         (variant === "primary" || variant === "ghost") && level === "primary",
-      "focus:bg-secondary-400":
+      "focus:mv-bg-secondary-400":
         (variant === "primary" || variant === "ghost") && level === "secondary",
-      "focus:bg-success-400":
+      "focus:mv-bg-success-400":
         (variant === "primary" || variant === "ghost") && level === "success",
-      "focus:bg-warning-400":
+      "focus:mv-bg-warning-400":
         (variant === "primary" || variant === "ghost") && level === "warning",
-      "focus:bg-danger-400":
+      "focus:mv-bg-danger-400":
         (variant === "primary" || variant === "ghost") && level === "danger",
-      "active:bg-primary-700":
+      "active:mv-bg-primary-700":
         (variant === "primary" || variant === "ghost") && level === "primary",
-      "active:bg-secondary-700":
+      "active:mv-bg-secondary-700":
         (variant === "primary" || variant === "ghost") && level === "secondary",
-      "active:bg-success-700":
+      "active:mv-bg-success-700":
         (variant === "primary" || variant === "ghost") && level === "success",
-      "active:bg-warning-700":
+      "active:mv-bg-warning-700":
         (variant === "primary" || variant === "ghost") && level === "warning",
-      "active:bg-danger-700":
+      "active:mv-bg-danger-700":
         (variant === "primary" || variant === "ghost") && level === "danger",
     },
 
     {
-      "text-neutral-50": variant === "primary",
-      "text-primary":
+      "mv-text-neutral-50": variant === "primary",
+      "mv-text-primary":
         (variant === "ghost" || variant === "secondary") && level === "primary",
-      "text-secondary":
+      "mv-text-secondary":
         (variant === "ghost" || variant === "secondary") &&
         level === "secondary",
-      "text-success":
+      "mv-text-success":
         (variant === "ghost" || variant === "secondary") && level === "success",
-      "text-warning":
+      "mv-text-warning":
         (variant === "ghost" || variant === "secondary") && level === "warning",
-      "text-danger":
+      "mv-text-danger":
         (variant === "ghost" || variant === "secondary") && level === "danger",
-      "hover:text-neutral-50": variant === "ghost",
-      "focus:text-neutral-50": variant === "ghost",
-      "active:text-neutral-50": variant === "ghost",
-      "hover:text-primary-400": variant === "secondary" && level === "primary",
-      "hover:text-secondary-400":
+      "hover:mv-text-neutral-50": variant === "ghost",
+      "focus:mv-text-neutral-50": variant === "ghost",
+      "active:mv-text-neutral-50": variant === "ghost",
+      "hover:mv-text-primary-400":
+        variant === "secondary" && level === "primary",
+      "hover:mv-text-secondary-400":
         variant === "secondary" && level === "secondary",
-      "hover:text-success-400": variant === "secondary" && level === "success",
-      "hover:text-warning-400": variant === "secondary" && level === "warning",
-      "hover:text-danger-400": variant === "secondary" && level === "danger",
-      "focus:text-primary-400": variant === "secondary" && level === "primary",
-      "focus:text-secondary-400":
+      "hover:mv-text-success-400":
+        variant === "secondary" && level === "success",
+      "hover:mv-text-warning-400":
+        variant === "secondary" && level === "warning",
+      "hover:mv-text-danger-400": variant === "secondary" && level === "danger",
+      "focus:mv-text-primary-400":
+        variant === "secondary" && level === "primary",
+      "focus:mv-text-secondary-400":
         variant === "secondary" && level === "secondary",
-      "focus:text-success-400": variant === "secondary" && level === "success",
-      "focus:text-warning-400": variant === "secondary" && level === "warning",
-      "focus:text-danger-400": variant === "secondary" && level === "danger",
-      "active:text-secondary-700":
+      "focus:mv-text-success-400":
+        variant === "secondary" && level === "success",
+      "focus:mv-text-warning-400":
+        variant === "secondary" && level === "warning",
+      "focus:mv-text-danger-400": variant === "secondary" && level === "danger",
+      "active:mv-text-secondary-700":
         variant === "secondary" && level === "secondary",
-      "active:text-success-700": variant === "secondary" && level === "success",
-      "active:text-warning-700": variant === "secondary" && level === "warning",
-      "active:text-danger-700": variant === "secondary" && level === "danger",
+      "active:mv-text-success-700":
+        variant === "secondary" && level === "success",
+      "active:mv-text-warning-700":
+        variant === "secondary" && level === "warning",
+      "active:mv-text-danger-700":
+        variant === "secondary" && level === "danger",
     },
     {
-      "border-primary": variant === "secondary" && level === "primary",
-      "border-secondary": variant === "secondary" && level === "secondary",
-      "border-success": variant === "secondary" && level === "success",
-      "border-warning": variant === "secondary" && level === "warning",
-      "border-danger": variant === "secondary" && level === "danger",
-      "hover:border-primary-400":
+      "mv-border-primary": variant === "secondary" && level === "primary",
+      "mv-border-secondary": variant === "secondary" && level === "secondary",
+      "mv-border-success": variant === "secondary" && level === "success",
+      "mv-border-warning": variant === "secondary" && level === "warning",
+      "mv-border-danger": variant === "secondary" && level === "danger",
+      "hover:mv-border-primary-400":
         variant === "secondary" && level === "primary",
-      "hover:border-secondary-400":
+      "hover:mv-border-secondary-400":
         variant === "secondary" && level === "secondary",
-      "hover:border-success-400":
+      "hover:mv-border-success-400":
         variant === "secondary" && level === "success",
-      "hover:border-warning-400":
+      "hover:mv-border-warning-400":
         variant === "secondary" && level === "warning",
-      "hover:border-danger-400": variant === "secondary" && level === "danger",
-      "focus:border-primary-400":
+      "hover:mv-border-danger-400":
+        variant === "secondary" && level === "danger",
+      "focus:mv-border-primary-400":
         variant === "secondary" && level === "primary",
-      "focus:border-secondary-400":
+      "focus:mv-border-secondary-400":
         variant === "secondary" && level === "secondary",
-      "focus:border-success-400":
+      "focus:mv-border-success-400":
         variant === "secondary" && level === "success",
-      "focus:border-warning-400":
+      "focus:mv-border-warning-400":
         variant === "secondary" && level === "warning",
-      "focus:border-danger-400": variant === "secondary" && level === "danger",
-      "active:border-primary-700":
+      "focus:mv-border-danger-400":
+        variant === "secondary" && level === "danger",
+      "active:mv-border-primary-700":
         variant === "secondary" && level === "primary",
-      "active:border-secondary-700":
+      "active:mv-border-secondary-700":
         variant === "secondary" && level === "secondary",
-      "active:border-success-700":
+      "active:mv-border-success-700":
         variant === "secondary" && level === "success",
-      "active:border-warning-700":
+      "active:mv-border-warning-700":
         variant === "secondary" && level === "warning",
-      "active:border-danger-700": variant === "secondary" && level === "danger",
+      "active:mv-border-danger-700":
+        variant === "secondary" && level === "danger",
     },
     {
       loading: otherProps.loading !== undefined && otherProps.loading !== false,
     },
-    "disabled:opacity-50"
+    "disabled:mv-opacity-50"
   );
 
   return <button {...otherProps} className={classes} />;

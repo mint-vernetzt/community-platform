@@ -5,7 +5,7 @@ function Icon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="h-6 w-6"
+      className="mv-h-6 mv-w-6"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -23,8 +23,8 @@ function Icon() {
 function ButtonVariants(props: { size: ButtonProps["size"] }) {
   const { size } = props;
   return (
-    <div className="flex gap-2 flex-col">
-      <div className="flex gap-2">
+    <div className="mv-flex mv-gap-2 mv-flex-col">
+      <div className="mv-flex mv-gap-2">
         <Button size={size}>Button</Button>
         <Button size={size} level="secondary">
           Button
@@ -53,7 +53,7 @@ function ButtonVariants(props: { size: ButtonProps["size"] }) {
           Button
         </Button>
       </div>
-      <div className="flex gap-2">
+      <div className="mv-flex mv-gap-2">
         <Button variant="secondary" size={size}>
           Button
         </Button>
@@ -84,7 +84,7 @@ function ButtonVariants(props: { size: ButtonProps["size"] }) {
           Button
         </Button>
       </div>
-      <div className="flex gap-2">
+      <div className="mv-flex mv-gap-2">
         <Button variant="ghost" size={size}>
           Button
         </Button>

@@ -1,4 +1,5 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -23,16 +24,10 @@ import {
   getAllProfiles,
   getFilterValues,
   getPaginationValues,
+  getRandomSeed,
 } from "./utils.server";
 
-type LoaderData = {
-  isLoggedIn: boolean;
-  profiles: Awaited<ReturnType<typeof getAllProfiles>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  offers: Awaited<ReturnType<typeof getAllOffers>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -47,61 +42,72 @@ export const loader: LoaderFunction = async (args) => {
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
 
-  let profiles;
+  let randomSeed = getRandomSeed(request);
+  if (randomSeed === undefined) {
+    randomSeed = parseFloat(Math.random().toFixed(3));
+    return redirect(
+      `/explore/profiles?randomSeed=${randomSeed}${
+        filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
+      }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
+        filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
+      }`,
+      {
+        headers: response.headers,
+      }
+    );
+  }
 
-  const allProfiles = await getAllProfiles({
+  const rawProfiles = await getAllProfiles({
     ...paginationValues,
     ...filterValues,
+    randomSeed,
   });
 
-  if (allProfiles !== null) {
-    profiles = allProfiles.map((profile) => {
-      const { bio, position, avatar, publicFields, ...otherFields } = profile;
-      let extensions: { bio?: string; position?: string } = {};
+  const profiles = rawProfiles.map((profile) => {
+    const { bio, position, avatar, publicFields, ...otherFields } = profile;
+    let extensions: { bio?: string; position?: string } = {};
 
-      if (
-        ((publicFields !== null && publicFields.includes("bio")) ||
-          sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
+    if (
+      ((publicFields !== null && publicFields.includes("bio")) ||
+        sessionUser !== null) &&
+      bio !== null
+    ) {
+      extensions.bio = bio;
+    }
+    if (
+      ((publicFields !== null && publicFields.includes("position")) ||
+        sessionUser !== null) &&
+      position !== null
+    ) {
+      extensions.position = position;
+    }
+
+    let avatarImage: string | null = null;
+
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatarImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
       }
-      if (
-        ((publicFields !== null && publicFields.includes("position")) ||
-          sessionUser !== null) &&
-        position !== null
-      ) {
-        extensions.position = position;
-      }
+    }
 
-      let avatarImage: string | null = null;
-
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      return { ...otherFields, ...extensions, avatar: avatarImage };
-    });
-  }
+    return { ...otherFields, ...extensions, avatar: avatarImage };
+  });
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  // TODO: fix type issue
-  return json<LoaderData>(
+  return json(
     { isLoggedIn, profiles, areas, offers },
     { headers: response.headers }
   );
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
   const areaId = searchParams.get("areaId");

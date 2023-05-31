@@ -26,11 +26,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/remove-child", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/events/remove-child", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -227,9 +229,5 @@ describe("/event/$slug/settings/events/remove-child", () => {
     );
     expect(responseBody.success).toBe(true);
     expect(responseBody.data.childEventId).toBe("child-event-id");
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

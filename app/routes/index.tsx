@@ -14,16 +14,10 @@ import type { FormProps } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
-import {
-  createAuthClient,
-  getSessionUser,
-  setSession,
-  signIn,
-} from "~/auth.server";
+import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import { H1, H2, H3 } from "~/components/Heading/Heading";
-import { getProfileByUserId } from "~/profile.server";
+import { H1, H3 } from "~/components/Heading/Heading";
 import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
 import {
   getEventCount,
@@ -58,41 +52,13 @@ export const loader = async (args: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
 
-  const url = new URL(request.url);
-  const urlSearchParams = new URLSearchParams(url.searchParams);
-  const loginRedirect = urlSearchParams.get("login_redirect");
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
-  const type = urlSearchParams.get("type");
-
-  if (accessToken !== null && refreshToken !== null) {
-    // This automatically logs in the user
-    // Throws error on invalid refreshToken, accessToken combination
-    const { user: sessionUser } = await setSession(
-      authClient,
-      accessToken,
-      refreshToken
-    );
-    if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
-      // Default redirect to profile of sessionUser after sign up confirmation
-      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      return redirect(`/profile/${profile.username}`, {
-        headers: response.headers,
-      });
-    }
-  }
-
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
-    if (loginRedirect !== null) {
-      return redirect(loginRedirect, { headers: response.headers });
-    } else {
-      // Default redirect to profile of sessionUser after sign up confirmation
-      return redirect("/explore/profiles", {
-        headers: response.headers,
-      });
-    }
+    // Default redirect on logged in user
+    return redirect("/explore/profiles", {
+      headers: response.headers,
+    });
   }
 
   const profileCount = await getProfileCount();
@@ -175,89 +141,12 @@ export default function Index() {
     }
   };
 
-  // Access point for confirmation links
-  // Must be called on the client because hash parameters can only be accessed from the client
-  React.useEffect(() => {
-    const urlHashParams = new URLSearchParams(window.location.hash.slice(1));
-    const type = urlHashParams.get("type");
-    const accessToken = urlHashParams.get("access_token");
-    const refreshToken = urlHashParams.get("refresh_token");
-    const loginRedirect = urlSearchParams.get("login_redirect");
-    const error = urlHashParams.get("error");
-    const errorCode = urlHashParams.get("error_code");
-    const errorDescription = urlHashParams.get("error_description");
-
-    if (accessToken !== null && refreshToken !== null) {
-      if (type === "signup") {
-        submit(
-          loginRedirect
-            ? {
-                login_redirect: loginRedirect,
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                type: type,
-              }
-            : {
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                type: type,
-              },
-          {
-            action: "/",
-          }
-        );
-        return;
-      }
-      if (type === "recovery") {
-        submit(
-          loginRedirect
-            ? {
-                login_redirect: loginRedirect,
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              }
-            : { access_token: accessToken, refresh_token: refreshToken },
-          {
-            action: "/reset/set-password",
-          }
-        );
-        return;
-      }
-      if (type === "email_change") {
-        submit(
-          {
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            type: type,
-          },
-          {
-            action: "/reset/set-email",
-          }
-        );
-        return;
-      }
-    }
-    if (error !== null || errorCode !== null || errorDescription !== null) {
-      alert(
-        `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
-      );
-      return;
-    }
-
-    // // Redirect when user is logged in
-    // // Remove the else case when the landing page is implemented in this route
-    // if (loaderData.hasSession) {
-    //   submit(null, { action: "/explore?reason=1" });
-    //   return;
-    // }
-  }, [submit /*loaderData.hasSession*/, , urlSearchParams]);
-
   ///* Verlauf (weiß) */
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
 
   return (
     <>
-      <section className="-mt-8 bg-lilac-50">
+      <section className="-mt-8 mv-bg-secondary-50">
         <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center bg-[linear-gradient(0deg,_rgba(255,255,255,0.5)_0%,_rgba(255,255,255,1)_75%)]">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:block">
             <svg
@@ -423,17 +312,17 @@ export default function Index() {
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die bundesweite MINT-Community lebt davon,{" "}
-                <span className="bg-lilac-200">
+                <span className="mv-bg-secondary-200">
                   sich auszutauschen, Wissen zu teilen, von- und miteinander zu
                   lernen
                 </span>
                 . Auf der Community-Plattform könnt Ihr Euch{" "}
-                <span className="bg-lilac-200">
+                <span className="mv-bg-secondary-200">
                   untereinander und mit Organisationen vernetzen und Inspiration
                   oder <span className="hyphens-manual">Expert:innen</span>
                 </span>{" "}
                 zu konkreten Themen in Eurer Umgebung{" "}
-                <span className="bg-lilac-200">finden</span>.
+                <span className="mv-bg-secondary-200">finden</span>.
               </p>
               <p className="text-center">
                 <Link
@@ -450,7 +339,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 relative bg-primary text-white">
+      <section className="py-16 lg:py-24 relative mv-bg-primary text-white">
         <div className="container relative">
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
@@ -529,11 +418,11 @@ export default function Index() {
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die MINTvernetzt Community-Plattform ist ein Projekt von
                 MINTvernetzt, das 2021 gestartet ist, um die{" "}
-                <span className="bg-lilac-200">
+                <span className="mv-bg-secondary-200">
                   MINT-Community deutschlandweit nachhaltig zu stärken.
                 </span>{" "}
                 Erfahre mehr über die Projekte von{" "}
-                <span className="bg-lilac-200">
+                <span className="mv-bg-secondary-200">
                   MINTvernetzt, der Service- und Anlaufstelle für
                   MINT-Akteur:innen
                 </span>{" "}

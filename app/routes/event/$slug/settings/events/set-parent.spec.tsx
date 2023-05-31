@@ -26,11 +26,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/event/$slug/settings/events/set-parent", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "events";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/event/$slug/settings/events/set-parent", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
 
@@ -299,9 +301,5 @@ describe("/event/$slug/settings/events/set-parent", () => {
     expect(responseBody.message).toBe(
       'Die Veranstaltung "some-parent-name" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.'
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

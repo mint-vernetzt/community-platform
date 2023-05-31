@@ -9,7 +9,7 @@ const safelist = Object.keys(theme.colors.aliases).reduce(
     const backgroundColorVariants = Object.keys(
       theme.colors.aliases[color]
     ).reduce((variants, shape) => {
-      return [...variants, `bg-${color}-${shape}`];
+      return [...variants, `mv-bg-${color}-${shape}`];
     }, []);
     return [...classList, ...backgroundColorVariants];
   },
@@ -17,6 +17,7 @@ const safelist = Object.keys(theme.colors.aliases).reduce(
 );
 
 module.exports = {
+  prefix: "mv-",
   content: [
     "stories/**/*.mdx",
     "stories/**/*.@(js|jsx|ts|tsx)",

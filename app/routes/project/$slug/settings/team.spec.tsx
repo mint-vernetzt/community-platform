@@ -27,11 +27,13 @@ jest.mock("~/prisma", () => {
   };
 });
 
-describe("/project/$slug/settings/team", () => {
-  beforeAll(() => {
-    process.env.FEATURES = "projects";
-  });
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
 
+describe("/project/$slug/settings/team", () => {
   test("no params", async () => {
     expect.assertions(2);
 
@@ -214,9 +216,5 @@ describe("/project/$slug/settings/team", () => {
         }),
       ])
     );
-  });
-
-  afterAll(() => {
-    delete process.env.FEATURES;
   });
 });

@@ -69,8 +69,8 @@ const mutation = makeDomainFunction(
 
   // Passing through a possible redirect after login (e.g. to an event)
   const emailRedirectTo = values.loginRedirect
-    ? environment.siteUrl + values.loginRedirect
-    : undefined;
+    ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
+    : environment.siteUrl;
 
   const { error } = await signUp(
     environment.authClient,
@@ -101,7 +101,7 @@ export const action: ActionFunction = async (args) => {
   const authClient = createAuthClient(request, response);
 
   const url = new URL(request.url);
-  const siteUrl = url.protocol + "//" + url.host + "/?login_redirect=";
+  const siteUrl = url.protocol + "//" + url.host + "/confirmation";
 
   const result = await performMutation({
     request,

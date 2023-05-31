@@ -164,11 +164,17 @@ export async function updatePassword(
 
 export async function sendResetEmailLink(
   authClient: SupabaseClient,
-  email: string
+  email: string,
+  redirectToAfterResetEmail: string
 ) {
-  const { data, error } = await authClient.auth.updateUser({
-    email,
-  });
+  const { data, error } = await authClient.auth.updateUser(
+    {
+      email,
+    },
+    {
+      emailRedirectTo: redirectToAfterResetEmail,
+    }
+  );
   return { data, error };
 }
 

@@ -27,12 +27,14 @@ jest.mock("~/prisma", () => {
   };
 });
 
+jest.mock("~/lib/utils/application", () => {
+  return {
+    checkFeatureAbilitiesOrThrow: jest.fn(),
+  };
+});
+
 describe("/event/$slug/settings/waiting-list", () => {
   describe("loader", () => {
-    beforeAll(() => {
-      process.env.FEATURES = "events";
-    });
-
     test("no params", async () => {
       expect.assertions(2);
 
@@ -186,10 +188,6 @@ describe("/event/$slug/settings/waiting-list", () => {
           avatar: null,
         },
       ]);
-    });
-
-    afterAll(() => {
-      delete process.env.FEATURES;
     });
   });
 });

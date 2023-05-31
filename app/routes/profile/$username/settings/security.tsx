@@ -41,8 +41,14 @@ const passwordSchema = z.object({
   submittedForm: z.enum(["changePassword"]),
 });
 
-const environmentSchema = z.object({
+const passwordEnvironmentSchema = z.object({
   authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
+
+const emailEnvironmentSchema = z.object({
+  authClient: z.unknown(),
+  siteUrl: z.string(),
   // authClient: z.instanceof(SupabaseClient),
 });
 
@@ -63,7 +69,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 const passwordMutation = makeDomainFunction(
   passwordSchema,
-  environmentSchema
+  passwordEnvironmentSchema
 )(async (values, environment) => {
   if (values.confirmPassword !== values.password) {
     throw new InputError(
@@ -85,7 +91,7 @@ const passwordMutation = makeDomainFunction(
 
 const emailMutation = makeDomainFunction(
   emailSchema,
-  environmentSchema
+  emailEnvironmentSchema
 )(async (values, environment) => {
   if (values.confirmEmail !== values.email) {
     throw new InputError(
@@ -96,7 +102,8 @@ const emailMutation = makeDomainFunction(
 
   const { error } = await sendResetEmailLink(
     environment.authClient,
-    values.email
+    values.email,
+    environment.siteUrl
   );
   if (error !== null) {
     throw error.message;
@@ -128,11 +135,13 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   let result = null;
   if (submittedForm === "changeEmail") {
+    const url = new URL(request.url);
+    const siteUrl = `${url.protocol}//${url.host}/confirmation`;
     result = await performMutation({
       request,
       schema: emailSchema,
       mutation: emailMutation,
-      environment: { authClient: authClient },
+      environment: { authClient: authClient, siteUrl: siteUrl },
     });
   } else {
     result = await performMutation({

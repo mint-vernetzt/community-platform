@@ -5,13 +5,14 @@ import {
   Route,
   Response,
   Security,
+  Request,
   Res,
   Tags,
   Example,
 } from "tsoa";
-import type { TsoaResponse } from "tsoa";
-import type { ValidateError } from "tsoa";
+import type { TsoaResponse, ValidateError } from "tsoa";
 import { getAllOrganizations } from "./organizations-service";
+import type { Request as ExpressRequest } from "express";
 
 type GetOrganizationsResult = ReturnType<typeof getAllOrganizations>;
 
@@ -140,6 +141,7 @@ export class OrganizationsController extends Controller {
   public async getAllOrganizations(
     @Query("skip") skip: number,
     @Query("take") take: number,
+    @Request() request: ExpressRequest,
     @Res()
     badRequestResponse: TsoaResponse<
       400,
@@ -165,6 +167,6 @@ export class OrganizationsController extends Controller {
         },
       });
     }
-    return getAllOrganizations(skip, take);
+    return getAllOrganizations(request, skip, take);
   }
 }
