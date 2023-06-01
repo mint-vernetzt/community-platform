@@ -1,29 +1,30 @@
-import type { LoaderFunction } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
-
 import { useLoaderData } from "@remix-run/react";
-import {
-  filterProfileDataByVisibilitySettings,
-  getAllProfiles,
-  getPaginationValues,
-} from "./utils.server";
+import type { LoaderArgs } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import { prismaClient } from "~/prisma";
+import { filterProfileDataByVisibilitySettings } from "./utils.server";
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   console.time("loader profile-public-programmatically");
-  const { request } = args;
 
-  const rawProfiles = await getAllProfiles({
-    skip: 0,
-    take: 100,
-    areaId: undefined,
-    offerId: undefined,
-    seekingId: undefined,
-    randomSeed: 0,
+  const rawProfiles = await prismaClient.profile.findMany({
+    include: {
+      areas: true,
+      memberOf: true,
+      offers: true,
+      participatedEvents: true,
+      seekings: true,
+      contributedEvents: true,
+      teamMemberOfEvents: true,
+      teamMemberOfProjects: true,
+      waitingForEvents: true,
+    },
+    take: 20,
   });
 
-  const filteredProfiles = await filterProfileDataByVisibilitySettings(
-    rawProfiles
-  );
+  const filteredProfiles = await filterProfileDataByVisibilitySettings<
+    typeof rawProfiles
+  >(rawProfiles);
   console.timeEnd("loader profile-public-programmatically");
   return json({ profiles: filteredProfiles });
 };

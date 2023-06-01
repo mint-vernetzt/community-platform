@@ -1,4 +1,16 @@
-import type { Organization, Profile } from "@prisma/client";
+import type {
+  AreasOnProfiles,
+  MemberOfOrganization,
+  OffersOnProfiles,
+  Organization,
+  ParticipantOfEvent,
+  Profile,
+  SeekingsOnProfiles,
+  SpeakerOfEvent,
+  TeamMemberOfEvent,
+  TeamMemberOfProject,
+  WaitingParticipantOfEvent,
+} from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
@@ -487,10 +499,22 @@ export async function prepareEvents(
   return enhancedEvents as MaybeEnhancedEvents;
 }
 
-export async function filterProfileDataByVisibilitySettings(
-  profiles: NonNullable<Profile>[]
-) {
-  const filteredProfiles: NonNullable<Profile>[] = [];
+type ProfileWithRelations = Profile & {
+  areas: AreasOnProfiles[];
+  memberOf: MemberOfOrganization[];
+  offers: OffersOnProfiles[];
+  participatedEvents: ParticipantOfEvent[];
+  seekings: SeekingsOnProfiles[];
+  contributedEvents: SpeakerOfEvent[];
+  teamMemberOfEvents: TeamMemberOfEvent[];
+  teamMemberOfProjects: TeamMemberOfProject[];
+  waitingForEvents: WaitingParticipantOfEvent[];
+};
+
+export async function filterProfileDataByVisibilitySettings<
+  T extends Partial<ProfileWithRelations>[]
+>(profiles: T) {
+  const filteredProfiles = [];
 
   for (const profile of profiles) {
     const profileVisibility = await prismaClient.profileVisibility.findFirst({
@@ -503,15 +527,67 @@ export async function filterProfileDataByVisibilitySettings(
       continue;
     }
     const filteredFields: { [key: string]: any } = {};
+    // Use mapped types for iterating (causes other type issues -.-)
+    // const filteredFields: { [Key in keyof T]: T[Key] } = {};
     for (const key in profileVisibility) {
       if (key !== "id" && key !== "profileId") {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : null;
+        // Fields in Profile with type String
+        if (
+          key === "username" ||
+          key === "email" ||
+          key === "firstName" ||
+          key === "lastName"
+        ) {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : "";
+        }
+        // Fields in Profile with type []
+        else if (
+          key === "skills" ||
+          key === "interests" ||
+          key === "areas" ||
+          key === "memberOf" ||
+          key === "offers" ||
+          key === "participatedEvents" ||
+          key === "seekings" ||
+          key === "contributedEvents" ||
+          key === "teamMemberOfEvents" ||
+          key === "teamMemberOfProjects" ||
+          key === "waitingForEvents"
+        ) {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : [];
+        }
+        // Fields in Profile with type DateTime
+        else if (
+          key === "createdAt" ||
+          key === "termsAcceptedAt" ||
+          key === "updatedAt"
+        ) {
+          filteredFields[key] =
+            profileVisibility[key] === true
+              ? profile[key]
+              : "1970-01-01T00:00:00Z";
+        }
+        // Fields in Profile with type Boolean
+        else if (key === "termsAccepted") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : true;
+        }
+        // Fields in Profile with type Int
+        else if (key === "score") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : 0;
+        }
+        // All other fields in Profile that are optional (String?)
+        else {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : null;
+        }
       }
     }
-
     filteredProfiles.push({ ...profile, ...filteredFields });
   }
 
-  return filteredProfiles;
+  return filteredProfiles as T;
 }
