@@ -1,12 +1,20 @@
 import { useLoaderData } from "@remix-run/react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { filterProfileDataByVisibilitySettings } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   console.time("loader profile-public-programmatically");
 
+  // const rawProfiles = await prismaClient.profile.findMany({
+  //   select: {
+  //     id: true,
+  //     username: true,
+  //   },
+  //   take: 20,
+  // });
   const rawProfiles = await prismaClient.profile.findMany({
     include: {
       areas: true,
@@ -23,8 +31,9 @@ export const loader = async (args: LoaderArgs) => {
   });
 
   const filteredProfiles = await filterProfileDataByVisibilitySettings<
-    typeof rawProfiles
+    ArrayElement<typeof rawProfiles>
   >(rawProfiles);
+
   console.timeEnd("loader profile-public-programmatically");
   return json({ profiles: filteredProfiles });
 };

@@ -512,9 +512,9 @@ type ProfileWithRelations = Profile & {
 };
 
 export async function filterProfileDataByVisibilitySettings<
-  T extends Partial<ProfileWithRelations>[]
->(profiles: T) {
-  const filteredProfiles = [];
+  T extends Partial<ProfileWithRelations>
+>(profiles: T[]) {
+  const filteredProfiles: T[] = [];
 
   for (const profile of profiles) {
     const profileVisibility = await prismaClient.profileVisibility.findFirst({
@@ -527,8 +527,6 @@ export async function filterProfileDataByVisibilitySettings<
       continue;
     }
     const filteredFields: { [key: string]: any } = {};
-    // Use mapped types for iterating (causes other type issues -.-)
-    // const filteredFields: { [Key in keyof T]: T[Key] } = {};
     for (const key in profileVisibility) {
       if (key !== "id" && key !== "profileId") {
         // Fields in Profile with type String
@@ -580,14 +578,32 @@ export async function filterProfileDataByVisibilitySettings<
             profileVisibility[key] === true ? profile[key] : 0;
         }
         // All other fields in Profile that are optional (String?)
-        else {
+        else if (
+          key === "phone" ||
+          key === "website" ||
+          key === "avatar" ||
+          key === "background" ||
+          key === "facebook" ||
+          key === "linkedin" ||
+          key === "twitter" ||
+          key === "xing" ||
+          key === "bio" ||
+          key === "academicTitle" ||
+          key === "position" ||
+          key === "instagram" ||
+          key === "youtube"
+        ) {
           filteredFields[key] =
             profileVisibility[key] === true ? profile[key] : null;
+        } else {
+          throw new Error(
+            `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
+          );
         }
       }
     }
     filteredProfiles.push({ ...profile, ...filteredFields });
   }
 
-  return filteredProfiles as T;
+  return filteredProfiles;
 }
