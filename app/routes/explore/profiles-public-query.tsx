@@ -1,10 +1,10 @@
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderArgs } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 
 import { useLoaderData } from "@remix-run/react";
 import { prismaClient } from "~/prisma";
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   console.time("loader profile-public-query");
 
   const profiles = await prismaClient.$queryRaw`
@@ -50,8 +50,6 @@ export const loader: LoaderFunction = async (args) => {
   `;
 
   console.timeEnd("loader profile-public-query");
-
-  console.log(profiles);
 
   return json({ profiles });
 };

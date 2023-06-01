@@ -7,13 +7,16 @@ import { prismaClient } from "~/prisma";
 export async function loader(args: LoaderArgs) {
   console.time("loader profile-public-query");
 
-  const profiles = await prismaClient.publicProfile.findMany({
-    select: {
-      id: true,
-      username: true,
-    },
-    take: 10,
-  });
+  // To use this follow these steps to create a view in the prisma schema
+  // https://www.prisma.io/docs/concepts/components/prisma-schema/views#query-views-in-prisma-client
+  // const profiles = await prismaClient.publicProfile.findMany({
+  //   select: {
+  //     id: true,
+  //     username: true,
+  //   },
+  //   take: 10,
+  // });
+  const profiles: any[] = [];
 
   console.timeEnd("loader profile-public-query");
 
