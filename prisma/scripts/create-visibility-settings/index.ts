@@ -42,8 +42,15 @@ async function main() {
         instagram: publicFields.includes("instagram"),
         youtube: publicFields.includes("youtube"),
         score: publicFields.includes("score"),
-        seekings: publicFields.includes("seekings"),
+        areas: publicFields.includes("areas"),
+        memberOf: publicFields.includes("memberOf"),
         offers: publicFields.includes("offers"),
+        participatedEvents: publicFields.includes("participatedEvents"),
+        seekings: publicFields.includes("seekings"),
+        contributedEvents: publicFields.includes("contributedEvents"),
+        teamMemberOfEvents: publicFields.includes("teamMemberOfEvents"),
+        teamMemberOfProjects: publicFields.includes("teamMemberOfProjects"),
+        waitingForEvents: publicFields.includes("waitingForEvents"),
       },
     });
   }
