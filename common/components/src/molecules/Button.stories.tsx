@@ -1,11 +1,11 @@
-import type { ButtonProps } from "./Button";
+import type { ButtonLevel, ButtonProps, ButtonSize } from "./Button";
 import Button from "./Button";
 
 function Icon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="mv-h-6 mv-w-6"
+      className="mv-h-6 mv-w-6" // TODO: implement flexible svg handling
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -20,117 +20,193 @@ function Icon() {
   );
 }
 
-function ButtonVariants(props: { size: ButtonProps["size"] }) {
-  const { size } = props;
+// function ButtonVariants(props: { size: ButtonProps["size"] }) {
+//   const { size } = props;
+//   return (
+//     <div className="mv-flex mv-gap-2 mv-flex-col">
+//       <div className="mv-flex mv-gap-2">
+//         <Button size={size}>Button</Button>
+//         <Button size={size} level="negative">
+//           Button
+//         </Button>
+//         <Button size={size}>
+//           <Icon />
+//           Button
+//         </Button>
+//         <Button size={size}>
+//           Button
+//           <Icon />
+//         </Button>
+//         <Button size={size} loading>
+//           Button
+//         </Button>
+//         <Button size={size} disabled>
+//           Button
+//         </Button>
+//       </div>
+//       <div className="mv-flex mv-gap-2">
+//         <Button variant="outline" size={size}>
+//           Button
+//         </Button>
+//         <Button variant="outline" size={size} level="negative">
+//           Button
+//         </Button>
+//         <Button variant="outline" size={size}>
+//           <Icon />
+//           Button
+//         </Button>
+//         <Button variant="outline" size={size}>
+//           Button
+//           <Icon />
+//         </Button>
+//         <Button variant="outline" size={size} loading>
+//           Button
+//         </Button>
+//         <Button variant="outline" size={size} disabled>
+//           Button
+//         </Button>
+//       </div>
+//       <div className="mv-flex mv-gap-2">
+//         <Button variant="ghost" size={size}>
+//           Button
+//         </Button>
+//         <Button variant="ghost" size={size} level="negative">
+//           Button
+//         </Button>
+//         <Button variant="ghost" size={size}>
+//           <Icon />
+//           Button
+//         </Button>
+//         <Button variant="ghost" size={size}>
+//           Button
+//           <Icon />
+//         </Button>
+//         <Button variant="ghost" size={size} loading>
+//           Button
+//         </Button>
+//         <Button variant="ghost" size={size} disabled>
+//           Button
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+// export function Small() {
+//   return <ButtonVariants size="small" />;
+// }
+// Small.storyName = "small";
+// export function Medium() {
+//   return <ButtonVariants size="medium" />;
+// }
+// Medium.storyName = "medium";
+
+// export function Large() {
+//   return <ButtonVariants size="large" />;
+// }
+// Large.storyName = "large";
+type DefaultArgs = {
+  size: ButtonSize;
+  level: ButtonLevel;
+  loading: boolean;
+  disabled: boolean;
+};
+
+export function Default(args: DefaultArgs) {
+  return <Button {...args}>Button</Button>;
+}
+Default.storyName = "default";
+Default.args = {
+  size: "medium",
+  level: "primary",
+  loading: false,
+  disabled: false,
+};
+Default.argTypes = {
+  size: {
+    control: "select",
+    options: ["small", "medium", "large"],
+  },
+  level: {
+    control: "select",
+    options: ["primary", "negative"],
+  },
+  loading: {
+    control: "boolean",
+  },
+};
+Default.parameters = {
+  controls: { disable: false },
+};
+
+type OutlineArgs = {
+  size: ButtonSize;
+  loading: boolean;
+  disabled: boolean;
+};
+
+export function Outline(args: OutlineArgs) {
   return (
-    <div className="mv-flex mv-gap-2 mv-flex-col">
-      <div className="mv-flex mv-gap-2">
-        <Button size={size}>Button</Button>
-        <Button size={size} level="secondary">
-          Button
-        </Button>
-        <Button size={size} level="success">
-          Button
-        </Button>
-        <Button size={size} level="warning">
-          Button
-        </Button>
-        <Button size={size} level="danger">
-          Button
-        </Button>
-        <Button size={size}>
-          <Icon />
-          Button
-        </Button>
-        <Button size={size}>
-          Button
-          <Icon />
-        </Button>
-        <Button size={size} loading>
-          Button
-        </Button>
-        <Button size={size} disabled>
-          Button
-        </Button>
-      </div>
-      <div className="mv-flex mv-gap-2">
-        <Button variant="secondary" size={size}>
-          Button
-        </Button>
-        <Button variant="secondary" size={size} level="secondary">
-          Button
-        </Button>
-        <Button variant="secondary" size={size} level="success">
-          Button
-        </Button>
-        <Button variant="secondary" size={size} level="warning">
-          Button
-        </Button>
-        <Button variant="secondary" size={size} level="danger">
-          Button
-        </Button>
-        <Button variant="secondary" size={size}>
-          <Icon />
-          Button
-        </Button>
-        <Button variant="secondary" size={size}>
-          Button
-          <Icon />
-        </Button>
-        <Button variant="secondary" size={size} loading>
-          Button
-        </Button>
-        <Button variant="secondary" size={size} disabled>
-          Button
-        </Button>
-      </div>
-      <div className="mv-flex mv-gap-2">
-        <Button variant="ghost" size={size}>
-          Button
-        </Button>
-        <Button variant="ghost" size={size} level="secondary">
-          Button
-        </Button>
-        <Button variant="ghost" size={size} level="success">
-          Button
-        </Button>
-        <Button variant="ghost" size={size} level="warning">
-          Button
-        </Button>
-        <Button variant="ghost" size={size} level="danger">
-          Button
-        </Button>
-        <Button variant="ghost" size={size}>
-          <Icon />
-          Button
-        </Button>
-        <Button variant="ghost" size={size}>
-          Button
-          <Icon />
-        </Button>
-        <Button variant="ghost" size={size} loading>
-          Button
-        </Button>
-        <Button variant="ghost" size={size} disabled>
-          Button
-        </Button>
-      </div>
-    </div>
+    <Button variant="outline" {...args}>
+      Button
+    </Button>
   );
 }
-export function Small() {
-  return <ButtonVariants size="small" />;
-}
-Small.storyName = "small";
-export function Medium() {
-  return <ButtonVariants size="medium" />;
-}
-Medium.storyName = "medium";
+Outline.storyName = "outline";
+Outline.args = {
+  size: "medium",
+  loading: false,
+  disabled: false,
+};
+Outline.argTypes = {
+  size: {
+    control: "select",
+    options: ["small", "medium", "large"],
+  },
+  loading: {
+    control: "boolean",
+  },
+  disabled: {
+    control: "boolean",
+  },
+};
+Outline.parameters = {
+  controls: { disable: false },
+};
 
-export function Large() {
-  return <ButtonVariants size="large" />;
+type GhostArgs = {
+  size: ButtonSize;
+  loading: boolean;
+  disabled: boolean;
+};
+
+export function Ghost(args: GhostArgs) {
+  return (
+    <Button variant="ghost" {...args}>
+      Button
+    </Button>
+  );
 }
-Large.storyName = "large";
+Ghost.storyName = "ghost";
+Ghost.args = {
+  size: "medium",
+  loading: false,
+  disabled: false,
+};
+Ghost.argTypes = {
+  size: {
+    control: "select",
+    options: ["small", "medium", "large"],
+  },
+  loading: {
+    control: "boolean",
+  },
+  disabled: {
+    control: "boolean",
+  },
+};
+Ghost.parameters = {
+  controls: { disable: false },
+};
 
 export function ButtonPlayground(args: ButtonProps) {
   return <Button {...args}>Button</Button>;
@@ -138,7 +214,7 @@ export function ButtonPlayground(args: ButtonProps) {
 ButtonPlayground.storyName = "Playground";
 ButtonPlayground.args = {
   size: "medium",
-  variant: "primary",
+  variant: "normal",
   level: "primary",
   loading: false,
   disabled: false,
@@ -150,11 +226,11 @@ ButtonPlayground.argTypes = {
   },
   variant: {
     control: "select",
-    options: ["primary", "secondary", "ghost"],
+    options: ["normal", "outline", "ghost"],
   },
   level: {
     control: "select",
-    options: ["primary", "secondary", "success", "warning", "danger"],
+    options: ["primary", "negative"],
   },
 };
 ButtonPlayground.parameters = {
