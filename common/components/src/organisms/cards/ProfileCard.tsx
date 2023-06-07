@@ -17,7 +17,7 @@ export type ProfileCardProps = {
   publicAccess?: boolean;
   profile: {
     academicTitle?: string;
-    slug: string;
+    username: string;
     firstName: string;
     lastName: string;
     position?: string;
@@ -45,7 +45,7 @@ function ProfileCard(
     : "-nicht angegeben-";
 
   return (
-    <Card to={`./profile/${profile.slug}`}>
+    <Card to={`./profile/${profile.username}`}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
         {profile.background && <CardImage src={profile.background} />}
@@ -93,7 +93,9 @@ function ProfileCard(
         </CardBodySection>
       </CardBody>
       <CardFooter
-        moreIndicatorProps={{ to: `./profile/${profile.slug}/#organizations` }}
+        moreIndicatorProps={{
+          to: `./profile/${profile.username}/#organizations`,
+        }}
       >
         {profile.memberOf.map((organization) => {
           return (
