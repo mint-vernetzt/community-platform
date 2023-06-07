@@ -159,6 +159,8 @@ export function CardBodySection(props: CardBodySectionProps) {
 
 export type CardFooterProps = {
   children?: React.ReactNode;
+  alignment?: "left" | "center";
+  numberOfAvatars?: number;
   moreIndicatorProps?: Partial<MoreIndicatorProps>;
 };
 
@@ -177,21 +179,26 @@ function wrapCardFooterChildren(children: React.ReactNode) {
 }
 
 export function CardFooter(props: CardFooterProps) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child) && child.type === Avatar;
-    }
-  );
+  const { numberOfAvatars = 2 } = props;
+
+  const avatars = React.Children.toArray(props.children).filter((child) => {
+    return React.isValidElement(child) && child.type === Avatar;
+  });
 
   return (
     <div className="mv-p-4 mv-pt-0 mv-mt-auto">
       <hr className="mv-h-0 mv-border-t mv-border-neutral-200 mv-m-0 mv-mb-4" />
-      <div className="mv-flex mv-gap-2">
-        {wrapCardFooterChildren(validChildren.slice(0, 2))}
-        {validChildren.length > 2 && (
+      <div
+        className={classNames(
+          "mv-flex mv-gap-2",
+          props.alignment === "center" && "mv-justify-center"
+        )}
+      >
+        {wrapCardFooterChildren(avatars.slice(0, numberOfAvatars))}
+        {avatars.length > numberOfAvatars && (
           <MoreIndicator
             {...props.moreIndicatorProps}
-            amount={validChildren.length - 2}
+            amount={avatars.length - numberOfAvatars}
           />
         )}
       </div>
