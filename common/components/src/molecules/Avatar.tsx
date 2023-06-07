@@ -3,6 +3,7 @@ import { getFullName, getInitials } from "../utils";
 
 export type MoreIndicatorProps = {
   amount: number;
+  to?: string;
 };
 
 export function MoreIndicator(props: MoreIndicatorProps) {
@@ -13,14 +14,21 @@ export function MoreIndicator(props: MoreIndicatorProps) {
       "mv-text-sm": props.amount < 100,
       "mv-text-xs": props.amount >= 100,
     },
-    "mv-w-[30px] mv-h-[30px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center"
+    "mv-w-[30px] mv-h-[30px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center",
+    props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
-  return <div className={classes}>{amount}</div>;
+  return props.to ? (
+    <a href={props.to}>
+      <div className={classes}>{amount}</div>
+    </a>
+  ) : (
+    <div className={classes}>{amount}</div>
+  );
 }
 
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
 
-export type AvatarProps = { size?: AvatarSize } & (
+export type AvatarProps = { size?: AvatarSize; to?: string } & (
   | {
       name: string;
       logo?: string;
@@ -67,12 +75,16 @@ function Avatar(props: AvatarProps) {
       "mv-border": size === "lg" || size === "md" || size === "sm",
     },
     "mv-bg-primary mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
-    "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center"
+    "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
+    props.to &&
+      "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
+
+  const child = src ? <img src={src} alt={displayName} /> : <>{initials}</>;
 
   return (
     <div className={classes}>
-      {src ? <img src={src} alt={displayName} /> : <>{initials}</>}
+      {props.to ? <a href={props.to}>{child}</a> : <>{child}</>}
     </div>
   );
 }

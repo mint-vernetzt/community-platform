@@ -14,12 +14,14 @@ import { getFullName } from "../../utils";
 
 export type ProfileCardProps = {
   match?: number;
-  to?: string;
+  publicAccess?: boolean;
   profile: {
     academicTitle?: string;
+    slug: string;
     firstName: string;
     lastName: string;
     position?: string;
+    avatar?: string;
     background?: string;
     memberOf: {
       name: string;
@@ -34,12 +36,16 @@ export type ProfileCardProps = {
 function ProfileCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & ProfileCardProps
 ) {
-  const { profile } = props;
+  const { profile, publicAccess = false } = props;
 
   const fullName = getFullName(profile);
 
+  const emptyMessage = publicAccess
+    ? "-nicht öffentlich-"
+    : "-nicht angegeben-";
+
   return (
-    <Card to={props.to}>
+    <Card to={`./profile/${profile.slug}`}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
         {profile.background && <CardImage src={profile.background} />}
@@ -67,10 +73,10 @@ function ProfileCard(
             </div>
           </div>
         }
-        <CardBodySection title="Aktivitätsgebiete">
+        <CardBodySection title="Aktivitätsgebiete" emptyMessage={emptyMessage}>
           {profile.areaNames.length > 0 ? profile.areaNames.join("/") : ""}
         </CardBodySection>
-        <CardBodySection title="Ich biete">
+        <CardBodySection title="Ich biete" emptyMessage={emptyMessage}>
           {profile.offers.length === 0 ? (
             ""
           ) : (
@@ -86,9 +92,18 @@ function ProfileCard(
           )}
         </CardBodySection>
       </CardBody>
-      <CardFooter>
+      <CardFooter
+        moreIndicatorProps={{ to: `./profile/${profile.slug}/#organizations` }}
+      >
         {profile.memberOf.map((organization) => {
-          return <Avatar key={organization.slug} {...organization} size="sm" />;
+          return (
+            <Avatar
+              key={organization.slug}
+              {...organization}
+              size="sm"
+              to={`/organizations/${organization.slug}`}
+            />
+          );
         })}
       </CardFooter>
     </Card>

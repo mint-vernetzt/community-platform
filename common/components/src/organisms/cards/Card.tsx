@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import React from "react";
+import type { MoreIndicatorProps } from "../../molecules/Avatar";
 import Avatar, { MoreIndicator } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 
@@ -25,9 +26,9 @@ export function Card(props: CardProps) {
 
   return (
     <div className="mv-w-full mv-h-full mv-bg-neutral-50 mv-shadow-xl mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
-      {props.to !== undefined ? (
+      {props.to !== undefined && props.to !== "" ? (
         <>
-          <div className="hover:mv-bg-neutral-100">
+          <div className="mv-h-full hover:mv-bg-neutral-100 active:mv-bg-neutral-100 focus:mv-bg-neutral-100">
             <a href={props.to}>
               {header || null}
               {body || null}
@@ -66,7 +67,7 @@ export function CardHeader(props: CardHeaderProps) {
     return (child as React.ReactElement).type === Avatar;
   });
   return (
-    <div className="mv-bg-success-500 mv-h-40 mv-overflow-hidden">
+    <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
       <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
         {image || null}
       </div>
@@ -114,10 +115,13 @@ export function CardBody(props: CardBodyProps) {
 
 export type CardBodySectionProps = {
   title: string;
+  emptyMessage?: string;
   children?: React.ReactNode;
 };
 
 export function CardBodySection(props: CardBodySectionProps) {
+  const { emptyMessage = "-nicht angegeben-" } = props;
+
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return (
@@ -129,18 +133,20 @@ export function CardBodySection(props: CardBodySectionProps) {
   const firstChild = validChildren[0];
 
   return (
-    <div className="mv-mb-4 last:mv-mb-0">
+    <div className="mv-mb-4 last:mv-mb-0 mv-text-neutral-700">
       <div className="mv-text-xs mv-font-semibold mv-leading-4 mv-mb-0.5">
         {props.title}
       </div>
       {typeof firstChild === "string" && (
         <p
           className={classNames(
-            "mv-text-base mv-font-semibold mv-leading-4 mv-min-h-6 mv-truncate",
-            { "mv-text-gray-400": firstChild === "" }
+            "mv-font-semibold mv-leading-4 mv-min-h-6 mv-truncate",
+            firstChild === ""
+              ? "mv-text-sm mv-text-neutral-400"
+              : "mv-text-base"
           )}
         >
-          {firstChild === "" ? "nicht angegeben" : firstChild}
+          {firstChild === "" ? emptyMessage : firstChild}
         </p>
       )}
       {firstChild &&
@@ -153,6 +159,7 @@ export function CardBodySection(props: CardBodySectionProps) {
 
 export type CardFooterProps = {
   children?: React.ReactNode;
+  moreIndicatorProps?: Partial<MoreIndicatorProps>;
 };
 
 function wrapCardFooterChildren(children: React.ReactNode) {
@@ -182,7 +189,10 @@ export function CardFooter(props: CardFooterProps) {
       <div className="mv-flex mv-gap-2">
         {wrapCardFooterChildren(validChildren.slice(0, 2))}
         {validChildren.length > 2 && (
-          <MoreIndicator amount={validChildren.length - 2} />
+          <MoreIndicator
+            {...props.moreIndicatorProps}
+            amount={validChildren.length - 2}
+          />
         )}
       </div>
     </div>
