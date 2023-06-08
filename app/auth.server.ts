@@ -180,6 +180,9 @@ export async function sendResetEmailLink(
 
 export async function deleteUserByUid(authClient: SupabaseClient, uid: string) {
   await prismaClient.profile.delete({ where: { id: uid } });
+  await prismaClient.profileVisibility.deleteMany({
+    where: { profileId: uid },
+  });
   const { error } = await authClient.auth.admin.deleteUser(uid);
   return { error };
 }
