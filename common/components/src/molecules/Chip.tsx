@@ -37,7 +37,7 @@ function Chip(props: ChipProps) {
       "mv-bg-primary-50 mv-text-primary-600": color === "primary",
       "mv-bg-secondary-50 mv-text-secondary-600": color === "secondary",
     },
-    "mv-text-xs mv-py-1.5 mv-px-3 mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-overflow-hidden"
+    "mv-text-xs mv-py-1.5 mv-px-3 mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden"
   );
 
   return <div className={classes}>{props.children}</div>;
