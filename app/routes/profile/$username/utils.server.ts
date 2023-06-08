@@ -55,6 +55,15 @@ export async function getWholeProfileFromUsername(username: string) {
   return result;
 }
 
+export async function getProfileVisibilitiesById(id: string) {
+  const result = await prismaClient.profileVisibility.findFirst({
+    where: {
+      profileId: id,
+    },
+  });
+  return result;
+}
+
 export async function updateProfileById(
   id: string,
   data: Omit<
@@ -121,6 +130,35 @@ export async function updateProfileById(
   });
 
   await triggerEntityScore({ entity: "profile", where: { id } });
+}
+
+export async function updateProfileVisibilitiesById(
+  id: string,
+  publicFields: string[]
+) {
+  let profileVisibilities = await prismaClient.profileVisibility.findFirst({
+    where: {
+      profileId: id,
+    },
+  });
+  if (profileVisibilities === null) {
+    throw new Error("Profile visibilities not found");
+  }
+
+  let visibility: keyof typeof profileVisibilities;
+  for (visibility in profileVisibilities) {
+    if (visibility !== "id" && visibility !== "profileId") {
+      profileVisibilities[visibility] = publicFields.includes(`${visibility}`);
+    }
+  }
+  await prismaClient.profileVisibility.update({
+    where: {
+      id: profileVisibilities.id,
+    },
+    data: {
+      ...profileVisibilities,
+    },
+  });
 }
 
 export async function getProfileEventsByMode(

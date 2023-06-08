@@ -1,4 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type {
+  ActionArgs,
+  ActionFunction,
+  LoaderArgs,
+  LoaderFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -38,9 +43,11 @@ import {
 import { getAllOffers, getProfileByUsername } from "~/profile.server";
 import { getAreas } from "~/utils.server";
 import {
+  getProfileVisibilitiesById,
   getWholeProfileFromUsername,
   handleAuthorization,
   updateProfileById,
+  updateProfileVisibilitiesById,
 } from "../utils.server";
 
 const profileSchema = object({
@@ -88,7 +95,7 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -96,6 +103,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
     throw notFound({ message: "profile not found." });
+  }
+  const profileVisibilities = await getProfileVisibilitiesById(dbProfile.id);
+  if (profileVisibilities === null) {
+    throw notFound({ message: "profile visbilities not found." });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, dbProfile.id);
@@ -105,20 +116,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json<LoaderData>(
-    { profile, areas, offers },
+  return json(
+    { profile, profileVisibilities, areas, offers },
     { headers: response.headers }
   );
 };
 
-type ActionData = {
-  profile: ProfileFormType;
-  lastSubmit: string;
-  errors: FormError | null;
-  updated: boolean;
-};
-
-export const action: ActionFunction = async ({ request, params }) => {
+export const action = async ({ request, params }: ActionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -158,6 +162,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (errors === null) {
       try {
         await updateProfileById(profile.id, data);
+        await updateProfileVisibilitiesById(profile.id, data.publicFields);
         updated = true;
       } catch (error) {
         console.error(error);
@@ -177,7 +182,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
-  return json<ActionData>(
+  return json(
     {
       profile: data,
       lastSubmit: (formData.get("submit") as string) ?? "",
@@ -191,9 +196,14 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { profile: dbProfile, areas, offers } = useLoaderData<LoaderData>();
+  const {
+    profile: dbProfile,
+    areas,
+    offers,
+    profileVisibilities,
+  } = useLoaderData<typeof loader>();
 
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
   const profile = actionData?.profile ?? dbProfile;
 
   const formRef = React.createRef<HTMLFormElement>();
@@ -319,7 +329,7 @@ export default function Index() {
                   {...register("position")}
                   id="position"
                   label="Position"
-                  isPublic={profile.publicFields?.includes("position")}
+                  isPublic={profileVisibilities.position}
                   errorMessage={errors?.position?.message}
                 />
               </div>
@@ -354,7 +364,7 @@ export default function Index() {
                   id="email"
                   label="E-Mail"
                   readOnly
-                  isPublic={profile.publicFields?.includes("email")}
+                  isPublic={profileVisibilities.email}
                   errorMessage={errors?.email?.message}
                 />
               </div>
@@ -363,7 +373,7 @@ export default function Index() {
                   {...register("phone")}
                   id="phone"
                   label="Telefon"
-                  isPublic={profile.publicFields?.includes("phone")}
+                  isPublic={profileVisibilities.phone}
                   errorMessage={errors?.phone?.message}
                 />
               </div>
@@ -389,7 +399,7 @@ export default function Index() {
                 label="Kurzbeschreibung"
                 defaultValue={profile.bio || ""}
                 placeholder="Beschreibe Dich und Dein Tätigkeitsfeld näher."
-                isPublic={profile.publicFields?.includes("bio")}
+                isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxCharacters={500}
               />
@@ -414,7 +424,7 @@ export default function Index() {
                 label="Kompetenzen"
                 placeholder="Füge Deine Kompetenzen hinzu."
                 entries={profile.skills ?? []}
-                isPublic={profile.publicFields?.includes("skills")}
+                isPublic={profileVisibilities.skills}
               />
             </div>
 
@@ -424,7 +434,7 @@ export default function Index() {
                 label="Interessen"
                 placeholder="Füge Deine Interessen hinzu."
                 entries={profile.interests ?? []}
-                isPublic={profile.publicFields?.includes("interests")}
+                isPublic={profileVisibilities.interests}
               />
             </div>
 
@@ -448,7 +458,7 @@ export default function Index() {
                   (o) => !profile.offers.includes(o.value)
                 )}
                 placeholder="Füge Deine Angebote hinzu."
-                isPublic={profile.publicFields?.includes("offers")}
+                isPublic={profileVisibilities.offers}
               />
             </div>
 
@@ -472,7 +482,7 @@ export default function Index() {
                   (o) => !profile.seekings.includes(o.value)
                 )}
                 placeholder="Füge hinzu wonach Du suchst."
-                isPublic={profile.publicFields?.includes("seekings")}
+                isPublic={profileVisibilities.seekings}
               />
             </div>
 
@@ -492,7 +502,7 @@ export default function Index() {
                 id="website"
                 label="Website"
                 placeholder="domainname.tld"
-                isPublic={profile.publicFields?.includes("website")}
+                isPublic={profileVisibilities.website}
                 errorMessage={errors?.website?.message}
                 withClearButton
               />
@@ -513,7 +523,7 @@ export default function Index() {
                   id={service.id}
                   label={service.label}
                   placeholder={service.placeholder}
-                  isPublic={profile.publicFields?.includes(service.id)}
+                  isPublic={profileVisibilities[service.id]}
                   errorMessage={errors?.[service.id]?.message}
                   withClearButton
                 />
