@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -35,6 +35,7 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getAreas, getFocuses } from "~/utils.server";
+import { getOrganizationVisibilitiesById } from "../utils.server";
 import {
   getOrganizationTypes,
   getWholeOrganizationBySlug,
@@ -73,13 +74,6 @@ const organizationSchema = object({
 type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
 
-type LoaderData = {
-  organization: ReturnType<typeof makeFormOrganizationFromDbOrganization>;
-  organizationTypes: Awaited<ReturnType<typeof getOrganizationTypes>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  focuses: Awaited<ReturnType<typeof getFocuses>>;
-};
-
 function makeFormOrganizationFromDbOrganization(
   dbOrganization: NonNullable<
     Awaited<ReturnType<typeof getWholeOrganizationBySlug>>
@@ -93,7 +87,7 @@ function makeFormOrganizationFromDbOrganization(
   };
 }
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -109,6 +103,12 @@ export const loader: LoaderFunction = async (args) => {
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
+  const organizationVisibilities = await getOrganizationVisibilitiesById(
+    dbOrganization.id
+  );
+  if (organizationVisibilities === null) {
+    throw notFound({ message: "organization visbilities not found." });
+  }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
 
@@ -116,9 +116,10 @@ export const loader: LoaderFunction = async (args) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json<LoaderData>(
+  return json(
     {
       organization,
+      organizationVisibilities,
       organizationTypes,
       areas,
       focuses,
@@ -127,14 +128,7 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-type ActionData = {
-  organization: OrganizationFormType;
-  lastSubmit: string;
-  errors: FormError | null;
-  updated: boolean;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -174,6 +168,10 @@ export const action: ActionFunction = async (args) => {
     if (errors === null) {
       try {
         await updateOrganizationById(organization.id, data);
+        await updateOrganizationVisibilitiesById(
+          organization.id,
+          data.publicFields
+        );
         updated = true;
       } catch (error) {
         console.error(error);
@@ -197,7 +195,7 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(
+  return json(
     {
       organization: data,
       lastSubmit: (formData.get("submit") as string) ?? "",
@@ -212,13 +210,14 @@ function Index() {
   const { slug } = useParams();
   const {
     organization: dbOrganization,
+    organizationVisibilities,
     organizationTypes,
     areas,
     focuses,
-  } = useLoaderData<LoaderData>();
+  } = useLoaderData<typeof loader>();
 
   const transition = useTransition();
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
@@ -338,7 +337,7 @@ function Index() {
                 id="email"
                 label="E-Mail"
                 errorMessage={errors?.email?.message}
-                isPublic={organization.publicFields?.includes("email")}
+                isPublic={organizationVisibilities.email}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -347,7 +346,7 @@ function Index() {
                 id="phone"
                 label="Telefon"
                 errorMessage={errors?.phone?.message}
-                isPublic={organization.publicFields?.includes("phone")}
+                isPublic={organizationVisibilities.phone}
               />
             </div>
           </div>
@@ -403,7 +402,7 @@ function Index() {
               id="bio"
               defaultValue={organization.bio || ""}
               label="Kurzbeschreibung"
-              isPublic={organization.publicFields?.includes("bio")}
+              isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
               maxCharacters={500}
             />
@@ -453,7 +452,7 @@ function Index() {
               options={focusOptions.filter((option) => {
                 return !organization.focuses.includes(option.value);
               })}
-              isPublic={organization.publicFields?.includes("focuses")}
+              isPublic={organizationVisibilities.focuses}
             />
           </div>
           <div className="mb-4">
@@ -461,7 +460,7 @@ function Index() {
               {...register("quote")}
               id="quote"
               label="Zitat"
-              isPublic={organization.publicFields?.includes("quote")}
+              isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
               maxCharacters={300}
             />
@@ -501,7 +500,7 @@ function Index() {
               id="website"
               label="Website"
               placeholder="domainname.tld"
-              isPublic={organization.publicFields?.includes("website")}
+              isPublic={organizationVisibilities.website}
               errorMessage={errors?.website?.message}
               withClearButton
             />
@@ -522,7 +521,7 @@ function Index() {
                 id={service.id}
                 label={service.label}
                 placeholder={service.organizationPlaceholder}
-                isPublic={organization.publicFields?.includes(service.id)}
+                isPublic={organizationVisibilities[service.id]}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
               />

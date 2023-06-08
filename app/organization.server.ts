@@ -316,7 +316,8 @@ export async function getOrganizationMembersBySlug(slug: string) {
 }
 
 export async function deleteOrganizationBySlug(slug: string) {
-  return await prismaClient.organization.delete({ where: { slug: slug } });
+  // TODO: Transaction
+  await prismaClient.organization.delete({ where: { slug: slug } });
 }
 
 export async function getAllOrganizations() {
