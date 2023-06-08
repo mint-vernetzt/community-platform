@@ -142,7 +142,7 @@ export async function updateProfileVisibilitiesById(
     },
   });
   if (profileVisibilities === null) {
-    throw new Error("Profile visibilities not found");
+    throw notFound("Profile visibilities not found");
   }
 
   let visibility: keyof typeof profileVisibilities;
