@@ -76,12 +76,6 @@ const profileSchema = object({
 type ProfileSchemaType = typeof profileSchema;
 export type ProfileFormType = InferType<typeof profileSchema>;
 
-type LoaderData = {
-  profile: ReturnType<typeof makeFormProfileFromDbProfile>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  offers: Awaited<ReturnType<typeof getAllOffers>>;
-};
-
 function makeFormProfileFromDbProfile(
   dbProfile: NonNullable<
     Awaited<ReturnType<typeof getWholeProfileFromUsername>>
