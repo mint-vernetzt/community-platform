@@ -2,6 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createAuthClient, setSession } from "~/auth.server";
 import { getProfileByUserId } from "~/profile.server";
+import { createProfileVisibilities } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -26,6 +27,8 @@ export const loader = async (args: LoaderArgs) => {
       refreshToken
     );
     if (type === "signup" && sessionUser !== null) {
+      // Create profile visibility settings after successful signup confirmation
+      await createProfileVisibilities(sessionUser.id);
       // Default redirect to profile of sessionUser after sign up confirmation
       const profile = await getProfileByUserId(sessionUser.id, ["username"]);
       return redirect(loginRedirect || `/profile/${profile.username}`, {
