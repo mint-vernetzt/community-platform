@@ -307,6 +307,20 @@ export async function getEventBySlugOrThrow(slug: string) {
   return result;
 }
 
+export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
+  const result = await prismaClient.eventVisibility.findFirst({
+    where: {
+      event: {
+        slug,
+      },
+    },
+  });
+  if (result === null) {
+    throw notFound({ message: "Event visbilities not found." });
+  }
+  return result;
+}
+
 export async function getEventById(id: string) {
   return await getEventByField("id", id);
 }

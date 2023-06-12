@@ -228,102 +228,146 @@ export function transformFormToEvent(form: any) {
 }
 
 // TODO: any type
-export async function updateEventById(id: string, data: any) {
-  await prismaClient.event.update({
-    where: { id },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-      focuses: {
-        deleteMany: {},
-        connectOrCreate: data.focuses.map((focusId: string) => {
-          return {
-            where: {
-              eventId_focusId: {
-                focusId,
-                eventId: id,
-              },
-            },
-            create: {
-              focusId,
-            },
-          };
-        }),
+export async function updateEventById(
+  id: string,
+  eventData: any,
+  privateFields: string[]
+) {
+  let eventVisibility = await prismaClient.eventVisibility.findFirst({
+    where: {
+      event: {
+        id,
       },
-      tags: {
-        deleteMany: {},
-        connectOrCreate: data.tags.map((tagId: string) => {
-          return {
-            where: {
-              tagId_eventId: {
-                tagId,
-                eventId: id,
-              },
-            },
-            create: {
-              tagId,
-            },
-          };
-        }),
-      },
-      types: {
-        deleteMany: {},
-        connectOrCreate: data.types.map((eventTypeId: string) => {
-          return {
-            where: {
-              eventTypeId_eventId: {
-                eventTypeId,
-                eventId: id,
-              },
-            },
-            create: {
-              eventTypeId,
-            },
-          };
-        }),
-      },
-      targetGroups: {
-        deleteMany: {},
-        connectOrCreate: data.targetGroups.map((targetGroupId: string) => {
-          return {
-            where: {
-              targetGroupId_eventId: {
-                targetGroupId,
-                eventId: id,
-              },
-            },
-            create: {
-              targetGroupId,
-            },
-          };
-        }),
-      },
-      areas: {
-        deleteMany: {},
-        connectOrCreate: data.areas.map((areaId: string) => {
-          return {
-            where: {
-              eventId_areaId: {
-                areaId,
-                eventId: id,
-              },
-            },
-            create: {
-              areaId,
-            },
-          };
-        }),
-      },
-      experienceLevel:
-        data.experienceLevel !== null
-          ? { connect: { id: data.experienceLevel } }
-          : { disconnect: true },
-      stage:
-        data.stage !== null
-          ? { connect: { id: data.stage } }
-          : { disconnect: true },
     },
   });
+  if (eventVisibility === null) {
+    throw notFound("Event visibilities not found");
+  }
+
+  let visibility: keyof typeof eventVisibility;
+  for (visibility in eventVisibility) {
+    if (
+      visibility !== "id" &&
+      visibility !== "participationFrom" &&
+      visibility !== "participationUntil" &&
+      eventData.hasOwnProperty(visibility)
+    ) {
+      eventVisibility[visibility] = !privateFields.includes(`${visibility}`);
+    }
+    if (
+      visibility === "participationFrom" ||
+      visibility === "participationUntil"
+    ) {
+      eventVisibility[visibility] = !privateFields.includes(
+        `${visibility}Time`
+      );
+    }
+  }
+  await prismaClient.$transaction([
+    prismaClient.event.update({
+      where: { id },
+      data: {
+        ...eventData,
+        updatedAt: new Date(),
+        focuses: {
+          deleteMany: {},
+          connectOrCreate: eventData.focuses.map((focusId: string) => {
+            return {
+              where: {
+                eventId_focusId: {
+                  focusId,
+                  eventId: id,
+                },
+              },
+              create: {
+                focusId,
+              },
+            };
+          }),
+        },
+        tags: {
+          deleteMany: {},
+          connectOrCreate: eventData.tags.map((tagId: string) => {
+            return {
+              where: {
+                tagId_eventId: {
+                  tagId,
+                  eventId: id,
+                },
+              },
+              create: {
+                tagId,
+              },
+            };
+          }),
+        },
+        types: {
+          deleteMany: {},
+          connectOrCreate: eventData.types.map((eventTypeId: string) => {
+            return {
+              where: {
+                eventTypeId_eventId: {
+                  eventTypeId,
+                  eventId: id,
+                },
+              },
+              create: {
+                eventTypeId,
+              },
+            };
+          }),
+        },
+        targetGroups: {
+          deleteMany: {},
+          connectOrCreate: eventData.targetGroups.map(
+            (targetGroupId: string) => {
+              return {
+                where: {
+                  targetGroupId_eventId: {
+                    targetGroupId,
+                    eventId: id,
+                  },
+                },
+                create: {
+                  targetGroupId,
+                },
+              };
+            }
+          ),
+        },
+        areas: {
+          deleteMany: {},
+          connectOrCreate: eventData.areas.map((areaId: string) => {
+            return {
+              where: {
+                eventId_areaId: {
+                  areaId,
+                  eventId: id,
+                },
+              },
+              create: {
+                areaId,
+              },
+            };
+          }),
+        },
+        experienceLevel:
+          eventData.experienceLevel !== null
+            ? { connect: { id: eventData.experienceLevel } }
+            : { disconnect: true },
+        stage:
+          eventData.stage !== null
+            ? { connect: { id: eventData.stage } }
+            : { disconnect: true },
+      },
+    }),
+    prismaClient.eventVisibility.update({
+      where: {
+        id: eventVisibility.id,
+      },
+      data: eventVisibility,
+    }),
+  ]);
 }
 
 export async function deleteEventById(id: string) {
