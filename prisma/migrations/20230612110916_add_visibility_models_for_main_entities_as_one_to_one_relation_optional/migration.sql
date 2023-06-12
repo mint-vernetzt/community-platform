@@ -1,7 +1,27 @@
+/*
+  Warnings:
+
+  - A unique constraint covering the columns `[event_visibility_id]` on the table `events` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[organization_visibility_id]` on the table `organizations` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[profile_visibility_id]` on the table `profiles` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[project_visibility_id]` on the table `projects` will be added. If there are existing duplicate values, this will fail.
+
+*/
+-- AlterTable
+ALTER TABLE "events" ADD COLUMN     "event_visibility_id" TEXT;
+
+-- AlterTable
+ALTER TABLE "organizations" ADD COLUMN     "organization_visibility_id" TEXT;
+
+-- AlterTable
+ALTER TABLE "profiles" ADD COLUMN     "profile_visibility_id" TEXT;
+
+-- AlterTable
+ALTER TABLE "projects" ADD COLUMN     "project_visibility_id" TEXT;
+
 -- CreateTable
 CREATE TABLE "profile_visibilities" (
     "id" TEXT NOT NULL,
-    "profile_id" TEXT NOT NULL,
     "username" BOOLEAN NOT NULL DEFAULT true,
     "email" BOOLEAN NOT NULL DEFAULT false,
     "phone" BOOLEAN NOT NULL DEFAULT false,
@@ -42,7 +62,6 @@ CREATE TABLE "profile_visibilities" (
 -- CreateTable
 CREATE TABLE "organization_visibilities" (
     "id" TEXT NOT NULL,
-    "organization_id" TEXT NOT NULL,
     "name" BOOLEAN NOT NULL DEFAULT true,
     "slug" BOOLEAN NOT NULL DEFAULT true,
     "email" BOOLEAN NOT NULL DEFAULT false,
@@ -83,7 +102,6 @@ CREATE TABLE "organization_visibilities" (
 -- CreateTable
 CREATE TABLE "event_visibilities" (
     "id" TEXT NOT NULL,
-    "event_id" TEXT NOT NULL,
     "name" BOOLEAN NOT NULL DEFAULT true,
     "slug" BOOLEAN NOT NULL DEFAULT true,
     "start_time" BOOLEAN NOT NULL DEFAULT true,
@@ -130,7 +148,6 @@ CREATE TABLE "event_visibilities" (
 -- CreateTable
 CREATE TABLE "project_visibilities" (
     "id" TEXT NOT NULL,
-    "project_id" TEXT NOT NULL,
     "name" BOOLEAN NOT NULL DEFAULT true,
     "slug" BOOLEAN NOT NULL DEFAULT true,
     "logo" BOOLEAN NOT NULL DEFAULT true,
@@ -161,3 +178,27 @@ CREATE TABLE "project_visibilities" (
 
     CONSTRAINT "project_visibilities_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "events_event_visibility_id_key" ON "events"("event_visibility_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "organizations_organization_visibility_id_key" ON "organizations"("organization_visibility_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "profiles_profile_visibility_id_key" ON "profiles"("profile_visibility_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "projects_project_visibility_id_key" ON "projects"("project_visibility_id");
+
+-- AddForeignKey
+ALTER TABLE "profiles" ADD CONSTRAINT "profiles_profile_visibility_id_fkey" FOREIGN KEY ("profile_visibility_id") REFERENCES "profile_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "organizations" ADD CONSTRAINT "organizations_organization_visibility_id_fkey" FOREIGN KEY ("organization_visibility_id") REFERENCES "organization_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "events" ADD CONSTRAINT "events_event_visibility_id_fkey" FOREIGN KEY ("event_visibility_id") REFERENCES "event_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "projects" ADD CONSTRAINT "projects_project_visibility_id_fkey" FOREIGN KEY ("project_visibility_id") REFERENCES "project_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;

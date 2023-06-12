@@ -121,81 +121,83 @@ model OffersOnProfiles {
 }
 
 model Organization {
-  id                     String                             @id @default(uuid())
-  name                   String
-  slug                   String                             @unique
-  email                  String?
-  phone                  String?
-  street                 String?
-  city                   String?
-  website                String?
-  logo                   String?
-  background             String?
-  facebook               String?
-  linkedin               String?
-  twitter                String?
-  xing                   String?
-  bio                    String?
-  quote                  String?
-  createdAt              DateTime                           @default(now()) @map("created_at")
-  publicFields           String[]                           @map("public_fields")
-  quoteAuthor            String?                            @map("quote_author")
-  quoteAuthorInformation String?                            @map("quote_author_information")
-  streetNumber           String?                            @map("street_number")
-  supportedBy            String[]                           @map("supported_by")
-  updatedAt              DateTime                           @default(now()) @map("updated_at")
-  zipCode                String?                            @map("zip_code")
-  instagram              String?
-  youtube                String?
-  score                  Int                                @default(0)
-  areas                  AreasOnOrganizations[]
-  focuses                FocusesOnOrganizations[]
-  networkMembers         MemberOfNetwork[]                  @relation("network")
-  memberOf               MemberOfNetwork[]                  @relation("network_member")
-  teamMembers            MemberOfOrganization[]
-  types                  OrganizationTypesOnOrganizations[]
-  responsibleForEvents   ResponsibleOrganizationOfEvent[]
-  responsibleForProject  ResponsibleOrganizationOfProject[]
+  id                       String                             @id @default(uuid())
+  name                     String
+  slug                     String                             @unique
+  email                    String?
+  phone                    String?
+  street                   String?
+  city                     String?
+  website                  String?
+  logo                     String?
+  background               String?
+  facebook                 String?
+  linkedin                 String?
+  twitter                  String?
+  xing                     String?
+  bio                      String?
+  quote                    String?
+  createdAt                DateTime                           @default(now()) @map("created_at")
+  publicFields             String[]                           @map("public_fields")
+  quoteAuthor              String?                            @map("quote_author")
+  quoteAuthorInformation   String?                            @map("quote_author_information")
+  streetNumber             String?                            @map("street_number")
+  supportedBy              String[]                           @map("supported_by")
+  updatedAt                DateTime                           @default(now()) @map("updated_at")
+  zipCode                  String?                            @map("zip_code")
+  instagram                String?
+  youtube                  String?
+  score                    Int                                @default(0)
+  areas                    AreasOnOrganizations[]
+  focuses                  FocusesOnOrganizations[]
+  networkMembers           MemberOfNetwork[]                  @relation("network")
+  memberOf                 MemberOfNetwork[]                  @relation("network_member")
+  teamMembers              MemberOfOrganization[]
+  types                    OrganizationTypesOnOrganizations[]
+  responsibleForEvents     ResponsibleOrganizationOfEvent[]
+  responsibleForProject    ResponsibleOrganizationOfProject[]
+  organizationVisibility   OrganizationVisibility?            @relation(fields: [organizationVisibilityId], references: [id])
+  organizationVisibilityId String?                            @unique @map("organization_visibility_id")
 
   @@map("organizations")
 }
 
 model OrganizationVisibility {
-  id                     String  @id @default(uuid())
-  organizationId         String  @map("organization_id")
-  name                   Boolean @default(true)
-  slug                   Boolean @default(true)
-  email                  Boolean @default(false)
-  phone                  Boolean @default(false)
-  street                 Boolean @default(true)
-  city                   Boolean @default(true)
-  website                Boolean @default(false)
-  logo                   Boolean @default(true)
-  background             Boolean @default(true)
-  facebook               Boolean @default(true)
-  linkedin               Boolean @default(true)
-  twitter                Boolean @default(true)
-  xing                   Boolean @default(true)
-  bio                    Boolean @default(false)
-  quote                  Boolean @default(true)
-  createdAt              Boolean @default(true) @map("created_at")
-  quoteAuthor            Boolean @default(true) @map("quote_author")
-  quoteAuthorInformation Boolean @default(true) @map("quote_author_information")
-  streetNumber           Boolean @default(true) @map("street_number")
-  supportedBy            Boolean @default(true) @map("supported_by")
-  updatedAt              Boolean @default(true) @map("updated_at")
-  zipCode                Boolean @default(true) @map("zip_code")
-  instagram              Boolean @default(true)
-  youtube                Boolean @default(true)
-  score                  Boolean @default(true)
-  areas                  Boolean @default(true)
-  focuses                Boolean @default(false)
-  networkMembers         Boolean @default(true)
-  memberOf               Boolean @default(true)
-  teamMembers            Boolean @default(true)
-  types                  Boolean @default(true)
-  responsibleForEvents   Boolean @default(true)
-  responsibleForProject  Boolean @default(true)
+  id                     String        @id @default(uuid())
+  name                   Boolean       @default(true)
+  slug                   Boolean       @default(true)
+  email                  Boolean       @default(false)
+  phone                  Boolean       @default(false)
+  street                 Boolean       @default(true)
+  city                   Boolean       @default(true)
+  website                Boolean       @default(false)
+  logo                   Boolean       @default(true)
+  background             Boolean       @default(true)
+  facebook               Boolean       @default(true)
+  linkedin               Boolean       @default(true)
+  twitter                Boolean       @default(true)
+  xing                   Boolean       @default(true)
+  bio                    Boolean       @default(false)
+  quote                  Boolean       @default(true)
+  createdAt              Boolean       @default(true) @map("created_at")
+  quoteAuthor            Boolean       @default(true) @map("quote_author")
+  quoteAuthorInformation Boolean       @default(true) @map("quote_author_information")
+  streetNumber           Boolean       @default(true) @map("street_number")
+  supportedBy            Boolean       @default(true) @map("supported_by")
+  updatedAt              Boolean       @default(true) @map("updated_at")
+  zipCode                Boolean       @default(true) @map("zip_code")
+  instagram              Boolean       @default(true)
+  youtube                Boolean       @default(true)
+  score                  Boolean       @default(true)
+  areas                  Boolean       @default(true)
+  focuses                Boolean       @default(false)
+  networkMembers         Boolean       @default(true)
+  memberOf               Boolean       @default(true)
+  teamMembers            Boolean       @default(true)
+  types                  Boolean       @default(true)
+  responsibleForEvents   Boolean       @default(true)
+  responsibleForProject  Boolean       @default(true)
+  organization           Organization?
 
   @@map("organization_visibilities")
 }
@@ -294,13 +296,14 @@ model Event {
   targetGroups             TargetGroupOfEvent[]
   teamMembers              TeamMemberOfEvent[]
   waitingList              WaitingParticipantOfEvent[]
+  eventVisibility          EventVisibility?                 @relation(fields: [eventVisibilityId], references: [id])
+  eventVisibilityId        String?                          @unique @map("event_visibility_id")
 
   @@map("events")
 }
 
 model EventVisibility {
   id                       String  @id @default(uuid())
-  eventId                  String  @map("event_id")
   name                     Boolean @default(true)
   slug                     Boolean @default(true)
   startTime                Boolean @default(true) @map("start_time")
@@ -340,6 +343,7 @@ model EventVisibility {
   targetGroups             Boolean @default(true)
   teamMembers              Boolean @default(true)
   waitingList              Boolean @default(false)
+  event                    Event?
 
   @@map("event_visibilities")
 }
@@ -613,40 +617,42 @@ model Project {
   responsibleOrganizations ResponsibleOrganizationOfProject[]
   targetGroups             TargetGroupOfProject[]
   teamMembers              TeamMemberOfProject[]
+  projectVisibility        ProjectVisibility?                 @relation(fields: [projectVisibilityId], references: [id])
+  projectVisibilityId      String?                            @unique @map("project_visibility_id")
 
   @@map("projects")
 }
 
 model ProjectVisibility {
-  id                       String  @id @default(uuid())
-  projectId                String  @map("project_id")
-  name                     Boolean @default(true)
-  slug                     Boolean @default(true)
-  logo                     Boolean @default(true)
-  background               Boolean @default(true)
-  headline                 Boolean @default(true)
-  excerpt                  Boolean @default(true)
-  description              Boolean @default(true)
-  email                    Boolean @default(true)
-  phone                    Boolean @default(true)
-  website                  Boolean @default(true)
-  street                   Boolean @default(true)
-  streetNumber             Boolean @default(true) @map("street_number")
-  zipCode                  Boolean @default(true) @map("zip_code")
-  facebook                 Boolean @default(true)
-  linkedin                 Boolean @default(true)
-  twitter                  Boolean @default(true)
-  youtube                  Boolean @default(true)
-  instagram                Boolean @default(true)
-  xing                     Boolean @default(true)
-  createdAt                Boolean @default(true) @map("created_at")
-  updatedAt                Boolean @default(true) @map("updated_at")
-  city                     Boolean @default(true)
-  awards                   Boolean @default(true)
-  disciplines              Boolean @default(true)
-  responsibleOrganizations Boolean @default(true)
-  targetGroups             Boolean @default(true)
-  teamMembers              Boolean @default(true)
+  id                       String   @id @default(uuid())
+  name                     Boolean  @default(true)
+  slug                     Boolean  @default(true)
+  logo                     Boolean  @default(true)
+  background               Boolean  @default(true)
+  headline                 Boolean  @default(true)
+  excerpt                  Boolean  @default(true)
+  description              Boolean  @default(true)
+  email                    Boolean  @default(true)
+  phone                    Boolean  @default(true)
+  website                  Boolean  @default(true)
+  street                   Boolean  @default(true)
+  streetNumber             Boolean  @default(true) @map("street_number")
+  zipCode                  Boolean  @default(true) @map("zip_code")
+  facebook                 Boolean  @default(true)
+  linkedin                 Boolean  @default(true)
+  twitter                  Boolean  @default(true)
+  youtube                  Boolean  @default(true)
+  instagram                Boolean  @default(true)
+  xing                     Boolean  @default(true)
+  createdAt                Boolean  @default(true) @map("created_at")
+  updatedAt                Boolean  @default(true) @map("updated_at")
+  city                     Boolean  @default(true)
+  awards                   Boolean  @default(true)
+  disciplines              Boolean  @default(true)
+  responsibleOrganizations Boolean  @default(true)
+  targetGroups             Boolean  @default(true)
+  teamMembers              Boolean  @default(true)
+  project                  Project?
 
   @@map("project_visibilities")
 }

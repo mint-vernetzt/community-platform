@@ -90,42 +90,52 @@ export async function createOrganizationVisibilitySettings() {
   for (const organization of organizations) {
     const { publicFields } = organization;
 
-    await prismaClient.organizationVisibility.create({
+    await prismaClient.organization.update({
+      where: {
+        id: organization.id,
+      },
       data: {
-        organizationId: organization.id,
-        name: publicFields.includes("name"),
-        slug: publicFields.includes("slug"),
-        email: publicFields.includes("email"),
-        phone: publicFields.includes("phone"),
-        street: publicFields.includes("street"),
-        city: publicFields.includes("city"),
-        website: publicFields.includes("website"),
-        logo: publicFields.includes("logo"),
-        background: publicFields.includes("background"),
-        facebook: publicFields.includes("facebook"),
-        linkedin: publicFields.includes("linkedin"),
-        twitter: publicFields.includes("twitter"),
-        xing: publicFields.includes("xing"),
-        bio: publicFields.includes("bio"),
-        quote: publicFields.includes("quote"),
-        createdAt: publicFields.includes("createdAt"),
-        quoteAuthor: publicFields.includes("quoteAuthor"),
-        quoteAuthorInformation: publicFields.includes("quoteAuthorInformation"),
-        streetNumber: publicFields.includes("streetNumber"),
-        supportedBy: publicFields.includes("supportedBy"),
-        updatedAt: publicFields.includes("updatedAt"),
-        zipCode: publicFields.includes("zipCode"),
-        instagram: publicFields.includes("instagram"),
-        youtube: publicFields.includes("youtube"),
-        score: publicFields.includes("score"),
-        areas: publicFields.includes("areas"),
-        focuses: publicFields.includes("focuses"),
-        networkMembers: publicFields.includes("networkMembers"),
-        memberOf: publicFields.includes("memberOf"),
-        teamMembers: publicFields.includes("teamMembers"),
-        types: publicFields.includes("types"),
-        responsibleForEvents: publicFields.includes("responsibleForEvents"),
-        responsibleForProject: publicFields.includes("responsibleForProject"),
+        organizationVisibility: {
+          create: {
+            name: publicFields.includes("name"),
+            slug: publicFields.includes("slug"),
+            email: publicFields.includes("email"),
+            phone: publicFields.includes("phone"),
+            street: publicFields.includes("street"),
+            city: publicFields.includes("city"),
+            website: publicFields.includes("website"),
+            logo: publicFields.includes("logo"),
+            background: publicFields.includes("background"),
+            facebook: publicFields.includes("facebook"),
+            linkedin: publicFields.includes("linkedin"),
+            twitter: publicFields.includes("twitter"),
+            xing: publicFields.includes("xing"),
+            bio: publicFields.includes("bio"),
+            quote: publicFields.includes("quote"),
+            createdAt: publicFields.includes("createdAt"),
+            quoteAuthor: publicFields.includes("quoteAuthor"),
+            quoteAuthorInformation: publicFields.includes(
+              "quoteAuthorInformation"
+            ),
+            streetNumber: publicFields.includes("streetNumber"),
+            supportedBy: publicFields.includes("supportedBy"),
+            updatedAt: publicFields.includes("updatedAt"),
+            zipCode: publicFields.includes("zipCode"),
+            instagram: publicFields.includes("instagram"),
+            youtube: publicFields.includes("youtube"),
+            score: publicFields.includes("score"),
+            areas: publicFields.includes("areas"),
+            focuses: publicFields.includes("focuses"),
+            networkMembers: publicFields.includes("networkMembers"),
+            memberOf: publicFields.includes("memberOf"),
+            teamMembers: publicFields.includes("teamMembers"),
+            types: publicFields.includes("types"),
+            responsibleForEvents: publicFields.includes("responsibleForEvents"),
+            responsibleForProject: publicFields.includes(
+              "responsibleForProject"
+            ),
+          },
+        },
       },
     });
   }
@@ -150,9 +160,14 @@ export async function createEventVisibilitySettings() {
   });
 
   for (const event of events) {
-    await prismaClient.eventVisibility.create({
+    await prismaClient.event.update({
+      where: {
+        id: event.id,
+      },
       data: {
-        eventId: event.id,
+        eventVisibility: {
+          create: {},
+        },
       },
     });
   }
@@ -177,9 +192,14 @@ export async function createProjectVisibilitySettings() {
   });
 
   for (const project of projects) {
-    await prismaClient.projectVisibility.create({
+    await prismaClient.project.update({
+      where: {
+        id: project.id,
+      },
       data: {
-        projectId: project.id,
+        projectVisibility: {
+          create: {},
+        },
       },
     });
   }

@@ -5324,15 +5324,51 @@ export async function seedEntity<
         );
       }
     }
+  } else if (entityType === "organization" && "supportedBy" in entity) {
+    result = await prismaClient.organization.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        organizationVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
+  } else if (entityType === "event" && "published" in entity) {
+    result = await prismaClient.event.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        eventVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
+  } else if (entityType === "project" && "headline" in entity) {
+    result = await prismaClient.project.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        projectVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
   } else {
-    // TODO: fix union type issue (almost got the generic working, but thats too hard...)
-    // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
-    // @ts-ignore
+    // @ts-ignore -> Union type issue -> To much abstraction
     result = await prismaClient[entityType].create({
       data: entity,
       select: { id: true },
     });
   }
+  if (result === undefined || result === null) {
+    console.error(`${entity} could not be created.`);
+    throw new Error(`${entity} could not be created.`);
+  }
+
   return result.id as string;
 }
 

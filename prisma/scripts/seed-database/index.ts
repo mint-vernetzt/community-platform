@@ -204,18 +204,18 @@ async function main(
     numberOfStandardEntities
   );
 
+  // Remove the create profile trigger, as its only used for database seeding.
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/remove-create-profile-trigger/index.ts",
+  ]);
+
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
   for (let email of profileEmails) {
     console.log(email);
   }
   console.log(`\nThe default password for all users is "${defaultPassword}"`);
-
-  // Remove the create profile trigger, as its only used for database seeding.
-  await executeCommand("npx", [
-    "ts-node",
-    "prisma/scripts/remove-create-profile-trigger/index.ts",
-  ]);
 
   // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }
