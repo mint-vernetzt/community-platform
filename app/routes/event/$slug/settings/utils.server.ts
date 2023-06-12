@@ -3,7 +3,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
-import { unauthorized } from "remix-utils";
+import { notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma";
@@ -327,7 +327,28 @@ export async function updateEventById(id: string, data: any) {
 }
 
 export async function deleteEventById(id: string) {
-  return await prismaClient.event.delete({ where: { id } });
+  const eventVisibility = await prismaClient.eventVisibility.findFirst({
+    where: {
+      event: {
+        id,
+      },
+    },
+  });
+  if (eventVisibility === null) {
+    throw notFound("Event visibility not found. Event was not deleted.");
+  }
+  await prismaClient.$transaction([
+    prismaClient.event.delete({
+      where: {
+        id,
+      },
+    }),
+    prismaClient.eventVisibility.delete({
+      where: {
+        id: eventVisibility.id,
+      },
+    }),
+  ]);
 }
 
 export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
