@@ -210,6 +210,9 @@ export async function createOrganizationOnProfile(
             create: {
               name: organizationName,
               slug: organizationSlug,
+              organizationVisibility: {
+                create: {},
+              },
             },
           },
         },

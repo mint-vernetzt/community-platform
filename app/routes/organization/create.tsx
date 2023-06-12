@@ -15,10 +15,7 @@ import { createOrganizationOnProfile } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
-import {
-  checkIdentityOrThrow,
-  createOrganizationVisibilities,
-} from "./$slug/utils.server";
+import { checkIdentityOrThrow } from "./$slug/utils.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
@@ -79,8 +76,6 @@ export const action: ActionFunction = async ({ request }) => {
     ReturnType<typeof getOrganizationByName>
   > = null;
   if (result.success) {
-    // TODO: Transaction with createOrganization statement
-    await createOrganizationVisibilities(result.data.slug);
     return redirect(`/organization/${result.data.slug}`, {
       headers: response.headers,
     });

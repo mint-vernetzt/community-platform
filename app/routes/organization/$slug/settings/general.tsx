@@ -66,7 +66,7 @@ const organizationSchema = object({
   quoteAuthor: nullOrString(string()),
   quoteAuthorInformation: nullOrString(string()),
   supportedBy: array(string().required()).required(),
-  publicFields: array(string().required()).required(),
+  privateFields: array(string().required()).required(),
   areas: array(string().required()).required(),
   focuses: array(string().required()).required(),
 });
@@ -167,10 +167,11 @@ export const action = async (args: ActionArgs) => {
   if (submit === "submit") {
     if (errors === null) {
       try {
-        await updateOrganizationById(organization.id, data);
-        await updateOrganizationVisibilitiesById(
+        const { privateFields, ...organizationData } = data;
+        await updateOrganizationById(
           organization.id,
-          data.publicFields
+          organizationData,
+          privateFields
         );
         updated = true;
       } catch (error) {
@@ -326,6 +327,8 @@ function Index() {
               {...register("name")}
               id="name"
               label="Name"
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.name}
               defaultValue={organization.name}
               errorMessage={errors?.name?.message}
             />
@@ -337,6 +340,7 @@ function Index() {
                 id="email"
                 label="E-Mail"
                 errorMessage={errors?.email?.message}
+                withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.email}
               />
             </div>
@@ -346,6 +350,7 @@ function Index() {
                 id="phone"
                 label="Telefon"
                 errorMessage={errors?.phone?.message}
+                withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.phone}
               />
             </div>
@@ -358,6 +363,8 @@ function Index() {
                 id="street"
                 label="Straßenname"
                 errorMessage={errors?.street?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.street}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -366,6 +373,8 @@ function Index() {
                 id="streetNumber"
                 label="Hausnummer"
                 errorMessage={errors?.streetNumber?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.streetNumber}
               />
             </div>
           </div>
@@ -376,6 +385,8 @@ function Index() {
                 id="zipCode"
                 label="PLZ"
                 errorMessage={errors?.zipCode?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.zipCode}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -384,6 +395,8 @@ function Index() {
                 id="city"
                 label="Stadt"
                 errorMessage={errors?.city?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.city}
               />
             </div>
           </div>
@@ -402,6 +415,7 @@ function Index() {
               id="bio"
               defaultValue={organization.bio || ""}
               label="Kurzbeschreibung"
+              withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
               maxCharacters={500}
@@ -419,6 +433,8 @@ function Index() {
                 return !organization.types.includes(option.value);
               })}
               placeholder="Füge Eure Organisationsformen hinzu."
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.types}
             />
           </div>
           <div className="mb-4">
@@ -431,6 +447,8 @@ function Index() {
                 value: area.id,
               }))}
               options={areaOptions}
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.areas}
             />
           </div>
           <div className="mb-4">
@@ -438,6 +456,8 @@ function Index() {
               name="supportedBy"
               label="Gefördert von"
               entries={organization.supportedBy ?? []}
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.supportedBy}
             />
           </div>
           <div className="mb-4">
@@ -452,6 +472,7 @@ function Index() {
               options={focusOptions.filter((option) => {
                 return !organization.focuses.includes(option.value);
               })}
+              withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.focuses}
             />
           </div>
@@ -460,6 +481,7 @@ function Index() {
               {...register("quote")}
               id="quote"
               label="Zitat"
+              withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
               maxCharacters={300}
@@ -472,6 +494,8 @@ function Index() {
                 id="quoteAuthor"
                 label="Von wem stammt das Zitat?"
                 errorMessage={errors?.quoteAuthor?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.quoteAuthor}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -480,6 +504,8 @@ function Index() {
                 id="quoteAuthorInformation"
                 label="Zusatzinformationen des Zitatautors (Position/Beruf)"
                 errorMessage={errors?.quoteAuthorInformation?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.quoteAuthorInformation}
               />
             </div>
           </div>
@@ -500,6 +526,7 @@ function Index() {
               id="website"
               label="Website"
               placeholder="domainname.tld"
+              withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.website}
               errorMessage={errors?.website?.message}
               withClearButton
@@ -521,6 +548,7 @@ function Index() {
                 id={service.id}
                 label={service.label}
                 placeholder={service.organizationPlaceholder}
+                withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities[service.id]}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
