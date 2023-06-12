@@ -95,13 +95,11 @@ export function CardStatus(props: CardStatusProps) {
 
 export function CardImage(props: { src: string }) {
   return (
-    <figure>
-      <img
-        src={props.src}
-        className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
-        alt=""
-      />
-    </figure>
+    <img
+      src={props.src}
+      className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
+      alt=""
+    />
   );
 }
 
