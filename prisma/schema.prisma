@@ -44,8 +44,8 @@ model Profile {
   teamMemberOfEvents   TeamMemberOfEvent[]
   teamMemberOfProjects TeamMemberOfProject[]
   waitingForEvents     WaitingParticipantOfEvent[]
-  profileVisibility    ProfileVisibility           @relation(fields: [profileVisibilityId], references: [id])
-  profileVisibilityId  String                      @unique @map("profile_visibility_id")
+  profileVisibility    ProfileVisibility?          @relation(fields: [profileVisibilityId], references: [id])
+  profileVisibilityId  String?                     @unique @map("profile_visibility_id")
 
   @@map("profiles")
 }
