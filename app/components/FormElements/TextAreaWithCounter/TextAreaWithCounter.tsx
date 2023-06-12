@@ -1,6 +1,8 @@
-import React, { FormEventHandler } from "react";
+import type { FormEventHandler } from "react";
+import React from "react";
 import Counter from "../../Counter/Counter";
-import TextArea, { TextAreaProps } from "../TextArea/TextArea";
+import type { TextAreaProps } from "../TextArea/TextArea";
+import TextArea from "../TextArea/TextArea";
 
 export interface TextAreaWithCounterProps {
   maxCharacters?: number;

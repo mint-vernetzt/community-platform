@@ -1,9 +1,4 @@
-import type {
-  ActionArgs,
-  ActionFunction,
-  LoaderArgs,
-  LoaderFunction,
-} from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -18,7 +13,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import { getSessionUserOrThrow, createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -47,7 +42,6 @@ import {
   getWholeProfileFromUsername,
   handleAuthorization,
   updateProfileById,
-  updateProfileVisibilitiesById,
 } from "../utils.server";
 
 const profileSchema = object({
@@ -63,7 +57,7 @@ const profileSchema = object({
   offers: array(string().required()).required(),
   interests: array(string().required()).required(),
   seekings: array(string().required()).required(),
-  publicFields: array(string().required()).required(),
+  privateFields: array(string().required()).required(),
   website: nullOrString(website()),
   facebook: nullOrString(social("facebook")),
   linkedin: nullOrString(social("linkedin")),
@@ -155,8 +149,8 @@ export const action = async ({ request, params }: ActionArgs) => {
   if (submit === "submit") {
     if (errors === null) {
       try {
-        await updateProfileById(profile.id, data);
-        await updateProfileVisibilitiesById(profile.id, data.publicFields);
+        const { privateFields, ...profileData } = data;
+        await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
       } catch (error) {
         console.error(error);
@@ -315,6 +309,8 @@ export default function Index() {
                       value: "Prof. Dr.",
                     },
                   ]}
+                  withPublicPrivateToggle={false}
+                  isPublic={profileVisibilities.academicTitle}
                   defaultValue={profile.academicTitle || ""}
                 />
               </div>
@@ -323,6 +319,7 @@ export default function Index() {
                   {...register("position")}
                   id="position"
                   label="Position"
+                  withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.position}
                   errorMessage={errors?.position?.message}
                 />
@@ -336,6 +333,8 @@ export default function Index() {
                   id="firstName"
                   label="Vorname"
                   required
+                  withPublicPrivateToggle={false}
+                  isPublic={profileVisibilities.firstName}
                   errorMessage={errors?.firstName?.message}
                 />
               </div>
@@ -345,6 +344,8 @@ export default function Index() {
                   id="lastName"
                   label="Nachname"
                   required
+                  withPublicPrivateToggle={false}
+                  isPublic={profileVisibilities.lastName}
                   errorMessage={errors?.lastName?.message}
                 />
               </div>
@@ -358,6 +359,7 @@ export default function Index() {
                   id="email"
                   label="E-Mail"
                   readOnly
+                  withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
                   errorMessage={errors?.email?.message}
                 />
@@ -367,6 +369,7 @@ export default function Index() {
                   {...register("phone")}
                   id="phone"
                   label="Telefon"
+                  withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.phone}
                   errorMessage={errors?.phone?.message}
                 />
@@ -393,6 +396,7 @@ export default function Index() {
                 label="Kurzbeschreibung"
                 defaultValue={profile.bio || ""}
                 placeholder="Beschreibe Dich und Dein Tätigkeitsfeld näher."
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxCharacters={500}
@@ -409,6 +413,8 @@ export default function Index() {
                   value: area.id,
                 }))}
                 options={areaOptions}
+                withPublicPrivateToggle={false}
+                isPublic={profileVisibilities.areas}
               />
             </div>
 
@@ -418,6 +424,7 @@ export default function Index() {
                 label="Kompetenzen"
                 placeholder="Füge Deine Kompetenzen hinzu."
                 entries={profile.skills ?? []}
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.skills}
               />
             </div>
@@ -428,6 +435,7 @@ export default function Index() {
                 label="Interessen"
                 placeholder="Füge Deine Interessen hinzu."
                 entries={profile.interests ?? []}
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.interests}
               />
             </div>
@@ -452,6 +460,7 @@ export default function Index() {
                   (o) => !profile.offers.includes(o.value)
                 )}
                 placeholder="Füge Deine Angebote hinzu."
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.offers}
               />
             </div>
@@ -476,6 +485,7 @@ export default function Index() {
                   (o) => !profile.seekings.includes(o.value)
                 )}
                 placeholder="Füge hinzu wonach Du suchst."
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.seekings}
               />
             </div>
@@ -496,6 +506,7 @@ export default function Index() {
                 id="website"
                 label="Website"
                 placeholder="domainname.tld"
+                withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.website}
                 errorMessage={errors?.website?.message}
                 withClearButton
@@ -517,6 +528,7 @@ export default function Index() {
                   id={service.id}
                   label={service.label}
                   placeholder={service.placeholder}
+                  withPublicPrivateToggle={true}
                   isPublic={profileVisibilities[service.id]}
                   errorMessage={errors?.[service.id]?.message}
                   withClearButton

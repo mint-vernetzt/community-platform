@@ -100,7 +100,6 @@ const mutation = makeDomainFunction(
     return false;
   });
   try {
-    // TODO: Transaction
     await deleteUserByUid(environment.authClient, values.userId);
   } catch {
     throw "Das Profil konnte nicht gelöscht werden.";

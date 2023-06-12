@@ -7,6 +7,7 @@ export async function createProfile(
     "id" | "username" | "email" | "firstName" | "lastName" | "termsAccepted"
   >
 ) {
+  // Creates the profile and its corrsponding profileVisibility with default values defined in prisma.schema
   const profile = await prismaClient.profile.create({
     data: {
       profileVisibility: {

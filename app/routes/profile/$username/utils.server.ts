@@ -58,7 +58,9 @@ export async function getWholeProfileFromUsername(username: string) {
 export async function getProfileVisibilitiesById(id: string) {
   const result = await prismaClient.profileVisibility.findFirst({
     where: {
-      profileId: id,
+      profile: {
+        id,
+      },
     },
   });
   return result;
@@ -66,7 +68,7 @@ export async function getProfileVisibilitiesById(id: string) {
 
 export async function updateProfileById(
   id: string,
-  data: Omit<
+  profileData: Omit<
     Profile,
     | "id"
     | "username"
@@ -82,83 +84,80 @@ export async function updateProfileById(
     offers: string[];
   } & {
     seekings: string[];
-  }
+  },
+  privateFields: string[]
 ) {
-  const { email: _email, ...rest } = data;
+  const { email: _email, ...rest } = profileData;
 
-  await prismaClient.profile.update({
+  let profileVisibility = await prismaClient.profileVisibility.findFirst({
     where: {
-      id,
-    },
-    data: {
-      ...rest,
-      areas: {
-        deleteMany: {},
-        connectOrCreate: data.areas.map((areaId) => ({
-          where: {
-            profileId_areaId: { areaId, profileId: id },
-          },
-          create: {
-            areaId,
-          },
-        })),
+      profile: {
+        id,
       },
-      offers: {
-        deleteMany: {},
-        connectOrCreate: data.offers.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
-      seekings: {
-        deleteMany: {},
-        connectOrCreate: data.seekings.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
-      updatedAt: new Date(),
     },
   });
-
-  await triggerEntityScore({ entity: "profile", where: { id } });
-}
-
-export async function updateProfileVisibilitiesById(
-  id: string,
-  publicFields: string[]
-) {
-  let profileVisibilities = await prismaClient.profileVisibility.findFirst({
-    where: {
-      profileId: id,
-    },
-  });
-  if (profileVisibilities === null) {
+  if (profileVisibility === null) {
     throw notFound("Profile visibilities not found");
   }
 
-  let visibility: keyof typeof profileVisibilities;
-  for (visibility in profileVisibilities) {
-    if (visibility !== "id" && visibility !== "profileId") {
-      profileVisibilities[visibility] = publicFields.includes(`${visibility}`);
+  let visibility: keyof typeof profileVisibility;
+  for (visibility in profileVisibility) {
+    if (visibility !== "id" && profileData.hasOwnProperty(visibility)) {
+      profileVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
   }
-  await prismaClient.profileVisibility.update({
-    where: {
-      id: profileVisibilities.id,
-    },
-    data: {
-      ...profileVisibilities,
-    },
-  });
+  await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id,
+      },
+      data: {
+        ...rest,
+        areas: {
+          deleteMany: {},
+          connectOrCreate: profileData.areas.map((areaId) => ({
+            where: {
+              profileId_areaId: { areaId, profileId: id },
+            },
+            create: {
+              areaId,
+            },
+          })),
+        },
+        offers: {
+          deleteMany: {},
+          connectOrCreate: profileData.offers.map((offerId) => ({
+            where: {
+              profileId_offerId: { offerId, profileId: id },
+            },
+            create: {
+              offerId,
+            },
+          })),
+        },
+        seekings: {
+          deleteMany: {},
+          connectOrCreate: profileData.seekings.map((offerId) => ({
+            where: {
+              profileId_offerId: { offerId, profileId: id },
+            },
+            create: {
+              offerId,
+            },
+          })),
+        },
+        updatedAt: new Date(),
+      },
+    }),
+    prismaClient.profileVisibility.update({
+      where: {
+        id: profileVisibility.id,
+      },
+      data: profileVisibility,
+    }),
+  ]);
+
+  await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
 export async function getProfileEventsByMode(
