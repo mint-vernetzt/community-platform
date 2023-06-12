@@ -1,7 +1,7 @@
 import type { Organization, Prisma, Profile, Project } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
-import { badRequest, unauthorized } from "remix-utils";
+import { badRequest, notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
@@ -123,7 +123,28 @@ export async function updateProjectById(id: string, data: any) {
 }
 
 export async function deleteProjectById(id: string) {
-  return await prismaClient.project.delete({ where: { id } });
+  const projectVisibility = await prismaClient.projectVisibility.findFirst({
+    where: {
+      project: {
+        id,
+      },
+    },
+  });
+  if (projectVisibility === null) {
+    throw notFound("Project visibility not found. Project was not deleted.");
+  }
+  await prismaClient.$transaction([
+    prismaClient.project.delete({
+      where: {
+        id,
+      },
+    }),
+    prismaClient.projectVisibility.delete({
+      where: {
+        id: projectVisibility.id,
+      },
+    }),
+  ]);
 }
 
 export function getResponsibleOrganizationDataFromProject(
