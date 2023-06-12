@@ -161,10 +161,6 @@ async function main(
   ]);
   await executeCommand("npx", [
     "ts-node",
-    "prisma/scripts/apply-create-profile-trigger/index.ts",
-  ]);
-  await executeCommand("npx", [
-    "ts-node",
     "supabase/scripts/create-buckets/index.ts",
   ]);
   await executeCommand("npx", [
@@ -174,6 +170,12 @@ async function main(
   await executeCommand("npx", [
     "ts-node",
     "supabase/scripts/delete-users/index.ts",
+  ]);
+  // Apply the create profile trigger, which automatically creates a corresponding profile entry on public.profiles
+  // when a user on auth.users is created.
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/apply-create-profile-trigger/index.ts",
   ]);
 
   // Creating an authClient to upload files to the bucket and manage the users table
@@ -208,6 +210,12 @@ async function main(
     console.log(email);
   }
   console.log(`\nThe default password for all users is "${defaultPassword}"`);
+
+  // Remove the create profile trigger, as its only used for database seeding.
+  await executeCommand("npx", [
+    "ts-node",
+    "prisma/scripts/remove-create-profile-trigger/index.ts",
+  ]);
 
   // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }

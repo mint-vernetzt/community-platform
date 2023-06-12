@@ -52,6 +52,7 @@ export const loader = async (args: LoaderArgs) => {
         academicTitle: sessionUser.user_metadata.academicTitle,
         termsAccepted: sessionUser.user_metadata.termsAccepted,
       };
+      // Profile is now created here and not inside a trigger function
       const profile = await createProfile(initialProfile);
       // Default redirect to profile of sessionUser after sign up confirmation
       return redirect(loginRedirect || `/profile/${profile.username}`, {

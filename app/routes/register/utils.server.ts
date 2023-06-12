@@ -1,4 +1,4 @@
-import { Profile } from "@prisma/client";
+import type { Profile } from "@prisma/client";
 import { prismaClient } from "~/prisma";
 
 export async function createProfile(
@@ -7,18 +7,13 @@ export async function createProfile(
     "id" | "username" | "email" | "firstName" | "lastName" | "termsAccepted"
   >
 ) {
-  // TODO: How to connect and create one-to-one relations
-  const [profileVisibilities, profile] = await prismaClient.$transaction([
-    prismaClient.profileVisibility.create({
-      data: {
-        profileId: data.id,
+  const profile = await prismaClient.profile.create({
+    data: {
+      profileVisibility: {
+        create: {},
       },
-    }),
-    prismaClient.profile.create({
-      data: {
-        ...data,
-      },
-    }),
-  ]);
+      ...data,
+    },
+  });
   return profile;
 }
