@@ -14,6 +14,20 @@ export async function getProjectBySlugOrThrow(slug: string) {
   return result;
 }
 
+export async function getProjectVisibilitiesBySlugOrThrow(slug: string) {
+  const result = await prismaClient.projectVisibility.findFirst({
+    where: {
+      project: {
+        slug,
+      },
+    },
+  });
+  if (result === null) {
+    throw notFound({ message: "Project visbilities not found." });
+  }
+  return result;
+}
+
 export async function getProjectById(id: string) {
   return await getProjectByField("id", id);
 }

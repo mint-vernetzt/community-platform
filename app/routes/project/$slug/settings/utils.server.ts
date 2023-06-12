@@ -80,46 +80,77 @@ export async function getOrganizationById(id: string) {
   return organization;
 }
 
-export async function updateProjectById(id: string, data: any) {
-  await prismaClient.project.update({
-    where: { id },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-      targetGroups: {
-        deleteMany: {},
-        connectOrCreate: data.targetGroups.map((targetGroupId: string) => {
-          return {
-            where: {
-              targetGroupId_projectId: {
-                targetGroupId,
-                projectId: id,
-              },
-            },
-            create: {
-              targetGroupId,
-            },
-          };
-        }),
-      },
-      disciplines: {
-        deleteMany: {},
-        connectOrCreate: data.disciplines.map((itemId: string) => {
-          return {
-            where: {
-              disciplineId_projectId: {
-                disciplineId: itemId,
-                projectId: id,
-              },
-            },
-            create: {
-              disciplineId: itemId,
-            },
-          };
-        }),
+export async function updateProjectById(
+  id: string,
+  projectData: any,
+  privateFields: string[]
+) {
+  let projectVisibility = await prismaClient.projectVisibility.findFirst({
+    where: {
+      project: {
+        id,
       },
     },
   });
+  if (projectVisibility === null) {
+    throw notFound("Project visibilities not found");
+  }
+
+  let visibility: keyof typeof projectVisibility;
+  for (visibility in projectVisibility) {
+    if (visibility !== "id" && projectData.hasOwnProperty(visibility)) {
+      projectVisibility[visibility] = !privateFields.includes(`${visibility}`);
+    }
+  }
+  await prismaClient.$transaction([
+    prismaClient.project.update({
+      where: { id },
+      data: {
+        ...projectData,
+        updatedAt: new Date(),
+        targetGroups: {
+          deleteMany: {},
+          connectOrCreate: projectData.targetGroups.map(
+            (targetGroupId: string) => {
+              return {
+                where: {
+                  targetGroupId_projectId: {
+                    targetGroupId,
+                    projectId: id,
+                  },
+                },
+                create: {
+                  targetGroupId,
+                },
+              };
+            }
+          ),
+        },
+        disciplines: {
+          deleteMany: {},
+          connectOrCreate: projectData.disciplines.map((itemId: string) => {
+            return {
+              where: {
+                disciplineId_projectId: {
+                  disciplineId: itemId,
+                  projectId: id,
+                },
+              },
+              create: {
+                disciplineId: itemId,
+              },
+            };
+          }),
+        },
+      },
+    }),
+    prismaClient.projectVisibility.update({
+      where: {
+        id: projectVisibility.id,
+      },
+      data: projectVisibility,
+    }),
+  ]);
 }
 
 export async function deleteProjectById(id: string) {
