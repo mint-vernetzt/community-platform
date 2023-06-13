@@ -342,7 +342,7 @@ function Dashboard() {
     <div className="relative pb-44">
       <div className="">
         <main>
-          <section className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1563px] mv-mb-4 lg:mv-mb-16">
+          <section className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1563px] mv-mb-12">
             <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
               Willkommen,
               <br />
@@ -361,7 +361,7 @@ function Dashboard() {
               </Button>
             </p>
           </section>
-          <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px]">
+          <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16">
             <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
               <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
                 Profile
