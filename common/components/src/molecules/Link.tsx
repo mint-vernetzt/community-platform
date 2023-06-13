@@ -24,7 +24,8 @@ export const Link = React.forwardRef((props: LinkProps, ref) => {
 
   let classes;
   if (as === "a" && className === undefined) {
-    classes = "mv-text-primary hover:mv-underline";
+    classes =
+      "mv-text-primary hover:mv-underline mv-underline-offset-4 mv-decoration-2";
   }
 
   const element = React.createElement(as, {
