@@ -7,7 +7,9 @@ import { H1, H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import type { ArrayElement } from "~/lib/utils/types";
 import { getAllOffers } from "~/profile.server";
+import { filterOrganizationDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -39,22 +41,20 @@ export const loader = async (args: LoaderArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  const rawOrganizations = await getAllOrganizations({
+  let rawOrganizations = await getAllOrganizations({
     skip: skip,
     take: take,
     randomSeed: randomSeed,
   });
 
-  const organizations = rawOrganizations.map((organization) => {
-    const { bio, publicFields, logo, ...otherFields } = organization;
-    let extensions: { bio?: string } = {};
+  if (sessionUser === null) {
+    rawOrganizations = await filterOrganizationDataByVisibilitySettings<
+      ArrayElement<typeof rawOrganizations>
+    >(rawOrganizations);
+  }
 
-    if (
-      (publicFields.includes("bio") || sessionUser !== null) &&
-      bio !== null
-    ) {
-      extensions.bio = bio;
-    }
+  const organizations = rawOrganizations.map((organization) => {
+    const { logo, ...otherFields } = organization;
 
     let logoImage: string | null = null;
 
@@ -68,7 +68,7 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
-    return { ...otherFields, ...extensions, logo: logoImage };
+    return { ...otherFields, logo: logoImage };
   });
 
   return json(
@@ -153,7 +153,7 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {organization.bio !== undefined ? (
+                    {organization.bio !== null ? (
                       <p className="mt-3 line-clamp-2">{organization.bio}</p>
                     ) : null}
 

@@ -1,27 +1,32 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import type { ArrayElement } from "~/lib/utils/types";
+import { filterProjectDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 
-type LoaderData = {
-  projects: Awaited<ReturnType<typeof getAllProjects>>;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 
   const { skip, take } = getPaginationValues(request, { itemsPerPage: 6 });
 
   const authClient = createAuthClient(request, response);
-  const projects = await getAllProjects(skip, take);
+  const sessionUser = await getSessionUser(authClient);
+  let projects = await getAllProjects(skip, take);
+
+  if (sessionUser === null) {
+    projects = await filterProjectDataByVisibilitySettings<
+      ArrayElement<typeof projects>
+    >(projects);
+  }
 
   const enhancedProjects = projects.map((project) => {
     let enhancedProject = project;
@@ -56,7 +61,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return enhancedProject;
   });
 
-  return json<LoaderData>(
+  return json(
     {
       projects: enhancedProjects,
     },
@@ -65,13 +70,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 function Projects() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
-  const { items, refCallback } = useInfiniteItems(
-    loaderData.projects,
-    "/explore/projects?",
-    "projects"
-  );
+  const {
+    items,
+    refCallback,
+  }: {
+    items: typeof loaderData.projects;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(loaderData.projects, "/explore/projects?", "projects");
 
   return (
     <>
@@ -130,8 +137,7 @@ function Projects() {
                       <H3 like="h4" className="text-base mb-0 font-bold">
                         {project.name}
                       </H3>
-                      {project.responsibleOrganizations &&
-                      project.responsibleOrganizations.length > 0 ? (
+                      {project.responsibleOrganizations.length > 0 ? (
                         <p className="font-bold text-sm">
                           {project.responsibleOrganizations
                             .map(({ organization }) => organization.name)

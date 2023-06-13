@@ -1,47 +1,18 @@
-import type {
-  AreaOfEvent,
-  AreasOnOrganizations,
-  AreasOnProfiles,
-  AwardOfProject,
-  DisciplineOfProject,
-  DocumentOfEvent,
-  Event,
-  ExperienceLevel,
-  FocusesOnOrganizations,
-  FocusOfEvent,
-  MemberOfNetwork,
-  MemberOfOrganization,
-  OffersOnProfiles,
-  Organization,
-  OrganizationTypesOnOrganizations,
-  ParticipantOfEvent,
-  Profile,
-  Project,
-  ResponsibleOrganizationOfEvent,
-  ResponsibleOrganizationOfProject,
-  SeekingsOnProfiles,
-  SpeakerOfEvent,
-  Stage,
-  TagOfEvent,
-  TargetGroupOfEvent,
-  TargetGroupOfProject,
-  TeamMemberOfEvent,
-  TeamMemberOfProject,
-  TypeOfEvent,
-  WaitingParticipantOfEvent,
-} from "@prisma/client";
+import type { Event, Organization, Profile, Project } from "@prisma/client";
+import { notFound } from "remix-utils";
 import { prismaClient } from "./prisma";
 
 type ProfileWithRelations = Profile & {
-  areas: AreasOnProfiles[];
-  memberOf: MemberOfOrganization[];
-  offers: OffersOnProfiles[];
-  participatedEvents: ParticipantOfEvent[];
-  seekings: SeekingsOnProfiles[];
-  contributedEvents: SpeakerOfEvent[];
-  teamMemberOfEvents: TeamMemberOfEvent[];
-  teamMemberOfProjects: TeamMemberOfProject[];
-  waitingForEvents: WaitingParticipantOfEvent[];
+  areas: any;
+  memberOf: any;
+  offers: any;
+  participatedEvents: any;
+  seekings: any;
+  contributedEvents: any;
+  teamMemberOfEvents: any;
+  teamMemberOfProjects: any;
+  waitingForEvents: any;
+  profileVisibility: any;
 };
 
 export async function filterProfileDataByVisibilitySettings<
@@ -52,16 +23,25 @@ export async function filterProfileDataByVisibilitySettings<
   for (const profile of profiles) {
     const profileVisibility = await prismaClient.profileVisibility.findFirst({
       where: {
-        profileId: profile.id,
+        profile: {
+          id: profile.id,
+        },
       },
     });
 
     if (profileVisibility === null) {
-      continue;
+      throw notFound({ message: "Profile visibilities not found." });
+    }
+    for (const key in profile) {
+      if (!profileVisibility.hasOwnProperty(key)) {
+        console.warn(
+          `profile.${key} is not present in the profile visibilties.`
+        );
+      }
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in profileVisibility) {
-      if (key !== "id" && key !== "profileId") {
+      if (key !== "id") {
         // Fields in Profile with type String
         if (
           key === "username" ||
@@ -142,14 +122,15 @@ export async function filterProfileDataByVisibilitySettings<
 }
 
 type OrganizationWithRelations = Organization & {
-  areas: AreasOnOrganizations[];
-  focuses: FocusesOnOrganizations[];
-  networkMembers: MemberOfNetwork[];
-  memberOf: MemberOfNetwork[];
-  teamMembers: MemberOfOrganization[];
-  types: OrganizationTypesOnOrganizations[];
-  responsibleForEvents: ResponsibleOrganizationOfEvent[];
-  responsibleForProject: ResponsibleOrganizationOfProject[];
+  areas: any;
+  focuses: any;
+  networkMembers: any;
+  memberOf: any;
+  teamMembers: any;
+  types: any;
+  responsibleForEvents: any;
+  responsibleForProject: any;
+  organizationVisibility: any;
 };
 
 export async function filterOrganizationDataByVisibilitySettings<
@@ -161,16 +142,25 @@ export async function filterOrganizationDataByVisibilitySettings<
     const organizationVisibility =
       await prismaClient.organizationVisibility.findFirst({
         where: {
-          organizationId: organization.id,
+          organization: {
+            id: organization.id,
+          },
         },
       });
 
     if (organizationVisibility === null) {
-      continue;
+      throw notFound({ message: "Organization visibilities not found." });
+    }
+    for (const key in organization) {
+      if (!organizationVisibility.hasOwnProperty(key)) {
+        console.warn(
+          `organization.${key} is not present in the organization visibilties.`
+        );
+      }
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in organizationVisibility) {
-      if (key !== "id" && key !== "organizationId") {
+      if (key !== "id") {
         // Fields in Organization with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
@@ -241,41 +231,49 @@ export async function filterOrganizationDataByVisibilitySettings<
 }
 
 type EventWithRelations = Event & {
-  areas: AreaOfEvent[];
-  documents: DocumentOfEvent[];
-  types: TypeOfEvent[];
-  experienceLevel: ExperienceLevel | null;
-  parentEvent: Event | null;
-  childEvents: Event[];
-  stage: Stage | null;
-  focuses: FocusOfEvent[];
-  participants: ParticipantOfEvent[];
-  responsibleOrganizations: ResponsibleOrganizationOfEvent[];
-  speakers: SpeakerOfEvent[];
-  tags: TagOfEvent[];
-  targetGroups: TargetGroupOfEvent[];
-  teamMembers: TeamMemberOfEvent[];
-  waitingList: WaitingParticipantOfEvent[];
+  areas: any;
+  documents: any;
+  types: any;
+  experienceLevel: any;
+  parentEvent: any;
+  childEvents: any;
+  stage: any;
+  focuses: any;
+  participants: any;
+  responsibleOrganizations: any;
+  speakers: any;
+  tags: any;
+  targetGroups: any;
+  teamMembers: any;
+  waitingList: any;
+  eventVisibility: any;
 };
 
 export async function filterEventDataByVisibilitySettings<
   T extends Partial<EventWithRelations>
 >(events: T[]) {
   const filteredEvents: T[] = [];
-
   for (const event of events) {
     const eventVisibility = await prismaClient.eventVisibility.findFirst({
       where: {
-        eventId: event.id,
+        event: {
+          id: event.id,
+        },
       },
     });
 
     if (eventVisibility === null) {
-      continue;
+      throw notFound({ message: "Event visibilities not found." });
     }
+    for (const key in event) {
+      if (!eventVisibility.hasOwnProperty(key)) {
+        console.warn(`event.${key} is not present in the event visibilties.`);
+      }
+    }
+
     const filteredFields: { [key: string]: any } = {};
     for (const key in eventVisibility) {
-      if (key !== "id" && key !== "eventId") {
+      if (key !== "id") {
         // Fields in Event with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
@@ -334,7 +332,7 @@ export async function filterEventDataByVisibilitySettings<
           filteredFields[key] =
             eventVisibility[key] === true ? event[key] : null;
         } else {
-          throw new Error(
+          console.warn(
             `The EventVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
           );
         }
@@ -347,11 +345,12 @@ export async function filterEventDataByVisibilitySettings<
 }
 
 type ProjectWithRelations = Project & {
-  awards: AwardOfProject[];
-  disciplines: DisciplineOfProject[];
-  responsibleOrganizations: ResponsibleOrganizationOfProject[];
-  targetGroups: TargetGroupOfProject[];
-  teamMembers: TeamMemberOfProject[];
+  awards: any;
+  disciplines: any;
+  responsibleOrganizations: any;
+  targetGroups: any;
+  teamMembers: any;
+  projectVisibility: any;
 };
 
 export async function filterProjectDataByVisibilitySettings<
@@ -362,12 +361,21 @@ export async function filterProjectDataByVisibilitySettings<
   for (const project of projects) {
     const projectVisibility = await prismaClient.projectVisibility.findFirst({
       where: {
-        projectId: project.id,
+        project: {
+          id: project.id,
+        },
       },
     });
 
     if (projectVisibility === null) {
-      continue;
+      throw notFound({ message: "Project visibilities not found." });
+    }
+    for (const key in project) {
+      if (!projectVisibility.hasOwnProperty(key)) {
+        console.warn(
+          `project.${key} is not present in the project visibilties.`
+        );
+      }
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in projectVisibility) {

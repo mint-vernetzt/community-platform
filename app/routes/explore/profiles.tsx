@@ -17,7 +17,9 @@ import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { createAreaOptionFromData } from "~/lib/utils/components";
+import type { ArrayElement } from "~/lib/utils/types";
 import { getAllOffers } from "~/profile.server";
+import { filterProfileDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -57,30 +59,20 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  const rawProfiles = await getAllProfiles({
+  let rawProfiles = await getAllProfiles({
     ...paginationValues,
     ...filterValues,
     randomSeed,
   });
 
-  const profiles = rawProfiles.map((profile) => {
-    const { bio, position, avatar, publicFields, ...otherFields } = profile;
-    let extensions: { bio?: string; position?: string } = {};
+  if (sessionUser === null) {
+    rawProfiles = await filterProfileDataByVisibilitySettings<
+      ArrayElement<typeof rawProfiles>
+    >(rawProfiles);
+  }
 
-    if (
-      ((publicFields !== null && publicFields.includes("bio")) ||
-        sessionUser !== null) &&
-      bio !== null
-    ) {
-      extensions.bio = bio;
-    }
-    if (
-      ((publicFields !== null && publicFields.includes("position")) ||
-        sessionUser !== null) &&
-      position !== null
-    ) {
-      extensions.position = position;
-    }
+  const profiles = rawProfiles.map((profile) => {
+    const { avatar, ...otherFields } = profile;
 
     let avatarImage: string | null = null;
 
@@ -94,7 +86,7 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
-    return { ...otherFields, ...extensions, avatar: avatarImage };
+    return { ...otherFields, avatar: avatarImage };
   });
 
   const areas = await getAreas();
@@ -288,7 +280,7 @@ export default function Index() {
                       </div>
                     </div>
 
-                    {profile.bio !== undefined ? (
+                    {profile.bio !== null ? (
                       <p className="mt-3 line-clamp-2">{profile.bio}</p>
                     ) : null}
 

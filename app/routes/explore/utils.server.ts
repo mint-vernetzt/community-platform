@@ -3,8 +3,13 @@ import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
+import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { getAreaById } from "~/profile.server";
+import {
+  filterEventDataByVisibilitySettings,
+  filterOrganizationDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
@@ -130,7 +135,6 @@ export async function getAllProfiles(
     Pick<
       Profile,
       | "id"
-      | "publicFields"
       | "academicTitle"
       | "firstName"
       | "lastName"
@@ -144,7 +148,6 @@ export async function getAllProfiles(
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
-      COALESCE(profiles.public_fields, ARRAY[]::text[]) as "publicFields",
       profiles.first_name as "firstName",
       profiles.last_name as "lastName",
       profiles.username,
@@ -191,14 +194,13 @@ export async function getAllOrganizations(
   await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
 
   const organizations: Array<
-    Pick<
-      Organization,
-      "id" | "publicFields" | "name" | "slug" | "bio" | "logo" | "score"
-    > & { areaNames: string[]; organizationTypeTitles: string[] }
+    Pick<Organization, "id" | "name" | "slug" | "bio" | "logo" | "score"> & {
+      areaNames: string[];
+      organizationTypeTitles: string[];
+    }
   > = await prismaClient.$queryRaw`
   SELECT 
     organizations.id,
-    COALESCE(organizations.public_fields, ARRAY[]::text[]) as "publicFields",
     organizations.name,
     organizations.slug,
     organizations.bio,
@@ -443,7 +445,29 @@ export async function prepareEvents(
     take: number | undefined;
   } = { skip: undefined, take: undefined }
 ) {
-  const events = await getEvents(inFuture, options.skip, options.take);
+  let events = await getEvents(inFuture, options.skip, options.take);
+
+  if (sessionUser === null) {
+    events = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof events>
+    >(events);
+    for (let event of events) {
+      let responsibleOrganizations = event.responsibleOrganizations.map(
+        (organization) => {
+          return organization.organization;
+        }
+      );
+      responsibleOrganizations =
+        await filterOrganizationDataByVisibilitySettings<
+          ArrayElement<typeof responsibleOrganizations>
+        >(responsibleOrganizations);
+      event.responsibleOrganizations = responsibleOrganizations.map(
+        (organization) => {
+          return { organization: organization };
+        }
+      );
+    }
+  }
 
   let enhancedEvents: MaybeEnhancedEvents = events;
 
