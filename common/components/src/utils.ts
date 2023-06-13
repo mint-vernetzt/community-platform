@@ -1,5 +1,5 @@
 export function getFullName(
-  data: { academicTitle?: string; firstName: string; lastName: string },
+  data: { academicTitle?: string | null; firstName: string; lastName: string },
   options: { withAcademicTitle: boolean } = { withAcademicTitle: true }
 ) {
   const { firstName, lastName, academicTitle } = data;

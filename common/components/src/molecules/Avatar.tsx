@@ -31,12 +31,12 @@ export type AvatarSize = "sm" | "md" | "lg" | "xl";
 export type AvatarProps = { size?: AvatarSize; to?: string } & (
   | {
       name: string;
-      logo?: string;
+      logo?: string | null;
     }
   | {
       firstName: string;
       lastName: string;
-      avatar?: string;
+      avatar?: string | null;
     }
 );
 
