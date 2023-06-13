@@ -1,6 +1,6 @@
+import { ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -11,12 +11,11 @@ import {
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1, H3 } from "~/components/Heading/Heading";
+import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
-import { getFullName } from "~/lib/profile/getFullName";
-import { getInitials } from "~/lib/profile/getInitials";
 import { createAreaOptionFromData } from "~/lib/utils/components";
+import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
@@ -63,39 +62,104 @@ export const loader = async (args: LoaderArgs) => {
     randomSeed,
   });
 
-  const profiles = rawProfiles.map((profile) => {
-    const { bio, position, avatar, publicFields, ...otherFields } = profile;
-    let extensions: { bio?: string; position?: string } = {};
+  const profiles = await Promise.all(
+    rawProfiles.map(async (profile) => {
+      const {
+        bio,
+        position,
+        avatar,
+        background,
+        publicFields,
+        offers,
+        ...otherFields
+      } = profile;
+      let extensions: {
+        bio?: string;
+        position?: string;
+        memberOf: { name: string; slug: string; logo?: string | null }[];
+        offers: string[];
+      } = { memberOf: [], offers: [] };
 
-    if (
-      ((publicFields !== null && publicFields.includes("bio")) ||
-        sessionUser !== null) &&
-      bio !== null
-    ) {
-      extensions.bio = bio;
-    }
-    if (
-      ((publicFields !== null && publicFields.includes("position")) ||
-        sessionUser !== null) &&
-      position !== null
-    ) {
-      extensions.position = position;
-    }
-
-    let avatarImage: string | null = null;
-
-    if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar);
-      if (publicURL !== null) {
-        avatarImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
+      if (
+        ((publicFields !== null && publicFields.includes("bio")) ||
+          sessionUser !== null) &&
+        bio !== null
+      ) {
+        extensions.bio = bio;
       }
-    }
+      if (
+        ((publicFields !== null && publicFields.includes("position")) ||
+          sessionUser !== null) &&
+        position !== null
+      ) {
+        extensions.position = position;
+      }
+      if (
+        ((publicFields !== null && publicFields.includes("offers")) ||
+          sessionUser !== null) &&
+        offers !== null
+      ) {
+        extensions.offers = offers;
+      }
 
-    return { ...otherFields, ...extensions, avatar: avatarImage };
-  });
+      let avatarImage: string | null = null;
+
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        if (publicURL !== null) {
+          avatarImage = getImageURL(publicURL, {
+            resize: { type: "fill", width: 136, height: 136 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+
+      let backgroundImage: string | null = null;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL !== null) {
+          backgroundImage = getImageURL(publicURL, {
+            resize: { type: "fit", width: 473, height: 160 },
+          });
+        }
+      }
+
+      const organizations = await prismaClient.organization.findMany({
+        where: {
+          teamMembers: {
+            some: {
+              profileId: profile.id,
+            },
+          },
+        },
+      });
+      extensions.memberOf = organizations.map((organization) => {
+        let logoImage: string | null = null;
+        if (organization.logo !== null) {
+          const publicURL = getPublicURL(authClient, organization.logo);
+          if (publicURL !== null) {
+            logoImage = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+
+        return {
+          name: organization.name,
+          slug: organization.slug,
+          logo: logoImage,
+        };
+      });
+
+      return {
+        ...otherFields,
+        ...extensions,
+        avatar: avatarImage,
+        background: backgroundImage,
+      };
+    })
+  );
 
   const areas = await getAreas();
   const offers = await getAllOffers();
@@ -252,57 +316,19 @@ export default function Index() {
         className="container my-8 md:my-10 lg:my-20"
         id="contact-details"
       >
-        <div
-          data-testid="grid"
-          className="flex flex-wrap justify-center -mx-4 items-stretch"
-        >
+        <div data-testid="grid" className="flex flex-wrap justify-center">
           {items.length > 0 ? (
             items.map((profile) => {
-              let slug, image, initials, name, subtitle;
-              slug = `/profile/${profile.username}`;
-              image = profile.avatar;
-              initials = getInitials(profile);
-              name = getFullName(profile);
-              subtitle = profile.position;
               return (
                 <div
                   key={`profile-${profile.id}`}
                   data-testid="gridcell"
-                  className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+                  className="w-full md:w-1/2 lg:w-1/3 px-4 lg:px-4 mb-8"
                 >
-                  <Link
-                    to={slug}
-                    className="flex flex-wrap content-start items-start px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
-                  >
-                    <div className="w-full flex flex-row">
-                      <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                        {image !== null ? <img src={image} alt="" /> : initials}
-                      </div>
-                      <div className="pl-4">
-                        <H3 like="h4" className="text-xl mb-1">
-                          {name}
-                        </H3>
-                        {subtitle !== null ? (
-                          <p className="font-bold text-sm">{subtitle}</p>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {profile.bio !== undefined ? (
-                      <p className="mt-3 line-clamp-2">{profile.bio}</p>
-                    ) : null}
-
-                    {profile.areaNames.length > 0 ? (
-                      <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
-                        <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                          Aktivitätsgebiete
-                        </div>
-                        <div className="flex-auto line-clamp-3">
-                          <span>{profile.areaNames.join(" / ")}</span>
-                        </div>
-                      </div>
-                    ) : null}
-                  </Link>
+                  <ProfileCard
+                    publicAccess={!loaderData.isLoggedIn}
+                    profile={profile}
+                  />
                 </div>
               );
             })

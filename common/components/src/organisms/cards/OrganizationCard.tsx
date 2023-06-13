@@ -86,7 +86,7 @@ function OrganizationCard(
       </CardBody>
       <CardFooter
         moreIndicatorProps={{
-          to: `./organization/${organization.slug}/#team`,
+          to: `./organization/${organization.slug}/#team-members`,
         }}
       >
         {organization.teamMembers.map((profile) => {

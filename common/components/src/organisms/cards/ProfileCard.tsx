@@ -94,7 +94,7 @@ function ProfileCard(
       </CardBody>
       <CardFooter
         moreIndicatorProps={{
-          to: `./profile/${profile.username}/#organizations`,
+          to: `/profile/${profile.username}/#organizations`,
         }}
       >
         {profile.memberOf.map((organization) => {

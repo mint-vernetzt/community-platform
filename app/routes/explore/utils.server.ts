@@ -29,7 +29,11 @@ export async function getAllProfiles(
   let areaToFilter;
   let whereClauses = [];
   let whereClause = Prisma.empty;
-  let offerJoin = Prisma.empty;
+  let offerJoin = Prisma.sql`
+    LEFT JOIN offers_on_profiles
+    ON profiles.id = offers_on_profiles."profileId"
+    LEFT JOIN offer O
+    ON offers_on_profiles."offerId" = O.id`;
   let seekingJoin = Prisma.empty;
   // Default Ordering with no filter: Deterministic random ordering with seed
   // Set seed for deterministic random order
@@ -102,11 +106,6 @@ export async function getAllProfiles(
     }
   }
   if (offerId !== undefined) {
-    offerJoin = Prisma.sql`
-                LEFT JOIN offers_on_profiles
-                ON profiles.id = offers_on_profiles."profileId"
-                LEFT JOIN offer O
-                ON offers_on_profiles."offerId" = O.id`;
     /* Filter profiles that have the exact offer */
     const offerWhere = Prisma.sql`O.id = ${offerId}`;
     whereClauses.push(offerWhere);
@@ -137,10 +136,11 @@ export async function getAllProfiles(
       | "username"
       | "bio"
       | "avatar"
+      | "background"
       | "position"
       | "score"
       | "updatedAt"
-    > & { areaNames: string[] }
+    > & { areaNames: string[]; offers: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
@@ -152,9 +152,11 @@ export async function getAllProfiles(
       profiles.position,
       profiles.bio,
       profiles.avatar,
+      profiles.background,
       profiles.score,
       profiles.updated_at as "updatedAt",
-      array_remove(array_agg(DISTINCT areas.name), null) as "areaNames"
+      array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
+      array_remove(array_agg(DISTINCT O.title), null) as "offers"
     FROM profiles
       /* Always joining areas to get areaNames */
       LEFT JOIN areas_on_profiles
