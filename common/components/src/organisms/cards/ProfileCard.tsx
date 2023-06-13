@@ -45,7 +45,7 @@ function ProfileCard(
     : "-nicht angegeben-";
 
   return (
-    <Card to={`./profile/${profile.username}`}>
+    <Card to={`/profile/${profile.username}`}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
         {profile.background && <CardImage src={profile.background} />}
