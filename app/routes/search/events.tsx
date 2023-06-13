@@ -12,6 +12,11 @@ import {
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import type { ArrayElement } from "~/lib/utils/types";
+import {
+  filterEventDataByVisibilitySettings,
+  filterOrganizationDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
@@ -29,11 +34,32 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  const rawEvents = await searchEventsViaLike(
+  let rawEvents = await searchEventsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
+  if (sessionUser === null) {
+    rawEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof rawEvents>
+    >(rawEvents);
+    for (let event of rawEvents) {
+      let responsibleOrganizations = event.responsibleOrganizations.map(
+        (organization) => {
+          return organization.organization;
+        }
+      );
+      responsibleOrganizations =
+        await filterOrganizationDataByVisibilitySettings<
+          ArrayElement<typeof responsibleOrganizations>
+        >(responsibleOrganizations);
+      event.responsibleOrganizations = responsibleOrganizations.map(
+        (organization) => {
+          return { organization: organization };
+        }
+      );
+    }
+  }
   const enhancedEvents = rawEvents.map((event) => {
     if (event.background !== null) {
       const publicURL = getPublicURL(authClient, event.background);
@@ -111,16 +137,14 @@ export default function SearchView() {
                     to={`/event/${event.slug}`}
                   >
                     <div className="w-full aspect-4/3 lg:aspect-video">
-                      {event.background !== undefined ? (
-                        <img
-                          src={
-                            event.background ||
-                            "/images/default-event-background.jpg"
-                          }
-                          alt={event.name}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : null}
+                      <img
+                        src={
+                          event.background ||
+                          "/images/default-event-background.jpg"
+                        }
+                        alt={event.name}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
                     {event.canceled ? (
                       <div className="absolute left-0 right-0 top-0 bg-salmon-500 py-2 text-white text-center">
@@ -244,7 +268,7 @@ export default function SearchView() {
                         </p>
                       ) : (
                         <p className="text-xs mt-1 line-clamp-2">
-                          {event.description}
+                          {event.description || ""}
                         </p>
                       )}
                       <hr className="h-0 border-t border-neutral-400 m-0 mt-4" />

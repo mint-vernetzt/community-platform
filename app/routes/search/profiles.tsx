@@ -2,12 +2,18 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
+import type { ArrayElement } from "~/lib/utils/types";
+import { filterProfileDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -23,11 +29,19 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  const rawProfiles = await searchProfilesViaLike(
+  let rawProfiles = await searchProfilesViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser === null) {
+    rawProfiles = await filterProfileDataByVisibilitySettings<
+      ArrayElement<typeof rawProfiles>
+    >(rawProfiles);
+  }
+
   const enhancedProfiles = rawProfiles.map((profile) => {
     const { avatar, ...otherFields } = profile;
     let avatarImage: string | null = null;
@@ -82,12 +96,11 @@ export default function Profiles() {
         {items.length > 0 ? (
           items.map((profile) => {
             if ("username" in profile) {
-              let slug, image, initials, name, subtitle;
-              slug = `/profile/${profile.username}`;
-              image = profile.avatar;
-              initials = getInitials(profile);
-              name = getFullName(profile);
-              subtitle = profile.position;
+              let slug = `/profile/${profile.username}`;
+              let image = profile.avatar;
+              let initials = getInitials(profile);
+              let name = getFullName(profile);
+              let subtitle = profile.position;
               return (
                 <div
                   key={`profile-${profile.id}`}
@@ -112,7 +125,7 @@ export default function Profiles() {
                       </div>
                     </div>
 
-                    {profile.bio !== undefined ? (
+                    {profile.bio !== null ? (
                       <p className="mt-3 line-clamp-2">{profile.bio}</p>
                     ) : null}
 

@@ -3,11 +3,17 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import type { ArrayElement } from "~/lib/utils/types";
+import { filterProjectDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -23,11 +29,18 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  const rawProjects = await searchProjectsViaLike(
+  let rawProjects = await searchProjectsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser === null) {
+    rawProjects = await filterProjectDataByVisibilitySettings<
+      ArrayElement<typeof rawProjects>
+    >(rawProjects);
+  }
+
   const enhancedProjects = rawProjects.map((project) => {
     let enhancedProject = project;
     if (enhancedProject.background !== null) {
@@ -137,8 +150,7 @@ export default function SearchView() {
                         <H3 like="h4" className="text-base mb-0 font-bold">
                           {project.name}
                         </H3>
-                        {project.responsibleOrganizations &&
-                        project.responsibleOrganizations.length > 0 ? (
+                        {project.responsibleOrganizations.length > 0 ? (
                           <p className="font-bold text-sm">
                             {project.responsibleOrganizations
                               .map(({ organization }) => organization.name)

@@ -2,11 +2,17 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import type { ArrayElement } from "~/lib/utils/types";
+import { filterOrganizationDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -22,11 +28,17 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  const rawOrganizations = await searchOrganizationsViaLike(
+  let rawOrganizations = await searchOrganizationsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser === null) {
+    rawOrganizations = await filterOrganizationDataByVisibilitySettings<
+      ArrayElement<typeof rawOrganizations>
+    >(rawOrganizations);
+  }
   const enhancedOrganizations = rawOrganizations.map((organization) => {
     const { logo, ...otherFields } = organization;
     let logoImage: string | null = null;
@@ -77,16 +89,13 @@ export default function SearchView() {
         data-testid="grid"
         className="flex flex-wrap justify-center -mx-4 items-stretch"
       >
-        {/* TODO: Type issue */}
-        {/* TODO: Type issue */}
         {items.length > 0 ? (
           items.map((organization) => {
-            let slug, image, initials, name, subtitle;
-            slug = `/organization/${organization.slug}`;
-            image = organization.logo;
-            initials = getInitialsOfName(organization.name);
-            name = organization.name;
-            subtitle = organization.types
+            let slug = `/organization/${organization.slug}`;
+            let image = organization.logo;
+            let initials = getInitialsOfName(organization.name);
+            let name = organization.name;
+            let subtitle = organization.types
               .map(({ organizationType }) => organizationType.title)
               .join(" / ");
 
@@ -118,18 +127,17 @@ export default function SearchView() {
                       <H3 like="h4" className="text-xl mb-1">
                         {name}
                       </H3>
-                      {subtitle !== null ? (
+                      {subtitle !== "" ? (
                         <p className="font-bold text-sm">{subtitle}</p>
                       ) : null}
                     </div>
                   </div>
 
-                  {organization.bio !== undefined ? (
+                  {organization.bio !== null ? (
                     <p className="mt-3 line-clamp-2">{organization.bio}</p>
                   ) : null}
 
-                  {organization.areas !== undefined &&
-                  organization.areas.length > 0 ? (
+                  {organization.areas.length > 0 ? (
                     <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                       <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                         Aktivitätsgebiete
