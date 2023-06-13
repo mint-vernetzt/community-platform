@@ -16,17 +16,17 @@ export type ProfileCardProps = {
   match?: number;
   publicAccess?: boolean;
   profile: {
-    academicTitle?: string;
+    academicTitle?: string | null;
     username: string;
     firstName: string;
     lastName: string;
-    position?: string;
-    avatar?: string;
-    background?: string;
+    position?: string | null;
+    avatar?: string | null;
+    background?: string | null;
     memberOf: {
       name: string;
       slug: string;
-      logo?: string;
+      logo?: string | null;
     }[];
     areaNames: string[];
     offers: string[];
@@ -103,7 +103,7 @@ function ProfileCard(
               key={organization.slug}
               {...organization}
               size="sm"
-              to={`/organizations/${organization.slug}`}
+              to={`/organization/${organization.slug}`}
             />
           );
         })}

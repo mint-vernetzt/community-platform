@@ -17,17 +17,17 @@ export type OrganizationCardProps = {
   organization: {
     slug: string;
     name: string;
-    position?: string;
-    logo?: string;
-    background?: string;
-    focusses: string[];
+    position?: string | null;
+    logo?: string | null;
+    background?: string | null;
+    focuses: string[];
     areaNames: string[];
-    organizationTypes: string[];
+    types: string[];
     teamMembers: {
       firstName: string;
       lastName: string;
-      avatar?: string;
-      slug: string;
+      avatar?: string | null;
+      username: string;
     }[];
   };
 };
@@ -59,9 +59,9 @@ function OrganizationCard(
               </h4>
             </div>
             <div className="mv-h-5 mv-overflow-hidden">
-              {organization.organizationTypes.length > 0 && (
+              {organization.types.length > 0 && (
                 <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate">
-                  {organization.organizationTypes.join("/")}
+                  {organization.types.join("/")}
                 </p>
               )}
             </div>
@@ -73,11 +73,11 @@ function OrganizationCard(
             : ""}
         </CardBodySection>
         <CardBodySection title="Schwerpunkte" emptyMessage={emptyMessage}>
-          {organization.focusses.length === 0 ? (
+          {organization.focuses.length === 0 ? (
             ""
           ) : (
             <ChipContainer maxRows={2}>
-              {organization.focusses.map((focus) => {
+              {organization.focuses.map((focus) => {
                 return <Chip key={focus}>{focus}</Chip>;
               })}
             </ChipContainer>
@@ -85,8 +85,6 @@ function OrganizationCard(
         </CardBodySection>
       </CardBody>
       <CardFooter
-        alignment="center"
-        numberOfAvatars={4}
         moreIndicatorProps={{
           to: `./organization/${organization.slug}/#team`,
         }}
@@ -94,10 +92,10 @@ function OrganizationCard(
         {organization.teamMembers.map((profile) => {
           return (
             <Avatar
-              key={profile.slug}
+              key={profile.username}
               {...profile}
               size="sm"
-              to={`/profile/${profile.slug}`}
+              to={`/profile/${profile.username}`}
             />
           );
         })}
