@@ -346,7 +346,6 @@ export async function getAllOrganizations() {
       slug: true,
       logo: true,
       bio: true,
-      publicFields: true,
       types: {
         select: {
           organizationType: {

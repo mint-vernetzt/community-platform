@@ -3,6 +3,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { fromBuffer } from "file-type";
+import fs from "fs-extra";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
   getMultipleRandomUniqueSubsets,
@@ -18,7 +19,6 @@ import {
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
 import { createHashFromString } from "../../../app/utils.server";
-import fs from "fs-extra";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -5262,7 +5262,6 @@ export function getEntityData<
     academicTitle: generateAcademicTitle<T>(entityType, entityStructure),
     firstName: generateFirstName<T>(entityType, entityStructure, useRealNames),
     lastName: generateLastName<T>(entityType, entityStructure, useRealNames),
-    publicFields: generatePublicFields<T>(entityType, entityStructure),
     termsAccepted: generateTermsAccepted<T>(entityType),
     position: generatePosition<T>(entityType, entityStructure),
   };
@@ -7048,114 +7047,6 @@ function generateLastName<
     }
   }
   return lastName;
-}
-
-function generatePublicFields<
-  T extends keyof Pick<
-    PrismaClient,
-    "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
-  // profile, organization
-  let publicFields;
-  if (entityType === "profile" || entityType === "organization") {
-    let alwaysPublicFields;
-    let privateFields;
-    if (entityType === "profile") {
-      alwaysPublicFields = [
-        "id",
-        "username",
-        "firstName",
-        "lastName",
-        "academicTitle",
-        "areas",
-        "avatar",
-        "background",
-        "memberOf",
-        "teamMemberOfProjects",
-      ];
-      privateFields = [
-        "email",
-        "website",
-        "facebook",
-        "linkedin",
-        "twitter",
-        "xing",
-        "bio",
-        "skills",
-        "interests",
-        "createdAt",
-        "publicFields",
-        "termsAccepted",
-        "termsAcceptedAt",
-        "updatedAt",
-        "position",
-        "instagram",
-        "youtube",
-        "offers",
-        "participatedEvents",
-        "seekings",
-        "contributedEvents",
-        "teamMemberOfEvents",
-        "waitingForEvents",
-      ];
-    } else {
-      alwaysPublicFields = [
-        "name",
-        "slug",
-        "street",
-        "streetNumber",
-        "zipCode",
-        "city",
-        "logo",
-        "background",
-        "types",
-        "supportedBy",
-        "publicFields",
-        "teamMembers",
-        "memberOf",
-        "networkMembers",
-        "createdAt",
-        "areas",
-        "responsibleForEvents",
-        "responsibleForProject",
-      ];
-      privateFields = [
-        "id",
-        "email",
-        "phone",
-        "website",
-        "facebook",
-        "linkedin",
-        "twitter",
-        "xing",
-        "bio",
-        "quote",
-        "quoteAuthor",
-        "quoteAuthorInformation",
-        "updatedAt",
-        "instagram",
-        "youtube",
-        "focuses",
-      ];
-    }
-    if (entityStructure === "Public") {
-      publicFields = [...alwaysPublicFields, ...privateFields];
-    } else if (entityStructure === "Private") {
-      publicFields = alwaysPublicFields;
-    } else {
-      publicFields = [
-        ...alwaysPublicFields,
-        ...privateFields.filter(
-          () =>
-            Math.random() <
-            faker.datatype.number({ min: 0, max: privateFields.length }) /
-              privateFields.length
-        ),
-      ];
-    }
-  }
-  return publicFields;
 }
 
 function generateTermsAccepted<

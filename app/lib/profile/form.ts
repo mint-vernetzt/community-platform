@@ -1,4 +1,3 @@
-import { ProfileFormType } from "../../routes/profile/$username/edit/yupSchema";
 import { addUrlPrefix } from "../string/addUrlPrefix";
 import { capitalizeFirstLetter } from "../string/transform";
 
@@ -11,7 +10,7 @@ areas: array(
   ),
 */
 
-export function createProfileFromFormData(formData: FormData): ProfileFormType {
+export function createProfileFromFormData(formData: FormData) {
   return {
     academicTitle: formData.get("academicTitle") as string,
     position: formData.get("position") as string,
@@ -24,7 +23,6 @@ export function createProfileFromFormData(formData: FormData): ProfileFormType {
     skills: (formData.getAll("skills") ?? []) as string[],
     offers: (formData.getAll("offers") ?? []) as string[],
     seekings: (formData.getAll("seekings") ?? []) as string[],
-    publicFields: (formData.getAll("publicFields") ?? []) as string[],
     areas: (formData.getAll("areas") ?? []) as string[],
     website: addUrlPrefix(formData.get("website") as string),
     facebook: addUrlPrefix(formData.get("facebook") as string),
@@ -40,9 +38,9 @@ export function getListOperationName(operation: string, name: string) {
 }
 
 export function addListEntry(
-  name: keyof ProfileFormType,
+  name: keyof typeof createProfileFromFormData,
   value: string,
-  profile: ProfileFormType
+  profile: typeof createProfileFromFormData
 ) {
   return {
     ...profile,
@@ -51,9 +49,9 @@ export function addListEntry(
 }
 
 export function removeListEntry(
-  name: keyof ProfileFormType,
+  name: keyof typeof createProfileFromFormData,
   value: string,
-  profile: ProfileFormType
+  profile: typeof createProfileFromFormData
 ) {
   return {
     ...profile,
@@ -62,8 +60,8 @@ export function removeListEntry(
 }
 
 export function profileListOperationResolver(
-  profile: ProfileFormType,
-  name: keyof ProfileFormType,
+  profile: typeof createProfileFromFormData,
+  name: keyof typeof createProfileFromFormData,
   formData: FormData
 ) {
   const submit = formData.get("submit");

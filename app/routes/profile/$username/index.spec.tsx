@@ -52,7 +52,7 @@ const profile = {
   lastName: "Name",
   email: "user.name@company.com",
   phone: "+49 0123 456 78",
-  publicFields: ["email"],
+  privateFields: ["email"],
   avatar: null,
   background: null,
   memberOf: [],

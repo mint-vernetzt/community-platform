@@ -127,7 +127,7 @@ describe("action", () => {
     offers: [],
     interests: [],
     seekings: [],
-    publicFields: [],
+    privateFields: [],
   };
 
   const parsedDataDefaults = Object.entries(formDefaults).reduce(

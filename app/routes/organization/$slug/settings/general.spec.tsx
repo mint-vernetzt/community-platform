@@ -121,7 +121,7 @@ describe("action", () => {
     quoteAuthor: "",
     quoteAuthorInformation: "",
     supportedBy: [],
-    publicFields: [],
+    privateFields: [],
     areas: [],
     focuses: [],
   };

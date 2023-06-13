@@ -253,7 +253,6 @@ export async function getAllProfiles() {
       academicTitle: true,
       position: true,
       bio: true,
-      publicFields: true,
       avatar: true,
       background: true,
       areas: { select: { area: { select: { name: true } } } },
