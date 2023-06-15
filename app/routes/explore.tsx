@@ -13,7 +13,7 @@ export const loader: LoaderFunction = async (args) => {
 
 function Explore() {
   return (
-    <div className="relative pb-44">
+    <div className="relative pb-4 sm:pb-8 md:pb-16 lg:pb-20">
       <div className="">
         <main>
           <Outlet />

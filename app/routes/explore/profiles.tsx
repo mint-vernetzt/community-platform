@@ -313,7 +313,8 @@ export default function Index() {
 
       <section
         ref={refCallback}
-        className="container my-8 md:my-10 lg:my-20"
+        // className="container my-8"
+        className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px] mv-mt-4 lg:mv-mt-10 mv-mb-12 lg:mv-mb-16"
         id="contact-details"
       >
         <div data-testid="grid" className="flex flex-wrap justify-center">
