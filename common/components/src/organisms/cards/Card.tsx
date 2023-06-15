@@ -168,7 +168,7 @@ function wrapCardFooterChildren(children: React.ReactNode) {
   });
 
   if (validChildren.length === 0) {
-    return <div className="mv-h-[30px]"></div>;
+    return <div className="mv-h-[36px]"></div>;
   }
 
   return React.Children.map(validChildren, (child) => {
