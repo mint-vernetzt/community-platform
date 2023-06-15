@@ -14,7 +14,7 @@ export function MoreIndicator(props: MoreIndicatorProps) {
       "mv-text-sm": props.amount < 100,
       "mv-text-xs": props.amount >= 100,
     },
-    "mv-w-[30px] mv-h-[30px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center",
+    "mv-w-[36px] mv-h-[36px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center",
     props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
   return props.to ? (
@@ -62,7 +62,7 @@ function Avatar(props: AvatarProps) {
       "mv-h-[136px] mv-w-[136px]": size === "xl",
       "mv-h-[44px] mv-w-[44px]": size === "lg",
       "mv-h-[40px] mv-w-[40px]": size === "md",
-      "mv-h-[30px] mv-w-[30px]": size === "sm",
+      "mv-h-[36px] mv-w-[36px]": size === "sm",
     },
     {
       "mv-text-[70px]": size === "xl",
