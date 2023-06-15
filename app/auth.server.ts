@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/auth-helpers-remix";
 import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
+// TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request, response: Response) => {

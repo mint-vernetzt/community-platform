@@ -59,6 +59,7 @@ export const loader: LoaderFunction = async (args) => {
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
+    "dashboard",
   ]);
 
   const sessionUser = await getSessionUser(authClient);
@@ -168,7 +169,14 @@ function NavBar(props: NavBarProps) {
       <div className="container relative z-10">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
-            <Link to="/">
+            <Link
+              to={
+                props.sessionUserInfo !== undefined &&
+                props.abilities["dashboard"].hasAccess === true
+                  ? "/dashboard"
+                  : "/"
+              }
+            >
               <HeaderLogo />
             </Link>
           </div>
@@ -289,7 +297,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.sessionUserInfo.username}#organisations`}
+                      to={`/profile/${props.sessionUserInfo.username}#organizations`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >

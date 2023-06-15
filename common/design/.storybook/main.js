@@ -26,5 +26,6 @@ const config = {
   core: {
     disableTelemetry: true,
   },
+  staticDirs: ["../static"],
 };
 export default config;
