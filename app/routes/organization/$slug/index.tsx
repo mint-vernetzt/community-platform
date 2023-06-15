@@ -683,7 +683,9 @@ export default function Index() {
             {loaderData.organization.teamMembers &&
             loaderData.organization.teamMembers.length > 0 ? (
               <>
-                <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
+                <h3 id="team-members" className="mb-6 mt-14 font-bold">
+                  Das Team
+                </h3>
                 <div className="flex flex-wrap -mx-3 lg:items-stretch">
                   {loaderData.organization.teamMembers.map(({ profile }) => (
                     <ProfileCard

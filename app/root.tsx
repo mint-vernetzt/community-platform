@@ -297,7 +297,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Link
-                      to={`/profile/${props.sessionUserInfo.username}#organisations`}
+                      to={`/profile/${props.sessionUserInfo.username}#organizations`}
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
