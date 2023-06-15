@@ -320,12 +320,12 @@ function ScrollContainer(props: React.HTMLAttributes<HTMLDivElement>) {
     }
   );
   return (
-    <div className="mv-flex mv-ml-2 sm:mv-mx-0 sm:mv-px-2 mv-overflow-x-scroll lg:mv-overflow-x-visible mv-items-stretch">
+    <div className="mv-flex mv-ml-2 sm:mv-mx-0 sm:mv-px-Z mv-overflow-x-scroll lg:mv-overflow-x-visible mv-items-stretch">
       {validChildren.map((child, index) => {
         return (
           <div
             key={`item-${index}`}
-            className="mv-flex-none mv-w-3/4 sm:mv-w-1/2 lg:mv-w-1/3 mv-pb-8 mv-px-2 last:mv-pr-4 sm:last:mv-pr-2"
+            className="mv-flex-none mv-w-3/4 sm:mv-w-1/2 lg:mv-w-1/3 mv-pb-8 mv-px-4 first:mv-pl-2 sm:first:mv-pl-4 last:mv-pr-4 sm:last:mv-pr-2"
           >
             {child}
           </div>
@@ -339,73 +339,72 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
 
   return (
-    <div className="relative pb-44">
-      <div className="">
-        <main>
-          <section className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1563px] mv-mb-12">
-            <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-              Willkommen,
-              <br />
-              {loaderData.firstName} {loaderData.lastName}
-            </h1>
-            <p className="mv-font-semibold mv-mb-4">
-              in Deiner MINTvernetzt-Community!
-            </p>
-            <p>
-              <Button
-                variant="outline"
-                as="a"
-                href={`/profile/${loaderData.username}`}
-              >
-                Mein Profil besuchen
-              </Button>
-            </p>
-          </section>
-          <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16">
-            <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-              <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-                Profile
-              </div>
-              <div className="mv-text-right">
-                <Link to="/explore/profiles">
-                  <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                    Alle Profile
-                  </span>
-                </Link>
-              </div>
+    <div className="relative pb-4 sm:pb-8 md:pb-16 lg:pb-20">
+      <main>
+        <section className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px] mv-mt-4 lg:mv-mt-10 mv-mb-12 lg:mv-mb-16">
+          <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
+            Willkommen,
+            <br />
+            {loaderData.firstName} {loaderData.lastName}
+          </h1>
+          <p className="mv-font-semibold mv-mb-6">
+            in Deiner MINTvernetzt-Community!
+          </p>
+          <p>
+            <Button
+              variant="outline"
+              as="a"
+              href={`/profile/${loaderData.username}`}
+            >
+              Mein Profil besuchen
+            </Button>
+          </p>
+        </section>
+        <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]">
+          {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
+          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+              Profile
             </div>
-            <ScrollContainer>
-              {loaderData.profiles.map((profile) => {
-                return <ProfileCard key={profile.username} profile={profile} />;
-              })}
-            </ScrollContainer>
-          </section>
-          <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px]">
-            <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-              <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-                Organisationen
-              </div>
-              <div className="mv-text-right">
-                <Link to="/explore/organizations">
-                  <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                    Alle Organisationen
-                  </span>
-                </Link>
-              </div>
+            <div className="mv-text-right">
+              <Link to="/explore/profiles">
+                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                  Alle Profile
+                </span>
+              </Link>
             </div>
-            <ScrollContainer>
-              {loaderData.organizations.map((organization) => {
-                return (
-                  <OrganizationCard
-                    key={organization.slug}
-                    organization={organization}
-                  />
-                );
-              })}
-            </ScrollContainer>
-          </section>
-        </main>
-      </div>
+          </div>
+          <ScrollContainer>
+            {loaderData.profiles.map((profile) => {
+              return <ProfileCard key={profile.username} profile={profile} />;
+            })}
+          </ScrollContainer>
+        </section>
+        <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]">
+          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+              Organisationen
+            </div>
+            <div className="mv-text-right">
+              <Link to="/explore/organizations">
+                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                  Alle Organisationen
+                </span>
+              </Link>
+            </div>
+          </div>
+          <ScrollContainer>
+            {loaderData.organizations.map((organization) => {
+              return (
+                <OrganizationCard
+                  key={organization.slug}
+                  organization={organization}
+                />
+              );
+            })}
+          </ScrollContainer>
+        </section>
+      </main>
     </div>
   );
 }
