@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -29,7 +29,7 @@ import {
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);

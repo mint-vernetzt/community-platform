@@ -208,13 +208,11 @@ function NavBar(props: NavBarProps) {
                 </Link>
               </li>
             </ul>
-            {props.sessionUserInfo !== undefined ? (
-              <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
-                <Form method="get" action="/search">
-                  <Search name="query" query={query} />
-                </Form>
-              </div>
-            ) : null}
+            <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
+              <Form method="get" action="/search">
+                <Search name="query" query={query} />
+              </Form>
+            </div>
           </div>
 
           {/* TODO: link to login on anon*/}

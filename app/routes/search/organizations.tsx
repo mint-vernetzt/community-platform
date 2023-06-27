@@ -2,11 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import {
-  createAuthClient,
-  getSessionUser,
-  getSessionUserOrThrow,
-} from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
@@ -23,7 +19,6 @@ import {
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  await getSessionUserOrThrow(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
