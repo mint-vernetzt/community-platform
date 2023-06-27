@@ -117,7 +117,7 @@ export default function Index() {
               image = organization.logo;
               initials = getInitialsOfName(organization.name);
               name = organization.name;
-              subtitle = organization.organizationTypeTitles.join(" / ");
+              subtitle = organization.types.join(" / ");
 
               return (
                 <div
@@ -157,13 +157,13 @@ export default function Index() {
                       <p className="mt-3 line-clamp-2">{organization.bio}</p>
                     ) : null}
 
-                    {organization.areaNames.length > 0 ? (
+                    {organization.areas.length > 0 ? (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
                         </div>
                         <div className="flex-auto line-clamp-3">
-                          <span>{organization.areaNames.join(" / ")}</span>
+                          <span>{organization.areas.join(" / ")}</span>
                         </div>
                       </div>
                     ) : null}

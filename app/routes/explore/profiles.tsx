@@ -284,13 +284,13 @@ export default function Index() {
                       <p className="mt-3 line-clamp-2">{profile.bio}</p>
                     ) : null}
 
-                    {profile.areaNames.length > 0 ? (
+                    {profile.areas.length > 0 ? (
                       <div className="flex font-semibold flex-col lg:flex-row w-full mt-3">
                         <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                           Aktivitätsgebiete
                         </div>
                         <div className="flex-auto line-clamp-3">
-                          <span>{profile.areaNames.join(" / ")}</span>
+                          <span>{profile.areas.join(" / ")}</span>
                         </div>
                       </div>
                     ) : null}

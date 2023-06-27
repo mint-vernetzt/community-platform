@@ -144,7 +144,7 @@ export async function getAllProfiles(
       | "position"
       | "score"
       | "updatedAt"
-    > & { areaNames: string[] }
+    > & { areas: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
@@ -157,7 +157,7 @@ export async function getAllProfiles(
       profiles.avatar,
       profiles.score,
       profiles.updated_at as "updatedAt",
-      array_remove(array_agg(DISTINCT areas.name), null) as "areaNames"
+      array_remove(array_agg(DISTINCT areas.name), null) as "areas"
     FROM profiles
       /* Always joining areas to get areaNames */
       LEFT JOIN areas_on_profiles
@@ -195,8 +195,8 @@ export async function getAllOrganizations(
 
   const organizations: Array<
     Pick<Organization, "id" | "name" | "slug" | "bio" | "logo" | "score"> & {
-      areaNames: string[];
-      organizationTypeTitles: string[];
+      areas: string[];
+      types: string[];
     }
   > = await prismaClient.$queryRaw`
   SELECT 
@@ -206,10 +206,10 @@ export async function getAllOrganizations(
     organizations.bio,
     organizations.logo,
     organizations.score,
-    array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
-    array_remove(array_agg(DISTINCT organization_types.title), null) as "organizationTypeTitles"
+    array_remove(array_agg(DISTINCT areas.name), null) as "areas",
+    array_remove(array_agg(DISTINCT organization_types.title), null) as "types"
   FROM organizations
-    /* Always joining areas and organization_types to get areaNames and organizationTypeTitles */
+    /* Always joining areas and organization_types to get area names and organizationType titles */
     LEFT JOIN areas_on_organizations
     ON organizations.id = areas_on_organizations."organizationId"
     LEFT JOIN areas

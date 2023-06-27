@@ -369,8 +369,8 @@ export async function getFullDepthProfiles(
                   position, 
                   avatar, 
                   academic_title as "academicTitle", 
-                  get_full_depth.name as "eventName", 
-                  array_remove(array_agg(DISTINCT organizations.name), null) as "organizationNames"`;
+                  get_full_depth.name as "participatedEvents", 
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "memberOf"`;
 
     const profileJoin =
       relation === "participants"
@@ -411,7 +411,7 @@ export async function getFullDepthProfiles(
         | "username"
         | "avatar"
         | "position"
-      > & { email?: string; eventName?: string[]; organizationNames?: string[] }
+      > & { email?: string; participatedEvents?: string; memberOf?: string[] }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id, name
@@ -451,7 +451,7 @@ export async function getFullDepthOrganizers(
     // Join the result with relevant relation tables
     const select = selectDistinct
       ? Prisma.sql`SELECT DISTINCT "organizations".name, slug`
-      : Prisma.sql`SELECT "organizations".name, "events".name as "eventName"`;
+      : Prisma.sql`SELECT "organizations".name, "events".name as "responsibleForEvents"`;
 
     const result = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
@@ -475,7 +475,7 @@ export async function getFullDepthOrganizers(
       ;`;
 
     return result as Array<
-      Pick<Organization, "slug" | "name"> & { eventName?: string }
+      Pick<Organization, "slug" | "name"> & { responsibleForEvents?: string }
     >;
   } catch (e) {
     console.error(e);
