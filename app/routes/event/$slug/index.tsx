@@ -22,11 +22,17 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
+import type { ArrayElement } from "~/lib/utils/types";
+import {
+  filterEventDataByVisibilitySettings,
+  filterOrganizationDataByVisibilitySettings,
+  filterProfileDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
+import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
-import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import type { MaybeEnhancedEvent } from "./utils.server";
 import {
   deriveMode,
@@ -66,51 +72,174 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const sessionUser = await getSessionUser(authClient);
-  const event = await getEvent(slug);
+  const rawEvent = await getEvent(slug);
 
-  if (event === null) {
+  if (rawEvent === null) {
     throw notFound({ message: `Event not found` });
   }
 
-  const mode = await deriveMode(event, sessionUser);
+  const mode = await deriveMode(rawEvent, sessionUser);
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "owner" && rawEvent.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
-  let participants: Awaited<
-    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-  > = [];
   let speakers: Awaited<
     ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
   > = [];
+  let participants: Awaited<
+    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
+  > = [];
   let enhancedEvent: MaybeEnhancedEvent = {
-    ...event,
+    ...rawEvent,
     participants: [],
     speakers: [],
   };
 
-  if (event.childEvents.length > 0) {
-    speakers = (await getFullDepthProfiles(event.id, "speakers")) || [];
+  // Adding participants and speakers
+  if (rawEvent.childEvents.length > 0) {
+    speakers = (await getFullDepthProfiles(rawEvent.id, "speakers")) || [];
+    participants =
+      (await getFullDepthProfiles(rawEvent.id, "participants")) || [];
   } else {
-    speakers = await getEventSpeakers(event.id);
+    speakers = await getEventSpeakers(rawEvent.id);
+    participants = await getEventParticipants(rawEvent.id);
+  }
+  enhancedEvent.speakers = speakers;
+  enhancedEvent.participants = participants;
+
+  // Filtering by publish status
+  if (mode !== "owner") {
+    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
+      return item.published;
+    });
   }
 
-  speakers = speakers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-        item.profile.avatar = avatar;
-      }
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter event
+    enhancedEvent = (
+      await filterEventDataByVisibilitySettings<typeof enhancedEvent>([
+        enhancedEvent,
+      ])
+    )[0];
+    // Filter parent event
+    if (enhancedEvent.parentEvent !== null) {
+      const filteredParentEvent = (
+        await filterEventDataByVisibilitySettings<
+          typeof enhancedEvent.parentEvent
+        >([enhancedEvent.parentEvent])
+      )[0];
+      enhancedEvent.parentEvent = filteredParentEvent;
     }
-    return item;
-  });
+    // Filter participants
+    if (enhancedEvent.participants !== null) {
+      const rawParticipants = enhancedEvent.participants.map((participant) => {
+        return participant.profile;
+      });
+      const filteredParticipantProfiles =
+        await filterProfileDataByVisibilitySettings<
+          ArrayElement<typeof rawParticipants>
+        >(rawParticipants);
+      enhancedEvent.participants = enhancedEvent.participants.map(
+        (participant) => {
+          let filteredParticipant = {
+            profile: participant.profile,
+          };
+          for (let filteredProfile of filteredParticipantProfiles) {
+            if (participant.profile.id === filteredProfile.id) {
+              filteredParticipant.profile = filteredProfile;
+            }
+          }
+          return filteredParticipant;
+        }
+      );
+    }
+    // Filter speakers
+    if (enhancedEvent.speakers !== null) {
+      const rawSpeakers = enhancedEvent.speakers.map((speaker) => {
+        return speaker.profile;
+      });
+      const filteredSpeakerProfiles =
+        await filterProfileDataByVisibilitySettings<
+          ArrayElement<typeof rawSpeakers>
+        >(rawSpeakers);
+      enhancedEvent.speakers = enhancedEvent.speakers.map((speaker) => {
+        let filteredSpeaker = {
+          profile: speaker.profile,
+        };
+        for (let filteredProfile of filteredSpeakerProfiles) {
+          if (speaker.profile.id === filteredProfile.id) {
+            filteredSpeaker.profile = filteredProfile;
+          }
+        }
+        return filteredSpeaker;
+      });
+    }
+    // Filter team members
+    const rawTeamMembers = enhancedEvent.teamMembers.map((teamMember) => {
+      return teamMember.profile;
+    });
+    const filteredTeamMemberProfiles =
+      await filterProfileDataByVisibilitySettings<
+        ArrayElement<typeof rawTeamMembers>
+      >(rawTeamMembers);
+    enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((teamMember) => {
+      let filteredTeamMember = {
+        profile: teamMember.profile,
+      };
+      for (let filteredProfile of filteredTeamMemberProfiles) {
+        if (teamMember.profile.id === filteredProfile.id) {
+          filteredTeamMember.profile = filteredProfile;
+        }
+      }
+      return filteredTeamMember;
+    });
+    // Filter child events
+    enhancedEvent.childEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof enhancedEvent.childEvents>
+    >(enhancedEvent.childEvents);
+    // Filter responsible Organizations
+    const rawResponsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((responsibleOrganization) => {
+        return responsibleOrganization.organization;
+      });
+    const filteredResponsibleOrganizations =
+      await filterOrganizationDataByVisibilitySettings<
+        ArrayElement<typeof rawResponsibleOrganizations>
+      >(rawResponsibleOrganizations);
+    enhancedEvent.responsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((responsibleOrganization) => {
+        let filteredResponsibleOrganization = {
+          organization: responsibleOrganization.organization,
+        };
+        for (let filteredOrganization of filteredResponsibleOrganizations) {
+          if (
+            responsibleOrganization.organization.id === filteredOrganization.id
+          ) {
+            filteredResponsibleOrganization.organization = filteredOrganization;
+          }
+        }
+        return filteredResponsibleOrganization;
+      });
+  }
 
-  enhancedEvent.speakers = speakers;
+  // Add images from image proxy
+  if (enhancedEvent.speakers !== null) {
+    enhancedEvent.speakers = enhancedEvent.speakers.map((item) => {
+      if (item.profile.avatar !== null) {
+        const publicURL = getPublicURL(authClient, item.profile.avatar);
+        if (publicURL !== null) {
+          const avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+          item.profile.avatar = avatar;
+        }
+      }
+      return item;
+    });
+  }
 
   enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
     if (item.profile.avatar !== null) {
@@ -126,15 +255,8 @@ export const loader = async (args: LoaderArgs) => {
     return item;
   });
 
-  if (mode !== "anon" && sessionUser !== null) {
-    if (event.childEvents.length > 0) {
-      participants =
-        (await getFullDepthProfiles(event.id, "participants")) || [];
-    } else {
-      participants = await getEventParticipants(event.id);
-    }
-
-    participants = participants.map((item) => {
+  if (enhancedEvent.participants !== null) {
+    enhancedEvent.participants = enhancedEvent.participants.map((item) => {
       if (item.profile.avatar !== null) {
         const publicURL = getPublicURL(authClient, item.profile.avatar);
         if (publicURL !== null) {
@@ -147,30 +269,6 @@ export const loader = async (args: LoaderArgs) => {
       }
       return item;
     });
-
-    enhancedEvent.participants = participants;
-
-    if (mode === "authenticated") {
-      enhancedEvent = await enhanceChildEventsWithParticipationStatus(
-        sessionUser.id,
-        enhancedEvent
-      );
-    }
-  }
-
-  let isParticipant;
-  let isOnWaitingList;
-  let isSpeaker;
-  let isTeamMember;
-
-  if (sessionUser !== null) {
-    isParticipant = await getIsParticipant(enhancedEvent.id, sessionUser.id);
-    isOnWaitingList = await getIsOnWaitingList(
-      enhancedEvent.id,
-      sessionUser.id
-    );
-    isSpeaker = await getIsSpeaker(enhancedEvent.id, sessionUser.id);
-    isTeamMember = await getIsTeamMember(enhancedEvent.id, sessionUser.id);
   }
 
   if (enhancedEvent.background !== null) {
@@ -180,12 +278,6 @@ export const loader = async (args: LoaderArgs) => {
         resize: { type: "fill", width: 1488, height: 480, enlarge: true },
       });
     }
-  }
-
-  if (mode !== "owner") {
-    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
-      return item.published;
-    });
   }
 
   enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
@@ -213,6 +305,30 @@ export const loader = async (args: LoaderArgs) => {
       return item;
     });
 
+  // Adding participation status
+  let isParticipant;
+  let isOnWaitingList;
+  let isSpeaker;
+  let isTeamMember;
+
+  if (mode === "authenticated" && sessionUser !== null) {
+    enhancedEvent = await enhanceChildEventsWithParticipationStatus(
+      sessionUser.id,
+      enhancedEvent
+    );
+  }
+
+  if (sessionUser !== null) {
+    isParticipant = await getIsParticipant(enhancedEvent.id, sessionUser.id);
+    isOnWaitingList = await getIsOnWaitingList(
+      enhancedEvent.id,
+      sessionUser.id
+    );
+    isSpeaker = await getIsSpeaker(enhancedEvent.id, sessionUser.id);
+    isTeamMember = await getIsTeamMember(enhancedEvent.id, sessionUser.id);
+  }
+
+  // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
     !canUserAccessConferenceLink(
       enhancedEvent,
@@ -628,7 +744,7 @@ function Index() {
                 </p>
               ) : null}
             </header>
-            {loaderData.event.description ? (
+            {loaderData.event.description !== null ? (
               <p
                 className="mb-6"
                 dangerouslySetInnerHTML={{
@@ -689,22 +805,13 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.startTime ? (
-                <>
-                  <div className="text-xs leading-6">Start</div>
-                  <div className="pb-3 md:pb-0">
-                    {formatDateTime(startTime)}
-                  </div>
-                </>
-              ) : null}
-              {loaderData.event.endTime ? (
-                <>
-                  <div className="text-xs leading-6">Ende</div>
-                  <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
-                </>
-              ) : null}
+              <div className="text-xs leading-6">Start</div>
+              <div className="pb-3 md:pb-0">{formatDateTime(startTime)}</div>
 
-              {loaderData.event.participationFrom && participationFrom > now ? (
+              <div className="text-xs leading-6">Ende</div>
+              <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
+
+              {participationFrom > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsbeginn</div>
                   <div className="pb-3 md:pb-0">
@@ -712,8 +819,7 @@ function Index() {
                   </div>
                 </>
               ) : null}
-              {loaderData.event.participationUntil &&
-              participationUntil > now ? (
+              {participationUntil > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsende</div>
                   <div className="pb-3 md:pb-0">
@@ -722,30 +828,26 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.participantLimit !== null ? (
-                <>
-                  <div className="text-xs leading-6">Verfügbare Plätze</div>
-                  <div className="pb-3 md:pb-0">
-                    {loaderData.event.participantLimit === null ? (
-                      "ohne Beschränkung"
-                    ) : (
-                      <>
-                        {loaderData.event.participantLimit -
-                          loaderData.event._count.participants <
-                        0
-                          ? 0
-                          : loaderData.event.participantLimit -
-                            loaderData.event._count.participants}{" "}
-                        / {loaderData.event.participantLimit}
-                      </>
-                    )}
-                  </div>
-                </>
-              ) : null}
+              <div className="text-xs leading-6">Verfügbare Plätze</div>
+              <div className="pb-3 md:pb-0">
+                {loaderData.event.participantLimit === null ? (
+                  "ohne Beschränkung"
+                ) : (
+                  <>
+                    {loaderData.event.participantLimit -
+                      loaderData.event._count.participants <
+                    0
+                      ? 0
+                      : loaderData.event.participantLimit -
+                        loaderData.event._count.participants}{" "}
+                    / {loaderData.event.participantLimit}
+                  </>
+                )}
+              </div>
 
-              {loaderData.isParticipant ||
-              loaderData.isSpeaker ||
-              loaderData.isTeamMember ? (
+              {loaderData.isParticipant === true ||
+              loaderData.isSpeaker === true ||
+              loaderData.isTeamMember === true ? (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div className="pb-3 md:pb-0">
