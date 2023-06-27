@@ -64,6 +64,33 @@ CardContainerSingleRow.parameters = {
   },
 };
 
+type CardContainerMultiRowProps = {
+  numberOfCards: number;
+};
+
+export function CardContainerMultiRow(props: CardContainerMultiRowProps) {
+  const cards = [];
+  for (let i = 0; i < props.numberOfCards; i++) {
+    cards.push(<ProfileCard profile={profile} />);
+  }
+
+  return (
+    <div>
+      <CardContainer type="multi row">{cards}</CardContainer>
+    </div>
+  );
+}
+CardContainerMultiRow.storyName = "multi row";
+CardContainerMultiRow.args = {
+  numberOfCards: 8,
+};
+CardContainerMultiRow.parameters = {
+  controls: { disable: false },
+  viewport: {
+    defaultViewport: "xl",
+  },
+};
+
 export default {
   title: "Organism/Containers/cards",
   component: CardContainer,
