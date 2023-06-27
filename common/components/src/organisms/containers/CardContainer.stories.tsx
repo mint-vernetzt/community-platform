@@ -37,9 +37,13 @@ const profile = {
   ],
 };
 
-export function CardContainerSingleRow() {
+type CardContainerSingleRowProps = {
+  numberOfCards: number;
+};
+
+export function CardContainerSingleRow(props: CardContainerSingleRowProps) {
   const cards = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < props.numberOfCards; i++) {
     cards.push(<ProfileCard profile={profile} />);
   }
 
@@ -50,8 +54,11 @@ export function CardContainerSingleRow() {
   );
 }
 CardContainerSingleRow.storyName = "single row";
-CardContainerSingleRow.args = {};
+CardContainerSingleRow.args = {
+  numberOfCards: 8,
+};
 CardContainerSingleRow.parameters = {
+  controls: { disable: false },
   viewport: {
     defaultViewport: "xl",
   },
