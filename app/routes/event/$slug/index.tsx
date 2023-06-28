@@ -143,9 +143,7 @@ export const loader = async (args: LoaderArgs) => {
         >(rawParticipants);
       enhancedEvent.participants = enhancedEvent.participants.map(
         (participant) => {
-          let filteredParticipant = {
-            profile: participant.profile,
-          };
+          let filteredParticipant = participant;
           for (let filteredProfile of filteredParticipantProfiles) {
             if (participant.profile.id === filteredProfile.id) {
               filteredParticipant.profile = filteredProfile;
@@ -165,9 +163,7 @@ export const loader = async (args: LoaderArgs) => {
           ArrayElement<typeof rawSpeakers>
         >(rawSpeakers);
       enhancedEvent.speakers = enhancedEvent.speakers.map((speaker) => {
-        let filteredSpeaker = {
-          profile: speaker.profile,
-        };
+        let filteredSpeaker = speaker;
         for (let filteredProfile of filteredSpeakerProfiles) {
           if (speaker.profile.id === filteredProfile.id) {
             filteredSpeaker.profile = filteredProfile;
@@ -185,9 +181,7 @@ export const loader = async (args: LoaderArgs) => {
         ArrayElement<typeof rawTeamMembers>
       >(rawTeamMembers);
     enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((teamMember) => {
-      let filteredTeamMember = {
-        profile: teamMember.profile,
-      };
+      let filteredTeamMember = teamMember;
       for (let filteredProfile of filteredTeamMemberProfiles) {
         if (teamMember.profile.id === filteredProfile.id) {
           filteredTeamMember.profile = filteredProfile;
@@ -210,9 +204,7 @@ export const loader = async (args: LoaderArgs) => {
       >(rawResponsibleOrganizations);
     enhancedEvent.responsibleOrganizations =
       enhancedEvent.responsibleOrganizations.map((responsibleOrganization) => {
-        let filteredResponsibleOrganization = {
-          organization: responsibleOrganization.organization,
-        };
+        let filteredResponsibleOrganization = responsibleOrganization;
         for (let filteredOrganization of filteredResponsibleOrganizations) {
           if (
             responsibleOrganization.organization.id === filteredOrganization.id

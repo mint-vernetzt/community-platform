@@ -447,23 +447,36 @@ export async function prepareEvents(
 ) {
   let events = await getEvents(inFuture, options.skip, options.take);
 
+  // Filtering by visbility settings
   if (sessionUser === null) {
+    // Filter events
     events = await filterEventDataByVisibilitySettings<
       ArrayElement<typeof events>
     >(events);
     for (let event of events) {
-      let responsibleOrganizations = event.responsibleOrganizations.map(
-        (organization) => {
-          return organization.organization;
+      // Filter responsible Organizations
+      const rawResponsibleOrganizations = event.responsibleOrganizations.map(
+        (responsibleOrganization) => {
+          return responsibleOrganization.organization;
         }
       );
-      responsibleOrganizations =
+      const filteredResponsibleOrganizations =
         await filterOrganizationDataByVisibilitySettings<
-          ArrayElement<typeof responsibleOrganizations>
-        >(responsibleOrganizations);
-      event.responsibleOrganizations = responsibleOrganizations.map(
-        (organization) => {
-          return { organization: organization };
+          ArrayElement<typeof rawResponsibleOrganizations>
+        >(rawResponsibleOrganizations);
+      event.responsibleOrganizations = event.responsibleOrganizations.map(
+        (responsibleOrganization) => {
+          let filteredResponsibleOrganization = responsibleOrganization;
+          for (let filteredOrganization of filteredResponsibleOrganizations) {
+            if (
+              responsibleOrganization.organization.slug ===
+              filteredOrganization.slug
+            ) {
+              filteredResponsibleOrganization.organization =
+                filteredOrganization;
+            }
+          }
+          return filteredResponsibleOrganization;
         }
       );
     }
