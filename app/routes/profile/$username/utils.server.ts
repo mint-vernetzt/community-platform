@@ -538,13 +538,9 @@ export async function prepareProfileEvents(
     contributedEvents: await addUserParticipationStatus<
       typeof profile.contributedEvents
     >(profile.contributedEvents, sessionUser?.id),
-    participatedEvents:
-      mode !== "anon"
-        ? await addUserParticipationStatus<typeof combinedFutureEvents>(
-            combinedFutureEvents,
-            sessionUser?.id
-          )
-        : undefined,
+    participatedEvents: await addUserParticipationStatus<
+      typeof combinedFutureEvents
+    >(combinedFutureEvents, sessionUser?.id),
   };
   return enhancedFutureEvents;
 }

@@ -1,5 +1,5 @@
 import type { Profile } from "@prisma/client";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -38,7 +38,6 @@ import {
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import type { Mode } from "./utils.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
 
 export function links() {
@@ -48,20 +47,7 @@ export function links() {
   ];
 }
 
-type LoaderData = {
-  mode: Mode;
-  data: any;
-  images: {
-    avatar?: string;
-    background?: string;
-  };
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  futureEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
-  pastEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
-  userId?: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -206,10 +192,10 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
-  return json<LoaderData>(
+  return json(
     {
       mode,
-      data,
+      data: profile,
       images,
       abilities,
       futureEvents: profileFutureEvents,
@@ -220,13 +206,16 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-function hasContactInformations(data: Partial<Profile>) {
+function hasContactInformations(data: Pick<Profile, "email" | "phone">) {
   const hasEmail = typeof data.email === "string" && data.email !== "";
   const hasPhone = typeof data.phone === "string" && data.phone !== "";
   return hasEmail || hasPhone;
 }
 
-function notEmptyData(key: keyof Profile, data: Partial<Profile>) {
+function notEmptyData(
+  key: ExternalService,
+  data: Pick<Profile, ExternalService>
+) {
   if (typeof data[key] === "string") {
     return data[key] !== "";
   }
@@ -243,25 +232,26 @@ const ExternalServices: ExternalService[] = [
   "xing",
 ];
 function hasWebsiteOrSocialService(
-  data: Partial<Profile>,
+  data: Pick<Profile, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-function canViewEvents(
-  events: LoaderData["futureEvents"] | LoaderData["pastEvents"]
-) {
+function canViewEvents(events: {
+  teamMemberOfEvents: any[];
+  participatedEvents: any[];
+  contributedEvents: any[];
+}) {
   return (
     events.teamMemberOfEvents.length > 0 ||
-    (events.participatedEvents !== undefined &&
-      events.participatedEvents.length > 0) ||
+    events.participatedEvents.length > 0 ||
     events.contributedEvents.length > 0
   );
 }
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
