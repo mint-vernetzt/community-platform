@@ -18,6 +18,12 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import type { ArrayElement } from "~/lib/utils/types";
+import {
+  filterOrganizationDataByVisibilitySettings,
+  filterProfileDataByVisibilitySettings,
+  filterProjectDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
 
@@ -82,12 +88,62 @@ export const loader: LoaderFunction = async (args) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const project = await getProjectBySlugOrThrow(slug);
+  let project = await getProjectBySlugOrThrow(slug);
 
   const sessionUser = await getSessionUser(authClient);
 
   const mode = await deriveMode(project, sessionUser);
 
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter project
+    const filteredProject = (
+      await filterProjectDataByVisibilitySettings<typeof project>([project])
+    )[0];
+    project = filteredProject;
+    // Filter team members
+    const rawTeamMembers = project.teamMembers.map((teamMember) => {
+      return teamMember.profile;
+    });
+    const filteredTeamMemberProfiles =
+      await filterProfileDataByVisibilitySettings<
+        ArrayElement<typeof rawTeamMembers>
+      >(rawTeamMembers);
+    project.teamMembers = project.teamMembers.map((participant) => {
+      let filteredParticipant = participant;
+      for (let filteredProfile of filteredTeamMemberProfiles) {
+        if (participant.profile.id === filteredProfile.id) {
+          filteredParticipant.profile = filteredProfile;
+        }
+      }
+      return filteredParticipant;
+    });
+    // Filter responsible organizations
+    const rawResponsibleOrganizations = project.responsibleOrganizations.map(
+      (responsibleOrganization) => {
+        return responsibleOrganization.organization;
+      }
+    );
+    const filteredResponsibleOrganizations =
+      await filterOrganizationDataByVisibilitySettings<
+        ArrayElement<typeof rawResponsibleOrganizations>
+      >(rawResponsibleOrganizations);
+    project.responsibleOrganizations = project.responsibleOrganizations.map(
+      (responsibleOrganization) => {
+        let filteredResponsibleOrganization = responsibleOrganization;
+        for (let filteredOrganization of filteredResponsibleOrganizations) {
+          if (
+            responsibleOrganization.organization.id === filteredOrganization.id
+          ) {
+            filteredResponsibleOrganization.organization = filteredOrganization;
+          }
+        }
+        return filteredResponsibleOrganization;
+      }
+    );
+  }
+
+  // Adding images from imgproxy
   if (project.logo !== null) {
     const publicURL = getPublicURL(authClient, project.logo);
     project.logo = getImageURL(publicURL, {
