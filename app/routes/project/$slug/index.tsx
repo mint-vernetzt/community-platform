@@ -281,7 +281,7 @@ function Index() {
                 >
                   <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
                     <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                      {item.award.logo !== null && item.award.logo !== "" ? (
+                      {item.award.logo !== "" ? (
                         <img src={item.award.logo} alt={item.award.title} />
                       ) : (
                         getInitialsOfName(item.award.title)
@@ -485,8 +485,14 @@ function Index() {
                   </ul>
                 ) : null}
 
-                {typeof loaderData.project.street === "string" &&
-                loaderData.project.street !== "" ? (
+                {(typeof loaderData.project.street === "string" &&
+                  loaderData.project.street !== "") ||
+                (typeof loaderData.project.streetNumber === "string" &&
+                  loaderData.project.streetNumber !== "") ||
+                (typeof loaderData.project.zipCode === "string" &&
+                  loaderData.project.zipCode !== "") ||
+                (typeof loaderData.project.city === "string" &&
+                  loaderData.project.city !== "") ? (
                   <>
                     <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
                     <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
@@ -502,10 +508,14 @@ function Index() {
                         </svg>
                       </span>
                       <span>
-                        {loaderData.project.street}{" "}
-                        {loaderData.project.streetNumber}
+                        {loaderData.project.street
+                          ? `${loaderData.project.street} ${loaderData.project.streetNumber} `
+                          : ""}
                         <br />
-                        {loaderData.project.zipCode} {loaderData.project.city}
+                        {loaderData.project.zipCode
+                          ? `${loaderData.project.zipCode} `
+                          : ""}
+                        {loaderData.project.city ? loaderData.project.city : ""}
                       </span>
                     </p>
                   </>
@@ -612,8 +622,7 @@ function Index() {
                         >
                           <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
                             <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                              {item.award.logo !== null &&
-                              item.award.logo !== "" ? (
+                              {item.award.logo !== "" ? (
                                 <img
                                   src={item.award.logo}
                                   alt={item.award.title}
