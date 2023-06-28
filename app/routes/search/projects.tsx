@@ -148,7 +148,7 @@ export default function SearchView() {
                         {project.responsibleOrganizations.length > 0 ? (
                           <p className="font-bold text-sm">
                             {project.responsibleOrganizations
-                              .map(({ organization }) => organization.name)
+                              .map((relation) => relation.organization.name)
                               .join(" / ")}
                           </p>
                         ) : null}
@@ -162,31 +162,35 @@ export default function SearchView() {
                   </div>
                   {project.awards.length > 0 ? (
                     <div className="-mt-4 flex ml-4">
-                      {project.awards.map(({ award }) => {
+                      {project.awards.map((relation) => {
                         const date = utcToZonedTime(
-                          award.date,
+                          relation.award.date,
                           "Europe/Berlin"
                         );
                         return (
                           <div
-                            key={`award-${award.id}`}
+                            key={`award-${relation.award.id}`}
                             className="bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                           >
                             <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                               <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                {award.logo !== null && award.logo !== "" ? (
-                                  <img src={award.logo} alt={award.title} />
+                                {relation.award.logo !== null &&
+                                relation.award.logo !== "" ? (
+                                  <img
+                                    src={relation.award.logo}
+                                    alt={relation.award.title}
+                                  />
                                 ) : (
-                                  getInitialsOfName(award.title)
+                                  getInitialsOfName(relation.award.title)
                                 )}
                               </div>
                               <div className="px-2 pt-1 mb-4">
-                                {award.shortTitle ? (
+                                {relation.award.shortTitle ? (
                                   <H4
                                     like="h4"
                                     className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
                                   >
-                                    {award.shortTitle}
+                                    {relation.award.shortTitle}
                                   </H4>
                                 ) : null}
                                 <p className="text-xxs text-center leading-none">

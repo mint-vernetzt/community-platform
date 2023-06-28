@@ -91,7 +91,7 @@ export default function SearchView() {
             let initials = getInitialsOfName(organization.name);
             let name = organization.name;
             let subtitle = organization.types
-              .map(({ organizationType }) => organizationType.title)
+              .map((relation) => relation.organizationType.title)
               .join(" / ");
 
             return (

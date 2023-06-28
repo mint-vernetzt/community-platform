@@ -205,8 +205,8 @@ function Organizations() {
                   {organization.types.length !== 0 ? (
                     <p className="font-bold text-sm cursor-default">
                       {organization.types
-                        .map(({ organizationType }) => {
-                          return organizationType.title;
+                        .map((relation) => {
+                          return relation.organizationType.title;
                         })
                         .join(" / ")}
                     </p>

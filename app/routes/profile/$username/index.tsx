@@ -471,7 +471,7 @@ export default function Index() {
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.data.areas
-                    .map(({ area }) => area.name)
+                    .map((relation) => relation.area.name)
                     .join(" / ")}
                 </div>
               </div>
@@ -507,10 +507,10 @@ export default function Index() {
                   Ich biete
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.offers?.map(({ offer }) => (
+                  {loaderData.data.offers.map((relation) => (
                     <Chip
-                      key={`offer_${offer.title}`}
-                      title={offer.title}
+                      key={`offer_${relation.offer.title}`}
+                      title={relation.offer.title}
                       slug=""
                       isEnabled
                     />
@@ -525,10 +525,10 @@ export default function Index() {
                   Ich suche
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.seekings?.map(({ offer }) => (
+                  {loaderData.data.seekings.map((relation) => (
                     <Chip
-                      key={`seeking_${offer.title}`}
-                      title={offer.title}
+                      key={`seeking_${relation.offer.title}`}
+                      title={relation.offer.title}
                       slug=""
                       isEnabled
                     />
@@ -562,14 +562,14 @@ export default function Index() {
                 {loaderData.data.memberOf &&
                 loaderData.data.memberOf.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.data.memberOf.map(({ organization }) => (
+                    {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
-                        key={`${organization.slug}`}
-                        id={`${organization.slug}`}
-                        link={`/organization/${organization.slug}`}
-                        name={organization.name}
-                        types={organization.types}
-                        image={organization.logo}
+                        key={`${relation.organization.slug}`}
+                        id={`${relation.organization.slug}`}
+                        link={`/organization/${relation.organization.slug}`}
+                        name={relation.organization.name}
+                        types={relation.organization.types}
+                        image={relation.organization.logo}
                       />
                     ))}
                   </div>
@@ -602,39 +602,41 @@ export default function Index() {
                 {loaderData.data.teamMemberOfProjects &&
                 loaderData.data.teamMemberOfProjects.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.data.teamMemberOfProjects.map(({ project }) => (
+                    {loaderData.data.teamMemberOfProjects.map((relation) => (
                       // TODO: Project Card
                       <div
-                        key={project.slug}
+                        key={relation.project.slug}
                         data-testid="gridcell"
                         className="flex-100 px-3 mb-4"
                       >
                         <Link
-                          to={`/project/${project.slug}`}
+                          to={`/project/${relation.project.slug}`}
                           className="flex flex-wrap content-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                         >
                           <div className="w-full flex items-center flex-row items-end">
-                            {project.logo !== "" && project.logo !== null ? (
+                            {relation.project.logo !== "" &&
+                            relation.project.logo !== null ? (
                               <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                 <img
                                   className="max-w-full w-auto max-h-16 h-auto"
-                                  src={project.logo}
-                                  alt={project.name}
+                                  src={relation.project.logo}
+                                  alt={relation.project.name}
                                 />
                               </div>
                             ) : (
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                                {getInitialsOfName(project.name)}
+                                {getInitialsOfName(relation.project.name)}
                               </div>
                             )}
                             <div className="pl-4 flex-auto">
                               <H3 like="h4" className="text-xl mb-1">
-                                {project.name}
+                                {relation.project.name}
                               </H3>
-                              {project.responsibleOrganizations &&
-                              project.responsibleOrganizations.length > 0 ? (
+                              {relation.project.responsibleOrganizations &&
+                              relation.project.responsibleOrganizations.length >
+                                0 ? (
                                 <p className="font-bold text-sm">
-                                  {project.responsibleOrganizations
+                                  {relation.project.responsibleOrganizations
                                     .map(
                                       ({ organization }) => organization.name
                                     )
@@ -643,37 +645,40 @@ export default function Index() {
                               ) : null}
                             </div>
 
-                            {project.awards && project.awards.length > 0 ? (
+                            {relation.project.awards &&
+                            relation.project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
-                                {project.awards.map(({ award }) => {
+                                {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
-                                    award.date,
+                                    relation.award.date,
                                     "Europe/Berlin"
                                   );
                                   return (
                                     <div
-                                      key={`award-${award.id}`}
+                                      key={`award-${relation.award.id}`}
                                       className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                                     >
                                       <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                                         <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          {award.logo !== null &&
-                                          award.logo !== "" ? (
+                                          {relation.award.logo !== null &&
+                                          relation.award.logo !== "" ? (
                                             <img
-                                              src={award.logo}
-                                              alt={award.title}
+                                              src={relation.award.logo}
+                                              alt={relation.award.title}
                                             />
                                           ) : (
-                                            getInitialsOfName(award.title)
+                                            getInitialsOfName(
+                                              relation.award.title
+                                            )
                                           )}
                                         </div>
                                         <div className="px-2 pt-1 mb-4">
-                                          {award.shortTitle ? (
+                                          {relation.award.shortTitle ? (
                                             <H4
                                               like="h4"
                                               className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
                                             >
-                                              {award.shortTitle}
+                                              {relation.award.shortTitle}
                                             </H4>
                                           ) : null}
                                           <p className="text-xxs text-center leading-none">

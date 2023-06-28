@@ -132,7 +132,7 @@ export default function Profiles() {
                         <div className="flex-auto line-clamp-3">
                           <span>
                             {profile.areas
-                              .map(({ area }) => area.name)
+                              .map((relation) => relation.area.name)
                               .join(" / ")}
                           </span>
                         </div>
