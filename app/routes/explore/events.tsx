@@ -254,14 +254,12 @@ function Events() {
                   </p>
                 ) : null}
 
-                {"isParticipant" in event &&
-                event.isParticipant &&
-                !event.canceled ? (
+                {event.isParticipant && !event.canceled ? (
                   <div className="font-semibold ml-auto text-green-600">
                     <p>Angemeldet</p>
                   </div>
                 ) : null}
-                {"isParticipant" in event && canUserParticipate(event) ? (
+                {canUserParticipate(event) ? (
                   <div className="ml-auto">
                     <AddParticipantButton
                       action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -271,15 +269,12 @@ function Events() {
                     />
                   </div>
                 ) : null}
-                {"isParticipant" in event &&
-                event.isOnWaitingList &&
-                !event.canceled ? (
+                {event.isOnWaitingList && !event.canceled ? (
                   <div className="font-semibold ml-auto text-neutral-500">
                     <p>Wartend</p>
                   </div>
                 ) : null}
-                {"isParticipant" in event &&
-                canUserBeAddedToWaitingList(event) ? (
+                {canUserBeAddedToWaitingList(event) ? (
                   <div className="ml-auto">
                     <AddToWaitingListButton
                       action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -289,8 +284,7 @@ function Events() {
                     />
                   </div>
                 ) : null}
-                {("isParticipant" in event &&
-                  !event.isParticipant &&
+                {(!event.isParticipant &&
                   !canUserParticipate(event) &&
                   !event.isOnWaitingList &&
                   !canUserBeAddedToWaitingList(event) &&
@@ -502,15 +496,12 @@ function Events() {
                       </p>
                     ) : null}
 
-                    {"isParticipant" in event &&
-                    event.isParticipant &&
-                    !event.canceled ? (
+                    {event.isParticipant && !event.canceled ? (
                       <div className="font-semibold ml-auto text-green-600">
                         <p>Teilgenommen</p>
                       </div>
                     ) : null}
-                    {("isParticipant" in event &&
-                      !event.isParticipant &&
+                    {(!event.isParticipant &&
                       !canUserParticipate(event) &&
                       !event.isOnWaitingList &&
                       !canUserBeAddedToWaitingList(event)) ||

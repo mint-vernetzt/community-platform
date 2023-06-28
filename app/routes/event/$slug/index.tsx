@@ -33,7 +33,6 @@ import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
-import type { MaybeEnhancedEvent } from "./utils.server";
 import {
   deriveMode,
   enhanceChildEventsWithParticipationStatus,
@@ -90,10 +89,10 @@ export const loader = async (args: LoaderArgs) => {
   let participants: Awaited<
     ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
   > = [];
-  let enhancedEvent: MaybeEnhancedEvent = {
+  let enhancedEvent = {
     ...rawEvent,
-    participants: [],
-    speakers: [],
+    participants: participants,
+    speakers: speakers,
   };
 
   // Adding participants and speakers
@@ -303,48 +302,65 @@ export const loader = async (args: LoaderArgs) => {
   let isSpeaker;
   let isTeamMember;
 
-  if (mode === "authenticated" && sessionUser !== null) {
-    enhancedEvent = await enhanceChildEventsWithParticipationStatus(
-      sessionUser.id,
-      enhancedEvent
-    );
-  }
+  const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
+    sessionUser,
+    enhancedEvent.childEvents
+  );
+  const { childEvents: _childEvents, ...rest } = enhancedEvent;
+  const eventWithParticipationStatus = {
+    childEvents: enhancedChildEvents,
+    ...rest,
+  };
 
   if (sessionUser !== null) {
-    isParticipant = await getIsParticipant(enhancedEvent.id, sessionUser.id);
-    isOnWaitingList = await getIsOnWaitingList(
-      enhancedEvent.id,
+    isParticipant = await getIsParticipant(
+      eventWithParticipationStatus.id,
       sessionUser.id
     );
-    isSpeaker = await getIsSpeaker(enhancedEvent.id, sessionUser.id);
-    isTeamMember = await getIsTeamMember(enhancedEvent.id, sessionUser.id);
+    isOnWaitingList = await getIsOnWaitingList(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+    isSpeaker = await getIsSpeaker(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+    isTeamMember = await getIsTeamMember(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+  } else {
+    isParticipant = false;
+    isOnWaitingList = false;
+    isSpeaker = false;
+    isTeamMember = false;
   }
 
   // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
     !canUserAccessConferenceLink(
-      enhancedEvent,
+      eventWithParticipationStatus,
       isParticipant,
       isSpeaker,
       isTeamMember
     )
   ) {
-    enhancedEvent.conferenceLink = null;
-    enhancedEvent.conferenceCode = null;
+    eventWithParticipationStatus.conferenceLink = null;
+    eventWithParticipationStatus.conferenceCode = null;
   } else {
     if (
-      enhancedEvent.conferenceLink === null ||
-      enhancedEvent.conferenceLink === ""
+      eventWithParticipationStatus.conferenceLink === null ||
+      eventWithParticipationStatus.conferenceLink === ""
     ) {
-      enhancedEvent.conferenceLink = "noch nicht bekannt";
-      enhancedEvent.conferenceCode = null;
+      eventWithParticipationStatus.conferenceLink = "noch nicht bekannt";
+      eventWithParticipationStatus.conferenceCode = null;
     }
   }
 
   return json(
     {
       mode,
-      event: enhancedEvent,
+      event: eventWithParticipationStatus,
       userId: sessionUser?.id || undefined,
       isParticipant,
       isOnWaitingList,
@@ -358,8 +374,8 @@ export const loader = async (args: LoaderArgs) => {
 
 function getForm(loaderData: {
   userId?: string;
-  isParticipant?: boolean;
-  isOnWaitingList?: boolean;
+  isParticipant: boolean;
+  isOnWaitingList: boolean;
   event: {
     id: string;
     participantLimit: number | null;
@@ -368,8 +384,8 @@ function getForm(loaderData: {
     };
   };
 }) {
-  const isParticipating = loaderData.isParticipant || false;
-  const isOnWaitingList = loaderData.isOnWaitingList || false;
+  const isParticipating = loaderData.isParticipant;
+  const isOnWaitingList = loaderData.isOnWaitingList;
 
   const participantLimitReached =
     loaderData.event.participantLimit !== null
@@ -1112,16 +1128,14 @@ function Index() {
                             Abgesagt
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        event.isParticipant &&
+                        {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "owner" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                             <p>Angemeldet</p>
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        canUserParticipate(event) ? (
+                        {canUserParticipate(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -1131,16 +1145,14 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        event.isOnWaitingList &&
+                        {event.isOnWaitingList &&
                         !event.canceled &&
                         loaderData.mode !== "owner" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                             <p>Wartend</p>
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        canUserBeAddedToWaitingList(event) ? (
+                        {canUserBeAddedToWaitingList(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -1150,8 +1162,7 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {("isParticipant" in event &&
-                          !event.isParticipant &&
+                        {(!event.isParticipant &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&

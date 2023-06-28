@@ -20,7 +20,10 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPaginationValues } from "../explore/utils.server";
+import {
+  enhanceEventsWithParticipationStatus,
+  getPaginationValues,
+} from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
@@ -60,7 +63,12 @@ export const loader = async ({ request }: LoaderArgs) => {
       );
     }
   }
-  const enhancedEvents = rawEvents.map((event) => {
+  let enhancedEvents = await enhanceEventsWithParticipationStatus(
+    sessionUser,
+    rawEvents
+  );
+
+  enhancedEvents = enhancedEvents.map((event) => {
     if (event.background !== null) {
       const publicURL = getPublicURL(authClient, event.background);
       if (publicURL) {
@@ -313,14 +321,12 @@ export default function SearchView() {
                       </p>
                     ) : null}
 
-                    {"isParticipant" in event &&
-                    event.isParticipant &&
-                    !event.canceled ? (
+                    {event.isParticipant && !event.canceled ? (
                       <div className="font-semibold ml-auto text-green-600">
                         <p>Angemeldet</p>
                       </div>
                     ) : null}
-                    {"isParticipant" in event && canUserParticipate(event) ? (
+                    {canUserParticipate(event) ? (
                       <div className="ml-auto">
                         <AddParticipantButton
                           action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -330,15 +336,12 @@ export default function SearchView() {
                         />
                       </div>
                     ) : null}
-                    {"isParticipant" in event &&
-                    event.isOnWaitingList &&
-                    !event.canceled ? (
+                    {event.isOnWaitingList && !event.canceled ? (
                       <div className="font-semibold ml-auto text-neutral-500">
                         <p>Wartend</p>
                       </div>
                     ) : null}
-                    {"isParticipant" in event &&
-                    canUserBeAddedToWaitingList(event) ? (
+                    {canUserBeAddedToWaitingList(event) ? (
                       <div className="ml-auto">
                         <AddToWaitingListButton
                           action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -348,8 +351,7 @@ export default function SearchView() {
                         />
                       </div>
                     ) : null}
-                    {("isParticipant" in event &&
-                      !event.isParticipant &&
+                    {(!event.isParticipant &&
                       !canUserParticipate(event) &&
                       !event.isOnWaitingList &&
                       !canUserBeAddedToWaitingList(event) &&

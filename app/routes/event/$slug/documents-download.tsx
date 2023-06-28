@@ -16,7 +16,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
+  const mode = await deriveMode(event, sessionUser);
 
   if (mode !== "owner" && event.published === false) {
     throw forbidden({ message: "Event not published" });

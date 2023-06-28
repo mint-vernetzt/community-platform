@@ -122,7 +122,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, sessionUser); // TODO: fix type issue
+  const mode = await deriveMode(event, sessionUser);
 
   const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
   const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);

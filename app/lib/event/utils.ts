@@ -212,9 +212,9 @@ function conferenceLinkToBeAnnounced(
 
 export function canUserAccessConferenceLink(
   event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
-  isParticipant: boolean | undefined,
-  isSpeaker: boolean | undefined,
-  isTeamMember: boolean | undefined
+  isParticipant: boolean,
+  isSpeaker: boolean,
+  isTeamMember: boolean
 ) {
   return (
     (conferenceLinkExists(event) || conferenceLinkToBeAnnounced(event)) &&

@@ -370,70 +370,84 @@ export async function getEvents(
   return result;
 }
 
-export type MaybeEnhancedEvents =
-  | Awaited<ReturnType<typeof getEvents>>
-  | Awaited<ReturnType<typeof enhanceEventsWithParticipationStatus>>;
-
 export async function enhanceEventsWithParticipationStatus(
-  currentUserId: string,
+  sessionUser: User | null,
   events: Awaited<ReturnType<typeof getEvents>>
 ) {
-  const eventIdsWhereParticipant = (
-    await prismaClient.participantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereOnWaitingList = (
-    await prismaClient.waitingParticipantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereSpeaker = (
-    await prismaClient.speakerOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereTeamMember = (
-    await prismaClient.teamMemberOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
+  if (sessionUser === null) {
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = false;
+      const isOnWaitingList = false;
+      const isSpeaker = false;
+      const isTeamMember = false;
 
-  const enhancedEvents = events.map((item) => {
-    const isParticipant = eventIdsWhereParticipant.includes(item.id);
-    const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
-    const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
-    const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  } else {
+    const eventIdsWhereParticipant = (
+      await prismaClient.participantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereOnWaitingList = (
+      await prismaClient.waitingParticipantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereSpeaker = (
+      await prismaClient.speakerOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereTeamMember = (
+      await prismaClient.teamMemberOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
 
-    return {
-      ...item,
-      isParticipant,
-      isOnWaitingList,
-      isSpeaker,
-      isTeamMember,
-    };
-  });
-  return enhancedEvents;
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = eventIdsWhereParticipant.includes(item.id);
+      const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
+      const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
+      const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  }
 }
 
 export async function prepareEvents(
@@ -482,14 +496,10 @@ export async function prepareEvents(
     }
   }
 
-  let enhancedEvents: MaybeEnhancedEvents = events;
-
-  if (sessionUser !== null) {
-    enhancedEvents = await enhanceEventsWithParticipationStatus(
-      sessionUser.id,
-      events
-    );
-  }
+  let enhancedEvents = await enhanceEventsWithParticipationStatus(
+    sessionUser,
+    events
+  );
 
   enhancedEvents = enhancedEvents.map((item) => {
     if (item.background !== null) {
@@ -521,5 +531,5 @@ export async function prepareEvents(
     }
     return event;
   });
-  return enhancedEvents as MaybeEnhancedEvents;
+  return enhancedEvents;
 }
