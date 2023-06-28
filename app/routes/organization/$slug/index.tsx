@@ -26,11 +26,17 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
+import { ArrayElement } from "~/lib/utils/types";
 import type { OrganizationWithRelations } from "~/organization.server";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
 } from "~/organization.server";
+import {
+  filterOrganizationDataByVisibilitySettings,
+  filterProfileDataByVisibilitySettings,
+  filterProjectDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
@@ -67,88 +73,191 @@ export const loader: LoaderFunction = async (args) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
 
-  const unfilteredOrganization = await getOrganizationBySlug(slug);
-  if (unfilteredOrganization === null) {
+  let organization = await getOrganizationBySlug(slug);
+  if (organization === null) {
     throw notFound({ message: "Not found" });
   }
 
-  let organization: Partial<
-    NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
-  > = {};
   let userIsPrivileged;
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter organization
+    const filteredOrganization = (
+      await filterOrganizationDataByVisibilitySettings<typeof organization>([
+        organization,
+      ])
+    )[0];
+    organization = filteredOrganization;
+    // Filter networks where this organization is member of
+    const rawNetworkOrganizations = organization.memberOf.map((network) => {
+      return network.network;
+    });
+    const filteredNetworkOrganizations =
+      await filterOrganizationDataByVisibilitySettings<
+        ArrayElement<typeof rawNetworkOrganizations>
+      >(rawNetworkOrganizations);
+    organization.memberOf = organization.memberOf.map((network) => {
+      let filteredNetwork = network;
+      for (let filteredNetworkOrganization of filteredNetworkOrganizations) {
+        if (network.network.slug === filteredNetworkOrganization.slug) {
+          filteredNetwork.network = filteredNetworkOrganization;
+        }
+      }
+      return filteredNetwork;
+    });
+    // Filter network members of this organization
+    const rawNetworkMemberOrganizations = organization.networkMembers.map(
+      (networkMember) => {
+        return networkMember.networkMember;
+      }
+    );
+    const filteredNetworkMemberOrganizations =
+      await filterOrganizationDataByVisibilitySettings<
+        ArrayElement<typeof rawNetworkMemberOrganizations>
+      >(rawNetworkMemberOrganizations);
+    organization.networkMembers = organization.networkMembers.map(
+      (networkMember) => {
+        let filteredNetworkMember = networkMember;
+        for (let filteredNetworkMemberOrganization of filteredNetworkMemberOrganizations) {
+          if (
+            networkMember.networkMember.slug ===
+            filteredNetworkMemberOrganization.slug
+          ) {
+            filteredNetworkMember.networkMember =
+              filteredNetworkMemberOrganization;
+          }
+        }
+        return filteredNetworkMember;
+      }
+    );
+    // Filter team members
+    const rawTeamMembers = organization.teamMembers.map((teamMember) => {
+      return teamMember.profile;
+    });
+    const filteredTeamMemberProfiles =
+      await filterProfileDataByVisibilitySettings<
+        ArrayElement<typeof rawTeamMembers>
+      >(rawTeamMembers);
+    organization.teamMembers = organization.teamMembers.map((teamMember) => {
+      let filteredTeamMember = teamMember;
+      for (let filteredProfile of filteredTeamMemberProfiles) {
+        if (teamMember.profile.username === filteredProfile.username) {
+          filteredTeamMember.profile = filteredProfile;
+        }
+      }
+      return filteredTeamMember;
+    });
+    // Filter projects responsible for
+    const rawResponsibleProjects = organization.responsibleForProject.map(
+      (project) => {
+        return project.project;
+      }
+    );
+    const filteredResponsibleProjects =
+      await filterProjectDataByVisibilitySettings<
+        ArrayElement<typeof rawResponsibleProjects>
+      >(rawResponsibleProjects);
+    organization.responsibleForProject = organization.responsibleForProject.map(
+      (project) => {
+        let filteredProject = project;
+        for (let filteredResponsibleProject of filteredResponsibleProjects) {
+          if (project.project.slug === filteredResponsibleProject.slug) {
+            filteredProject.project = filteredResponsibleProject;
+          }
+        }
+        return filteredProject;
+      }
+    );
+    // Set user privilege to not privileged (sessionUser === null)
+    userIsPrivileged = false;
+  } else {
+    userIsPrivileged = organization.teamMembers.some(
+      (member) => member.profileId === sessionUser.id && member.isPrivileged
+    );
+  }
 
+  const mode: Mode = deriveMode(sessionUser, userIsPrivileged);
+
+  // Get events, filter them by visibility settings and add participation status of session user
+  const inFuture = true;
+  const organizationFutureEvents = await prepareOrganizationEvents(
+    authClient,
+    slug,
+    sessionUser,
+    inFuture
+  );
+  const organizationPastEvents = await prepareOrganizationEvents(
+    authClient,
+    slug,
+    sessionUser,
+    !inFuture
+  );
+
+  // Get images from image proxy
   let images: {
     logo?: string;
     background?: string;
   } = {};
-  if (unfilteredOrganization.logo) {
-    const publicURL = getPublicURL(authClient, unfilteredOrganization.logo);
+  if (organization.logo) {
+    const publicURL = getPublicURL(authClient, organization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 144, height: 144 },
       });
     }
   }
-  if (unfilteredOrganization.background) {
-    const publicURL = getPublicURL(
-      authClient,
-      unfilteredOrganization.background
-    );
+  if (organization.background) {
+    const publicURL = getPublicURL(authClient, organization.background);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
-  unfilteredOrganization.memberOf = unfilteredOrganization.memberOf.map(
-    (member) => {
-      if (member.network.logo !== null) {
-        const publicURL = getPublicURL(authClient, member.network.logo);
+  organization.memberOf = organization.memberOf.map((member) => {
+    if (member.network.logo !== null) {
+      const publicURL = getPublicURL(authClient, member.network.logo);
 
-        if (publicURL !== null) {
-          const logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-          member.network.logo = logo;
-        }
+      if (publicURL !== null) {
+        const logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+        member.network.logo = logo;
       }
-      return member;
     }
-  );
+    return member;
+  });
 
-  unfilteredOrganization.networkMembers =
-    unfilteredOrganization.networkMembers.map((member) => {
-      if (member.networkMember.logo !== null) {
-        const publicURL = getPublicURL(authClient, member.networkMember.logo);
+  organization.networkMembers = organization.networkMembers.map((member) => {
+    if (member.networkMember.logo !== null) {
+      const publicURL = getPublicURL(authClient, member.networkMember.logo);
 
-        if (publicURL !== null) {
-          const logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-          member.networkMember.logo = logo;
-        }
+      if (publicURL !== null) {
+        const logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+        member.networkMember.logo = logo;
       }
-      return member;
-    });
-
-  unfilteredOrganization.teamMembers = unfilteredOrganization.teamMembers.map(
-    (teamMember) => {
-      if (teamMember.profile.avatar !== null) {
-        const publicURL = getPublicURL(authClient, teamMember.profile.avatar);
-        if (publicURL !== null) {
-          const avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-          teamMember.profile.avatar = avatar;
-        }
-      }
-      return teamMember;
     }
-  );
+    return member;
+  });
 
-  unfilteredOrganization.responsibleForProject =
-    unfilteredOrganization.responsibleForProject.map((relation) => {
+  organization.teamMembers = organization.teamMembers.map((teamMember) => {
+    if (teamMember.profile.avatar !== null) {
+      const publicURL = getPublicURL(authClient, teamMember.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+        teamMember.profile.avatar = avatar;
+      }
+    }
+    return teamMember;
+  });
+
+  organization.responsibleForProject = organization.responsibleForProject.map(
+    (relation) => {
       if (relation.project.logo !== null) {
         const publicURL = getPublicURL(authClient, relation.project.logo);
         if (publicURL !== null) {
@@ -172,61 +281,7 @@ export const loader: LoaderFunction = async (args) => {
       });
 
       return relation;
-    });
-
-  if (sessionUser === null) {
-    let key: keyof Partial<
-      NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
-    >;
-    const publicFields = [
-      "name",
-      "slug",
-      "street",
-      "streetNumber",
-      "zipCode",
-      "city",
-      "logo",
-      "background",
-      "types",
-      "supportedBy",
-      "publicFields",
-      "teamMembers",
-      "memberOf",
-      "networkMembers",
-      "createdAt",
-      "areas",
-      "responsibleForEvents",
-      "responsibleForProject",
-      ...unfilteredOrganization.publicFields,
-    ];
-    for (key in unfilteredOrganization) {
-      if (publicFields.includes(key)) {
-        // @ts-ignore
-        organization[key] = unfilteredOrganization[key];
-      }
     }
-    userIsPrivileged = false;
-  } else {
-    organization = unfilteredOrganization;
-    userIsPrivileged = unfilteredOrganization.teamMembers.some(
-      (member) => member.profileId === sessionUser.id && member.isPrivileged
-    );
-  }
-
-  const mode: Mode = deriveMode(sessionUser, userIsPrivileged);
-
-  const inFuture = true;
-  const organizationFutureEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    inFuture
-  );
-  const organizationPastEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    !inFuture
   );
 
   return json<LoaderData>(

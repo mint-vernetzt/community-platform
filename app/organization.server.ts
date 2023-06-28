@@ -5,7 +5,9 @@ import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { addUserParticipationStatus } from "~/lib/event/utils";
 import { getImageURL } from "./images.server";
+import type { ArrayElement } from "./lib/utils/types";
 import { prismaClient } from "./prisma";
+import { filterEventDataByVisibilitySettings } from "./public-fields-filtering.server";
 import { getPublicURL } from "./storage.server";
 
 export type OrganizationWithRelations = Organization & {
@@ -208,7 +210,10 @@ export async function getOrganizationBySlug(slug: string) {
   return organization;
 }
 
-export async function getOrganizationEvents(slug: string, inFuture: boolean) {
+export async function getOrganizationWithEvents(
+  slug: string,
+  inFuture: boolean
+) {
   const organizationEvents = await prismaClient.organization.findFirst({
     select: {
       responsibleForEvents: {
@@ -277,14 +282,39 @@ export async function prepareOrganizationEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const organizationEvents = await getOrganizationEvents(slug, inFuture);
+  const organization = await getOrganizationWithEvents(slug, inFuture);
 
-  if (organizationEvents === null) {
-    throw notFound({ message: "Events not found" });
+  if (organization === null) {
+    throw notFound({ message: "Organization with events not found" });
   }
 
-  organizationEvents.responsibleForEvents =
-    organizationEvents.responsibleForEvents.map((item) => {
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter events where organization is responsible for
+    const rawResponsibleEvents = organization.responsibleForEvents.map(
+      (event) => {
+        return event.event;
+      }
+    );
+    const filteredResponsibleEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof rawResponsibleEvents>
+    >(rawResponsibleEvents);
+    organization.responsibleForEvents = organization.responsibleForEvents.map(
+      (event) => {
+        let filteredEvent = event;
+        for (let filteredResponsibleEvent of filteredResponsibleEvents) {
+          if (event.event.slug === filteredResponsibleEvent.slug) {
+            filteredEvent.event = filteredResponsibleEvent;
+          }
+        }
+        return filteredEvent;
+      }
+    );
+  }
+
+  // Get images from image proxy
+  organization.responsibleForEvents = organization.responsibleForEvents.map(
+    (item) => {
       if (item.event.background !== null) {
         const publicURL = getPublicURL(authClient, item.event.background);
         if (publicURL) {
@@ -294,12 +324,13 @@ export async function prepareOrganizationEvents(
         }
       }
       return item;
-    });
+    }
+  );
 
   const enhancedEvents = {
     responsibleForEvents: await addUserParticipationStatus<
-      typeof organizationEvents.responsibleForEvents
-    >(organizationEvents.responsibleForEvents, sessionUser?.id),
+      typeof organization.responsibleForEvents
+    >(organization.responsibleForEvents, sessionUser?.id),
   };
   return enhancedEvents;
 }
