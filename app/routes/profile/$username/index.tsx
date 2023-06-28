@@ -28,16 +28,18 @@ import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
+import type { ArrayElement } from "~/lib/utils/types";
 import { getProfileByUsername } from "~/profile.server";
+import {
+  filterOrganizationDataByVisibilitySettings,
+  filterProfileDataByVisibilitySettings,
+  filterProjectDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
-import {
-  deriveMode,
-  filterProfileByMode,
-  prepareProfileEvents,
-} from "./utils.server";
+import { deriveMode, prepareProfileEvents } from "./utils.server";
 
 export function links() {
   return [
@@ -48,7 +50,7 @@ export function links() {
 
 type LoaderData = {
   mode: Mode;
-  data: NonNullable<Awaited<ReturnType<typeof filterProfileByMode>>>;
+  data: any;
   images: {
     avatar?: string;
     background?: string;
@@ -67,7 +69,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const username = getParamValueOrThrow(params, "username");
 
-  const profile = await getProfileByUsername(username);
+  let profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }
@@ -79,8 +81,70 @@ export const loader: LoaderFunction = async (args) => {
     "projects",
   ]);
 
-  let data = await filterProfileByMode(profile, mode);
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter profile
+    const filteredProfile = (
+      await filterProfileDataByVisibilitySettings<typeof profile>([profile])
+    )[0];
+    profile = filteredProfile;
+    // Filter organizations where profile is member of
+    const rawMemberOrganizations = profile.memberOf.map((organization) => {
+      return organization.organization;
+    });
+    const filteredMemberOrganizations =
+      await filterOrganizationDataByVisibilitySettings<
+        ArrayElement<typeof rawMemberOrganizations>
+      >(rawMemberOrganizations);
+    profile.memberOf = profile.memberOf.map((organization) => {
+      let filteredOrganization = organization;
+      for (let filteredMemberOrganization of filteredMemberOrganizations) {
+        if (
+          organization.organization.slug === filteredMemberOrganization.slug
+        ) {
+          filteredOrganization.organization = filteredMemberOrganization;
+        }
+      }
+      return filteredOrganization;
+    });
+    // Filter projects where profile is team member
+    const rawMemberProjects = profile.teamMemberOfProjects.map((project) => {
+      return project.project;
+    });
+    const filteredMemberProjects = await filterProjectDataByVisibilitySettings<
+      ArrayElement<typeof rawMemberProjects>
+    >(rawMemberProjects);
+    profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
+      (project) => {
+        let filteredProject = project;
+        for (let filteredMemberProject of filteredMemberProjects) {
+          if (project.project.slug === filteredMemberProject.slug) {
+            filteredProject.project = filteredMemberProject;
+          }
+        }
+        return filteredProject;
+      }
+    );
+  }
 
+  // Get events, filter them by visibility settings and add participation status of session user
+  const inFuture = true;
+  const profileFutureEvents = await prepareProfileEvents(
+    authClient,
+    username,
+    mode,
+    sessionUser,
+    inFuture
+  );
+  const profilePastEvents = await prepareProfileEvents(
+    authClient,
+    username,
+    mode,
+    sessionUser,
+    !inFuture
+  );
+
+  // Get images from image proxy
   let images: {
     avatar?: string;
     background?: string;
@@ -140,22 +204,6 @@ export const loader: LoaderFunction = async (args) => {
 
       return relation;
     }
-  );
-
-  const inFuture = true;
-  const profileFutureEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    inFuture
-  );
-  const profilePastEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    !inFuture
   );
 
   return json<LoaderData>(

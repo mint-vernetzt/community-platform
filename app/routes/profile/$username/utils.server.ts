@@ -6,8 +6,9 @@ import {
   addUserParticipationStatus,
   combineEventsSortChronologically,
 } from "~/lib/event/utils";
+import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
-import type { getProfileByUsername } from "~/profile.server";
+import { filterEventDataByVisibilitySettings } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
 
@@ -160,7 +161,7 @@ export async function updateProfileById(
   await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
-export async function getProfileEventsByMode(
+export async function getProfileWithEventsByMode(
   username: string,
   mode: Mode,
   inFuture: boolean
@@ -402,82 +403,141 @@ export async function prepareProfileEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const profileFutureEvents = await getProfileEventsByMode(
-    username,
-    mode,
-    inFuture
-  );
-  if (profileFutureEvents === null) {
-    throw notFound({ message: "Events not found" });
+  const profile = await getProfileWithEventsByMode(username, mode, inFuture);
+  if (profile === null) {
+    throw notFound({ message: "Profile with events not found" });
   }
 
-  profileFutureEvents.teamMemberOfEvents =
-    profileFutureEvents.teamMemberOfEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter events where profile is team member
+    const rawMemberEvents = profile.teamMemberOfEvents.map((relation) => {
+      return relation.event;
+    });
+    const filteredMemberEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof rawMemberEvents>
+    >(rawMemberEvents);
+    profile.teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
+      let filteredRelation = relation;
+      for (let filteredEvent of filteredMemberEvents) {
+        if (relation.event.slug === filteredEvent.slug) {
+          filteredRelation.event = filteredEvent;
         }
       }
-      return item;
+      return filteredRelation;
     });
+    // Filter events where profile is speaker
+    const rawContributedEvents = profile.contributedEvents.map((relation) => {
+      return relation.event;
+    });
+    const filteredContributedEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof rawContributedEvents>
+    >(rawContributedEvents);
+    profile.contributedEvents = profile.contributedEvents.map((relation) => {
+      let filteredRelation = relation;
+      for (let filteredEvent of filteredContributedEvents) {
+        if (relation.event.slug === filteredEvent.slug) {
+          filteredRelation.event = filteredEvent;
+        }
+      }
+      return filteredRelation;
+    });
+    // Filter events where profile is participant
+    const rawParticipatedEvents = profile.participatedEvents.map((relation) => {
+      return relation.event;
+    });
+    const filteredParticipatedEvents =
+      await filterEventDataByVisibilitySettings<
+        ArrayElement<typeof rawParticipatedEvents>
+      >(rawParticipatedEvents);
+    profile.participatedEvents = profile.participatedEvents.map((relation) => {
+      let filteredRelation = relation;
+      for (let filteredEvent of filteredParticipatedEvents) {
+        if (relation.event.slug === filteredEvent.slug) {
+          filteredRelation.event = filteredEvent;
+        }
+      }
+      return filteredRelation;
+    });
+    // Filter events where profile is on waiting list
+    const rawWaitingForEvents = profile.waitingForEvents.map((relation) => {
+      return relation.event;
+    });
+    const filteredWaitingForEvents = await filterEventDataByVisibilitySettings<
+      ArrayElement<typeof rawWaitingForEvents>
+    >(rawWaitingForEvents);
+    profile.waitingForEvents = profile.waitingForEvents.map((relation) => {
+      let filteredRelation = relation;
+      for (let filteredEvent of filteredWaitingForEvents) {
+        if (relation.event.slug === filteredEvent.slug) {
+          filteredRelation.event = filteredEvent;
+        }
+      }
+      return filteredRelation;
+    });
+  }
 
-  profileFutureEvents.contributedEvents =
-    profileFutureEvents.contributedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
+  // Get images from image proxy
+  profile.teamMemberOfEvents = profile.teamMemberOfEvents.map((item) => {
+    if (item.event.background !== null) {
+      const publicURL = getPublicURL(authClient, item.event.background);
+      if (publicURL) {
+        item.event.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
       }
-      return item;
-    });
+    }
+    return item;
+  });
 
-  profileFutureEvents.participatedEvents =
-    profileFutureEvents.participatedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
+  profile.contributedEvents = profile.contributedEvents.map((item) => {
+    if (item.event.background !== null) {
+      const publicURL = getPublicURL(authClient, item.event.background);
+      if (publicURL) {
+        item.event.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
       }
-      return item;
-    });
+    }
+    return item;
+  });
 
-  profileFutureEvents.waitingForEvents =
-    profileFutureEvents.waitingForEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
+  profile.participatedEvents = profile.participatedEvents.map((item) => {
+    if (item.event.background !== null) {
+      const publicURL = getPublicURL(authClient, item.event.background);
+      if (publicURL) {
+        item.event.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
       }
-      return item;
-    });
+    }
+    return item;
+  });
+
+  profile.waitingForEvents = profile.waitingForEvents.map((item) => {
+    if (item.event.background !== null) {
+      const publicURL = getPublicURL(authClient, item.event.background);
+      if (publicURL) {
+        item.event.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return item;
+  });
 
   const combinedFutureEvents = combineEventsSortChronologically<
-    typeof profileFutureEvents.participatedEvents,
-    typeof profileFutureEvents.waitingForEvents
-  >(
-    profileFutureEvents.participatedEvents,
-    profileFutureEvents.waitingForEvents
-  );
+    typeof profile.participatedEvents,
+    typeof profile.waitingForEvents
+  >(profile.participatedEvents, profile.waitingForEvents);
 
   const enhancedFutureEvents = {
     teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.teamMemberOfEvents
-    >(profileFutureEvents.teamMemberOfEvents, sessionUser?.id),
+      typeof profile.teamMemberOfEvents
+    >(profile.teamMemberOfEvents, sessionUser?.id),
     contributedEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.contributedEvents
-    >(profileFutureEvents.contributedEvents, sessionUser?.id),
+      typeof profile.contributedEvents
+    >(profile.contributedEvents, sessionUser?.id),
     participatedEvents:
       mode !== "anon"
         ? await addUserParticipationStatus<typeof combinedFutureEvents>(
@@ -487,36 +547,4 @@ export async function prepareProfileEvents(
         : undefined,
   };
   return enhancedFutureEvents;
-}
-
-// TODO: Type issues, rework public fields
-export async function filterProfileByMode(
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  mode: Mode
-) {
-  let data = {};
-
-  const publicFields = [
-    "id",
-    "username",
-    "firstName",
-    "lastName",
-    "academicTitle",
-    "areas",
-    "avatar",
-    "background",
-    "memberOf",
-    "teamMemberOfProjects",
-    ...profile.publicFields,
-  ];
-
-  for (const key in profile) {
-    // Only show public fields if user is anon, show all fields if user is not anon
-    if (mode !== "anon" || publicFields.includes(key)) {
-      // @ts-ignore <-- Partials allow undefined, Profile not
-      data[key] = profile[key];
-    }
-  }
-
-  return data as Partial<typeof profile>;
 }
