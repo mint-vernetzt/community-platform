@@ -65,7 +65,7 @@ function SearchView() {
       active ? "border-b-primary" : "border-b-transparent"
     } hover:border-b-primary cursor-pointer`;
   return query !== null && query !== "" ? (
-    <>
+    <div className="relative pb-44">
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Deine Suche</H1>
         <p>Hier siehst Du die Ergebnisse zu Deiner Suche "{query}".</p>
@@ -106,7 +106,7 @@ function SearchView() {
         </ul>
       </section>
       <Outlet />
-    </>
+    </div>
   ) : (
     <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
       <H1 like="h0">Suche</H1>

@@ -195,8 +195,15 @@ export async function getAllOrganizations(
   const organizations: Array<
     Pick<
       Organization,
-      "id" | "publicFields" | "name" | "slug" | "bio" | "logo" | "score"
-    > & { areaNames: string[]; organizationTypeTitles: string[] }
+      | "id"
+      | "publicFields"
+      | "name"
+      | "slug"
+      | "bio"
+      | "logo"
+      | "score"
+      | "background"
+    > & { areaNames: string[]; types: string[]; focuses: string[] }
   > = await prismaClient.$queryRaw`
   SELECT 
     organizations.id,
@@ -206,8 +213,10 @@ export async function getAllOrganizations(
     organizations.bio,
     organizations.logo,
     organizations.score,
+    organizations.background,
     array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
-    array_remove(array_agg(DISTINCT organization_types.title), null) as "organizationTypeTitles"
+    array_remove(array_agg(DISTINCT organization_types.title), null) as "types",
+    array_remove(array_agg(DISTINCT focuses.title), null) as "focuses"
   FROM organizations
     /* Always joining areas and organization_types to get areaNames and organizationTypeTitles */
     LEFT JOIN areas_on_organizations
@@ -218,6 +227,10 @@ export async function getAllOrganizations(
     ON organizations.id = organization_types_on_organizations."organizationId"
     LEFT JOIN organization_types
     ON organization_types_on_organizations."organizationTypeId" = organization_types.id
+    LEFT JOIN focuses_on_organizations
+    ON organizations.id = focuses_on_organizations."organizationId"
+    LEFT JOIN focuses
+    ON focuses_on_organizations."focusId" = focuses.id
   GROUP BY organizations.id
   ORDER BY "score" DESC, RANDOM()
   LIMIT ${take}

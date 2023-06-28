@@ -310,13 +310,14 @@ export default function Index() {
           </Form>
         </section>
       ) : null}
+
       <section
         ref={refCallback}
         className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
       >
-        <CardContainer type="multi row">
-          {items.length > 0 ? (
-            items.map((profile) => {
+        {items.length > 0 ? (
+          <CardContainer type="multi row">
+            {items.map((profile) => {
               return (
                 <ProfileCard
                   key={`profile-${profile.id}`}
@@ -324,14 +325,14 @@ export default function Index() {
                   profile={profile}
                 />
               );
-            })
-          ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
-          )}
-        </CardContainer>
+            })}
+          </CardContainer>
+        ) : (
+          <p className="text-center text-primary">
+            Für Deine Filterkriterien konnten leider keine Profile gefunden
+            werden.
+          </p>
+        )}
       </section>
     </>
   );
