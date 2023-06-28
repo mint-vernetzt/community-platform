@@ -1,4 +1,5 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { Organization } from "@prisma/client";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -26,8 +27,7 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
-import { ArrayElement } from "~/lib/utils/types";
-import type { OrganizationWithRelations } from "~/organization.server";
+import type { ArrayElement } from "~/lib/utils/types";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
@@ -50,22 +50,7 @@ export function links() {
   ];
 }
 
-type LoaderData = {
-  organization: Partial<
-    NonNullable<Awaited<ReturnType<typeof getOrganizationBySlug>>>
-  >;
-  userIsPrivileged: boolean;
-  images: {
-    logo?: string;
-    background?: string;
-  };
-  futureEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
-  pastEvents: Awaited<ReturnType<typeof prepareOrganizationEvents>>;
-  userId?: string;
-  mode: Mode;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -284,7 +269,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   );
 
-  return json<LoaderData>(
+  return json(
     {
       organization,
       userIsPrivileged,
@@ -299,7 +284,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function hasContactInformations(
-  organization: Partial<OrganizationWithRelations>
+  organization: Pick<Organization, "email" | "phone">
 ) {
   const hasEmail =
     typeof organization.email === "string" && organization.email !== "";
@@ -309,8 +294,8 @@ function hasContactInformations(
 }
 
 function notEmptyData(
-  key: keyof OrganizationWithRelations,
-  organization: Partial<OrganizationWithRelations>
+  key: ExternalService,
+  organization: Pick<Organization, ExternalService>
 ) {
   if (typeof organization[key] === "string") {
     return organization[key] !== "";
@@ -328,14 +313,14 @@ const ExternalServices: ExternalService[] = [
   "xing",
 ];
 function hasWebsiteOrSocialService(
-  organization: Partial<OrganizationWithRelations>,
+  organization: Pick<Organization, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, organization));
 }
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const initialsOfOrganization = loaderData.organization.name
     ? getInitialsOfName(loaderData.organization.name)
     : "";
