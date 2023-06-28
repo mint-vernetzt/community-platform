@@ -103,14 +103,14 @@ export const loader = async (args: LoaderArgs) => {
       await filterProfileDataByVisibilitySettings<
         ArrayElement<typeof rawTeamMembers>
       >(rawTeamMembers);
-    project.teamMembers = project.teamMembers.map((participant) => {
-      let filteredParticipant = participant;
+    project.teamMembers = project.teamMembers.map((teamMember) => {
+      let filteredTeamMember = teamMember;
       for (let filteredProfile of filteredTeamMemberProfiles) {
-        if (participant.profile.id === filteredProfile.id) {
-          filteredParticipant.profile = filteredProfile;
+        if (teamMember.profile.id === filteredProfile.id) {
+          filteredTeamMember.profile = filteredProfile;
         }
       }
-      return filteredParticipant;
+      return filteredTeamMember;
     });
     // Filter responsible organizations
     const rawResponsibleOrganizations = project.responsibleOrganizations.map(
