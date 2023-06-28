@@ -1,5 +1,5 @@
 import type { Organization } from "@prisma/client";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -49,6 +49,12 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction = (args) => {
+  return {
+    title: `MINTvernetzt Community Plattform | ${args.data.organization.name}`,
+  };
+};
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
