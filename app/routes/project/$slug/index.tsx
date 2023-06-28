@@ -1,4 +1,5 @@
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type { Project } from "@prisma/client";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -40,9 +41,7 @@ export const meta: MetaFunction = (args) => {
   };
 };
 
-function hasContactInformations(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
-) {
+function hasContactInformations(project: Pick<Project, "email" | "phone">) {
   const hasEmail = typeof project.email === "string" && project.email !== "";
   const hasPhone = typeof project.phone === "string" && project.phone !== "";
   return hasEmail || hasPhone;
@@ -59,8 +58,8 @@ const ExternalServices: ExternalService[] = [
 ];
 
 function notEmptyData(
-  key: keyof NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>,
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
+  key: ExternalService,
+  project: Pick<Project, ExternalService>
 ) {
   if (typeof project[key] === "string") {
     return project[key] !== "";
@@ -69,18 +68,13 @@ function notEmptyData(
 }
 
 function hasWebsiteOrSocialService(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>,
+  project: Pick<Project, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, project));
 }
 
-type LoaderData = {
-  mode: Awaited<ReturnType<typeof deriveMode>>;
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -190,11 +184,11 @@ export const loader: LoaderFunction = async (args) => {
     return item;
   });
 
-  return json<LoaderData>({ mode, project }, { headers: response.headers });
+  return json({ mode, project }, { headers: response.headers });
 };
 
 function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const Background = React.useCallback(
     () => (
