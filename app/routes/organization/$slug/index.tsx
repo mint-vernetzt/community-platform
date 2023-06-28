@@ -330,7 +330,7 @@ export default function Index() {
   const initialsOfOrganization = loaderData.organization.name
     ? getInitialsOfName(loaderData.organization.name)
     : "";
-  const organisationName = loaderData.organization.name ?? "";
+  const organizationName = loaderData.organization.name ?? "";
 
   const logo = loaderData.images.logo;
   const Avatar = React.useCallback(
@@ -344,7 +344,7 @@ export default function Index() {
           {logo ? (
             <img
               src={logo}
-              alt={organisationName}
+              alt={organizationName}
               className="max-w-full w-auto max-h-36 h-auto"
             />
           ) : (
@@ -353,7 +353,7 @@ export default function Index() {
         </div>
       </>
     ),
-    [logo, organisationName, initialsOfOrganization]
+    [logo, organizationName, initialsOfOrganization]
   );
 
   const background = loaderData.images.background;
@@ -462,16 +462,13 @@ export default function Index() {
                     </>
                   ) : null}
 
-                  {loaderData.organization.name ? (
-                    <h3 className="mt-6 text-5xl mb-1">
-                      {loaderData.organization.name}
-                    </h3>
-                  ) : null}
-                  {loaderData.organization.types &&
-                  loaderData.organization.types.length > 0 ? (
+                  <h3 className="mt-6 text-5xl mb-1">
+                    {loaderData.organization.name}
+                  </h3>
+                  {loaderData.organization.types.length > 0 ? (
                     <p className="font-bold text-sm mb-4">
                       {loaderData.organization.types
-                        .map(({ organizationType }) => organizationType.title)
+                        .map((relation) => relation.organizationType.title)
                         .join(", ")}
                     </p>
                   ) : null}
@@ -558,8 +555,14 @@ export default function Index() {
                   </ul>
                 ) : null}
 
-                {typeof loaderData.organization.street === "string" &&
-                loaderData.organization.street !== "" ? (
+                {(typeof loaderData.organization.street === "string" &&
+                  loaderData.organization.street !== "") ||
+                (typeof loaderData.organization.streetNumber === "string" &&
+                  loaderData.organization.streetNumber !== "") ||
+                (typeof loaderData.organization.zipCode === "string" &&
+                  loaderData.organization.zipCode !== "") ||
+                (typeof loaderData.organization.city === "string" &&
+                  loaderData.organization.city !== "") ? (
                   <>
                     <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
                     <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
@@ -575,30 +578,33 @@ export default function Index() {
                         </svg>
                       </span>
                       <span>
-                        {loaderData.organization.street}{" "}
-                        {loaderData.organization.streetNumber}
+                        {loaderData.organization.street
+                          ? `${loaderData.organization.street} ${loaderData.organization.streetNumber} `
+                          : ""}
                         <br />
-                        {loaderData.organization.zipCode}{" "}
-                        {loaderData.organization.city}
+                        {loaderData.organization.zipCode
+                          ? `${loaderData.organization.zipCode} `
+                          : ""}
+                        {loaderData.organization.city
+                          ? loaderData.organization.city
+                          : ""}
                       </span>
                     </p>
                   </>
                 ) : null}
                 <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
-                {loaderData.organization.createdAt ? (
-                  <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem{" "}
-                    {utcToZonedTime(
-                      loaderData.organization.createdAt,
-                      "Europe/Berlin"
-                    ).toLocaleDateString("de-De", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                ) : null}
+                <p className="text-xs mb-4 text-center">
+                  Profil besteht seit dem{" "}
+                  {utcToZonedTime(
+                    loaderData.organization.createdAt,
+                    "Europe/Berlin"
+                  ).toLocaleDateString("de-De", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
               </div>
               {/** TODO: Styling of quote section */}
               {typeof loaderData.organization.quote === "string" &&
@@ -618,24 +624,19 @@ export default function Index() {
           </div>
 
           <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20">
-            {loaderData.organization.name ||
-            (loaderData.userIsPrivileged && loaderData.organization.slug) ? (
+            {loaderData.userIsPrivileged ? (
               <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
-                {loaderData.organization.name ? (
-                  <div className="flex-auto pr-4 mb-6">
-                    <h1 className="mb-0">{loaderData.organization.name}</h1>
-                  </div>
-                ) : null}
-                {loaderData.userIsPrivileged && loaderData.organization.slug ? (
-                  <div className="flex-initial lg:pl-4 pt-3 mb-6">
-                    <Link
-                      className="btn btn-outline btn-primary"
-                      to={`/organization/${loaderData.organization.slug}/settings`}
-                    >
-                      Organisation bearbeiten
-                    </Link>
-                  </div>
-                ) : null}
+                <div className="flex-auto pr-4 mb-6">
+                  <h1 className="mb-0">{loaderData.organization.name}</h1>
+                </div>
+                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                  <Link
+                    className="btn btn-outline btn-primary"
+                    to={`/organization/${loaderData.organization.slug}/settings`}
+                  >
+                    Organisation bearbeiten
+                  </Link>
+                </div>
               </div>
             ) : null}
             {typeof loaderData.organization.bio === "string" &&
@@ -647,21 +648,19 @@ export default function Index() {
                 }}
               />
             ) : null}
-            {loaderData.organization.areas &&
-            loaderData.organization.areas.length > 0 ? (
+            {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Aktivitätsgebiete
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.organization.areas
-                    .map(({ area }) => area.name)
+                    .map((relation) => relation.area.name)
                     .join(" / ")}
                 </div>
               </div>
             ) : null}
-            {loaderData.organization.focuses &&
-            loaderData.organization.focuses.length > 0 ? (
+            {loaderData.organization.focuses.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   MINT-Schwerpunkte
@@ -669,13 +668,12 @@ export default function Index() {
 
                 <div className="flex-auto">
                   {loaderData.organization.focuses
-                    .map(({ focus }) => focus.title)
+                    .map((relation) => relation.focus.title)
                     .join(" / ")}
                 </div>
               </div>
             ) : null}
-            {loaderData.organization.supportedBy &&
-            loaderData.organization.supportedBy.length > 0 ? (
+            {loaderData.organization.supportedBy.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Unterstützt und gefördert von
@@ -686,67 +684,61 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.organization.memberOf &&
-            loaderData.organization.memberOf.length > 0 ? (
+            {loaderData.organization.memberOf.length > 0 ? (
               <>
                 <h3 className="mb-6 mt-14 font-bold">Teil des Netzwerks</h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
-                  {loaderData.organization.memberOf.map(({ network }) => (
+                  {loaderData.organization.memberOf.map((relation) => (
                     <OrganizationCard
-                      id={`organization-${network.slug}`}
-                      key={`organization-${network.slug}`}
-                      link={`/organization/${network.slug}`}
-                      name={network.name}
-                      types={network.types}
-                      image={network.logo}
+                      id={`organization-${relation.network.slug}`}
+                      key={`organization-${relation.network.slug}`}
+                      link={`/organization/${relation.network.slug}`}
+                      name={relation.network.name}
+                      types={relation.network.types}
+                      image={relation.network.logo}
                     />
                   ))}
                 </div>
               </>
             ) : null}
-            {loaderData.organization.networkMembers &&
-            loaderData.organization.networkMembers.length > 0 ? (
+            {loaderData.organization.networkMembers.length > 0 ? (
               <>
                 <h3 className="mb-6 mt-14 font-bold">
                   Mitgliedsorganisationen
                 </h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
-                  {loaderData.organization.networkMembers.map(
-                    ({ networkMember }) => (
-                      <OrganizationCard
-                        id={`organization-${networkMember.slug}`}
-                        key={`organization-${networkMember.slug}`}
-                        link={`/organization/${networkMember.slug}`}
-                        name={networkMember.name}
-                        types={networkMember.types}
-                        image={networkMember.logo}
-                      />
-                    )
-                  )}
-                </div>
-              </>
-            ) : null}
-            {loaderData.organization.teamMembers &&
-            loaderData.organization.teamMembers.length > 0 ? (
-              <>
-                <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
-                <div className="flex flex-wrap -mx-3 lg:items-stretch">
-                  {loaderData.organization.teamMembers.map(({ profile }) => (
-                    <ProfileCard
-                      id={`profile-${profile.username}`}
-                      key={`profile-${profile.username}`}
-                      link={`/profile/${profile.username}`}
-                      name={getFullName(profile)}
-                      initials={getInitials(profile)}
-                      position={profile.position}
-                      avatar={profile.avatar}
+                  {loaderData.organization.networkMembers.map((relation) => (
+                    <OrganizationCard
+                      id={`organization-${relation.networkMember.slug}`}
+                      key={`organization-${relation.networkMember.slug}`}
+                      link={`/organization/${relation.networkMember.slug}`}
+                      name={relation.networkMember.name}
+                      types={relation.networkMember.types}
+                      image={relation.networkMember.logo}
                     />
                   ))}
                 </div>
               </>
             ) : null}
-            {loaderData.organization.responsibleForProject &&
-            loaderData.organization.responsibleForProject.length > 0 ? (
+            {loaderData.organization.teamMembers.length > 0 ? (
+              <>
+                <h3 className="mb-6 mt-14 font-bold">Das Team</h3>
+                <div className="flex flex-wrap -mx-3 lg:items-stretch">
+                  {loaderData.organization.teamMembers.map((relation) => (
+                    <ProfileCard
+                      id={`profile-${relation.profile.username}`}
+                      key={`profile-${relation.profile.username}`}
+                      link={`/profile/${relation.profile.username}`}
+                      name={getFullName(relation.profile)}
+                      initials={getInitials(relation.profile)}
+                      position={relation.profile.position}
+                      avatar={relation.profile.avatar}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : null}
+            {loaderData.organization.responsibleForProject.length > 0 ? (
               <>
                 <div
                   id="projects"
@@ -759,77 +751,81 @@ export default function Index() {
 
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.organization.responsibleForProject.map(
-                    ({ project }) => (
+                    (relation) => (
                       // TODO: Project Card
                       <div
-                        key={project.slug}
+                        key={relation.project.slug}
                         data-testid="gridcell"
                         className="flex-100 px-3 mb-4"
                       >
                         <Link
-                          to={`/project/${project.slug}`}
+                          to={`/project/${relation.project.slug}`}
                           className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                         >
                           <div className="w-full flex items-center flex-row">
-                            {project.logo !== "" && project.logo !== null ? (
+                            {relation.project.logo !== "" &&
+                            relation.project.logo !== null ? (
                               <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                 <img
                                   className="max-w-full w-auto max-h-16 h-auto"
-                                  src={project.logo}
-                                  alt={project.name}
+                                  src={relation.project.logo}
+                                  alt={relation.project.name}
                                 />
                               </div>
                             ) : (
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                                {getInitialsOfName(project.name)}
+                                {getInitialsOfName(relation.project.name)}
                               </div>
                             )}
                             <div className="px-4 flex-auto">
                               <H3 like="h4" className="text-xl mb-1">
-                                {project.name}
+                                {relation.project.name}
                               </H3>
-                              {project.responsibleOrganizations &&
-                              project.responsibleOrganizations.length > 0 ? (
+                              {relation.project.responsibleOrganizations
+                                .length > 0 ? (
                                 <p className="font-bold text-sm">
-                                  {project.responsibleOrganizations
+                                  {relation.project.responsibleOrganizations
                                     .map(
-                                      ({ organization }) => organization.name
+                                      (relation) => relation.organization.name
                                     )
                                     .join(" / ")}
                                 </p>
                               ) : null}
                             </div>
-                            {project.awards && project.awards.length > 0 ? (
+                            {relation.project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
-                                {project.awards.map(({ award }) => {
+                                {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
-                                    award.date,
+                                    relation.award.date,
                                     "Europe/Berlin"
                                   );
                                   return (
                                     <div
-                                      key={`award-${award.id}`}
+                                      key={`award-${relation.award.id}`}
                                       className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                                     >
                                       <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                                         <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          {award.logo !== null &&
-                                          award.logo !== "" ? (
+                                          {relation.award.logo !== "" ? (
                                             <img
-                                              src={award.logo}
-                                              alt={award.title}
+                                              src={relation.award.logo}
+                                              alt={relation.award.title}
                                             />
                                           ) : (
-                                            getInitialsOfName(award.title)
+                                            getInitialsOfName(
+                                              relation.award.title
+                                            )
                                           )}
                                         </div>
                                         <div className="px-2 mb-4 pt-1">
-                                          <H4
-                                            like="h4"
-                                            className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
-                                          >
-                                            {award.shortTitle}
-                                          </H4>
+                                          {relation.award.shortTitle ? (
+                                            <H4
+                                              like="h4"
+                                              className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
+                                            >
+                                              {relation.award.shortTitle}
+                                            </H4>
+                                          ) : null}
                                           <p className="text-xxs text-center leading-none">
                                             {date.getFullYear()}
                                           </p>
@@ -866,64 +862,65 @@ export default function Index() {
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.responsibleForEvents.map(
-                        ({ event }) => {
+                        (relation) => {
                           const startTime = utcToZonedTime(
-                            event.startTime,
+                            relation.event.startTime,
                             "Europe/Berlin"
                           );
                           const endTime = utcToZonedTime(
-                            event.endTime,
+                            relation.event.endTime,
                             "Europe/Berlin"
                           );
                           return (
                             <div
-                              key={`future-event-${event.id}`}
+                              key={`future-event-${relation.event.id}`}
                               className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${relation.event.slug}`}
                               >
                                 <div className="hidden xl:block w-40 shrink-0">
                                   <img
                                     src={
-                                      event.background ||
+                                      relation.event.background ||
                                       "/images/default-event-background.jpg"
                                     }
-                                    alt={event.name}
+                                    alt={relation.event.name}
                                     className="object-cover w-full h-full"
                                   />
                                 </div>
                                 <div className="px-4 py-6">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
-                                      ? event.stage.title + " | "
+                                    {relation.event.stage !== null
+                                      ? relation.event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
-                                    {event._count.childEvents === 0 ? (
+                                    {relation.event._count.childEvents === 0 ? (
                                       <>
-                                        {event.participantLimit === null
+                                        {relation.event.participantLimit ===
+                                        null
                                           ? " | Unbegrenzte Plätze"
                                           : ` | ${
-                                              event.participantLimit -
-                                              event._count.participants
+                                              relation.event.participantLimit -
+                                              relation.event._count.participants
                                             } / ${
-                                              event.participantLimit
+                                              relation.event.participantLimit
                                             } Plätzen frei`}
                                       </>
                                     ) : (
                                       ""
                                     )}
-                                    {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                    {relation.event.participantLimit !== null &&
+                                    relation.event._count.participants >=
+                                      relation.event.participantLimit ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {relation.event._count.waitingList}{" "}
+                                          auf der Warteliste
                                         </span>
                                       </>
                                     ) : (
@@ -931,64 +928,66 @@ export default function Index() {
                                     )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
-                                    {event.name}
+                                    {relation.event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {relation.event.subline !== null ? (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.subline}
+                                      {relation.event.subline}
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {relation.event.description || ""}
                                     </p>
                                   )}
                                 </div>
                               </Link>
-                              {event.canceled ? (
+                              {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
                                   Abgesagt
                                 </div>
                               ) : null}
-                              {event.isParticipant && !event.canceled ? (
+                              {relation.event.isParticipant &&
+                              !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>Angemeldet</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
-                              canUserParticipate(event) ? (
+                              canUserParticipate(relation.event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
-                                    action={`/event/${event.slug}/settings/participants/add-participant`}
+                                    action={`/event/${relation.event.slug}/settings/participants/add-participant`}
                                     userId={loaderData.userId}
-                                    eventId={event.id}
+                                    eventId={relation.event.id}
                                     id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
-                              {event.isOnWaitingList && !event.canceled ? (
+                              {relation.event.isOnWaitingList &&
+                              !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>Wartend</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
-                              canUserBeAddedToWaitingList(event) ? (
+                              canUserBeAddedToWaitingList(relation.event) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
+                                    action={`/event/${relation.event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     userId={loaderData.userId}
-                                    eventId={event.id}
+                                    eventId={relation.event.id}
                                     id={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {!relation.event.isParticipant &&
+                              !canUserParticipate(relation.event) &&
+                              !relation.event.isOnWaitingList &&
+                              !canUserBeAddedToWaitingList(relation.event) &&
+                              !relation.event.canceled ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
@@ -996,12 +995,12 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {loaderData.mode === "anon" &&
-                              event.canceled === false &&
-                              event._count.childEvents === 0 ? (
+                              relation.event.canceled === false &&
+                              relation.event._count.childEvents === 0 ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${event.slug}`}
+                                    to={`/login?login_redirect=/event/${relation.event.slug}`}
                                   >
                                     Anmelden
                                   </Link>
@@ -1021,75 +1020,76 @@ export default function Index() {
                     </h6>
                     <div className="mb-16">
                       {loaderData.pastEvents.responsibleForEvents.map(
-                        ({ event }) => {
+                        (relation) => {
                           const startTime = utcToZonedTime(
-                            event.startTime,
+                            relation.event.startTime,
                             "Europe/Berlin"
                           );
                           const endTime = utcToZonedTime(
-                            event.endTime,
+                            relation.event.endTime,
                             "Europe/Berlin"
                           );
                           return (
                             <div
-                              key={`past-event-${event.id}`}
+                              key={`past-event-${relation.event.id}`}
                               className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${relation.event.slug}`}
                               >
                                 <div className="hidden xl:block w-40 shrink-0">
                                   <img
                                     src={
-                                      event.background ||
+                                      relation.event.background ||
                                       "/images/default-event-background.jpg"
                                     }
-                                    alt={event.name}
+                                    alt={relation.event.name}
                                     className="object-cover w-full h-full"
                                   />
                                 </div>
                                 <div className="px-4 py-6">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
-                                      ? event.stage.title + " | "
+                                    {relation.event.stage !== null
+                                      ? relation.event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
-                                    {event.name}
+                                    {relation.event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {relation.event.subline !== null ? (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.subline}
+                                      {relation.event.subline}
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {relation.event.description || ""}
                                     </p>
                                   )}
                                 </div>
                               </Link>
-                              {event.canceled ? (
+                              {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
                                   Wurde abgesagt
                                 </div>
                               ) : null}
-                              {event.isParticipant && !event.canceled ? (
+                              {relation.event.isParticipant &&
+                              !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>Teilgenommen</p>
                                 </div>
                               ) : null}
 
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {!relation.event.isParticipant &&
+                              !canUserParticipate(relation.event) &&
+                              !relation.event.isOnWaitingList &&
+                              !canUserBeAddedToWaitingList(relation.event) &&
+                              !relation.event.canceled ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
