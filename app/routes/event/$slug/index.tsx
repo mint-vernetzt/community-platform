@@ -1162,7 +1162,8 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {(!event.isParticipant &&
+                        {(event.published &&
+                          !event.isParticipant &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
