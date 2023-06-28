@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -27,6 +27,12 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction = (args) => {
+  return {
+    title: `MINTvernetzt Community Plattform | ${args.data.project.name}`,
+  };
+};
 
 function hasContactInformations(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
