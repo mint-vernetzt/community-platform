@@ -196,7 +196,8 @@ function Participants() {
         <>
           <h4 className="mb-4 mt-16 font-semibold">Warteliste</h4>
           <p className="mb-4">
-            Folgende Profil stehen altuell auf der Warteliste
+            Folgende Profile stehen aktuell auf der Warteliste (in Reihenfolge
+            ihrer Anmeldung.)
           </p>
         </>
       ) : null}

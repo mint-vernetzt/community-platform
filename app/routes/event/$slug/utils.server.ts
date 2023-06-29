@@ -265,9 +265,7 @@ export async function getEventByField(field: string, value: string) {
           },
         },
         orderBy: {
-          profile: {
-            firstName: "asc",
-          },
+          createdAt: "asc",
         },
       },
       documents: {

@@ -32,12 +32,16 @@ async function getProfilesBySearchParams(
     if (depth === "full") {
       profiles = await getFullDepthProfiles(event.id, "waitingList", groupBy);
     } else if (depth === "single") {
-      profiles = event.waitingList.map((waitingParticipant) => {
-        return {
-          ...waitingParticipant.profile,
-          participatedEvents: event.name,
-        };
-      });
+      profiles = event.waitingList
+        .sort((a, b) => {
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        })
+        .map((waitingParticipant) => {
+          return {
+            ...waitingParticipant.profile,
+            participatedEvents: event.name,
+          };
+        });
     } else {
       throw badRequest({
         message:
