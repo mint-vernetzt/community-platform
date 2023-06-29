@@ -1,5 +1,6 @@
 import {
   Button,
+  CardContainer,
   Link,
   OrganizationCard,
   ProfileCard,
@@ -50,7 +51,7 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  const numberOfProfiles = 3;
+  const numberOfProfiles = 4;
   const profileCount = await prismaClient.profile.count();
   const rawProfiles = await prismaClient.profile.findMany({
     include: {
@@ -185,7 +186,7 @@ export const loader = async (args: LoaderArgs) => {
     };
   });
 
-  const numberOfOrganizations = 3;
+  const numberOfOrganizations = 4;
   const organizationCount = await prismaClient.organization.count();
   const rawOrganizations = await prismaClient.organization.findMany({
     include: {
@@ -341,26 +342,29 @@ function Dashboard() {
   return (
     <div className="relative pb-4 sm:pb-8 md:pb-16 lg:pb-20">
       <main>
-        <section className="mv-w-full mv-mx-auto mv-px-4 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px] mv-mt-4 lg:mv-mt-10 mv-mb-12 lg:mv-mb-16">
-          <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-            Willkommen,
-            <br />
-            {loaderData.firstName} {loaderData.lastName}
-          </h1>
-          <p className="mv-font-semibold mv-mb-6">
-            in Deiner MINTvernetzt-Community!
-          </p>
-          <p>
-            <Button
-              variant="outline"
-              as="a"
-              href={`/profile/${loaderData.username}`}
-            >
-              Mein Profil besuchen
-            </Button>
-          </p>
+        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+          <div className="mv-mx-4">
+            <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
+              Willkommen,
+              <br />
+              {loaderData.firstName} {loaderData.lastName}
+            </h1>
+            <p className="mv-font-semibold mv-mb-6">
+              in Deiner MINTvernetzt-Community!
+            </p>
+            <p>
+              <Button
+                variant="outline"
+                as="a"
+                href={`/profile/${loaderData.username}`}
+              >
+                Mein Profil besuchen
+              </Button>
+            </p>
+          </div>
         </section>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]">
+        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+          {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
           {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
           <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
@@ -374,13 +378,13 @@ function Dashboard() {
               </Link>
             </div>
           </div>
-          <ScrollContainer>
+          <CardContainer>
             {loaderData.profiles.map((profile) => {
               return <ProfileCard key={profile.username} profile={profile} />;
             })}
-          </ScrollContainer>
+          </CardContainer>
         </section>
-        <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]">
+        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
           <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
               Organisationen
@@ -393,7 +397,7 @@ function Dashboard() {
               </Link>
             </div>
           </div>
-          <ScrollContainer>
+          <CardContainer>
             {loaderData.organizations.map((organization) => {
               return (
                 <OrganizationCard
@@ -402,7 +406,7 @@ function Dashboard() {
                 />
               );
             })}
-          </ScrollContainer>
+          </CardContainer>
         </section>
       </main>
     </div>

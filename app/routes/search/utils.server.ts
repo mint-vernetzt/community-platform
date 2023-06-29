@@ -39,11 +39,32 @@ export async function searchProfilesViaLike(
       avatar: true,
       position: true,
       score: true,
+      background: true,
       areas: {
         select: {
           area: {
             select: {
               name: true,
+            },
+          },
+        },
+      },
+      memberOf: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      offers: {
+        select: {
+          offer: {
+            select: {
+              title: true,
             },
           },
         },
@@ -243,6 +264,7 @@ export async function searchOrganizationsViaLike(
       slug: true,
       name: true,
       logo: true,
+      background: true,
       bio: true,
       areas: {
         select: {
@@ -258,6 +280,27 @@ export async function searchOrganizationsViaLike(
           organizationType: {
             select: {
               title: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      teamMembers: {
+        select: {
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              username: true,
             },
           },
         },

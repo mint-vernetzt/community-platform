@@ -42,7 +42,7 @@ function OrganizationCard(
     : "-nicht angegeben-";
 
   return (
-    <Card to={`./organization/${organization.slug}`}>
+    <Card to={`/organization/${organization.slug}`}>
       <CardHeader>
         <Avatar {...organization} size="xl" />
         {organization.background && <CardImage src={organization.background} />}
