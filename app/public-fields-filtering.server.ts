@@ -326,8 +326,11 @@ export async function filterEventDataByVisibilitySettings<
           key === "venueZipCode" ||
           key === "subline" ||
           key === "experienceLevel" ||
+          key === "experienceLevelId" ||
           key === "parentEvent" ||
-          key === "stage"
+          key === "parentEventId" ||
+          key === "stage" ||
+          key === "stageId"
         ) {
           filteredFields[key] =
             eventVisibility[key] === true ? event[key] : null;
@@ -379,7 +382,7 @@ export async function filterProjectDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in projectVisibility) {
-      if (key !== "id" && key !== "projectId") {
+      if (key !== "id") {
         // Fields in Project with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
