@@ -2480,6 +2480,7 @@ export async function seedAllEntities(
             return {
               profileId: id,
               eventId: largestEventId,
+              createdAt: createRandomDate(),
             };
           }),
         ],
@@ -3541,6 +3542,7 @@ export async function seedAllEntities(
             return {
               profileId: id,
               eventId: fullParticipantsEventId,
+              createdAt: createRandomDate(),
             };
           }),
         ],
