@@ -73,7 +73,7 @@ export const loader = async (args: LoaderArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logoImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+            resize: { type: "fill", width: 136, height: 136 },
             gravity: GravityType.center,
           });
         }
