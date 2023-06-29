@@ -5603,12 +5603,6 @@ export async function seedEntity<
     "firstName" in entity &&
     entity.email !== undefined
   ) {
-    const profileVisibility = await prismaClient.profileVisibility.create({
-      select: {
-        id: true,
-      },
-      data: {},
-    });
     const { data, error } = await authClient.auth.admin.createUser({
       email: entity.email,
       password: defaultPassword,
@@ -5619,7 +5613,6 @@ export async function seedEntity<
         username: entity.username,
         academicTitle: entity.academicTitle || null,
         termsAccepted: entity.termsAccepted,
-        profileVisibilityId: profileVisibility.id,
       },
     });
     if (error !== null || data === null) {
@@ -5632,6 +5625,16 @@ export async function seedEntity<
           where: { id: data.user.id },
           data: entity,
           select: { id: true },
+        });
+        await prismaClient.profile.update({
+          where: {
+            id: data.user.id,
+          },
+          data: {
+            profileVisibility: {
+              create: {},
+            },
+          },
         });
       } catch (e) {
         console.error(e);
