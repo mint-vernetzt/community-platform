@@ -377,28 +377,6 @@ export async function deleteEventById(id: string) {
       id,
     },
   });
-  // const eventVisibility = await prismaClient.eventVisibility.findFirst({
-  //   where: {
-  //     event: {
-  //       id,
-  //     },
-  //   },
-  // });
-  // if (eventVisibility === null) {
-  //   throw notFound("Event visibility not found. Event was not deleted.");
-  // }
-  // await prismaClient.$transaction([
-  //   prismaClient.event.delete({
-  //     where: {
-  //       id,
-  //     },
-  //   }),
-  //   prismaClient.eventVisibility.delete({
-  //     where: {
-  //       id: eventVisibility.id,
-  //     },
-  //   }),
-  // ]);
 }
 
 export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
