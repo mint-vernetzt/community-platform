@@ -555,22 +555,28 @@ export async function seedAllEntities(
       "Standard",
       i,
       {
-        avatar: {
-          path: imageBucketData.avatars[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.avatars.length - 1,
-            })
-          ],
-        },
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        avatar:
+          imageBucketData.avatars.length > 0
+            ? {
+                path: imageBucketData.avatars[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.avatars.length - 1,
+                  })
+                ],
+              }
+            : undefined,
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -596,22 +602,28 @@ export async function seedAllEntities(
       "Standard",
       i,
       {
-        logo: {
-          path: imageBucketData.logos[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.logos.length - 1,
-            })
-          ],
-        },
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        logo:
+          imageBucketData.logos.length > 0
+            ? {
+                path: imageBucketData.logos[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
+            : undefined,
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -662,64 +674,75 @@ export async function seedAllEntities(
   }
 
   // Seeding standard documents
-  for (let i = 0; i < numberOfStandardEntities; i++) {
-    const standardDocument = getEntityData<"document">(
-      "document",
-      "Standard",
-      i,
-      {
-        document:
-          documentBucketData.documents[
-            faker.datatype.number({
-              min: 0,
-              max: documentBucketData.documents.length - 1,
-            })
-          ],
-      },
-      useRealNames,
-      numberOfStandardEntities
-    );
-    const standardDocumentId = await seedEntity<"document">(
-      "document",
-      standardDocument,
-      authClient,
-      defaultPassword
-    );
-    standardDocumentIds.push(standardDocumentId);
-    console.log(
-      `Successfully seeded standard document with id: ${standardDocumentId}`
-    );
+  if (documentBucketData.documents.length > 0) {
+    for (let i = 0; i < numberOfStandardEntities; i++) {
+      const standardDocument = getEntityData<"document">(
+        "document",
+        "Standard",
+        i,
+        {
+          document:
+            documentBucketData.documents[
+              faker.datatype.number({
+                min: 0,
+                max: documentBucketData.documents.length - 1,
+              })
+            ],
+        },
+        useRealNames,
+        numberOfStandardEntities
+      );
+      const standardDocumentId = await seedEntity<"document">(
+        "document",
+        standardDocument,
+        authClient,
+        defaultPassword
+      );
+      standardDocumentIds.push(standardDocumentId);
+      console.log(
+        `Successfully seeded standard document with id: ${standardDocumentId}`
+      );
+    }
+  } else {
+    console.warn("No documents were seeded as no documents were uploaded.");
   }
 
   // Seeding standard awards
-  for (let i = 0; i < numberOfStandardEntities; i++) {
-    const standardAward = getEntityData<"award">(
-      "award",
-      "Standard",
-      i,
-      {
-        logo: {
-          path: imageBucketData.logos[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.logos.length - 1,
-            })
-          ],
+  if (imageBucketData.logos.length > 0) {
+    for (let i = 0; i < numberOfStandardEntities; i++) {
+      const standardAward = getEntityData<"award">(
+        "award",
+        "Standard",
+        i,
+        {
+          logo:
+            imageBucketData.logos.length > 0
+              ? {
+                  path: imageBucketData.logos[
+                    faker.datatype.number({
+                      min: 0,
+                      max: imageBucketData.logos.length - 1,
+                    })
+                  ],
+                }
+              : { path: "" },
         },
-      },
-      useRealNames,
-      numberOfStandardEntities
-    );
-    const standardAwardId = await seedEntity<"award">(
-      "award",
-      standardAward,
-      authClient,
-      defaultPassword
-    );
-    standardAwardIds.push(standardAwardId);
-    console.log(
-      `Successfully seeded standard award with id: ${standardAwardId}`
-    );
+        useRealNames,
+        numberOfStandardEntities
+      );
+      const standardAwardId = await seedEntity<"award">(
+        "award",
+        standardAward,
+        authClient,
+        defaultPassword
+      );
+      standardAwardIds.push(standardAwardId);
+      console.log(
+        `Successfully seeded standard award with id: ${standardAwardId}`
+      );
+    }
+  } else {
+    console.warn("No awards were seeded as no logos were uploaded.");
   }
 
   // Seeding standard events
@@ -729,14 +752,17 @@ export async function seedAllEntities(
       "Standard",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -844,22 +870,28 @@ export async function seedAllEntities(
       "Standard",
       i,
       {
-        logo: {
-          path: imageBucketData.logos[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.logos.length - 1,
-            })
-          ],
-        },
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        logo:
+          imageBucketData.logos.length > 0
+            ? {
+                path: imageBucketData.logos[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
+            : undefined,
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -913,22 +945,28 @@ export async function seedAllEntities(
     "Developer",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -951,22 +989,28 @@ export async function seedAllEntities(
     "Private",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -997,22 +1041,28 @@ export async function seedAllEntities(
     "Public",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1064,22 +1114,28 @@ export async function seedAllEntities(
     "Empty Strings",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1114,22 +1170,28 @@ export async function seedAllEntities(
     "Event Manager",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1175,22 +1237,28 @@ export async function seedAllEntities(
     "Maker",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1231,22 +1299,28 @@ export async function seedAllEntities(
       "Network",
       i,
       {
-        logo: {
-          path: imageBucketData.logos[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.logos.length - 1,
-            })
-          ],
-        },
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        logo:
+          imageBucketData.logos.length > 0
+            ? {
+                path: imageBucketData.logos[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
+            : undefined,
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -1298,22 +1372,28 @@ export async function seedAllEntities(
     "Coordinator",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1363,22 +1443,28 @@ export async function seedAllEntities(
     "Coordinator",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1443,22 +1529,28 @@ export async function seedAllEntities(
     "Unicode",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1489,22 +1581,28 @@ export async function seedAllEntities(
     "Largest",
     0,
     {
-      avatar: {
-        path: imageBucketData.avatars[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.avatars.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      avatar:
+        imageBucketData.avatars.length > 0
+          ? {
+              path: imageBucketData.avatars[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1576,12 +1674,14 @@ export async function seedAllEntities(
       }),
     ],
   });
+
   await prismaClient.waitingParticipantOfEvent.createMany({
     data: [
       ...fullParticipantEventIds.map((id) => {
         return {
           profileId: largestProfileId,
           eventId: id,
+          createdAt: createRandomDate(),
         };
       }),
     ],
@@ -1597,22 +1697,28 @@ export async function seedAllEntities(
     "Developer",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1657,22 +1763,28 @@ export async function seedAllEntities(
     "Small Team",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1717,22 +1829,28 @@ export async function seedAllEntities(
     "Large Team",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1805,22 +1923,28 @@ export async function seedAllEntities(
     "Private",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1865,22 +1989,28 @@ export async function seedAllEntities(
     "Public",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1925,22 +2055,28 @@ export async function seedAllEntities(
     "Empty Strings",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -1985,22 +2121,28 @@ export async function seedAllEntities(
     "Event Companion",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -2055,22 +2197,28 @@ export async function seedAllEntities(
     "Project Companion",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -2125,22 +2273,28 @@ export async function seedAllEntities(
     "Unicode",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -2180,31 +2334,38 @@ export async function seedAllEntities(
   );
 
   // Seeding largest document
-  const largestDocument = getEntityData<"document">(
-    "document",
-    "Largest",
-    0,
-    {
-      document:
-        documentBucketData.documents[
-          faker.datatype.number({
-            min: 0,
-            max: documentBucketData.documents.length - 1,
-          })
-        ],
-    },
-    useRealNames,
-    numberOfStandardEntities
-  );
-  const largestDocumentId = await seedEntity<"document">(
-    "document",
-    largestDocument,
-    authClient,
-    defaultPassword
-  );
-  console.log(
-    `Successfully seeded largest document with id: ${largestDocumentId}`
-  );
+  let largestDocumentId: string | undefined;
+  if (documentBucketData.documents.length > 0) {
+    const largestDocument = getEntityData<"document">(
+      "document",
+      "Largest",
+      0,
+      {
+        document:
+          documentBucketData.documents[
+            faker.datatype.number({
+              min: 0,
+              max: documentBucketData.documents.length - 1,
+            })
+          ],
+      },
+      useRealNames,
+      numberOfStandardEntities
+    );
+    largestDocumentId = await seedEntity<"document">(
+      "document",
+      largestDocument,
+      authClient,
+      defaultPassword
+    );
+    console.log(
+      `Successfully seeded largest document with id: ${largestDocumentId}`
+    );
+  } else {
+    console.warn(
+      "No documents found in document bucket, skipping seeding of largest document"
+    );
+  }
 
   // Seeding largest events
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
@@ -2213,14 +2374,17 @@ export async function seedAllEntities(
       "Largest",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -2316,6 +2480,7 @@ export async function seedAllEntities(
             return {
               profileId: id,
               eventId: largestEventId,
+              createdAt: createRandomDate(),
             };
           }),
         ],
@@ -2331,19 +2496,20 @@ export async function seedAllEntities(
         }),
       ],
     });
+    let data = standardDocumentIds.map((id) => {
+      return {
+        documentId: id,
+        eventId: largestEventId,
+      };
+    });
+    if (largestDocumentId !== undefined) {
+      data.push({
+        documentId: largestDocumentId,
+        eventId: largestEventId,
+      });
+    }
     await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: largestDocumentId,
-          eventId: largestEventId,
-        },
-        ...standardDocumentIds.map((id) => {
-          return {
-            documentId: id,
-            eventId: largestEventId,
-          };
-        }),
-      ],
+      data,
     });
     largestEventIds.push(largestEventId);
     console.log(`Successfully seeded largest event with id: ${largestEventId}`);
@@ -2355,14 +2521,17 @@ export async function seedAllEntities(
     "Largest",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -2381,22 +2550,28 @@ export async function seedAllEntities(
     "Largest",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -2463,22 +2638,28 @@ export async function seedAllEntities(
     "Largest",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -2567,14 +2748,17 @@ export async function seedAllEntities(
       "Developer",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -2600,17 +2784,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: developerProfileId,
-          eventId: developerEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: developerEventId,
           };
         }),
+        {
+          profileId: developerProfileId,
+          eventId: developerEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -2698,14 +2882,17 @@ export async function seedAllEntities(
       "Depth2",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -2731,17 +2918,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: depth2EventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: depth2EventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth2EventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -2856,14 +3043,17 @@ export async function seedAllEntities(
       "Depth3",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -2889,17 +3079,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: depth3EventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: depth3EventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth3EventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3007,31 +3197,38 @@ export async function seedAllEntities(
   }
 
   // Seeding smallest document
-  const smallestDocument = getEntityData<"document">(
-    "document",
-    "Smallest",
-    0,
-    {
-      document:
-        documentBucketData.documents[
-          faker.datatype.number({
-            min: 0,
-            max: documentBucketData.documents.length - 1,
-          })
-        ],
-    },
-    useRealNames,
-    numberOfStandardEntities
-  );
-  const smallestDocumentId = await seedEntity<"document">(
-    "document",
-    smallestDocument,
-    authClient,
-    defaultPassword
-  );
-  console.log(
-    `Successfully seeded smallest document with id: ${smallestDocumentId}`
-  );
+  let smallestDocumentId: string | undefined;
+  if (documentBucketData.documents.length > 0) {
+    const smallestDocument = getEntityData<"document">(
+      "document",
+      "Smallest",
+      0,
+      {
+        document:
+          documentBucketData.documents[
+            faker.datatype.number({
+              min: 0,
+              max: documentBucketData.documents.length - 1,
+            })
+          ],
+      },
+      useRealNames,
+      numberOfStandardEntities
+    );
+    smallestDocumentId = await seedEntity<"document">(
+      "document",
+      smallestDocument,
+      authClient,
+      defaultPassword
+    );
+    console.log(
+      `Successfully seeded smallest document with id: ${smallestDocumentId}`
+    );
+  } else {
+    console.warn(
+      "No documents found in document bucket, skipping seeding of smallest document"
+    );
+  }
 
   // Seeding smallest events
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
@@ -3060,45 +3257,58 @@ export async function seedAllEntities(
         },
       ],
     });
-    await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: smallestDocumentId,
-          eventId: smallestEventId,
-        },
-      ],
-    });
+    if (smallestDocumentId !== undefined) {
+      await prismaClient.documentOfEvent.createMany({
+        data: [
+          {
+            documentId: smallestDocumentId,
+            eventId: smallestEventId,
+          },
+        ],
+      });
+    } else {
+      console.warn(
+        "No documents found in document bucket, skipping seeding document of smallest event"
+      );
+    }
     console.log(
       `Successfully seeded smallest event with id: ${smallestEventId}`
     );
   }
 
   // Seeding empty strings document
-  const emptyStringsDocument = getEntityData<"document">(
-    "document",
-    "Empty Strings",
-    0,
-    {
-      document:
-        documentBucketData.documents[
-          faker.datatype.number({
-            min: 0,
-            max: documentBucketData.documents.length - 1,
-          })
-        ],
-    },
-    useRealNames,
-    numberOfStandardEntities
-  );
-  const emptyStringsDocumentId = await seedEntity<"document">(
-    "document",
-    emptyStringsDocument,
-    authClient,
-    defaultPassword
-  );
-  console.log(
-    `Successfully seeded empty strings document with id: ${emptyStringsDocumentId}`
-  );
+  let emptyStringsDocumentId: string | undefined;
+  if (documentBucketData.documents.length > 0) {
+    const emptyStringsDocument = getEntityData<"document">(
+      "document",
+      "Empty Strings",
+      0,
+      {
+        document:
+          documentBucketData.documents[
+            faker.datatype.number({
+              min: 0,
+              max: documentBucketData.documents.length - 1,
+            })
+          ],
+      },
+      useRealNames,
+      numberOfStandardEntities
+    );
+    const emptyStringsDocumentId = await seedEntity<"document">(
+      "document",
+      emptyStringsDocument,
+      authClient,
+      defaultPassword
+    );
+    console.log(
+      `Successfully seeded empty strings document with id: ${emptyStringsDocumentId}`
+    );
+  } else {
+    console.warn(
+      "No documents found in document bucket, skipping seeding of empty strings document"
+    );
+  }
 
   // Seeding empty strings events
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
@@ -3107,14 +3317,17 @@ export async function seedAllEntities(
       "Empty Strings",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3140,17 +3353,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: emptyStringsProfileId,
-          eventId: emptyStringsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: emptyStringsEventId,
           };
         }),
+        {
+          profileId: emptyStringsProfileId,
+          eventId: emptyStringsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3216,19 +3429,22 @@ export async function seedAllEntities(
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
     >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+
+    const data = someDocumentIds.map((id) => {
+      return {
+        documentId: id,
+        eventId: emptyStringsEventId,
+      };
+    });
+
+    if (emptyStringsDocumentId !== undefined) {
+      data.push({
+        documentId: emptyStringsDocumentId,
+        eventId: emptyStringsEventId,
+      });
+    }
     await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: emptyStringsDocumentId,
-          eventId: emptyStringsEventId,
-        },
-        ...someDocumentIds.map((id) => {
-          return {
-            documentId: id,
-            eventId: emptyStringsEventId,
-          };
-        }),
-      ],
+      data,
     });
     console.log(
       `Successfully seeded empty strings event with id: ${emptyStringsEventId}`
@@ -3242,14 +3458,17 @@ export async function seedAllEntities(
       "Full Participants",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3278,6 +3497,7 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: fullParticipantsEventId,
+          isPrivileged: true,
         },
       ],
     });
@@ -3322,6 +3542,7 @@ export async function seedAllEntities(
             return {
               profileId: id,
               eventId: fullParticipantsEventId,
+              createdAt: createRandomDate(),
             };
           }),
         ],
@@ -3366,14 +3587,17 @@ export async function seedAllEntities(
       "Canceled",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3399,17 +3623,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: canceledEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: canceledEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: canceledEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3497,14 +3721,17 @@ export async function seedAllEntities(
       "Unpublished",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3530,17 +3757,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: unpublishedEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: unpublishedEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: unpublishedEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3599,14 +3826,17 @@ export async function seedAllEntities(
       "Small Team",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3632,17 +3862,17 @@ export async function seedAllEntities(
     >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: smallestProfileId,
-          eventId: smallTeamEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds.map((id) => {
           return {
             profileId: id,
             eventId: smallTeamEventId,
           };
         }),
+        {
+          profileId: smallestProfileId,
+          eventId: smallTeamEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3675,14 +3905,20 @@ export async function seedAllEntities(
         },
       ],
     });
-    await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: smallestDocumentId,
-          eventId: smallTeamEventId,
-        },
-      ],
-    });
+    if (smallestDocumentId !== undefined) {
+      await prismaClient.documentOfEvent.createMany({
+        data: [
+          {
+            documentId: smallestDocumentId,
+            eventId: smallTeamEventId,
+          },
+        ],
+      });
+    } else {
+      console.warn(
+        "No documents found in document bucket, skipping seeding document of small team event"
+      );
+    }
     console.log(
       `Successfully seeded small team event with id: ${smallTeamEventId}`
     );
@@ -3695,14 +3931,17 @@ export async function seedAllEntities(
       "Large Team",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3725,17 +3964,17 @@ export async function seedAllEntities(
     );
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: largestProfileId,
-          eventId: largeTeamEventId,
-          isPrivileged: true,
-        },
         ...standardProfileIds.map((id) => {
           return {
             profileId: id,
             eventId: largeTeamEventId,
           };
         }),
+        {
+          profileId: largestProfileId,
+          eventId: largeTeamEventId,
+          isPrivileged: true,
+        },
       ],
     });
     someOrganizationIds = getRandomUniqueSubset<
@@ -3758,19 +3997,22 @@ export async function seedAllEntities(
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
     >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+
+    let data = someDocumentIds.map((id) => {
+      return {
+        documentId: id,
+        eventId: largeTeamEventId,
+      };
+    });
+    if (largestDocumentId !== undefined) {
+      data.push({
+        documentId: largestDocumentId,
+        eventId: largeTeamEventId,
+      });
+    }
+
     await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: largestDocumentId,
-          eventId: largeTeamEventId,
-        },
-        ...someDocumentIds.map((id) => {
-          return {
-            documentId: id,
-            eventId: largeTeamEventId,
-          };
-        }),
-      ],
+      data,
     });
     console.log(
       `Successfully seeded large team event with id: ${largeTeamEventId}`
@@ -3784,14 +4026,17 @@ export async function seedAllEntities(
       "Many Responsible Organizations",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -3817,17 +4062,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: manyResponsibleOrganizationsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: manyResponsibleOrganizationsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyResponsibleOrganizationsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3912,14 +4157,17 @@ export async function seedAllEntities(
       "Many Speakers",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -4005,14 +4253,17 @@ export async function seedAllEntities(
       "Many Participants",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -4112,14 +4363,17 @@ export async function seedAllEntities(
       "Many Documents",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -4145,17 +4399,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: manyDocumentsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: manyDocumentsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyDocumentsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4240,14 +4494,17 @@ export async function seedAllEntities(
       "Overfull Participants",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -4273,17 +4530,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: overfullParticipantsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: overfullParticipantsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: overfullParticipantsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4350,31 +4607,38 @@ export async function seedAllEntities(
   }
 
   // Seeding unicode document
-  const unicodeDocument = getEntityData<"document">(
-    "document",
-    "Unicode",
-    0,
-    {
-      document:
-        documentBucketData.documents[
-          faker.datatype.number({
-            min: 0,
-            max: documentBucketData.documents.length - 1,
-          })
-        ],
-    },
-    useRealNames,
-    numberOfStandardEntities
-  );
-  const unicodeDocumentId = await seedEntity<"document">(
-    "document",
-    unicodeDocument,
-    authClient,
-    defaultPassword
-  );
-  console.log(
-    `Successfully seeded unicode document with id: ${unicodeDocumentId}`
-  );
+  let unicodeDocumentId: string | undefined;
+  if (documentBucketData.documents.length > 0) {
+    const unicodeDocument = getEntityData<"document">(
+      "document",
+      "Unicode",
+      0,
+      {
+        document:
+          documentBucketData.documents[
+            faker.datatype.number({
+              min: 0,
+              max: documentBucketData.documents.length - 1,
+            })
+          ],
+      },
+      useRealNames,
+      numberOfStandardEntities
+    );
+    unicodeDocumentId = await seedEntity<"document">(
+      "document",
+      unicodeDocument,
+      authClient,
+      defaultPassword
+    );
+    console.log(
+      `Successfully seeded unicode document with id: ${unicodeDocumentId}`
+    );
+  } else {
+    console.warn(
+      "No documents found in document bucket, skipping seeding unicode document"
+    );
+  }
 
   // Seeding unicode events
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
@@ -4383,14 +4647,17 @@ export async function seedAllEntities(
       "Unicode",
       i,
       {
-        background: {
-          path: imageBucketData.backgrounds[
-            faker.datatype.number({
-              min: 0,
-              max: imageBucketData.backgrounds.length - 1,
-            })
-          ],
-        },
+        background:
+          imageBucketData.backgrounds.length > 0
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.datatype.number({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
+            : undefined,
       },
       useRealNames,
       numberOfStandardEntities
@@ -4416,17 +4683,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: unicodeProfileId,
-          eventId: unicodeEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: unicodeEventId,
           };
         }),
+        {
+          profileId: unicodeProfileId,
+          eventId: unicodeEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4492,20 +4759,19 @@ export async function seedAllEntities(
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
     >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
-    await prismaClient.documentOfEvent.createMany({
-      data: [
-        {
-          documentId: unicodeDocumentId,
-          eventId: unicodeEventId,
-        },
-        ...someDocumentIds.map((id) => {
-          return {
-            documentId: id,
-            eventId: unicodeEventId,
-          };
-        }),
-      ],
+
+    const data = someDocumentIds.map((id) => {
+      return {
+        documentId: id,
+        eventId: unicodeEventId,
+      };
     });
+    if (unicodeDocumentId !== undefined) {
+      data.push({
+        documentId: unicodeDocumentId,
+        eventId: unicodeEventId,
+      });
+    }
     console.log(`Successfully seeded unicode event with id: ${unicodeEventId}`);
   }
 
@@ -4515,22 +4781,28 @@ export async function seedAllEntities(
     "Developer",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -4547,17 +4819,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: developerProfileId,
-        projectId: developerProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: developerProjectId,
         };
       }),
+      {
+        profileId: developerProfileId,
+        projectId: developerProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -4587,14 +4859,17 @@ export async function seedAllEntities(
     "Smallest",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -4663,14 +4938,17 @@ export async function seedAllEntities(
     "Empty Strings",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -4691,22 +4969,28 @@ export async function seedAllEntities(
     "Empty Strings",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -4727,17 +5011,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: emptyStringsProfileId,
-        projectId: emptyStringsProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: emptyStringsProjectId,
         };
       }),
+      {
+        profileId: emptyStringsProfileId,
+        projectId: emptyStringsProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -4775,22 +5059,28 @@ export async function seedAllEntities(
     "Multiple Awarded",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -4811,17 +5101,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: makerProfileId,
-        projectId: multipleAwardedProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: multipleAwardedProjectId,
         };
       }),
+      {
+        profileId: makerProfileId,
+        projectId: multipleAwardedProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -4861,22 +5151,28 @@ export async function seedAllEntities(
     "Small Team",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -4893,17 +5189,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: smallestProfileId,
-        projectId: smallTeamProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: smallTeamProjectId,
         };
       }),
+      {
+        profileId: smallestProfileId,
+        projectId: smallTeamProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -4924,22 +5220,28 @@ export async function seedAllEntities(
     "Large Team",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -4953,17 +5255,17 @@ export async function seedAllEntities(
   await addBasicProjectRelations(largeTeamProjectId, disciplines, targetGroups);
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: largestProfileId,
-        projectId: largeTeamProjectId,
-        isPrivileged: true,
-      },
       ...standardProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: largeTeamProjectId,
         };
       }),
+      {
+        profileId: largestProfileId,
+        projectId: largeTeamProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -4993,22 +5295,28 @@ export async function seedAllEntities(
     "Many Responsible Organizations",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -5029,17 +5337,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: makerProfileId,
-        projectId: manyResponsibleOrganizationsProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: manyResponsibleOrganizationsProjectId,
         };
       }),
+      {
+        profileId: makerProfileId,
+        projectId: manyResponsibleOrganizationsProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -5066,14 +5374,17 @@ export async function seedAllEntities(
     "Unicode",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -5092,22 +5403,28 @@ export async function seedAllEntities(
     "Unicode",
     0,
     {
-      logo: {
-        path: imageBucketData.logos[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.logos.length - 1,
-          })
-        ],
-      },
-      background: {
-        path: imageBucketData.backgrounds[
-          faker.datatype.number({
-            min: 0,
-            max: imageBucketData.backgrounds.length - 1,
-          })
-        ],
-      },
+      logo:
+        imageBucketData.logos.length > 0
+          ? {
+              path: imageBucketData.logos[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : undefined,
+      background:
+        imageBucketData.backgrounds.length > 0
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.datatype.number({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
+          : undefined,
     },
     useRealNames,
     numberOfStandardEntities
@@ -5124,17 +5441,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: unicodeProfileId,
-        projectId: unicodeProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: unicodeProjectId,
         };
       }),
+      {
+        profileId: unicodeProfileId,
+        projectId: unicodeProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -7152,4 +7469,12 @@ function generatePosition<
     }
   }
   return position;
+}
+
+function createRandomDate() {
+  const start = new Date(2022, 0, 1);
+  const end = new Date();
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
 }
