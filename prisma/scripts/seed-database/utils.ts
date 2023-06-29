@@ -1576,12 +1576,14 @@ export async function seedAllEntities(
       }),
     ],
   });
+
   await prismaClient.waitingParticipantOfEvent.createMany({
     data: [
       ...fullParticipantEventIds.map((id) => {
         return {
           profileId: largestProfileId,
           eventId: id,
+          createdAt: createRandomDate(),
         };
       }),
     ],
@@ -7152,4 +7154,12 @@ function generatePosition<
     }
   }
   return position;
+}
+
+function createRandomDate() {
+  const start = new Date(2022, 0, 1);
+  const end = new Date();
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
 }
