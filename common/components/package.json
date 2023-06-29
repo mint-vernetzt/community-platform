@@ -1,7 +1,8 @@
 {
-  "name": "components",
+  "name": "@mint-vernetzt/components",
   "version": "0.1.0",
   "private": true,
+  "main": "index.ts",
   "devDependencies": {
     "classnames": "^2.3.2"
   }

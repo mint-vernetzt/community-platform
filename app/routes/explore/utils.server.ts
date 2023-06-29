@@ -34,7 +34,11 @@ export async function getAllProfiles(
   let areaToFilter;
   let whereClauses = [];
   let whereClause = Prisma.empty;
-  let offerJoin = Prisma.empty;
+  let offerJoin = Prisma.sql`
+    LEFT JOIN offers_on_profiles
+    ON profiles.id = offers_on_profiles."profileId"
+    LEFT JOIN offer O
+    ON offers_on_profiles."offerId" = O.id`;
   let seekingJoin = Prisma.empty;
   // Default Ordering with no filter: Deterministic random ordering with seed
   // Set seed for deterministic random order
@@ -107,11 +111,6 @@ export async function getAllProfiles(
     }
   }
   if (offerId !== undefined) {
-    offerJoin = Prisma.sql`
-                LEFT JOIN offers_on_profiles
-                ON profiles.id = offers_on_profiles."profileId"
-                LEFT JOIN offer O
-                ON offers_on_profiles."offerId" = O.id`;
     /* Filter profiles that have the exact offer */
     const offerWhere = Prisma.sql`O.id = ${offerId}`;
     whereClauses.push(offerWhere);
@@ -141,10 +140,11 @@ export async function getAllProfiles(
       | "username"
       | "bio"
       | "avatar"
+      | "background"
       | "position"
       | "score"
       | "updatedAt"
-    > & { areas: string[] }
+    > & { areas: string[]; offers: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
@@ -155,9 +155,11 @@ export async function getAllProfiles(
       profiles.position,
       profiles.bio,
       profiles.avatar,
+      profiles.background,
       profiles.score,
       profiles.updated_at as "updatedAt",
-      array_remove(array_agg(DISTINCT areas.name), null) as "areas"
+      array_remove(array_agg(DISTINCT areas.name), null) as "areas",
+      array_remove(array_agg(DISTINCT O.title), null) as "offers"
     FROM profiles
       /* Always joining areas to get areaNames */
       LEFT JOIN areas_on_profiles
@@ -194,10 +196,17 @@ export async function getAllOrganizations(
   await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
 
   const organizations: Array<
-    Pick<Organization, "id" | "name" | "slug" | "bio" | "logo" | "score"> & {
-      areas: string[];
-      types: string[];
-    }
+    Pick<
+      Organization,
+      | "id"
+      | "publicFields"
+      | "name"
+      | "slug"
+      | "bio"
+      | "logo"
+      | "score"
+      | "background"
+    > & { areas: string[]; types: string[]; focuses: string[] }
   > = await prismaClient.$queryRaw`
   SELECT 
     organizations.id,
@@ -206,8 +215,10 @@ export async function getAllOrganizations(
     organizations.bio,
     organizations.logo,
     organizations.score,
+    organizations.background,
     array_remove(array_agg(DISTINCT areas.name), null) as "areas",
-    array_remove(array_agg(DISTINCT organization_types.title), null) as "types"
+    array_remove(array_agg(DISTINCT organization_types.title), null) as "types",
+    array_remove(array_agg(DISTINCT focuses.title), null) as "focuses"
   FROM organizations
     /* Always joining areas and organization_types to get area names and organizationType titles */
     LEFT JOIN areas_on_organizations
@@ -218,6 +229,10 @@ export async function getAllOrganizations(
     ON organizations.id = organization_types_on_organizations."organizationId"
     LEFT JOIN organization_types
     ON organization_types_on_organizations."organizationTypeId" = organization_types.id
+    LEFT JOIN focuses_on_organizations
+    ON organizations.id = focuses_on_organizations."organizationId"
+    LEFT JOIN focuses
+    ON focuses_on_organizations."focusId" = focuses.id
   GROUP BY organizations.id
   ORDER BY "score" DESC, RANDOM()
   LIMIT ${take}
@@ -271,7 +286,7 @@ export async function getAllProjects(
 
 export function getPaginationValues(
   request: Request,
-  options = { itemsPerPage: 6 }
+  options = { itemsPerPage: 8 }
 ) {
   const url = new URL(request.url);
   const pageParam = url.searchParams.get("page") || "1";

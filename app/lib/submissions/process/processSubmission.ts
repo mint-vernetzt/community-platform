@@ -1,4 +1,4 @@
-import { Schema } from "jsonschema";
+import { type Schema } from "jsonschema";
 import { json } from "@remix-run/node";
 import { cors } from "remix-utils";
 import { formMapper } from "../formMapper/formMapper";

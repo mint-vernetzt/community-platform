@@ -19,6 +19,7 @@ import InputPassword from "../../components/FormElements/InputPassword/InputPass
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const schema = z.object({
   email: z
@@ -65,7 +66,15 @@ export const loader: LoaderFunction = async (args) => {
     if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
       // Default redirect to profile of sessionUser after sign up confirmation
       const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      return redirect(`/profile/${profile.username}`, {
+      const featureAbilities = await getFeatureAbilities(
+        authClient,
+        "dashboard"
+      );
+      let redirectRoute = `/profile/${profile.username}`;
+      if (featureAbilities["dashboard"].hasAccess === true) {
+        redirectRoute = `/dashboard`;
+      }
+      return redirect(redirectRoute, {
         headers: response.headers,
       });
     }
@@ -77,7 +86,19 @@ export const loader: LoaderFunction = async (args) => {
     if (loginRedirect !== null) {
       return redirect(loginRedirect, { headers: response.headers });
     } else {
-      return redirect("/explore", { headers: response.headers });
+      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+      const featureAbilities = await getFeatureAbilities(
+        authClient,
+        "dashboard"
+      );
+      let redirectRoute = `/profile/${profile.username}`;
+      if (featureAbilities["dashboard"].hasAccess === true) {
+        redirectRoute = `/dashboard`;
+      }
+      return redirect(redirectRoute, {
+        headers: response.headers,
+      });
+      // return redirect("/explore", { headers: response.headers });
     }
   }
 
@@ -132,7 +153,20 @@ export const action: ActionFunction = async ({ request }) => {
       });
     } else {
       // Default redirect after login
-      return redirect(`/profile/${result.data.values.username}`, {
+      let redirectRoute = `/explore`;
+      const sessionUser = await getSessionUser(authClient);
+      if (sessionUser !== null) {
+        const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+        const featureAbilities = await getFeatureAbilities(
+          authClient,
+          "dashboard"
+        );
+        redirectRoute = `/profile/${profile.username}`;
+        if (featureAbilities["dashboard"].hasAccess === true) {
+          redirectRoute = `/dashboard`;
+        }
+      }
+      return redirect(redirectRoute, {
         headers: response.headers,
       });
     }

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plattform.mintvernetzt.de/pakt.schema.json",
+  "type": "object",
+  "properties": {
+    "institution": {
+      "type": "string"
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "reachableBy": {
+      "type": "string",
+      "enum": ["email", "phone"]
+    },
+    "message": {
+      "type": "string"
+    },
+    "terms_accepted": {
+      "type": "string",
+      "enum": ["true"]
+    }
+  },
+  "required": [
+    "institution",
+    "firstName",
+    "lastName",
+    "email",
+    "phone",
+    "reachableBy",
+    "terms_accepted"
+  ],
+  "additionalProperties": false
+}

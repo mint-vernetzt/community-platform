@@ -96,9 +96,9 @@ const aliases = {
   primary: theme.blue,
   secondary: theme.lilac,
   accent: theme.beige,
-  success: theme.green,
-  warning: theme.yellow,
-  danger: theme.salmon,
+  positive: theme.green,
+  attention: theme.yellow,
+  negative: theme.salmon,
 };
 
 module.exports = { theme, aliases };

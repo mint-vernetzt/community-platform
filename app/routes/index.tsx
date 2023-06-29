@@ -24,6 +24,7 @@ import {
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const schema = z.object({
   email: z
@@ -117,7 +118,15 @@ export const action = async ({ request }: ActionArgs) => {
       // Default redirect after login
       const profile = await getProfileByEmailCaseInsensitive(result.data.email);
       if (profile !== null) {
-        return redirect(`/profile/${profile.username}`, {
+        const featureAbilities = await getFeatureAbilities(
+          authClient,
+          "dashboard"
+        );
+        let redirectRoute = `/profile/${profile.username}`;
+        if (featureAbilities["dashboard"].hasAccess === true) {
+          redirectRoute = `/dashboard`;
+        }
+        return redirect(redirectRoute, {
           headers: response.headers,
         });
       } else {

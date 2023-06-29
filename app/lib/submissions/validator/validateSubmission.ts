@@ -1,4 +1,5 @@
-import { Schema, Validator } from "jsonschema";
+import type { Schema } from "jsonschema";
+import { Validator } from "jsonschema";
 
 export function validateSubmission<T>(formData: T, schema: Schema) {
   let validator = new Validator();

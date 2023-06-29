@@ -5,7 +5,9 @@
   "license": "",
   "sideEffects": false,
   "workspaces": [
-    "./common/*"
+    "common/components",
+    "common/design",
+    "common/api"
   ],
   "scripts": {
     "prepare": "husky install",
@@ -81,6 +83,7 @@
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
     "@faker-js/faker": "^7.6.0",
+    "@mint-vernetzt/components": "workspace:*",
     "@remix-run/dev": "^1.7.6",
     "@remix-run/eslint-config": "^1.7.6",
     "@storybook/addon-actions": "^6.5.14",

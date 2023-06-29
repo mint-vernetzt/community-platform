@@ -45,6 +45,10 @@ const actionRequestWithRedirect = createRequestWithFormData({
   loginRedirect: `${testURL}/event/some-event-slug`,
 });
 
+beforeAll(() => {
+  delete process.env.FEATURE_FLAGS;
+});
+
 test("redirect on existing session", async () => {
   (getSessionUser as jest.Mock).mockImplementationOnce(() => {
     return {
@@ -65,7 +69,7 @@ test("redirect on existing session", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore"));
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
 test("redirect on existing session with login redirect param", async () => {
@@ -114,7 +118,7 @@ test("set new session in loader with token params", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/explore"));
+  expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
 test("set new session in loader with token params after sign up confirmation", async () => {
@@ -160,7 +164,16 @@ test("call login action success with default redirect", async () => {
     return { error: null };
   });
 
-  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+    return {
+      user: {
+        id: "some-user-id",
+        email: "user@user.de",
+      },
+    };
+  });
+
+  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
     return {
       username: "some-username",
     };
@@ -239,6 +252,10 @@ test("call login action causing auth api error", async () => {
       password: "some-password",
     },
   });
+});
+
+afterAll(() => {
+  delete process.env.FEATURE_FLAGS;
 });
 
 /* TODO: run e2e test

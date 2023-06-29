@@ -580,7 +580,7 @@ export default function Index() {
             loaderData.mode === "owner" ? (
               <>
                 <div
-                  id="organisations"
+                  id="organizations"
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
