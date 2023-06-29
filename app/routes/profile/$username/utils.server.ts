@@ -526,12 +526,13 @@ export async function prepareProfileEvents(
     return item;
   });
 
-  const combinedFutureEvents = combineEventsSortChronologically<
-    typeof profile.participatedEvents,
-    typeof profile.waitingForEvents
-  >(profile.participatedEvents, profile.waitingForEvents);
+  const combinedParticipatedAndWaitingForEvents =
+    combineEventsSortChronologically<
+      typeof profile.participatedEvents,
+      typeof profile.waitingForEvents
+    >(profile.participatedEvents, profile.waitingForEvents);
 
-  const enhancedFutureEvents = {
+  const enhancedEvents = {
     teamMemberOfEvents: await addUserParticipationStatus<
       typeof profile.teamMemberOfEvents
     >(profile.teamMemberOfEvents, sessionUser?.id),
@@ -539,8 +540,9 @@ export async function prepareProfileEvents(
       typeof profile.contributedEvents
     >(profile.contributedEvents, sessionUser?.id),
     participatedEvents: await addUserParticipationStatus<
-      typeof combinedFutureEvents
-    >(combinedFutureEvents, sessionUser?.id),
+      typeof combinedParticipatedAndWaitingForEvents
+    >(combinedParticipatedAndWaitingForEvents, sessionUser?.id),
   };
-  return enhancedFutureEvents;
+
+  return enhancedEvents;
 }
