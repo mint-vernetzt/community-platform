@@ -41,7 +41,7 @@ export async function filterProfileDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in profileVisibility) {
-      if (key !== "id" && key !== "profileId") {
+      if (key !== "id" && key !== "profileId" && profile.hasOwnProperty(key)) {
         // Fields in Profile with type String
         if (
           key === "username" ||
@@ -160,7 +160,11 @@ export async function filterOrganizationDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in organizationVisibility) {
-      if (key !== "id" && key !== "organizationId") {
+      if (
+        key !== "id" &&
+        key !== "organizationId" &&
+        organization.hasOwnProperty(key)
+      ) {
         // Fields in Organization with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
@@ -273,7 +277,7 @@ export async function filterEventDataByVisibilitySettings<
 
     const filteredFields: { [key: string]: any } = {};
     for (const key in eventVisibility) {
-      if (key !== "id" && key !== "eventId") {
+      if (key !== "id" && key !== "eventId" && event.hasOwnProperty(key)) {
         // Fields in Event with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
@@ -382,7 +386,7 @@ export async function filterProjectDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in projectVisibility) {
-      if (key !== "id" && key !== "projectId") {
+      if (key !== "id" && key !== "projectId" && project.hasOwnProperty(key)) {
         // Fields in Project with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
