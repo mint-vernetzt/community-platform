@@ -41,7 +41,7 @@ export async function filterProfileDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in profileVisibility) {
-      if (key !== "id") {
+      if (key !== "id" && key !== "profileId") {
         // Fields in Profile with type String
         if (
           key === "username" ||
@@ -160,7 +160,7 @@ export async function filterOrganizationDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in organizationVisibility) {
-      if (key !== "id") {
+      if (key !== "id" && key !== "organizationId") {
         // Fields in Organization with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
@@ -273,7 +273,7 @@ export async function filterEventDataByVisibilitySettings<
 
     const filteredFields: { [key: string]: any } = {};
     for (const key in eventVisibility) {
-      if (key !== "id") {
+      if (key !== "id" && key !== "eventId") {
         // Fields in Event with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
@@ -382,7 +382,7 @@ export async function filterProjectDataByVisibilitySettings<
     }
     const filteredFields: { [key: string]: any } = {};
     for (const key in projectVisibility) {
-      if (key !== "id") {
+      if (key !== "id" && key !== "projectId") {
         // Fields in Project with type String
         if (key === "name" || key === "slug") {
           filteredFields[key] =
