@@ -2783,17 +2783,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: developerProfileId,
-          eventId: developerEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: developerEventId,
           };
         }),
+        {
+          profileId: developerProfileId,
+          eventId: developerEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -2917,17 +2917,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: depth2EventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: depth2EventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth2EventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3078,17 +3078,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: depth3EventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: depth3EventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth3EventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3352,17 +3352,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: emptyStringsProfileId,
-          eventId: emptyStringsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: emptyStringsEventId,
           };
         }),
+        {
+          profileId: emptyStringsProfileId,
+          eventId: emptyStringsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3496,6 +3496,7 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: fullParticipantsEventId,
+          isPrivileged: true,
         },
       ],
     });
@@ -3620,17 +3621,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: canceledEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: canceledEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: canceledEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3754,17 +3755,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: unpublishedEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: unpublishedEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: unpublishedEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3859,17 +3860,17 @@ export async function seedAllEntities(
     >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: smallestProfileId,
-          eventId: smallTeamEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds.map((id) => {
           return {
             profileId: id,
             eventId: smallTeamEventId,
           };
         }),
+        {
+          profileId: smallestProfileId,
+          eventId: smallTeamEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -3961,17 +3962,17 @@ export async function seedAllEntities(
     );
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: largestProfileId,
-          eventId: largeTeamEventId,
-          isPrivileged: true,
-        },
         ...standardProfileIds.map((id) => {
           return {
             profileId: id,
             eventId: largeTeamEventId,
           };
         }),
+        {
+          profileId: largestProfileId,
+          eventId: largeTeamEventId,
+          isPrivileged: true,
+        },
       ],
     });
     someOrganizationIds = getRandomUniqueSubset<
@@ -4059,17 +4060,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: manyResponsibleOrganizationsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: manyResponsibleOrganizationsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyResponsibleOrganizationsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4396,17 +4397,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: manyDocumentsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: manyDocumentsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyDocumentsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4527,17 +4528,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: eventManagerProfileId,
-          eventId: overfullParticipantsEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: overfullParticipantsEventId,
           };
         }),
+        {
+          profileId: eventManagerProfileId,
+          eventId: overfullParticipantsEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4680,17 +4681,17 @@ export async function seedAllEntities(
     >(standardProfileIds, 3);
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
-        {
-          profileId: unicodeProfileId,
-          eventId: unicodeEventId,
-          isPrivileged: true,
-        },
         ...someProfileIds[0].map((id) => {
           return {
             profileId: id,
             eventId: unicodeEventId,
           };
         }),
+        {
+          profileId: unicodeProfileId,
+          eventId: unicodeEventId,
+          isPrivileged: true,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -4816,17 +4817,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: developerProfileId,
-        projectId: developerProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: developerProjectId,
         };
       }),
+      {
+        profileId: developerProfileId,
+        projectId: developerProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -5008,17 +5009,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: emptyStringsProfileId,
-        projectId: emptyStringsProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: emptyStringsProjectId,
         };
       }),
+      {
+        profileId: emptyStringsProfileId,
+        projectId: emptyStringsProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -5098,17 +5099,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: makerProfileId,
-        projectId: multipleAwardedProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: multipleAwardedProjectId,
         };
       }),
+      {
+        profileId: makerProfileId,
+        projectId: multipleAwardedProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -5186,17 +5187,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: smallestProfileId,
-        projectId: smallTeamProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: smallTeamProjectId,
         };
       }),
+      {
+        profileId: smallestProfileId,
+        projectId: smallTeamProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -5252,17 +5253,17 @@ export async function seedAllEntities(
   await addBasicProjectRelations(largeTeamProjectId, disciplines, targetGroups);
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: largestProfileId,
-        projectId: largeTeamProjectId,
-        isPrivileged: true,
-      },
       ...standardProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: largeTeamProjectId,
         };
       }),
+      {
+        profileId: largestProfileId,
+        projectId: largeTeamProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
@@ -5334,17 +5335,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: makerProfileId,
-        projectId: manyResponsibleOrganizationsProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: manyResponsibleOrganizationsProjectId,
         };
       }),
+      {
+        profileId: makerProfileId,
+        projectId: manyResponsibleOrganizationsProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -5438,17 +5439,17 @@ export async function seedAllEntities(
   >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
-      {
-        profileId: unicodeProfileId,
-        projectId: unicodeProjectId,
-        isPrivileged: true,
-      },
       ...someProfileIds.map((id) => {
         return {
           profileId: id,
           projectId: unicodeProjectId,
         };
       }),
+      {
+        profileId: unicodeProfileId,
+        projectId: unicodeProjectId,
+        isPrivileged: true,
+      },
     ],
   });
   someOrganizationIds = getRandomUniqueSubset<
