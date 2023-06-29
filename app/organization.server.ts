@@ -7,7 +7,10 @@ import { addUserParticipationStatus } from "~/lib/event/utils";
 import { getImageURL } from "./images.server";
 import type { ArrayElement } from "./lib/utils/types";
 import { prismaClient } from "./prisma";
-import { filterEventDataByVisibilitySettings } from "./public-fields-filtering.server";
+import {
+  filterEventDataByVisibilitySettings,
+  filterOrganizationDataByVisibilitySettings,
+} from "./public-fields-filtering.server";
 import { getPublicURL } from "./storage.server";
 
 export type OrganizationWithRelations = Organization & {
@@ -282,7 +285,7 @@ export async function prepareOrganizationEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const organization = await getOrganizationWithEvents(slug, inFuture);
+  let organization = await getOrganizationWithEvents(slug, inFuture);
 
   if (organization === null) {
     throw notFound({ message: "Organization with events not found" });
@@ -290,6 +293,13 @@ export async function prepareOrganizationEvents(
 
   // Filtering by visbility settings
   if (sessionUser === null) {
+    // Filter organization holding event relations
+    const filteredOrganization = (
+      await filterOrganizationDataByVisibilitySettings<typeof organization>([
+        organization,
+      ])
+    )[0];
+    organization = filteredOrganization;
     // Filter events where organization is responsible for
     const rawResponsibleEvents = organization.responsibleForEvents.map(
       (event) => {

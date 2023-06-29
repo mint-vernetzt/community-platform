@@ -102,7 +102,7 @@ export const loader = async (args: LoaderArgs) => {
       let extensions: {
         memberOf: Pick<Organization, "name" | "slug" | "logo">[];
       } = { memberOf: [] };
-      let belongingOrganizations = await prismaClient.organization.findMany({
+      extensions.memberOf = await prismaClient.organization.findMany({
         where: {
           teamMembers: {
             some: {
@@ -113,13 +113,20 @@ export const loader = async (args: LoaderArgs) => {
       });
 
       if (sessionUser === null) {
-        belongingOrganizations =
-          await filterOrganizationDataByVisibilitySettings<
-            ArrayElement<typeof belongingOrganizations>
-          >(belongingOrganizations);
+        // Filter extensions
+        const filteredExtensions = (
+          await filterProfileDataByVisibilitySettings<typeof extensions>([
+            extensions,
+          ])
+        )[0];
+        extensions = filteredExtensions;
+        // Filter organizations where profile belongs to
+        extensions.memberOf = await filterOrganizationDataByVisibilitySettings<
+          ArrayElement<typeof extensions.memberOf>
+        >(extensions.memberOf);
       }
 
-      extensions.memberOf = belongingOrganizations.map((organization) => {
+      extensions.memberOf = extensions.memberOf.map((organization) => {
         let logoImage: string | null = null;
         if (organization.logo !== null) {
           const publicURL = getPublicURL(authClient, organization.logo);

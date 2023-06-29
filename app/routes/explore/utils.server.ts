@@ -274,6 +274,7 @@ export async function getAllProjects(
           organization: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },

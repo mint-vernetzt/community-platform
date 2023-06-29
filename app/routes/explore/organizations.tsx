@@ -89,7 +89,7 @@ export const loader = async (args: LoaderArgs) => {
           "firstName" | "lastName" | "avatar" | "username"
         >[];
       } = { teamMembers: [] };
-      let teamMembers = await prismaClient.profile.findMany({
+      extensions.teamMembers = await prismaClient.profile.findMany({
         where: {
           memberOf: {
             some: {
@@ -100,12 +100,20 @@ export const loader = async (args: LoaderArgs) => {
       });
 
       if (sessionUser === null) {
-        teamMembers = await filterProfileDataByVisibilitySettings<
-          ArrayElement<typeof teamMembers>
-        >(teamMembers);
+        // Filter extensions
+        const filteredExtensions = (
+          await filterOrganizationDataByVisibilitySettings<typeof extensions>([
+            extensions,
+          ])
+        )[0];
+        extensions = filteredExtensions;
+        // Filter team members of organization
+        extensions.teamMembers = await filterProfileDataByVisibilitySettings<
+          ArrayElement<typeof extensions.teamMembers>
+        >(extensions.teamMembers);
       }
 
-      extensions.teamMembers = teamMembers.map((teamMember) => {
+      extensions.teamMembers = extensions.teamMembers.map((teamMember) => {
         let avatarImage: string | null = null;
         if (teamMember.avatar !== null) {
           const publicURL = getPublicURL(authClient, teamMember.avatar);

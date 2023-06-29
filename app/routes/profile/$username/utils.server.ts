@@ -8,7 +8,10 @@ import {
 } from "~/lib/event/utils";
 import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
-import { filterEventDataByVisibilitySettings } from "~/public-fields-filtering.server";
+import {
+  filterEventDataByVisibilitySettings,
+  filterProfileDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
 
@@ -403,13 +406,18 @@ export async function prepareProfileEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const profile = await getProfileWithEventsByMode(username, mode, inFuture);
+  let profile = await getProfileWithEventsByMode(username, mode, inFuture);
   if (profile === null) {
     throw notFound({ message: "Profile with events not found" });
   }
 
   // Filtering by visbility settings
   if (sessionUser === null) {
+    // Filter profile holding event relations
+    const filteredProfile = (
+      await filterProfileDataByVisibilitySettings<typeof profile>([profile])
+    )[0];
+    profile = filteredProfile;
     // Filter events where profile is team member
     const rawMemberEvents = profile.teamMemberOfEvents.map((relation) => {
       return relation.event;

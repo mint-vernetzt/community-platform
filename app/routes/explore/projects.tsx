@@ -9,7 +9,10 @@ import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import type { ArrayElement } from "~/lib/utils/types";
-import { filterProjectDataByVisibilitySettings } from "~/public-fields-filtering.server";
+import {
+  filterOrganizationDataByVisibilitySettings,
+  filterProjectDataByVisibilitySettings,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 
@@ -23,9 +26,39 @@ export const loader = async ({ request }: LoaderArgs) => {
   let projects = await getAllProjects(skip, take);
 
   if (sessionUser === null) {
+    // Filter projects
     projects = await filterProjectDataByVisibilitySettings<
       ArrayElement<typeof projects>
     >(projects);
+    // Filter responsible organizations of project
+    projects = await Promise.all(
+      projects.map(async (project) => {
+        let filteredProject = project;
+        const rawResponsibleOrganizations =
+          filteredProject.responsibleOrganizations.map((organization) => {
+            return organization.organization;
+          });
+        const filteredResponsibleOrganizations =
+          await filterOrganizationDataByVisibilitySettings<
+            ArrayElement<typeof rawResponsibleOrganizations>
+          >(rawResponsibleOrganizations);
+        filteredProject.responsibleOrganizations =
+          filteredProject.responsibleOrganizations.map((organization) => {
+            let filteredOrganization = organization;
+            for (let filteredResponsibleOrganization of filteredResponsibleOrganizations) {
+              if (
+                organization.organization.slug ===
+                filteredResponsibleOrganization.slug
+              ) {
+                filteredOrganization.organization =
+                  filteredResponsibleOrganization;
+              }
+            }
+            return filteredOrganization;
+          });
+        return filteredProject;
+      })
+    );
   }
 
   const enhancedProjects = projects.map((project) => {
