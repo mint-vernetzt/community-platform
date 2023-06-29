@@ -252,6 +252,7 @@ export async function updateEventById(
       visibility !== "participationUntil" &&
       eventData.hasOwnProperty(visibility)
     ) {
+      // TODO: Fix type issue
       eventVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
     if (
@@ -371,28 +372,33 @@ export async function updateEventById(
 }
 
 export async function deleteEventById(id: string) {
-  const eventVisibility = await prismaClient.eventVisibility.findFirst({
+  await prismaClient.event.delete({
     where: {
-      event: {
-        id,
-      },
+      id,
     },
   });
-  if (eventVisibility === null) {
-    throw notFound("Event visibility not found. Event was not deleted.");
-  }
-  await prismaClient.$transaction([
-    prismaClient.event.delete({
-      where: {
-        id,
-      },
-    }),
-    prismaClient.eventVisibility.delete({
-      where: {
-        id: eventVisibility.id,
-      },
-    }),
-  ]);
+  // const eventVisibility = await prismaClient.eventVisibility.findFirst({
+  //   where: {
+  //     event: {
+  //       id,
+  //     },
+  //   },
+  // });
+  // if (eventVisibility === null) {
+  //   throw notFound("Event visibility not found. Event was not deleted.");
+  // }
+  // await prismaClient.$transaction([
+  //   prismaClient.event.delete({
+  //     where: {
+  //       id,
+  //     },
+  //   }),
+  //   prismaClient.eventVisibility.delete({
+  //     where: {
+  //       id: eventVisibility.id,
+  //     },
+  //   }),
+  // ]);
 }
 
 export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(

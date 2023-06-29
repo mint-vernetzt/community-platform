@@ -1,24 +1,3 @@
-/*
-  Warnings:
-
-  - A unique constraint covering the columns `[event_visibility_id]` on the table `events` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[organization_visibility_id]` on the table `organizations` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[profile_visibility_id]` on the table `profiles` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[project_visibility_id]` on the table `projects` will be added. If there are existing duplicate values, this will fail.
-
-*/
--- AlterTable
-ALTER TABLE "events" ADD COLUMN     "event_visibility_id" TEXT;
-
--- AlterTable
-ALTER TABLE "organizations" ADD COLUMN     "organization_visibility_id" TEXT;
-
--- AlterTable
-ALTER TABLE "profiles" ADD COLUMN     "profile_visibility_id" TEXT;
-
--- AlterTable
-ALTER TABLE "projects" ADD COLUMN     "project_visibility_id" TEXT;
-
 -- CreateTable
 CREATE TABLE "profile_visibilities" (
     "id" TEXT NOT NULL,
@@ -55,6 +34,7 @@ CREATE TABLE "profile_visibilities" (
     "teamMemberOfEvents" BOOLEAN NOT NULL DEFAULT true,
     "teamMemberOfProjects" BOOLEAN NOT NULL DEFAULT true,
     "waitingForEvents" BOOLEAN NOT NULL DEFAULT false,
+    "profileId" TEXT NOT NULL,
 
     CONSTRAINT "profile_visibilities_pkey" PRIMARY KEY ("id")
 );
@@ -95,6 +75,7 @@ CREATE TABLE "organization_visibilities" (
     "types" BOOLEAN NOT NULL DEFAULT true,
     "responsibleForEvents" BOOLEAN NOT NULL DEFAULT true,
     "responsibleForProject" BOOLEAN NOT NULL DEFAULT true,
+    "organizationId" TEXT NOT NULL,
 
     CONSTRAINT "organization_visibilities_pkey" PRIMARY KEY ("id")
 );
@@ -141,6 +122,7 @@ CREATE TABLE "event_visibilities" (
     "targetGroups" BOOLEAN NOT NULL DEFAULT true,
     "teamMembers" BOOLEAN NOT NULL DEFAULT true,
     "waitingList" BOOLEAN NOT NULL DEFAULT false,
+    "eventId" TEXT NOT NULL,
 
     CONSTRAINT "event_visibilities_pkey" PRIMARY KEY ("id")
 );
@@ -175,30 +157,31 @@ CREATE TABLE "project_visibilities" (
     "responsibleOrganizations" BOOLEAN NOT NULL DEFAULT true,
     "targetGroups" BOOLEAN NOT NULL DEFAULT true,
     "teamMembers" BOOLEAN NOT NULL DEFAULT true,
+    "projectId" TEXT NOT NULL,
 
     CONSTRAINT "project_visibilities_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "events_event_visibility_id_key" ON "events"("event_visibility_id");
+CREATE UNIQUE INDEX "profile_visibilities_profileId_key" ON "profile_visibilities"("profileId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "organizations_organization_visibility_id_key" ON "organizations"("organization_visibility_id");
+CREATE UNIQUE INDEX "organization_visibilities_organizationId_key" ON "organization_visibilities"("organizationId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "profiles_profile_visibility_id_key" ON "profiles"("profile_visibility_id");
+CREATE UNIQUE INDEX "event_visibilities_eventId_key" ON "event_visibilities"("eventId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "projects_project_visibility_id_key" ON "projects"("project_visibility_id");
+CREATE UNIQUE INDEX "project_visibilities_projectId_key" ON "project_visibilities"("projectId");
 
 -- AddForeignKey
-ALTER TABLE "profiles" ADD CONSTRAINT "profiles_profile_visibility_id_fkey" FOREIGN KEY ("profile_visibility_id") REFERENCES "profile_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "profile_visibilities" ADD CONSTRAINT "profile_visibilities_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "organizations" ADD CONSTRAINT "organizations_organization_visibility_id_fkey" FOREIGN KEY ("organization_visibility_id") REFERENCES "organization_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "organization_visibilities" ADD CONSTRAINT "organization_visibilities_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "events" ADD CONSTRAINT "events_event_visibility_id_fkey" FOREIGN KEY ("event_visibility_id") REFERENCES "event_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "event_visibilities" ADD CONSTRAINT "event_visibilities_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "events"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "projects" ADD CONSTRAINT "projects_project_visibility_id_fkey" FOREIGN KEY ("project_visibility_id") REFERENCES "project_visibilities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "project_visibilities" ADD CONSTRAINT "project_visibilities_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
