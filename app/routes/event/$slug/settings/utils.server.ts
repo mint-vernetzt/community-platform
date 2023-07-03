@@ -248,11 +248,11 @@ export async function updateEventById(
   for (visibility in eventVisibility) {
     if (
       visibility !== "id" &&
+      visibility !== "eventId" &&
       visibility !== "participationFrom" &&
       visibility !== "participationUntil" &&
       eventData.hasOwnProperty(visibility)
     ) {
-      // TODO: Fix type issue
       eventVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
     if (

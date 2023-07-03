@@ -98,7 +98,11 @@ export async function updateProjectById(
 
   let visibility: keyof typeof projectVisibility;
   for (visibility in projectVisibility) {
-    if (visibility !== "id" && projectData.hasOwnProperty(visibility)) {
+    if (
+      visibility !== "id" &&
+      visibility !== "projectId" &&
+      projectData.hasOwnProperty(visibility)
+    ) {
       projectVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
   }

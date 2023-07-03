@@ -239,7 +239,11 @@ export async function updateOrganizationById(
 
   let visibility: keyof typeof organizationVisibility;
   for (visibility in organizationVisibility) {
-    if (visibility !== "id" && organizationData.hasOwnProperty(visibility)) {
+    if (
+      visibility !== "id" &&
+      visibility !== "organizationId" &&
+      organizationData.hasOwnProperty(visibility)
+    ) {
       organizationVisibility[visibility] = !privateFields.includes(
         `${visibility}`
       );

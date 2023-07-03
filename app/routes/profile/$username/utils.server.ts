@@ -106,7 +106,11 @@ export async function updateProfileById(
 
   let visibility: keyof typeof profileVisibility;
   for (visibility in profileVisibility) {
-    if (visibility !== "id" && profileData.hasOwnProperty(visibility)) {
+    if (
+      visibility !== "id" &&
+      visibility !== "profileId" &&
+      profileData.hasOwnProperty(visibility)
+    ) {
       profileVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
   }
