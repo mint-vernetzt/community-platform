@@ -34,7 +34,7 @@ export async function filterProfileDataByVisibilitySettings<
     }
     for (const key in profile) {
       if (!profileVisibility.hasOwnProperty(key)) {
-        console.warn(
+        throw new Error(
           `profile.${key} is not present in the profile visibilties.`
         );
       }
@@ -153,7 +153,7 @@ export async function filterOrganizationDataByVisibilitySettings<
     }
     for (const key in organization) {
       if (!organizationVisibility.hasOwnProperty(key)) {
-        console.warn(
+        throw new Error(
           `organization.${key} is not present in the organization visibilties.`
         );
       }
@@ -271,7 +271,9 @@ export async function filterEventDataByVisibilitySettings<
     }
     for (const key in event) {
       if (!eventVisibility.hasOwnProperty(key)) {
-        console.warn(`event.${key} is not present in the event visibilties.`);
+        throw new Error(
+          `event.${key} is not present in the event visibilties.`
+        );
       }
     }
 
@@ -379,7 +381,7 @@ export async function filterProjectDataByVisibilitySettings<
     }
     for (const key in project) {
       if (!projectVisibility.hasOwnProperty(key)) {
-        console.warn(
+        throw new Error(
           `project.${key} is not present in the project visibilties.`
         );
       }
