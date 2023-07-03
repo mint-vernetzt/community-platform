@@ -1,4 +1,10 @@
-import type { Event, Organization, Profile, Project } from "@prisma/client";
+import type {
+  Event,
+  Organization,
+  Profile,
+  ProfileVisibility,
+  Project,
+} from "@prisma/client";
 import { notFound } from "remix-utils";
 import { prismaClient } from "./prisma";
 
@@ -28,19 +34,24 @@ export async function filterProfileDataByVisibilitySettings<
         },
       },
     });
-
     if (profileVisibility === null) {
       throw notFound({ message: "Profile visibilities not found." });
     }
+
+    const visibilityMap = profileVisibility as {
+      [K in typeof profile as string]: boolean;
+    };
+
     for (const key in profile) {
       if (!profileVisibility.hasOwnProperty(key)) {
-        throw new Error(
+        console.error(
           `profile.${key} is not present in the profile visibilties.`
         );
+        visibilityMap[key] = false;
       }
     }
     const filteredFields: { [key: string]: any } = {};
-    for (const key in profileVisibility) {
+    for (const key in visibilityMap) {
       if (key !== "id" && key !== "profileId" && profile.hasOwnProperty(key)) {
         // Fields in Profile with type String
         if (
@@ -49,8 +60,7 @@ export async function filterProfileDataByVisibilitySettings<
           key === "firstName" ||
           key === "lastName"
         ) {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : "";
+          filteredFields[key] = visibilityMap[key] === true ? profile[key] : "";
         }
         // Fields in Profile with type []
         else if (
@@ -66,8 +76,7 @@ export async function filterProfileDataByVisibilitySettings<
           key === "teamMemberOfProjects" ||
           key === "waitingForEvents"
         ) {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : [];
+          filteredFields[key] = visibilityMap[key] === true ? profile[key] : [];
         }
         // Fields in Profile with type DateTime
         else if (
@@ -76,19 +85,16 @@ export async function filterProfileDataByVisibilitySettings<
           key === "updatedAt"
         ) {
           filteredFields[key] =
-            profileVisibility[key] === true
-              ? profile[key]
-              : "1970-01-01T00:00:00Z";
+            visibilityMap[key] === true ? profile[key] : "1970-01-01T00:00:00Z";
         }
         // Fields in Profile with type Boolean
         else if (key === "termsAccepted") {
           filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : true;
+            visibilityMap[key] === true ? profile[key] : true;
         }
         // Fields in Profile with type Int
         else if (key === "score") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : 0;
+          filteredFields[key] = visibilityMap[key] === true ? profile[key] : 0;
         }
         // All other fields in Profile that are optional (String?)
         else if (
@@ -107,7 +113,7 @@ export async function filterProfileDataByVisibilitySettings<
           key === "youtube"
         ) {
           filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : null;
+            visibilityMap[key] === true ? profile[key] : null;
         } else {
           throw new Error(
             `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
