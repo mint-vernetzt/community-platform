@@ -5621,20 +5621,13 @@ export async function seedEntity<
       );
     } else {
       try {
-        result = await prismaClient.profile.update({
-          where: { id: data.user.id },
-          data: entity,
-          select: { id: true },
-        });
-        await prismaClient.profile.update({
-          where: {
-            id: data.user.id,
-          },
+        result = await prismaClient.profile.create({
           data: {
-            profileVisibility: {
-              create: {},
-            },
+            ...entity,
+            id: data.user.id,
+            profileVisibility: { create: {} },
           },
+          select: { id: true },
         });
       } catch (e) {
         console.error(e);

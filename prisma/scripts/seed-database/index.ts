@@ -171,12 +171,6 @@ async function main(
     "ts-node",
     "supabase/scripts/delete-users/index.ts",
   ]);
-  // Apply the create profile trigger, which automatically creates a corresponding profile entry on public.profiles
-  // when a user on auth.users is created.
-  await executeCommand("npx", [
-    "ts-node",
-    "prisma/scripts/apply-create-profile-trigger/index.ts",
-  ]);
 
   // Creating an authClient to upload files to the bucket and manage the users table
   console.log("\n--- Creating auth client ---\n");
@@ -203,12 +197,6 @@ async function main(
     numberOfEvents,
     numberOfStandardEntities
   );
-
-  // Remove the create profile trigger, as its only used for database seeding.
-  await executeCommand("npx", [
-    "ts-node",
-    "prisma/scripts/remove-create-profile-trigger/index.ts",
-  ]);
 
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
