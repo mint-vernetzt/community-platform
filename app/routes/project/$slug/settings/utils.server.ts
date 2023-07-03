@@ -158,28 +158,11 @@ export async function updateProjectById(
 }
 
 export async function deleteProjectById(id: string) {
-  const projectVisibility = await prismaClient.projectVisibility.findFirst({
+  await prismaClient.project.delete({
     where: {
-      project: {
-        id,
-      },
+      id,
     },
   });
-  if (projectVisibility === null) {
-    throw notFound("Project visibility not found. Project was not deleted.");
-  }
-  await prismaClient.$transaction([
-    prismaClient.project.delete({
-      where: {
-        id,
-      },
-    }),
-    prismaClient.projectVisibility.delete({
-      where: {
-        id: projectVisibility.id,
-      },
-    }),
-  ]);
 }
 
 export function getResponsibleOrganizationDataFromProject(

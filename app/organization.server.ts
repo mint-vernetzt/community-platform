@@ -357,27 +357,7 @@ export async function getOrganizationMembersBySlug(slug: string) {
 }
 
 export async function deleteOrganizationBySlug(slug: string) {
-  const organizationVisibility =
-    await prismaClient.organizationVisibility.findFirst({
-      where: {
-        organization: {
-          slug,
-        },
-      },
-    });
-  if (organizationVisibility === null) {
-    throw notFound(
-      "Organization visibility not found. Organization was not deleted."
-    );
-  }
-  await prismaClient.$transaction([
-    prismaClient.organization.delete({ where: { slug: slug } }),
-    prismaClient.organizationVisibility.delete({
-      where: {
-        id: organizationVisibility.id,
-      },
-    }),
-  ]);
+  await prismaClient.organization.delete({ where: { slug: slug } });
 }
 
 export async function getAllOrganizations() {

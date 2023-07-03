@@ -1,7 +1,7 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { notFound, serverError, unauthorized } from "remix-utils";
+import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
@@ -180,28 +180,11 @@ export async function sendResetEmailLink(
 }
 
 export async function deleteUserByUid(authClient: SupabaseClient, uid: string) {
-  const profileVisibility = await prismaClient.profileVisibility.findFirst({
+  await prismaClient.profile.delete({
     where: {
-      profile: {
-        id: uid,
-      },
+      id: uid,
     },
   });
-  if (profileVisibility === null) {
-    throw notFound("Profile visibility not found. Profile was not deleted.");
-  }
-  await prismaClient.$transaction([
-    prismaClient.profile.delete({
-      where: {
-        id: uid,
-      },
-    }),
-    prismaClient.profileVisibility.delete({
-      where: {
-        id: profileVisibility.id,
-      },
-    }),
-  ]);
   const { error } = await authClient.auth.admin.deleteUser(uid);
   return { error };
 }
