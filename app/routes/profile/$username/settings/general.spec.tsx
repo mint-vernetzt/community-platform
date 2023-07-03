@@ -3,6 +3,7 @@ import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { getProfileByUsername } from "~/profile.server";
 import {
+  getProfileVisibilitiesById,
   getWholeProfileFromUsername,
   updateProfileById,
 } from "../utils.server";
@@ -25,6 +26,7 @@ jest.mock("../utils.server", () => {
     getWholeProfileFromUsername: jest.fn(),
     handleAuthorization: jest.fn().mockResolvedValue({ id }),
     updateProfileById: jest.fn(),
+    getProfileVisibilitiesById: jest.fn(),
   };
 });
 
@@ -35,6 +37,16 @@ jest.mock("~/profile.server", () => {
 jest.mock("~/utils.server", () => {
   return {
     getAreas: jest.fn(),
+  };
+});
+
+jest.mock("~/prisma", () => {
+  return {
+    prismaClient: {
+      profileVisibility: {
+        findFirst: jest.fn(),
+      },
+    },
   };
 });
 
@@ -63,6 +75,8 @@ describe("loader", () => {
     getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
     (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce(profile);
+
+    (getProfileVisibilitiesById as jest.Mock).mockImplementationOnce(() => {});
 
     const request = new Request(testURL);
     const response = await loader({
@@ -305,12 +319,17 @@ describe("action", () => {
       });
       const responseBody = await response.json();
       expect(responseBody.errors).toBeNull();
-      expect(updateProfileById).toHaveBeenLastCalledWith(id, {
-        ...parsedDataDefaults,
-        email,
-        firstName,
-        lastName,
-      });
+      const { privateFields, ...otherFields } = parsedDataDefaults;
+      expect(updateProfileById).toHaveBeenLastCalledWith(
+        id,
+        {
+          ...otherFields,
+          email,
+          firstName,
+          lastName,
+        },
+        privateFields
+      );
     });
   });
 });

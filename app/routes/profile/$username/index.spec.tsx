@@ -1,6 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 import { getSessionUser } from "~/auth.server";
+import {
+  addUserParticipationStatus,
+  combineEventsSortChronologically,
+} from "~/lib/event/utils";
 import { testURL } from "~/lib/utils/tests";
+import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
@@ -19,13 +24,13 @@ jest.mock("~/auth.server", () => {
   };
 });
 
-jest.mock("./utils.server", () => {
-  return {
-    ...jest.requireActual("./utils.server"),
-    // eslint-disable-next-line
-    prepareProfileEvents: jest.fn(),
-  };
-});
+// jest.mock("./utils.server", () => {
+//   return {
+//     ...jest.requireActual("./utils.server"),
+//     // eslint-disable-next-line
+//     prepareProfileEvents: jest.fn(),
+//   };
+// });
 
 jest.mock("~/profile.server", () => {
   return {
@@ -45,6 +50,81 @@ jest.mock("~/lib/event/utils", () => {
   };
 });
 
+jest.mock("~/prisma", () => {
+  return {
+    prismaClient: {
+      profile: {
+        findFirst: jest.fn(),
+      },
+      profileVisibility: {
+        findFirst: jest.fn(),
+      },
+      organizationVisibility: {
+        findFirst: jest.fn(),
+      },
+      projectVisibility: {
+        findFirst: jest.fn(),
+      },
+      eventVisibility: {
+        findFirst: jest.fn(),
+      },
+    },
+  };
+});
+
+const organization = {
+  id: "some-organization",
+  slug: "some-organization-slug",
+  email: "some@organization.de",
+  logo: null,
+  background: null,
+};
+
+const organizationVisibility = {
+  id: "some-organization-visibility",
+  organizationId: "some-organization",
+  slug: true,
+  email: false,
+  logo: false,
+  background: false,
+};
+
+const filteredOrganization = {
+  id: "some-organization",
+  slug: "some-organization-slug",
+  email: null,
+  logo: null,
+  background: null,
+};
+
+const project = {
+  id: "some-project",
+  slug: "some-project-slug",
+  email: "some@project.de",
+  logo: null,
+  background: null,
+  awards: [],
+};
+
+const projectVisibility = {
+  id: "some-project-visibility",
+  projectId: "some-project",
+  slug: true,
+  email: false,
+  logo: false,
+  background: false,
+  awards: true,
+};
+
+const filteredProject = {
+  id: "some-project",
+  slug: "some-project-slug",
+  email: null,
+  logo: null,
+  background: null,
+  awards: [],
+};
+
 const profile = {
   id: "some-profile-id",
   username: "username",
@@ -52,11 +132,81 @@ const profile = {
   lastName: "Name",
   email: "user.name@company.com",
   phone: "+49 0123 456 78",
-  privateFields: ["email"],
+  avatar: null,
+  background: null,
+  memberOf: [{ organization: organization }],
+  teamMemberOfProjects: [{ project: project }],
+};
+
+const profileVisibility = {
+  id: "some-profile-visbility-id",
+  profileId: "some-profile-id",
+  username: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: false,
+  avatar: true,
+  background: true,
+  memberOf: false,
+  teamMemberOfProjects: true,
+  teamMemberOfEvents: true,
+  contributedEvents: true,
+  participatedEvents: false,
+  waitingForEvents: false,
+};
+
+const filteredProfile = {
+  id: "some-profile-id",
+  username: "username",
+  firstName: "User",
+  lastName: "Name",
+  email: "user.name@company.com",
+  phone: null,
   avatar: null,
   background: null,
   memberOf: [],
-  teamMemberOfProjects: [],
+  teamMemberOfProjects: [{ project: filteredProject }],
+};
+
+const event = {
+  id: "some-event",
+  slug: "some-event-slug",
+  background: null,
+  conferenceLink: "some-conference.de",
+};
+
+const eventVisibility = {
+  id: "some-event-visibility",
+  eventId: "some-event",
+  background: true,
+  conferenceLink: false,
+};
+
+const filteredEvent = {
+  id: "some-event",
+  slug: "some-event-slug",
+  background: null,
+  conferenceLink: null,
+};
+
+const profileEvents = {
+  teamMemberOfEvents: [{ event: event }],
+  contributedEvents: [{ event: event }],
+  participatedEvents: [{ event: event }],
+  waitingForEvents: [{ event: event }],
+};
+
+const filteredProfileEvents = {
+  teamMemberOfEvents: [{ event: filteredEvent }],
+  contributedEvents: [{ event: filteredEvent }],
+  participatedEvents: [],
+};
+
+const unfilteredProfileEvents = {
+  teamMemberOfEvents: [{ event: event }],
+  contributedEvents: [{ event: event }],
+  participatedEvents: [{ event: event }, { event: event }],
 };
 
 const sessionUser: User = {
@@ -127,6 +277,30 @@ describe("get profile (anon)", () => {
   beforeAll(() => {
     (getSessionUser as jest.Mock).mockImplementation(() => null);
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
+    (prismaClient.profileVisibility.findFirst as jest.Mock).mockImplementation(
+      () => profileVisibility
+    );
+    (
+      prismaClient.organizationVisibility.findFirst as jest.Mock
+    ).mockImplementation(() => organizationVisibility);
+    (prismaClient.projectVisibility.findFirst as jest.Mock).mockImplementation(
+      () => projectVisibility
+    );
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(
+      () => profileEvents
+    );
+    (prismaClient.eventVisibility.findFirst as jest.Mock).mockImplementation(
+      () => eventVisibility
+    );
+    (combineEventsSortChronologically as jest.Mock).mockImplementation(
+      (participatedEvents, waitingForEvents) => [
+        ...participatedEvents,
+        ...waitingForEvents,
+      ]
+    );
+    (addUserParticipationStatus as jest.Mock).mockImplementation(
+      (events) => events
+    );
   });
 
   test("receive only public data", async () => {
@@ -138,27 +312,30 @@ describe("get profile (anon)", () => {
 
     const json = await res.json();
 
-    const { mode, data } = json;
+    const { mode, userId, data, futureEvents } = json;
 
     expect(mode).toEqual("anon");
+    expect(userId).toBeUndefined();
 
-    expect(data).toMatchObject({
-      username: profile.username,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      email: profile.email,
-    });
+    expect(data).toMatchObject(filteredProfile);
 
-    expect(data).not.toMatchObject({
-      phone: profile.phone,
-    });
+    expect(data).not.toMatchObject(profile);
 
-    (getProfileByUsername as jest.Mock).mockReset();
+    expect(futureEvents).toMatchObject(filteredProfileEvents);
+
+    expect(futureEvents).not.toMatchObject(profileEvents);
   });
 
   afterAll(() => {
     (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
+    (prismaClient.profileVisibility.findFirst as jest.Mock).mockReset();
+    (prismaClient.organizationVisibility.findFirst as jest.Mock).mockReset();
+    (prismaClient.projectVisibility.findFirst as jest.Mock).mockReset();
+    (prismaClient.profile.findFirst as jest.Mock).mockReset();
+    (prismaClient.eventVisibility.findFirst as jest.Mock).mockReset();
+    (combineEventsSortChronologically as jest.Mock).mockReset();
+    (addUserParticipationStatus as jest.Mock).mockReset();
   });
 });
 
@@ -168,6 +345,18 @@ describe("get profile (authenticated)", () => {
       return { id: "another-id" };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(
+      () => profileEvents
+    );
+    (combineEventsSortChronologically as jest.Mock).mockImplementation(
+      (participatedEvents, waitingForEvents) => [
+        ...participatedEvents,
+        ...waitingForEvents,
+      ]
+    );
+    (addUserParticipationStatus as jest.Mock).mockImplementation(
+      (events) => events
+    );
   });
   test("can read all fields", async () => {
     const res = await loader({
@@ -178,19 +367,23 @@ describe("get profile (authenticated)", () => {
 
     const json = await res.json();
 
-    const { mode, data } = json;
+    const { mode, userId, data, futureEvents } = json;
 
     expect(mode).toEqual("authenticated");
 
-    expect(data).toMatchObject({
-      email: profile.email,
-      phone: profile.phone,
-    });
+    expect(userId).toBeDefined();
+
+    expect(data).toMatchObject(profile);
+
+    expect(futureEvents).toMatchObject(unfilteredProfileEvents);
   });
 
   afterAll(() => {
     (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
+    (prismaClient.profile.findFirst as jest.Mock).mockReset();
+    (combineEventsSortChronologically as jest.Mock).mockReset();
+    (addUserParticipationStatus as jest.Mock).mockReset();
   });
 });
 
@@ -200,6 +393,18 @@ describe("get profile (owner)", () => {
       return { id: profile.id };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(
+      () => profileEvents
+    );
+    (combineEventsSortChronologically as jest.Mock).mockImplementation(
+      (participatedEvents, waitingForEvents) => [
+        ...participatedEvents,
+        ...waitingForEvents,
+      ]
+    );
+    (addUserParticipationStatus as jest.Mock).mockImplementation(
+      (events) => events
+    );
   });
 
   test("can read all fields", async () => {
@@ -211,18 +416,22 @@ describe("get profile (owner)", () => {
 
     const json = await res.json();
 
-    const { mode, data } = json;
+    const { mode, userId, data, futureEvents } = json;
 
     expect(mode).toEqual("owner");
 
-    expect(data).toMatchObject({
-      email: profile.email,
-      phone: profile.phone,
-    });
+    expect(userId).toBeDefined();
+
+    expect(data).toMatchObject(profile);
+
+    expect(futureEvents).toMatchObject(unfilteredProfileEvents);
   });
 
   afterAll(() => {
     (getSessionUser as jest.Mock).mockReset();
     (getProfileByUsername as jest.Mock).mockReset();
+    (prismaClient.profile.findFirst as jest.Mock).mockReset();
+    (combineEventsSortChronologically as jest.Mock).mockReset();
+    (addUserParticipationStatus as jest.Mock).mockReset();
   });
 });

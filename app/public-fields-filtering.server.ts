@@ -1,10 +1,4 @@
-import type {
-  Event,
-  Organization,
-  Profile,
-  ProfileVisibility,
-  Project,
-} from "@prisma/client";
+import type { Event, Organization, Profile, Project } from "@prisma/client";
 import { notFound } from "remix-utils";
 import { prismaClient } from "./prisma";
 
@@ -21,8 +15,13 @@ type ProfileWithRelations = Profile & {
   profileVisibility: any;
 };
 
+type Subset<T, U> = {
+  [K in keyof U]: K extends keyof T ? T[K] : never;
+} & Pick<ProfileWithRelations, "id"> &
+  Partial<Omit<ProfileWithRelations, "id">>;
+
 export async function filterProfileDataByVisibilitySettings<
-  T extends Partial<ProfileWithRelations>
+  T extends Subset<ProfileWithRelations, T>
 >(profiles: T[]) {
   const filteredProfiles: T[] = [];
 
@@ -38,20 +37,15 @@ export async function filterProfileDataByVisibilitySettings<
       throw notFound({ message: "Profile visibilities not found." });
     }
 
-    const visibilityMap = profileVisibility as {
-      [K in typeof profile as string]: boolean;
-    };
-
     for (const key in profile) {
       if (!profileVisibility.hasOwnProperty(key)) {
         console.error(
           `profile.${key} is not present in the profile visibilties.`
         );
-        visibilityMap[key] = false;
       }
     }
     const filteredFields: { [key: string]: any } = {};
-    for (const key in visibilityMap) {
+    for (const key in profileVisibility) {
       if (key !== "id" && key !== "profileId" && profile.hasOwnProperty(key)) {
         // Fields in Profile with type String
         if (
@@ -60,7 +54,8 @@ export async function filterProfileDataByVisibilitySettings<
           key === "firstName" ||
           key === "lastName"
         ) {
-          filteredFields[key] = visibilityMap[key] === true ? profile[key] : "";
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : "";
         }
         // Fields in Profile with type []
         else if (
@@ -76,7 +71,8 @@ export async function filterProfileDataByVisibilitySettings<
           key === "teamMemberOfProjects" ||
           key === "waitingForEvents"
         ) {
-          filteredFields[key] = visibilityMap[key] === true ? profile[key] : [];
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : [];
         }
         // Fields in Profile with type DateTime
         else if (
@@ -85,16 +81,19 @@ export async function filterProfileDataByVisibilitySettings<
           key === "updatedAt"
         ) {
           filteredFields[key] =
-            visibilityMap[key] === true ? profile[key] : "1970-01-01T00:00:00Z";
+            profileVisibility[key] === true
+              ? profile[key]
+              : "1970-01-01T00:00:00Z";
         }
         // Fields in Profile with type Boolean
         else if (key === "termsAccepted") {
           filteredFields[key] =
-            visibilityMap[key] === true ? profile[key] : true;
+            profileVisibility[key] === true ? profile[key] : true;
         }
         // Fields in Profile with type Int
         else if (key === "score") {
-          filteredFields[key] = visibilityMap[key] === true ? profile[key] : 0;
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : 0;
         }
         // All other fields in Profile that are optional (String?)
         else if (
@@ -113,11 +112,12 @@ export async function filterProfileDataByVisibilitySettings<
           key === "youtube"
         ) {
           filteredFields[key] =
-            visibilityMap[key] === true ? profile[key] : null;
+            profileVisibility[key] === true ? profile[key] : null;
         } else {
-          throw new Error(
+          console.error(
             `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
           );
+          // TODO: Set unknown keys to null (Typesafe!)
         }
       }
     }
