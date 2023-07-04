@@ -138,7 +138,7 @@ export const loader = async (args: LoaderArgs) => {
       }
       return filteredTeamMember;
     });
-    // Filter projects responsible for
+    // Filter projects where this organization is responsible for
     const rawResponsibleProjects = organization.responsibleForProject.map(
       (project) => {
         return project.project;
@@ -159,6 +159,22 @@ export const loader = async (args: LoaderArgs) => {
         return filteredProject;
       }
     );
+    // Filter responsible organizations of projects where this organization is responsible for
+    for (let project of organization.responsibleForProject) {
+      let responsibleOrganizations =
+        project.project.responsibleOrganizations.map((organization) => {
+          return organization.organization;
+        });
+      responsibleOrganizations =
+        await filterOrganizationDataByVisibilitySettings<
+          ArrayElement<typeof responsibleOrganizations>
+        >(responsibleOrganizations);
+      project.project.responsibleOrganizations = responsibleOrganizations.map(
+        (organization) => {
+          return { organization: organization };
+        }
+      );
+    }
     // Set user privilege to not privileged (sessionUser === null)
     userIsPrivileged = false;
   } else {

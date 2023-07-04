@@ -84,11 +84,12 @@ export const loader = async (args: LoaderArgs) => {
       }
 
       let extensions: {
+        id: string;
         teamMembers: Pick<
           Profile,
-          "firstName" | "lastName" | "avatar" | "username"
+          "firstName" | "lastName" | "avatar" | "username" | "id"
         >[];
-      } = { teamMembers: [] };
+      } = { id: organization.id, teamMembers: [] };
       extensions.teamMembers = await prismaClient.profile.findMany({
         where: {
           memberOf: {
@@ -96,6 +97,13 @@ export const loader = async (args: LoaderArgs) => {
               organizationId: organization.id,
             },
           },
+        },
+        select: {
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          username: true,
+          id: true,
         },
       });
 
@@ -126,6 +134,7 @@ export const loader = async (args: LoaderArgs) => {
         }
 
         return {
+          id: teamMember.id,
           firstName: teamMember.firstName,
           lastName: teamMember.lastName,
           username: teamMember.username,

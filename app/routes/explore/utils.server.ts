@@ -273,6 +273,7 @@ export async function getAllProjects(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
               slug: true,
             },
@@ -369,6 +370,7 @@ export async function getEvents(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
               slug: true,
               logo: true,

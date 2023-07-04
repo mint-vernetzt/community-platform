@@ -95,6 +95,7 @@ export async function getOrganizationBySlug(slug: string) {
           isPrivileged: true,
           profile: {
             select: {
+              id: true,
               username: true,
               avatar: true,
               firstName: true,
@@ -114,6 +115,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           network: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -139,6 +141,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           networkMember: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -173,6 +176,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           project: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -193,7 +197,9 @@ export async function getOrganizationBySlug(slug: string) {
                 select: {
                   organization: {
                     select: {
+                      id: true,
                       name: true,
+                      slug: true,
                     },
                   },
                 },
@@ -219,6 +225,7 @@ export async function getOrganizationWithEvents(
 ) {
   const organizationEvents = await prismaClient.organization.findFirst({
     select: {
+      id: true,
       responsibleForEvents: {
         select: {
           event: {

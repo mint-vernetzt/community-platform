@@ -199,6 +199,7 @@ export async function getProfileWithEventsByMode(
 
   const profileEvents = await prismaClient.profile.findFirst({
     select: {
+      id: true,
       teamMemberOfEvents: {
         select: {
           event: {
@@ -545,6 +546,7 @@ export async function prepareProfileEvents(
     >(profile.participatedEvents, profile.waitingForEvents);
 
   const enhancedEvents = {
+    ...profile,
     teamMemberOfEvents: await addUserParticipationStatus<
       typeof profile.teamMemberOfEvents
     >(profile.teamMemberOfEvents, sessionUser?.id),

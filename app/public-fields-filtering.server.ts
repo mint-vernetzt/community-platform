@@ -1,5 +1,6 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import { notFound } from "remix-utils";
+import type { EntitySubset } from "./lib/utils/types";
 import { prismaClient } from "./prisma";
 
 type ProfileWithRelations = Profile & {
@@ -13,15 +14,11 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  _count: any;
 };
 
-type Subset<T, U> = {
-  [K in keyof U]: K extends keyof T ? T[K] : never;
-} & Pick<ProfileWithRelations, "id"> &
-  Partial<Omit<ProfileWithRelations, "id">>;
-
 export async function filterProfileDataByVisibilitySettings<
-  T extends Subset<ProfileWithRelations, T>
+  T extends EntitySubset<ProfileWithRelations, T>
 >(profiles: T[]) {
   const filteredProfiles: T[] = [];
 
@@ -40,7 +37,7 @@ export async function filterProfileDataByVisibilitySettings<
     for (const key in profile) {
       if (!profileVisibility.hasOwnProperty(key)) {
         console.error(
-          `profile.${key} is not present in the profile visibilties.`
+          `profile.${key} is not present in the profile visibilities.`
         );
       }
     }
@@ -137,10 +134,11 @@ type OrganizationWithRelations = Organization & {
   responsibleForEvents: any;
   responsibleForProject: any;
   organizationVisibility: any;
+  _count: any;
 };
 
 export async function filterOrganizationDataByVisibilitySettings<
-  T extends Partial<OrganizationWithRelations>
+  T extends EntitySubset<OrganizationWithRelations, T>
 >(organizations: T[]) {
   const filteredOrganizations: T[] = [];
 
@@ -159,8 +157,8 @@ export async function filterOrganizationDataByVisibilitySettings<
     }
     for (const key in organization) {
       if (!organizationVisibility.hasOwnProperty(key)) {
-        throw new Error(
-          `organization.${key} is not present in the organization visibilties.`
+        console.error(
+          `organization.${key} is not present in the organization visibilities.`
         );
       }
     }
@@ -228,7 +226,7 @@ export async function filterOrganizationDataByVisibilitySettings<
           filteredFields[key] =
             organizationVisibility[key] === true ? organization[key] : null;
         } else {
-          throw new Error(
+          console.error(
             `The OrganizationVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
           );
         }
@@ -257,10 +255,11 @@ type EventWithRelations = Event & {
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
+  _count: any;
 };
 
 export async function filterEventDataByVisibilitySettings<
-  T extends Partial<EventWithRelations>
+  T extends EntitySubset<EventWithRelations, T>
 >(events: T[]) {
   const filteredEvents: T[] = [];
   for (const event of events) {
@@ -275,11 +274,10 @@ export async function filterEventDataByVisibilitySettings<
     if (eventVisibility === null) {
       throw notFound({ message: "Event visibilities not found." });
     }
+
     for (const key in event) {
       if (!eventVisibility.hasOwnProperty(key)) {
-        throw new Error(
-          `event.${key} is not present in the event visibilties.`
-        );
+        console.error(`event.${key} is not present in the event visibilities.`);
       }
     }
 
@@ -347,7 +345,7 @@ export async function filterEventDataByVisibilitySettings<
           filteredFields[key] =
             eventVisibility[key] === true ? event[key] : null;
         } else {
-          console.warn(
+          console.error(
             `The EventVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
           );
         }
@@ -366,10 +364,11 @@ type ProjectWithRelations = Project & {
   targetGroups: any;
   teamMembers: any;
   projectVisibility: any;
+  _count: any;
 };
 
 export async function filterProjectDataByVisibilitySettings<
-  T extends Partial<ProjectWithRelations>
+  T extends EntitySubset<ProjectWithRelations, T>
 >(projects: T[]) {
   const filteredProjects: T[] = [];
 
@@ -387,8 +386,8 @@ export async function filterProjectDataByVisibilitySettings<
     }
     for (const key in project) {
       if (!projectVisibility.hasOwnProperty(key)) {
-        throw new Error(
-          `project.${key} is not present in the project visibilties.`
+        console.error(
+          `project.${key} is not present in the project visibilities.`
         );
       }
     }
@@ -442,7 +441,7 @@ export async function filterProjectDataByVisibilitySettings<
           filteredFields[key] =
             projectVisibility[key] === true ? project[key] : null;
         } else {
-          throw new Error(
+          console.error(
             `The ProjectVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
           );
         }

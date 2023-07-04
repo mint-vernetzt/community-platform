@@ -528,6 +528,7 @@ export async function getEvent(slug: string) {
 
       parentEvent: {
         select: {
+          id: true,
           slug: true,
           name: true,
         },

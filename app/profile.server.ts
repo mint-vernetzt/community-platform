@@ -28,6 +28,7 @@ export async function getProfileByUsername(username: string) {
         select: {
           organization: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -53,6 +54,7 @@ export async function getProfileByUsername(username: string) {
         select: {
           project: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -73,7 +75,9 @@ export async function getProfileByUsername(username: string) {
                 select: {
                   organization: {
                     select: {
+                      id: true,
                       name: true,
+                      slug: true,
                     },
                   },
                 },
