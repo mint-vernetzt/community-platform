@@ -539,20 +539,27 @@ export async function prepareProfileEvents(
     return item;
   });
 
+  const {
+    teamMemberOfEvents,
+    contributedEvents,
+    participatedEvents,
+    waitingForEvents,
+    ...otherFields
+  } = profile;
   const combinedParticipatedAndWaitingForEvents =
     combineEventsSortChronologically<
-      typeof profile.participatedEvents,
-      typeof profile.waitingForEvents
-    >(profile.participatedEvents, profile.waitingForEvents);
+      typeof participatedEvents,
+      typeof waitingForEvents
+    >(participatedEvents, waitingForEvents);
 
   const enhancedEvents = {
-    ...profile,
+    ...otherFields,
     teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profile.teamMemberOfEvents
-    >(profile.teamMemberOfEvents, sessionUser?.id),
+      typeof teamMemberOfEvents
+    >(teamMemberOfEvents, sessionUser?.id),
     contributedEvents: await addUserParticipationStatus<
-      typeof profile.contributedEvents
-    >(profile.contributedEvents, sessionUser?.id),
+      typeof contributedEvents
+    >(contributedEvents, sessionUser?.id),
     participatedEvents: await addUserParticipationStatus<
       typeof combinedParticipatedAndWaitingForEvents
     >(combinedParticipatedAndWaitingForEvents, sessionUser?.id),

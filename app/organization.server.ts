@@ -344,10 +344,13 @@ export async function prepareOrganizationEvents(
     }
   );
 
+  const { responsibleForEvents, ...otherFields } = organization;
+
   const enhancedEvents = {
+    ...otherFields,
     responsibleForEvents: await addUserParticipationStatus<
-      typeof organization.responsibleForEvents
-    >(organization.responsibleForEvents, sessionUser?.id),
+      typeof responsibleForEvents
+    >(responsibleForEvents, sessionUser?.id),
   };
   return enhancedEvents;
 }
