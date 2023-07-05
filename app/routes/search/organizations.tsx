@@ -6,10 +6,9 @@ import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
@@ -25,109 +24,80 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  let rawOrganizations = await searchOrganizationsViaLike(
+  const rawOrganizations = await searchOrganizationsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
   const sessionUser = await getSessionUser(authClient);
-  if (sessionUser === null) {
-    // Filter organizations
-    rawOrganizations = await filterOrganizationDataByVisibilitySettings<
-      ArrayElement<typeof rawOrganizations>
-    >(rawOrganizations);
+
+  const enhancedOrganizations = [];
+
+  for (const organization of rawOrganizations) {
+    let enhancedOrganization = {
+      ...organization,
+      areas: organization.areas.map((relation) => relation.area.name),
+      focuses: organization.focuses.map((relation) => relation.focus.title),
+      types: organization.types.map((item) => item.organizationType.title),
+      teamMembers: organization.teamMembers.map((relation) => {
+        return relation.profile;
+      }),
+    };
+
+    if (sessionUser === null) {
+      // Filter organization
+      enhancedOrganization = await filterOrganizationByVisibility<
+        typeof enhancedOrganization
+      >(enhancedOrganization);
+      // Filter team members
+      enhancedOrganization.teamMembers = await Promise.all(
+        enhancedOrganization.teamMembers.map(async (profile) => {
+          const filteredProfile = await filterProfileByVisibility<
+            typeof profile
+          >(profile);
+          return { ...filteredProfile };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedOrganization.logo !== null) {
+      const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
+      if (publicURL !== null) {
+        enhancedOrganization.logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    if (enhancedOrganization.background !== null) {
+      const publicURL = getPublicURL(
+        authClient,
+        enhancedOrganization.background
+      );
+      if (publicURL !== null) {
+        enhancedOrganization.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 473, height: 160 },
+        });
+      }
+    }
+
+    enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+      (profile) => {
+        let avatar = profile.avatar;
+        if (avatar !== null) {
+          const publicURL = getPublicURL(authClient, avatar);
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+          });
+        }
+        return { ...profile, avatar };
+      }
+    );
+
+    enhancedOrganizations.push(enhancedOrganization);
   }
-
-  const enhancedOrganizations = await Promise.all(
-    rawOrganizations.map(async (organization) => {
-      const {
-        logo,
-        background,
-        areas,
-        focuses,
-        teamMembers,
-        types,
-        ...otherFields
-      } = organization;
-
-      let logoImage: string | null = null;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logoImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      let backgroundImage: string | null = null;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          backgroundImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 473, height: 160 },
-          });
-        }
-      }
-
-      // Filter team member of organizations by visibility settings
-      if (sessionUser === null) {
-        const rawTeamMembers = organization.teamMembers.map((teamMember) => {
-          return teamMember.profile;
-        });
-        const filteredTeamMemberProfiles =
-          await filterProfileDataByVisibilitySettings<
-            ArrayElement<typeof rawTeamMembers>
-          >(rawTeamMembers);
-        organization.teamMembers = organization.teamMembers.map(
-          (teamMember) => {
-            let filteredTeamMember = teamMember;
-            for (let filteredProfile of filteredTeamMemberProfiles) {
-              if (teamMember.profile.username === filteredProfile.username) {
-                filteredTeamMember.profile = filteredProfile;
-              }
-            }
-            return filteredTeamMember;
-          }
-        );
-      }
-
-      const areaNames = areas.map((item) => item.area.name);
-      const focusTitles = focuses.map((item) => item.focus.title);
-      const profiles = teamMembers
-        .map((item) => item.profile)
-        .map((profile) => {
-          const { avatar, ...otherFields } = profile;
-
-          let avatarImage: string | null = null;
-          if (avatar !== null) {
-            const publicURL = getPublicURL(authClient, avatar);
-            if (publicURL !== null) {
-              avatarImage = getImageURL(publicURL, {
-                resize: { type: "fill", width: 64, height: 64 },
-                gravity: GravityType.center,
-              });
-            }
-          }
-          return {
-            ...otherFields,
-            avatar: avatarImage,
-          };
-        });
-
-      const typeTitles = types.map((item) => item.organizationType.title);
-      return {
-        ...otherFields,
-        logo: logoImage,
-        background: backgroundImage,
-        areas: areaNames,
-        focuses: focusTitles,
-        teamMembers: profiles,
-        types: typeTitles,
-      };
-    })
-  );
 
   return json(
     {

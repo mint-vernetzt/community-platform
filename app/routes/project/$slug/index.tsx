@@ -19,11 +19,10 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
-  filterProjectDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+  filterProjectByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
@@ -82,58 +81,39 @@ export const loader = async (args: LoaderArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  let project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlugOrThrow(slug);
 
   const sessionUser = await getSessionUser(authClient);
 
   const mode = await deriveMode(project, sessionUser);
 
+  let enhancedProject = {
+    ...project,
+  };
+
   // Filtering by visbility settings
   if (sessionUser === null) {
     // Filter project
-    const filteredProject = (
-      await filterProjectDataByVisibilitySettings<typeof project>([project])
-    )[0];
-    project = filteredProject;
-    // Filter team members
-    const rawTeamMembers = project.teamMembers.map((teamMember) => {
-      return teamMember.profile;
-    });
-    const filteredTeamMemberProfiles =
-      await filterProfileDataByVisibilitySettings<
-        ArrayElement<typeof rawTeamMembers>
-      >(rawTeamMembers);
-    project.teamMembers = project.teamMembers.map((teamMember) => {
-      let filteredTeamMember = teamMember;
-      for (let filteredProfile of filteredTeamMemberProfiles) {
-        if (teamMember.profile.id === filteredProfile.id) {
-          filteredTeamMember.profile = filteredProfile;
-        }
-      }
-      return filteredTeamMember;
-    });
-    // Filter responsible organizations
-    const rawResponsibleOrganizations = project.responsibleOrganizations.map(
-      (responsibleOrganization) => {
-        return responsibleOrganization.organization;
-      }
+    enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
+      enhancedProject
     );
-    const filteredResponsibleOrganizations =
-      await filterOrganizationDataByVisibilitySettings<
-        ArrayElement<typeof rawResponsibleOrganizations>
-      >(rawResponsibleOrganizations);
-    project.responsibleOrganizations = project.responsibleOrganizations.map(
-      (responsibleOrganization) => {
-        let filteredResponsibleOrganization = responsibleOrganization;
-        for (let filteredOrganization of filteredResponsibleOrganizations) {
-          if (
-            responsibleOrganization.organization.id === filteredOrganization.id
-          ) {
-            filteredResponsibleOrganization.organization = filteredOrganization;
-          }
-        }
-        return filteredResponsibleOrganization;
-      }
+    // Filter team members
+    enhancedProject.teamMembers = await Promise.all(
+      enhancedProject.teamMembers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
+    // Filter responsible organizations
+    enhancedProject.responsibleOrganizations = await Promise.all(
+      enhancedProject.responsibleOrganizations.map(async (relation) => {
+        const filteredOrganization = await filterOrganizationByVisibility<
+          typeof relation.organization
+        >(relation.organization);
+        return { ...relation, organization: filteredOrganization };
+      })
     );
   }
 
@@ -152,36 +132,39 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  project.teamMembers = project.teamMembers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      item.profile.avatar = getImageURL(publicURL, {
+  project.teamMembers = project.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      avatar = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
     }
-    return item;
+    return { ...relation, profile: { ...relation.profile, avatar } };
   });
 
   project.responsibleOrganizations = project.responsibleOrganizations.map(
-    (item) => {
-      if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, item.organization.logo);
-        item.organization.logo = getImageURL(publicURL, {
+    (relation) => {
+      let logo = relation.organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
       }
-      return item;
+      return { ...relation, organization: { ...relation.organization, logo } };
     }
   );
 
-  project.awards = project.awards.map((item) => {
-    if (item.award.logo !== null) {
-      const publicURL = getPublicURL(authClient, item.award.logo);
-      item.award.logo = getImageURL(publicURL, {
+  project.awards = project.awards.map((relation) => {
+    let logo = relation.award.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
     }
-    return item;
+    return { ...relation, award: { ...relation.award, logo } };
   });
 
   return json({ mode, project }, { headers: response.headers });

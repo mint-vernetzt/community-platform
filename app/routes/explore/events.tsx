@@ -27,11 +27,11 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   const inFuture = true;
-  let futureEvents = await prepareEvents(authClient, sessionUser, inFuture, {
+  const futureEvents = await prepareEvents(authClient, sessionUser, inFuture, {
     skip,
     take,
   });
-  let pastEvents = await prepareEvents(authClient, sessionUser, !inFuture, {
+  const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture, {
     skip,
     take,
   });

@@ -27,15 +27,14 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
 } from "~/organization.server";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
-  filterProjectDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+  filterProjectByVisibility,
 } from "~/public-fields-filtering.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
@@ -64,117 +63,83 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
 
-  let organization = await getOrganizationBySlug(slug);
+  const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
     throw notFound({ message: "Not found" });
   }
+
+  let enhancedOrganization = {
+    ...organization,
+  };
 
   let userIsPrivileged;
   // Filtering by visbility settings
   if (sessionUser === null) {
     // Filter organization
-    const filteredOrganization = (
-      await filterOrganizationDataByVisibilitySettings<typeof organization>([
-        organization,
-      ])
-    )[0];
-    organization = filteredOrganization;
+    enhancedOrganization = await filterOrganizationByVisibility<
+      typeof enhancedOrganization
+    >(enhancedOrganization);
     // Filter networks where this organization is member of
-    const rawNetworkOrganizations = organization.memberOf.map((network) => {
-      return network.network;
-    });
-    const filteredNetworkOrganizations =
-      await filterOrganizationDataByVisibilitySettings<
-        ArrayElement<typeof rawNetworkOrganizations>
-      >(rawNetworkOrganizations);
-    organization.memberOf = organization.memberOf.map((network) => {
-      let filteredNetwork = network;
-      for (let filteredNetworkOrganization of filteredNetworkOrganizations) {
-        if (network.network.slug === filteredNetworkOrganization.slug) {
-          filteredNetwork.network = filteredNetworkOrganization;
-        }
-      }
-      return filteredNetwork;
-    });
-    // Filter network members of this organization
-    const rawNetworkMemberOrganizations = organization.networkMembers.map(
-      (networkMember) => {
-        return networkMember.networkMember;
-      }
+    enhancedOrganization.memberOf = await Promise.all(
+      enhancedOrganization.memberOf.map(async (relation) => {
+        const filteredNetwork = await filterOrganizationByVisibility<
+          typeof relation.network
+        >(relation.network);
+        return { ...relation, network: filteredNetwork };
+      })
     );
-    const filteredNetworkMemberOrganizations =
-      await filterOrganizationDataByVisibilitySettings<
-        ArrayElement<typeof rawNetworkMemberOrganizations>
-      >(rawNetworkMemberOrganizations);
-    organization.networkMembers = organization.networkMembers.map(
-      (networkMember) => {
-        let filteredNetworkMember = networkMember;
-        for (let filteredNetworkMemberOrganization of filteredNetworkMemberOrganizations) {
-          if (
-            networkMember.networkMember.slug ===
-            filteredNetworkMemberOrganization.slug
-          ) {
-            filteredNetworkMember.networkMember =
-              filteredNetworkMemberOrganization;
-          }
-        }
-        return filteredNetworkMember;
-      }
+    // Filter network members of this organization
+    enhancedOrganization.networkMembers = await Promise.all(
+      enhancedOrganization.networkMembers.map(async (relation) => {
+        const filteredNetworkMember = await filterOrganizationByVisibility<
+          typeof relation.networkMember
+        >(relation.networkMember);
+        return { ...relation, networkMember: filteredNetworkMember };
+      })
     );
     // Filter team members
-    const rawTeamMembers = organization.teamMembers.map((teamMember) => {
-      return teamMember.profile;
-    });
-    const filteredTeamMemberProfiles =
-      await filterProfileDataByVisibilitySettings<
-        ArrayElement<typeof rawTeamMembers>
-      >(rawTeamMembers);
-    organization.teamMembers = organization.teamMembers.map((teamMember) => {
-      let filteredTeamMember = teamMember;
-      for (let filteredProfile of filteredTeamMemberProfiles) {
-        if (teamMember.profile.username === filteredProfile.username) {
-          filteredTeamMember.profile = filteredProfile;
-        }
-      }
-      return filteredTeamMember;
-    });
-    // Filter projects where this organization is responsible for
-    const rawResponsibleProjects = organization.responsibleForProject.map(
-      (project) => {
-        return project.project;
-      }
+    enhancedOrganization.teamMembers = await Promise.all(
+      enhancedOrganization.teamMembers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
     );
-    const filteredResponsibleProjects =
-      await filterProjectDataByVisibilitySettings<
-        ArrayElement<typeof rawResponsibleProjects>
-      >(rawResponsibleProjects);
-    organization.responsibleForProject = organization.responsibleForProject.map(
-      (project) => {
-        let filteredProject = project;
-        for (let filteredResponsibleProject of filteredResponsibleProjects) {
-          if (project.project.slug === filteredResponsibleProject.slug) {
-            filteredProject.project = filteredResponsibleProject;
-          }
-        }
-        return filteredProject;
-      }
+    // Filter projects where this organization is responsible for
+    enhancedOrganization.responsibleForProject = await Promise.all(
+      enhancedOrganization.responsibleForProject.map(async (relation) => {
+        const filteredProject = await filterProjectByVisibility<
+          typeof relation.project
+        >(relation.project);
+        return { ...relation, project: filteredProject };
+      })
     );
     // Filter responsible organizations of projects where this organization is responsible for
-    for (let project of organization.responsibleForProject) {
-      let responsibleOrganizations =
-        project.project.responsibleOrganizations.map((organization) => {
-          return organization.organization;
-        });
-      responsibleOrganizations =
-        await filterOrganizationDataByVisibilitySettings<
-          ArrayElement<typeof responsibleOrganizations>
-        >(responsibleOrganizations);
-      project.project.responsibleOrganizations = responsibleOrganizations.map(
-        (organization) => {
-          return { organization: organization };
+    enhancedOrganization.responsibleForProject = await Promise.all(
+      enhancedOrganization.responsibleForProject.map(
+        async (projectRelation) => {
+          const responsibleOrganizations = await Promise.all(
+            projectRelation.project.responsibleOrganizations.map(
+              async (organizationRelation) => {
+                const filteredOrganization =
+                  await filterOrganizationByVisibility<
+                    typeof organizationRelation.organization
+                  >(organizationRelation.organization);
+                return {
+                  ...organizationRelation,
+                  organization: filteredOrganization,
+                };
+              }
+            )
+          );
+          return {
+            ...projectRelation,
+            project: { ...projectRelation.project, responsibleOrganizations },
+          };
         }
-      );
-    }
+      )
+    );
     // Set user privilege to not privileged (sessionUser === null)
     userIsPrivileged = false;
   } else {
@@ -205,7 +170,7 @@ export const loader = async (args: LoaderArgs) => {
     logo?: string;
     background?: string;
   } = {};
-  if (organization.logo) {
+  if (organization.logo !== null) {
     const publicURL = getPublicURL(authClient, organization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
@@ -213,7 +178,7 @@ export const loader = async (args: LoaderArgs) => {
       });
     }
   }
-  if (organization.background) {
+  if (organization.background !== null) {
     const publicURL = getPublicURL(authClient, organization.background);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
@@ -221,73 +186,79 @@ export const loader = async (args: LoaderArgs) => {
       });
     }
   }
-  organization.memberOf = organization.memberOf.map((member) => {
-    if (member.network.logo !== null) {
-      const publicURL = getPublicURL(authClient, member.network.logo);
 
+  organization.memberOf = organization.memberOf.map((relation) => {
+    let logo = relation.network.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        const logo = getImageURL(publicURL, {
+        logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
-        member.network.logo = logo;
       }
     }
-    return member;
+    return { ...relation, network: { ...relation.network, logo } };
   });
 
-  organization.networkMembers = organization.networkMembers.map((member) => {
-    if (member.networkMember.logo !== null) {
-      const publicURL = getPublicURL(authClient, member.networkMember.logo);
-
+  organization.networkMembers = organization.networkMembers.map((relation) => {
+    let logo = relation.networkMember.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        const logo = getImageURL(publicURL, {
+        logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
-        member.networkMember.logo = logo;
       }
     }
-    return member;
+    return { ...relation, networkMember: { ...relation.networkMember, logo } };
   });
 
-  organization.teamMembers = organization.teamMembers.map((teamMember) => {
-    if (teamMember.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, teamMember.profile.avatar);
+  organization.teamMembers = organization.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
+        avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
           gravity: GravityType.center,
         });
-        teamMember.profile.avatar = avatar;
       }
     }
-    return teamMember;
+    return { ...relation, profile: { ...relation.profile, avatar } };
   });
 
   organization.responsibleForProject = organization.responsibleForProject.map(
-    (relation) => {
-      if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(authClient, relation.project.logo);
+    (projectRelation) => {
+      let projectLogo = projectRelation.project.logo;
+      if (projectLogo !== null) {
+        const publicURL = getPublicURL(authClient, projectLogo);
         if (publicURL !== null) {
-          relation.project.logo = getImageURL(publicURL, {
+          projectLogo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      relation.project.awards = relation.project.awards.map((relation) => {
-        if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(authClient, relation.award.logo);
+      const awards = projectRelation.project.awards.map((awardRelation) => {
+        let awardLogo = awardRelation.award.logo;
+        if (awardLogo !== null) {
+          const publicURL = getPublicURL(authClient, awardLogo);
           if (publicURL !== null) {
-            relation.award.logo = getImageURL(publicURL, {
+            awardLogo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
               gravity: GravityType.center,
             });
           }
         }
-        return relation;
+        return {
+          ...awardRelation,
+          award: { ...awardRelation.award, logo: awardLogo },
+        };
       });
-
-      return relation;
+      return {
+        ...projectRelation,
+        project: { ...projectRelation.project, awards, logo: projectLogo },
+      };
     }
   );
 

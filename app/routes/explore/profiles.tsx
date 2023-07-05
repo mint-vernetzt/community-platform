@@ -1,5 +1,4 @@
 import { CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { Organization } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -16,12 +15,11 @@ import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { createAreaOptionFromData } from "~/lib/utils/components";
-import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
@@ -62,48 +60,18 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  let rawProfiles = await getAllProfiles({
+  const rawProfiles = await getAllProfiles({
     ...paginationValues,
     ...filterValues,
     randomSeed,
   });
 
-  if (sessionUser === null) {
-    rawProfiles = await filterProfileDataByVisibilitySettings<
-      ArrayElement<typeof rawProfiles>
-    >(rawProfiles);
-  }
+  const enhancedProfiles = [];
 
-  const profiles = await Promise.all(
-    rawProfiles.map(async (profile) => {
-      const { avatar, background, ...otherFields } = profile;
-
-      let avatarImage: string | null = null;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      let backgroundImage: string | null = null;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          backgroundImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 473, height: 160 },
-          });
-        }
-      }
-
-      let extensions: {
-        id: string;
-        memberOf: Pick<Organization, "name" | "slug" | "logo" | "id">[];
-      } = { id: profile.id, memberOf: [] };
-      extensions.memberOf = await prismaClient.organization.findMany({
+  for (const profile of rawProfiles) {
+    let enhancedProfile = {
+      ...profile,
+      memberOf: await prismaClient.organization.findMany({
         where: {
           teamMembers: {
             some: {
@@ -117,56 +85,65 @@ export const loader = async (args: LoaderArgs) => {
           logo: true,
           id: true,
         },
-      });
+      }),
+    };
 
-      if (sessionUser === null) {
-        // Filter extensions
-        const filteredExtensions = (
-          await filterProfileDataByVisibilitySettings<typeof extensions>([
-            extensions,
-          ])
-        )[0];
-        extensions = filteredExtensions;
-        // Filter organizations where profile belongs to
-        extensions.memberOf = await filterOrganizationDataByVisibilitySettings<
-          ArrayElement<typeof extensions.memberOf>
-        >(extensions.memberOf);
+    if (sessionUser === null) {
+      // Filter profile
+      enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
+        enhancedProfile
+      );
+      // Filter organizations where profile belongs to
+      enhancedProfile.memberOf = await Promise.all(
+        enhancedProfile.memberOf.map(async (organization) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof organization
+          >(organization);
+          return { ...filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedProfile.avatar !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
+      if (publicURL !== null) {
+        enhancedProfile.avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
       }
+    }
 
-      extensions.memberOf = extensions.memberOf.map((organization) => {
-        let logoImage: string | null = null;
-        if (organization.logo !== null) {
-          const publicURL = getPublicURL(authClient, organization.logo);
-          if (publicURL !== null) {
-            logoImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
+    if (enhancedProfile.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.background);
+      if (publicURL !== null) {
+        enhancedProfile.background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
 
-        return {
-          id: organization.id,
-          name: organization.name,
-          slug: organization.slug,
-          logo: logoImage,
-        };
-      });
+    enhancedProfile.memberOf = enhancedProfile.memberOf.map((organization) => {
+      let logo = organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+      }
+      return { ...organization, logo };
+    });
 
-      return {
-        ...otherFields,
-        ...extensions,
-        avatar: avatarImage,
-        background: backgroundImage,
-      };
-    })
-  );
+    enhancedProfiles.push(enhancedProfile);
+  }
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
   return json(
-    { isLoggedIn, profiles, areas, offers },
+    { isLoggedIn, profiles: enhancedProfiles, areas, offers },
     { headers: response.headers }
   );
 };

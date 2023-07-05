@@ -8,10 +8,9 @@ import { H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProjectDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProjectByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
@@ -27,85 +26,71 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  let rawProjects = await searchProjectsViaLike(
+  const rawProjects = await searchProjectsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
   const sessionUser = await getSessionUser(authClient);
-  // Filter projects and related entities by visibility settings
-  if (sessionUser === null) {
-    // Filter projects
-    rawProjects = await filterProjectDataByVisibilitySettings<
-      ArrayElement<typeof rawProjects>
-    >(rawProjects);
+
+  const enhancedProjects = [];
+
+  for (const project of rawProjects) {
+    let enhancedProject = {
+      ...project,
+    };
+
+    if (sessionUser === null) {
+      // Filter project
+      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
+        enhancedProject
+      );
+      // Filter responsible organizations of project
+      enhancedProject.responsibleOrganizations = await Promise.all(
+        enhancedProject.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedProject.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProject.background);
+      if (publicURL) {
+        enhancedProject.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 400, height: 280 },
+        });
+      }
+    }
+
+    if (enhancedProject.logo !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProject.logo);
+      if (publicURL) {
+        enhancedProject.logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 144, height: 144 },
+        });
+      }
+    }
+
+    enhancedProject.awards = enhancedProject.awards.map((relation) => {
+      let logo = relation.award.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return { ...relation, award: { ...relation.award, logo } };
+    });
+
+    enhancedProjects.push(enhancedProject);
   }
-
-  const enhancedProjects = await Promise.all(
-    rawProjects.map(async (project) => {
-      let enhancedProject = project;
-
-      if (enhancedProject.background !== null) {
-        const publicURL = getPublicURL(authClient, enhancedProject.background);
-        if (publicURL) {
-          enhancedProject.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 400, height: 280 },
-          });
-        }
-      }
-
-      if (enhancedProject.logo !== null) {
-        const publicURL = getPublicURL(authClient, enhancedProject.logo);
-        if (publicURL) {
-          enhancedProject.logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 144, height: 144 },
-          });
-        }
-      }
-
-      enhancedProject.awards = enhancedProject.awards.map((relation) => {
-        if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(authClient, relation.award.logo);
-          if (publicURL !== null) {
-            relation.award.logo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return relation;
-      });
-
-      // Filter responsible organizations by visibility settings
-      if (sessionUser === null) {
-        const rawResponsibleOrganizations =
-          project.responsibleOrganizations.map((organization) => {
-            return organization.organization;
-          });
-        const filteredResponsibleOrganizations =
-          await filterOrganizationDataByVisibilitySettings<
-            ArrayElement<typeof rawResponsibleOrganizations>
-          >(rawResponsibleOrganizations);
-        project.responsibleOrganizations = project.responsibleOrganizations.map(
-          (organization) => {
-            let filteredOrganization = organization;
-            for (let filteredResponsibleOrganization of filteredResponsibleOrganizations) {
-              if (
-                organization.organization.slug ===
-                filteredResponsibleOrganization.slug
-              ) {
-                filteredOrganization.organization =
-                  filteredResponsibleOrganization;
-              }
-            }
-            return filteredOrganization;
-          }
-        );
-      }
-
-      return enhancedProject;
-    })
-  );
 
   return json(
     {

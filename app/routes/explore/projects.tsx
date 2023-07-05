@@ -8,10 +8,9 @@ import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProjectDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProjectByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
@@ -23,46 +22,32 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
-  let projects = await getAllProjects(skip, take);
+  const projects = await getAllProjects(skip, take);
 
-  if (sessionUser === null) {
-    // Filter projects
-    projects = await filterProjectDataByVisibilitySettings<
-      ArrayElement<typeof projects>
-    >(projects);
-    // Filter responsible organizations of project
-    projects = await Promise.all(
-      projects.map(async (project) => {
-        let filteredProject = project;
-        const rawResponsibleOrganizations =
-          filteredProject.responsibleOrganizations.map((organization) => {
-            return organization.organization;
-          });
-        const filteredResponsibleOrganizations =
-          await filterOrganizationDataByVisibilitySettings<
-            ArrayElement<typeof rawResponsibleOrganizations>
-          >(rawResponsibleOrganizations);
-        filteredProject.responsibleOrganizations =
-          filteredProject.responsibleOrganizations.map((organization) => {
-            let filteredOrganization = organization;
-            for (let filteredResponsibleOrganization of filteredResponsibleOrganizations) {
-              if (
-                organization.organization.slug ===
-                filteredResponsibleOrganization.slug
-              ) {
-                filteredOrganization.organization =
-                  filteredResponsibleOrganization;
-              }
-            }
-            return filteredOrganization;
-          });
-        return filteredProject;
-      })
-    );
-  }
+  const enhancedProjects = [];
 
-  const enhancedProjects = projects.map((project) => {
-    let enhancedProject = project;
+  for (const project of projects) {
+    let enhancedProject = {
+      ...project,
+    };
+
+    if (sessionUser === null) {
+      // Filter project
+      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
+        enhancedProject
+      );
+      // Filter responsible organizations of project
+      enhancedProject.responsibleOrganizations = await Promise.all(
+        enhancedProject.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
     if (enhancedProject.background !== null) {
       const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
@@ -71,6 +56,7 @@ export const loader = async ({ request }: LoaderArgs) => {
         });
       }
     }
+
     if (enhancedProject.logo !== null) {
       const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
@@ -79,20 +65,23 @@ export const loader = async ({ request }: LoaderArgs) => {
         });
       }
     }
+
     enhancedProject.awards = enhancedProject.awards.map((relation) => {
-      if (relation.award.logo !== null) {
-        const publicURL = getPublicURL(authClient, relation.award.logo);
+      let logo = relation.award.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
-          relation.award.logo = getImageURL(publicURL, {
+          logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      return relation;
+      return { ...relation, award: { ...relation.award, logo } };
     });
-    return enhancedProject;
-  });
+
+    enhancedProjects.push(enhancedProject);
+  }
 
   return json(
     {

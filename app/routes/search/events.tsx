@@ -12,10 +12,9 @@ import {
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterEventDataByVisibilitySettings,
-  filterOrganizationDataByVisibilitySettings,
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
@@ -37,67 +36,71 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  let rawEvents = await searchEventsViaLike(
+  const rawEvents = await searchEventsViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
-  if (sessionUser === null) {
-    rawEvents = await filterEventDataByVisibilitySettings<
-      ArrayElement<typeof rawEvents>
-    >(rawEvents);
-    for (let event of rawEvents) {
-      let responsibleOrganizations = event.responsibleOrganizations.map(
-        (organization) => {
-          return organization.organization;
-        }
+
+  const enhancedEvents = [];
+
+  for (const event of rawEvents) {
+    let enhancedEvent = {
+      ...event,
+    };
+
+    if (sessionUser === null) {
+      // Filter event
+      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+        enhancedEvent
       );
-      responsibleOrganizations =
-        await filterOrganizationDataByVisibilitySettings<
-          ArrayElement<typeof responsibleOrganizations>
-        >(responsibleOrganizations);
-      event.responsibleOrganizations = responsibleOrganizations.map(
-        (organization) => {
-          return { organization: organization };
-        }
+      // Filter responsible organizations of event
+      enhancedEvent.responsibleOrganizations = await Promise.all(
+        enhancedEvent.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
       );
     }
-  }
-  let enhancedEvents = await enhanceEventsWithParticipationStatus(
-    sessionUser,
-    rawEvents
-  );
 
-  enhancedEvents = enhancedEvents.map((event) => {
-    if (event.background !== null) {
-      const publicURL = getPublicURL(authClient, event.background);
+    // Add images from image proxy
+    if (enhancedEvent.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
-        event.background = getImageURL(publicURL, {
+        enhancedEvent.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
     }
-    if (event.responsibleOrganizations.length > 0) {
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (item) => {
-          if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(authClient, item.organization.logo);
-            if (publicURL) {
-              item.organization.logo = getImageURL(publicURL, {
-                resize: { type: "fit", width: 144, height: 144 },
-              });
-            }
+
+    enhancedEvent.responsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 144, height: 144 },
+            });
           }
-          return item;
         }
-      );
-    }
-    return event;
-  });
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
+
+    enhancedEvents.push(enhancedEvent);
+  }
+
+  const enhancedEventsWithParticipationStatus =
+    await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
   return json(
     {
-      events: enhancedEvents,
+      events: enhancedEventsWithParticipationStatus,
       userId: sessionUser?.id || undefined,
     },
     { headers: response.headers }

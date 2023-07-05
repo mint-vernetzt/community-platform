@@ -3,12 +3,11 @@ import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
-import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma";
 import { getAreaById } from "~/profile.server";
 import {
-  filterEventDataByVisibilitySettings,
-  filterOrganizationDataByVisibilitySettings,
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -477,77 +476,64 @@ export async function prepareEvents(
     take: number | undefined;
   } = { skip: undefined, take: undefined }
 ) {
-  let events = await getEvents(inFuture, options.skip, options.take);
+  const events = await getEvents(inFuture, options.skip, options.take);
 
-  // Filtering by visbility settings
-  if (sessionUser === null) {
-    // Filter events
-    events = await filterEventDataByVisibilitySettings<
-      ArrayElement<typeof events>
-    >(events);
-    for (let event of events) {
-      // Filter responsible Organizations
-      const rawResponsibleOrganizations = event.responsibleOrganizations.map(
-        (responsibleOrganization) => {
-          return responsibleOrganization.organization;
-        }
+  const enhancedEvents = [];
+
+  for (const event of events) {
+    let enhancedEvent = {
+      ...event,
+    };
+
+    // Filtering by visbility settings
+    if (sessionUser === null) {
+      // Filter event
+      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+        enhancedEvent
       );
-      const filteredResponsibleOrganizations =
-        await filterOrganizationDataByVisibilitySettings<
-          ArrayElement<typeof rawResponsibleOrganizations>
-        >(rawResponsibleOrganizations);
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (responsibleOrganization) => {
-          let filteredResponsibleOrganization = responsibleOrganization;
-          for (let filteredOrganization of filteredResponsibleOrganizations) {
-            if (
-              responsibleOrganization.organization.slug ===
-              filteredOrganization.slug
-            ) {
-              filteredResponsibleOrganization.organization =
-                filteredOrganization;
-            }
-          }
-          return filteredResponsibleOrganization;
-        }
+      // Filter responsible Organizations
+      enhancedEvent.responsibleOrganizations = await Promise.all(
+        enhancedEvent.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
       );
     }
-  }
 
-  let enhancedEvents = await enhanceEventsWithParticipationStatus(
-    sessionUser,
-    events
-  );
-
-  enhancedEvents = enhancedEvents.map((item) => {
-    if (item.background !== null) {
-      const publicURL = getPublicURL(authClient, item.background);
+    // Add images from image proxy
+    if (enhancedEvent.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
-        item.background = getImageURL(publicURL, {
+        enhancedEvent.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
     }
-    return item;
-  });
 
-  enhancedEvents = enhancedEvents.map((event) => {
-    if (event.responsibleOrganizations.length > 0) {
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (item) => {
-          if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(authClient, item.organization.logo);
-            if (publicURL) {
-              item.organization.logo = getImageURL(publicURL, {
-                resize: { type: "fit", width: 144, height: 144 },
-              });
-            }
+    enhancedEvent.responsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 144, height: 144 },
+            });
           }
-          return item;
         }
-      );
-    }
-    return event;
-  });
-  return enhancedEvents;
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
+
+    enhancedEvents.push(enhancedEvent);
+  }
+
+  const enhancedEventsWithParticipationStatus =
+    await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
+
+  return enhancedEventsWithParticipationStatus;
 }

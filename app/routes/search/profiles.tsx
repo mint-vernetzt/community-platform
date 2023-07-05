@@ -6,10 +6,9 @@ import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
-import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
@@ -25,102 +24,76 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
-  let rawProfiles = await searchProfilesViaLike(
+  const rawProfiles = await searchProfilesViaLike(
     searchQuery,
     paginationValues.skip,
     paginationValues.take
   );
 
   const sessionUser = await getSessionUser(authClient);
-  if (sessionUser === null) {
-    rawProfiles = await filterProfileDataByVisibilitySettings<
-      ArrayElement<typeof rawProfiles>
-    >(rawProfiles);
+
+  const enhancedProfiles = [];
+
+  for (const profile of rawProfiles) {
+    let enhancedProfile = {
+      ...profile,
+      areas: profile.areas.map((item) => item.area.name),
+      offers: profile.offers.map((item) => item.offer.title),
+      memberOf: profile.memberOf.map((relation) => {
+        return relation.organization;
+      }),
+    };
+
+    if (sessionUser === null) {
+      // Filter profile
+      enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
+        enhancedProfile
+      );
+      // Filter organizations where profile belongs to
+      enhancedProfile.memberOf = await Promise.all(
+        enhancedProfile.memberOf.map(async (organization) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof organization
+          >(organization);
+          return { ...filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedProfile.avatar !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
+      if (publicURL !== null) {
+        enhancedProfile.avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    if (enhancedProfile.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.background);
+      if (publicURL !== null) {
+        enhancedProfile.background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    enhancedProfile.memberOf = enhancedProfile.memberOf.map((organization) => {
+      let logo = organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+      }
+      return { ...organization, logo };
+    });
+
+    enhancedProfiles.push(enhancedProfile);
   }
-
-  const enhancedProfiles = await Promise.all(
-    rawProfiles.map(async (profile) => {
-      const { avatar, background, areas, offers, memberOf, ...otherFields } =
-        profile;
-
-      let avatarImage: string | null = null;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      let backgroundImage: string | null = null;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          backgroundImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 473, height: 160 },
-          });
-        }
-      }
-
-      // Filter belonging organizations by visibility settings
-      if (sessionUser === null) {
-        const rawBelongingOrganizations = profile.memberOf.map(
-          (organization) => {
-            return organization.organization;
-          }
-        );
-        const filteredBelongingOrganizations =
-          await filterOrganizationDataByVisibilitySettings<
-            ArrayElement<typeof rawBelongingOrganizations>
-          >(rawBelongingOrganizations);
-        profile.memberOf = profile.memberOf.map((organization) => {
-          let filteredOrganization = organization;
-          for (let filteredBelongingOrganization of filteredBelongingOrganizations) {
-            if (
-              organization.organization.slug ===
-              filteredBelongingOrganization.slug
-            ) {
-              filteredOrganization.organization = filteredBelongingOrganization;
-            }
-          }
-          return filteredOrganization;
-        });
-      }
-
-      const areaNames = areas.map((item) => item.area.name);
-      const offerNames = offers.map((item) => item.offer.title);
-      const organizations = memberOf
-        .map((item) => item.organization)
-        .map((organization) => {
-          const { logo, ...otherFields } = organization;
-          let logoImage: string | null = null;
-          if (logo !== null) {
-            const publicURL = getPublicURL(authClient, logo);
-            if (publicURL !== null) {
-              logoImage = getImageURL(publicURL, {
-                resize: { type: "fill", width: 64, height: 64 },
-                gravity: GravityType.center,
-              });
-            }
-          }
-          return {
-            ...otherFields,
-            logo: logoImage,
-          };
-        });
-
-      return {
-        ...otherFields,
-        avatar: avatarImage,
-        background: backgroundImage,
-        areas: areaNames,
-        offers: offerNames,
-        memberOf: organizations,
-      };
-    })
-  );
 
   return json(
     {

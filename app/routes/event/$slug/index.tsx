@@ -24,9 +24,10 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
-  filterEventDataByVisibilitySettings,
-  filterOrganizationDataByVisibilitySettings,
-  filterProfileDataByVisibilitySettings,
+  filterEventByVisibility,
+  filterListOfEventsByVisibility,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
@@ -89,11 +90,6 @@ export const loader = async (args: LoaderArgs) => {
   let participants: Awaited<
     ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
   > = [];
-  let enhancedEvent = {
-    ...rawEvent,
-    participants: participants,
-    speakers: speakers,
-  };
 
   // Adding participants and speakers
   if (rawEvent.childEvents.length > 0) {
@@ -104,8 +100,11 @@ export const loader = async (args: LoaderArgs) => {
     speakers = await getEventSpeakers(rawEvent.id);
     participants = await getEventParticipants(rawEvent.id);
   }
-  enhancedEvent.speakers = speakers;
-  enhancedEvent.participants = participants;
+  let enhancedEvent = {
+    ...rawEvent,
+    speakers,
+    participants,
+  };
 
   // Filtering by publish status
   if (mode !== "owner") {
@@ -117,148 +116,101 @@ export const loader = async (args: LoaderArgs) => {
   // Filtering by visbility settings
   if (sessionUser === null) {
     // Filter event
-    enhancedEvent = (
-      await filterEventDataByVisibilitySettings<typeof enhancedEvent>([
-        enhancedEvent,
-      ])
-    )[0];
+    enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+      enhancedEvent
+    );
     // Filter parent event
     if (enhancedEvent.parentEvent !== null) {
-      const filteredParentEvent = (
-        await filterEventDataByVisibilitySettings<
-          typeof enhancedEvent.parentEvent
-        >([enhancedEvent.parentEvent])
-      )[0];
-      enhancedEvent.parentEvent = filteredParentEvent;
+      enhancedEvent.parentEvent = await filterEventByVisibility<
+        typeof enhancedEvent.parentEvent
+      >(enhancedEvent.parentEvent);
     }
     // Filter participants
-    if (enhancedEvent.participants !== null) {
-      const rawParticipants = enhancedEvent.participants.map((participant) => {
-        return participant.profile;
-      });
-      const filteredParticipantProfiles =
-        await filterProfileDataByVisibilitySettings<
-          ArrayElement<typeof rawParticipants>
-        >(rawParticipants);
-      enhancedEvent.participants = enhancedEvent.participants.map(
-        (participant) => {
-          let filteredParticipant = participant;
-          for (let filteredProfile of filteredParticipantProfiles) {
-            if (participant.profile.id === filteredProfile.id) {
-              filteredParticipant.profile = filteredProfile;
-            }
-          }
-          return filteredParticipant;
-        }
-      );
-    }
+    enhancedEvent.participants = await Promise.all(
+      enhancedEvent.participants.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
     // Filter speakers
-    if (enhancedEvent.speakers !== null) {
-      const rawSpeakers = enhancedEvent.speakers.map((speaker) => {
-        return speaker.profile;
-      });
-      const filteredSpeakerProfiles =
-        await filterProfileDataByVisibilitySettings<
-          ArrayElement<typeof rawSpeakers>
-        >(rawSpeakers);
-      enhancedEvent.speakers = enhancedEvent.speakers.map((speaker) => {
-        let filteredSpeaker = speaker;
-        for (let filteredProfile of filteredSpeakerProfiles) {
-          if (speaker.profile.id === filteredProfile.id) {
-            filteredSpeaker.profile = filteredProfile;
-          }
-        }
-        return filteredSpeaker;
-      });
-    }
+    enhancedEvent.speakers = await Promise.all(
+      enhancedEvent.speakers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
     // Filter team members
-    const rawTeamMembers = enhancedEvent.teamMembers.map((teamMember) => {
-      return teamMember.profile;
-    });
-    const filteredTeamMemberProfiles =
-      await filterProfileDataByVisibilitySettings<
-        ArrayElement<typeof rawTeamMembers>
-      >(rawTeamMembers);
-    enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((teamMember) => {
-      let filteredTeamMember = teamMember;
-      for (let filteredProfile of filteredTeamMemberProfiles) {
-        if (teamMember.profile.id === filteredProfile.id) {
-          filteredTeamMember.profile = filteredProfile;
-        }
-      }
-      return filteredTeamMember;
-    });
+    enhancedEvent.teamMembers = await Promise.all(
+      enhancedEvent.teamMembers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
     // Filter child events
-    enhancedEvent.childEvents = await filterEventDataByVisibilitySettings<
+    enhancedEvent.childEvents = await filterListOfEventsByVisibility<
       ArrayElement<typeof enhancedEvent.childEvents>
     >(enhancedEvent.childEvents);
     // Filter responsible Organizations
-    const rawResponsibleOrganizations =
-      enhancedEvent.responsibleOrganizations.map((responsibleOrganization) => {
-        return responsibleOrganization.organization;
-      });
-    const filteredResponsibleOrganizations =
-      await filterOrganizationDataByVisibilitySettings<
-        ArrayElement<typeof rawResponsibleOrganizations>
-      >(rawResponsibleOrganizations);
-    enhancedEvent.responsibleOrganizations =
-      enhancedEvent.responsibleOrganizations.map((responsibleOrganization) => {
-        let filteredResponsibleOrganization = responsibleOrganization;
-        for (let filteredOrganization of filteredResponsibleOrganizations) {
-          if (
-            responsibleOrganization.organization.id === filteredOrganization.id
-          ) {
-            filteredResponsibleOrganization.organization = filteredOrganization;
-          }
-        }
-        return filteredResponsibleOrganization;
-      });
+    enhancedEvent.responsibleOrganizations = await Promise.all(
+      enhancedEvent.responsibleOrganizations.map(async (relation) => {
+        const filteredOrganization = await filterOrganizationByVisibility<
+          typeof relation.organization
+        >(relation.organization);
+        return { ...relation, organization: filteredOrganization };
+      })
+    );
   }
 
   // Add images from image proxy
   if (enhancedEvent.speakers !== null) {
-    enhancedEvent.speakers = enhancedEvent.speakers.map((item) => {
-      if (item.profile.avatar !== null) {
-        const publicURL = getPublicURL(authClient, item.profile.avatar);
+    enhancedEvent.speakers = enhancedEvent.speakers.map((relation) => {
+      let avatar = relation.profile.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
-          const avatar = getImageURL(publicURL, {
+          avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
             gravity: GravityType.center,
           });
-          item.profile.avatar = avatar;
         }
       }
-      return item;
+      return { ...relation, profile: { ...relation.profile, avatar } };
     });
   }
 
-  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
+  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
+        avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
           gravity: GravityType.center,
         });
-        item.profile.avatar = avatar;
       }
     }
-    return item;
+    return { ...relation, profile: { ...relation.profile, avatar } };
   });
 
   if (enhancedEvent.participants !== null) {
-    enhancedEvent.participants = enhancedEvent.participants.map((item) => {
-      if (item.profile.avatar !== null) {
-        const publicURL = getPublicURL(authClient, item.profile.avatar);
+    enhancedEvent.participants = enhancedEvent.participants.map((relation) => {
+      let avatar = relation.profile.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
-          const avatar = getImageURL(publicURL, {
+          avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
             gravity: GravityType.center,
           });
-          item.profile.avatar = avatar;
         }
       }
-      return item;
+      return { ...relation, profile: { ...relation.profile, avatar } };
     });
   }
 
@@ -271,47 +223,48 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
-    if (item.background !== null) {
-      const publicURL = getPublicURL(authClient, item.background);
+  enhancedEvent.childEvents = enhancedEvent.childEvents.map((relation) => {
+    let background = relation.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        item.background = getImageURL(publicURL, {
+        background = getImageURL(publicURL, {
           resize: { type: "fit", width: 160, height: 160 },
         });
       }
     }
-    return item;
+    return { ...relation, background };
   });
 
   enhancedEvent.responsibleOrganizations =
-    enhancedEvent.responsibleOrganizations.map((item) => {
-      if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, item.organization.logo);
+    enhancedEvent.responsibleOrganizations.map((relation) => {
+      let logo = relation.organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
-          item.organization.logo = getImageURL(publicURL, {
+          logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 144, height: 144 },
           });
         }
       }
-      return item;
+      return { ...relation, organization: { ...relation.organization, logo } };
     });
 
   // Adding participation status
-  let isParticipant;
-  let isOnWaitingList;
-  let isSpeaker;
-  let isTeamMember;
-
   const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
     sessionUser,
     enhancedEvent.childEvents
   );
-  const { childEvents: _childEvents, ...rest } = enhancedEvent;
+
   const eventWithParticipationStatus = {
+    ...enhancedEvent,
     childEvents: enhancedChildEvents,
-    ...rest,
   };
 
+  let isParticipant;
+  let isOnWaitingList;
+  let isSpeaker;
+  let isTeamMember;
   if (sessionUser !== null) {
     isParticipant = await getIsParticipant(
       eventWithParticipationStatus.id,
@@ -348,6 +301,7 @@ export const loader = async (args: LoaderArgs) => {
     eventWithParticipationStatus.conferenceLink = null;
     eventWithParticipationStatus.conferenceCode = null;
   } else {
+    // TODO: move decision what to show in link (message) to frontend (allow handling in frontend, do not decide on backend)
     if (
       eventWithParticipationStatus.conferenceLink === null ||
       eventWithParticipationStatus.conferenceLink === ""
