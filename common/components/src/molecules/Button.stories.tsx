@@ -238,7 +238,7 @@ ButtonPlayground.parameters = {
 };
 
 export default {
-  title: "Molecules/Buttons",
+  title: "Molecules/Button",
   component: Button,
   parameters: {
     controls: { disable: true },
