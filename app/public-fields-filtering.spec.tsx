@@ -1,6 +1,11 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import { prismaClient } from "~/prisma";
-import { filterProfileDataByVisibilitySettings } from "./public-fields-filtering.server";
+import {
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+  filterProjectByVisibility,
+} from "./public-fields-filtering.server";
 
 jest.mock("~/prisma", () => {
   return {
@@ -62,7 +67,7 @@ const filteredProfile: TestProfile = {
   username: "", // String
   phone: null, // String?
   memberOf: [], // []
-  createdAt: new Date("1970-01-01T00:00:00Z"), // DateTime
+  createdAt: new Date("1970-01-01T00:00:00.000Z"), // DateTime
   termsAccepted: true, // Boolean
   score: 0, // Int
 };
@@ -96,7 +101,7 @@ const filteredOrganization: TestOrganization = {
   slug: "", // String
   phone: null, // String?
   supportedBy: [], // []
-  createdAt: new Date("1970-01-01T00:00:00Z"), // DateTime
+  createdAt: new Date("1970-01-01T00:00:00.000Z"), // DateTime
   score: 0, // Int
 };
 
@@ -139,7 +144,7 @@ const filteredEvent: TestEvent = {
   slug: "", // String
   description: null, // String?
   speakers: [], // []
-  createdAt: new Date("1970-01-01T00:00:00Z"), // DateTime
+  createdAt: new Date("1970-01-01T00:00:00.000Z"), // DateTime
   canceled: true, // Boolean
 };
 
@@ -180,24 +185,161 @@ const filteredProject: TestProject = {
   slug: "", // String
   description: null, // String?
   teamMembers: [], // []
-  createdAt: new Date("1970-01-01T00:00:00Z"), // DateTime
+  createdAt: new Date("1970-01-01T00:00:00.000Z"), // DateTime
 };
 
 test("key exists in entity but not in its visbility", async () => {
-  // expect.assertions(1);
-  (prismaClient.profileVisibility.findFirst as jest.Mock).mockImplementation(
-    () => profileVisibility
-  );
+  expect.assertions(4);
+
+  const consoleErrorSpy = jest.spyOn(global.console, "error");
+
+  (
+    prismaClient.profileVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => profileVisibility);
   const extendedProfile = {
     ...profile,
-    // someFutureField: "some-future-field",
+    someFutureField: "some-future-field",
   };
-  const result = await filterProfileDataByVisibilitySettings<
+  await filterProfileByVisibility<
+    // This type error is intentionally and caused by the operation this test focuses on
+    // @ts-ignore
     typeof extendedProfile
-  >([extendedProfile]);
-  // expect(result[0].someFutureField).toBe("some-future-field");
+  >(extendedProfile);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "profile.someFutureField is not present in the profile visibilities."
+  );
+
+  (
+    prismaClient.organizationVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => organizationVisibility);
+  const extendedOrganization = {
+    ...organization,
+    someFutureField: "some-future-field",
+  };
+  await filterOrganizationByVisibility<
+    // This type error is intentionally and caused by the operation this test focuses on
+    // @ts-ignore
+    typeof extendedOrganization
+  >(extendedOrganization);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "organization.someFutureField is not present in the organization visibilities."
+  );
+
+  (prismaClient.eventVisibility.findFirst as jest.Mock).mockImplementationOnce(
+    () => eventVisibility
+  );
+  const extendedEvent = {
+    ...event,
+    someFutureField: "some-future-field",
+  };
+  // This type error is intentionally and caused by the operation this test focuses on
+  // @ts-ignore
+  await filterEventByVisibility<typeof extendedEvent>(extendedEvent);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "event.someFutureField is not present in the event visibilities."
+  );
+
+  (
+    prismaClient.projectVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => projectVisibility);
+  const extendedProject = {
+    ...project,
+    someFutureField: "some-future-field",
+  };
+  // This type error is intentionally and caused by the operation this test focuses on
+  // @ts-ignore
+  await filterProjectByVisibility<typeof extendedProject>(extendedProject);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "project.someFutureField is not present in the project visibilities."
+  );
 });
 
-test("Key exists in visbility but is not implemented in filter method", () => {});
+test("Key exists in visbility but is not implemented in filter method", async () => {
+  expect.assertions(4);
 
-test("filter entity by visibility settings", () => {});
+  const consoleErrorSpy = jest.spyOn(global.console, "error");
+
+  const extendedProfileVisibility = {
+    ...profileVisibility,
+    someFutureField: true,
+  };
+  (
+    prismaClient.profileVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => {
+    return extendedProfileVisibility;
+  });
+  await filterProfileByVisibility<typeof profile>(profile);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "The ProfileVisibility key someFutureField was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method."
+  );
+
+  const extendedOrganizationVisibility = {
+    ...organizationVisibility,
+    someFutureField: false,
+  };
+  (
+    prismaClient.organizationVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => extendedOrganizationVisibility);
+  await filterOrganizationByVisibility<typeof organization>(organization);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "The OrganizationVisibility key someFutureField was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method."
+  );
+
+  const extendedEventVisibility = {
+    ...eventVisibility,
+    someFutureField: true,
+  };
+  (prismaClient.eventVisibility.findFirst as jest.Mock).mockImplementationOnce(
+    () => extendedEventVisibility
+  );
+  await filterEventByVisibility<typeof event>(event);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "The EventVisibility key someFutureField was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method."
+  );
+
+  const extendedProjectVisibility = {
+    ...projectVisibility,
+    someFutureField: false,
+  };
+  (
+    prismaClient.projectVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => extendedProjectVisibility);
+  await filterProjectByVisibility<typeof project>(project);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    "The ProjectVisibility key someFutureField was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method."
+  );
+});
+
+test("filter entity by visibility settings", async () => {
+  expect.assertions(4);
+
+  (
+    prismaClient.profileVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => profileVisibility);
+  const resultProfile = await filterProfileByVisibility<typeof profile>(
+    profile
+  );
+  expect(resultProfile).toEqual(filteredProfile);
+
+  (
+    prismaClient.organizationVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => organizationVisibility);
+  const resultOrganization = await filterOrganizationByVisibility<
+    typeof organization
+  >(organization);
+  expect(resultOrganization).toEqual(filteredOrganization);
+
+  (prismaClient.eventVisibility.findFirst as jest.Mock).mockImplementationOnce(
+    () => eventVisibility
+  );
+  const resultEvent = await filterEventByVisibility<typeof event>(event);
+  expect(resultEvent).toEqual(filteredEvent);
+
+  (
+    prismaClient.projectVisibility.findFirst as jest.Mock
+  ).mockImplementationOnce(() => projectVisibility);
+  const resultProject = await filterProjectByVisibility<typeof project>(
+    project
+  );
+  expect(resultProject).toEqual(filteredProject);
+});

@@ -19,33 +19,20 @@ const path = "/profile/$username";
 jest.mock("~/auth.server", () => {
   return {
     ...jest.requireActual("~/auth.server"),
-    // eslint-disable-next-line
     getSessionUser: jest.fn(),
   };
 });
 
-// jest.mock("./utils.server", () => {
-//   return {
-//     ...jest.requireActual("./utils.server"),
-//     // eslint-disable-next-line
-//     prepareProfileEvents: jest.fn(),
-//   };
-// });
-
 jest.mock("~/profile.server", () => {
   return {
-    // eslint-disable-next-line
     getProfileByUsername: jest.fn(),
-    // eslint-disable-next-line
     getProfileByUserId: jest.fn(),
   };
 });
 
 jest.mock("~/lib/event/utils", () => {
   return {
-    // eslint-disable-next-line
     addUserParticipationStatus: jest.fn(),
-    // eslint-disable-next-line
     combineEventsSortChronologically: jest.fn(),
   };
 });
@@ -104,6 +91,7 @@ const project = {
   logo: null,
   background: null,
   awards: [],
+  responsibleOrganizations: [{ organization: organization }],
 };
 
 const projectVisibility = {
@@ -114,6 +102,7 @@ const projectVisibility = {
   logo: false,
   background: false,
   awards: true,
+  responsibleOrganizations: true,
 };
 
 const filteredProject = {
@@ -123,6 +112,7 @@ const filteredProject = {
   logo: null,
   background: null,
   awards: [],
+  responsibleOrganizations: [{ organization: filteredOrganization }],
 };
 
 const profile = {
@@ -179,6 +169,7 @@ const event = {
 const eventVisibility = {
   id: "some-event-visibility",
   eventId: "some-event",
+  slug: true,
   background: true,
   conferenceLink: false,
 };
@@ -191,6 +182,7 @@ const filteredEvent = {
 };
 
 const profileEvents = {
+  id: "some-profile-id",
   teamMemberOfEvents: [{ event: event }],
   contributedEvents: [{ event: event }],
   participatedEvents: [{ event: event }],
@@ -198,6 +190,7 @@ const profileEvents = {
 };
 
 const filteredProfileEvents = {
+  id: "some-profile-id",
   teamMemberOfEvents: [{ event: filteredEvent }],
   contributedEvents: [{ event: filteredEvent }],
   participatedEvents: [],
@@ -314,6 +307,8 @@ describe("get profile (anon)", () => {
 
     const { mode, userId, data, futureEvents } = json;
 
+    console.log({ profileEvents });
+
     expect(mode).toEqual("anon");
     expect(userId).toBeUndefined();
 
@@ -345,9 +340,10 @@ describe("get profile (authenticated)", () => {
       return { id: "another-id" };
     });
     (getProfileByUsername as jest.Mock).mockImplementation(() => profile);
-    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(
-      () => profileEvents
-    );
+    (prismaClient.profile.findFirst as jest.Mock).mockImplementation(() => ({
+      test: true,
+      ...profileEvents,
+    }));
     (combineEventsSortChronologically as jest.Mock).mockImplementation(
       (participatedEvents, waitingForEvents) => [
         ...participatedEvents,

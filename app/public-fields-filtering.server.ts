@@ -52,7 +52,7 @@ export async function filterProfileByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in profileVisibility) {
-    if (key !== "id" && key !== "profileId" && profile.hasOwnProperty(key)) {
+    if (key !== "id" && key !== "profileId") {
       // Fields in Profile with type String
       if (
         key === "username" ||
@@ -89,7 +89,7 @@ export async function filterProfileByVisibility<
         filteredFields[key] =
           profileVisibility[key] === true
             ? profile[key]
-            : "1970-01-01T00:00:00Z";
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "termsAccepted") {
@@ -183,11 +183,7 @@ export async function filterOrganizationByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in organizationVisibility) {
-    if (
-      key !== "id" &&
-      key !== "organizationId" &&
-      organization.hasOwnProperty(key)
-    ) {
+    if (key !== "id" && key !== "organizationId") {
       // Fields in Organization with type String
       if (key === "name" || key === "slug") {
         filteredFields[key] =
@@ -213,7 +209,7 @@ export async function filterOrganizationByVisibility<
         filteredFields[key] =
           organizationVisibility[key] === true
             ? organization[key]
-            : "1970-01-01T00:00:00Z";
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Organization with type Int
       else if (key === "score") {
@@ -311,7 +307,7 @@ export async function filterEventByVisibility<
 
   const filteredFields: { [key: string]: any } = {};
   for (const key in eventVisibility) {
-    if (key !== "id" && key !== "eventId" && event.hasOwnProperty(key)) {
+    if (key !== "id" && key !== "eventId") {
       // Fields in Event with type String
       if (key === "name" || key === "slug") {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
@@ -343,7 +339,9 @@ export async function filterEventByVisibility<
         key === "participationFrom"
       ) {
         filteredFields[key] =
-          eventVisibility[key] === true ? event[key] : "1970-01-01T00:00:00Z";
+          eventVisibility[key] === true
+            ? event[key]
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "published" || key === "canceled") {
@@ -427,7 +425,7 @@ export async function filterProjectByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in projectVisibility) {
-    if (key !== "id" && key !== "projectId" && project.hasOwnProperty(key)) {
+    if (key !== "id" && key !== "projectId") {
       // Fields in Project with type String
       if (key === "name" || key === "slug") {
         filteredFields[key] =
@@ -449,7 +447,7 @@ export async function filterProjectByVisibility<
         filteredFields[key] =
           projectVisibility[key] === true
             ? project[key]
-            : "1970-01-01T00:00:00Z";
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // All other fields in Project that are optional (String?)
       else if (
