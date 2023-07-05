@@ -150,36 +150,21 @@ export const loader = async (args: LoaderArgs) => {
 
   const mode: Mode = deriveMode(sessionUser, userIsPrivileged);
 
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const organizationFutureEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    inFuture
-  );
-  const organizationPastEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    !inFuture
-  );
-
   // Get images from image proxy
   let images: {
     logo?: string;
     background?: string;
   } = {};
-  if (organization.logo !== null) {
-    const publicURL = getPublicURL(authClient, organization.logo);
+  if (enhancedOrganization.logo !== null) {
+    const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
     if (publicURL) {
       images.logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 144, height: 144 },
       });
     }
   }
-  if (organization.background !== null) {
-    const publicURL = getPublicURL(authClient, organization.background);
+  if (enhancedOrganization.background !== null) {
+    const publicURL = getPublicURL(authClient, enhancedOrganization.background);
     if (publicURL) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
@@ -187,48 +172,57 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  organization.memberOf = organization.memberOf.map((relation) => {
-    let logo = relation.network.logo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-        });
+  enhancedOrganization.memberOf = enhancedOrganization.memberOf.map(
+    (relation) => {
+      let logo = relation.network.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+          });
+        }
       }
+      return { ...relation, network: { ...relation.network, logo } };
     }
-    return { ...relation, network: { ...relation.network, logo } };
-  });
+  );
 
-  organization.networkMembers = organization.networkMembers.map((relation) => {
-    let logo = relation.networkMember.logo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-        });
+  enhancedOrganization.networkMembers = enhancedOrganization.networkMembers.map(
+    (relation) => {
+      let logo = relation.networkMember.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+          });
+        }
       }
+      return {
+        ...relation,
+        networkMember: { ...relation.networkMember, logo },
+      };
     }
-    return { ...relation, networkMember: { ...relation.networkMember, logo } };
-  });
+  );
 
-  organization.teamMembers = organization.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
-    if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar);
-      if (publicURL !== null) {
-        avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
+  enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+    (relation) => {
+      let avatar = relation.profile.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        if (publicURL !== null) {
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
       }
+      return { ...relation, profile: { ...relation.profile, avatar } };
     }
-    return { ...relation, profile: { ...relation.profile, avatar } };
-  });
+  );
 
-  organization.responsibleForProject = organization.responsibleForProject.map(
-    (projectRelation) => {
+  enhancedOrganization.responsibleForProject =
+    enhancedOrganization.responsibleForProject.map((projectRelation) => {
       let projectLogo = projectRelation.project.logo;
       if (projectLogo !== null) {
         const publicURL = getPublicURL(authClient, projectLogo);
@@ -259,12 +253,26 @@ export const loader = async (args: LoaderArgs) => {
         ...projectRelation,
         project: { ...projectRelation.project, awards, logo: projectLogo },
       };
-    }
+    });
+
+  // Get events, filter them by visibility settings and add participation status of session user
+  const inFuture = true;
+  const organizationFutureEvents = await prepareOrganizationEvents(
+    authClient,
+    slug,
+    sessionUser,
+    inFuture
+  );
+  const organizationPastEvents = await prepareOrganizationEvents(
+    authClient,
+    slug,
+    sessionUser,
+    !inFuture
   );
 
   return json(
     {
-      organization,
+      organization: enhancedOrganization,
       userIsPrivileged,
       images,
       futureEvents: organizationFutureEvents,
@@ -969,11 +977,14 @@ export default function Index() {
                                   />
                                 </div>
                               ) : null}
-                              {!relation.event.isParticipant &&
-                              !canUserParticipate(relation.event) &&
-                              !relation.event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(relation.event) &&
-                              !relation.event.canceled ? (
+                              {(!relation.event.isParticipant &&
+                                !canUserParticipate(relation.event) &&
+                                !relation.event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(relation.event) &&
+                                !relation.event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (relation.event._count.childEvents > 0 &&
+                                loaderData.mode === "anon") ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${relation.event.slug}`}

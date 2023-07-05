@@ -76,6 +76,7 @@ export const loader = async (args: LoaderArgs) => {
     enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
       enhancedProfile
     );
+
     // Filter organizations where profile is member of
     enhancedProfile.memberOf = await Promise.all(
       enhancedProfile.memberOf.map(async (relation) => {
@@ -118,46 +119,29 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const profileFutureEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    inFuture
-  );
-  const profilePastEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    !inFuture
-  );
-
   // Get images from image proxy
   let images: {
     avatar?: string;
     background?: string;
   } = {};
 
-  if (profile.avatar !== null) {
-    const publicURL = getPublicURL(authClient, profile.avatar);
+  if (enhancedProfile.avatar !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
     if (publicURL !== null) {
       images.avatar = getImageURL(publicURL, {
         resize: { type: "fill", width: 144, height: 144 },
       });
     }
   }
-  if (profile.background !== null) {
-    const publicURL = getPublicURL(authClient, profile.background);
+  if (enhancedProfile.background !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProfile.background);
     if (publicURL !== null) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
-  profile.memberOf = profile.memberOf.map((relation) => {
+  enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
     let logo = relation.organization.logo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -170,8 +154,8 @@ export const loader = async (args: LoaderArgs) => {
     }
     return { ...relation, organization: { ...relation.organization, logo } };
   });
-  profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
-    (projectRelation) => {
+  enhancedProfile.teamMemberOfProjects =
+    enhancedProfile.teamMemberOfProjects.map((projectRelation) => {
       let projectLogo = projectRelation.project.logo;
       if (projectLogo !== null) {
         const publicURL = getPublicURL(authClient, projectLogo);
@@ -202,13 +186,29 @@ export const loader = async (args: LoaderArgs) => {
         ...projectRelation,
         project: { ...projectRelation.project, awards, logo: projectLogo },
       };
-    }
+    });
+
+  // Get events, filter them by visibility settings and add participation status of session user
+  const inFuture = true;
+  const profileFutureEvents = await prepareProfileEvents(
+    authClient,
+    username,
+    mode,
+    sessionUser,
+    inFuture
+  );
+  const profilePastEvents = await prepareProfileEvents(
+    authClient,
+    username,
+    mode,
+    sessionUser,
+    !inFuture
   );
 
   return json(
     {
       mode,
-      data: profile,
+      data: enhancedProfile,
       images,
       abilities,
       futureEvents: profileFutureEvents,
@@ -925,12 +925,15 @@ export default function Index() {
                                   />
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "owner" &&
-                              !event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(loaderData.mode !== "owner" &&
+                                !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (event._count.childEvents > 0 &&
+                                loaderData.mode === "anon") ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1086,11 +1089,14 @@ export default function Index() {
                                   />
                                 </div>
                               ) : null}
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (event._count.childEvents > 0 &&
+                                loaderData.mode === "anon") ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}

@@ -288,7 +288,8 @@ function Events() {
                   !canUserParticipate(event) &&
                   !event.isOnWaitingList &&
                   !canUserBeAddedToWaitingList(event) &&
-                  !event.canceled) ||
+                  !event.canceled &&
+                  loaderData.userId !== undefined) ||
                 (loaderData.userId === undefined &&
                   event._count.childEvents > 0) ? (
                   <div className="ml-auto">

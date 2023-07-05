@@ -118,21 +118,21 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   // Adding images from imgproxy
-  if (project.logo !== null) {
-    const publicURL = getPublicURL(authClient, project.logo);
-    project.logo = getImageURL(publicURL, {
+  if (enhancedProject.logo !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProject.logo);
+    enhancedProject.logo = getImageURL(publicURL, {
       resize: { type: "fit", width: 144, height: 144 },
     });
   }
 
-  if (project.background !== null) {
-    const publicURL = getPublicURL(authClient, project.background);
-    project.background = getImageURL(publicURL, {
+  if (enhancedProject.background !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProject.background);
+    enhancedProject.background = getImageURL(publicURL, {
       resize: { type: "fit", width: 1488, height: 480 },
     });
   }
 
-  project.teamMembers = project.teamMembers.map((relation) => {
+  enhancedProject.teamMembers = enhancedProject.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -143,8 +143,8 @@ export const loader = async (args: LoaderArgs) => {
     return { ...relation, profile: { ...relation.profile, avatar } };
   });
 
-  project.responsibleOrganizations = project.responsibleOrganizations.map(
-    (relation) => {
+  enhancedProject.responsibleOrganizations =
+    enhancedProject.responsibleOrganizations.map((relation) => {
       let logo = relation.organization.logo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -153,10 +153,9 @@ export const loader = async (args: LoaderArgs) => {
         });
       }
       return { ...relation, organization: { ...relation.organization, logo } };
-    }
-  );
+    });
 
-  project.awards = project.awards.map((relation) => {
+  enhancedProject.awards = enhancedProject.awards.map((relation) => {
     let logo = relation.award.logo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -167,7 +166,10 @@ export const loader = async (args: LoaderArgs) => {
     return { ...relation, award: { ...relation.award, logo } };
   });
 
-  return json({ mode, project }, { headers: response.headers });
+  return json(
+    { mode, project: enhancedProject },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
