@@ -10,7 +10,7 @@ export function LinkPlayground(props: LinkPlaygroundProps) {
   const { text, ...otherProps } = props;
   return <Link {...otherProps}>{text}</Link>;
 }
-LinkPlayground.storyName = "playground";
+LinkPlayground.storyName = "Playground";
 LinkPlayground.args = {
   text: "Link",
   to: "/",
