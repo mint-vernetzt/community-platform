@@ -21,7 +21,7 @@ export type OrganizationCardProps = {
     logo?: string | null;
     background?: string | null;
     focuses: string[];
-    areaNames: string[];
+    areas: string[];
     types: string[];
     teamMembers: {
       firstName: string;
@@ -68,9 +68,7 @@ function OrganizationCard(
           </div>
         }
         <CardBodySection title="Aktivitätsgebiete" emptyMessage={emptyMessage}>
-          {organization.areaNames.length > 0
-            ? organization.areaNames.join("/")
-            : ""}
+          {organization.areas.length > 0 ? organization.areas.join("/") : ""}
         </CardBodySection>
         <CardBodySection title="Schwerpunkte" emptyMessage={emptyMessage}>
           {organization.focuses.length === 0 ? (

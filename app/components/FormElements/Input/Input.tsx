@@ -3,6 +3,7 @@ import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 export interface InputProps {
   label: string;
   isPublic?: boolean;
+  withPublicPrivateToggle?: boolean;
   errorMessage?: string;
 }
 
@@ -37,13 +38,15 @@ const Input = React.forwardRef(
               name={id}
             />
           </div>
-          {props.isPublic !== undefined && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={props.name}
-              defaultChecked={props.isPublic}
-            />
-          )}
+          {isPublic !== undefined &&
+            props.withPublicPrivateToggle !== undefined && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!isPublic}
+              />
+            )}
         </div>
       </div>
     );

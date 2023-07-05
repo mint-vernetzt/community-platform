@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -35,6 +35,7 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getAreas, getFocuses } from "~/utils.server";
+import { getOrganizationVisibilitiesById } from "../utils.server";
 import {
   getOrganizationTypes,
   getWholeOrganizationBySlug,
@@ -65,20 +66,13 @@ const organizationSchema = object({
   quoteAuthor: nullOrString(string()),
   quoteAuthorInformation: nullOrString(string()),
   supportedBy: array(string().required()).required(),
-  publicFields: array(string().required()).required(),
+  privateFields: array(string().required()).required(),
   areas: array(string().required()).required(),
   focuses: array(string().required()).required(),
 });
 
 type OrganizationSchemaType = typeof organizationSchema;
 type OrganizationFormType = InferType<typeof organizationSchema>;
-
-type LoaderData = {
-  organization: ReturnType<typeof makeFormOrganizationFromDbOrganization>;
-  organizationTypes: Awaited<ReturnType<typeof getOrganizationTypes>>;
-  areas: Awaited<ReturnType<typeof getAreas>>;
-  focuses: Awaited<ReturnType<typeof getFocuses>>;
-};
 
 function makeFormOrganizationFromDbOrganization(
   dbOrganization: NonNullable<
@@ -93,7 +87,7 @@ function makeFormOrganizationFromDbOrganization(
   };
 }
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -109,6 +103,12 @@ export const loader: LoaderFunction = async (args) => {
       message: `Organization with slug "${slug}" not found or not permitted to edit.`,
     });
   }
+  const organizationVisibilities = await getOrganizationVisibilitiesById(
+    dbOrganization.id
+  );
+  if (organizationVisibilities === null) {
+    throw notFound({ message: "organization visbilities not found." });
+  }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
 
@@ -116,9 +116,10 @@ export const loader: LoaderFunction = async (args) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json<LoaderData>(
+  return json(
     {
       organization,
+      organizationVisibilities,
       organizationTypes,
       areas,
       focuses,
@@ -127,14 +128,7 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-type ActionData = {
-  organization: OrganizationFormType;
-  lastSubmit: string;
-  errors: FormError | null;
-  updated: boolean;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -173,7 +167,12 @@ export const action: ActionFunction = async (args) => {
   if (submit === "submit") {
     if (errors === null) {
       try {
-        await updateOrganizationById(organization.id, data);
+        const { privateFields, ...organizationData } = data;
+        await updateOrganizationById(
+          organization.id,
+          organizationData,
+          privateFields
+        );
         updated = true;
       } catch (error) {
         console.error(error);
@@ -197,7 +196,7 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(
+  return json(
     {
       organization: data,
       lastSubmit: (formData.get("submit") as string) ?? "",
@@ -212,13 +211,14 @@ function Index() {
   const { slug } = useParams();
   const {
     organization: dbOrganization,
+    organizationVisibilities,
     organizationTypes,
     areas,
     focuses,
-  } = useLoaderData<LoaderData>();
+  } = useLoaderData<typeof loader>();
 
   const transition = useTransition();
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
@@ -327,6 +327,8 @@ function Index() {
               {...register("name")}
               id="name"
               label="Name"
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.name}
               defaultValue={organization.name}
               errorMessage={errors?.name?.message}
             />
@@ -338,7 +340,8 @@ function Index() {
                 id="email"
                 label="E-Mail"
                 errorMessage={errors?.email?.message}
-                isPublic={organization.publicFields?.includes("email")}
+                withPublicPrivateToggle={true}
+                isPublic={organizationVisibilities.email}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -347,7 +350,8 @@ function Index() {
                 id="phone"
                 label="Telefon"
                 errorMessage={errors?.phone?.message}
-                isPublic={organization.publicFields?.includes("phone")}
+                withPublicPrivateToggle={true}
+                isPublic={organizationVisibilities.phone}
               />
             </div>
           </div>
@@ -359,6 +363,8 @@ function Index() {
                 id="street"
                 label="Straßenname"
                 errorMessage={errors?.street?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.street}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -367,6 +373,8 @@ function Index() {
                 id="streetNumber"
                 label="Hausnummer"
                 errorMessage={errors?.streetNumber?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.streetNumber}
               />
             </div>
           </div>
@@ -377,6 +385,8 @@ function Index() {
                 id="zipCode"
                 label="PLZ"
                 errorMessage={errors?.zipCode?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.zipCode}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -385,6 +395,8 @@ function Index() {
                 id="city"
                 label="Stadt"
                 errorMessage={errors?.city?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.city}
               />
             </div>
           </div>
@@ -403,7 +415,8 @@ function Index() {
               id="bio"
               defaultValue={organization.bio || ""}
               label="Kurzbeschreibung"
-              isPublic={organization.publicFields?.includes("bio")}
+              withPublicPrivateToggle={true}
+              isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
               maxCharacters={500}
             />
@@ -420,6 +433,8 @@ function Index() {
                 return !organization.types.includes(option.value);
               })}
               placeholder="Füge Eure Organisationsformen hinzu."
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.types}
             />
           </div>
           <div className="mb-4">
@@ -432,6 +447,8 @@ function Index() {
                 value: area.id,
               }))}
               options={areaOptions}
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.areas}
             />
           </div>
           <div className="mb-4">
@@ -439,6 +456,8 @@ function Index() {
               name="supportedBy"
               label="Gefördert von"
               entries={organization.supportedBy ?? []}
+              withPublicPrivateToggle={false}
+              isPublic={organizationVisibilities.supportedBy}
             />
           </div>
           <div className="mb-4">
@@ -453,7 +472,8 @@ function Index() {
               options={focusOptions.filter((option) => {
                 return !organization.focuses.includes(option.value);
               })}
-              isPublic={organization.publicFields?.includes("focuses")}
+              withPublicPrivateToggle={true}
+              isPublic={organizationVisibilities.focuses}
             />
           </div>
           <div className="mb-4">
@@ -461,7 +481,8 @@ function Index() {
               {...register("quote")}
               id="quote"
               label="Zitat"
-              isPublic={organization.publicFields?.includes("quote")}
+              withPublicPrivateToggle={true}
+              isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
               maxCharacters={300}
             />
@@ -473,6 +494,8 @@ function Index() {
                 id="quoteAuthor"
                 label="Von wem stammt das Zitat?"
                 errorMessage={errors?.quoteAuthor?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.quoteAuthor}
               />
             </div>
             <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -481,6 +504,8 @@ function Index() {
                 id="quoteAuthorInformation"
                 label="Zusatzinformationen des Zitatautors (Position/Beruf)"
                 errorMessage={errors?.quoteAuthorInformation?.message}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.quoteAuthorInformation}
               />
             </div>
           </div>
@@ -501,7 +526,8 @@ function Index() {
               id="website"
               label="Website"
               placeholder="domainname.tld"
-              isPublic={organization.publicFields?.includes("website")}
+              withPublicPrivateToggle={true}
+              isPublic={organizationVisibilities.website}
               errorMessage={errors?.website?.message}
               withClearButton
             />
@@ -522,7 +548,8 @@ function Index() {
                 id={service.id}
                 label={service.label}
                 placeholder={service.organizationPlaceholder}
-                isPublic={organization.publicFields?.includes(service.id)}
+                withPublicPrivateToggle={true}
+                isPublic={organizationVisibilities[service.id]}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
               />

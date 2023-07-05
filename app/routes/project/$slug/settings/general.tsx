@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -29,7 +29,10 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getDisciplines, getTargetGroups } from "~/utils.server";
-import { getProjectBySlugOrThrow } from "../utils.server";
+import {
+  getProjectBySlugOrThrow,
+  getProjectVisibilitiesBySlugOrThrow,
+} from "../utils.server";
 import {
   checkOwnershipOrThrow,
   transformFormToProject,
@@ -61,18 +64,12 @@ const schema = object({
   targetGroups: array(string().required()).required(),
   disciplines: array(string().required()).required(),
   submit: string().required(),
+  privateFields: array(string().required()).required(),
 });
 
 type FormType = InferType<typeof schema>;
 
-type LoaderData = {
-  userId: string;
-  project: ReturnType<typeof transformProjectToForm>;
-  targetGroups: Awaited<ReturnType<typeof getTargetGroups>>;
-  disciplines: Awaited<ReturnType<typeof getDisciplines>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -82,16 +79,18 @@ export const loader: LoaderFunction = async (args) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugOrThrow(slug);
+  const projectVisibilities = await getProjectVisibilitiesBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, sessionUser);
 
   const targetGroups = await getTargetGroups();
   const disciplines = await getDisciplines();
 
-  return json<LoaderData>(
+  return json(
     {
       userId: sessionUser.id,
       project: transformProjectToForm(project),
+      projectVisibilities,
       targetGroups,
       disciplines,
     },
@@ -99,14 +98,7 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-type ActionData = {
-  data: FormType;
-  errors: FormError | null;
-  updated: boolean;
-  lastSubmit: string;
-};
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -132,7 +124,8 @@ export const action: ActionFunction = async (args) => {
   if (result.data.submit === "submit") {
     if (result.errors === null) {
       const data = transformFormToProject(result.data);
-      await updateProjectById(project.id, data);
+      const { privateFields, ...projectData } = data;
+      await updateProjectById(project.id, projectData, privateFields);
       updated = true;
     }
   } else {
@@ -142,7 +135,7 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(
+  return json(
     {
       data,
       errors,
@@ -156,10 +149,15 @@ export const action: ActionFunction = async (args) => {
 function General() {
   const { slug } = useParams();
 
-  const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData<ActionData>();
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
-  const { project: originalProject, targetGroups, disciplines } = loaderData;
+  const {
+    project: originalProject,
+    projectVisibilities,
+    targetGroups,
+    disciplines,
+  } = loaderData;
 
   const transition = useTransition();
   const isSubmitting = transition.state === "submitting";
@@ -270,6 +268,8 @@ function General() {
             label="Name"
             defaultValue={project.name}
             errorMessage={errors?.name?.message}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.name}
           />
         </div>
         <div className="flex flex-col md:flex-row -mx-4 mb-2">
@@ -280,6 +280,8 @@ function General() {
               label="E-Mail"
               defaultValue={project.email || ""}
               errorMessage={errors?.email?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.email}
             />
           </div>
           <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -289,6 +291,8 @@ function General() {
               label="Telefon"
               defaultValue={project.phone || ""}
               errorMessage={errors?.phone?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.phone}
             />
           </div>
         </div>
@@ -301,6 +305,8 @@ function General() {
               label="Straßenname"
               defaultValue={project.street || ""}
               errorMessage={errors?.street?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.street}
             />
           </div>
           <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -310,6 +316,8 @@ function General() {
               label="Hausnummer"
               defaultValue={project.streetNumber || ""}
               errorMessage={errors?.streetNumber?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.streetNumber}
             />
           </div>
         </div>
@@ -321,6 +329,8 @@ function General() {
               label="PLZ"
               defaultValue={project.zipCode || ""}
               errorMessage={errors?.zipCode?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.zipCode}
             />
           </div>
           <div className="basis-full md:basis-6/12 px-4 mb-6">
@@ -330,6 +340,8 @@ function General() {
               label="Stadt"
               defaultValue={project.city || ""}
               errorMessage={errors?.city?.message}
+              withPublicPrivateToggle={false}
+              isPublic={projectVisibilities.city}
             />
           </div>
         </div>
@@ -346,6 +358,8 @@ function General() {
             label="Überschrift"
             defaultValue={project.headline || ""}
             errorMessage={errors?.headline?.message}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.headline}
           />
         </div>
         <div className="mb-4">
@@ -355,6 +369,8 @@ function General() {
             defaultValue={project.excerpt || ""}
             label="Kurzbeschreibung"
             errorMessage={errors?.excerpt?.message}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.excerpt}
           />
         </div>
         <div className="mb-4">
@@ -364,6 +380,8 @@ function General() {
             defaultValue={project.description || ""}
             label="Ausführliche Beschreibung"
             errorMessage={errors?.description?.message}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.description}
           />
         </div>
         <div className="mb-4">
@@ -376,6 +394,8 @@ function General() {
               value: targetGroup.id,
             }))}
             options={targetGroupOptions}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.targetGroups}
           />
         </div>
         <div className="mb-4">
@@ -388,6 +408,8 @@ function General() {
               value: item.id,
             }))}
             options={disciplineOptions}
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.disciplines}
           />
         </div>
 
@@ -410,6 +432,8 @@ function General() {
             placeholder="domainname.tld"
             errorMessage={errors?.website?.message}
             withClearButton
+            withPublicPrivateToggle={false}
+            isPublic={projectVisibilities.website}
           />
         </div>
 
@@ -432,6 +456,8 @@ function General() {
                 placeholder={service.organizationPlaceholder}
                 errorMessage={errors?.[service.id]?.message}
                 withClearButton
+                withPublicPrivateToggle={false}
+                isPublic={projectVisibilities[service.id]}
               />
             </div>
           );

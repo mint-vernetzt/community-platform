@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
+import { prismaClient } from "~/prisma";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
@@ -38,4 +39,15 @@ export async function checkSameOrganizationOrThrow(
   if (value === null || value !== organizationId) {
     throw badRequest({ message: "Organization IDs differ" });
   }
+}
+
+export async function getOrganizationVisibilitiesById(id: string) {
+  const result = await prismaClient.organizationVisibility.findFirst({
+    where: {
+      organization: {
+        id,
+      },
+    },
+  });
+  return result;
 }

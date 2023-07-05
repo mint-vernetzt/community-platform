@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
@@ -12,10 +12,17 @@ import {
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import {
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPaginationValues } from "../explore/utils.server";
+import {
+  enhanceEventsWithParticipationStatus,
+  getPaginationValues,
+} from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
@@ -24,7 +31,7 @@ import {
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
@@ -34,36 +41,66 @@ export const loader = async ({ request }: LoaderArgs) => {
     paginationValues.skip,
     paginationValues.take
   );
-  const enhancedEvents = rawEvents.map((event) => {
-    if (event.background !== null) {
-      const publicURL = getPublicURL(authClient, event.background);
+
+  const enhancedEvents = [];
+
+  for (const event of rawEvents) {
+    let enhancedEvent = {
+      ...event,
+    };
+
+    if (sessionUser === null) {
+      // Filter event
+      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+        enhancedEvent
+      );
+      // Filter responsible organizations of event
+      enhancedEvent.responsibleOrganizations = await Promise.all(
+        enhancedEvent.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedEvent.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
-        event.background = getImageURL(publicURL, {
+        enhancedEvent.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
     }
-    if (event.responsibleOrganizations.length > 0) {
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (item) => {
-          if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(authClient, item.organization.logo);
-            if (publicURL) {
-              item.organization.logo = getImageURL(publicURL, {
-                resize: { type: "fit", width: 144, height: 144 },
-              });
-            }
+
+    enhancedEvent.responsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 144, height: 144 },
+            });
           }
-          return item;
         }
-      );
-    }
-    return event;
-  });
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
+
+    enhancedEvents.push(enhancedEvent);
+  }
+
+  const enhancedEventsWithParticipationStatus =
+    await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
   return json(
     {
-      events: enhancedEvents,
+      events: enhancedEventsWithParticipationStatus,
       userId: sessionUser?.id || undefined,
     },
     { headers: response.headers }
@@ -111,16 +148,14 @@ export default function SearchView() {
                     to={`/event/${event.slug}`}
                   >
                     <div className="w-full aspect-4/3 lg:aspect-video">
-                      {event.background !== undefined ? (
-                        <img
-                          src={
-                            event.background ||
-                            "/images/default-event-background.jpg"
-                          }
-                          alt={event.name}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : null}
+                      <img
+                        src={
+                          event.background ||
+                          "/images/default-event-background.jpg"
+                        }
+                        alt={event.name}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
                     {event.canceled ? (
                       <div className="absolute left-0 right-0 top-0 bg-salmon-500 py-2 text-white text-center">
@@ -244,7 +279,7 @@ export default function SearchView() {
                         </p>
                       ) : (
                         <p className="text-xs mt-1 line-clamp-2">
-                          {event.description}
+                          {event.description || ""}
                         </p>
                       )}
                       <hr className="h-0 border-t border-neutral-400 m-0 mt-4" />
@@ -289,14 +324,12 @@ export default function SearchView() {
                       </p>
                     ) : null}
 
-                    {"isParticipant" in event &&
-                    event.isParticipant &&
-                    !event.canceled ? (
+                    {event.isParticipant && !event.canceled ? (
                       <div className="font-semibold ml-auto text-green-600">
                         <p>Angemeldet</p>
                       </div>
                     ) : null}
-                    {"isParticipant" in event && canUserParticipate(event) ? (
+                    {canUserParticipate(event) ? (
                       <div className="ml-auto">
                         <AddParticipantButton
                           action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -306,15 +339,12 @@ export default function SearchView() {
                         />
                       </div>
                     ) : null}
-                    {"isParticipant" in event &&
-                    event.isOnWaitingList &&
-                    !event.canceled ? (
+                    {event.isOnWaitingList && !event.canceled ? (
                       <div className="font-semibold ml-auto text-neutral-500">
                         <p>Wartend</p>
                       </div>
                     ) : null}
-                    {"isParticipant" in event &&
-                    canUserBeAddedToWaitingList(event) ? (
+                    {canUserBeAddedToWaitingList(event) ? (
                       <div className="ml-auto">
                         <AddToWaitingListButton
                           action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -324,12 +354,12 @@ export default function SearchView() {
                         />
                       </div>
                     ) : null}
-                    {("isParticipant" in event &&
-                      !event.isParticipant &&
+                    {(!event.isParticipant &&
                       !canUserParticipate(event) &&
                       !event.isOnWaitingList &&
                       !canUserBeAddedToWaitingList(event) &&
-                      !event.canceled) ||
+                      !event.canceled &&
+                      loaderData.userId !== undefined) ||
                     (loaderData.userId === undefined &&
                       event._count.childEvents > 0) ? (
                       <div className="ml-auto">

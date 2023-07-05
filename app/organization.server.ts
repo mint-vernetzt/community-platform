@@ -6,6 +6,10 @@ import { notFound } from "remix-utils";
 import { addUserParticipationStatus } from "~/lib/event/utils";
 import { getImageURL } from "./images.server";
 import { prismaClient } from "./prisma";
+import {
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
+} from "./public-fields-filtering.server";
 import { getPublicURL } from "./storage.server";
 
 export type OrganizationWithRelations = Organization & {
@@ -90,6 +94,7 @@ export async function getOrganizationBySlug(slug: string) {
           isPrivileged: true,
           profile: {
             select: {
+              id: true,
               username: true,
               avatar: true,
               firstName: true,
@@ -109,6 +114,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           network: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -134,6 +140,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           networkMember: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -168,6 +175,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           project: {
             select: {
+              id: true,
               slug: true,
               logo: true,
               name: true,
@@ -188,7 +196,9 @@ export async function getOrganizationBySlug(slug: string) {
                 select: {
                   organization: {
                     select: {
+                      id: true,
                       name: true,
+                      slug: true,
                     },
                   },
                 },
@@ -208,9 +218,13 @@ export async function getOrganizationBySlug(slug: string) {
   return organization;
 }
 
-export async function getOrganizationEvents(slug: string, inFuture: boolean) {
+export async function getOrganizationWithEvents(
+  slug: string,
+  inFuture: boolean
+) {
   const organizationEvents = await prismaClient.organization.findFirst({
     select: {
+      id: true,
       responsibleForEvents: {
         select: {
           event: {
@@ -277,31 +291,57 @@ export async function prepareOrganizationEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const organizationEvents = await getOrganizationEvents(slug, inFuture);
+  const organization = await getOrganizationWithEvents(slug, inFuture);
 
-  if (organizationEvents === null) {
-    throw notFound({ message: "Events not found" });
+  if (organization === null) {
+    throw notFound({ message: "Organization with events not found" });
   }
 
-  organizationEvents.responsibleForEvents =
-    organizationEvents.responsibleForEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
+  let enhancedOrganization = {
+    ...organization,
+  };
+
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter organization holding event relations
+    enhancedOrganization = await filterOrganizationByVisibility<
+      typeof enhancedOrganization
+    >(enhancedOrganization);
+    // Filter events where organization is responsible for
+    enhancedOrganization.responsibleForEvents = await Promise.all(
+      enhancedOrganization.responsibleForEvents.map(async (relation) => {
+        const filteredEvent = await filterEventByVisibility<
+          typeof relation.event
+        >(relation.event);
+        return { ...relation, event: filteredEvent };
+      })
+    );
+  }
+
+  // Get images from image proxy
+  organization.responsibleForEvents = organization.responsibleForEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
         if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
+          background = getImageURL(publicURL, {
             resize: { type: "fit", width: 160, height: 160 },
           });
         }
       }
-      return item;
-    });
+      return { ...relation, event: { ...relation.event, background } };
+    }
+  );
 
-  const enhancedEvents = {
+  const enhancedOrganizationWithParticipationStatus = {
+    ...enhancedOrganization,
     responsibleForEvents: await addUserParticipationStatus<
-      typeof organizationEvents.responsibleForEvents
-    >(organizationEvents.responsibleForEvents, sessionUser?.id),
+      typeof enhancedOrganization.responsibleForEvents
+    >(enhancedOrganization.responsibleForEvents, sessionUser?.id),
   };
-  return enhancedEvents;
+
+  return enhancedOrganizationWithParticipationStatus;
 }
 
 export async function getOrganizationMembersBySlug(slug: string) {
@@ -316,7 +356,7 @@ export async function getOrganizationMembersBySlug(slug: string) {
 }
 
 export async function deleteOrganizationBySlug(slug: string) {
-  return await prismaClient.organization.delete({ where: { slug: slug } });
+  await prismaClient.organization.delete({ where: { slug: slug } });
 }
 
 export async function getAllOrganizations() {
@@ -326,7 +366,6 @@ export async function getAllOrganizations() {
       slug: true,
       logo: true,
       bio: true,
-      publicFields: true,
       types: {
         select: {
           organizationType: {

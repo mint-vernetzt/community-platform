@@ -32,6 +32,9 @@ export async function createProjectOnProfile(
             create: {
               name: projectName,
               slug: projectSlug,
+              projectVisibility: {
+                create: {},
+              },
             },
           },
         },

@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { isSameDay } from "date-fns";
@@ -16,13 +16,7 @@ import { AddParticipantButton } from "../event/$slug/settings/participants/add-p
 import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
-type LoaderData = {
-  futureEvents: Awaited<ReturnType<typeof prepareEvents>>;
-  pastEvents: Awaited<ReturnType<typeof prepareEvents>>;
-  userId?: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -42,7 +36,7 @@ export const loader: LoaderFunction = async (args) => {
     take,
   });
 
-  return json<LoaderData>(
+  return json(
     {
       futureEvents: futureEvents,
       pastEvents: pastEvents,
@@ -53,19 +47,26 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function Events() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
-  const { items: futureEvents, refCallback: futureRefCallback } =
-    useInfiniteItems(
-      loaderData.futureEvents,
-      "/explore/events?",
-      "futureEvents"
-    );
-  const { items: pastEvents, refCallback: pastRefCallback } = useInfiniteItems(
-    loaderData.pastEvents,
+  const {
+    items: futureEvents,
+    refCallback: futureRefCallback,
+  }: {
+    items: typeof loaderData.futureEvents;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(
+    loaderData.futureEvents,
     "/explore/events?",
-    "pastEvents"
+    "futureEvents"
   );
+  const {
+    items: pastEvents,
+    refCallback: pastRefCallback,
+  }: {
+    items: typeof loaderData.pastEvents;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(loaderData.pastEvents, "/explore/events?", "pastEvents");
 
   return (
     <>
@@ -90,16 +91,13 @@ function Events() {
                 to={`/event/${event.slug}`}
               >
                 <div className="w-full aspect-4/3 lg:aspect-video">
-                  {event.background !== undefined ? (
-                    <img
-                      src={
-                        event.background ||
-                        "/images/default-event-background.jpg"
-                      }
-                      alt={event.name}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : null}
+                  <img
+                    src={
+                      event.background || "/images/default-event-background.jpg"
+                    }
+                    alt={event.name}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 {event.canceled ? (
                   <div className="absolute left-0 right-0 top-0 bg-salmon-500 py-2 text-white text-center">
@@ -214,7 +212,7 @@ function Events() {
                     <p className="text-xs mt-1 line-clamp-2">{event.subline}</p>
                   ) : (
                     <p className="text-xs mt-1 line-clamp-2">
-                      {event.description}
+                      {event.description || ""}
                     </p>
                   )}
                   <hr className="h-0 border-t border-neutral-400 m-0 mt-4" />
@@ -256,14 +254,12 @@ function Events() {
                   </p>
                 ) : null}
 
-                {"isParticipant" in event &&
-                event.isParticipant &&
-                !event.canceled ? (
+                {event.isParticipant && !event.canceled ? (
                   <div className="font-semibold ml-auto text-green-600">
                     <p>Angemeldet</p>
                   </div>
                 ) : null}
-                {"isParticipant" in event && canUserParticipate(event) ? (
+                {canUserParticipate(event) ? (
                   <div className="ml-auto">
                     <AddParticipantButton
                       action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -273,15 +269,12 @@ function Events() {
                     />
                   </div>
                 ) : null}
-                {"isParticipant" in event &&
-                event.isOnWaitingList &&
-                !event.canceled ? (
+                {event.isOnWaitingList && !event.canceled ? (
                   <div className="font-semibold ml-auto text-neutral-500">
                     <p>Wartend</p>
                   </div>
                 ) : null}
-                {"isParticipant" in event &&
-                canUserBeAddedToWaitingList(event) ? (
+                {canUserBeAddedToWaitingList(event) ? (
                   <div className="ml-auto">
                     <AddToWaitingListButton
                       action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -291,12 +284,12 @@ function Events() {
                     />
                   </div>
                 ) : null}
-                {("isParticipant" in event &&
-                  !event.isParticipant &&
+                {(!event.isParticipant &&
                   !canUserParticipate(event) &&
                   !event.isOnWaitingList &&
                   !canUserBeAddedToWaitingList(event) &&
-                  !event.canceled) ||
+                  !event.canceled &&
+                  loaderData.userId !== undefined) ||
                 (loaderData.userId === undefined &&
                   event._count.childEvents > 0) ? (
                   <div className="ml-auto">
@@ -349,16 +342,14 @@ function Events() {
                     to={`/event/${event.slug}`}
                   >
                     <div className="w-full aspect-4/3 lg:aspect-video">
-                      {event.background !== undefined ? (
-                        <img
-                          src={
-                            event.background ||
-                            "/images/default-event-background.jpg"
-                          }
-                          alt={event.name}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : null}
+                      <img
+                        src={
+                          event.background ||
+                          "/images/default-event-background.jpg"
+                        }
+                        alt={event.name}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
                     {event.canceled ? (
                       <div className="absolute left-0 right-0 top-0 bg-salmon-500 py-2 text-white text-center">
@@ -461,7 +452,7 @@ function Events() {
                         </p>
                       ) : (
                         <p className="text-xs mt-1 line-clamp-2">
-                          {event.description}
+                          {event.description || ""}
                         </p>
                       )}
                       <hr className="h-0 border-t border-neutral-400 m-0 mt-4" />
@@ -506,15 +497,12 @@ function Events() {
                       </p>
                     ) : null}
 
-                    {"isParticipant" in event &&
-                    event.isParticipant &&
-                    !event.canceled ? (
+                    {event.isParticipant && !event.canceled ? (
                       <div className="font-semibold ml-auto text-green-600">
                         <p>Teilgenommen</p>
                       </div>
                     ) : null}
-                    {("isParticipant" in event &&
-                      !event.isParticipant &&
+                    {(!event.isParticipant &&
                       !canUserParticipate(event) &&
                       !event.isOnWaitingList &&
                       !canUserBeAddedToWaitingList(event)) ||

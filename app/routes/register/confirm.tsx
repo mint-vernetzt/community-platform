@@ -1,7 +1,8 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+import { badRequest } from "remix-utils";
 import { createAuthClient, setSession } from "~/auth.server";
-import { getProfileByUserId } from "~/profile.server";
+import { createProfile } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -25,12 +26,49 @@ export const loader = async (args: LoaderArgs) => {
       accessToken,
       refreshToken
     );
-    if (type === "signup" && sessionUser !== null) {
-      // Default redirect to profile of sessionUser after sign up confirmation
-      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      return redirect(loginRedirect || `/profile/${profile.username}`, {
-        headers: response.headers,
-      });
+    console.log(sessionUser);
+    if (type === "signup") {
+      if (sessionUser !== null) {
+        // Create profile visibility settings after successful signup confirmation
+        if (
+          sessionUser.email === undefined ||
+          sessionUser.user_metadata.username === undefined ||
+          sessionUser.user_metadata.firstName === undefined ||
+          sessionUser.user_metadata.lastName === undefined ||
+          sessionUser.user_metadata.termsAccepted === undefined ||
+          typeof sessionUser.user_metadata.username !== "string" ||
+          typeof sessionUser.user_metadata.firstName !== "string" ||
+          typeof sessionUser.user_metadata.lastName !== "string" ||
+          typeof sessionUser.user_metadata.termsAccepted !== "boolean"
+        ) {
+          throw badRequest(
+            "Did not provide necessary user meta data to create a corresponding profile after sign up."
+          );
+        }
+        // Profile is now created here and not inside a trigger function
+        const initialProfile = {
+          id: sessionUser.id,
+          email: sessionUser.email,
+          username: sessionUser.user_metadata.username,
+          firstName: sessionUser.user_metadata.firstName,
+          lastName: sessionUser.user_metadata.lastName,
+          academicTitle: sessionUser.user_metadata.academicTitle,
+          termsAccepted: sessionUser.user_metadata.termsAccepted,
+        };
+        console.log("Before create Profile.");
+        const profile = await createProfile(initialProfile);
+        // Default redirect to profile of sessionUser after sign up confirmation
+        return redirect(loginRedirect || `/profile/${profile.username}`, {
+          headers: response.headers,
+        });
+      } else {
+        alert(
+          "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
+        );
+        throw badRequest(
+          "Could not create a session after sign up confirmation."
+        );
+      }
     }
   }
 

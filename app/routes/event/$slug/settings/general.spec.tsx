@@ -15,6 +15,11 @@ const getSessionUserOrThrow = jest.spyOn(
 jest.mock("~/prisma", () => {
   return {
     prismaClient: {
+      $transaction: jest.fn(),
+      eventVisibility: {
+        findFirst: jest.fn(),
+        update: jest.fn(),
+      },
       event: {
         findFirst: jest.fn(),
         update: jest.fn(),
@@ -120,6 +125,11 @@ describe("/event/$slug/settings/general", () => {
 
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug };
+      });
+      (
+        prismaClient.eventVisibility.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return { slug: true };
       });
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
@@ -603,6 +613,11 @@ describe("/event/$slug/settings/general", () => {
           participationFromTime: "23:00",
           submit: "submit",
           participantCount: "0",
+        });
+        (
+          prismaClient.eventVisibility.findFirst as jest.Mock
+        ).mockImplementationOnce(() => {
+          return { slug: true };
         });
         const response = await action({
           request: request,

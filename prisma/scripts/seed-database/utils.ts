@@ -3,6 +3,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { fromBuffer } from "file-type";
+import fs from "fs-extra";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
   getMultipleRandomUniqueSubsets,
@@ -18,7 +19,6 @@ import {
   generateUsername as generateUsername_app,
 } from "../../../app/utils";
 import { createHashFromString } from "../../../app/utils.server";
-import fs from "fs-extra";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -5579,7 +5579,6 @@ export function getEntityData<
     academicTitle: generateAcademicTitle<T>(entityType, entityStructure),
     firstName: generateFirstName<T>(entityType, entityStructure, useRealNames),
     lastName: generateLastName<T>(entityType, entityStructure, useRealNames),
-    publicFields: generatePublicFields<T>(entityType, entityStructure),
     termsAccepted: generateTermsAccepted<T>(entityType),
     position: generatePosition<T>(entityType, entityStructure),
   };
@@ -5622,9 +5621,12 @@ export async function seedEntity<
       );
     } else {
       try {
-        result = await prismaClient.profile.update({
-          where: { id: data.user.id },
-          data: entity,
+        result = await prismaClient.profile.create({
+          data: {
+            ...entity,
+            id: data.user.id,
+            profileVisibility: { create: {} },
+          },
           select: { id: true },
         });
       } catch (e) {
@@ -5634,15 +5636,51 @@ export async function seedEntity<
         );
       }
     }
+  } else if (entityType === "organization" && "supportedBy" in entity) {
+    result = await prismaClient.organization.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        organizationVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
+  } else if (entityType === "event" && "published" in entity) {
+    result = await prismaClient.event.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        eventVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
+  } else if (entityType === "project" && "headline" in entity) {
+    result = await prismaClient.project.create({
+      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
+      data: {
+        ...entity,
+        projectVisibility: {
+          create: {},
+        },
+      },
+      select: { id: true },
+    });
   } else {
-    // TODO: fix union type issue (almost got the generic working, but thats too hard...)
-    // What i wanted was: When i pass "profile" as type T then the passed entity must be of type Prisma.ProfileCreateArgs["data"]
-    // @ts-ignore
+    // @ts-ignore -> Union type issue -> To much abstraction
     result = await prismaClient[entityType].create({
       data: entity,
       select: { id: true },
     });
   }
+  if (result === undefined || result === null) {
+    console.error(`${entity} could not be created.`);
+    throw new Error(`${entity} could not be created.`);
+  }
+
   return result.id as string;
 }
 
@@ -7322,114 +7360,6 @@ function generateLastName<
     }
   }
   return lastName;
-}
-
-function generatePublicFields<
-  T extends keyof Pick<
-    PrismaClient,
-    "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
-  // profile, organization
-  let publicFields;
-  if (entityType === "profile" || entityType === "organization") {
-    let alwaysPublicFields;
-    let privateFields;
-    if (entityType === "profile") {
-      alwaysPublicFields = [
-        "id",
-        "username",
-        "firstName",
-        "lastName",
-        "academicTitle",
-        "areas",
-        "avatar",
-        "background",
-        "memberOf",
-        "teamMemberOfProjects",
-      ];
-      privateFields = [
-        "email",
-        "website",
-        "facebook",
-        "linkedin",
-        "twitter",
-        "xing",
-        "bio",
-        "skills",
-        "interests",
-        "createdAt",
-        "publicFields",
-        "termsAccepted",
-        "termsAcceptedAt",
-        "updatedAt",
-        "position",
-        "instagram",
-        "youtube",
-        "offers",
-        "participatedEvents",
-        "seekings",
-        "contributedEvents",
-        "teamMemberOfEvents",
-        "waitingForEvents",
-      ];
-    } else {
-      alwaysPublicFields = [
-        "name",
-        "slug",
-        "street",
-        "streetNumber",
-        "zipCode",
-        "city",
-        "logo",
-        "background",
-        "types",
-        "supportedBy",
-        "publicFields",
-        "teamMembers",
-        "memberOf",
-        "networkMembers",
-        "createdAt",
-        "areas",
-        "responsibleForEvents",
-        "responsibleForProject",
-      ];
-      privateFields = [
-        "id",
-        "email",
-        "phone",
-        "website",
-        "facebook",
-        "linkedin",
-        "twitter",
-        "xing",
-        "bio",
-        "quote",
-        "quoteAuthor",
-        "quoteAuthorInformation",
-        "updatedAt",
-        "instagram",
-        "youtube",
-        "focuses",
-      ];
-    }
-    if (entityStructure === "Public") {
-      publicFields = [...alwaysPublicFields, ...privateFields];
-    } else if (entityStructure === "Private") {
-      publicFields = alwaysPublicFields;
-    } else {
-      publicFields = [
-        ...alwaysPublicFields,
-        ...privateFields.filter(
-          () =>
-            Math.random() <
-            faker.datatype.number({ min: 0, max: privateFields.length }) /
-              privateFields.length
-        ),
-      ];
-    }
-  }
-  return publicFields;
 }
 
 function generateTermsAccepted<

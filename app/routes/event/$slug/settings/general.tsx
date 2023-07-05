@@ -46,7 +46,10 @@ import {
   getTargetGroups,
   getTypes,
 } from "~/utils.server";
-import { getEventBySlugOrThrow } from "../utils.server";
+import {
+  getEventBySlugOrThrow,
+  getEventVisibilitiesBySlugOrThrow,
+} from "../utils.server";
 import type { ActionData as CancelActionData } from "./events/cancel";
 import { cancelSchema } from "./events/cancel";
 import type { ActionData as PublishActionData } from "./events/publish";
@@ -145,6 +148,7 @@ const schema = object({
   venueCity: nullOrString(string()),
   venueZipCode: nullOrString(string()),
   submit: string().required(),
+  privateFields: array(string().required()).required(),
 });
 
 type SchemaType = typeof schema;
@@ -160,6 +164,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlugOrThrow(slug);
+  const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(event, sessionUser);
 
@@ -174,6 +179,7 @@ export const loader = async (args: LoaderArgs) => {
   return json(
     {
       event: transformEventToForm(event),
+      eventVisibilities,
       userId: sessionUser.id,
       focuses,
       types,
@@ -229,7 +235,8 @@ export const action = async (args: ActionArgs) => {
 
   if (result.data.submit === "submit") {
     if (result.errors === null) {
-      await updateEventById(event.id, eventData);
+      const { privateFields, ...rest } = eventData;
+      await updateEventById(event.id, rest, privateFields);
       updated = true;
     }
   } else {
@@ -261,6 +268,7 @@ function General() {
   const loaderData = useLoaderData<typeof loader>();
   const {
     event: originalEvent,
+    eventVisibilities,
     userId,
     focuses,
     types,
@@ -535,6 +543,8 @@ function General() {
                 defaultValue={event.startTime}
                 errorMessage={errors?.startTime?.message}
                 type="time"
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.startTime}
               />
               {errors?.startTime?.message ? (
                 <div>{errors.startTime.message}</div>
@@ -563,6 +573,8 @@ function General() {
                 defaultValue={event.endTime}
                 errorMessage={errors?.endTime?.message}
                 type="time"
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.endTime}
               />
               {errors?.endTime?.message ? (
                 <div>{errors.endTime.message}</div>
@@ -592,6 +604,8 @@ function General() {
                 defaultValue={event.participationFromTime}
                 errorMessage={errors?.participationFromTime?.message}
                 type="time"
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.participationFrom}
               />
               {errors?.participationFromTime?.message ? (
                 <div>{errors.participationFromTime.message}</div>
@@ -620,6 +634,8 @@ function General() {
                 defaultValue={event.participationUntilTime}
                 errorMessage={errors?.participationUntilTime?.message}
                 type="time"
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.participationUntil}
               />
               {errors?.participationUntilTime?.message ? (
                 <div>{errors.participationUntilTime.message}</div>
@@ -634,6 +650,8 @@ function General() {
               defaultValue={event.participantLimit || ""}
               errorMessage={errors?.participantLimit?.message}
               type="number"
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.participantLimit}
             />
             {errors?.participantLimit?.message ? (
               <div>{errors.participantLimit.message}</div>
@@ -648,6 +666,8 @@ function General() {
               placeholder="Wähle den Veranstaltungstyp aus."
               options={stageOptions}
               defaultValue={event.stage || ""}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.stage}
             />
           </div>
 
@@ -658,6 +678,8 @@ function General() {
               label="Name des Veranstaltungsorts"
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.venueName}
             />
             {errors?.venueName?.message ? (
               <div>{errors.venueName.message}</div>
@@ -671,6 +693,8 @@ function General() {
                 label="Straßenname"
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.venueStreet}
               />
               {errors?.venueStreet?.message ? (
                 <div>{errors.venueStreet.message}</div>
@@ -683,6 +707,8 @@ function General() {
                 label="Hausnummer"
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.venueStreetNumber}
               />
               {errors?.venueStreetNumber?.message ? (
                 <div>{errors.venueStreetNumber.message}</div>
@@ -697,6 +723,8 @@ function General() {
                 label="PLZ"
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.venueZipCode}
               />
               {errors?.venueZipCode?.message ? (
                 <div>{errors.venueZipCode.message}</div>
@@ -709,6 +737,8 @@ function General() {
                 label="Stadt"
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
+                withPublicPrivateToggle={false}
+                isPublic={eventVisibilities.venueCity}
               />
               {errors?.venueCity?.message ? (
                 <div>{errors.venueCity.message}</div>
@@ -724,6 +754,8 @@ function General() {
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
               withClearButton
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.conferenceLink}
             />
             {errors?.conferenceLink?.message ? (
               <div>{errors.conferenceLink.message}</div>
@@ -737,6 +769,8 @@ function General() {
               defaultValue={event.conferenceCode || ""}
               errorMessage={errors?.conferenceCode?.message}
               withClearButton
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.conferenceCode}
             />
             {errors?.conferenceCode?.message ? (
               <div>{errors.conferenceCode.message}</div>
@@ -758,6 +792,8 @@ function General() {
               label="Name"
               defaultValue={event.name}
               errorMessage={errors?.name?.message}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.name}
             />
             {errors?.name?.message ? <div>{errors.name.message}</div> : null}
           </div>
@@ -770,6 +806,8 @@ function General() {
               label="Subline"
               errorMessage={errors?.subline?.message}
               maxCharacters={70}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.subline}
             />
             {errors?.subline?.message ? (
               <div>{errors.subline.message}</div>
@@ -783,6 +821,8 @@ function General() {
               label="Beschreibung"
               errorMessage={errors?.description?.message}
               maxCharacters={1000}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.description}
             />
             {errors?.description?.message ? (
               <div>{errors.description.message}</div>
@@ -798,6 +838,8 @@ function General() {
                 value: type.id,
               }))}
               options={typeOptions}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.types}
             />
           </div>
           <div className="mb-4">
@@ -810,6 +852,8 @@ function General() {
                 value: tag.id,
               }))}
               options={tagOptions}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.tags}
             />
           </div>
 
@@ -823,6 +867,8 @@ function General() {
                 value: targetGroup.id,
               }))}
               options={targetGroupOptions}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.targetGroups}
             />
           </div>
           <div className="mb-4">
@@ -833,6 +879,8 @@ function General() {
               placeholder="Wähle die Erfahrungsstufe aus."
               options={experienceLevelOptions}
               defaultValue={event.experienceLevel || ""}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.experienceLevel}
             />
           </div>
           <div className="mb-4">
@@ -845,6 +893,8 @@ function General() {
                 value: focus.id,
               }))}
               options={focusOptions}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.focuses}
             />
           </div>
           <div className="mb-4">
@@ -857,6 +907,8 @@ function General() {
                 value: area.id,
               }))}
               options={areaOptions}
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.areas}
             />
           </div>
           <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">

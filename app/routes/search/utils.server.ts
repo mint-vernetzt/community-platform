@@ -30,7 +30,6 @@ export async function searchProfilesViaLike(
   const profiles = await prismaClient.profile.findMany({
     select: {
       id: true,
-      publicFields: true,
       academicTitle: true,
       firstName: true,
       lastName: true,
@@ -53,6 +52,7 @@ export async function searchProfilesViaLike(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
               slug: true,
               logo: true,
@@ -260,7 +260,6 @@ export async function searchOrganizationsViaLike(
   const organizations = await prismaClient.organization.findMany({
     select: {
       id: true,
-      publicFields: true,
       slug: true,
       name: true,
       logo: true,
@@ -297,6 +296,7 @@ export async function searchOrganizationsViaLike(
         select: {
           profile: {
             select: {
+              id: true,
               firstName: true,
               lastName: true,
               avatar: true,
@@ -566,6 +566,7 @@ export async function searchEventsViaLike(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
               slug: true,
               logo: true,
@@ -803,7 +804,9 @@ export async function searchProjectsViaLike(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
+              slug: true,
             },
           },
         },

@@ -28,7 +28,7 @@ export type ProfileCardProps = {
       slug: string;
       logo?: string | null;
     }[];
-    areaNames: string[];
+    areas: string[];
     offers: string[];
   };
 };
@@ -74,7 +74,7 @@ function ProfileCard(
           </div>
         }
         <CardBodySection title="Aktivitätsgebiete" emptyMessage={emptyMessage}>
-          {profile.areaNames.length > 0 ? profile.areaNames.join("/") : ""}
+          {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
         <CardBodySection title="Ich biete" emptyMessage={emptyMessage}>
           {profile.offers.length === 0 ? (

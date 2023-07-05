@@ -20,7 +20,7 @@ async function getProfilesBySearchParams(
       profiles = await getFullDepthProfiles(event.id, "participants", groupBy);
     } else if (depth === "single") {
       profiles = event.participants.map((participant) => {
-        return { ...participant.profile, eventName: event.name };
+        return { ...participant.profile, participatedEvents: event.name };
       });
     } else {
       throw badRequest({
@@ -37,7 +37,10 @@ async function getProfilesBySearchParams(
           return a.createdAt.getTime() - b.createdAt.getTime();
         })
         .map((waitingParticipant) => {
-          return { ...waitingParticipant.profile, eventName: event.name };
+          return {
+            ...waitingParticipant.profile,
+            participatedEvents: event.name,
+          };
         });
     } else {
       throw badRequest({
@@ -90,10 +93,10 @@ function createCsvString(
       csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${
         profile.profile.email || ""
       }","${profile.profile.position}","${
-        profile.profile.organizationNames !== undefined
-          ? profile.profile.organizationNames.join(", ")
+        profile.profile.memberOf !== undefined
+          ? profile.profile.memberOf.join(", ")
           : ""
-      }","${profile.profile.eventName || ""}"\n`;
+      }","${profile.profile.participatedEvents || ""}"\n`;
     } else {
       csv += `"${profile.firstName}","${profile.lastName}","${
         profile.email
@@ -101,7 +104,7 @@ function createCsvString(
         .map((organization) => {
           return organization.organization.name;
         })
-        .join(", ")}","${profile.eventName}"\n`;
+        .join(", ")}","${profile.participatedEvents}"\n`;
     }
   }
 

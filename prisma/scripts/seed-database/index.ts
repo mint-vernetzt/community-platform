@@ -161,10 +161,6 @@ async function main(
   ]);
   await executeCommand("npx", [
     "ts-node",
-    "prisma/scripts/apply-create-profile-trigger/index.ts",
-  ]);
-  await executeCommand("npx", [
-    "ts-node",
     "supabase/scripts/create-buckets/index.ts",
   ]);
   await executeCommand("npx", [

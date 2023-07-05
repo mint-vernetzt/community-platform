@@ -1,30 +1,53 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import {
+  filterOrganizationByVisibility,
+  filterProjectByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 
-type LoaderData = {
-  projects: Awaited<ReturnType<typeof getAllProjects>>;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 
   const { skip, take } = getPaginationValues(request, { itemsPerPage: 6 });
 
   const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects(skip, take);
 
-  const enhancedProjects = projects.map((project) => {
-    let enhancedProject = project;
+  const enhancedProjects = [];
+
+  for (const project of projects) {
+    let enhancedProject = {
+      ...project,
+    };
+
+    if (sessionUser === null) {
+      // Filter project
+      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
+        enhancedProject
+      );
+      // Filter responsible organizations of project
+      enhancedProject.responsibleOrganizations = await Promise.all(
+        enhancedProject.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
     if (enhancedProject.background !== null) {
       const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
@@ -33,6 +56,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         });
       }
     }
+
     if (enhancedProject.logo !== null) {
       const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
@@ -41,22 +65,25 @@ export const loader: LoaderFunction = async ({ request }) => {
         });
       }
     }
+
     enhancedProject.awards = enhancedProject.awards.map((relation) => {
-      if (relation.award.logo !== null) {
-        const publicURL = getPublicURL(authClient, relation.award.logo);
+      let logo = relation.award.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
-          relation.award.logo = getImageURL(publicURL, {
+          logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      return relation;
+      return { ...relation, award: { ...relation.award, logo } };
     });
-    return enhancedProject;
-  });
 
-  return json<LoaderData>(
+    enhancedProjects.push(enhancedProject);
+  }
+
+  return json(
     {
       projects: enhancedProjects,
     },
@@ -65,13 +92,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 function Projects() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
-  const { items, refCallback } = useInfiniteItems(
-    loaderData.projects,
-    "/explore/projects?",
-    "projects"
-  );
+  const {
+    items,
+    refCallback,
+  }: {
+    items: typeof loaderData.projects;
+    refCallback: (node: HTMLDivElement) => void;
+  } = useInfiniteItems(loaderData.projects, "/explore/projects?", "projects");
 
   return (
     <>
@@ -130,11 +159,10 @@ function Projects() {
                       <H3 like="h4" className="text-base mb-0 font-bold">
                         {project.name}
                       </H3>
-                      {project.responsibleOrganizations &&
-                      project.responsibleOrganizations.length > 0 ? (
+                      {project.responsibleOrganizations.length > 0 ? (
                         <p className="font-bold text-sm">
                           {project.responsibleOrganizations
-                            .map(({ organization }) => organization.name)
+                            .map((relation) => relation.organization.name)
                             .join(" / ")}
                         </p>
                       ) : null}
@@ -148,28 +176,34 @@ function Projects() {
                 </div>
                 {project.awards.length > 0 ? (
                   <div className="-mt-4 flex ml-4">
-                    {project.awards.map(({ award }) => {
-                      const date = utcToZonedTime(award.date, "Europe/Berlin");
+                    {project.awards.map((relation) => {
+                      const date = utcToZonedTime(
+                        relation.award.date,
+                        "Europe/Berlin"
+                      );
                       return (
                         <div
-                          key={`award-${award.id}`}
+                          key={`award-${relation.award.id}`}
                           className="bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                         >
                           <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                             <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                              {award.logo !== null && award.logo !== "" ? (
-                                <img src={award.logo} alt={award.title} />
+                              {relation.award.logo !== "" ? (
+                                <img
+                                  src={relation.award.logo}
+                                  alt={relation.award.title}
+                                />
                               ) : (
-                                getInitialsOfName(award.title)
+                                getInitialsOfName(relation.award.title)
                               )}
                             </div>
                             <div className="px-2 pt-1 mb-4">
-                              {award.shortTitle ? (
+                              {relation.award.shortTitle ? (
                                 <H4
                                   like="h4"
                                   className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
                                 >
-                                  {award.shortTitle}
+                                  {relation.award.shortTitle}
                                 </H4>
                               ) : null}
                               <p className="text-xxs text-center leading-none">

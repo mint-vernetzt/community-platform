@@ -1,4 +1,5 @@
-import { Event, Prisma } from "@prisma/client";
+import type { Event } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { getRootEvent } from "~/event.server";
 import {
   getIsOnWaitingList,
@@ -6,7 +7,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "~/routes/event/$slug/utils.server";
-import { ArrayElement } from "../utils/types";
+import type { ArrayElement } from "../utils/types";
 
 const eventRelations = Prisma.validator<Prisma.EventArgs>()({
   select: {
@@ -101,9 +102,10 @@ export async function addUserParticipationStatus<
   >;
 }
 
-function reachedParticipateDeadline(
-  event: Pick<Event, "participationUntil" | "participationFrom">
-) {
+function reachedParticipateDeadline(event: {
+  participationUntil: string;
+  participationFrom: string;
+}) {
   const participationUntil = new Date(event.participationUntil).getTime();
   const participationFrom = new Date(event.participationFrom).getTime();
   const now = Date.now();
@@ -132,22 +134,21 @@ function isCanceled(event: Pick<Event, "canceled">) {
   return event.canceled;
 }
 
-export function canUserParticipate(
-  event: Pick<
-    EventWithRelations,
-    | "participationFrom"
-    | "participationUntil"
-    | "participantLimit"
-    | "published"
-    | "canceled"
-    | "_count"
-  > & {
-    isParticipant: boolean;
-    isOnWaitingList: boolean;
-    isTeamMember: boolean;
-    isSpeaker: boolean;
-  }
-) {
+export function canUserParticipate(event: {
+  participationFrom: string;
+  participationUntil: string;
+  participantLimit: number | null;
+  published: boolean;
+  canceled: boolean;
+  _count: {
+    participants: number;
+    childEvents: number;
+  };
+  isParticipant: boolean;
+  isOnWaitingList: boolean;
+  isTeamMember: boolean;
+  isSpeaker: boolean;
+}) {
   return (
     !event.isParticipant &&
     !event.isOnWaitingList &&
@@ -164,22 +165,21 @@ export function canUserParticipate(
   );
 }
 
-export function canUserBeAddedToWaitingList(
-  event: Pick<
-    EventWithRelations,
-    | "participationFrom"
-    | "participationUntil"
-    | "participantLimit"
-    | "published"
-    | "canceled"
-    | "_count"
-  > & {
-    isParticipant: boolean;
-    isOnWaitingList: boolean;
-    isTeamMember: boolean;
-    isSpeaker: boolean;
-  }
-) {
+export function canUserBeAddedToWaitingList(event: {
+  participationFrom: string;
+  participationUntil: string;
+  participantLimit: number | null;
+  published: boolean;
+  canceled: boolean;
+  _count: {
+    participants: number;
+    childEvents: number;
+  };
+  isParticipant: boolean;
+  isOnWaitingList: boolean;
+  isTeamMember: boolean;
+  isSpeaker: boolean;
+}) {
   return (
     !event.isOnWaitingList &&
     !event.isParticipant &&
@@ -212,9 +212,9 @@ function conferenceLinkToBeAnnounced(
 
 export function canUserAccessConferenceLink(
   event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
-  isParticipant: boolean | undefined,
-  isSpeaker: boolean | undefined,
-  isTeamMember: boolean | undefined
+  isParticipant: boolean,
+  isSpeaker: boolean,
+  isTeamMember: boolean
 ) {
   return (
     (conferenceLinkExists(event) || conferenceLinkToBeAnnounced(event)) &&

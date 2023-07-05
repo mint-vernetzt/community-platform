@@ -5,6 +5,7 @@ export interface TextAreaProps {
   id: string;
   label: string;
   isPublic?: boolean;
+  withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
   onChange?: Function; // <--- ?
@@ -27,13 +28,16 @@ const TextArea = React.forwardRef(
             {props.label}
             {props.required === true ? " *" : ""}
           </label>
-          {isPublic !== undefined && publicPosition === "top" && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={props.name}
-              defaultChecked={isPublic}
-            />
-          )}
+          {props.withPublicPrivateToggle !== undefined &&
+            isPublic !== undefined &&
+            publicPosition === "top" && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!isPublic}
+              />
+            )}
         </div>
         <div className="flex flex-row">
           <div className="flex-auto">
@@ -44,13 +48,16 @@ const TextArea = React.forwardRef(
               className={`textarea textarea-bordered h-24 w-full ${props.className}`}
             ></textarea>
           </div>
-          {props.isPublic !== undefined && publicPosition === "side" && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={props.name}
-              defaultChecked={isPublic}
-            />
-          )}
+          {props.withPublicPrivateToggle !== undefined &&
+            props.isPublic !== undefined &&
+            publicPosition === "side" && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!isPublic}
+              />
+            )}
         </div>
       </div>
     );

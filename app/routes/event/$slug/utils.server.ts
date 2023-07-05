@@ -1,3 +1,4 @@
+import type { Event } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { Organization, Profile } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
@@ -7,7 +8,7 @@ import { prismaClient } from "~/prisma";
 type Mode = "anon" | "authenticated" | "owner";
 
 export async function deriveMode(
-  event: NonNullable<Awaited<ReturnType<typeof getEvent>>>,
+  event: Pick<Event, "id">,
   sessionUser: User | null
 ): Promise<Mode> {
   if (sessionUser === null) {
@@ -305,6 +306,20 @@ export async function getEventBySlugOrThrow(slug: string) {
   return result;
 }
 
+export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
+  const result = await prismaClient.eventVisibility.findFirst({
+    where: {
+      event: {
+        slug,
+      },
+    },
+  });
+  if (result === null) {
+    throw notFound({ message: "Event visbilities not found." });
+  }
+  return result;
+}
+
 export async function getEventById(id: string) {
   return await getEventByField("id", id);
 }
@@ -353,8 +368,8 @@ export async function getFullDepthProfiles(
                   position, 
                   avatar, 
                   academic_title as "academicTitle", 
-                  get_full_depth.name as "eventName", 
-                  array_remove(array_agg(DISTINCT organizations.name), null) as "organizationNames"`;
+                  get_full_depth.name as "participatedEvents", 
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "memberOf"`;
 
     const profileJoin =
       relation === "participants"
@@ -395,7 +410,7 @@ export async function getFullDepthProfiles(
         | "username"
         | "avatar"
         | "position"
-      > & { email?: string; eventName?: string[]; organizationNames?: string[] }
+      > & { email?: string; participatedEvents?: string; memberOf?: string[] }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id, name
@@ -435,7 +450,7 @@ export async function getFullDepthOrganizers(
     // Join the result with relevant relation tables
     const select = selectDistinct
       ? Prisma.sql`SELECT DISTINCT "organizations".name, slug`
-      : Prisma.sql`SELECT "organizations".name, "events".name as "eventName"`;
+      : Prisma.sql`SELECT "organizations".name, "events".name as "responsibleForEvents"`;
 
     const result = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
@@ -459,7 +474,7 @@ export async function getFullDepthOrganizers(
       ;`;
 
     return result as Array<
-      Pick<Organization, "slug" | "name"> & { eventName?: string }
+      Pick<Organization, "slug" | "name"> & { responsibleForEvents?: string }
     >;
   } catch (e) {
     console.error(e);
@@ -513,6 +528,7 @@ export async function getEvent(slug: string) {
 
       parentEvent: {
         select: {
+          id: true,
           slug: true,
           name: true,
         },
@@ -728,72 +744,86 @@ export async function getEventSpeakers(currentEventId: string) {
 }
 
 export async function enhanceChildEventsWithParticipationStatus(
-  currentUserId: string,
-  event: Awaited<ReturnType<typeof getEvent>> & {
-    participants: Awaited<
-      ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-    >;
-  } & {
-    speakers: Awaited<
-      ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
-    >;
-  }
+  sessionUser: User | null,
+  childEvents: Pick<
+    NonNullable<Awaited<ReturnType<typeof getEvent>>>,
+    "childEvents"
+  >["childEvents"]
 ) {
-  const eventIdsWhereParticipant = (
-    await prismaClient.participantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereOnWaitingList = (
-    await prismaClient.waitingParticipantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereSpeaker = (
-    await prismaClient.speakerOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereTeamMember = (
-    await prismaClient.teamMemberOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
+  if (sessionUser === null) {
+    const enhancedChildEvents = childEvents.map((childEvent) => {
+      const isParticipant = false;
+      const isOnWaitingList = false;
+      const isSpeaker = false;
+      const isTeamMember = false;
+      return {
+        ...childEvent,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedChildEvents;
+  } else {
+    const eventIdsWhereParticipant = (
+      await prismaClient.participantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereOnWaitingList = (
+      await prismaClient.waitingParticipantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereSpeaker = (
+      await prismaClient.speakerOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereTeamMember = (
+      await prismaClient.teamMemberOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
 
-  const enhancedChildEvents = event.childEvents.map((childEvent) => {
-    const isParticipant = eventIdsWhereParticipant.includes(childEvent.id);
-    const isOnWaitingList = eventIdsWhereOnWaitingList.includes(childEvent.id);
-    const isSpeaker = eventIdsWhereSpeaker.includes(childEvent.id);
-    const isTeamMember = eventIdsWhereTeamMember.includes(childEvent.id);
-    return {
-      ...childEvent,
-      isParticipant,
-      isOnWaitingList,
-      isSpeaker,
-      isTeamMember,
-    };
-  });
-  return { ...event, childEvents: enhancedChildEvents };
+    const enhancedChildEvents = childEvents.map((childEvent) => {
+      const isParticipant = eventIdsWhereParticipant.includes(childEvent.id);
+      const isOnWaitingList = eventIdsWhereOnWaitingList.includes(
+        childEvent.id
+      );
+      const isSpeaker = eventIdsWhereSpeaker.includes(childEvent.id);
+      const isTeamMember = eventIdsWhereTeamMember.includes(childEvent.id);
+      return {
+        ...childEvent,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedChildEvents;
+  }
 }
 
 export async function getIsParticipant(eventId: string, profileId?: string) {

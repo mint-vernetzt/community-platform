@@ -5,6 +5,10 @@ import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
 import { getAreaById } from "~/profile.server";
+import {
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
@@ -129,7 +133,6 @@ export async function getAllProfiles(
     Pick<
       Profile,
       | "id"
-      | "publicFields"
       | "academicTitle"
       | "firstName"
       | "lastName"
@@ -140,11 +143,10 @@ export async function getAllProfiles(
       | "position"
       | "score"
       | "updatedAt"
-    > & { areaNames: string[]; offers: string[] }
+    > & { areas: string[]; offers: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
       profiles.id,
-      COALESCE(profiles.public_fields, ARRAY[]::text[]) as "publicFields",
       profiles.first_name as "firstName",
       profiles.last_name as "lastName",
       profiles.username,
@@ -155,7 +157,7 @@ export async function getAllProfiles(
       profiles.background,
       profiles.score,
       profiles.updated_at as "updatedAt",
-      array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
+      array_remove(array_agg(DISTINCT areas.name), null) as "areas",
       array_remove(array_agg(DISTINCT O.title), null) as "offers"
     FROM profiles
       /* Always joining areas to get areaNames */
@@ -203,22 +205,21 @@ export async function getAllOrganizations(
       | "logo"
       | "score"
       | "background"
-    > & { areaNames: string[]; types: string[]; focuses: string[] }
+    > & { areas: string[]; types: string[]; focuses: string[] }
   > = await prismaClient.$queryRaw`
   SELECT 
     organizations.id,
-    COALESCE(organizations.public_fields, ARRAY[]::text[]) as "publicFields",
     organizations.name,
     organizations.slug,
     organizations.bio,
     organizations.logo,
     organizations.score,
     organizations.background,
-    array_remove(array_agg(DISTINCT areas.name), null) as "areaNames",
+    array_remove(array_agg(DISTINCT areas.name), null) as "areas",
     array_remove(array_agg(DISTINCT organization_types.title), null) as "types",
     array_remove(array_agg(DISTINCT focuses.title), null) as "focuses"
   FROM organizations
-    /* Always joining areas and organization_types to get areaNames and organizationTypeTitles */
+    /* Always joining areas and organization_types to get area names and organizationType titles */
     LEFT JOIN areas_on_organizations
     ON organizations.id = areas_on_organizations."organizationId"
     LEFT JOIN areas
@@ -271,7 +272,9 @@ export async function getAllProjects(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
+              slug: true,
             },
           },
         },
@@ -366,6 +369,7 @@ export async function getEvents(
         select: {
           organization: {
             select: {
+              id: true,
               name: true,
               slug: true,
               logo: true,
@@ -383,70 +387,84 @@ export async function getEvents(
   return result;
 }
 
-export type MaybeEnhancedEvents =
-  | Awaited<ReturnType<typeof getEvents>>
-  | Awaited<ReturnType<typeof enhanceEventsWithParticipationStatus>>;
-
 export async function enhanceEventsWithParticipationStatus(
-  currentUserId: string,
+  sessionUser: User | null,
   events: Awaited<ReturnType<typeof getEvents>>
 ) {
-  const eventIdsWhereParticipant = (
-    await prismaClient.participantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereOnWaitingList = (
-    await prismaClient.waitingParticipantOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereSpeaker = (
-    await prismaClient.speakerOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
-  const eventIdsWhereTeamMember = (
-    await prismaClient.teamMemberOfEvent.findMany({
-      where: {
-        profileId: currentUserId,
-      },
-      select: {
-        eventId: true,
-      },
-    })
-  ).map((event) => event.eventId);
+  if (sessionUser === null) {
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = false;
+      const isOnWaitingList = false;
+      const isSpeaker = false;
+      const isTeamMember = false;
 
-  const enhancedEvents = events.map((item) => {
-    const isParticipant = eventIdsWhereParticipant.includes(item.id);
-    const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
-    const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
-    const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  } else {
+    const eventIdsWhereParticipant = (
+      await prismaClient.participantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereOnWaitingList = (
+      await prismaClient.waitingParticipantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereSpeaker = (
+      await prismaClient.speakerOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereTeamMember = (
+      await prismaClient.teamMemberOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
 
-    return {
-      ...item,
-      isParticipant,
-      isOnWaitingList,
-      isSpeaker,
-      isTeamMember,
-    };
-  });
-  return enhancedEvents;
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = eventIdsWhereParticipant.includes(item.id);
+      const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
+      const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
+      const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  }
 }
 
 export async function prepareEvents(
@@ -460,44 +478,62 @@ export async function prepareEvents(
 ) {
   const events = await getEvents(inFuture, options.skip, options.take);
 
-  let enhancedEvents: MaybeEnhancedEvents = events;
+  const enhancedEvents = [];
 
-  if (sessionUser !== null) {
-    enhancedEvents = await enhanceEventsWithParticipationStatus(
-      sessionUser.id,
-      events
-    );
-  }
+  for (const event of events) {
+    let enhancedEvent = {
+      ...event,
+    };
 
-  enhancedEvents = enhancedEvents.map((item) => {
-    if (item.background !== null) {
-      const publicURL = getPublicURL(authClient, item.background);
+    // Filtering by visbility settings
+    if (sessionUser === null) {
+      // Filter event
+      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+        enhancedEvent
+      );
+      // Filter responsible Organizations
+      enhancedEvent.responsibleOrganizations = await Promise.all(
+        enhancedEvent.responsibleOrganizations.map(async (relation) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof relation.organization
+          >(relation.organization);
+          return { ...relation, organization: filteredOrganization };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedEvent.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
-        item.background = getImageURL(publicURL, {
+        enhancedEvent.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
     }
-    return item;
-  });
 
-  enhancedEvents = enhancedEvents.map((event) => {
-    if (event.responsibleOrganizations.length > 0) {
-      event.responsibleOrganizations = event.responsibleOrganizations.map(
-        (item) => {
-          if (item.organization.logo !== null) {
-            const publicURL = getPublicURL(authClient, item.organization.logo);
-            if (publicURL) {
-              item.organization.logo = getImageURL(publicURL, {
-                resize: { type: "fit", width: 144, height: 144 },
-              });
-            }
+    enhancedEvent.responsibleOrganizations =
+      enhancedEvent.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 144, height: 144 },
+            });
           }
-          return item;
         }
-      );
-    }
-    return event;
-  });
-  return enhancedEvents as MaybeEnhancedEvents;
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
+
+    enhancedEvents.push(enhancedEvent);
+  }
+
+  const enhancedEventsWithParticipationStatus =
+    await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
+
+  return enhancedEventsWithParticipationStatus;
 }

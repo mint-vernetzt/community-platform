@@ -213,7 +213,7 @@ export async function getOrganizationById(id: string) {
 
 export async function updateOrganizationById(
   id: string,
-  data: Omit<
+  organizationData: Omit<
     Organization,
     "id" | "slug" | "logo" | "background" | "createdAt" | "updatedAt" | "score"
   > & {
@@ -222,64 +222,97 @@ export async function updateOrganizationById(
     types: string[];
   } & {
     focuses: string[];
-  }
+  },
+  privateFields: string[]
 ) {
-  await prismaClient.organization.update({
-    where: {
-      id,
-    },
-    data: {
-      ...data,
-      types: {
-        deleteMany: {},
-        connectOrCreate: data.types.map((typeId) => {
-          return {
-            where: {
-              organizationId_organizationTypeId: {
+  let organizationVisibility =
+    await prismaClient.organizationVisibility.findFirst({
+      where: {
+        organization: {
+          id,
+        },
+      },
+    });
+  if (organizationVisibility === null) {
+    throw notFound("Organization visibilities not found");
+  }
+
+  let visibility: keyof typeof organizationVisibility;
+  for (visibility in organizationVisibility) {
+    if (
+      visibility !== "id" &&
+      visibility !== "organizationId" &&
+      organizationData.hasOwnProperty(visibility)
+    ) {
+      organizationVisibility[visibility] = !privateFields.includes(
+        `${visibility}`
+      );
+    }
+  }
+  await prismaClient.$transaction([
+    prismaClient.organization.update({
+      where: {
+        id,
+      },
+      data: {
+        ...organizationData,
+        types: {
+          deleteMany: {},
+          connectOrCreate: organizationData.types.map((typeId) => {
+            return {
+              where: {
+                organizationId_organizationTypeId: {
+                  organizationTypeId: typeId,
+                  organizationId: id,
+                },
+              },
+              create: {
                 organizationTypeId: typeId,
-                organizationId: id,
               },
-            },
-            create: {
-              organizationTypeId: typeId,
-            },
-          };
-        }),
-      },
-      focuses: {
-        deleteMany: {},
-        connectOrCreate: data.focuses.map((focusId) => {
-          return {
-            where: {
-              organizationId_focusId: {
+            };
+          }),
+        },
+        focuses: {
+          deleteMany: {},
+          connectOrCreate: organizationData.focuses.map((focusId) => {
+            return {
+              where: {
+                organizationId_focusId: {
+                  focusId,
+                  organizationId: id,
+                },
+              },
+              create: {
                 focusId,
-                organizationId: id,
               },
-            },
-            create: {
-              focusId,
-            },
-          };
-        }),
-      },
-      areas: {
-        deleteMany: {},
-        connectOrCreate: data.areas.map((areaId) => {
-          return {
-            where: {
-              organizationId_areaId: {
+            };
+          }),
+        },
+        areas: {
+          deleteMany: {},
+          connectOrCreate: organizationData.areas.map((areaId) => {
+            return {
+              where: {
+                organizationId_areaId: {
+                  areaId,
+                  organizationId: id,
+                },
+              },
+              create: {
                 areaId,
-                organizationId: id,
               },
-            },
-            create: {
-              areaId,
-            },
-          };
-        }),
+            };
+          }),
+        },
       },
-    },
-  });
+    }),
+    prismaClient.organizationVisibility.update({
+      where: {
+        id: organizationVisibility.id,
+      },
+      data: organizationVisibility,
+    }),
+  ]);
   await triggerEntityScore({ entity: "organization", where: { id } });
 }
 

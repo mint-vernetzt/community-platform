@@ -75,6 +75,9 @@ export async function createEventOnProfile(
             create: {
               ...eventOptions,
               ...relations,
+              eventVisibility: {
+                create: {},
+              },
             },
           },
         },

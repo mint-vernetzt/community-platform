@@ -1,5 +1,5 @@
 import type { Profile } from "@prisma/client";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -29,15 +29,15 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { getProfileByUsername } from "~/profile.server";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+  filterProjectByVisibility,
+} from "~/public-fields-filtering.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import type { Mode } from "./utils.server";
-import {
-  deriveMode,
-  filterProfileByMode,
-  prepareProfileEvents,
-} from "./utils.server";
+import { deriveMode, prepareProfileEvents } from "./utils.server";
 
 export function links() {
   return [
@@ -46,20 +46,7 @@ export function links() {
   ];
 }
 
-type LoaderData = {
-  mode: Mode;
-  data: NonNullable<Awaited<ReturnType<typeof filterProfileByMode>>>;
-  images: {
-    avatar?: string;
-    background?: string;
-  };
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  futureEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
-  pastEvents: Awaited<ReturnType<typeof prepareProfileEvents>>;
-  userId?: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -79,69 +66,129 @@ export const loader: LoaderFunction = async (args) => {
     "projects",
   ]);
 
-  let data = await filterProfileByMode(profile, mode);
+  let enhancedProfile = {
+    ...profile,
+  };
 
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter profile
+    enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
+      enhancedProfile
+    );
+
+    // Filter organizations where profile is member of
+    enhancedProfile.memberOf = await Promise.all(
+      enhancedProfile.memberOf.map(async (relation) => {
+        const filteredOrganization = await filterOrganizationByVisibility<
+          typeof relation.organization
+        >(relation.organization);
+        return { ...relation, organization: filteredOrganization };
+      })
+    );
+    // Filter projects where this profile is team member
+    enhancedProfile.teamMemberOfProjects = await Promise.all(
+      enhancedProfile.teamMemberOfProjects.map(async (relation) => {
+        const filteredProject = await filterProjectByVisibility<
+          typeof relation.project
+        >(relation.project);
+        return { ...relation, project: filteredProject };
+      })
+    );
+    // Filter organizations that are responsible for projects where this profile is team member
+    enhancedProfile.teamMemberOfProjects = await Promise.all(
+      enhancedProfile.teamMemberOfProjects.map(async (projectRelation) => {
+        const responsibleOrganizations = await Promise.all(
+          projectRelation.project.responsibleOrganizations.map(
+            async (organizationRelation) => {
+              const filteredOrganization = await filterOrganizationByVisibility<
+                typeof organizationRelation.organization
+              >(organizationRelation.organization);
+              return {
+                ...organizationRelation,
+                organization: filteredOrganization,
+              };
+            }
+          )
+        );
+        return {
+          ...projectRelation,
+          project: { ...projectRelation.project, responsibleOrganizations },
+        };
+      })
+    );
+  }
+
+  // Get images from image proxy
   let images: {
     avatar?: string;
     background?: string;
   } = {};
 
-  if (profile.avatar !== null) {
-    const publicURL = getPublicURL(authClient, profile.avatar);
+  if (enhancedProfile.avatar !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
     if (publicURL !== null) {
       images.avatar = getImageURL(publicURL, {
         resize: { type: "fill", width: 144, height: 144 },
       });
     }
   }
-  if (profile.background !== null) {
-    const publicURL = getPublicURL(authClient, profile.background);
+  if (enhancedProfile.background !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProfile.background);
     if (publicURL !== null) {
       images.background = getImageURL(publicURL, {
         resize: { type: "fit", width: 1488, height: 480 },
       });
     }
   }
-  profile.memberOf = profile.memberOf.map((relation) => {
-    if (relation.organization.logo !== null) {
-      const publicURL = getPublicURL(authClient, relation.organization.logo);
+  enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
+    let logo = relation.organization.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        relation.organization.logo = getImageURL(publicURL, {
+        logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
           gravity: GravityType.center,
         });
       }
     }
-    return relation;
+    return { ...relation, organization: { ...relation.organization, logo } };
   });
-  profile.teamMemberOfProjects = profile.teamMemberOfProjects.map(
-    (relation) => {
-      if (relation.project.logo !== null) {
-        const publicURL = getPublicURL(authClient, relation.project.logo);
+  enhancedProfile.teamMemberOfProjects =
+    enhancedProfile.teamMemberOfProjects.map((projectRelation) => {
+      let projectLogo = projectRelation.project.logo;
+      if (projectLogo !== null) {
+        const publicURL = getPublicURL(authClient, projectLogo);
         if (publicURL !== null) {
-          relation.project.logo = getImageURL(publicURL, {
+          projectLogo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
             gravity: GravityType.center,
           });
         }
       }
-      relation.project.awards = relation.project.awards.map((relation) => {
-        if (relation.award.logo !== null) {
-          const publicURL = getPublicURL(authClient, relation.award.logo);
+      const awards = projectRelation.project.awards.map((awardRelation) => {
+        let awardLogo = awardRelation.award.logo;
+        if (awardLogo !== null) {
+          const publicURL = getPublicURL(authClient, awardLogo);
           if (publicURL !== null) {
-            relation.award.logo = getImageURL(publicURL, {
+            awardLogo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
               gravity: GravityType.center,
             });
           }
         }
-        return relation;
+        return {
+          ...awardRelation,
+          award: { ...awardRelation.award, logo: awardLogo },
+        };
       });
+      return {
+        ...projectRelation,
+        project: { ...projectRelation.project, awards, logo: projectLogo },
+      };
+    });
 
-      return relation;
-    }
-  );
-
+  // Get events, filter them by visibility settings and add participation status of session user
   const inFuture = true;
   const profileFutureEvents = await prepareProfileEvents(
     authClient,
@@ -158,10 +205,10 @@ export const loader: LoaderFunction = async (args) => {
     !inFuture
   );
 
-  return json<LoaderData>(
+  return json(
     {
       mode,
-      data,
+      data: enhancedProfile,
       images,
       abilities,
       futureEvents: profileFutureEvents,
@@ -172,13 +219,16 @@ export const loader: LoaderFunction = async (args) => {
   );
 };
 
-function hasContactInformations(data: Partial<Profile>) {
+function hasContactInformations(data: Pick<Profile, "email" | "phone">) {
   const hasEmail = typeof data.email === "string" && data.email !== "";
   const hasPhone = typeof data.phone === "string" && data.phone !== "";
   return hasEmail || hasPhone;
 }
 
-function notEmptyData(key: keyof Profile, data: Partial<Profile>) {
+function notEmptyData(
+  key: ExternalService,
+  data: Pick<Profile, ExternalService>
+) {
   if (typeof data[key] === "string") {
     return data[key] !== "";
   }
@@ -195,25 +245,26 @@ const ExternalServices: ExternalService[] = [
   "xing",
 ];
 function hasWebsiteOrSocialService(
-  data: Partial<Profile>,
+  data: Pick<Profile, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-function canViewEvents(
-  events: LoaderData["futureEvents"] | LoaderData["pastEvents"]
-) {
+function canViewEvents(events: {
+  teamMemberOfEvents: any[];
+  participatedEvents: any[];
+  contributedEvents: any[];
+}) {
   return (
     events.teamMemberOfEvents.length > 0 ||
-    (events.participatedEvents !== undefined &&
-      events.participatedEvents.length > 0) ||
+    events.participatedEvents.length > 0 ||
     events.contributedEvents.length > 0
   );
 }
 
 export default function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -471,7 +522,7 @@ export default function Index() {
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.data.areas
-                    .map(({ area }) => area.name)
+                    .map((relation) => relation.area.name)
                     .join(" / ")}
                 </div>
               </div>
@@ -507,10 +558,10 @@ export default function Index() {
                   Ich biete
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.offers?.map(({ offer }) => (
+                  {loaderData.data.offers.map((relation) => (
                     <Chip
-                      key={`offer_${offer.title}`}
-                      title={offer.title}
+                      key={`offer_${relation.offer.title}`}
+                      title={relation.offer.title}
                       slug=""
                       isEnabled
                     />
@@ -525,10 +576,10 @@ export default function Index() {
                   Ich suche
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.seekings?.map(({ offer }) => (
+                  {loaderData.data.seekings.map((relation) => (
                     <Chip
-                      key={`seeking_${offer.title}`}
-                      title={offer.title}
+                      key={`seeking_${relation.offer.title}`}
+                      title={relation.offer.title}
                       slug=""
                       isEnabled
                     />
@@ -562,14 +613,14 @@ export default function Index() {
                 {loaderData.data.memberOf &&
                 loaderData.data.memberOf.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.data.memberOf.map(({ organization }) => (
+                    {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
-                        key={`${organization.slug}`}
-                        id={`${organization.slug}`}
-                        link={`/organization/${organization.slug}`}
-                        name={organization.name}
-                        types={organization.types}
-                        image={organization.logo}
+                        key={`${relation.organization.slug}`}
+                        id={`${relation.organization.slug}`}
+                        link={`/organization/${relation.organization.slug}`}
+                        name={relation.organization.name}
+                        types={relation.organization.types}
+                        image={relation.organization.logo}
                       />
                     ))}
                   </div>
@@ -602,39 +653,41 @@ export default function Index() {
                 {loaderData.data.teamMemberOfProjects &&
                 loaderData.data.teamMemberOfProjects.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
-                    {loaderData.data.teamMemberOfProjects.map(({ project }) => (
+                    {loaderData.data.teamMemberOfProjects.map((relation) => (
                       // TODO: Project Card
                       <div
-                        key={project.slug}
+                        key={relation.project.slug}
                         data-testid="gridcell"
                         className="flex-100 px-3 mb-4"
                       >
                         <Link
-                          to={`/project/${project.slug}`}
+                          to={`/project/${relation.project.slug}`}
                           className="flex flex-wrap content-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                         >
                           <div className="w-full flex items-center flex-row items-end">
-                            {project.logo !== "" && project.logo !== null ? (
+                            {relation.project.logo !== "" &&
+                            relation.project.logo !== null ? (
                               <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
                                 <img
                                   className="max-w-full w-auto max-h-16 h-auto"
-                                  src={project.logo}
-                                  alt={project.name}
+                                  src={relation.project.logo}
+                                  alt={relation.project.name}
                                 />
                               </div>
                             ) : (
                               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                                {getInitialsOfName(project.name)}
+                                {getInitialsOfName(relation.project.name)}
                               </div>
                             )}
                             <div className="pl-4 flex-auto">
                               <H3 like="h4" className="text-xl mb-1">
-                                {project.name}
+                                {relation.project.name}
                               </H3>
-                              {project.responsibleOrganizations &&
-                              project.responsibleOrganizations.length > 0 ? (
+                              {relation.project.responsibleOrganizations &&
+                              relation.project.responsibleOrganizations.length >
+                                0 ? (
                                 <p className="font-bold text-sm">
-                                  {project.responsibleOrganizations
+                                  {relation.project.responsibleOrganizations
                                     .map(
                                       ({ organization }) => organization.name
                                     )
@@ -643,37 +696,40 @@ export default function Index() {
                               ) : null}
                             </div>
 
-                            {project.awards && project.awards.length > 0 ? (
+                            {relation.project.awards &&
+                            relation.project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
-                                {project.awards.map(({ award }) => {
+                                {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
-                                    award.date,
+                                    relation.award.date,
                                     "Europe/Berlin"
                                   );
                                   return (
                                     <div
-                                      key={`award-${award.id}`}
+                                      key={`award-${relation.award.id}`}
                                       className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
                                     >
                                       <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
                                         <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          {award.logo !== null &&
-                                          award.logo !== "" ? (
+                                          {relation.award.logo !== null &&
+                                          relation.award.logo !== "" ? (
                                             <img
-                                              src={award.logo}
-                                              alt={award.title}
+                                              src={relation.award.logo}
+                                              alt={relation.award.title}
                                             />
                                           ) : (
-                                            getInitialsOfName(award.title)
+                                            getInitialsOfName(
+                                              relation.award.title
+                                            )
                                           )}
                                         </div>
                                         <div className="px-2 pt-1 mb-4">
-                                          {award.shortTitle ? (
+                                          {relation.award.shortTitle ? (
                                             <H4
                                               like="h4"
                                               className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
                                             >
-                                              {award.shortTitle}
+                                              {relation.award.shortTitle}
                                             </H4>
                                           ) : null}
                                           <p className="text-xxs text-center leading-none">
@@ -869,12 +925,15 @@ export default function Index() {
                                   />
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "owner" &&
-                              !event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(loaderData.mode !== "owner" &&
+                                !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (event._count.childEvents > 0 &&
+                                loaderData.mode === "anon") ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1030,11 +1089,14 @@ export default function Index() {
                                   />
                                 </div>
                               ) : null}
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (event._count.childEvents > 0 &&
+                                loaderData.mode === "anon") ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}

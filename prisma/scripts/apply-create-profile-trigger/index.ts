@@ -14,7 +14,7 @@ program.parse();
 async function main() {
   try {
     await prismaClient.$queryRaw`
-        create function public.create_profile_of_new_user()
+        create or replace function public.create_profile_of_new_user()
         returns trigger as $$
         begin
           insert into public.profiles (id, username, email, first_name, last_name, academic_title, terms_accepted)
@@ -28,20 +28,11 @@ async function main() {
     );
   } catch (e: any) {
     let error: PrismaClientKnownRequestError = e;
-    if (
-      error.code === "P2010" &&
-      error.meta !== undefined &&
-      error.meta.code === "42723" &&
-      error.meta.message ===
-        'db error: ERROR: function "create_profile_of_new_user" already exists with same argument types'
-    ) {
-      console.log(
-        'The function "create_profile_of_new_user" which will be executed by the trigger already exists. Skipping the function creation.'
-      );
-    }
+    console.log(error);
   }
 
   try {
+    await prismaClient.$queryRaw`drop trigger if exists on_auth_user_created on auth.users;`;
     await prismaClient.$queryRaw`create trigger on_auth_user_created
     after insert on auth.users
     for each row execute procedure public.create_profile_of_new_user();`;
@@ -50,17 +41,7 @@ async function main() {
     );
   } catch (e: any) {
     let error: PrismaClientKnownRequestError = e;
-    if (
-      error.code === "P2010" &&
-      error.meta !== undefined &&
-      error.meta.code === "42710" &&
-      error.meta.message ===
-        'db error: ERROR: trigger "on_auth_user_created" for relation "users" already exists'
-    ) {
-      console.log(
-        'The trigger "on_auth_user_created" already exists. Skipping the trigger creation.'
-      );
-    }
+    console.log(error);
   }
 }
 

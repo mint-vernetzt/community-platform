@@ -18,7 +18,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type { ActionData as AddChildActionData } from "./events/add-child";
+import type { SuccessActionData as AddChildSuccessActionData } from "./events/add-child";
+import type { FailureActionData as AddChildFailureActionData } from "./events/add-child";
 import { addChildSchema } from "./events/add-child";
 import type { ActionData as RemoveChildActionData } from "./events/remove-child";
 import { removeChildSchema } from "./events/remove-child";
@@ -121,7 +122,9 @@ function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const setParentFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const addChildFetcher = useFetcher<AddChildActionData>();
+  const addChildFetcher = useFetcher<
+    AddChildSuccessActionData | AddChildFailureActionData
+  >();
   const removeChildFetcher = useFetcher<RemoveChildActionData>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;

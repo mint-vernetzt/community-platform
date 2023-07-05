@@ -1,4 +1,5 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { Project } from "@prisma/client";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -18,6 +19,11 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+  filterProjectByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
 
@@ -28,9 +34,13 @@ export function links() {
   ];
 }
 
-function hasContactInformations(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
-) {
+export const meta: MetaFunction = (args) => {
+  return {
+    title: `MINTvernetzt Community Plattform | ${args.data.project.name}`,
+  };
+};
+
+function hasContactInformations(project: Pick<Project, "email" | "phone">) {
   const hasEmail = typeof project.email === "string" && project.email !== "";
   const hasPhone = typeof project.phone === "string" && project.phone !== "";
   return hasEmail || hasPhone;
@@ -47,8 +57,8 @@ const ExternalServices: ExternalService[] = [
 ];
 
 function notEmptyData(
-  key: keyof NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>,
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
+  key: ExternalService,
+  project: Pick<Project, ExternalService>
 ) {
   if (typeof project[key] === "string") {
     return project[key] !== "";
@@ -57,18 +67,13 @@ function notEmptyData(
 }
 
 function hasWebsiteOrSocialService(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>,
+  project: Pick<Project, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, project));
 }
 
-type LoaderData = {
-  mode: Awaited<ReturnType<typeof deriveMode>>;
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -82,57 +87,93 @@ export const loader: LoaderFunction = async (args) => {
 
   const mode = await deriveMode(project, sessionUser);
 
-  if (project.logo !== null) {
-    const publicURL = getPublicURL(authClient, project.logo);
-    project.logo = getImageURL(publicURL, {
+  let enhancedProject = {
+    ...project,
+  };
+
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter project
+    enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
+      enhancedProject
+    );
+    // Filter team members
+    enhancedProject.teamMembers = await Promise.all(
+      enhancedProject.teamMembers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
+    // Filter responsible organizations
+    enhancedProject.responsibleOrganizations = await Promise.all(
+      enhancedProject.responsibleOrganizations.map(async (relation) => {
+        const filteredOrganization = await filterOrganizationByVisibility<
+          typeof relation.organization
+        >(relation.organization);
+        return { ...relation, organization: filteredOrganization };
+      })
+    );
+  }
+
+  // Adding images from imgproxy
+  if (enhancedProject.logo !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProject.logo);
+    enhancedProject.logo = getImageURL(publicURL, {
       resize: { type: "fit", width: 144, height: 144 },
     });
   }
 
-  if (project.background !== null) {
-    const publicURL = getPublicURL(authClient, project.background);
-    project.background = getImageURL(publicURL, {
+  if (enhancedProject.background !== null) {
+    const publicURL = getPublicURL(authClient, enhancedProject.background);
+    enhancedProject.background = getImageURL(publicURL, {
       resize: { type: "fit", width: 1488, height: 480 },
     });
   }
 
-  project.teamMembers = project.teamMembers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      item.profile.avatar = getImageURL(publicURL, {
+  enhancedProject.teamMembers = enhancedProject.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      avatar = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
     }
-    return item;
+    return { ...relation, profile: { ...relation.profile, avatar } };
   });
 
-  project.responsibleOrganizations = project.responsibleOrganizations.map(
-    (item) => {
-      if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, item.organization.logo);
-        item.organization.logo = getImageURL(publicURL, {
+  enhancedProject.responsibleOrganizations =
+    enhancedProject.responsibleOrganizations.map((relation) => {
+      let logo = relation.organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
         });
       }
-      return item;
-    }
-  );
+      return { ...relation, organization: { ...relation.organization, logo } };
+    });
 
-  project.awards = project.awards.map((item) => {
-    if (item.award.logo !== null) {
-      const publicURL = getPublicURL(authClient, item.award.logo);
-      item.award.logo = getImageURL(publicURL, {
+  enhancedProject.awards = enhancedProject.awards.map((relation) => {
+    let logo = relation.award.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      logo = getImageURL(publicURL, {
         resize: { type: "fit", width: 64, height: 64 },
       });
     }
-    return item;
+    return { ...relation, award: { ...relation.award, logo } };
   });
 
-  return json<LoaderData>({ mode, project }, { headers: response.headers });
+  return json(
+    { mode, project: enhancedProject },
+    { headers: response.headers }
+  );
 };
 
 function Index() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   const Background = React.useCallback(
     () => (
@@ -225,7 +266,7 @@ function Index() {
                 >
                   <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2 md:min-w-[77px] md:min-h-[109px] md:pt-3">
                     <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                      {item.award.logo !== null && item.award.logo !== "" ? (
+                      {item.award.logo !== "" ? (
                         <img src={item.award.logo} alt={item.award.title} />
                       ) : (
                         getInitialsOfName(item.award.title)
@@ -429,8 +470,14 @@ function Index() {
                   </ul>
                 ) : null}
 
-                {typeof loaderData.project.street === "string" &&
-                loaderData.project.street !== "" ? (
+                {(typeof loaderData.project.street === "string" &&
+                  loaderData.project.street !== "") ||
+                (typeof loaderData.project.streetNumber === "string" &&
+                  loaderData.project.streetNumber !== "") ||
+                (typeof loaderData.project.zipCode === "string" &&
+                  loaderData.project.zipCode !== "") ||
+                (typeof loaderData.project.city === "string" &&
+                  loaderData.project.city !== "") ? (
                   <>
                     <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
                     <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
@@ -446,10 +493,14 @@ function Index() {
                         </svg>
                       </span>
                       <span>
-                        {loaderData.project.street}{" "}
-                        {loaderData.project.streetNumber}
+                        {loaderData.project.street
+                          ? `${loaderData.project.street} ${loaderData.project.streetNumber} `
+                          : ""}
                         <br />
-                        {loaderData.project.zipCode} {loaderData.project.city}
+                        {loaderData.project.zipCode
+                          ? `${loaderData.project.zipCode} `
+                          : ""}
+                        {loaderData.project.city ? loaderData.project.city : ""}
                       </span>
                     </p>
                   </>
@@ -556,8 +607,7 @@ function Index() {
                         >
                           <div className="flex flex-col min-w-[57px] h-full min-h-[88px] items-center justify-center pt-2">
                             <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                              {item.award.logo !== null &&
-                              item.award.logo !== "" ? (
+                              {item.award.logo !== "" ? (
                                 <img
                                   src={item.award.logo}
                                   alt={item.award.title}

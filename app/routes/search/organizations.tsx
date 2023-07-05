@@ -3,9 +3,13 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -16,8 +20,6 @@ import {
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const isLoggedIn = sessionUser !== null;
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
@@ -27,73 +29,80 @@ export const loader = async ({ request }: LoaderArgs) => {
     paginationValues.skip,
     paginationValues.take
   );
-  const enhancedOrganizations = rawOrganizations.map((organization) => {
-    const {
-      logo,
-      background,
-      areas,
-      focuses,
-      teamMembers,
-      types,
-      ...otherFields
-    } = organization;
-    let logoImage: string | null = null;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
+  const sessionUser = await getSessionUser(authClient);
+
+  const enhancedOrganizations = [];
+
+  for (const organization of rawOrganizations) {
+    let enhancedOrganization = {
+      ...organization,
+      areas: organization.areas.map((relation) => relation.area.name),
+      focuses: organization.focuses.map((relation) => relation.focus.title),
+      types: organization.types.map((item) => item.organizationType.title),
+      teamMembers: organization.teamMembers.map((relation) => {
+        return relation.profile;
+      }),
+    };
+
+    if (sessionUser === null) {
+      // Filter organization
+      enhancedOrganization = await filterOrganizationByVisibility<
+        typeof enhancedOrganization
+      >(enhancedOrganization);
+      // Filter team members
+      enhancedOrganization.teamMembers = await Promise.all(
+        enhancedOrganization.teamMembers.map(async (profile) => {
+          const filteredProfile = await filterProfileByVisibility<
+            typeof profile
+          >(profile);
+          return { ...filteredProfile };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedOrganization.logo !== null) {
+      const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
       if (publicURL !== null) {
-        logoImage = getImageURL(publicURL, {
+        enhancedOrganization.logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
           gravity: GravityType.center,
         });
       }
     }
-    let backgroundImage: string | null = null;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
+
+    if (enhancedOrganization.background !== null) {
+      const publicURL = getPublicURL(
+        authClient,
+        enhancedOrganization.background
+      );
       if (publicURL !== null) {
-        backgroundImage = getImageURL(publicURL, {
+        enhancedOrganization.background = getImageURL(publicURL, {
           resize: { type: "fit", width: 473, height: 160 },
         });
       }
     }
-    const areaNames = areas.map((item) => item.area.name);
-    const focusTitles = focuses.map((item) => item.focus.title);
-    const profiles = teamMembers
-      .map((item) => item.profile)
-      .map((profile) => {
-        const { avatar, ...otherFields } = profile;
-        let avatarImage: string | null = null;
+
+    enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+      (profile) => {
+        let avatar = profile.avatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
-          if (publicURL !== null) {
-            avatarImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+          });
         }
-        return {
-          ...otherFields,
-          avatar: avatarImage,
-        };
-      });
+        return { ...profile, avatar };
+      }
+    );
 
-    const typeTitles = types.map((item) => item.organizationType.title);
-    return {
-      ...otherFields,
-      logo: logoImage,
-      background: backgroundImage,
-      areaNames,
-      focuses: focusTitles,
-      teamMembers: profiles,
-      types: typeTitles,
-    };
-  });
+    enhancedOrganizations.push(enhancedOrganization);
+  }
 
   return json(
     {
       organizations: enhancedOrganizations,
-      isLoggedIn,
+      isLoggedIn: sessionUser !== null,
     },
     { headers: response.headers }
   );

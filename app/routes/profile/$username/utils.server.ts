@@ -7,7 +7,10 @@ import {
   combineEventsSortChronologically,
 } from "~/lib/event/utils";
 import { prismaClient } from "~/prisma";
-import type { getProfileByUsername } from "~/profile.server";
+import {
+  filterEventByVisibility,
+  filterProfileByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
 
@@ -55,9 +58,20 @@ export async function getWholeProfileFromUsername(username: string) {
   return result;
 }
 
+export async function getProfileVisibilitiesById(id: string) {
+  const result = await prismaClient.profileVisibility.findFirst({
+    where: {
+      profile: {
+        id,
+      },
+    },
+  });
+  return result;
+}
+
 export async function updateProfileById(
   id: string,
-  data: Omit<
+  profileData: Omit<
     Profile,
     | "id"
     | "username"
@@ -73,57 +87,87 @@ export async function updateProfileById(
     offers: string[];
   } & {
     seekings: string[];
-  }
+  },
+  privateFields: string[]
 ) {
-  const { email: _email, ...rest } = data;
+  const { email: _email, ...rest } = profileData;
 
-  await prismaClient.profile.update({
+  let profileVisibility = await prismaClient.profileVisibility.findFirst({
     where: {
-      id,
-    },
-    data: {
-      ...rest,
-      areas: {
-        deleteMany: {},
-        connectOrCreate: data.areas.map((areaId) => ({
-          where: {
-            profileId_areaId: { areaId, profileId: id },
-          },
-          create: {
-            areaId,
-          },
-        })),
+      profile: {
+        id,
       },
-      offers: {
-        deleteMany: {},
-        connectOrCreate: data.offers.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
-      seekings: {
-        deleteMany: {},
-        connectOrCreate: data.seekings.map((offerId) => ({
-          where: {
-            profileId_offerId: { offerId, profileId: id },
-          },
-          create: {
-            offerId,
-          },
-        })),
-      },
-      updatedAt: new Date(),
     },
   });
+  if (profileVisibility === null) {
+    throw notFound("Profile visibilities not found");
+  }
+
+  let visibility: keyof typeof profileVisibility;
+  for (visibility in profileVisibility) {
+    if (
+      visibility !== "id" &&
+      visibility !== "profileId" &&
+      profileData.hasOwnProperty(visibility)
+    ) {
+      profileVisibility[visibility] = !privateFields.includes(`${visibility}`);
+    }
+  }
+  await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id,
+      },
+      data: {
+        ...rest,
+        areas: {
+          deleteMany: {},
+          connectOrCreate: profileData.areas.map((areaId) => ({
+            where: {
+              profileId_areaId: { areaId, profileId: id },
+            },
+            create: {
+              areaId,
+            },
+          })),
+        },
+        offers: {
+          deleteMany: {},
+          connectOrCreate: profileData.offers.map((offerId) => ({
+            where: {
+              profileId_offerId: { offerId, profileId: id },
+            },
+            create: {
+              offerId,
+            },
+          })),
+        },
+        seekings: {
+          deleteMany: {},
+          connectOrCreate: profileData.seekings.map((offerId) => ({
+            where: {
+              profileId_offerId: { offerId, profileId: id },
+            },
+            create: {
+              offerId,
+            },
+          })),
+        },
+        updatedAt: new Date(),
+      },
+    }),
+    prismaClient.profileVisibility.update({
+      where: {
+        id: profileVisibility.id,
+      },
+      data: profileVisibility,
+    }),
+  ]);
 
   await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
-export async function getProfileEventsByMode(
+export async function getProfileWithEventsByMode(
   username: string,
   mode: Mode,
   inFuture: boolean
@@ -154,6 +198,7 @@ export async function getProfileEventsByMode(
 
   const profileEvents = await prismaClient.profile.findFirst({
     select: {
+      id: true,
       teamMemberOfEvents: {
         select: {
           event: {
@@ -365,121 +410,131 @@ export async function prepareProfileEvents(
   sessionUser: User | null,
   inFuture: boolean
 ) {
-  const profileFutureEvents = await getProfileEventsByMode(
-    username,
-    mode,
-    inFuture
-  );
-  if (profileFutureEvents === null) {
-    throw notFound({ message: "Events not found" });
+  const profile = await getProfileWithEventsByMode(username, mode, inFuture);
+  if (profile === null) {
+    throw notFound({ message: "Profile with events not found" });
   }
 
-  profileFutureEvents.teamMemberOfEvents =
-    profileFutureEvents.teamMemberOfEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.contributedEvents =
-    profileFutureEvents.contributedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.participatedEvents =
-    profileFutureEvents.participatedEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  profileFutureEvents.waitingForEvents =
-    profileFutureEvents.waitingForEvents.map((item) => {
-      if (item.event.background !== null) {
-        const publicURL = getPublicURL(authClient, item.event.background);
-        if (publicURL) {
-          item.event.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return item;
-    });
-
-  const combinedFutureEvents = combineEventsSortChronologically<
-    typeof profileFutureEvents.participatedEvents,
-    typeof profileFutureEvents.waitingForEvents
-  >(
-    profileFutureEvents.participatedEvents,
-    profileFutureEvents.waitingForEvents
-  );
-
-  const enhancedFutureEvents = {
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.teamMemberOfEvents
-    >(profileFutureEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof profileFutureEvents.contributedEvents
-    >(profileFutureEvents.contributedEvents, sessionUser?.id),
-    participatedEvents:
-      mode !== "anon"
-        ? await addUserParticipationStatus<typeof combinedFutureEvents>(
-            combinedFutureEvents,
-            sessionUser?.id
-          )
-        : undefined,
+  let enhancedProfile = {
+    ...profile,
   };
-  return enhancedFutureEvents;
-}
 
-// TODO: Type issues, rework public fields
-export async function filterProfileByMode(
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>,
-  mode: Mode
-) {
-  let data = {};
-
-  const publicFields = [
-    "id",
-    "username",
-    "firstName",
-    "lastName",
-    "academicTitle",
-    "areas",
-    "avatar",
-    "background",
-    "memberOf",
-    "teamMemberOfProjects",
-    ...profile.publicFields,
-  ];
-
-  for (const key in profile) {
-    // Only show public fields if user is anon, show all fields if user is not anon
-    if (mode !== "anon" || publicFields.includes(key)) {
-      // @ts-ignore <-- Partials allow undefined, Profile not
-      data[key] = profile[key];
-    }
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter profile holding event relations
+    enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
+      enhancedProfile
+    );
+    // Filter events where profile is team member
+    enhancedProfile.teamMemberOfEvents = await Promise.all(
+      enhancedProfile.teamMemberOfEvents.map(async (relation) => {
+        const filteredEvent = await filterEventByVisibility<
+          typeof relation.event
+        >(relation.event);
+        return { ...relation, event: filteredEvent };
+      })
+    );
+    // Filter events where profile is speaker
+    enhancedProfile.contributedEvents = await Promise.all(
+      enhancedProfile.contributedEvents.map(async (relation) => {
+        const filteredEvent = await filterEventByVisibility<
+          typeof relation.event
+        >(relation.event);
+        return { ...relation, event: filteredEvent };
+      })
+    );
+    // Filter events where profile is participant
+    enhancedProfile.participatedEvents = await Promise.all(
+      enhancedProfile.participatedEvents.map(async (relation) => {
+        const filteredEvent = await filterEventByVisibility<
+          typeof relation.event
+        >(relation.event);
+        return { ...relation, event: filteredEvent };
+      })
+    );
+    // Filter events where profile is on waiting list
+    enhancedProfile.waitingForEvents = await Promise.all(
+      enhancedProfile.waitingForEvents.map(async (relation) => {
+        const filteredEvent = await filterEventByVisibility<
+          typeof relation.event
+        >(relation.event);
+        return { ...relation, event: filteredEvent };
+      })
+    );
   }
 
-  return data as Partial<typeof profile>;
+  // Get images from image proxy
+  profile.teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
+    let background = relation.event.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return { ...relation, event: { ...relation.event, background } };
+  });
+
+  profile.contributedEvents = profile.contributedEvents.map((relation) => {
+    let background = relation.event.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return { ...relation, event: { ...relation.event, background } };
+  });
+
+  profile.participatedEvents = profile.participatedEvents.map((relation) => {
+    let background = relation.event.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return { ...relation, event: { ...relation.event, background } };
+  });
+
+  profile.waitingForEvents = profile.waitingForEvents.map((relation) => {
+    let background = relation.event.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 160, height: 160 },
+        });
+      }
+    }
+    return { ...relation, event: { ...relation.event, background } };
+  });
+
+  const combinedParticipatedAndWaitingForEvents =
+    combineEventsSortChronologically<
+      typeof enhancedProfile.participatedEvents,
+      typeof enhancedProfile.waitingForEvents
+    >(enhancedProfile.participatedEvents, enhancedProfile.waitingForEvents);
+
+  const enhancedProfileWithParticipationStatus = {
+    ...enhancedProfile,
+    teamMemberOfEvents: await addUserParticipationStatus<
+      typeof enhancedProfile.teamMemberOfEvents
+    >(enhancedProfile.teamMemberOfEvents, sessionUser?.id),
+    contributedEvents: await addUserParticipationStatus<
+      typeof enhancedProfile.contributedEvents
+    >(enhancedProfile.contributedEvents, sessionUser?.id),
+    participatedEvents: await addUserParticipationStatus<
+      typeof combinedParticipatedAndWaitingForEvents
+    >(combinedParticipatedAndWaitingForEvents, sessionUser?.id),
+    waitingForEvents: undefined,
+  };
+
+  return enhancedProfileWithParticipationStatus;
 }

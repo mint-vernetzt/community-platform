@@ -9,6 +9,10 @@ import { getImageURL } from "~/images.server";
 import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -46,50 +50,12 @@ export const loader = async (args: LoaderArgs) => {
     randomSeed: randomSeed,
   });
 
-  const organizations = await Promise.all(
-    rawOrganizations.map(async (organization) => {
-      const { bio, publicFields, logo, background, ...otherFields } =
-        organization;
-      let extensions: {
-        bio?: string;
-        teamMembers: {
-          firstName: string;
-          lastName: string;
-          username: string;
-          avatar?: string | null;
-        }[];
-      } = { teamMembers: [] };
+  const enhancedOrganizations = [];
 
-      if (
-        (publicFields.includes("bio") || sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
-      }
-
-      let logoImage: string | null = null;
-
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logoImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      let backgroundImage: string | null = null;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          backgroundImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 473, height: 160 },
-          });
-        }
-      }
-
-      const profiles = await prismaClient.profile.findMany({
+  for (const organization of rawOrganizations) {
+    let enhancedOrganization = {
+      ...organization,
+      teamMembers: await prismaClient.profile.findMany({
         where: {
           memberOf: {
             some: {
@@ -97,38 +63,74 @@ export const loader = async (args: LoaderArgs) => {
             },
           },
         },
-      });
-      extensions.teamMembers = profiles.map((profile) => {
-        let avatarImage: string | null = null;
-        if (profile.avatar !== null) {
-          const publicURL = getPublicURL(authClient, profile.avatar);
-          if (publicURL !== null) {
-            avatarImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
+        select: {
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          username: true,
+          id: true,
+        },
+      }),
+    };
+
+    if (sessionUser === null) {
+      // Filter organization
+      enhancedOrganization = await filterOrganizationByVisibility<
+        typeof enhancedOrganization
+      >(enhancedOrganization);
+      // Filter team members
+      enhancedOrganization.teamMembers = await Promise.all(
+        enhancedOrganization.teamMembers.map(async (profile) => {
+          const filteredProfile = await filterProfileByVisibility<
+            typeof profile
+          >(profile);
+          return { ...filteredProfile };
+        })
+      );
+    }
+
+    // Add images from image proxy
+    if (enhancedOrganization.logo !== null) {
+      const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
+      if (publicURL !== null) {
+        enhancedOrganization.logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    if (enhancedOrganization.background !== null) {
+      const publicURL = getPublicURL(
+        authClient,
+        enhancedOrganization.background
+      );
+      if (publicURL !== null) {
+        enhancedOrganization.background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+      (profile) => {
+        let avatar = profile.avatar;
+        if (avatar !== null) {
+          const publicURL = getPublicURL(authClient, avatar);
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+          });
         }
+        return { ...profile, avatar };
+      }
+    );
 
-        return {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          username: profile.username,
-          avatar: avatarImage,
-        };
-      });
-
-      return {
-        ...otherFields,
-        ...extensions,
-        logo: logoImage,
-        background: backgroundImage,
-      };
-    })
-  );
+    enhancedOrganizations.push(enhancedOrganization);
+  }
 
   return json(
-    { isLoggedIn, organizations, areas, offers },
+    { isLoggedIn, organizations: enhancedOrganizations, areas, offers },
     { headers: response.headers }
   );
 };

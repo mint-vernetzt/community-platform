@@ -1,7 +1,7 @@
+import type { OrganizationType } from "@prisma/client";
 import { Link } from "@remix-run/react";
-import { H3 } from "../Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { OrganizationType } from "@prisma/client";
+import { H3 } from "../Heading/Heading";
 
 export interface OrganizationCardProps {
   id: string;
@@ -45,7 +45,7 @@ function OrganizationCard(props: OrganizationCardProps) {
             {props.types && props.types.length > 0 && (
               <p className="font-bold text-sm">
                 {props.types
-                  .map(({ organizationType }) => organizationType.title)
+                  .map((relation) => relation.organizationType.title)
                   .join(", ")}
               </p>
             )}

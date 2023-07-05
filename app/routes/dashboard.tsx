@@ -5,6 +5,7 @@ import {
   OrganizationCard,
   ProfileCard,
 } from "@mint-vernetzt/components";
+import type { Organization, Profile } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -17,7 +18,6 @@ import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getRandomSeed } from "./explore/utils.server";
-import React from "react";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -85,42 +85,14 @@ export const loader = async (args: LoaderArgs) => {
   });
 
   const profiles = rawProfiles.map((profile) => {
-    const {
-      bio,
-      position,
-      avatar,
-      background,
-      publicFields,
-      areas,
-      memberOf,
-      offers,
-      ...otherFields
-    } = profile;
+    const { avatar, background, memberOf, ...otherFields } = profile;
     let extensions: {
-      bio?: string;
-      position?: string;
-      areaNames: string[];
-      memberOf: { name: string; slug: string; logo: string | null }[];
+      memberOf: Pick<Organization, "name" | "slug" | "logo">[];
+      areas: string[];
       offers: string[];
-    } = { areaNames: [], memberOf: [], offers: [] };
-
-    if (
-      ((publicFields !== null && publicFields.includes("bio")) ||
-        sessionUser !== null) &&
-      bio !== null
-    ) {
-      extensions.bio = bio;
-    }
-    if (
-      ((publicFields !== null && publicFields.includes("position")) ||
-        sessionUser !== null) &&
-      position !== null
-    ) {
-      extensions.position = position;
-    }
+    } = { memberOf: [], areas: [], offers: [] };
 
     let avatarImage: string | null = null;
-
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
@@ -139,15 +111,6 @@ export const loader = async (args: LoaderArgs) => {
           resize: { type: "fit", width: 473, height: 160 },
         });
       }
-    }
-
-    if (
-      (publicFields !== null && publicFields.includes("areas")) ||
-      sessionUser !== null
-    ) {
-      extensions.areaNames = areas.map((relation) => {
-        return relation.area.name;
-      });
     }
 
     extensions.memberOf = memberOf.map((relation, index) => {
@@ -169,14 +132,13 @@ export const loader = async (args: LoaderArgs) => {
       return { ...relation.organization, logo: logoImage };
     });
 
-    if (
-      (publicFields !== null && publicFields.includes("offers")) ||
-      sessionUser !== null
-    ) {
-      extensions.offers = offers.map((relation) => {
-        return relation.offer.title;
-      });
-    }
+    extensions.areas = profile.areas.map((relation) => {
+      return relation.area.name;
+    });
+
+    extensions.offers = profile.offers.map((relation) => {
+      return relation.offer.title;
+    });
 
     return {
       ...otherFields,
@@ -185,7 +147,6 @@ export const loader = async (args: LoaderArgs) => {
       background: backgroundImage,
     };
   });
-
   const numberOfOrganizations = 4;
   const organizationCount = await prismaClient.organization.count();
   const rawOrganizations = await prismaClient.organization.findMany({
@@ -222,30 +183,18 @@ export const loader = async (args: LoaderArgs) => {
   });
 
   const organizations = rawOrganizations.map((organization) => {
-    const {
-      logo,
-      background,
-      publicFields,
-      areas,
-      teamMembers,
-      focuses,
-      types,
-      ...otherFields
-    } = organization;
+    const { logo, background, teamMembers, ...otherFields } = organization;
     let extensions: {
-      areaNames: string[];
-      teamMembers: {
-        firstName: string;
-        lastName: string;
-        username: string;
-        avatar: string | null;
-      }[];
+      teamMembers: Pick<
+        Profile,
+        "firstName" | "lastName" | "username" | "avatar"
+      >[];
       focuses: string[];
+      areas: string[];
       types: string[];
-    } = { areaNames: [], teamMembers: [], focuses: [], types: [] };
+    } = { teamMembers: [], focuses: [], areas: [], types: [] };
 
     let logoImage: string | null = null;
-
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
@@ -266,14 +215,6 @@ export const loader = async (args: LoaderArgs) => {
       }
     }
 
-    extensions.areaNames = areas.map((relation) => {
-      return relation.area.name;
-    });
-
-    extensions.types = types.map((relation) => {
-      return relation.organizationType.title;
-    });
-
     extensions.teamMembers = teamMembers.map((relation, index) => {
       let avatar: string | null = null;
       if (index < 4) {
@@ -290,8 +231,16 @@ export const loader = async (args: LoaderArgs) => {
       return { ...relation.profile, avatar: avatar };
     });
 
-    extensions.focuses = focuses.map((relation) => {
+    extensions.areas = organization.areas.map((relation) => {
+      return relation.area.name;
+    });
+
+    extensions.focuses = organization.focuses.map((relation) => {
       return relation.focus.title;
+    });
+
+    extensions.types = organization.types.map((relation) => {
+      return relation.organizationType.title;
     });
 
     return {
@@ -301,7 +250,6 @@ export const loader = async (args: LoaderArgs) => {
       background: backgroundImage,
     };
   });
-
   return json(
     {
       profiles,
@@ -313,28 +261,6 @@ export const loader = async (args: LoaderArgs) => {
     { headers: response.headers }
   );
 };
-
-function ScrollContainer(props: React.HTMLAttributes<HTMLDivElement>) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
-  return (
-    <div className="mv-flex mv-ml-2 sm:mv-mx-0 sm:mv-px-Z mv-overflow-x-scroll lg:mv-overflow-x-visible mv-items-stretch">
-      {validChildren.map((child, index) => {
-        return (
-          <div
-            key={`item-${index}`}
-            className="mv-flex-none mv-w-3/4 sm:mv-w-1/2 lg:mv-w-1/3 mv-pb-8 mv-px-4 first:mv-pl-2 sm:first:mv-pl-4 last:mv-pr-4 sm:last:mv-pr-2"
-          >
-            {child}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();

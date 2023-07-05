@@ -17,6 +17,7 @@ export interface SelectFieldProps {
   label: string;
   options?: OptionOrGroup[];
   isPublic?: boolean;
+  withPublicPrivateToggle?: boolean;
   publicPosition?: "top" | "side";
   visibilityName?: string;
 }
@@ -40,13 +41,16 @@ const SelectField = React.forwardRef(
             {label}
             {props.required === true ? " *" : ""}
           </label>
-          {isPublic !== undefined && publicPosition === "top" && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={visibilityName ?? props.name}
-              defaultChecked={props.isPublic}
-            />
-          )}
+          {props.withPublicPrivateToggle !== undefined &&
+            props.isPublic !== undefined &&
+            publicPosition === "top" && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={visibilityName ?? props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!props.isPublic}
+              />
+            )}
         </div>
         <div className="flex flex-row items-center">
           <div className="flex-auto">
@@ -84,13 +88,17 @@ const SelectField = React.forwardRef(
               ))}
             </select>
           </div>
-          {isPublic !== undefined && publicPosition === "side" && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={props.name}
-              defaultChecked={isPublic}
-            />
-          )}
+
+          {props.withPublicPrivateToggle !== undefined &&
+            isPublic !== undefined &&
+            publicPosition === "side" && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!isPublic}
+              />
+            )}
         </div>
       </div>
     );

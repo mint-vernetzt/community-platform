@@ -1,4 +1,5 @@
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
+import { getOrganizationVisibilitiesById } from "../utils.server";
 import { action, loader } from "./general";
 import {
   getWholeOrganizationBySlug,
@@ -21,6 +22,12 @@ jest.mock("./utils.server", () => {
     handleAuthorization: jest.fn().mockResolvedValue({ organization, slug }),
     updateOrganizationById: jest.fn(),
     getOrganizationTypes: jest.fn(),
+  };
+});
+
+jest.mock("../utils.server", () => {
+  return {
+    getOrganizationVisibilitiesById: jest.fn(),
   };
 });
 
@@ -56,6 +63,10 @@ describe("loader", () => {
     const organization = { id, areas: [], focuses: [], types: [] };
 
     (getWholeOrganizationBySlug as jest.Mock).mockReturnValueOnce(organization);
+
+    (getOrganizationVisibilitiesById as jest.Mock).mockImplementationOnce(
+      () => {}
+    );
 
     const request = new Request(testURL);
     const response = await loader({
@@ -121,7 +132,7 @@ describe("action", () => {
     quoteAuthor: "",
     quoteAuthorInformation: "",
     supportedBy: [],
-    publicFields: [],
+    privateFields: [],
     areas: [],
     focuses: [],
   };
@@ -272,10 +283,15 @@ describe("action", () => {
       });
       const responseBody = await response.json();
       expect(responseBody.errors).toBeNull();
-      expect(updateOrganizationById).toHaveBeenCalledWith(id, {
-        ...parsedDataDefaults,
-        name,
-      });
+      const { privateFields, ...otherFields } = parsedDataDefaults;
+      expect(updateOrganizationById).toHaveBeenCalledWith(
+        id,
+        {
+          ...otherFields,
+          name,
+        },
+        privateFields
+      );
     });
   });
 });

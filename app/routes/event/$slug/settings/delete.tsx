@@ -1,11 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -26,14 +24,7 @@ const schema = z.object({
 
 const environmentSchema = z.object({ id: z.string(), name: z.string() });
 
-type LoaderData = {
-  userId: string;
-  eventId: string;
-  eventName: string;
-  childEvents: { id: string; name: string; slug: string }[];
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -47,7 +38,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await checkOwnershipOrThrow(event, sessionUser);
 
-  return json<LoaderData>(
+  return json(
     {
       userId: sessionUser.id,
       eventId: event.id,
@@ -78,12 +69,7 @@ const mutation = makeDomainFunction(
   }
 });
 
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -118,11 +104,11 @@ export const action: ActionFunction = async (args) => {
     return redirect(`/profile/${sessionUser.user_metadata.username}`);
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 function Delete() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>

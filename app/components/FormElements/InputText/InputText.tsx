@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 export interface InputTextProps {
   label: string;
   isPublic?: boolean;
+  withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   withClearButton?: boolean;
   centered?: boolean;
@@ -79,13 +80,15 @@ const InputText = React.forwardRef(
               </svg>
             </button>
           )}
-          {props.isPublic !== undefined && (
-            <ToggleCheckbox
-              name="publicFields"
-              value={props.name}
-              defaultChecked={props.isPublic}
-            />
-          )}
+          {props.withPublicPrivateToggle !== undefined &&
+            props.isPublic !== undefined && (
+              <ToggleCheckbox
+                name="privateFields"
+                value={props.name}
+                hidden={!props.withPublicPrivateToggle}
+                defaultChecked={!props.isPublic}
+              />
+            )}
         </div>
       </div>
     );

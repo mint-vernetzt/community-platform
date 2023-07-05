@@ -22,12 +22,18 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
+import type { ArrayElement } from "~/lib/utils/types";
+import {
+  filterEventByVisibility,
+  filterListOfEventsByVisibility,
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
+import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
-import { RemoveParticipantButton } from "./settings/participants/remove-participant";
-import type { MaybeEnhancedEvent } from "./utils.server";
 import {
   deriveMode,
   enhanceChildEventsWithParticipationStatus,
@@ -66,111 +72,146 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const sessionUser = await getSessionUser(authClient);
-  const event = await getEvent(slug);
+  const rawEvent = await getEvent(slug);
 
-  if (event === null) {
+  if (rawEvent === null) {
     throw notFound({ message: `Event not found` });
   }
 
-  const mode = await deriveMode(event, sessionUser);
+  const mode = await deriveMode(rawEvent, sessionUser);
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "owner" && rawEvent.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
-  let participants: Awaited<
-    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-  > = [];
   let speakers: Awaited<
     ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
   > = [];
-  let enhancedEvent: MaybeEnhancedEvent = {
-    ...event,
-    participants: [],
-    speakers: [],
+  let participants: Awaited<
+    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
+  > = [];
+
+  // Adding participants and speakers
+  if (rawEvent.childEvents.length > 0) {
+    speakers = (await getFullDepthProfiles(rawEvent.id, "speakers")) || [];
+    participants =
+      (await getFullDepthProfiles(rawEvent.id, "participants")) || [];
+  } else {
+    speakers = await getEventSpeakers(rawEvent.id);
+    participants = await getEventParticipants(rawEvent.id);
+  }
+  let enhancedEvent = {
+    ...rawEvent,
+    speakers,
+    participants,
   };
 
-  if (event.childEvents.length > 0) {
-    speakers = (await getFullDepthProfiles(event.id, "speakers")) || [];
-  } else {
-    speakers = await getEventSpeakers(event.id);
+  // Filtering by publish status
+  if (mode !== "owner") {
+    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
+      return item.published;
+    });
   }
 
-  speakers = speakers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-        item.profile.avatar = avatar;
-      }
+  // Filtering by visbility settings
+  if (sessionUser === null) {
+    // Filter event
+    enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
+      enhancedEvent
+    );
+    // Filter parent event
+    if (enhancedEvent.parentEvent !== null) {
+      enhancedEvent.parentEvent = await filterEventByVisibility<
+        typeof enhancedEvent.parentEvent
+      >(enhancedEvent.parentEvent);
     }
-    return item;
-  });
+    // Filter participants
+    enhancedEvent.participants = await Promise.all(
+      enhancedEvent.participants.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
+    // Filter speakers
+    enhancedEvent.speakers = await Promise.all(
+      enhancedEvent.speakers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
+    // Filter team members
+    enhancedEvent.teamMembers = await Promise.all(
+      enhancedEvent.teamMembers.map(async (relation) => {
+        const filteredProfile = await filterProfileByVisibility<
+          typeof relation.profile
+        >(relation.profile);
+        return { ...relation, profile: filteredProfile };
+      })
+    );
+    // Filter child events
+    enhancedEvent.childEvents = await filterListOfEventsByVisibility<
+      ArrayElement<typeof enhancedEvent.childEvents>
+    >(enhancedEvent.childEvents);
+    // Filter responsible Organizations
+    enhancedEvent.responsibleOrganizations = await Promise.all(
+      enhancedEvent.responsibleOrganizations.map(async (relation) => {
+        const filteredOrganization = await filterOrganizationByVisibility<
+          typeof relation.organization
+        >(relation.organization);
+        return { ...relation, organization: filteredOrganization };
+      })
+    );
+  }
 
-  enhancedEvent.speakers = speakers;
-
-  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-        item.profile.avatar = avatar;
-      }
-    }
-    return item;
-  });
-
-  if (mode !== "anon" && sessionUser !== null) {
-    if (event.childEvents.length > 0) {
-      participants =
-        (await getFullDepthProfiles(event.id, "participants")) || [];
-    } else {
-      participants = await getEventParticipants(event.id);
-    }
-
-    participants = participants.map((item) => {
-      if (item.profile.avatar !== null) {
-        const publicURL = getPublicURL(authClient, item.profile.avatar);
+  // Add images from image proxy
+  if (enhancedEvent.speakers !== null) {
+    enhancedEvent.speakers = enhancedEvent.speakers.map((relation) => {
+      let avatar = relation.profile.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
-          const avatar = getImageURL(publicURL, {
+          avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
             gravity: GravityType.center,
           });
-          item.profile.avatar = avatar;
         }
       }
-      return item;
+      return { ...relation, profile: { ...relation.profile, avatar } };
     });
-
-    enhancedEvent.participants = participants;
-
-    if (mode === "authenticated") {
-      enhancedEvent = await enhanceChildEventsWithParticipationStatus(
-        sessionUser.id,
-        enhancedEvent
-      );
-    }
   }
 
-  let isParticipant;
-  let isOnWaitingList;
-  let isSpeaker;
-  let isTeamMember;
+  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return { ...relation, profile: { ...relation.profile, avatar } };
+  });
 
-  if (sessionUser !== null) {
-    isParticipant = await getIsParticipant(enhancedEvent.id, sessionUser.id);
-    isOnWaitingList = await getIsOnWaitingList(
-      enhancedEvent.id,
-      sessionUser.id
-    );
-    isSpeaker = await getIsSpeaker(enhancedEvent.id, sessionUser.id);
-    isTeamMember = await getIsTeamMember(enhancedEvent.id, sessionUser.id);
+  if (enhancedEvent.participants !== null) {
+    enhancedEvent.participants = enhancedEvent.participants.map((relation) => {
+      let avatar = relation.profile.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        if (publicURL !== null) {
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return { ...relation, profile: { ...relation.profile, avatar } };
+    });
   }
 
   if (enhancedEvent.background !== null) {
@@ -182,61 +223,98 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  if (mode !== "owner") {
-    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
-      return item.published;
-    });
-  }
-
-  enhancedEvent.childEvents = enhancedEvent.childEvents.map((item) => {
-    if (item.background !== null) {
-      const publicURL = getPublicURL(authClient, item.background);
+  enhancedEvent.childEvents = enhancedEvent.childEvents.map((relation) => {
+    let background = relation.background;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        item.background = getImageURL(publicURL, {
+        background = getImageURL(publicURL, {
           resize: { type: "fit", width: 160, height: 160 },
         });
       }
     }
-    return item;
+    return { ...relation, background };
   });
 
   enhancedEvent.responsibleOrganizations =
-    enhancedEvent.responsibleOrganizations.map((item) => {
-      if (item.organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, item.organization.logo);
+    enhancedEvent.responsibleOrganizations.map((relation) => {
+      let logo = relation.organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
-          item.organization.logo = getImageURL(publicURL, {
+          logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 144, height: 144 },
           });
         }
       }
-      return item;
+      return { ...relation, organization: { ...relation.organization, logo } };
     });
 
+  // Adding participation status
+  const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
+    sessionUser,
+    enhancedEvent.childEvents
+  );
+
+  const eventWithParticipationStatus = {
+    ...enhancedEvent,
+    childEvents: enhancedChildEvents,
+  };
+
+  let isParticipant;
+  let isOnWaitingList;
+  let isSpeaker;
+  let isTeamMember;
+  if (sessionUser !== null) {
+    isParticipant = await getIsParticipant(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+    isOnWaitingList = await getIsOnWaitingList(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+    isSpeaker = await getIsSpeaker(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+    isTeamMember = await getIsTeamMember(
+      eventWithParticipationStatus.id,
+      sessionUser.id
+    );
+  } else {
+    isParticipant = false;
+    isOnWaitingList = false;
+    isSpeaker = false;
+    isTeamMember = false;
+  }
+
+  // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
     !canUserAccessConferenceLink(
-      enhancedEvent,
+      eventWithParticipationStatus,
       isParticipant,
       isSpeaker,
       isTeamMember
     )
   ) {
-    enhancedEvent.conferenceLink = null;
-    enhancedEvent.conferenceCode = null;
+    eventWithParticipationStatus.conferenceLink = null;
+    eventWithParticipationStatus.conferenceCode = null;
   } else {
+    // TODO: move decision what to show in link (message) to frontend (allow handling in frontend, do not decide on backend)
     if (
-      enhancedEvent.conferenceLink === null ||
-      enhancedEvent.conferenceLink === ""
+      eventWithParticipationStatus.conferenceLink === null ||
+      eventWithParticipationStatus.conferenceLink === ""
     ) {
-      enhancedEvent.conferenceLink = "noch nicht bekannt";
-      enhancedEvent.conferenceCode = null;
+      eventWithParticipationStatus.conferenceLink = "noch nicht bekannt";
+      eventWithParticipationStatus.conferenceCode = null;
     }
   }
 
   return json(
     {
       mode,
-      event: enhancedEvent,
+      event: eventWithParticipationStatus,
       userId: sessionUser?.id || undefined,
       isParticipant,
       isOnWaitingList,
@@ -250,8 +328,8 @@ export const loader = async (args: LoaderArgs) => {
 
 function getForm(loaderData: {
   userId?: string;
-  isParticipant?: boolean;
-  isOnWaitingList?: boolean;
+  isParticipant: boolean;
+  isOnWaitingList: boolean;
   event: {
     id: string;
     participantLimit: number | null;
@@ -260,8 +338,8 @@ function getForm(loaderData: {
     };
   };
 }) {
-  const isParticipating = loaderData.isParticipant || false;
-  const isOnWaitingList = loaderData.isOnWaitingList || false;
+  const isParticipating = loaderData.isParticipant;
+  const isOnWaitingList = loaderData.isOnWaitingList;
 
   const participantLimitReached =
     loaderData.event.participantLimit !== null
@@ -628,7 +706,7 @@ function Index() {
                 </p>
               ) : null}
             </header>
-            {loaderData.event.description ? (
+            {loaderData.event.description !== null ? (
               <p
                 className="mb-6"
                 dangerouslySetInnerHTML={{
@@ -689,22 +767,13 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.startTime ? (
-                <>
-                  <div className="text-xs leading-6">Start</div>
-                  <div className="pb-3 md:pb-0">
-                    {formatDateTime(startTime)}
-                  </div>
-                </>
-              ) : null}
-              {loaderData.event.endTime ? (
-                <>
-                  <div className="text-xs leading-6">Ende</div>
-                  <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
-                </>
-              ) : null}
+              <div className="text-xs leading-6">Start</div>
+              <div className="pb-3 md:pb-0">{formatDateTime(startTime)}</div>
 
-              {loaderData.event.participationFrom && participationFrom > now ? (
+              <div className="text-xs leading-6">Ende</div>
+              <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
+
+              {participationFrom > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsbeginn</div>
                   <div className="pb-3 md:pb-0">
@@ -712,8 +781,7 @@ function Index() {
                   </div>
                 </>
               ) : null}
-              {loaderData.event.participationUntil &&
-              participationUntil > now ? (
+              {participationUntil > now ? (
                 <>
                   <div className="text-xs leading-6">Registrierungsende</div>
                   <div className="pb-3 md:pb-0">
@@ -722,30 +790,26 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.participantLimit !== null ? (
-                <>
-                  <div className="text-xs leading-6">Verfügbare Plätze</div>
-                  <div className="pb-3 md:pb-0">
-                    {loaderData.event.participantLimit === null ? (
-                      "ohne Beschränkung"
-                    ) : (
-                      <>
-                        {loaderData.event.participantLimit -
-                          loaderData.event._count.participants <
-                        0
-                          ? 0
-                          : loaderData.event.participantLimit -
-                            loaderData.event._count.participants}{" "}
-                        / {loaderData.event.participantLimit}
-                      </>
-                    )}
-                  </div>
-                </>
-              ) : null}
+              <div className="text-xs leading-6">Verfügbare Plätze</div>
+              <div className="pb-3 md:pb-0">
+                {loaderData.event.participantLimit === null ? (
+                  "ohne Beschränkung"
+                ) : (
+                  <>
+                    {loaderData.event.participantLimit -
+                      loaderData.event._count.participants <
+                    0
+                      ? 0
+                      : loaderData.event.participantLimit -
+                        loaderData.event._count.participants}{" "}
+                    / {loaderData.event.participantLimit}
+                  </>
+                )}
+              </div>
 
-              {loaderData.isParticipant ||
-              loaderData.isSpeaker ||
-              loaderData.isTeamMember ? (
+              {loaderData.isParticipant === true ||
+              loaderData.isSpeaker === true ||
+              loaderData.isTeamMember === true ? (
                 <>
                   <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
                   <div className="pb-3 md:pb-0">
@@ -1018,16 +1082,14 @@ function Index() {
                             Abgesagt
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        event.isParticipant &&
+                        {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "owner" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                             <p>Angemeldet</p>
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        canUserParticipate(event) ? (
+                        {canUserParticipate(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -1037,16 +1099,14 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        event.isOnWaitingList &&
+                        {event.isOnWaitingList &&
                         !event.canceled &&
                         loaderData.mode !== "owner" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                             <p>Wartend</p>
                           </div>
                         ) : null}
-                        {"isParticipant" in event &&
-                        canUserBeAddedToWaitingList(event) ? (
+                        {canUserBeAddedToWaitingList(event) ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
@@ -1056,7 +1116,7 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {("isParticipant" in event &&
+                        {(event.published &&
                           !event.isParticipant &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&

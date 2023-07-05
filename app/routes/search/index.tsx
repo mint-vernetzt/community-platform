@@ -1,6 +1,5 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import {
   countSearchedEvents,
   countSearchedOrganizations,
@@ -14,8 +13,6 @@ import {
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
-  const authClient = createAuthClient(request, response);
-  await getSessionUserOrThrow(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const queryString = getQuerySearchParam(request);

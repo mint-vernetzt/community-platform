@@ -17,6 +17,10 @@ import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -62,69 +66,12 @@ export const loader = async (args: LoaderArgs) => {
     randomSeed,
   });
 
-  const profiles = await Promise.all(
-    rawProfiles.map(async (profile) => {
-      const {
-        bio,
-        position,
-        avatar,
-        background,
-        publicFields,
-        offers,
-        ...otherFields
-      } = profile;
-      let extensions: {
-        bio?: string;
-        position?: string;
-        memberOf: { name: string; slug: string; logo?: string | null }[];
-        offers: string[];
-      } = { memberOf: [], offers: [] };
+  const enhancedProfiles = [];
 
-      if (
-        ((publicFields !== null && publicFields.includes("bio")) ||
-          sessionUser !== null) &&
-        bio !== null
-      ) {
-        extensions.bio = bio;
-      }
-      if (
-        ((publicFields !== null && publicFields.includes("position")) ||
-          sessionUser !== null) &&
-        position !== null
-      ) {
-        extensions.position = position;
-      }
-      if (
-        ((publicFields !== null && publicFields.includes("offers")) ||
-          sessionUser !== null) &&
-        offers !== null
-      ) {
-        extensions.offers = offers;
-      }
-
-      let avatarImage: string | null = null;
-
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatarImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-
-      let backgroundImage: string | null = null;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          backgroundImage = getImageURL(publicURL, {
-            resize: { type: "fit", width: 473, height: 160 },
-          });
-        }
-      }
-
-      const organizations = await prismaClient.organization.findMany({
+  for (const profile of rawProfiles) {
+    let enhancedProfile = {
+      ...profile,
+      memberOf: await prismaClient.organization.findMany({
         where: {
           teamMembers: {
             some: {
@@ -132,40 +79,71 @@ export const loader = async (args: LoaderArgs) => {
             },
           },
         },
-      });
-      extensions.memberOf = organizations.map((organization) => {
-        let logoImage: string | null = null;
-        if (organization.logo !== null) {
-          const publicURL = getPublicURL(authClient, organization.logo);
-          if (publicURL !== null) {
-            logoImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
+        select: {
+          name: true,
+          slug: true,
+          logo: true,
+          id: true,
+        },
+      }),
+    };
 
-        return {
-          name: organization.name,
-          slug: organization.slug,
-          logo: logoImage,
-        };
-      });
+    if (sessionUser === null) {
+      // Filter profile
+      enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
+        enhancedProfile
+      );
+      // Filter organizations where profile belongs to
+      enhancedProfile.memberOf = await Promise.all(
+        enhancedProfile.memberOf.map(async (organization) => {
+          const filteredOrganization = await filterOrganizationByVisibility<
+            typeof organization
+          >(organization);
+          return { ...filteredOrganization };
+        })
+      );
+    }
 
-      return {
-        ...otherFields,
-        ...extensions,
-        avatar: avatarImage,
-        background: backgroundImage,
-      };
-    })
-  );
+    // Add images from image proxy
+    if (enhancedProfile.avatar !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
+      if (publicURL !== null) {
+        enhancedProfile.avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    if (enhancedProfile.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProfile.background);
+      if (publicURL !== null) {
+        enhancedProfile.background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+
+    enhancedProfile.memberOf = enhancedProfile.memberOf.map((organization) => {
+      let logo = organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+      }
+      return { ...organization, logo };
+    });
+
+    enhancedProfiles.push(enhancedProfile);
+  }
 
   const areas = await getAreas();
   const offers = await getAllOffers();
 
   return json(
-    { isLoggedIn, profiles, areas, offers },
+    { isLoggedIn, profiles: enhancedProfiles, areas, offers },
     { headers: response.headers }
   );
 };
