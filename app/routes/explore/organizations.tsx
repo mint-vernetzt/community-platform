@@ -1,12 +1,21 @@
-import { CardContainer, OrganizationCard } from "@mint-vernetzt/components";
+import {
+  Button,
+  CardContainer,
+  OrganizationCard,
+} from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
 import {
@@ -28,6 +37,7 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   let randomSeed = getRandomSeed(request);
+
   if (randomSeed === undefined) {
     randomSeed = parseFloat(Math.random().toFixed(3));
     return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
@@ -137,20 +147,26 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
+  const [items, setItems] = React.useState(loaderData.organizations);
 
-  const {
-    items,
-    refCallback,
-  }: {
-    items: typeof loaderData.organizations;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(
-    loaderData.organizations,
-    "/explore/organizations?",
-    "organizations",
-    searchParams
-  );
+  let page = 2;
+  if (searchParams !== undefined) {
+    const pageParam = searchParams.get("page");
+    if (pageParam !== null) {
+      page = parseInt(pageParam) + 1;
+    }
+  }
+
+  React.useEffect(() => {
+    if (
+      fetcher.data !== undefined &&
+      fetcher.data.organizations !== undefined
+    ) {
+      setItems((items) => [...items, ...fetcher.data.organizations]);
+    }
+  }, [fetcher.data]);
 
   return (
     <>
@@ -159,7 +175,7 @@ export default function Index() {
         <p className="">Hier findest du Organisationen und Netzwerke.</p>
       </section>
       <section
-        ref={refCallback}
+        // ref={refCallback}
         className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
       >
         <CardContainer type="multi row">
@@ -180,6 +196,18 @@ export default function Index() {
             </p>
           )}
         </CardContainer>
+        <fetcher.Form method="get">
+          <input
+            key="randomSeed"
+            type="hidden"
+            name="randomSeed"
+            value={searchParams.get("randomSeed") || ""}
+          />
+          <input key="page" type="hidden" name="page" value={page} />
+          <Button variant="outline" loading={fetcher.state === "loading"}>
+            Mehr laden
+          </Button>
+        </fetcher.Form>
       </section>
     </>
   );
