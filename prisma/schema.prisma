@@ -27,7 +27,7 @@ model Profile {
   createdAt            DateTime                    @default(now()) @map("created_at")
   firstName            String                      @map("first_name")
   lastName             String                      @map("last_name")
-  publicFields         String[]                    @map("public_fields")
+  publicFields         String[]                    @map("public_fields") // legacy
   termsAccepted        Boolean                     @map("terms_accepted")
   termsAcceptedAt      DateTime                    @default(now()) @map("terms_accepted_at")
   updatedAt            DateTime                    @default(now()) @map("updated_at")
@@ -138,7 +138,7 @@ model Organization {
   bio                    String?
   quote                  String?
   createdAt              DateTime                           @default(now()) @map("created_at")
-  publicFields           String[]                           @map("public_fields")
+  publicFields           String[]                           @map("public_fields") // legacy
   quoteAuthor            String?                            @map("quote_author")
   quoteAuthorInformation String?                            @map("quote_author_information")
   streetNumber           String?                            @map("street_number")

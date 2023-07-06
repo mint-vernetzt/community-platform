@@ -1,13 +1,18 @@
 import { prismaClient } from "~/prisma";
 
-export async function createProfileVisibilitySettings() {
-  const profileVisibilities = await prismaClient.profileVisibility.findMany();
+export async function createProfileVisibilitySettings(opt: { force: boolean }) {
+  if (opt.force) {
+    await prismaClient.profileVisibility.deleteMany();
+    console.log("Profile visibility settings deleted.");
+  } else {
+    const profileVisibilities = await prismaClient.profileVisibility.findMany();
 
-  if (profileVisibilities.length > 0) {
-    console.log(
-      "There are already visibility settings in the database. Aborting."
-    );
-    return;
+    if (profileVisibilities.length > 0) {
+      console.log(
+        "There are already visibility settings in the database. Aborting."
+      );
+      return;
+    }
   }
 
   const profiles = await prismaClient.profile.findMany({
@@ -51,15 +56,22 @@ export async function createProfileVisibilitySettings() {
   console.log("Created profile visibility settings.");
 }
 
-export async function createOrganizationVisibilitySettings() {
-  const organizationVisibilities =
-    await prismaClient.organizationVisibility.findMany();
+export async function createOrganizationVisibilitySettings(opt: {
+  force: boolean;
+}) {
+  if (opt.force) {
+    await prismaClient.organizationVisibility.deleteMany();
+    console.log("Organization visibility settings deleted.");
+  } else {
+    const organizationVisibilities =
+      await prismaClient.organizationVisibility.findMany();
 
-  if (organizationVisibilities.length > 0) {
-    console.log(
-      "There are already visibility settings in the database. Aborting."
-    );
-    return;
+    if (organizationVisibilities.length > 0) {
+      console.log(
+        "There are already visibility settings in the database. Aborting."
+      );
+      return;
+    }
   }
 
   const organizations = await prismaClient.organization.findMany({
@@ -100,14 +112,19 @@ export async function createOrganizationVisibilitySettings() {
   console.log("Created organization visibility settings.");
 }
 
-export async function createEventVisibilitySettings() {
-  const eventVisibilities = await prismaClient.eventVisibility.findMany();
+export async function createEventVisibilitySettings(opt: { force: boolean }) {
+  if (opt.force) {
+    await prismaClient.eventVisibility.deleteMany();
+    console.log("Event visibility settings deleted.");
+  } else {
+    const eventVisibilities = await prismaClient.eventVisibility.findMany();
 
-  if (eventVisibilities.length > 0) {
-    console.log(
-      "There are already visibility settings in the database. Aborting."
-    );
-    return;
+    if (eventVisibilities.length > 0) {
+      console.log(
+        "There are already visibility settings in the database. Aborting."
+      );
+      return;
+    }
   }
 
   const events = await prismaClient.event.findMany({
@@ -132,14 +149,19 @@ export async function createEventVisibilitySettings() {
   console.log("Created event visibility settings.");
 }
 
-export async function createProjectVisibilitySettings() {
-  const projectVisibilities = await prismaClient.projectVisibility.findMany();
+export async function createProjectVisibilitySettings(opt: { force: boolean }) {
+  if (opt.force) {
+    await prismaClient.projectVisibility.deleteMany();
+    console.log("Project visibility settings deleted.");
+  } else {
+    const projectVisibilities = await prismaClient.projectVisibility.findMany();
 
-  if (projectVisibilities.length > 0) {
-    console.log(
-      "There are already visibility settings in the database. Aborting."
-    );
-    return;
+    if (projectVisibilities.length > 0) {
+      console.log(
+        "There are already visibility settings in the database. Aborting."
+      );
+      return;
+    }
   }
 
   const projects = await prismaClient.project.findMany({
