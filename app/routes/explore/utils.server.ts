@@ -292,15 +292,17 @@ export function getPaginationValues(
   const url = new URL(request.url);
   const pageParam = url.searchParams.get("page") || "1";
 
+  const { itemsPerPage } = options;
+
   let page = parseInt(pageParam);
   if (Number.isNaN(page) || page < 1) {
     page = 1;
   }
 
-  const skip = options.itemsPerPage * (page - 1);
-  const take = options.itemsPerPage;
+  const skip = itemsPerPage * (page - 1);
+  const take = itemsPerPage;
 
-  return { skip, take, page };
+  return { skip, take, page, itemsPerPage };
 }
 
 export function getFilterValues(request: Request) {

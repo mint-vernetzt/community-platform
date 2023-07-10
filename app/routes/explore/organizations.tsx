@@ -45,7 +45,7 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  const { skip, take, page } = getPaginationValues(request);
+  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -140,7 +140,13 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   return json(
-    { isLoggedIn, organizations: enhancedOrganizations, areas, offers, page },
+    {
+      isLoggedIn,
+      organizations: enhancedOrganizations,
+      areas,
+      offers,
+      pagination: { page, itemsPerPage },
+    },
     { headers: response.headers }
   );
 };
@@ -150,6 +156,12 @@ export default function Index() {
   const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.organizations);
+  const [shouldFetch, setShouldFetch] = React.useState(() => {
+    if (loaderData.organizations.length < loaderData.pagination.itemsPerPage) {
+      return false;
+    }
+    return true;
+  });
   const [page, setPage] = React.useState(() => {
     const pageParam = searchParams.get("page");
     if (pageParam !== null) {
@@ -164,7 +176,12 @@ export default function Index() {
       fetcher.data.organizations !== undefined
     ) {
       setItems((items) => [...items, ...fetcher.data.organizations]);
-      setPage(fetcher.data.page);
+      setPage(fetcher.data.pagination.page);
+      if (
+        fetcher.data.organizations.length < fetcher.data.pagination.itemsPerPage
+      ) {
+        setShouldFetch(false);
+      }
     }
   }, [fetcher.data]);
 
@@ -193,18 +210,20 @@ export default function Index() {
             </p>
           )}
         </CardContainer>
-        <fetcher.Form method="get">
-          <input
-            key="randomSeed"
-            type="hidden"
-            name="randomSeed"
-            value={searchParams.get("randomSeed") || ""}
-          />
-          <input key="page" type="hidden" name="page" value={page + 1} />
-          <Button variant="outline" loading={fetcher.state === "loading"}>
-            Mehr laden
-          </Button>
-        </fetcher.Form>
+        {shouldFetch && (
+          <fetcher.Form method="get">
+            <input
+              key="randomSeed"
+              type="hidden"
+              name="randomSeed"
+              value={searchParams.get("randomSeed") || ""}
+            />
+            <input key="page" type="hidden" name="page" value={page + 1} />
+            <Button variant="outline" loading={fetcher.state === "submitting"}>
+              Mehr laden
+            </Button>
+          </fetcher.Form>
+        )}
       </section>
     </>
   );
