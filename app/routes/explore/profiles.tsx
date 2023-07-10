@@ -1,9 +1,10 @@
-import { CardContainer, ProfileCard } from "@mint-vernetzt/components";
+import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
+  useFetcher,
   useLoaderData,
   useSearchParams,
   useSubmit,
@@ -13,7 +14,6 @@ import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
@@ -40,7 +40,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const isLoggedIn = sessionUser !== null;
 
-  const paginationValues = getPaginationValues(request);
+  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
@@ -61,7 +61,8 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const rawProfiles = await getAllProfiles({
-    ...paginationValues,
+    skip,
+    take,
     ...filterValues,
     randomSeed,
   });
@@ -143,32 +144,50 @@ export const loader = async (args: LoaderArgs) => {
   const offers = await getAllOffers();
 
   return json(
-    { isLoggedIn, profiles: enhancedProfiles, areas, offers },
+    {
+      isLoggedIn,
+      profiles: enhancedProfiles,
+      areas,
+      offers,
+      pagination: { page, itemsPerPage },
+    },
     { headers: response.headers }
   );
 };
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-
+  const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
+  const [items, setItems] = React.useState(loaderData.profiles);
+  const [shouldFetch, setShouldFetch] = React.useState(() => {
+    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+      return false;
+    }
+    return true;
+  });
+  const [page, setPage] = React.useState(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
   const seekingId = searchParams.get("seekingId");
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
-  const {
-    items,
-    refCallback,
-  }: {
-    items: typeof loaderData.profiles;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(
-    loaderData.profiles,
-    "/explore/profiles?",
-    "profiles",
-    searchParams
-  );
+
+  React.useEffect(() => {
+    if (fetcher.data !== undefined && fetcher.data.profiles !== undefined) {
+      setItems((items) => [...items, ...fetcher.data.profiles]);
+      setPage(fetcher.data.pagination.page);
+      if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
+        setShouldFetch(false);
+      }
+    }
+  }, [fetcher.data]);
 
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
     submit(event.currentTarget);
@@ -289,22 +308,46 @@ export default function Index() {
         </section>
       ) : null}
 
-      <section
-        ref={refCallback}
-        className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
-      >
+      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         {items.length > 0 ? (
-          <CardContainer type="multi row">
-            {items.map((profile) => {
-              return (
-                <ProfileCard
-                  key={`profile-${profile.id}`}
-                  publicAccess={!loaderData.isLoggedIn}
-                  profile={profile}
-                />
-              );
-            })}
-          </CardContainer>
+          <>
+            <CardContainer type="multi row">
+              {items.map((profile) => {
+                return (
+                  <ProfileCard
+                    key={`profile-${profile.id}`}
+                    publicAccess={!loaderData.isLoggedIn}
+                    profile={profile}
+                  />
+                );
+              })}
+            </CardContainer>
+            {shouldFetch && (
+              <div className="mv-w-full mv-flex mv-justify-center">
+                <fetcher.Form method="get">
+                  <input
+                    key="randomSeed"
+                    type="hidden"
+                    name="randomSeed"
+                    value={searchParams.get("randomSeed") || ""}
+                  />
+                  <input
+                    key="page"
+                    type="hidden"
+                    name="page"
+                    value={page + 1}
+                  />
+                  <Button
+                    size="large"
+                    variant="outline"
+                    loading={fetcher.state === "submitting"}
+                  >
+                    Weitere laden
+                  </Button>
+                </fetcher.Form>
+              </div>
+            )}
+          </>
         ) : (
           <p className="text-center text-primary">
             Für Deine Filterkriterien konnten leider keine Profile gefunden
