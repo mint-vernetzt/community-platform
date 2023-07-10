@@ -211,18 +211,24 @@ export default function Index() {
           )}
         </CardContainer>
         {shouldFetch && (
-          <fetcher.Form method="get">
-            <input
-              key="randomSeed"
-              type="hidden"
-              name="randomSeed"
-              value={searchParams.get("randomSeed") || ""}
-            />
-            <input key="page" type="hidden" name="page" value={page + 1} />
-            <Button variant="outline" loading={fetcher.state === "submitting"}>
-              Mehr laden
-            </Button>
-          </fetcher.Form>
+          <div className="mv-w-full mv-flex mv-justify-center">
+            <fetcher.Form method="get">
+              <input
+                key="randomSeed"
+                type="hidden"
+                name="randomSeed"
+                value={searchParams.get("randomSeed") || ""}
+              />
+              <input key="page" type="hidden" name="page" value={page + 1} />
+              <Button
+                size="large"
+                variant="outline"
+                loading={fetcher.state === "submitting"}
+              >
+                Weitere laden
+              </Button>
+            </fetcher.Form>
+          </div>
         )}
       </section>
     </>
