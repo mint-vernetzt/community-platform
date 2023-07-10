@@ -45,7 +45,7 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  const { skip, take } = getPaginationValues(request);
+  const { skip, take, page } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -140,7 +140,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   return json(
-    { isLoggedIn, organizations: enhancedOrganizations, areas, offers },
+    { isLoggedIn, organizations: enhancedOrganizations, areas, offers, page },
     { headers: response.headers }
   );
 };
@@ -150,14 +150,13 @@ export default function Index() {
   const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.organizations);
-
-  let page = 2;
-  if (searchParams !== undefined) {
+  const [page, setPage] = React.useState(() => {
     const pageParam = searchParams.get("page");
     if (pageParam !== null) {
-      page = parseInt(pageParam) + 1;
+      return parseInt(pageParam);
     }
-  }
+    return 1;
+  });
 
   React.useEffect(() => {
     if (
@@ -165,6 +164,7 @@ export default function Index() {
       fetcher.data.organizations !== undefined
     ) {
       setItems((items) => [...items, ...fetcher.data.organizations]);
+      setPage(fetcher.data.page);
     }
   }, [fetcher.data]);
 
@@ -174,10 +174,7 @@ export default function Index() {
         <H1 like="h0">Entdecke Organisationen</H1>
         <p className="">Hier findest du Organisationen und Netzwerke.</p>
       </section>
-      <section
-        // ref={refCallback}
-        className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
-      >
+      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
           {items.length > 0 ? (
             items.map((organization) => {
@@ -203,7 +200,7 @@ export default function Index() {
             name="randomSeed"
             value={searchParams.get("randomSeed") || ""}
           />
-          <input key="page" type="hidden" name="page" value={page} />
+          <input key="page" type="hidden" name="page" value={page + 1} />
           <Button variant="outline" loading={fetcher.state === "loading"}>
             Mehr laden
           </Button>

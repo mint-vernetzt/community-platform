@@ -300,7 +300,7 @@ export function getPaginationValues(
   const skip = options.itemsPerPage * (page - 1);
   const take = options.itemsPerPage;
 
-  return { skip, take };
+  return { skip, take, page };
 }
 
 export function getFilterValues(request: Request) {
