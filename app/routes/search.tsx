@@ -7,6 +7,7 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import Search from "~/components/Search/Search";
 import {
@@ -22,6 +23,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
 
+  const authClient = await createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+
   let countData = {
     profiles: 0,
     organizations: 0,
@@ -31,10 +35,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   if (searchQuery !== null) {
     const [profilesCount, organizationsCount, eventsCount, projectsCount] =
       await Promise.all([
-        countSearchedProfiles(searchQuery),
-        countSearchedOrganizations(searchQuery),
-        countSearchedEvents(searchQuery),
-        countSearchedProjects(searchQuery),
+        countSearchedProfiles(searchQuery, sessionUser),
+        countSearchedOrganizations(searchQuery, sessionUser),
+        countSearchedEvents(searchQuery, sessionUser),
+        countSearchedProjects(searchQuery, sessionUser),
       ]);
     countData.profiles = profilesCount;
     countData.organizations = organizationsCount;
