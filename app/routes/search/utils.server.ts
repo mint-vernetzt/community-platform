@@ -974,13 +974,14 @@ function getOrganizationWhereQueries(
 
 export async function searchEventsViaLike(
   searchQuery: string[],
+  sessionUser: User | null,
   skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
     return [];
   }
-  const whereQueries = getEventWhereQueries(searchQuery);
+  const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
   const events = await prismaClient.event.findMany({
     select: {
       id: true,
@@ -1035,11 +1036,14 @@ export async function searchEventsViaLike(
   return events;
 }
 
-export async function countSearchedEvents(searchQuery: string[]) {
+export async function countSearchedEvents(
+  searchQuery: string[],
+  sessionUser: User | null
+) {
   if (searchQuery.length === 0) {
     return 0;
   }
-  const whereQueries = getEventWhereQueries(searchQuery);
+  const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
   const eventCount = await prismaClient.event.count({
     where: {
       AND: [{ published: true }, ...whereQueries],
@@ -1048,168 +1052,340 @@ export async function countSearchedEvents(searchQuery: string[]) {
   return eventCount;
 }
 
-function getEventWhereQueries(searchQuery: string[]) {
+function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
-      OR: (
-        | {
-            [K in Event as string]: {
-              contains: string;
-              mode: Prisma.QueryMode;
-            };
-          }
-        | {
-            [K in "areas" | "types" | "focuses" | "tags" | "targetGroups"]?: {
-              some: {
-                [K in
-                  | "area"
-                  | "eventType"
-                  | "focus"
-                  | "tag"
-                  | "targetGroup"]?: {
-                  [K in "name" | "title"]?: {
-                    contains: string;
-                    mode: Prisma.QueryMode;
-                  };
-                };
-              };
-            };
-          }
-        | {
-            [K in "experienceLevel" | "stage"]?: {
-              title: {
+      OR: {
+        AND: (
+          | {
+              [K in Event as string]: {
                 contains: string;
                 mode: Prisma.QueryMode;
               };
-            };
-          }
-      )[];
+            }
+          | {
+              [K in "areas" | "types" | "focuses" | "tags" | "targetGroups"]?: {
+                some: {
+                  [K in
+                    | "area"
+                    | "eventType"
+                    | "focus"
+                    | "tag"
+                    | "targetGroup"]?: {
+                    [K in "name" | "title"]?: {
+                      contains: string;
+                      mode: Prisma.QueryMode;
+                    };
+                  };
+                };
+              };
+            }
+          | {
+              [K in "experienceLevel" | "stage"]?: {
+                title: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            }
+          | {
+              [K in "eventVisibility"]?: {
+                [K in Event as string]: boolean;
+              };
+            }
+        )[];
+      }[];
     } = {
       OR: [
         {
-          name: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    name: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          slug: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              slug: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    slug: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          description: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              description: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    description: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          venueName: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              venueName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    venueName: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          venueStreet: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              venueStreet: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    venueStreet: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          venueStreetNumber: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              venueStreetNumber: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    venueStreetNumber: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          venueCity: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              venueCity: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    venueCity: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          subline: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              subline: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    subline: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          areas: {
-            some: {
-              area: {
-                name: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    areas: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          types: {
-            some: {
-              eventType: {
+          AND: [
+            {
+              types: {
+                some: {
+                  eventType: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    types: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              experienceLevel: {
                 title: {
                   contains: word,
                   mode: "insensitive",
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    experienceLevel: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          experienceLevel: {
-            title: {
-              contains: word,
-              mode: "insensitive",
-            },
-          },
-        },
-        {
-          stage: {
-            title: {
-              contains: word,
-              mode: "insensitive",
-            },
-          },
-        },
-        {
-          focuses: {
-            some: {
-              focus: {
+          AND: [
+            {
+              stage: {
                 title: {
                   contains: word,
                   mode: "insensitive",
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    stage: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          tags: {
-            some: {
-              tag: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              focuses: {
+                some: {
+                  focus: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    focuses: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          targetGroups: {
-            some: {
-              targetGroup: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              tags: {
+                some: {
+                  tag: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    tags: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              targetGroups: {
+                some: {
+                  targetGroup: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    targetGroups: true,
+                  },
+                }
+              : {},
+          ],
         },
       ],
     };
@@ -1621,10 +1797,10 @@ export function getTypeValue(request: Request) {
 }
 
 // Enable prisma logging
-export function prismaLog() {
-  prismaClient.$on("query", (e) => {
-    console.log("Query: " + e.query);
-    console.log("Params: " + e.params);
-    console.log("Duration: " + e.duration + "ms");
-  });
-}
+// export function prismaLog() {
+//   prismaClient.$on("query", (e) => {
+//     console.log("Query: " + e.query);
+//     console.log("Params: " + e.params);
+//     console.log("Duration: " + e.duration + "ms");
+//   });
+// }

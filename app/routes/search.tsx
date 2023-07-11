@@ -37,7 +37,7 @@ export const loader = async ({ request }: LoaderArgs) => {
       await Promise.all([
         countSearchedProfiles(searchQuery, sessionUser),
         countSearchedOrganizations(searchQuery, sessionUser),
-        countSearchedEvents(searchQuery),
+        countSearchedEvents(searchQuery, sessionUser),
         countSearchedProjects(searchQuery),
       ]);
     countData.profiles = profilesCount;

@@ -40,7 +40,7 @@ export const loader: LoaderFunction = async (args) => {
       });
     }
     // We have event search results
-    const eventsCount = await countSearchedEvents(searchQuery);
+    const eventsCount = await countSearchedEvents(searchQuery, sessionUser);
     if (eventsCount !== 0) {
       return redirect(`/search/events?query=${queryString || ""}`, {
         headers: response.headers,

@@ -38,6 +38,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   const rawEvents = await searchEventsViaLike(
     searchQuery,
+    sessionUser,
     paginationValues.skip,
     paginationValues.take
   );
