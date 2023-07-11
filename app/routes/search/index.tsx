@@ -30,7 +30,10 @@ export const loader: LoaderFunction = async (args) => {
       });
     }
     // We have organization search results
-    const organizationsCount = await countSearchedOrganizations(searchQuery);
+    const organizationsCount = await countSearchedOrganizations(
+      searchQuery,
+      sessionUser
+    );
     if (organizationsCount !== 0) {
       return redirect(`/search/organizations?query=${queryString || ""}`, {
         headers: response.headers,

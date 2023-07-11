@@ -36,7 +36,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     const [profilesCount, organizationsCount, eventsCount, projectsCount] =
       await Promise.all([
         countSearchedProfiles(searchQuery, sessionUser),
-        countSearchedOrganizations(searchQuery),
+        countSearchedOrganizations(searchQuery, sessionUser),
         countSearchedEvents(searchQuery),
         countSearchedProjects(searchQuery),
       ]);

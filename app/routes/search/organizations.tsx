@@ -24,12 +24,14 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const paginationValues = getPaginationValues(request);
 
+  const sessionUser = await getSessionUser(authClient);
+
   const rawOrganizations = await searchOrganizationsViaLike(
     searchQuery,
+    sessionUser,
     paginationValues.skip,
     paginationValues.take
   );
-  const sessionUser = await getSessionUser(authClient);
 
   const enhancedOrganizations = [];
 
