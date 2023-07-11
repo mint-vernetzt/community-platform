@@ -119,18 +119,36 @@ function getProfileWhereQueries(
               };
             }
           | {
-              [K in
-                | "areas"
-                | "memberOf"
-                | "offers"
-                | "seekings"
-                | "teamMemberOfProjects"]?: {
+              [K in "areas" | "offers" | "seekings"]?: {
                 some: {
-                  [K in "area" | "organization" | "offer" | "project"]?: {
+                  [K in "area" | "offer"]?: {
                     [K in "name" | "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
+                  };
+                };
+              };
+            }
+          | {
+              [K in "memberOf" | "teamMemberOfProjects"]?: {
+                some: {
+                  [K in "organization" | "project"]?: {
+                    AND: (
+                      | {
+                          [K in "name"]?: {
+                            contains: string;
+                            mode: Prisma.QueryMode;
+                          };
+                        }
+                      | {
+                          [K in
+                            | "organizationVisibility"
+                            | "projectVisibility"]?: {
+                            [K in Organization | Project as string]: boolean;
+                          };
+                        }
+                    )[];
                   };
                 };
               };
@@ -312,10 +330,21 @@ function getProfileWhereQueries(
               memberOf: {
                 some: {
                   organization: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -381,10 +410,21 @@ function getProfileWhereQueries(
               teamMemberOfProjects: {
                 some: {
                   project: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            projectVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -512,27 +552,44 @@ function getOrganizationWhereQueries(
               };
             }
           | {
+              [K in "areas" | "types" | "focuses"]?: {
+                some: {
+                  [K in "area" | "organizationType" | "focus"]?: {
+                    [K in "name" | "title"]?: {
+                      contains: string;
+                      mode: Prisma.QueryMode;
+                    };
+                  };
+                };
+              };
+            }
+          | {
               [K in
-                | "areas"
-                | "types"
-                | "focuses"
                 | "networkMembers"
                 | "memberOf"
                 | "teamMembers"
                 | "responsibleForProject"]?: {
                 some: {
-                  [K in
-                    | "area"
-                    | "organizationType"
-                    | "focus"
-                    | "networkMember"
-                    | "network"
-                    | "profile"
-                    | "project"]?: {
-                    [K in "name" | "title" | "firstName" | "lastName"]?: {
-                      contains: string;
-                      mode: Prisma.QueryMode;
-                    };
+                  [K in "networkMember" | "network" | "profile" | "project"]?: {
+                    AND: (
+                      | {
+                          [K in "name" | "firstName" | "lastName"]?: {
+                            contains: string;
+                            mode: Prisma.QueryMode;
+                          };
+                        }
+                      | {
+                          [K in
+                            | "organizationVisibility"
+                            | "projectVisibility"
+                            | "profileVisibility"]?: {
+                            [K in
+                              | Organization
+                              | Project
+                              | Profile as string]: boolean;
+                          };
+                        }
+                    )[];
                   };
                 };
               };
@@ -721,10 +778,21 @@ function getOrganizationWhereQueries(
               networkMembers: {
                 some: {
                   networkMember: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -744,10 +812,21 @@ function getOrganizationWhereQueries(
               memberOf: {
                 some: {
                   network: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -767,10 +846,21 @@ function getOrganizationWhereQueries(
               teamMembers: {
                 some: {
                   profile: {
-                    firstName: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        firstName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              firstName: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -790,10 +880,21 @@ function getOrganizationWhereQueries(
               teamMembers: {
                 some: {
                   profile: {
-                    lastName: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        lastName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              lastName: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
@@ -836,10 +937,21 @@ function getOrganizationWhereQueries(
               responsibleForProject: {
                 some: {
                   project: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            projectVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
                   },
                 },
               },
