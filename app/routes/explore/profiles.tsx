@@ -189,6 +189,17 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    setItems(loaderData.profiles);
+
+    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    } else {
+      setShouldFetch(true);
+    }
+    setPage(1);
+  }, [loaderData.profiles]);
+
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
     submit(event.currentTarget);
   }
@@ -205,6 +216,13 @@ export default function Index() {
       {loaderData.isLoggedIn ? (
         <section className="container mb-8">
           <Form method="get" onChange={handleChange} reloadDocument>
+            <input
+              hidden
+              name="randomSeed"
+              value={searchParams.get("randomSeed") ?? ""}
+              readOnly
+            />
+            <input hidden name="page" value={1} readOnly />
             <div className="flex flex-wrap -mx-4">
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
@@ -329,13 +347,31 @@ export default function Index() {
                     key="randomSeed"
                     type="hidden"
                     name="randomSeed"
-                    value={searchParams.get("randomSeed") || ""}
+                    value={searchParams.get("randomSeed") ?? ""}
                   />
                   <input
                     key="page"
                     type="hidden"
                     name="page"
                     value={page + 1}
+                  />
+                  <input
+                    key="areaId"
+                    type="hidden"
+                    name="areaId"
+                    value={areaId ?? ""}
+                  />
+                  <input
+                    key="offerId"
+                    type="hidden"
+                    name="offerId"
+                    value={offerId ?? ""}
+                  />
+                  <input
+                    key="seekingId"
+                    type="hidden"
+                    name="seekingId"
+                    value={seekingId ?? ""}
                   />
                   <Button
                     size="large"
