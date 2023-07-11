@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async (args) => {
       });
     }
     // We have project search results
-    const projectsCount = await countSearchedProjects(searchQuery);
+    const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
     if (projectsCount !== 0) {
       return redirect(`/search/projects?query=${queryString || ""}`, {
         headers: response.headers,

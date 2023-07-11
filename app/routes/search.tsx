@@ -38,7 +38,7 @@ export const loader = async ({ request }: LoaderArgs) => {
         countSearchedProfiles(searchQuery, sessionUser),
         countSearchedOrganizations(searchQuery, sessionUser),
         countSearchedEvents(searchQuery, sessionUser),
-        countSearchedProjects(searchQuery),
+        countSearchedProjects(searchQuery, sessionUser),
       ]);
     countData.profiles = profilesCount;
     countData.organizations = organizationsCount;

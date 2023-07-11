@@ -1396,13 +1396,14 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
 
 export async function searchProjectsViaLike(
   searchQuery: string[],
+  sessionUser: User | null,
   skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
     return [];
   }
-  const whereQueries = getProjectWhereQueries(searchQuery);
+  const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
   const projects = await prismaClient.project.findMany({
     select: {
       id: true,
@@ -1448,11 +1449,14 @@ export async function searchProjectsViaLike(
   return projects;
 }
 
-export async function countSearchedProjects(searchQuery: string[]) {
+export async function countSearchedProjects(
+  searchQuery: string[],
+  sessionUser: User | null
+) {
   if (searchQuery.length === 0) {
     return 0;
   }
-  const whereQueries = getProjectWhereQueries(searchQuery);
+  const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
   const projectCount = await prismaClient.project.count({
     where: {
       AND: whereQueries,
@@ -1461,155 +1465,354 @@ export async function countSearchedProjects(searchQuery: string[]) {
   return projectCount;
 }
 
-function getProjectWhereQueries(searchQuery: string[]) {
+function getProjectWhereQueries(
+  searchQuery: string[],
+  sessionUser: User | null
+) {
   let whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
-      OR: (
-        | {
-            [K in Project as string]: {
-              contains: string;
-              mode: Prisma.QueryMode;
-            };
-          }
-        | {
-            [K in
-              | "awards"
-              | "disciplines"
-              | "responsibleOrganizations"
-              | "targetGroups"
-              | "teamMembers"]?: {
-              some: {
-                [K in
-                  | "award"
-                  | "discipline"
-                  | "organization"
-                  | "targetGroup"
-                  | "profile"]?: {
-                  [K in "name" | "title" | "firstName" | "lastName"]?: {
-                    contains: string;
-                    mode: Prisma.QueryMode;
+      OR: {
+        AND: (
+          | {
+              [K in Project as string]: {
+                contains: string;
+                mode: Prisma.QueryMode;
+              };
+            }
+          | {
+              [K in "awards" | "disciplines" | "targetGroups"]?: {
+                some: {
+                  [K in "award" | "discipline" | "targetGroup"]?: {
+                    [K in "title"]?: {
+                      contains: string;
+                      mode: Prisma.QueryMode;
+                    };
                   };
                 };
               };
-            };
-          }
-      )[];
+            }
+          | {
+              [K in "responsibleOrganizations" | "teamMembers"]?: {
+                some: {
+                  [K in "organization" | "profile"]?: {
+                    AND: (
+                      | {
+                          [K in "name" | "firstName" | "lastName"]?: {
+                            contains: string;
+                            mode: Prisma.QueryMode;
+                          };
+                        }
+                      | {
+                          [K in
+                            | "organizationVisibility"
+                            | "profileVisibility"]?: {
+                            [K in Organization | Profile as string]: boolean;
+                          };
+                        }
+                    )[];
+                  };
+                };
+              };
+            }
+          | {
+              [K in "projectVisibility"]?: {
+                [K in Project as string]: boolean;
+              };
+            }
+        )[];
+      }[];
     } = {
       OR: [
         {
-          name: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    name: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          slug: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              slug: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    slug: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          headline: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              headline: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    headline: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          excerpt: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              excerpt: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    excerpt: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          description: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              description: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    description: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          email: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              email: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    email: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          city: {
-            contains: word,
-            mode: "insensitive",
-          },
+          AND: [
+            {
+              city: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    city: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          awards: {
-            some: {
-              award: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              awards: {
+                some: {
+                  award: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    awards: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          disciplines: {
-            some: {
-              discipline: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              disciplines: {
+                some: {
+                  discipline: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    disciplines: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          responsibleOrganizations: {
-            some: {
-              organization: {
-                name: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              responsibleOrganizations: {
+                some: {
+                  organization: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    responsibleOrganizations: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          targetGroups: {
-            some: {
-              targetGroup: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              targetGroups: {
+                some: {
+                  targetGroup: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    targetGroups: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          teamMembers: {
-            some: {
-              profile: {
-                firstName: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        firstName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              firstName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
         },
         {
-          teamMembers: {
-            some: {
-              profile: {
-                lastName: {
-                  contains: word,
-                  mode: "insensitive",
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        lastName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              lastName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
                 },
               },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
         },
       ],
     };
