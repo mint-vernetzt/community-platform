@@ -319,8 +319,8 @@ export async function prepareOrganizationEvents(
   }
 
   // Get images from image proxy
-  organization.responsibleForEvents = organization.responsibleForEvents.map(
-    (relation) => {
+  enhancedOrganization.responsibleForEvents =
+    enhancedOrganization.responsibleForEvents.map((relation) => {
       let background = relation.event.background;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -331,8 +331,7 @@ export async function prepareOrganizationEvents(
         }
       }
       return { ...relation, event: { ...relation.event, background } };
-    }
-  );
+    });
 
   const enhancedOrganizationWithParticipationStatus = {
     ...enhancedOrganization,
