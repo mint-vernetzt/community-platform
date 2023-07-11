@@ -35,6 +35,7 @@ function Button(
     variant = "normal",
     level = "primary",
     as = "button",
+    loading,
     ...otherProps
   } = props;
 
@@ -87,9 +88,7 @@ function Button(
     Array.isArray(otherProps.children) &&
       otherProps.children.length > 1 &&
       "mv-gap-2",
-    otherProps.loading !== undefined &&
-      otherProps.loading !== false &&
-      "mv-loading"
+    loading !== undefined && loading !== false && "mv-loading"
   );
 
   const element = React.createElement(as, {
