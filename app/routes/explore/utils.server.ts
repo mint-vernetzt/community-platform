@@ -287,12 +287,12 @@ export async function getAllProjects(
 
 export function getPaginationValues(
   request: Request,
-  options = { itemsPerPage: 8 }
+  options?: { itemsPerPage?: number; param?: string }
 ) {
-  const url = new URL(request.url);
-  const pageParam = url.searchParams.get("page") || "1";
+  const { itemsPerPage = 8, param = "page" } = options || {};
 
-  const { itemsPerPage } = options;
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get(param) || "1";
 
   let page = parseInt(pageParam);
   if (Number.isNaN(page) || page < 1) {
