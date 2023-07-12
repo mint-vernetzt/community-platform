@@ -1,12 +1,16 @@
-import { CardContainer, OrganizationCard } from "@mint-vernetzt/components";
+import {
+  Button,
+  CardContainer,
+  OrganizationCard,
+} from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { prismaClient } from "~/prisma";
 import { getAllOffers } from "~/profile.server";
 import {
@@ -28,6 +32,7 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   let randomSeed = getRandomSeed(request);
+
   if (randomSeed === undefined) {
     randomSeed = parseFloat(Math.random().toFixed(3));
     return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
@@ -35,7 +40,7 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  const { skip, take } = getPaginationValues(request);
+  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -130,27 +135,50 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   return json(
-    { isLoggedIn, organizations: enhancedOrganizations, areas, offers },
+    {
+      isLoggedIn,
+      organizations: enhancedOrganizations,
+      areas,
+      offers,
+      pagination: { page, itemsPerPage },
+    },
     { headers: response.headers }
   );
 };
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
+  const [items, setItems] = React.useState(loaderData.organizations);
+  const [shouldFetch, setShouldFetch] = React.useState(() => {
+    if (loaderData.organizations.length < loaderData.pagination.itemsPerPage) {
+      return false;
+    }
+    return true;
+  });
+  const [page, setPage] = React.useState(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
 
-  const {
-    items,
-    refCallback,
-  }: {
-    items: typeof loaderData.organizations;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(
-    loaderData.organizations,
-    "/explore/organizations?",
-    "organizations",
-    searchParams
-  );
+  React.useEffect(() => {
+    if (
+      fetcher.data !== undefined &&
+      fetcher.data.organizations !== undefined
+    ) {
+      setItems((items) => [...items, ...fetcher.data.organizations]);
+      setPage(fetcher.data.pagination.page);
+      if (
+        fetcher.data.organizations.length < fetcher.data.pagination.itemsPerPage
+      ) {
+        setShouldFetch(false);
+      }
+    }
+  }, [fetcher.data]);
 
   return (
     <>
@@ -158,10 +186,7 @@ export default function Index() {
         <H1 like="h0">Entdecke Organisationen</H1>
         <p className="">Hier findest du Organisationen und Netzwerke.</p>
       </section>
-      <section
-        ref={refCallback}
-        className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
-      >
+      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
           {items.length > 0 ? (
             items.map((organization) => {
@@ -180,6 +205,26 @@ export default function Index() {
             </p>
           )}
         </CardContainer>
+        {shouldFetch && (
+          <div className="mv-w-full mv-flex mv-justify-center">
+            <fetcher.Form method="get">
+              <input
+                key="randomSeed"
+                type="hidden"
+                name="randomSeed"
+                value={searchParams.get("randomSeed") || ""}
+              />
+              <input key="page" type="hidden" name="page" value={page + 1} />
+              <Button
+                size="large"
+                variant="outline"
+                loading={fetcher.state === "submitting"}
+              >
+                Weitere laden
+              </Button>
+            </fetcher.Form>
+          </div>
+        )}
       </section>
     </>
   );

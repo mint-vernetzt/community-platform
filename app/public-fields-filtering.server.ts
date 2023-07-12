@@ -287,6 +287,8 @@ export async function filterListOfEventsByVisibility<
 export async function filterEventByVisibility<
   T extends EntitySubset<EventWithRelations, T>
 >(event: T) {
+  const exceptions = ["_count"];
+
   const eventVisibility = await prismaClient.eventVisibility.findFirst({
     where: {
       event: {
@@ -300,7 +302,7 @@ export async function filterEventByVisibility<
   }
 
   for (const key in event) {
-    if (!eventVisibility.hasOwnProperty(key)) {
+    if (!exceptions.includes(key) && !eventVisibility.hasOwnProperty(key)) {
       console.error(`event.${key} is not present in the event visibilities.`);
     }
   }

@@ -287,20 +287,22 @@ export async function getAllProjects(
 
 export function getPaginationValues(
   request: Request,
-  options = { itemsPerPage: 8 }
+  options?: { itemsPerPage?: number; param?: string }
 ) {
+  const { itemsPerPage = 8, param = "page" } = options || {};
+
   const url = new URL(request.url);
-  const pageParam = url.searchParams.get("page") || "1";
+  const pageParam = url.searchParams.get(param) || "1";
 
   let page = parseInt(pageParam);
   if (Number.isNaN(page) || page < 1) {
     page = 1;
   }
 
-  const skip = options.itemsPerPage * (page - 1);
-  const take = options.itemsPerPage;
+  const skip = itemsPerPage * (page - 1);
+  const take = itemsPerPage;
 
-  return { skip, take };
+  return { skip, take, page, itemsPerPage };
 }
 
 export function getFilterValues(request: Request) {

@@ -1,11 +1,11 @@
-import { CardContainer, ProfileCard } from "@mint-vernetzt/components";
+import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -22,15 +22,15 @@ export const loader = async ({ request }: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
-  const paginationValues = getPaginationValues(request);
+  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   const rawProfiles = await searchProfilesViaLike(
     searchQuery,
     sessionUser,
-    paginationValues.skip,
-    paginationValues.take
+    skip,
+    take
   );
 
   const enhancedProfiles = [];
@@ -100,6 +100,10 @@ export const loader = async ({ request }: LoaderArgs) => {
     {
       profiles: enhancedProfiles,
       isLoggedIn: sessionUser !== null,
+      pagination: {
+        page,
+        itemsPerPage,
+      },
     },
     { headers: response.headers }
   );
@@ -107,40 +111,69 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function Profiles() {
   const loaderData = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
-  const type = "profiles";
+  const [items, setItems] = React.useState(loaderData.profiles);
+  const [shouldFetch, setShouldFetch] = React.useState(() => {
+    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+      return false;
+    }
+    return true;
+  });
+  const [page, setPage] = React.useState(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
 
-  const {
-    items,
-    refCallback,
-  }: {
-    items: typeof loaderData[typeof type];
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(
-    loaderData[type],
-    `/search/${type}?`,
-    type,
-    searchParams
-  );
+  React.useEffect(() => {
+    if (fetcher.data !== undefined && fetcher.data.profiles !== undefined) {
+      setItems((items) => [...items, ...fetcher.data.profiles]);
+      setPage(fetcher.data.pagination.page);
+      if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
+        setShouldFetch(false);
+      }
+    }
+  }, [fetcher.data]);
+
+  const query = searchParams.get("query") ?? "";
 
   return (
     <section
-      ref={refCallback}
       id="search-results-profiles"
       className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
     >
       {items.length > 0 ? (
-        <CardContainer type="multi row">
-          {items.map((profile) => {
-            return (
-              <ProfileCard
-                key={`profile-${profile.id}`}
-                publicAccess={!loaderData.isLoggedIn}
-                profile={profile}
-              />
-            );
-          })}
-        </CardContainer>
+        <>
+          <CardContainer type="multi row">
+            {items.map((profile) => {
+              return (
+                <ProfileCard
+                  key={`profile-${profile.id}`}
+                  publicAccess={!loaderData.isLoggedIn}
+                  profile={profile}
+                />
+              );
+            })}
+          </CardContainer>
+          {shouldFetch && (
+            <div className="mv-w-full mv-flex mv-justify-center">
+              <fetcher.Form method="get">
+                <input key="query" type="hidden" name="query" value={query} />
+                <input key="page" type="hidden" name="page" value={page + 1} />
+                <Button
+                  size="large"
+                  variant="outline"
+                  loading={fetcher.state === "submitting"}
+                >
+                  Weitere laden
+                </Button>
+              </fetcher.Form>
+            </div>
+          )}
+        </>
       ) : (
         <p className="text-center text-primary">
           Für Deine Suche konnten leider keine Profile gefunden werden.

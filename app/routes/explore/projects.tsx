@@ -1,12 +1,16 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import {
   filterOrganizationByVisibility,
@@ -14,11 +18,15 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
+import React from "react";
+import { Button } from "@mint-vernetzt/components";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 
-  const { skip, take } = getPaginationValues(request, { itemsPerPage: 6 });
+  const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
+    itemsPerPage: 6,
+  });
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
@@ -86,6 +94,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json(
     {
       projects: enhancedProjects,
+      pagination: {
+        page,
+        itemsPerPage,
+      },
     },
     { headers: response.headers }
   );
@@ -94,13 +106,32 @@ export const loader = async ({ request }: LoaderArgs) => {
 function Projects() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const {
-    items,
-    refCallback,
-  }: {
-    items: typeof loaderData.projects;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(loaderData.projects, "/explore/projects?", "projects");
+  const fetcher = useFetcher();
+  const [searchParams] = useSearchParams();
+  const [items, setItems] = React.useState(loaderData.projects);
+  const [shouldFetch, setShouldFetch] = React.useState(() => {
+    if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
+      return false;
+    }
+    return true;
+  });
+  const [page, setPage] = React.useState(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
+
+  React.useEffect(() => {
+    if (fetcher.data !== undefined && fetcher.data.projects !== undefined) {
+      setItems((items) => [...items, ...fetcher.data.projects]);
+      setPage(fetcher.data.pagination.page);
+      if (fetcher.data.projects.length < fetcher.data.pagination.itemsPerPage) {
+        setShouldFetch(false);
+      }
+    }
+  }, [fetcher.data]);
 
   return (
     <>
@@ -111,10 +142,7 @@ function Projects() {
           MINT-Community werfen.
         </p>
       </section>
-      <section
-        ref={refCallback}
-        className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch"
-      >
+      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
         {items.map((project) => {
           return (
             <div
@@ -232,6 +260,20 @@ function Projects() {
           );
         })}
       </section>
+      {shouldFetch && (
+        <div className="mv-w-full mv-flex mv-justify-center">
+          <fetcher.Form method="get">
+            <input key="page" type="hidden" name="page" value={page + 1} />
+            <Button
+              size="large"
+              variant="outline"
+              loading={fetcher.state === "submitting"}
+            >
+              Weitere laden
+            </Button>
+          </fetcher.Form>
+        </div>
+      )}
     </>
   );
 }

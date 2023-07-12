@@ -1,15 +1,21 @@
+import { Button } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { isSameDay } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
@@ -20,7 +26,14 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  const { skip, take } = getPaginationValues(request);
+  const pastPagination = getPaginationValues(request, {
+    param: "pastPage",
+    itemsPerPage: 6,
+  });
+  const futurePagination = getPaginationValues(request, {
+    param: "futurePage",
+    itemsPerPage: 6,
+  });
 
   const authClient = createAuthClient(request, response);
 
@@ -28,18 +41,30 @@ export const loader = async (args: LoaderArgs) => {
 
   const inFuture = true;
   const futureEvents = await prepareEvents(authClient, sessionUser, inFuture, {
-    skip,
-    take,
+    skip: futurePagination.skip,
+    take: futurePagination.take,
   });
   const pastEvents = await prepareEvents(authClient, sessionUser, !inFuture, {
-    skip,
-    take,
+    skip: pastPagination.skip,
+    take: pastPagination.take,
   });
 
   return json(
     {
-      futureEvents: futureEvents,
-      pastEvents: pastEvents,
+      futureEvents: {
+        events: futureEvents,
+        pagination: {
+          page: futurePagination.page,
+          itemsPerPage: futurePagination.itemsPerPage,
+        },
+      },
+      pastEvents: {
+        events: pastEvents,
+        pagination: {
+          page: pastPagination.page,
+          itemsPerPage: pastPagination.itemsPerPage,
+        },
+      },
       userId: sessionUser?.id || undefined,
     },
     { headers: response.headers }
@@ -49,24 +74,83 @@ export const loader = async (args: LoaderArgs) => {
 function Events() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const {
-    items: futureEvents,
-    refCallback: futureRefCallback,
-  }: {
-    items: typeof loaderData.futureEvents;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(
-    loaderData.futureEvents,
-    "/explore/events?",
-    "futureEvents"
+  const fetcher = useFetcher();
+  const [searchParams] = useSearchParams();
+
+  const [futureEvents, setFutureEvents] = React.useState(
+    loaderData.futureEvents.events
   );
-  const {
-    items: pastEvents,
-    refCallback: pastRefCallback,
-  }: {
-    items: typeof loaderData.pastEvents;
-    refCallback: (node: HTMLDivElement) => void;
-  } = useInfiniteItems(loaderData.pastEvents, "/explore/events?", "pastEvents");
+  const [pastEvents, setPastEvents] = React.useState(
+    loaderData.pastEvents.events
+  );
+  const [shouldFetchFutureEvents, setShouldFetchFutureEvents] = React.useState(
+    () => {
+      if (
+        loaderData.futureEvents.events.length <
+        loaderData.futureEvents.pagination.itemsPerPage
+      ) {
+        return false;
+      }
+      return true;
+    }
+  );
+  const [shouldFetchPastEvents, setShouldFetchPastEvents] = React.useState(
+    () => {
+      if (
+        loaderData.pastEvents.events.length <
+        loaderData.pastEvents.pagination.itemsPerPage
+      ) {
+        return false;
+      }
+      return true;
+    }
+  );
+
+  const [futurePage, setFuturePage] = React.useState(() => {
+    const pageParam = searchParams.get("futurePage");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
+  const [pastPage, setPastPage] = React.useState(() => {
+    const pageParam = searchParams.get("pastPage");
+    if (pageParam !== null) {
+      return parseInt(pageParam);
+    }
+    return 1;
+  });
+
+  React.useEffect(() => {
+    if (fetcher.data !== undefined) {
+      if (fetcher.data.futureEvents !== undefined) {
+        setFutureEvents((events) => [
+          ...events,
+          ...fetcher.data.futureEvents.events,
+        ]);
+        setFuturePage(fetcher.data.futureEvents.pagination.page);
+        if (
+          fetcher.data.futureEvents.events.length <
+          fetcher.data.futureEvents.pagination.itemsPerPage
+        ) {
+          setShouldFetchFutureEvents(false);
+        }
+      }
+      if (fetcher.data.pastEvents !== undefined) {
+        setPastEvents((events) => [
+          ...events,
+          ...fetcher.data.pastEvents.events,
+        ]);
+        setPastPage(fetcher.data.pastEvents.pagination.page);
+        if (
+          fetcher.data.pastEvents.events.length <
+          fetcher.data.pastEvents.pagination.itemsPerPage
+        ) {
+          setShouldFetchPastEvents(false);
+        }
+      }
+    }
+  }, [fetcher.data]);
 
   return (
     <>
@@ -74,10 +158,7 @@ function Events() {
         <H1 like="h0">Entdecke Veranstaltungen</H1>
         <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
-      <section
-        ref={futureRefCallback}
-        className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch"
-      >
+      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {futureEvents.map((event) => {
           const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
           const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -320,12 +401,33 @@ function Events() {
           );
         })}
       </section>
-      ;
+      {shouldFetchFutureEvents && (
+        <div className="mv-w-full mv-flex mv-justify-center">
+          <fetcher.Form method="get">
+            <input
+              key="futurePage"
+              type="hidden"
+              name="futurePage"
+              value={futurePage + 1}
+            />
+            <input
+              key="pastPage"
+              type="hidden"
+              name="pastPage"
+              value={pastPage}
+            />
+            <Button
+              size="large"
+              variant="outline"
+              loading={fetcher.state === "submitting"}
+            >
+              Weitere laden
+            </Button>
+          </fetcher.Form>
+        </div>
+      )}
       {pastEvents.length > 0 ? (
-        <section
-          ref={pastRefCallback}
-          className="container my-8 md:my-10 lg:my-20"
-        >
+        <section className="container my-8 md:my-10 lg:my-20">
           <H1>Vergangene Veranstaltungen</H1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {pastEvents.map((event) => {
@@ -525,6 +627,31 @@ function Events() {
           </div>
         </section>
       ) : null}
+      {shouldFetchPastEvents && (
+        <div className="mv-w-full mv-flex mv-justify-center">
+          <fetcher.Form method="get">
+            <input
+              key="pastPage"
+              type="hidden"
+              name="pastPage"
+              value={pastPage + 1}
+            />
+            <input
+              key="futurePage"
+              type="hidden"
+              name="futurePage"
+              value={futurePage}
+            />
+            <Button
+              size="large"
+              variant="outline"
+              loading={fetcher.state === "submitting"}
+            >
+              Weitere laden
+            </Button>
+          </fetcher.Form>
+        </div>
+      )}
     </>
   );
 }
