@@ -24,9 +24,14 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
-  const rawProfiles = await searchProfilesViaLike(searchQuery, skip, take);
-
   const sessionUser = await getSessionUser(authClient);
+
+  const rawProfiles = await searchProfilesViaLike(
+    searchQuery,
+    sessionUser,
+    skip,
+    take
+  );
 
   const enhancedProfiles = [];
 

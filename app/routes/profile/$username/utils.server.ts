@@ -464,57 +464,65 @@ export async function prepareProfileEvents(
   }
 
   // Get images from image proxy
-  profile.teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
-    let background = relation.event.background;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
-        });
+  enhancedProfile.teamMemberOfEvents = enhancedProfile.teamMemberOfEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
       }
+      return { ...relation, event: { ...relation.event, background } };
     }
-    return { ...relation, event: { ...relation.event, background } };
-  });
+  );
 
-  profile.contributedEvents = profile.contributedEvents.map((relation) => {
-    let background = relation.event.background;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
-        });
+  enhancedProfile.contributedEvents = enhancedProfile.contributedEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
       }
+      return { ...relation, event: { ...relation.event, background } };
     }
-    return { ...relation, event: { ...relation.event, background } };
-  });
+  );
 
-  profile.participatedEvents = profile.participatedEvents.map((relation) => {
-    let background = relation.event.background;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
-        });
+  enhancedProfile.participatedEvents = enhancedProfile.participatedEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
       }
+      return { ...relation, event: { ...relation.event, background } };
     }
-    return { ...relation, event: { ...relation.event, background } };
-  });
+  );
 
-  profile.waitingForEvents = profile.waitingForEvents.map((relation) => {
-    let background = relation.event.background;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
-        });
+  enhancedProfile.waitingForEvents = enhancedProfile.waitingForEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fit", width: 160, height: 160 },
+          });
+        }
       }
+      return { ...relation, event: { ...relation.event, background } };
     }
-    return { ...relation, event: { ...relation.event, background } };
-  });
+  );
 
   const combinedParticipatedAndWaitingForEvents =
     combineEventsSortChronologically<

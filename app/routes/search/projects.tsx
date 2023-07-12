@@ -34,8 +34,14 @@ export const loader = async ({ request }: LoaderArgs) => {
     itemsPerPage: 6,
   });
 
-  const rawProjects = await searchProjectsViaLike(searchQuery, skip, take);
   const sessionUser = await getSessionUser(authClient);
+
+  const rawProjects = await searchProjectsViaLike(
+    searchQuery,
+    sessionUser,
+    skip,
+    take
+  );
 
   const enhancedProjects = [];
 

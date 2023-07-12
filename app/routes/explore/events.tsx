@@ -340,7 +340,8 @@ function Events() {
                     <p>Angemeldet</p>
                   </div>
                 ) : null}
-                {canUserParticipate(event) ? (
+                {canUserParticipate(event) &&
+                loaderData.userId !== undefined ? (
                   <div className="ml-auto">
                     <AddParticipantButton
                       action={`/event/${event.slug}/settings/participants/add-participant`}
@@ -355,7 +356,8 @@ function Events() {
                     <p>Wartend</p>
                   </div>
                 ) : null}
-                {canUserBeAddedToWaitingList(event) ? (
+                {canUserBeAddedToWaitingList(event) &&
+                loaderData.userId !== undefined ? (
                   <div className="ml-auto">
                     <AddToWaitingListButton
                       action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}

@@ -7,9 +7,9 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { useInfiniteItems } from "~/lib/hooks/useInfiniteItems";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -20,7 +20,6 @@ import {
   getQueryValueAsArrayOfWords,
   searchOrganizationsViaLike,
 } from "./utils.server";
-import React from "react";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -29,12 +28,14 @@ export const loader = async ({ request }: LoaderArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
+  const sessionUser = await getSessionUser(authClient);
+
   const rawOrganizations = await searchOrganizationsViaLike(
     searchQuery,
+    sessionUser,
     skip,
     take
   );
-  const sessionUser = await getSessionUser(authClient);
 
   const enhancedOrganizations = [];
 
