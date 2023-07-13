@@ -29,7 +29,7 @@ export const loader = async (args: LoaderArgs) => {
     console.log(sessionUser);
     if (type === "signup") {
       if (sessionUser !== null) {
-        // Create profile visibility settings after successful signup confirmation
+        // Create profile visibility settings after successful signup verification
         if (
           sessionUser.email === undefined ||
           sessionUser.user_metadata.username === undefined ||
@@ -57,7 +57,7 @@ export const loader = async (args: LoaderArgs) => {
         };
         console.log("Before create Profile.");
         const profile = await createProfile(initialProfile);
-        // Default redirect to profile of sessionUser after sign up confirmation
+        // Default redirect to profile of sessionUser after sign up verification
         return redirect(loginRedirect || `/profile/${profile.username}`, {
           headers: response.headers,
         });
@@ -66,7 +66,7 @@ export const loader = async (args: LoaderArgs) => {
           "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
         );
         throw badRequest(
-          "Could not create a session after sign up confirmation."
+          "Could not create a session after sign up verification."
         );
       }
     }
