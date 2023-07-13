@@ -57,7 +57,7 @@ export const loader = async (args: LoaderArgs) => {
 
   if (sessionUser !== null) {
     // Default redirect on logged in user
-    return redirect("/explore/profiles", {
+    return redirect("/dashboard", {
       headers: response.headers,
     });
   }
