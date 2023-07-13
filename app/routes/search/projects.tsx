@@ -140,6 +140,13 @@ export default function SearchView() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    }
+    setItems(loaderData.projects);
+  }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
+
   return (
     <>
       {items.length > 0 ? (

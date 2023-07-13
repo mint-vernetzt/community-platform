@@ -152,6 +152,13 @@ export default function SearchView() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    if (loaderData.organizations.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    }
+    setItems(loaderData.organizations);
+  }, [loaderData.organizations, loaderData.pagination.itemsPerPage]);
+
   const query = searchParams.get("query") ?? "";
 
   return (
