@@ -54,9 +54,9 @@ export const loader = async (args: LoaderArgs) => {
           academicTitle: sessionUser.user_metadata.academicTitle,
           termsAccepted: sessionUser.user_metadata.termsAccepted,
         };
-        const profile = await createProfile(initialProfile);
-        // Default redirect to profile of sessionUser after sign up verification
-        return redirect(loginRedirect || `/profile/${profile.username}`, {
+        await createProfile(initialProfile);
+        // Default redirect to dashboard after sign up verification
+        return redirect(loginRedirect || `/dashboard`, {
           headers: response.headers,
         });
       } else {
