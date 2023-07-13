@@ -64,7 +64,7 @@ export const action: ActionFunction = async (args) => {
   const authClient = createAuthClient(request, response);
 
   const url = new URL(request.url);
-  const siteUrl = url.protocol + "//" + url.host + "/confirmation";
+  const siteUrl = url.protocol + "//" + url.host + "/verification";
 
   const result = await performMutation({
     request,

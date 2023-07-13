@@ -5,7 +5,7 @@ export default function Index() {
   const submit = useSubmit();
   const [urlSearchParams] = useSearchParams();
 
-  // Access point for confirmation links
+  // Verification point for confirmation links
   // Must be called on the client because hash parameters can only be accessed from the client
   React.useEffect(() => {
     const urlHashParams = new URLSearchParams(window.location.hash.slice(1));
@@ -33,7 +33,7 @@ export default function Index() {
                 type: type,
               },
           {
-            action: "/register/confirm",
+            action: "/register/verify",
           }
         );
         return;

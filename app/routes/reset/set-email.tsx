@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async (args) => {
       const profile = await updateProfileByUserId(sessionUser.id, {
         email: sessionUser.email,
       });
-      // Default redirect to profile of sessionUser after sign up confirmation
+      // Default redirect to profile of sessionUser after sign up verification
       return redirect(`/profile/${profile.username}`, {
         headers: response.headers,
       });

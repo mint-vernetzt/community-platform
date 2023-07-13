@@ -64,7 +64,7 @@ export const loader: LoaderFunction = async (args) => {
       refreshToken
     );
     if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
-      // Default redirect to profile of sessionUser after sign up confirmation
+      // Default redirect to profile of sessionUser after sign up verification
       const profile = await getProfileByUserId(sessionUser.id, ["username"]);
       const featureAbilities = await getFeatureAbilities(
         authClient,

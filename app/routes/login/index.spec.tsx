@@ -121,7 +121,7 @@ test("set new session in loader with token params", async () => {
   expect(res).toStrictEqual(redirect("/profile/some-username"));
 });
 
-test("set new session in loader with token params after sign up confirmation", async () => {
+test("set new session in loader with token params after sign up verification", async () => {
   (setSession as jest.Mock).mockImplementationOnce(() => {
     return {
       user: {
