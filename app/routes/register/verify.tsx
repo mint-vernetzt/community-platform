@@ -26,7 +26,6 @@ export const loader = async (args: LoaderArgs) => {
       accessToken,
       refreshToken
     );
-    console.log(sessionUser);
     if (type === "signup") {
       if (sessionUser !== null) {
         // Create profile visibility settings after successful signup verification
@@ -55,7 +54,6 @@ export const loader = async (args: LoaderArgs) => {
           academicTitle: sessionUser.user_metadata.academicTitle,
           termsAccepted: sessionUser.user_metadata.termsAccepted,
         };
-        console.log("Before create Profile.");
         const profile = await createProfile(initialProfile);
         // Default redirect to profile of sessionUser after sign up verification
         return redirect(loginRedirect || `/profile/${profile.username}`, {
