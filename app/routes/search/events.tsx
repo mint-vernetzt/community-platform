@@ -149,6 +149,13 @@ export default function SearchView() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    if (loaderData.events.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    }
+    setItems(loaderData.events);
+  }, [loaderData.events, loaderData.pagination.itemsPerPage]);
+
   const query = searchParams.get("query") ?? "";
 
   return (

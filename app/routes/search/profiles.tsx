@@ -138,6 +138,13 @@ export default function Profiles() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    }
+    setItems(loaderData.profiles);
+  }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
+
   const query = searchParams.get("query") ?? "";
 
   return (
