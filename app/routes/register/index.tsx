@@ -100,8 +100,7 @@ export const action: ActionFunction = async (args) => {
 
   const authClient = createAuthClient(request, response);
 
-  const url = new URL(request.url);
-  const siteUrl = url.protocol + "//" + url.host + "/verification";
+  const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
   const result = await performMutation({
     request,
