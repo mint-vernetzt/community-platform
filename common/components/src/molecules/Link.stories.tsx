@@ -15,6 +15,14 @@ LinkPlayground.args = {
   text: "Link",
   to: "/",
   external: false,
+  active: false,
+  variant: "primary",
+};
+LinkPlayground.argTypes = {
+  variant: {
+    control: "select",
+    options: ["primary", undefined],
+  },
 };
 LinkPlayground.parameters = {
   controls: { disable: false },
