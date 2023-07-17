@@ -1,53 +1,119 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
+import { badRequest } from "remix-utils";
+import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
-// TODO:
-
-// Check if i set http instead of https when calling supabase.signUp() ? Also check other confirmation (email change, password forgotten)
-// Else check which base url is noted on supabase stage server -> http or https
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  // TODO:
-
-  // Generate URL object from request url
+  const url = new URL(request.url);
 
   // Get search param confirmation_link from url
+  const confirmationLink = url.searchParams.get("confirmation_link");
+  if (confirmationLink === null) {
+    throw badRequest("Did not provide a confirmation link search parameter");
+  }
+
+  // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
+  if (
+    !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
+  ) {
+    throw badRequest(
+      "The provided comfirmation link has not the right structure"
+    );
+  }
 
   // Generate URL object from confirmationLink
-
-  // Check if url starts with https://{process.env.SUPABASE_URL}/auth/v1/verify
+  const confirmationLinkUrl = new URL(confirmationLink);
 
   // Get search param redirect_to
+  const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
+  if (redirectTo === null) {
+    throw badRequest("Did not provide a redirect_to search parameter");
+  }
 
-  // Generate URL object from redirectTo
+  // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
+  if (
+    !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
+  ) {
+    throw badRequest("The redirect_to url has not the right structure");
+  }
 
-  // Check if url starts with https://{process.env.BASE_URL}/verification
+  const redirectToUrl = new URL(redirectTo);
+
+  // Get search param login_redirect if any exist
+  const loginRedirect = redirectToUrl.searchParams.get("login_redirect");
 
   // Get search param token
+  let token;
+  if (process.env.NODE_ENV === "production") {
+    token = confirmationLinkUrl.searchParams.get("token");
+  } else {
+    token = url.searchParams.get("token");
+  }
 
-  // Check if token is a hex value
+  if (token === null) {
+    throw badRequest("Did not provide a token search parameter");
+  }
+
+  // Check if token is a hex value (only on production environment)
+  if (process.env.NODE_ENV === "production") {
+    const isHex = /^[0-9A-Fa-f]+$/g.test(token);
+    if (!isHex) {
+      console.log("The token parameter is not a hex value");
+      throw badRequest("The token parameter is not a hex value");
+    }
+  }
 
   // Get search param type
+  let type;
+  if (process.env.NODE_ENV === "production") {
+    type = confirmationLinkUrl.searchParams.get("type");
+  } else {
+    type = url.searchParams.get("type");
+  }
+  if (type === null) {
+    throw badRequest("Did not provide a type search parameter");
+  }
 
   // Check if type === "signup"
+  if (type !== "signup") {
+    throw badRequest("The type parameter is not of type signup");
+  }
 
-  // Build new URL -> https://{process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=https://{process.env.BASE_URL}/verification&token={token}&type=signup
+  // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=signup
+  const sanitizedConfirmationLink = `${
+    process.env.SUPABASE_URL
+  }/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification${
+    loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+  }&token=${token}&type=signup`;
 
-  // Send url to frontend and implement it inside <a> component
-
-  return json(null, { headers: response.headers });
+  return json(
+    {
+      confirmationLink: sanitizedConfirmationLink,
+    },
+    { headers: response.headers }
+  );
 };
 
 export default function Confirm() {
+  const loaderData = useLoaderData<typeof loader>();
+
   return (
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
+        <div className="flex flex-row -mx-4 justify-end">
+          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+            <div>
+              <HeaderLogo />
+            </div>
+            <div className="ml-auto"></div>
+          </div>
+        </div>
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
@@ -59,12 +125,9 @@ export default function Confirm() {
                 Deines Profils auf der MINTvernetzt-Plattform über den folgenden
                 Link:
               </p>
-              <Link
-                to={""} // TODO: Confirmation link
-                className="text-primary font-bold hover:underline" // TODO: Button styling
-              >
+              <a href={loaderData.confirmationLink} className="btn btn-primary">
                 Registrierung bestätigen
-              </Link>
+              </a>
             </>
           </div>
         </div>
