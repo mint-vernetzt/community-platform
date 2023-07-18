@@ -5,6 +5,17 @@ import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
+// TODO:
+
+// How to build the confirmation url to test this functionality on dev?
+
+// 1. Register
+// 2. Copy the link from the received inbucket mail
+// 3. Add this as prefix: localhost:3000/register/confirm?confirmation_link=
+// 4. ...
+
+// Valid path check on login_redirect parameter via RegEx
+
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
@@ -48,13 +59,7 @@ export const loader = async (args: LoaderArgs) => {
   const loginRedirect = redirectToUrl.searchParams.get("login_redirect");
 
   // Get search param token
-  let token;
-  if (process.env.NODE_ENV === "production") {
-    token = confirmationLinkUrl.searchParams.get("token");
-  } else {
-    token = url.searchParams.get("token");
-  }
-
+  const token = confirmationLinkUrl.searchParams.get("token");
   if (token === null) {
     throw badRequest("Did not provide a token search parameter");
   }
@@ -69,12 +74,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   // Get search param type
-  let type;
-  if (process.env.NODE_ENV === "production") {
-    type = confirmationLinkUrl.searchParams.get("type");
-  } else {
-    type = url.searchParams.get("type");
-  }
+  const type = confirmationLinkUrl.searchParams.get("type");
   if (type === null) {
     throw badRequest("Did not provide a type search parameter");
   }
