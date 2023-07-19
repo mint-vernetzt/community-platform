@@ -54,6 +54,10 @@ module.exports = {
         ...defaultTheme.spacing,
       },
     },
+    container: {
+      center: true,
+      padding: "1rem",
+    },
   },
   safelist,
   daisyui: {
