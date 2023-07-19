@@ -5,19 +5,18 @@ import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
-// TODO:
-
 // How to build the confirmation url to test this functionality on dev?
 
 // 1. Register
 // 2. Copy the link from the received inbucket mail
-// 3. Add this as prefix: localhost:3000/register/confirm?confirmation_link=
-// 4. ...
-
-// Valid path check on login_redirect parameter via RegEx
+// 3. Encode the link on https://www.url-encode-decode.com/
+// 4. Add this as prefix: localhost:3000/register/confirm?confirmation_link=<ENCODED CONFIRMATION LINK>
+// 5. Now we have the link structure that we also receive on the server
+// 6. Paste the whole link in the browser and visit it
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
+
   const response = new Response();
 
   const url = new URL(request.url);
@@ -57,6 +56,12 @@ export const loader = async (args: LoaderArgs) => {
 
   // Get search param login_redirect if any exist
   const loginRedirect = redirectToUrl.searchParams.get("login_redirect");
+  if (loginRedirect !== null) {
+    const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
+    if (!isValidPath) {
+      throw badRequest("The login_redirect path has not the right structure");
+    }
+  }
 
   // Get search param token
   const token = confirmationLinkUrl.searchParams.get("token");
