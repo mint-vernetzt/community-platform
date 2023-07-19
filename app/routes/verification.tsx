@@ -72,6 +72,8 @@ export default function Index() {
         `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
       );
       return;
+    } else {
+      submit(null, { action: "/login" });
     }
   }, [submit, urlSearchParams]);
 

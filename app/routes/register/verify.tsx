@@ -1,15 +1,18 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
-import { createAuthClient, setSession } from "~/auth.server";
+import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    return redirect("/dashboard", { headers: response.headers });
+  }
 
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);

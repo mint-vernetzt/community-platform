@@ -1,9 +1,10 @@
 import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -18,6 +19,11 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    return redirect("/dashboard", { headers: response.headers });
+  }
 
   const url = new URL(request.url);
 

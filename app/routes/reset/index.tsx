@@ -1,5 +1,5 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
@@ -7,7 +7,11 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { createAuthClient, sendResetPasswordLink } from "../../auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  sendResetPasswordLink,
+} from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
@@ -28,8 +32,13 @@ const environmentSchema = z.object({
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
 
-  createAuthClient(request, response);
+  console.log(sessionUser);
+  if (sessionUser !== null) {
+    return redirect("/dashboard", { headers: response.headers });
+  }
 
   return response;
 };
