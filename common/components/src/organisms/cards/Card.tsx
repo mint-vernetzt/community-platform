@@ -66,31 +66,82 @@ export function CardHeader(props: CardHeaderProps) {
   const avatar = validChildren.find((child) => {
     return (child as React.ReactElement).type === Avatar;
   });
+
+  const info = validChildren.find((child) => {
+    return React.isValidElement(child) && child.type === CardInfo;
+  });
+
+  const infoOverlay = validChildren.find((child) => {
+    return React.isValidElement(child) && child.type === CardInfoOverlay;
+  });
+
   return (
-    <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
-      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
-        {image || null}
+    <>
+      <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
+        {image !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {image}
+          </div>
+        )}
+        {status !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {status}
+          </div>
+        )}
+        {avatar !== undefined && (
+          <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
+            {avatar}
+          </div>
+        )}
+        {infoOverlay !== undefined && infoOverlay}
       </div>
-      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
-        {status || null}
-      </div>
-      <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
-        {avatar || null}
-      </div>
+      {info !== undefined && info}
+    </>
+  );
+}
+
+export type CardInfoOverlayProps = {
+  children?: React.ReactNode;
+};
+
+export function CardInfoOverlay(props: CardInfoOverlayProps) {
+  return (
+    <div className="mv-absolute mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-top-24 mv-px-3 mv-pt-4">
+      {props.children}
+    </div>
+  );
+}
+
+export type CardInfoProps = {
+  children?: React.ReactNode;
+};
+
+export function CardInfo(props: CardInfoProps) {
+  return (
+    <div className="mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-px-4 mv-pt-3">
+      {props.children}
     </div>
   );
 }
 
 export type CardStatusProps = {
   children?: React.ReactNode;
+  variant?: "primary" | "neutral" | "positive" | "negative";
+  inverted?: boolean;
 };
 
 export function CardStatus(props: CardStatusProps) {
-  return (
-    <div className="mv-text-center mv-text-primary mv-bg-primary-100 mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold">
-      {props.children}
-    </div>
+  const { variant = "primary", inverted = false } = props;
+  const classes = classNames(
+    "mv-text-center mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold",
+    variant === "primary" && !inverted && "mv-text-primary mv-bg-primary-100",
+    variant === "primary" && inverted && "mv-text-white mv-bg-primary-300",
+    variant === "neutral" && "mv-text-white mv-bg-neutral",
+    variant === "positive" && "mv-text-white mv-bg-positive",
+    variant === "negative" && "mv-text-white mv-bg-negative"
   );
+
+  return <div className={classes}>{props.children}</div>;
 }
 
 export function CardImage(props: { src: string }) {
@@ -108,7 +159,7 @@ export type CardBodyProps = {
 };
 
 export function CardBody(props: CardBodyProps) {
-  return <div className="mv-mt-[30px] mv-p-4">{props.children}</div>;
+  return <div className="mv-p-4">{props.children}</div>;
 }
 
 export type CardBodySectionProps = {
