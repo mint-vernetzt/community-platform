@@ -1,6 +1,6 @@
 import React from "react";
 import Chip, { ChipContainer } from "../../molecules/Chip";
-import Avatar from "../../molecules/Avatar";
+import Avatar, { AvatarList } from "../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -82,21 +82,24 @@ function OrganizationCard(
           )}
         </CardBodySection>
       </CardBody>
-      <CardFooter
-        moreIndicatorProps={{
-          to: `/organization/${organization.slug}/#team-members`,
-        }}
-      >
-        {organization.teamMembers.map((profile) => {
-          return (
-            <Avatar
-              key={profile.username}
-              {...profile}
-              size="sm"
-              to={`/profile/${profile.username}`}
-            />
-          );
-        })}
+      <CardFooter>
+        <AvatarList
+          visibleAvatars={2}
+          moreIndicatorProps={{
+            to: `/organization/${organization.slug}/#team-members`,
+          }}
+        >
+          {organization.teamMembers.map((profile) => {
+            return (
+              <Avatar
+                key={profile.username}
+                {...profile}
+                size="sm"
+                to={`/profile/${profile.username}`}
+              />
+            );
+          })}
+        </AvatarList>
       </CardFooter>
     </Card>
   );

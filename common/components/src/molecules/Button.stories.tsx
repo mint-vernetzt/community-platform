@@ -124,7 +124,7 @@ Default.args = {
 Default.argTypes = {
   size: {
     control: "select",
-    options: ["small", "medium", "large"],
+    options: ["x-small", "small", "medium", "large"],
   },
   level: {
     control: "select",
@@ -160,7 +160,7 @@ Outline.args = {
 Outline.argTypes = {
   size: {
     control: "select",
-    options: ["small", "medium", "large"],
+    options: ["x-small", "small", "medium", "large"],
   },
   loading: {
     control: "boolean",
@@ -195,7 +195,7 @@ Ghost.args = {
 Ghost.argTypes = {
   size: {
     control: "select",
-    options: ["small", "medium", "large"],
+    options: ["x-small", "small", "medium", "large"],
   },
   loading: {
     control: "boolean",
@@ -222,7 +222,7 @@ ButtonPlayground.args = {
 ButtonPlayground.argTypes = {
   size: {
     control: "select",
-    options: ["small", "medium", "large"],
+    options: ["x-small", "small", "medium", "large"],
   },
   variant: {
     control: "select",
