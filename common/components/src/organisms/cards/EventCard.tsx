@@ -124,16 +124,40 @@ function EventCard(
           <CardStatus variant="positive">Veröffentlicht</CardStatus>
         )}
         <CardInfoOverlay>
-          {event._count.childEvents === 0 ? (
-            <span className="mv-text-sm mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-full mv-bg-primary">
+          {event._count.childEvents === 0 &&
+          event.startTime.getDate() === event.endTime.getDate() &&
+          event.startTime.getMonth() === event.endTime.getMonth() &&
+          event.startTime.getFullYear() === event.endTime.getFullYear() ? (
+            <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
               {timeDuration}
             </span>
           ) : (
             <span></span>
           )}
+          {event._count.childEvents === 0 &&
+            typeof event.participantLimit !== "number" && (
+              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+                Unbegrenzte Plätze
+              </span>
+            )}
+          {event._count.childEvents === 0 &&
+            typeof event.participantLimit === "number" &&
+            event.participantLimit - event._count.participants > 0 && (
+              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+                {event.participantLimit - event._count.participants} /{" "}
+                {event.participantLimit} Plätze frei
+              </span>
+            )}
+          {event._count.childEvents === 0 &&
+            typeof event.participantLimit === "number" &&
+            event.participantLimit - event._count.participants <= 0 && (
+              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+                {event._count.waitingList} Wartelistenplätze
+              </span>
+            )}
         </CardInfoOverlay>
         <CardInfo>
-          <span className="mv-inline-block mv-text-sm mv-font-semibold">
+          <span className="mv-inline-block mv-text-sm mv-font-semibold mv-truncate">
             {dateDuration}
           </span>
           <span className="mv-flex mv-items-center mv-text-sm mv-font-semibold">

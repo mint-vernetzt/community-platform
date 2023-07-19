@@ -93,7 +93,12 @@ export function CardHeader(props: CardHeaderProps) {
             {avatar}
           </div>
         )}
-        {infoOverlay !== undefined && infoOverlay}
+
+        {infoOverlay !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {infoOverlay}
+          </div>
+        )}
       </div>
       {info !== undefined && info}
     </>
@@ -106,7 +111,7 @@ export type CardInfoOverlayProps = {
 
 export function CardInfoOverlay(props: CardInfoOverlayProps) {
   return (
-    <div className="mv-absolute mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-top-24 mv-px-3 mv-pt-4">
+    <div className="mv-w-full mv-h-full mv-flex mv-justify-between mv-items-end mv-align-bottom mv-flex-nowrap mv-top-28 mv-px-3 mv-py-4">
       {props.children}
     </div>
   );

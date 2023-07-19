@@ -68,7 +68,7 @@ export function getDateDuration(startTime: Date, endTime: Date) {
     })} – ${formattedEndDate}`;
   } else {
     // 01. Jan 2022 - 02. Feb 2023
-    duration = `${formattedStartDate} – ${formattedEndDate}`;
+    duration = `${formattedStartDate} - ${formattedEndDate}`;
   }
   return duration;
 }
