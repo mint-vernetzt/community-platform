@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import React, { Children } from "react";
 import type { MoreIndicatorProps } from "../../molecules/Avatar";
 import Avatar, { MoreIndicator } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
@@ -123,7 +123,7 @@ export type CardInfoProps = {
 
 export function CardInfo(props: CardInfoProps) {
   return (
-    <div className="mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-px-4 mv-pt-3">
+    <div className="mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-gap-1 mv-px-4 mv-pt-3">
       {props.children}
     </div>
   );
@@ -213,48 +213,14 @@ export function CardBodySection(props: CardBodySectionProps) {
 
 export type CardFooterProps = {
   children?: React.ReactNode;
-  alignment?: "left" | "center";
-  numberOfAvatars?: number;
-  moreIndicatorProps?: Partial<MoreIndicatorProps>;
 };
 
-function wrapCardFooterChildren(children: React.ReactNode) {
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
-  });
-
-  if (validChildren.length === 0) {
-    return <div className="mv-h-[36px]"></div>;
-  }
-
-  return React.Children.map(validChildren, (child) => {
-    return <div>{child}</div>;
-  });
-}
-
 export function CardFooter(props: CardFooterProps) {
-  const { numberOfAvatars = 2 } = props;
-
-  const avatars = React.Children.toArray(props.children).filter((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
-  });
-
   return (
     <div className="mv-p-4 mv-pt-0 mv-mt-auto">
       <hr className="mv-h-0 mv-border-t mv-border-neutral-200 mv-m-0 mv-mb-4" />
-      <div
-        className={classNames(
-          "mv-flex mv-gap-2",
-          props.alignment === "center" && "mv-justify-center"
-        )}
-      >
-        {wrapCardFooterChildren(avatars.slice(0, numberOfAvatars))}
-        {avatars.length > numberOfAvatars && (
-          <MoreIndicator
-            {...props.moreIndicatorProps}
-            amount={avatars.length - numberOfAvatars}
-          />
-        )}
+      <div className="mv-flex mv-justify-between mv-items-center">
+        {props.children}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
-import Chip from "../../molecules/Chip";
-import Avatar from "../../molecules/Avatar";
+import React from "react";
+import Avatar, { AvatarList } from "../../molecules/Avatar";
+import Button from "../../molecules/Button";
 import { getDateDuration, getTimeDuration } from "../../utils";
 import {
   Card,
@@ -31,7 +32,6 @@ export type EventCardProps = {
     _count: {
       participants: number;
       waitingList: number;
-      responsibleOrganizations: number;
       childEvents: number;
     };
     responsibleOrganizations: {
@@ -44,6 +44,8 @@ export type EventCardProps = {
     isSpeaker: boolean;
     isTeamMember: boolean;
   };
+  participateControl?: React.ReactElement;
+  waitingListControl?: React.ReactElement;
 };
 
 function IconOnSite() {
@@ -85,7 +87,7 @@ function IconHybrid() {
   return (
     <>
       <IconOnSite />
-      <span className="mx-1">/</span>
+      <span className="mv-mx-1">/</span>
       <IconOnline />
     </>
   );
@@ -195,7 +197,7 @@ function EventCard(
             </div>
             <div className="mv-h-9">
               {(event.subline || event.description) && (
-                <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-2">
+                <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-2 mv-px">
                   {event.subline || event.description}
                 </p>
               )}
@@ -203,21 +205,77 @@ function EventCard(
           </div>
         }
       </CardBody>
-      <CardFooter
-        moreIndicatorProps={{
-          to: `/event/${event.slug}/#responsible-organizations`,
-        }}
-      >
-        {event.responsibleOrganizations.map((organization) => {
-          return (
-            <Avatar
-              key={organization.slug}
-              {...organization}
-              size="sm"
-              to={`/organization/${organization.slug}`}
-            />
-          );
-        })}
+      <CardFooter>
+        <AvatarList
+          visibleAvatars={2}
+          moreIndicatorProps={{
+            to: `/event/${event.slug}/#responsible-organizations`,
+          }}
+        >
+          {event.responsibleOrganizations.map((organization) => {
+            return (
+              <Avatar
+                key={organization.slug}
+                {...organization}
+                size="sm"
+                to={`/organization/${organization.slug}`}
+              />
+            );
+          })}
+        </AvatarList>
+        {!props.publicAccess &&
+          props.participateControl !== undefined &&
+          event._count.childEvents === 0 &&
+          event.published &&
+          !event.canceled &&
+          event.participationUntil.getTime() > Date.now() &&
+          !event.isTeamMember &&
+          !event.isSpeaker &&
+          !event.isOnWaitingList &&
+          !event.isParticipant &&
+          (typeof event.participantLimit !== "number" ||
+            (typeof event.participantLimit === "number" &&
+              event.participantLimit - event._count.participants > 0)) &&
+          props.participateControl}
+        {!props.publicAccess &&
+          props.waitingListControl !== undefined &&
+          event._count.childEvents === 0 &&
+          event.published &&
+          !event.canceled &&
+          event.participationUntil.getTime() > Date.now() &&
+          !event.isTeamMember &&
+          !event.isSpeaker &&
+          !event.isOnWaitingList &&
+          !event.isParticipant &&
+          typeof event.participantLimit === "number" &&
+          event.participantLimit - event._count.participants <= 0 && (
+            <Button
+              as="a"
+              size="x-small"
+              href={`/?login_redirect=/event/${event.slug}`}
+            >
+              Warteliste
+            </Button>
+          )}
+        {!props.publicAccess &&
+          event._count.childEvents === 0 &&
+          event.published &&
+          !event.canceled &&
+          event.isParticipant && (
+            <span className="mv-text-xs mv-font-bold mv-text-positive">
+              Angemeldet
+            </span>
+          )}
+        {!props.publicAccess &&
+          event._count.childEvents === 0 &&
+          event.published &&
+          !event.canceled &&
+          event.participationUntil.getTime() > Date.now() &&
+          event.isOnWaitingList && (
+            <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
+              Auf Warteliste
+            </span>
+          )}
       </CardFooter>
     </Card>
   );

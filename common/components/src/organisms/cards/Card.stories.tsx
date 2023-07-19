@@ -240,48 +240,79 @@ export function Organization() {
 }
 Organization.storyName = "organization";
 
-export function Event() {
+type EventStoryProps = {
+  publicAccess: true;
+  isTeamMember: false;
+  isSpeaker: false;
+  isParticipant: false;
+  isOnWaitingList: false;
+};
+
+export function EventStory(props: EventStoryProps) {
+  const { publicAccess, ...otherProps } = props;
   const now = new Date();
 
+  if (publicAccess) {
+    otherProps.isOnWaitingList = false;
+    otherProps.isParticipant = false;
+    otherProps.isTeamMember = false;
+    otherProps.isSpeaker = false;
+  }
   return (
     <>
       <div className="mv-flex mv-gap-8 mv-flex-wrap">
-        <div className="mv-w-[253px]">
-          <EventCard
-            event={{
-              name: "-",
-              slug: "-",
-              startTime: new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate() + 10,
-                11,
-                0,
-                0
-              ),
-              endTime: new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate() + 10,
-                11,
-                0,
-                0
-              ),
-              published: false,
-              canceled: false,
-              responsibleOrganizations: [],
-              _count: {
-                childEvents: 0,
-                participants: 100,
-                waitingList: 0,
-              },
-              isTeamMember: true,
-            }}
-          />
+        <div className="mv-w-[267px]">
+          {!publicAccess && (props.isSpeaker || props.isTeamMember) && (
+            <EventCard
+              publicAccess={publicAccess}
+              participateControl={<Button size="x-small">Anmelden</Button>}
+              waitingListControl={<Button size="x-small">Warteliste</Button>}
+              event={{
+                name: "-",
+                slug: "-",
+                startTime: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                endTime: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                participationUntil: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                published: false,
+                canceled: false,
+                responsibleOrganizations: [],
+                _count: {
+                  childEvents: 0,
+                  participants: 100,
+                  waitingList: 0,
+                },
+                ...otherProps,
+              }}
+            />
+          )}
         </div>
 
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
+            publicAccess={publicAccess}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "-",
               slug: "-",
@@ -294,6 +325,14 @@ export function Event() {
                 0
               ),
               endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
                 now.getFullYear(),
                 now.getMonth(),
                 now.getDate() + 10,
@@ -319,13 +358,15 @@ export function Event() {
                 participants: 100,
                 waitingList: 0,
               },
-              isTeamMember: true,
+              ...otherProps,
             }}
           />
         </div>
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
             publicAccess={true}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -342,6 +383,14 @@ export function Event() {
                 now.getMonth(),
                 now.getDate() + 10,
                 12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
                 0,
                 0
               ),
@@ -368,12 +417,15 @@ export function Event() {
                 participants: 100,
                 waitingList: 0,
               },
+              ...otherProps,
             }}
           />
         </div>
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
             publicAccess={true}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -393,6 +445,14 @@ export function Event() {
                 now.getMonth(),
                 now.getDate() + 10,
                 12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
                 0,
                 0
               ),
@@ -423,12 +483,16 @@ export function Event() {
                 participants: 100,
                 waitingList: 0,
               },
+              ...otherProps,
             }}
           />
         </div>
 
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
+            publicAccess={publicAccess}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -449,6 +513,14 @@ export function Event() {
                 now.getMonth() + 1,
                 13,
                 12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                12,
+                11,
                 0,
                 0
               ),
@@ -484,11 +556,15 @@ export function Event() {
                 participants: 0,
                 waitingList: 0,
               },
+              ...otherProps,
             }}
           />
         </div>
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
+            publicAccess={publicAccess}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -509,6 +585,14 @@ export function Event() {
                 now.getMonth() + 2,
                 1,
                 12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                29,
+                8,
                 0,
                 0
               ),
@@ -545,11 +629,15 @@ export function Event() {
                 participants: 100,
                 waitingList: 0,
               },
+              ...otherProps,
             }}
           />
         </div>
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
+            publicAccess={publicAccess}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -570,6 +658,14 @@ export function Event() {
                 now.getMonth(),
                 now.getDate() - 10,
                 12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                8,
                 0,
                 0
               ),
@@ -606,11 +702,15 @@ export function Event() {
                 participants: 0,
                 waitingList: 10,
               },
+              ...otherProps,
             }}
           />
         </div>
-        <div className="mv-w-[253px]">
+        <div className="mv-w-[267px]">
           <EventCard
+            publicAccess={publicAccess}
+            participateControl={<Button size="x-small">Anmelden</Button>}
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
               slug: "workshopklassismuskritischhandeln",
@@ -627,6 +727,14 @@ export function Event() {
                 0
               ),
               endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
                 now.getFullYear(),
                 now.getMonth(),
                 now.getDate() - 10,
@@ -667,6 +775,7 @@ export function Event() {
                 participants: 0,
                 waitingList: 10,
               },
+              ...otherProps,
             }}
           />
         </div>
@@ -674,7 +783,17 @@ export function Event() {
     </>
   );
 }
-Event.storyName = "event";
+EventStory.storyName = "event";
+EventStory.args = {
+  publicAccess: true,
+  isTeamMember: false,
+  isSpeaker: false,
+  isParticipant: false,
+  isOnWaitingList: false,
+};
+EventStory.parameters = {
+  controls: { disable: false },
+};
 
 export default {
   title: "Organism/Cards",
