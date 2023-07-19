@@ -1198,7 +1198,12 @@ function Index() {
             ) : null}
             {loaderData.event.responsibleOrganizations.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">Veranstaltet von</h3>
+                <h3
+                  id="responsible-organizations"
+                  className="mt-16 mb-8 font-bold"
+                >
+                  Veranstaltet von
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
                     return (
