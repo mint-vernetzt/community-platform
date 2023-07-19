@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 // import { createServerClient } from "@supabase/auth-helpers-remix";
-import { getSessionUser, setSession, signIn } from "~/auth.server";
+import { getSessionUser, signIn } from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma";
 import { action, loader } from "./index";
@@ -30,9 +30,6 @@ jest.mock("~/auth.server", () => {
 });
 
 const url = testURL;
-const urlWithLoginRedirect = `${testURL}/?login_redirect=${testURL}/event/some-event-slug`;
-const urlWithTokens = `${testURL}/?access_token=abcde&refresh_token=fghij`;
-const urlWithTokensAfterEmailChange = `${testURL}/?access_token=abcde&refresh_token=fghij&type=sign_up`;
 
 const actionRequest = createRequestWithFormData({
   email: "some@email.de",
@@ -69,80 +66,7 @@ test("redirect on existing session", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
-});
-
-test("redirect on existing session with login redirect param", async () => {
-  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-    return {
-      id: "some-user-id",
-      email: "user@user.de",
-    };
-  });
-
-  const res = await loader({
-    request: new Request(urlWithLoginRedirect),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual(redirect(`${testURL}/event/some-event-slug`));
-});
-
-test("set new session in loader with token params", async () => {
-  (setSession as jest.Mock).mockImplementationOnce(() => {
-    return {
-      user: {
-        id: "some-user-id",
-        email: "user@user.de",
-      },
-    };
-  });
-
-  (getSessionUser as jest.Mock).mockImplementationOnce(() => {
-    return {
-      id: "some-user-id",
-      email: "user@user.de",
-    };
-  });
-
-  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
-    return {
-      username: "some-username",
-    };
-  });
-
-  const res = await loader({
-    request: new Request(urlWithTokens),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
-});
-
-test("set new session in loader with token params after sign up verification", async () => {
-  (setSession as jest.Mock).mockImplementationOnce(() => {
-    return {
-      user: {
-        id: "some-user-id",
-      },
-    };
-  });
-
-  (prismaClient.profile.findUnique as jest.Mock).mockImplementationOnce(() => {
-    return {
-      username: "some-username",
-    };
-  });
-
-  const res = await loader({
-    request: new Request(urlWithTokensAfterEmailChange),
-    params: {},
-    context: {},
-  });
-
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
+  expect(res).toStrictEqual(redirect("/dashboard"));
 });
 
 test("call login action success with login redirect param", async () => {
@@ -185,7 +109,7 @@ test("call login action success with default redirect", async () => {
     context: {},
   });
 
-  expect(res).toStrictEqual(redirect("/profile/some-username"));
+  expect(res).toStrictEqual(redirect("/dashboard"));
 });
 
 test("call login action with wrong credentials", async () => {
