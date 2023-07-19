@@ -52,7 +52,7 @@ function OrganizationCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="mv-min-h-[80px]">
+          <div className="mv-mt-[30px] mv-min-h-[80px]">
             <div className="mv-max-h-10 mv-overflow-hidden">
               <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden">
                 {organization.name}
