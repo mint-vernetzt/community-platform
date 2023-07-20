@@ -199,6 +199,8 @@ export function checkLocalEnvironment() {
     );
   }
   // TODO: What defines to be in a local/production environment? Is it "localhost:" for everyone?
+  //
+  // Maybe we use the process.env.NODE_ENV (see prisma.ts)
   if (!databaseUrl.includes("localhost:")) {
     throw new Error(
       "You are not seeding the database on a local environment. All data will be dropped when you seed the database with this script. If you intended to run this script on a production environment please use the --force flag."

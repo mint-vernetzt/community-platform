@@ -135,8 +135,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   let result = null;
   if (submittedForm === "changeEmail") {
-    const url = new URL(request.url);
-    const siteUrl = `${url.protocol}//${url.host}/confirmation`;
+    const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
     result = await performMutation({
       request,
       schema: emailSchema,

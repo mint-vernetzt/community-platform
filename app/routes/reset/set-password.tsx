@@ -8,12 +8,14 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
+  getSessionUser,
   setSession,
   updatePassword,
 } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { badRequest } from "remix-utils";
 
 const schema = z.object({
   password: z
@@ -45,8 +47,21 @@ const environmentSchema = z.object({
 export const loader: LoaderFunction = async (args) => {
   const { request } = args;
   const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    return redirect("/dashboard", { headers: response.headers });
+  }
 
-  createAuthClient(request, response);
+  const url = new URL(request.url);
+  const accessToken = url.searchParams.get("access_token");
+  const refreshToken = url.searchParams.get("refresh_token");
+
+  if (accessToken === null || refreshToken === null) {
+    throw badRequest(
+      "Did not provide access or refresh token to reset the password."
+    );
+  }
 
   return response;
 };
