@@ -95,6 +95,7 @@ type AddToWaitingListButtonProps = {
 };
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
+  const { buttonProps = {} } = props;
   const fetcher = useFetcher();
   return (
     <Form
@@ -115,7 +116,7 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
             <Field name="userId" />
             <Field name="eventId" />
             <Field name="id" />
-            <button className="btn btn-primary" type="submit">
+            <button type="submit" className="mv-btn mv-btn-primary">
               Warteliste
             </button>
             <Errors />

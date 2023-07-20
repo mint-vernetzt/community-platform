@@ -28,7 +28,7 @@ export type EventCardProps = {
     canceled: boolean;
     background?: string | null;
     participantLimit?: number | null;
-    stage?: { slug: "on-site" | "online" | "hybrid"; title: string } | null;
+    stage?: { title: string; slug: string } | null;
     _count: {
       participants: number;
       waitingList: number;
@@ -248,15 +248,8 @@ function EventCard(
           !event.isOnWaitingList &&
           !event.isParticipant &&
           typeof event.participantLimit === "number" &&
-          event.participantLimit - event._count.participants <= 0 && (
-            <Button
-              as="a"
-              size="x-small"
-              href={`/?login_redirect=/event/${event.slug}`}
-            >
-              Warteliste
-            </Button>
-          )}
+          event.participantLimit - event._count.participants <= 0 &&
+          props.waitingListControl}
         {!props.publicAccess &&
           event._count.childEvents === 0 &&
           event.published &&

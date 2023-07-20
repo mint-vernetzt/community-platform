@@ -354,6 +354,7 @@ export async function getEvents(
       stage: {
         select: {
           title: true,
+          slug: true,
         },
       },
       canceled: true,

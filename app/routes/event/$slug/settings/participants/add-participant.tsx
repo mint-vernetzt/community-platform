@@ -115,9 +115,12 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
             <Field name="userId" />
             <Field name="eventId" />
             <Field name="id" />
-            <button className="btn btn-primary" type="submit">
+            <button className="mv-btn mv-btn-primary" type="submit">
               Teilnehmen
             </button>
+            {/* <Button type="submit" {...buttonProps}>
+              Teilnehmen
+            </Button> */}
             <Errors />
           </>
         );

@@ -265,7 +265,11 @@ export function EventStory(props: EventStoryProps) {
           {!publicAccess && (props.isSpeaker || props.isTeamMember) && (
             <EventCard
               publicAccess={publicAccess}
-              participateControl={<Button size="x-small">Anmelden</Button>}
+              participateControl={
+                <Button type="submit" size="x-small">
+                  Anmelden
+                </Button>
+              }
               waitingListControl={<Button size="x-small">Warteliste</Button>}
               event={{
                 name: "-",
@@ -311,7 +315,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={publicAccess}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "-",
@@ -364,8 +372,12 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            publicAccess={true}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
@@ -424,7 +436,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={true}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
@@ -491,7 +507,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={publicAccess}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
@@ -563,7 +583,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={publicAccess}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
@@ -636,7 +660,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={publicAccess}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",
@@ -709,7 +737,11 @@ export function EventStory(props: EventStoryProps) {
         <div className="mv-w-[267px]">
           <EventCard
             publicAccess={publicAccess}
-            participateControl={<Button size="x-small">Anmelden</Button>}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
             waitingListControl={<Button size="x-small">Warteliste</Button>}
             event={{
               name: "Workshop: Klassismuskritisch handeln",

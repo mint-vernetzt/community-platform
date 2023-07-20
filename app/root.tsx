@@ -36,8 +36,8 @@ export const meta: MetaFunction = () => {
 };
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: newStyles },
   { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: newStyles },
 ];
 
 export type RootRouteData = {
