@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma";
+import { createClient } from "@supabase/supabase-js";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
@@ -39,6 +40,29 @@ export const createAuthClient = (request: Request, response: Response) => {
         "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
     });
   }
+};
+
+export const createAdminAuthClient = () => {
+  if (
+    process.env.SUPABASE_URL !== undefined &&
+    process.env.SERVICE_ROLE_KEY !== undefined
+  ) {
+    const adminAuthClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+    return adminAuthClient;
+  }
+  throw serverError({
+    message:
+      "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
+  });
 };
 
 export const signUp = async (
