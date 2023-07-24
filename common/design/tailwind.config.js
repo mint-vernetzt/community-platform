@@ -46,9 +46,17 @@ module.exports = {
         "7xl": "3rem", // 48px
         "8xl": "4.5rem", // 72px
       },
+      gap: {
+        ...defaultTheme.gap,
+        18: "4.5rem", // 72px
+      },
       spacing: {
         ...defaultTheme.spacing,
       },
+    },
+    container: {
+      center: true,
+      padding: "1rem",
     },
   },
   safelist,

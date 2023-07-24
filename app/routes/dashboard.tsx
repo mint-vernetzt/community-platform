@@ -220,76 +220,74 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
 
   return (
-    <div className="relative pb-4 sm:pb-8 md:pb-16 lg:pb-20">
-      <main>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          <div className="mv-mx-4">
-            <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-              Willkommen,
-              <br />
-              {loaderData.firstName} {loaderData.lastName}
-            </h1>
-            <p className="mv-font-semibold mv-mb-6">
-              in Deiner MINTvernetzt-Community!
-            </p>
-            <p>
-              <Button
-                variant="outline"
-                as="a"
-                href={`/profile/${loaderData.username}`}
-              >
-                Mein Profil besuchen
-              </Button>
-            </p>
+    <>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-mx-4">
+          <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
+            Willkommen,
+            <br />
+            {loaderData.firstName} {loaderData.lastName}
+          </h1>
+          <p className="mv-font-semibold mv-mb-6">
+            in Deiner MINTvernetzt-Community!
+          </p>
+          <p>
+            <Button
+              variant="outline"
+              as="a"
+              href={`/profile/${loaderData.username}`}
+            >
+              Mein Profil besuchen
+            </Button>
+          </p>
+        </div>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
+        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
+        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+            Profile
           </div>
-        </section>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
-          {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
-          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-              Profile
-            </div>
-            <div className="mv-text-right">
-              <Link to="/explore/profiles">
-                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                  Alle Profile
-                </span>
-              </Link>
-            </div>
+          <div className="mv-text-right">
+            <Link to="/explore/profiles">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                Alle Profile
+              </span>
+            </Link>
           </div>
-          <CardContainer>
-            {loaderData.profiles.map((profile) => {
-              return <ProfileCard key={profile.username} profile={profile} />;
-            })}
-          </CardContainer>
-        </section>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-              Organisationen
-            </div>
-            <div className="mv-text-right">
-              <Link to="/explore/organizations">
-                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                  Alle Organisationen
-                </span>
-              </Link>
-            </div>
+        </div>
+        <CardContainer>
+          {loaderData.profiles.map((profile) => {
+            return <ProfileCard key={profile.username} profile={profile} />;
+          })}
+        </CardContainer>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+            Organisationen
           </div>
-          <CardContainer>
-            {loaderData.organizations.map((organization) => {
-              return (
-                <OrganizationCard
-                  key={organization.slug}
-                  organization={organization}
-                />
-              );
-            })}
-          </CardContainer>
-        </section>
-      </main>
-    </div>
+          <div className="mv-text-right">
+            <Link to="/explore/organizations">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                Alle Organisationen
+              </span>
+            </Link>
+          </div>
+        </div>
+        <CardContainer>
+          {loaderData.organizations.map((organization) => {
+            return (
+              <OrganizationCard
+                key={organization.slug}
+                organization={organization}
+              />
+            );
+          })}
+        </CardContainer>
+      </section>
+    </>
   );
 }
 
