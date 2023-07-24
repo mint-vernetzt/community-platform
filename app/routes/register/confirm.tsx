@@ -79,7 +79,6 @@ export const loader = async (args: LoaderArgs) => {
   if (process.env.NODE_ENV === "production") {
     const isHex = /^[0-9A-Fa-f]+$/g.test(token);
     if (!isHex) {
-      console.log("The token parameter is not a hex value");
       throw badRequest("The token parameter is not a hex value");
     }
   }
