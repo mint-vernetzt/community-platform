@@ -8,6 +8,7 @@ import { notFound, serverError } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
 import {
+  createAdminAuthClient,
   createAuthClient,
   deleteUserByUid,
   getSessionUserOrThrow,
@@ -55,7 +56,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 const mutation = makeDomainFunction(
   schema,
   environmentSchema
-)(async (values, environment) => {
+)(async (values) => {
   const profile = await getRelationsOnProfileByUserId(values.userId);
   if (profile === null) {
     throw "Das Profil konnte nicht gefunden werden.";
@@ -99,9 +100,12 @@ const mutation = makeDomainFunction(
     }
     return false;
   });
-  try {
-    await deleteUserByUid(environment.authClient, values.userId);
-  } catch {
+
+  const adminAuthClient = createAdminAuthClient();
+
+  const { error } = await deleteUserByUid(adminAuthClient, values.userId);
+  if (error !== null) {
+    console.error(error.message);
     throw "Das Profil konnte nicht gelöscht werden.";
   }
   return values;
@@ -126,7 +130,6 @@ export const action: ActionFunction = async ({ request, params }) => {
     request,
     schema,
     mutation,
-    environment: { authClient: authClient },
   });
   if (result.success) {
     const { error } = await signOut(authClient);

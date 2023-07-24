@@ -20,6 +20,7 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { serverError } from "remix-utils";
 
 const schema = z.object({
   email: z
@@ -45,61 +46,10 @@ export const loader: LoaderFunction = async (args) => {
   const { request } = args;
 
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
-  const url = new URL(request.url);
-  const urlSearchParams = new URLSearchParams(url.searchParams);
-  const loginRedirect = urlSearchParams.get("login_redirect");
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
-  const type = urlSearchParams.get("type");
-
-  if (accessToken !== null && refreshToken !== null) {
-    // This automatically logs in the user
-    // Throws error on invalid refreshToken, accessToken combination
-    const { user: sessionUser } = await setSession(
-      authClient,
-      accessToken,
-      refreshToken
-    );
-    if (type === "sign_up" && loginRedirect === null && sessionUser !== null) {
-      // Default redirect to profile of sessionUser after sign up confirmation
-      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      const featureAbilities = await getFeatureAbilities(
-        authClient,
-        "dashboard"
-      );
-      let redirectRoute = `/profile/${profile.username}`;
-      if (featureAbilities["dashboard"].hasAccess === true) {
-        redirectRoute = `/dashboard`;
-      }
-      return redirect(redirectRoute, {
-        headers: response.headers,
-      });
-    }
-  }
-
   const sessionUser = await getSessionUser(authClient);
-
   if (sessionUser !== null) {
-    if (loginRedirect !== null) {
-      return redirect(loginRedirect, { headers: response.headers });
-    } else {
-      const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-      const featureAbilities = await getFeatureAbilities(
-        authClient,
-        "dashboard"
-      );
-      let redirectRoute = `/profile/${profile.username}`;
-      if (featureAbilities["dashboard"].hasAccess === true) {
-        redirectRoute = `/dashboard`;
-      }
-      return redirect(redirectRoute, {
-        headers: response.headers,
-      });
-      // return redirect("/explore", { headers: response.headers });
-    }
+    return redirect("/dashboard", { headers: response.headers });
   }
 
   return response;
@@ -153,20 +103,7 @@ export const action: ActionFunction = async ({ request }) => {
       });
     } else {
       // Default redirect after login
-      let redirectRoute = `/explore`;
-      const sessionUser = await getSessionUser(authClient);
-      if (sessionUser !== null) {
-        const profile = await getProfileByUserId(sessionUser.id, ["username"]);
-        const featureAbilities = await getFeatureAbilities(
-          authClient,
-          "dashboard"
-        );
-        redirectRoute = `/profile/${profile.username}`;
-        if (featureAbilities["dashboard"].hasAccess === true) {
-          redirectRoute = `/dashboard`;
-        }
-      }
-      return redirect(redirectRoute, {
+      return redirect("/dashboard", {
         headers: response.headers,
       });
     }

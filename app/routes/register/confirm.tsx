@@ -1,76 +1,148 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { badRequest } from "remix-utils";
-import { createAuthClient, setSession } from "~/auth.server";
-import { createProfile } from "./utils.server";
+import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
+import PageBackground from "../../components/PageBackground/PageBackground";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+
+// How to build the confirmation url to test this functionality on dev?
+
+// 1. Register
+// 2. Copy the link from the received inbucket mail
+// 3. Encode the link on https://www.url-encode-decode.com/
+// 4. Add this as prefix: localhost:3000/register/confirm?confirmation_link=<ENCODED CONFIRMATION LINK>
+// 5. Now we have the link structure that we also receive on the server
+// 6. Paste the whole link in the browser and visit it
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    return redirect("/dashboard", { headers: response.headers });
+  }
 
   const url = new URL(request.url);
-  const urlSearchParams = new URLSearchParams(url.searchParams);
-  const loginRedirect = urlSearchParams.get("login_redirect");
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
-  const type = urlSearchParams.get("type");
 
-  if (accessToken !== null && refreshToken !== null) {
-    // This automatically logs in the user
-    // Throws error on invalid refreshToken, accessToken combination
-    const { user: sessionUser } = await setSession(
-      authClient,
-      accessToken,
-      refreshToken
+  // Get search param confirmation_link from url
+  const confirmationLink = url.searchParams.get("confirmation_link");
+  if (confirmationLink === null) {
+    throw badRequest("Did not provide a confirmation link search parameter");
+  }
+
+  // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
+  if (
+    !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
+  ) {
+    throw badRequest(
+      "The provided comfirmation link has not the right structure"
     );
-    console.log(sessionUser);
-    if (type === "signup") {
-      if (sessionUser !== null) {
-        // Create profile visibility settings after successful signup confirmation
-        if (
-          sessionUser.email === undefined ||
-          sessionUser.user_metadata.username === undefined ||
-          sessionUser.user_metadata.firstName === undefined ||
-          sessionUser.user_metadata.lastName === undefined ||
-          sessionUser.user_metadata.termsAccepted === undefined ||
-          typeof sessionUser.user_metadata.username !== "string" ||
-          typeof sessionUser.user_metadata.firstName !== "string" ||
-          typeof sessionUser.user_metadata.lastName !== "string" ||
-          typeof sessionUser.user_metadata.termsAccepted !== "boolean"
-        ) {
-          throw badRequest(
-            "Did not provide necessary user meta data to create a corresponding profile after sign up."
-          );
-        }
-        // Profile is now created here and not inside a trigger function
-        const initialProfile = {
-          id: sessionUser.id,
-          email: sessionUser.email,
-          username: sessionUser.user_metadata.username,
-          firstName: sessionUser.user_metadata.firstName,
-          lastName: sessionUser.user_metadata.lastName,
-          academicTitle: sessionUser.user_metadata.academicTitle,
-          termsAccepted: sessionUser.user_metadata.termsAccepted,
-        };
-        console.log("Before create Profile.");
-        const profile = await createProfile(initialProfile);
-        // Default redirect to profile of sessionUser after sign up confirmation
-        return redirect(loginRedirect || `/profile/${profile.username}`, {
-          headers: response.headers,
-        });
-      } else {
-        alert(
-          "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
-        );
-        throw badRequest(
-          "Could not create a session after sign up confirmation."
-        );
-      }
+  }
+
+  // Generate URL object from confirmationLink
+  const confirmationLinkUrl = new URL(confirmationLink);
+
+  // Get search param redirect_to
+  const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
+  if (redirectTo === null) {
+    throw badRequest("Did not provide a redirect_to search parameter");
+  }
+
+  // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
+  if (
+    !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
+  ) {
+    throw badRequest("The redirect_to url has not the right structure");
+  }
+
+  const redirectToUrl = new URL(redirectTo);
+
+  // Get search param login_redirect if any exist
+  const loginRedirect = redirectToUrl.searchParams.get("login_redirect");
+  if (loginRedirect !== null) {
+    const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
+    if (!isValidPath) {
+      throw badRequest("The login_redirect path has not the right structure");
     }
   }
 
-  return json(null, { headers: response.headers });
+  // Get search param token
+  const token = confirmationLinkUrl.searchParams.get("token");
+  if (token === null) {
+    throw badRequest("Did not provide a token search parameter");
+  }
+
+  // Check if token is a hex value (only on production environment)
+  if (process.env.NODE_ENV === "production") {
+    const isHex = /^[0-9A-Fa-f]+$/g.test(token);
+    if (!isHex) {
+      console.log("The token parameter is not a hex value");
+      throw badRequest("The token parameter is not a hex value");
+    }
+  }
+
+  // Get search param type
+  const type = confirmationLinkUrl.searchParams.get("type");
+  if (type === null) {
+    throw badRequest("Did not provide a type search parameter");
+  }
+
+  // Check if type === "signup"
+  if (type !== "signup") {
+    throw badRequest("The type parameter is not of type signup");
+  }
+
+  // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=signup
+  const sanitizedConfirmationLink = `${
+    process.env.SUPABASE_URL
+  }/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification${
+    loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+  }&token=${token}&type=signup`;
+
+  return json(
+    {
+      confirmationLink: sanitizedConfirmationLink,
+    },
+    { headers: response.headers }
+  );
 };
+
+export default function Confirm() {
+  const loaderData = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <PageBackground imagePath="/images/login_background_image.jpg" />
+      <div className="md:container md:mx-auto px-4 relative z-10">
+        <div className="flex flex-row -mx-4 justify-end">
+          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+            <div>
+              <HeaderLogo />
+            </div>
+            <div className="ml-auto"></div>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row -mx-4">
+          <div className="basis-full md:basis-6/12 px-4"> </div>
+          <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
+            <h1 className="mb-4">Registrierungsbestätigung</h1>
+            <>
+              <p className="mb-4">
+                Herzlich willkommen in der MINTcommunity! Bitte bestätige
+                innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
+                Deines Profils auf der MINTvernetzt-Plattform über den folgenden
+                Link:
+              </p>
+              <a href={loaderData.confirmationLink} className="btn btn-primary">
+                Registrierung bestätigen
+              </a>
+            </>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

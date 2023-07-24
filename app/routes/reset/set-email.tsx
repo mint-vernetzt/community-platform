@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { badRequest } from "remix-utils";
+import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, setSession } from "~/auth.server";
 import { updateProfileByUserId } from "~/profile.server";
 
@@ -31,14 +31,14 @@ export const loader: LoaderFunction = async (args) => {
       const profile = await updateProfileByUserId(sessionUser.id, {
         email: sessionUser.email,
       });
-      // Default redirect to profile of sessionUser after sign up confirmation
+      // Default redirect to profile of sessionUser after set email
       return redirect(`/profile/${profile.username}`, {
         headers: response.headers,
       });
     } else {
-      throw badRequest({
+      throw serverError({
         message:
-          "Request not from confirmation link or confirmation link expired.",
+          "Could not set the session. Either the access and refresh token combination is invalid or an internal server occured.",
       });
     }
   } else {
