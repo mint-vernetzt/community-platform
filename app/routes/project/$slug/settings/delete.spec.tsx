@@ -365,7 +365,6 @@ describe("/event/$slug/settings/delete", () => {
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
-        user_metadata: { username: "someuser" },
       } as unknown as User);
       (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(
         () => {
