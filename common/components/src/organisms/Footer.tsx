@@ -104,7 +104,7 @@ function Footer() {
               <li>
                 <Link
                   as="a"
-                  to="https://www.instagram.com/mintvernetzt/"
+                  to="https://www.instagram.com/mintvernetzt"
                   isExternal
                   className=""
                 >
@@ -226,9 +226,8 @@ function Footer() {
                 <li>
                   <Link
                     as="a"
-                    to="https://www.github.com/mint-vernetzt"
+                    to="https://github.com/mint-vernetzt/community-platform"
                     isExternal
-                    className=""
                   >
                     GitHub Repository
                   </Link>
