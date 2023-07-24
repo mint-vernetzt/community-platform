@@ -471,7 +471,7 @@ export default function App() {
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
 
-          <main className="flex-auto z-10 relative mb-24">
+          <main className="flex-auto z-10 relative pb-24 md:pb-8">
             <Outlet />
           </main>
 

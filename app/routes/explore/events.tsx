@@ -158,7 +158,7 @@ function Events() {
         <H1 like="h0">Entdecke Veranstaltungen</H1>
         <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+      <section className="container my-8 md:mb-8 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {futureEvents.map((event) => {
           const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
           const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -427,7 +427,7 @@ function Events() {
         </div>
       )}
       {pastEvents.length > 0 ? (
-        <section className="container my-8 md:my-10 lg:my-20">
+        <section className="container my-8 md:mb-8 md:mt-16">
           <H1>Vergangene Veranstaltungen</H1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {pastEvents.map((event) => {
@@ -628,7 +628,7 @@ function Events() {
         </section>
       ) : null}
       {shouldFetchPastEvents && (
-        <div className="mv-w-full mv-flex mv-justify-center">
+        <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
           <fetcher.Form method="get">
             <input
               key="pastPage"

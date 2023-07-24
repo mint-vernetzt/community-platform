@@ -12,15 +12,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function Explore() {
-  return (
-    <div className="relative pb-44">
-      <div className="">
-        <main>
-          <Outlet />
-        </main>
-      </div>
-    </div>
-  );
+  return <Outlet />;
 }
 
 export default Explore;

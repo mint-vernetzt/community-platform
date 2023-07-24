@@ -135,14 +135,14 @@ function Projects() {
 
   return (
     <>
-      <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
+      <section className="container my-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Finde inspirierende Projekte</H1>
         <p className="">
           Hier kannst du einen Blick auf verschiedene Projekte der
           MINT-Community werfen.
         </p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
+      <section className="container my-8 md:mt-10 lg:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
         {items.map((project) => {
           return (
             <div
@@ -261,7 +261,7 @@ function Projects() {
         })}
       </section>
       {shouldFetch && (
-        <div className="mv-w-full mv-flex mv-justify-center">
+        <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
           <fetcher.Form method="get">
             <input key="page" type="hidden" name="page" value={page + 1} />
             <Button
