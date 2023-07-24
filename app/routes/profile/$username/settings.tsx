@@ -90,7 +90,7 @@ function Index() {
               </p>
             </div>
           </div>
-          <div className="basis-6/12 px-4">
+          <div className="basis-6/12 px-4 pb-24">
             <main>
               <Outlet />
             </main>

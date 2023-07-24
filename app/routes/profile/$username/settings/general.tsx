@@ -563,7 +563,7 @@ export default function Index() {
               können.
             </p>
 
-            <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24">
               <div className="container">
                 <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
                   <div
