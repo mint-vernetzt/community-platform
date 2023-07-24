@@ -14,9 +14,14 @@ import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { prismaClient } from "~/prisma";
-import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  getOrganizationCount,
+  getOrganizationsForCards,
+  getProfileById,
+  getProfileCount,
+  getProfilesForCards,
+} from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
@@ -36,9 +41,7 @@ export const loader = async (args: LoaderArgs) => {
     return redirect("/login");
   }
 
-  const profile = await getProfileByUsername(
-    sessionUser.user_metadata.username
-  );
+  const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }
@@ -52,37 +55,12 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const numberOfProfiles = 4;
-  const profileCount = await prismaClient.profile.count();
-  const rawProfiles = await prismaClient.profile.findMany({
-    include: {
-      offers: { select: { offer: { select: { title: true } } } },
-      areas: { select: { area: { select: { name: true } } } },
-      memberOf: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-              logo: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          organization: {
-            updatedAt: "asc",
-          },
-        },
-      },
-      _count: {
-        select: {
-          memberOf: true,
-        },
-      },
-    },
-    skip: Math.floor(randomSeed * (profileCount - numberOfProfiles)),
-    take: numberOfProfiles,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
-  });
+  const profileCount = await getProfileCount();
+  const profileSkip = Math.floor(
+    randomSeed * (profileCount - numberOfProfiles)
+  );
+  const profileTake = numberOfProfiles;
+  const rawProfiles = await getProfilesForCards(profileSkip, profileTake);
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
@@ -148,39 +126,15 @@ export const loader = async (args: LoaderArgs) => {
     };
   });
   const numberOfOrganizations = 4;
-  const organizationCount = await prismaClient.organization.count();
-  const rawOrganizations = await prismaClient.organization.findMany({
-    include: {
-      focuses: { select: { focus: { select: { title: true } } } },
-      areas: { select: { area: { select: { name: true } } } },
-      types: { select: { organizationType: { select: { title: true } } } },
-      teamMembers: {
-        select: {
-          profile: {
-            select: {
-              username: true,
-              avatar: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-        orderBy: {
-          profile: {
-            updatedAt: "asc",
-          },
-        },
-      },
-      _count: {
-        select: {
-          memberOf: true,
-        },
-      },
-    },
-    skip: Math.floor(randomSeed * (organizationCount - numberOfOrganizations)),
-    take: numberOfOrganizations,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
-  });
+  const organizationCount = await getOrganizationCount();
+  const organizationSkip = Math.floor(
+    randomSeed * (organizationCount - numberOfOrganizations)
+  );
+  const organizationTake = numberOfOrganizations;
+  const rawOrganizations = await getOrganizationsForCards(
+    organizationSkip,
+    organizationTake
+  );
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;
