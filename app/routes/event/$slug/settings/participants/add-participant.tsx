@@ -14,6 +14,7 @@ import {
   getProfileById,
 } from "../utils.server";
 import { connectParticipantToEvent } from "./utils.server";
+import Button from "@mint-vernetzt/components";
 
 const schema = z.object({
   userId: z.string(),
@@ -115,10 +116,10 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
             <Field name="userId" />
             <Field name="eventId" />
             <Field name="id" />
-            <button className="mv-btn mv-btn-primary" type="submit">
+            <button className="btn btn-primary" type="submit">
               Teilnehmen
             </button>
-            {/* <Button type="submit" {...buttonProps}>
+            {/* <Button type="submit" size="x-small">
               Teilnehmen
             </Button> */}
             <Errors />

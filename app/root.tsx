@@ -28,17 +28,14 @@ import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
-import styles from "./styles/styles.css";
-import newStyles from "../common/design/styles/styles.css";
+import styles from "./styles/legacy-styles.css";
+// import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform" };
 };
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-  { rel: "stylesheet", href: newStyles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export type RootRouteData = {
   matomoUrl: string | undefined;

@@ -1,26 +1,19 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
-import { isSameDay } from "date-fns";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import {
-  canUserBeAddedToWaitingList,
-  canUserParticipate,
-} from "~/lib/event/utils";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "../event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPaginationValues, prepareEvents } from "./utils.server";
+
+import styles from "../../../common/design/styles/styles.css";
+import { Form } from "remix-forms";
+import { z } from "zod";
+import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -68,6 +61,99 @@ export const loader = async (args: LoaderArgs) => {
     { headers: response.headers }
   );
 };
+
+function EventCardWrapper(props: { event: any; loaderData: any }) {
+  const { event, loaderData } = props;
+
+  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const participationUntil = utcToZonedTime(
+    event.participationUntil,
+    "Europe/Berlin"
+  );
+  const addToParticipantFetcher = useFetcher();
+  const addToWaitingListFetcher = useFetcher();
+
+  return (
+    <EventCard
+      publicAccess={typeof loaderData.userId === "undefined"}
+      event={{
+        ...event,
+        startTime,
+        endTime,
+        participationUntil,
+        responsibleOrganizations: event.responsibleOrganizations.map(
+          (item: any) => item.organization
+        ),
+      }}
+      // participateControl={
+      //   <AddParticipantButton
+      //     action={`/event/${event.slug}/settings/participants/add-participant`}
+      //     userId={loaderData.userId}
+      //     eventId={event.id}
+      //     id={loaderData.userId}
+      //   />
+      // }
+      participateControl={
+        <addToParticipantFetcher.Form
+          method="post"
+          action={`/event/${event.slug}/settings/participants/add-participant`}
+        >
+          <input name="userId" value={loaderData.userId} hidden />
+          <input name="eventId" value={event.id} hidden />
+          <input name="id" value={loaderData.userId} hidden />
+          <Button
+            type="submit"
+            size="x-small"
+            loading={addToParticipantFetcher.state === "submitting"}
+          >
+            Teilnehmen
+          </Button>
+        </addToParticipantFetcher.Form>
+      }
+      // waitingListControl={
+      //   <AddToWaitingListButton
+      //     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
+      //     userId={loaderData.userId}
+      //     eventId={event.id}
+      //     id={loaderData.userId}
+      //   />
+      // }
+      waitingListControl={
+        <Form
+          action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
+          fetcher={addToWaitingListFetcher}
+          schema={z.object({
+            userId: z.string(),
+            eventId: z.string(),
+            id: z.string(),
+          })}
+          hiddenFields={["eventId", "userId", "id"]}
+          values={{
+            userId: loaderData.userId,
+            eventId: event.id,
+            id: loaderData.userId,
+          }}
+        >
+          {(props) => {
+            const { Field, Errors } = props;
+            return (
+              <>
+                <Field name="userId" />
+                <Field name="eventId" />
+                <Field name="id" />
+                <Button type="submit" size="x-small">
+                  Warteliste
+                </Button>
+                <Errors />
+              </>
+            );
+          }}
+        </Form>
+      }
+    />
+  );
+}
 
 function Events() {
   const loaderData = useLoaderData<typeof loader>();
@@ -150,8 +236,6 @@ function Events() {
     }
   }, [fetcher.data]);
 
-  console.log(futureEvents);
-
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
@@ -162,45 +246,11 @@ function Events() {
         <CardContainer type="multi row">
           {futureEvents.length > 0 ? (
             futureEvents.map((event) => {
-              const startTime = utcToZonedTime(
-                event.startTime,
-                "Europe/Berlin"
-              );
-              const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-              const participationUntil = utcToZonedTime(
-                event.participationUntil,
-                "Europe/Berlin"
-              );
               return (
-                <EventCard
-                  key={`event-${event.slug}`}
-                  publicAccess={typeof loaderData.userId === "undefined"}
-                  event={{
-                    ...event,
-                    startTime,
-                    endTime,
-                    participationUntil,
-                    responsibleOrganizations:
-                      event.responsibleOrganizations.map(
-                        (item) => item.organization
-                      ),
-                  }}
-                  participateControl={
-                    <AddParticipantButton
-                      action={`/event/${event.slug}/settings/participants/add-participant`}
-                      userId={loaderData.userId}
-                      eventId={event.id}
-                      id={loaderData.userId}
-                    />
-                  }
-                  waitingListControl={
-                    <AddToWaitingListButton
-                      action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                      userId={loaderData.userId}
-                      eventId={event.id}
-                      id={loaderData.userId}
-                    />
-                  }
+                <EventCardWrapper
+                  key={event.id}
+                  event={event}
+                  loaderData={loaderData}
                 />
               );
             })
