@@ -1,7 +1,12 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
 import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+  // useRevalidator,
+} from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -9,9 +14,6 @@ import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
 import styles from "../../../common/design/styles/styles.css";
-import { Form } from "remix-forms";
-import { z } from "zod";
-import { AddParticipantButton } from "../event/$slug/settings/participants/add-participant";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -64,6 +66,12 @@ export const loader = async (args: LoaderArgs) => {
 
 function EventCardWrapper(props: { event: any; loaderData: any }) {
   const { event, loaderData } = props;
+  const [isParticipant, setIsParticipant] = React.useState<boolean | null>(
+    null
+  );
+  const [isOnWaitingList, setIsOnWaitingList] = React.useState<boolean | null>(
+    null
+  );
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -74,11 +82,27 @@ function EventCardWrapper(props: { event: any; loaderData: any }) {
   const addToParticipantFetcher = useFetcher();
   const addToWaitingListFetcher = useFetcher();
 
+  React.useEffect(() => {
+    if (addToParticipantFetcher.data !== undefined) {
+      setIsParticipant(true);
+    }
+  }, [addToParticipantFetcher.data]);
+
+  React.useEffect(() => {
+    if (addToWaitingListFetcher.data !== undefined) {
+      setIsOnWaitingList(true);
+    }
+  }, [addToWaitingListFetcher.data]);
+
   return (
     <EventCard
       publicAccess={typeof loaderData.userId === "undefined"}
       event={{
         ...event,
+        isParticipant:
+          isParticipant !== null ? isParticipant : event.isParticipant,
+        isOnWaitingList:
+          isOnWaitingList !== null ? isOnWaitingList : event.isOnWaitingList,
         startTime,
         endTime,
         participationUntil,
@@ -86,22 +110,14 @@ function EventCardWrapper(props: { event: any; loaderData: any }) {
           (item: any) => item.organization
         ),
       }}
-      // participateControl={
-      //   <AddParticipantButton
-      //     action={`/event/${event.slug}/settings/participants/add-participant`}
-      //     userId={loaderData.userId}
-      //     eventId={event.id}
-      //     id={loaderData.userId}
-      //   />
-      // }
       participateControl={
         <addToParticipantFetcher.Form
           method="post"
           action={`/event/${event.slug}/settings/participants/add-participant`}
         >
-          <input name="userId" value={loaderData.userId} hidden />
-          <input name="eventId" value={event.id} hidden />
-          <input name="id" value={loaderData.userId} hidden />
+          <input name="userId" defaultValue={loaderData.userId} hidden />
+          <input name="eventId" defaultValue={event.id} hidden />
+          <input name="id" defaultValue={loaderData.userId} hidden />
           <Button
             type="submit"
             size="x-small"
@@ -111,45 +127,22 @@ function EventCardWrapper(props: { event: any; loaderData: any }) {
           </Button>
         </addToParticipantFetcher.Form>
       }
-      // waitingListControl={
-      //   <AddToWaitingListButton
-      //     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-      //     userId={loaderData.userId}
-      //     eventId={event.id}
-      //     id={loaderData.userId}
-      //   />
-      // }
       waitingListControl={
-        <Form
+        <addToWaitingListFetcher.Form
+          method="post"
           action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-          fetcher={addToWaitingListFetcher}
-          schema={z.object({
-            userId: z.string(),
-            eventId: z.string(),
-            id: z.string(),
-          })}
-          hiddenFields={["eventId", "userId", "id"]}
-          values={{
-            userId: loaderData.userId,
-            eventId: event.id,
-            id: loaderData.userId,
-          }}
         >
-          {(props) => {
-            const { Field, Errors } = props;
-            return (
-              <>
-                <Field name="userId" />
-                <Field name="eventId" />
-                <Field name="id" />
-                <Button type="submit" size="x-small">
-                  Warteliste
-                </Button>
-                <Errors />
-              </>
-            );
-          }}
-        </Form>
+          <input name="userId" defaultValue={loaderData.userId} hidden />
+          <input name="eventId" defaultValue={event.id} hidden />
+          <input name="id" defaultValue={loaderData.userId} hidden />
+          <Button
+            type="submit"
+            size="x-small"
+            loading={addToParticipantFetcher.state === "submitting"}
+          >
+            Warteliste
+          </Button>
+        </addToWaitingListFetcher.Form>
       }
     />
   );
@@ -160,6 +153,7 @@ function Events() {
 
   const fetcher = useFetcher();
   const [searchParams] = useSearchParams();
+  // const revalidator = useRevalidator();
 
   const [futureEvents, setFutureEvents] = React.useState(
     loaderData.futureEvents.events
@@ -253,6 +247,7 @@ function Events() {
                   loaderData={loaderData}
                 />
               );
+              // return event.name;
             })
           ) : (
             <p>
