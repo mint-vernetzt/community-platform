@@ -433,11 +433,6 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
 
-  const differentFooterRoutes = "/settings/general";
-  const isDifferentFooterRoute = location.pathname.includes(
-    differentFooterRoutes
-  );
-
   return (
     <html lang="de" data-theme="light">
       <head>
