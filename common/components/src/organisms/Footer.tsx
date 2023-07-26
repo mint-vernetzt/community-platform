@@ -49,7 +49,7 @@ function Footer() {
               <li>
                 <Link
                   as="a"
-                  to="https://www.mint-vernetzt.de/imprint"
+                  to="https://community.mint-vernetzt.de/imprint"
                   className=""
                   isExternal
                 >
@@ -59,7 +59,7 @@ function Footer() {
               <li>
                 <Link
                   as="a"
-                  to="https://www.mint-vernetzt.de/privacy"
+                  to="https://mint-vernetzt.de/privacy-policy-community-platform/"
                   className=""
                   isExternal
                 >
