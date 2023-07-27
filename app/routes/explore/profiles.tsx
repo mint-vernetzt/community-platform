@@ -29,9 +29,9 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
-import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;

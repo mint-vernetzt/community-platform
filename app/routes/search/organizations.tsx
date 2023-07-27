@@ -20,9 +20,9 @@ import {
   getQueryValueAsArrayOfWords,
   searchOrganizationsViaLike,
 } from "./utils.server";
-import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();

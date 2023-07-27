@@ -11,7 +11,7 @@ import {
   filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css";
 import {
   enhanceEventsWithParticipationStatus,
   getPaginationValues,
@@ -22,7 +22,7 @@ import {
 } from "./utils.server";
 import { GravityType } from "imgproxy/dist/types";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();

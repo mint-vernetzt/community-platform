@@ -8,10 +8,10 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
-import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css";
 import { prismaClient } from "~/prisma";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
