@@ -35,6 +35,9 @@ jest.mock("~/prisma", () => {
       area: {
         findMany: jest.fn(),
       },
+      profile: {
+        findFirst: jest.fn(),
+      },
     },
   };
 });
@@ -366,7 +369,6 @@ describe("/event/$slug/settings/delete", () => {
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
-        user_metadata: { username: "someuser" },
       } as unknown as User);
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-event-id", name: "Some event name", slug };
@@ -375,6 +377,9 @@ describe("/event/$slug/settings/delete", () => {
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
         return { isPrivileged: true };
+      });
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValue({
+        username: "someuser",
       });
 
       const response = await action({

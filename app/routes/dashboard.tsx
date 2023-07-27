@@ -14,9 +14,14 @@ import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { prismaClient } from "~/prisma";
-import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  getOrganizationCount,
+  getOrganizationsForCards,
+  getProfileById,
+  getProfileCount,
+  getProfilesForCards,
+} from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
 import styles from "../../common/design/styles/styles.css";
 
@@ -39,9 +44,7 @@ export const loader = async (args: LoaderArgs) => {
     return redirect("/login");
   }
 
-  const profile = await getProfileByUsername(
-    sessionUser.user_metadata.username
-  );
+  const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }
@@ -55,37 +58,12 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const numberOfProfiles = 4;
-  const profileCount = await prismaClient.profile.count();
-  const rawProfiles = await prismaClient.profile.findMany({
-    include: {
-      offers: { select: { offer: { select: { title: true } } } },
-      areas: { select: { area: { select: { name: true } } } },
-      memberOf: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-              logo: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          organization: {
-            updatedAt: "asc",
-          },
-        },
-      },
-      _count: {
-        select: {
-          memberOf: true,
-        },
-      },
-    },
-    skip: Math.floor(randomSeed * (profileCount - numberOfProfiles)),
-    take: numberOfProfiles,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
-  });
+  const profileCount = await getProfileCount();
+  const profileSkip = Math.floor(
+    randomSeed * (profileCount - numberOfProfiles)
+  );
+  const profileTake = numberOfProfiles;
+  const rawProfiles = await getProfilesForCards(profileSkip, profileTake);
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
@@ -151,39 +129,15 @@ export const loader = async (args: LoaderArgs) => {
     };
   });
   const numberOfOrganizations = 4;
-  const organizationCount = await prismaClient.organization.count();
-  const rawOrganizations = await prismaClient.organization.findMany({
-    include: {
-      focuses: { select: { focus: { select: { title: true } } } },
-      areas: { select: { area: { select: { name: true } } } },
-      types: { select: { organizationType: { select: { title: true } } } },
-      teamMembers: {
-        select: {
-          profile: {
-            select: {
-              username: true,
-              avatar: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-        orderBy: {
-          profile: {
-            updatedAt: "asc",
-          },
-        },
-      },
-      _count: {
-        select: {
-          memberOf: true,
-        },
-      },
-    },
-    skip: Math.floor(randomSeed * (organizationCount - numberOfOrganizations)),
-    take: numberOfOrganizations,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
-  });
+  const organizationCount = await getOrganizationCount();
+  const organizationSkip = Math.floor(
+    randomSeed * (organizationCount - numberOfOrganizations)
+  );
+  const organizationTake = numberOfOrganizations;
+  const rawOrganizations = await getOrganizationsForCards(
+    organizationSkip,
+    organizationTake
+  );
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;
@@ -269,76 +223,74 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
 
   return (
-    <div className="relative pb-4 sm:pb-8 md:pb-16 lg:pb-20">
-      <main>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          <div className="mv-mx-4">
-            <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-              Willkommen,
-              <br />
-              {loaderData.firstName} {loaderData.lastName}
-            </h1>
-            <p className="mv-font-semibold mv-mb-6">
-              in Deiner MINTvernetzt-Community!
-            </p>
-            <p>
-              <Button
-                variant="outline"
-                as="a"
-                href={`/profile/${loaderData.username}`}
-              >
-                Mein Profil besuchen
-              </Button>
-            </p>
+    <>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-mx-4">
+          <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
+            Willkommen,
+            <br />
+            {loaderData.firstName} {loaderData.lastName}
+          </h1>
+          <p className="mv-font-semibold mv-mb-6">
+            in Deiner MINTvernetzt-Community!
+          </p>
+          <p>
+            <Button
+              variant="outline"
+              as="a"
+              href={`/profile/${loaderData.username}`}
+            >
+              Mein Profil besuchen
+            </Button>
+          </p>
+        </div>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
+        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
+        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+            Profile
           </div>
-        </section>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
-          {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
-          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-              Profile
-            </div>
-            <div className="mv-text-right">
-              <Link to="/explore/profiles">
-                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                  Alle Profile
-                </span>
-              </Link>
-            </div>
+          <div className="mv-text-right">
+            <Link to="/explore/profiles">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                Alle Profile
+              </span>
+            </Link>
           </div>
-          <CardContainer>
-            {loaderData.profiles.map((profile) => {
-              return <ProfileCard key={profile.username} profile={profile} />;
-            })}
-          </CardContainer>
-        </section>
-        <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-              Organisationen
-            </div>
-            <div className="mv-text-right">
-              <Link to="/explore/organizations">
-                <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                  Alle Organisationen
-                </span>
-              </Link>
-            </div>
+        </div>
+        <CardContainer>
+          {loaderData.profiles.map((profile) => {
+            return <ProfileCard key={profile.username} profile={profile} />;
+          })}
+        </CardContainer>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+            Organisationen
           </div>
-          <CardContainer>
-            {loaderData.organizations.map((organization) => {
-              return (
-                <OrganizationCard
-                  key={organization.slug}
-                  organization={organization}
-                />
-              );
-            })}
-          </CardContainer>
-        </section>
-      </main>
-    </div>
+          <div className="mv-text-right">
+            <Link to="/explore/organizations">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                Alle Organisationen
+              </span>
+            </Link>
+          </div>
+        </div>
+        <CardContainer>
+          {loaderData.organizations.map((organization) => {
+            return (
+              <OrganizationCard
+                key={organization.slug}
+                organization={organization}
+              />
+            );
+          })}
+        </CardContainer>
+      </section>
+    </>
   );
 }
 

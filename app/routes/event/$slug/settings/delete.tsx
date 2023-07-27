@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest } from "remix-utils";
+import { badRequest, notFound } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -15,6 +15,7 @@ import {
   checkOwnershipOrThrow,
   deleteEventById,
 } from "./utils.server";
+import { getProfileById } from "./delete.server";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -101,7 +102,11 @@ export const action = async (args: ActionArgs) => {
       throw badRequest({ message: "Id nicht korrekt" });
     }
   } else {
-    return redirect(`/profile/${sessionUser.user_metadata.username}`);
+    const profile = await getProfileById(sessionUser.id);
+    if (profile === null) {
+      throw notFound("Profile not found");
+    }
+    return redirect(`/profile/${profile.username}`);
   }
 
   return json(result, { headers: response.headers });

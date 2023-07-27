@@ -261,7 +261,7 @@ export default function SearchView() {
             </CardContainer>
           </section>
           {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center">
+            <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
               <fetcher.Form method="get">
                 <input key="query" type="hidden" name="query" value={query} />
                 <input key="page" type="hidden" name="page" value={page + 1} />

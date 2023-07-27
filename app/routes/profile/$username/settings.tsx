@@ -8,7 +8,7 @@ function Index() {
 
   return (
     <>
-      <div className="container relative pb-44">
+      <div className="container relative">
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
@@ -90,7 +90,7 @@ function Index() {
               </p>
             </div>
           </div>
-          <div className="basis-6/12 px-4">
+          <div className="basis-6/12 px-4 pb-24">
             <main>
               <Outlet />
             </main>

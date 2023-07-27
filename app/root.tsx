@@ -21,7 +21,7 @@ import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
-import Footer from "./components/Footer/Footer";
+import { Footer } from "@mint-vernetzt/components";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -430,11 +430,6 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
 
-  const differentFooterRoutes = "/settings/general";
-  const isDifferentFooterRoute = location.pathname.includes(
-    differentFooterRoutes
-  );
-
   return (
     <html lang="de" data-theme="light">
       <head>
@@ -468,14 +463,11 @@ export default function App() {
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
 
-          <main className="flex-auto z-10">
+          <main className="flex-auto z-10 relative pb-24 md:pb-8">
             <Outlet />
           </main>
 
-          <Footer
-            isDifferentFooterRoute={isDifferentFooterRoute}
-            isNonAppBaseRoute={isNonAppBaseRoute}
-          />
+          <Footer />
         </div>
         <ScrollRestoration />
         <Scripts />

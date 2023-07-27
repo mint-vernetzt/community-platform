@@ -11,3 +11,4 @@ export type {
   LinkProps,
 } from "./src/molecules";
 export { CardContainer } from "./src/organisms/containers";
+export { Footer } from "./src/organisms";

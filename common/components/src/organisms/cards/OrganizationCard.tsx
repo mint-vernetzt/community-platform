@@ -17,7 +17,6 @@ export type OrganizationCardProps = {
   organization: {
     slug: string;
     name: string;
-    position?: string | null;
     logo?: string | null;
     background?: string | null;
     focuses: string[];

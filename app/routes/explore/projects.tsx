@@ -138,14 +138,14 @@ function Projects() {
 
   return (
     <>
-      <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
+      <section className="container my-8 md:mt-10 lg:mt-20 text-center">
         <H1 like="h0">Finde inspirierende Projekte</H1>
         <p className="">
           Hier kannst du einen Blick auf verschiedene Projekte der
           MINT-Community werfen.
         </p>
       </section>
-      <section className="container my-8 md:my-10 lg:my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
+      <section className="container my-8 md:mt-10 lg:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
         {items.map((project) => {
           return (
             <div
@@ -272,9 +272,6 @@ function Projects() {
               className={`btn btn-sm font-semibold h-12 text-base px-6 py-2.5 border-2 bg-neutral-50 border-primary text-primary hover:bg-primary-100 hover:border-primary focus:bg-primary-100 focus:border-primary active:bg-primary-100 active:border-primary ${
                 fetcher.state === "submitting" ? "loading" : undefined
               }`.trim()}
-              size="large"
-              variant="outline"
-              loading={fetcher.state === "submitting"}
             >
               Weitere laden
             </button>

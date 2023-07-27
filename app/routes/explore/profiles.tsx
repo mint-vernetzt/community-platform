@@ -344,7 +344,7 @@ export default function Index() {
               })}
             </CardContainer>
             {shouldFetch && (
-              <div className="mv-w-full mv-flex mv-justify-center">
+              <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
                 <fetcher.Form method="get">
                   <input
                     key="randomSeed"

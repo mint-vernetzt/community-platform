@@ -61,6 +61,7 @@ const preview = {
       },
     },
     viewport: { viewports },
+    layout: "centered",
   },
 };
 

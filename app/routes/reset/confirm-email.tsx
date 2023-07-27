@@ -1,17 +1,16 @@
 import type { LoaderArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { createAuthClient, getSessionUser } from "~/auth.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
-// 1. Register
+// 1. Change email on profile/settings/security
 // 2. Copy the link from the received inbucket mail
 // 3. Encode the link on https://www.url-encode-decode.com/
-// 4. Add this as prefix: localhost:3000/register/confirm?confirmation_link=<ENCODED CONFIRMATION LINK>
+// 4. Add this as prefix: localhost:3000/reset/confirm-email?confirmation_link=<ENCODED CONFIRMATION LINK>
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
@@ -19,11 +18,6 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
-  const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
-  }
 
   const url = new URL(request.url);
 
@@ -89,17 +83,17 @@ export const loader = async (args: LoaderArgs) => {
     throw badRequest("Did not provide a type search parameter");
   }
 
-  // Check if type === "signup"
-  if (type !== "signup") {
-    throw badRequest("The type parameter is not of type signup");
+  // Check if type === "email_change"
+  if (type !== "email_change") {
+    throw badRequest("The type parameter is not of type email_change");
   }
 
-  // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=signup
+  // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=email_change
   const sanitizedConfirmationLink = `${
     process.env.SUPABASE_URL
   }/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification${
     loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
-  }&token=${token}&type=signup`;
+  }&token=${token}&type=email_change`;
 
   return json(
     {
@@ -127,16 +121,14 @@ export default function Confirm() {
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-4">Registrierungsbestätigung</h1>
+            <h1 className="mb-4">E-Mail-Adresse ändern</h1>
             <>
               <p className="mb-4">
-                Herzlich willkommen in der MINTcommunity! Bitte bestätige
-                innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
-                Deines Profils auf der MINTvernetzt-Plattform über den folgenden
-                Link:
+                Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
+                ändern, folge bitte diesem Link:
               </p>
               <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Registrierung bestätigen
+                Neue Mailadresse bestätigen
               </a>
             </>
           </div>
