@@ -3,7 +3,7 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -20,6 +20,9 @@ import {
   getQueryValueAsArrayOfWords,
   searchOrganizationsViaLike,
 } from "./utils.server";
+import styles from "../../../common/design/styles/styles.css";
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();

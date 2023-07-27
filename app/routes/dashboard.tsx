@@ -6,7 +6,7 @@ import {
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -18,6 +18,9 @@ import { prismaClient } from "~/prisma";
 import { getProfileByUsername } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getRandomSeed } from "./explore/utils.server";
+import styles from "../../common/design/styles/styles.css";
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
