@@ -48,6 +48,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export type SuccessActionData = {
+  success: boolean;
   message: string;
 };
 
@@ -79,6 +80,7 @@ export const action: ActionFunction = async (args) => {
     }
     return json<SuccessActionData>(
       {
+        success: true,
         message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde zur Warteliste hinzugefügt.`,
       },
       { headers: response.headers }
