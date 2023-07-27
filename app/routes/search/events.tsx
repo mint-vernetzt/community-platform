@@ -69,6 +69,8 @@ export const loader = async ({ request }: LoaderArgs) => {
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
+    } else {
+      enhancedEvent.background = "/images/default-event-background-small.jpg";
     }
 
     enhancedEvent.responsibleOrganizations =

@@ -513,6 +513,8 @@ export async function prepareEvents(
           resize: { type: "fit", width: 400, height: 280 },
         });
       }
+    } else {
+      enhancedEvent.background = "/images/default-event-background-small.jpg";
     }
 
     enhancedEvent.responsibleOrganizations =
