@@ -20,6 +20,7 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
+import { GravityType } from "imgproxy/dist/types";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -80,7 +81,8 @@ export const loader = async ({ request }: LoaderArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 144, height: 144 },
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
             });
           }
         }

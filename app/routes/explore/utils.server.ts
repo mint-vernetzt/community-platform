@@ -1,6 +1,7 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import { GravityType } from "imgproxy/dist/types";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma";
@@ -524,7 +525,8 @@ export async function prepareEvents(
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 144, height: 144 },
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
             });
           }
         }
