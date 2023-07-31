@@ -1,5 +1,5 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -11,7 +11,7 @@ import {
   filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-// import styles from "../../../common/design/styles/styles.css";
+import { GravityType } from "imgproxy/dist/types";
 import {
   enhanceEventsWithParticipationStatus,
   getPaginationValues,
@@ -20,9 +20,6 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
-import { GravityType } from "imgproxy/dist/types";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -111,93 +108,6 @@ export const loader = async ({ request }: LoaderArgs) => {
   );
 };
 
-function EventCardWrapper(props: { event: any; loaderData: any }) {
-  const { event, loaderData } = props;
-  const [isParticipant, setIsParticipant] = React.useState<boolean | null>(
-    null
-  );
-  const [isOnWaitingList, setIsOnWaitingList] = React.useState<boolean | null>(
-    null
-  );
-
-  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-  const participationUntil = utcToZonedTime(
-    event.participationUntil,
-    "Europe/Berlin"
-  );
-  const addToParticipantFetcher = useFetcher();
-  const addToWaitingListFetcher = useFetcher();
-
-  React.useEffect(() => {
-    if (addToParticipantFetcher.data !== undefined) {
-      setIsParticipant(addToParticipantFetcher.data.success);
-    }
-  }, [addToParticipantFetcher.data]);
-
-  React.useEffect(() => {
-    if (addToWaitingListFetcher.data !== undefined) {
-      setIsOnWaitingList(addToWaitingListFetcher.data.success);
-    }
-  }, [addToWaitingListFetcher.data]);
-
-  return (
-    <EventCard
-      publicAccess={typeof loaderData.userId === "undefined"}
-      event={{
-        ...event,
-        isParticipant:
-          isParticipant !== null ? isParticipant : event.isParticipant,
-        isOnWaitingList:
-          isOnWaitingList !== null ? isOnWaitingList : event.isOnWaitingList,
-        startTime,
-        endTime,
-        participationUntil,
-        responsibleOrganizations: event.responsibleOrganizations.map(
-          (item: any) => item.organization
-        ),
-      }}
-      // TODO: issue with reloading page after submitting form
-      // root is triggered and pagination is lost
-      //
-      // participateControl={
-      //   <addToParticipantFetcher.Form
-      //     method="post"
-      //     action={`/event/${event.slug}/settings/participants/add-participant`}
-      //   >
-      //     <input name="userId" defaultValue={loaderData.userId} hidden />
-      //     <input name="eventId" defaultValue={event.id} hidden />
-      //     <input name="id" defaultValue={loaderData.userId} hidden />
-      //     <Button
-      //       type="submit"
-      //       size="x-small"
-      //       loading={addToParticipantFetcher.state === "submitting"}
-      //     >
-      //       Teilnehmen
-      //     </Button>
-      //   </addToParticipantFetcher.Form>
-      // }
-      // waitingListControl={
-      //   <addToWaitingListFetcher.Form
-      //     method="post"
-      //     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-      //   >
-      //     <input name="userId" defaultValue={loaderData.userId} hidden />
-      //     <input name="eventId" defaultValue={event.id} hidden />
-      //     <input name="id" defaultValue={loaderData.userId} hidden />
-      //     <Button
-      //       type="submit"
-      //       size="x-small"
-      //       loading={addToParticipantFetcher.state === "submitting"}
-      //     >
-      //       Warteliste
-      //     </Button>
-      //   </addToWaitingListFetcher.Form>
-      // }
-    />
-  );
-}
-
 export default function SearchView() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
@@ -244,11 +154,32 @@ export default function SearchView() {
             <CardContainer type="multi row">
               {items.length > 0 ? (
                 items.map((event) => {
+                  const startTime = utcToZonedTime(
+                    event.startTime,
+                    "Europe/Berlin"
+                  );
+                  const endTime = utcToZonedTime(
+                    event.endTime,
+                    "Europe/Berlin"
+                  );
+                  const participationUntil = utcToZonedTime(
+                    event.participationUntil,
+                    "Europe/Berlin"
+                  );
                   return (
-                    <EventCardWrapper
+                    <EventCard
                       key={event.id}
-                      event={event}
-                      loaderData={loaderData}
+                      publicAccess={typeof loaderData.userId === "undefined"}
+                      event={{
+                        ...event,
+                        startTime,
+                        endTime,
+                        participationUntil,
+                        responsibleOrganizations:
+                          event.responsibleOrganizations.map(
+                            (item: any) => item.organization
+                          ),
+                      }}
                     />
                   );
                 })

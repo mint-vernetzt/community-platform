@@ -1,5 +1,5 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -8,10 +8,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
-// import styles from "../../../common/design/styles/styles.css";
 import { prismaClient } from "~/prisma";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -63,90 +60,6 @@ export const loader = async (args: LoaderArgs) => {
   );
 };
 
-function EventCardWrapper(props: { event: any; loaderData: any }) {
-  const { event, loaderData } = props;
-  const [isParticipant, setIsParticipant] = React.useState<boolean | null>(
-    null
-  );
-  const [isOnWaitingList, setIsOnWaitingList] = React.useState<boolean | null>(
-    null
-  );
-
-  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-  const participationUntil = utcToZonedTime(
-    event.participationUntil,
-    "Europe/Berlin"
-  );
-  const addToParticipantFetcher = useFetcher();
-  const addToWaitingListFetcher = useFetcher();
-
-  React.useEffect(() => {
-    if (addToParticipantFetcher.data !== undefined) {
-      setIsParticipant(addToParticipantFetcher.data.success);
-    }
-  }, [addToParticipantFetcher.data]);
-
-  React.useEffect(() => {
-    if (addToWaitingListFetcher.data !== undefined) {
-      setIsOnWaitingList(addToWaitingListFetcher.data.success);
-    }
-  }, [addToWaitingListFetcher.data]);
-
-  return (
-    <EventCard
-      publicAccess={typeof loaderData.userId === "undefined"}
-      event={{
-        ...event,
-        isParticipant:
-          isParticipant !== null ? isParticipant : event.isParticipant,
-        isOnWaitingList:
-          isOnWaitingList !== null ? isOnWaitingList : event.isOnWaitingList,
-        startTime,
-        endTime,
-        participationUntil,
-        responsibleOrganizations: event.responsibleOrganizations.map(
-          (item: any) => item.organization
-        ),
-      }}
-      participateControl={
-        <addToParticipantFetcher.Form
-          method="post"
-          action={`/event/${event.slug}/settings/participants/add-participant`}
-        >
-          <input name="userId" defaultValue={loaderData.userId} hidden />
-          <input name="eventId" defaultValue={event.id} hidden />
-          <input name="id" defaultValue={loaderData.userId} hidden />
-          <Button
-            type="submit"
-            size="x-small"
-            loading={addToParticipantFetcher.state === "submitting"}
-          >
-            Teilnehmen
-          </Button>
-        </addToParticipantFetcher.Form>
-      }
-      waitingListControl={
-        <addToWaitingListFetcher.Form
-          method="post"
-          action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-        >
-          <input name="userId" defaultValue={loaderData.userId} hidden />
-          <input name="eventId" defaultValue={event.id} hidden />
-          <input name="id" defaultValue={loaderData.userId} hidden />
-          <Button
-            type="submit"
-            size="x-small"
-            loading={addToParticipantFetcher.state === "submitting"}
-          >
-            Warteliste
-          </Button>
-        </addToWaitingListFetcher.Form>
-      }
-    />
-  );
-}
-
 function Events() {
   const loaderData = useLoaderData<typeof loader>();
 
@@ -154,14 +67,12 @@ function Events() {
   const [searchParams] = useSearchParams();
 
   const [events, setEvents] = React.useState(loaderData.events);
-  const [shouldFetchFutureEvents, setShouldFetchFutureEvents] = React.useState(
-    () => {
-      if (loaderData.events.length < loaderData.pagination.itemsPerPage) {
-        return false;
-      }
-      return true;
+  const [shouldFetchEvents, setShouldFetchEvents] = React.useState(() => {
+    if (loaderData.events.length < loaderData.pagination.itemsPerPage) {
+      return false;
     }
-  );
+    return true;
+  });
   const [page, setPage] = React.useState(() => {
     const pageParam = searchParams.get("page");
     if (pageParam !== null) {
@@ -176,7 +87,7 @@ function Events() {
         setEvents((events) => [...events, ...fetcher.data.events]);
         setPage(fetcher.data.pagination.page);
         if (fetcher.data.events.length < fetcher.data.pagination.itemsPerPage) {
-          setShouldFetchFutureEvents(false);
+          setShouldFetchEvents(false);
         }
       }
     }
@@ -192,11 +103,30 @@ function Events() {
         <CardContainer type="multi row">
           {events.length > 0 ? (
             events.map((event) => {
+              const startTime = utcToZonedTime(
+                event.startTime,
+                "Europe/Berlin"
+              );
+              const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+              const participationUntil = utcToZonedTime(
+                event.participationUntil,
+                "Europe/Berlin"
+              );
+
               return (
-                <EventCardWrapper
+                <EventCard
                   key={event.id}
-                  event={event}
-                  loaderData={loaderData}
+                  publicAccess={typeof loaderData.userId === "undefined"}
+                  event={{
+                    ...event,
+                    startTime,
+                    endTime,
+                    participationUntil,
+                    responsibleOrganizations:
+                      event.responsibleOrganizations.map(
+                        (item: any) => item.organization
+                      ),
+                  }}
                 />
               );
             })
@@ -208,7 +138,7 @@ function Events() {
           )}
         </CardContainer>
       </section>
-      {shouldFetchFutureEvents && (
+      {shouldFetchEvents && (
         <div className="mv-w-full mv-flex mv-justify-center">
           <fetcher.Form method="get">
             <input key="page" type="hidden" name="page" value={page + 1} />
