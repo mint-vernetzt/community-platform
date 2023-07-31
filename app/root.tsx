@@ -165,8 +165,8 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   return (
-    <header id="header" className="shadow-md mb-8 z-20">
-      <div className="container relative z-10">
+    <header id="header" className="shadow-md mb-8">
+      <div className="container relative">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
             <Link
@@ -466,7 +466,7 @@ export default function App() {
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
 
-          <main className="flex-auto z-10 relative pb-24 md:pb-8">
+          <main className="flex-auto relative pb-24 md:pb-8">
             <Outlet />
           </main>
 
