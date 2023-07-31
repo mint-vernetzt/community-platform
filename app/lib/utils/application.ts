@@ -103,16 +103,21 @@ export async function validateFeatureAccess(
         }
         // User is null or not present in the current looped feature of the featureList
         else {
-          const message = `User hasn't access to feature "${featureName}"`;
-          console.error(message);
-          if (options.throw) {
-            throw serverError({ message });
+          // Feature is accessible for everyone
+          if (feature.idsWithAccess.length === 0) {
+            abilities[featureName] = { hasAccess: true };
+          } else {
+            const message = `User hasn't access to feature "${featureName}"`;
+            console.error(message);
+            if (options.throw) {
+              throw serverError({ message });
+            }
+            error = new Error(message);
+            abilities[featureName] = {
+              error,
+              hasAccess: false,
+            };
           }
-          error = new Error(message);
-          abilities[featureName] = {
-            error,
-            hasAccess: false,
-          };
         }
       }
     }
