@@ -14,6 +14,8 @@ import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
+import { submissionMailer } from "~/lib/submissions/mailer/submissionMailer";
 
 const schema = z.object({
   userId: z.string(),
@@ -50,6 +52,19 @@ export const action: ActionFunction = async (args) => {
     if (profile !== null) {
       await connectParticipantToEvent(event.id, profile.id);
       await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
+      // Check feature ability: waitinglistMail
+      // Send dummy text mail (event.url, event.name, short message)
+      try {
+        await submissionMailer<T>( // include typeof data object as generic
+          mailerOptions,
+          sender, // -> Look at process.env.SUBMISSION_SENDER
+          recipient, // -> mail of person which was moved to waitinglist
+          subject, // -> Look at process.env.EVENTSUBMISSION_SUBJECT
+          data // Build data object with event.url, event.name, short message (They will resolve in this text mail: "Key: Value")
+        );
+      } catch (error) {
+        // Throw a 500 -> Mailer issue
+      }
     }
   }
   return json<ActionData>(result, { headers: response.headers });
