@@ -21,6 +21,7 @@ export type ButtonProps = {
   responsive?: boolean; // lg -> md -> sm
   // TODO: implement Button or Anchor props conditional (eg. if as="button" then href not possible)
   as?: ButtonType;
+  fullSize?: boolean;
 };
 
 function Button(
@@ -35,6 +36,7 @@ function Button(
     variant = "normal",
     level = "primary",
     as = "button",
+    fullSize = false,
     loading,
     ...otherProps
   } = props;
@@ -51,6 +53,8 @@ function Button(
     size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-border",
     size === "medium" && "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
     size === "large" && "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-border-2",
+    // button full size
+    fullSize && "mv-w-full",
     // button primary disabled
     isDisabled &&
       variant === "normal" &&
