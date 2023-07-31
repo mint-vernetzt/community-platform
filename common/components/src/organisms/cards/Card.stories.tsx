@@ -1,4 +1,5 @@
 import Button from "../../molecules/Button";
+import EventCard from "./EventCard";
 import OrganizationCard from "./OrganizationCard";
 import ProfileCard from "./ProfileCard";
 
@@ -36,7 +37,7 @@ export function Profile() {
                 slug: "matrixgmbhcokg",
               },
             ],
-            areaNames: ["Hamburg", "Bundesweit"],
+            areas: ["Hamburg", "Bundesweit"],
             offers: [
               "Wirkungsorientierung/Qualitätsentwicklung",
               "SEO",
@@ -76,7 +77,7 @@ export function Profile() {
                 slug: "matrixgmbhcokg",
               },
             ],
-            areaNames: [],
+            areas: [],
             offers: [],
           }}
         />
@@ -90,7 +91,7 @@ export function Profile() {
             lastName: "Langlang-Schmittberger",
             position: "Projektleiterin MINTvernetzt",
             memberOf: [],
-            areaNames: [],
+            areas: [],
             offers: [],
           }}
         />
@@ -110,7 +111,7 @@ export function Organization() {
             slug: "hochschulefulda",
             logo: "./hochschulefulda-logo.jpeg",
             background: "./hochschule-fulda.jpg",
-            areaNames: ["Hessen"],
+            areas: ["Hessen"],
             types: ["Bildungseinrichtung"],
             focuses: ["Berufsorientierung", "Ländlicher Raum"],
             teamMembers: [
@@ -170,7 +171,7 @@ export function Organization() {
             slug: "hochschulefulda",
             logo: "./hochschulefulda-logo.jpeg",
             background: "./hochschule-fulda.jpg",
-            areaNames: [],
+            areas: [],
             types: ["Bildungseinrichtung"],
             focuses: [],
             teamMembers: [
@@ -227,7 +228,7 @@ export function Organization() {
           organization={{
             name: "Hochschule Fulda / Projekt MINTmachClub Fulda",
             slug: "hochschulefulda",
-            areaNames: [],
+            areas: [],
             types: ["Bildungseinrichtung"],
             focuses: [],
             teamMembers: [],
@@ -238,6 +239,593 @@ export function Organization() {
   );
 }
 Organization.storyName = "organization";
+
+type EventStoryProps = {
+  publicAccess: true;
+  isTeamMember: false;
+  isSpeaker: false;
+  isParticipant: false;
+  isOnWaitingList: false;
+};
+
+export function EventStory(props: EventStoryProps) {
+  const { publicAccess, ...otherProps } = props;
+  const now = new Date();
+
+  if (publicAccess) {
+    otherProps.isOnWaitingList = false;
+    otherProps.isParticipant = false;
+    otherProps.isTeamMember = false;
+    otherProps.isSpeaker = false;
+  }
+  return (
+    <>
+      <div className="mv-flex mv-gap-8 mv-flex-wrap">
+        <div className="mv-w-[267px]">
+          {!publicAccess && (props.isSpeaker || props.isTeamMember) && (
+            <EventCard
+              publicAccess={publicAccess}
+              participateControl={
+                <Button type="submit" size="x-small">
+                  Anmelden
+                </Button>
+              }
+              waitingListControl={<Button size="x-small">Warteliste</Button>}
+              event={{
+                name: "-",
+                slug: "-",
+                startTime: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                endTime: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                participationUntil: new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate() + 10,
+                  11,
+                  0,
+                  0
+                ),
+                published: false,
+                canceled: false,
+                responsibleOrganizations: [],
+                _count: {
+                  childEvents: 0,
+                  participants: 100,
+                  waitingList: 0,
+                },
+                ...otherProps,
+              }}
+            />
+          )}
+        </div>
+
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "-",
+              slug: "-",
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                12,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              stage: {
+                slug: "on-site",
+                title: "Vor Ort",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 100,
+                waitingList: 0,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              stage: {
+                slug: "online",
+                title: "Online",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 100,
+                waitingList: 0,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={true}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              background: "./bla_giesserstrasse_12a-1512x1080.jpg",
+              subline:
+                "Chancenarm statt bildungsfern - von sozialer Herkunft und Stereotypen in der Bildung",
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 10,
+                8,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              stage: {
+                slug: "hybrid",
+                title: "Hybrid",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+                {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
+              ],
+              _count: {
+                childEvents: 100,
+                participants: 100,
+                waitingList: 0,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              background: "./bla_giesserstrasse_12a-1512x1080.jpg",
+              subline:
+                "Chancenarm statt bildungsfern - von sozialer Herkunft und Stereotypen in der Bildung",
+
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                12,
+                11,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                13,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                12,
+                11,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              participantLimit: 100,
+              stage: {
+                slug: "hybrid",
+                title: "Hybrid",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+                {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
+                {
+                  name: "matrix GmbH & Co. KG",
+                  slug: "matrixgmbhcokg",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 0,
+                waitingList: 0,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              background: "./bla_giesserstrasse_12a-1512x1080.jpg",
+              subline:
+                "Chancenarm statt bildungsfern - von sozialer Herkunft und Stereotypen in der Bildung",
+
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                29,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth() + 2,
+                1,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                29,
+                8,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              participantLimit: 100,
+              stage: {
+                slug: "hybrid",
+                title: "Hybrid",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+                {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
+
+                {
+                  name: "matrix GmbH & Co. KG",
+                  slug: "matrixgmbhcokg",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 100,
+                waitingList: 0,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              background: "./bla_giesserstrasse_12a-1512x1080.jpg",
+              subline:
+                "Chancenarm statt bildungsfern - von sozialer Herkunft und Stereotypen in der Bildung",
+
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                8,
+                0,
+                0
+              ),
+              published: true,
+              canceled: false,
+              participantLimit: 0,
+              stage: {
+                slug: "hybrid",
+                title: "Hybrid",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+                {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
+
+                {
+                  name: "matrix GmbH & Co. KG",
+                  slug: "matrixgmbhcokg",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 0,
+                waitingList: 10,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+        <div className="mv-w-[267px]">
+          <EventCard
+            publicAccess={publicAccess}
+            participateControl={
+              <Button type="submit" size="x-small">
+                Anmelden
+              </Button>
+            }
+            waitingListControl={<Button size="x-small">Warteliste</Button>}
+            event={{
+              name: "Workshop: Klassismuskritisch handeln",
+              slug: "workshopklassismuskritischhandeln",
+              background: "./bla_giesserstrasse_12a-1512x1080.jpg",
+              subline:
+                "Chancenarm statt bildungsfern - von sozialer Herkunft und Stereotypen in der Bildung",
+
+              startTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                8,
+                0,
+                0
+              ),
+              endTime: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                12,
+                0,
+                0
+              ),
+              participationUntil: new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - 10,
+                12,
+                0,
+                0
+              ),
+              published: true,
+              canceled: true,
+              participantLimit: 0,
+              stage: {
+                slug: "hybrid",
+                title: "Hybrid",
+              },
+              responsibleOrganizations: [
+                {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
+                {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
+                {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
+
+                {
+                  name: "matrix GmbH & Co. KG",
+                  slug: "matrixgmbhcokg",
+                },
+              ],
+              _count: {
+                childEvents: 0,
+                participants: 0,
+                waitingList: 10,
+              },
+              ...otherProps,
+            }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+EventStory.storyName = "event";
+EventStory.args = {
+  publicAccess: true,
+  isTeamMember: false,
+  isSpeaker: false,
+  isParticipant: false,
+  isOnWaitingList: false,
+};
+EventStory.parameters = {
+  controls: { disable: false },
+};
 
 export default {
   title: "Organism/Cards",

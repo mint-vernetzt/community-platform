@@ -29,7 +29,7 @@ const profile = {
       slug: "matrixgmbhcokg",
     },
   ],
-  areaNames: ["Hamburg", "Bundesweit"],
+  areas: ["Hamburg", "Bundesweit"],
   offers: [
     "Wirkungsorientierung/Qualitätsentwicklung",
     "SEO",

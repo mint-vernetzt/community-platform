@@ -28,17 +28,14 @@ import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
-import styles from "./styles/styles.css";
-import newStyles from "../common/design/styles/styles.css";
+import styles from "./styles/legacy-styles.css";
+// import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
   return { title: "MINTvernetzt Community Plattform" };
 };
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: newStyles },
-  { rel: "stylesheet", href: styles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export type RootRouteData = {
   matomoUrl: string | undefined;
@@ -165,7 +162,7 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   return (
-    <header id="header" className="shadow-md mb-8">
+    <header id="header" className="z-10 shadow-md mb-8">
       <div className="container relative">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
@@ -465,7 +462,6 @@ export default function App() {
           {isNonAppBaseRoute ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
-
           <main className="flex-auto relative pb-24 md:pb-8">
             <Outlet />
           </main>

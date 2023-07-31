@@ -160,7 +160,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="-mt-8 mv-bg-secondary-50">
+      <section className="-mt-8 bg-lilac-50">
         <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center bg-[linear-gradient(0deg,_rgba(255,255,255,0.5)_0%,_rgba(255,255,255,1)_75%)]">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:block">
             <svg
@@ -334,17 +334,17 @@ export default function Index() {
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die bundesweite MINT-Community lebt davon,{" "}
-                <span className="mv-bg-secondary-200">
+                <span className="bg-lilac-200">
                   sich auszutauschen, Wissen zu teilen, von- und miteinander zu
                   lernen
                 </span>
                 . Auf der Community-Plattform könnt Ihr Euch{" "}
-                <span className="mv-bg-secondary-200">
+                <span className="bg-lilac-200">
                   untereinander und mit Organisationen vernetzen und Inspiration
                   oder <span className="hyphens-manual">Expert:innen</span>
                 </span>{" "}
                 zu konkreten Themen in Eurer Umgebung{" "}
-                <span className="mv-bg-secondary-200">finden</span>.
+                <span className="bg-lilac-200">finden</span>.
               </p>
               <p className="text-center">
                 <Link
@@ -361,7 +361,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 relative mv-bg-primary text-white">
+      <section className="py-16 lg:py-24 relative bg-primary text-white">
         <div className="container relative">
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
@@ -440,11 +440,11 @@ export default function Index() {
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 Die MINTvernetzt Community-Plattform ist ein Projekt von
                 MINTvernetzt, das 2021 gestartet ist, um die{" "}
-                <span className="mv-bg-secondary-200">
+                <span className="bg-lilac-200">
                   MINT-Community deutschlandweit nachhaltig zu stärken.
                 </span>{" "}
                 Erfahre mehr über die Projekte von{" "}
-                <span className="mv-bg-secondary-200">
+                <span className="bg-lilac-200">
                   MINTvernetzt, der Service- und Anlaufstelle für
                   MINT-Akteur:innen
                 </span>{" "}
