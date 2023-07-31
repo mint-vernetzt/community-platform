@@ -62,15 +62,20 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
+  const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
+
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
+
+  console.log({ abilities });
 
   return json(
     {
       profileCount,
       organizationCount,
       eventCount,
+      abilities,
     },
     { headers: response.headers }
   );
@@ -202,6 +207,14 @@ export default function Index() {
 
               <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-4">
                 <div className="bg-white rounded-lg p-6 shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                  {loaderData.abilities.keycloak.hasAccess && (
+                    <a
+                      href="/auth/keycloak"
+                      className="mv-btn mv-btn-primary mv-w-full"
+                    >
+                      Mit Keycloak anmelden
+                    </a>
+                  )}
                   <LoginForm
                     method="post"
                     schema={schema}
