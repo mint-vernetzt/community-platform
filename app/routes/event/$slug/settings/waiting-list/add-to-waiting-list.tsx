@@ -48,6 +48,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export type SuccessActionData = {
+  success: boolean;
   message: string;
 };
 
@@ -79,6 +80,7 @@ export const action: ActionFunction = async (args) => {
     }
     return json<SuccessActionData>(
       {
+        success: true,
         message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde zur Warteliste hinzugefügt.`,
       },
       { headers: response.headers }
@@ -115,7 +117,7 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
             <Field name="userId" />
             <Field name="eventId" />
             <Field name="id" />
-            <button className="btn btn-primary" type="submit">
+            <button type="submit" className="btn btn-primary">
               Warteliste
             </button>
             <Errors />

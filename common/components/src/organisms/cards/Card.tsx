@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import React, { Children } from "react";
 import type { MoreIndicatorProps } from "../../molecules/Avatar";
 import Avatar, { MoreIndicator } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
@@ -66,31 +66,87 @@ export function CardHeader(props: CardHeaderProps) {
   const avatar = validChildren.find((child) => {
     return (child as React.ReactElement).type === Avatar;
   });
+
+  const info = validChildren.find((child) => {
+    return React.isValidElement(child) && child.type === CardInfo;
+  });
+
+  const infoOverlay = validChildren.find((child) => {
+    return React.isValidElement(child) && child.type === CardInfoOverlay;
+  });
+
   return (
-    <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
-      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
-        {image || null}
+    <>
+      <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
+        {image !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {image}
+          </div>
+        )}
+        {status !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {status}
+          </div>
+        )}
+        {avatar !== undefined && (
+          <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
+            {avatar}
+          </div>
+        )}
+
+        {infoOverlay !== undefined && (
+          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+            {infoOverlay}
+          </div>
+        )}
       </div>
-      <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
-        {status || null}
-      </div>
-      <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
-        {avatar || null}
-      </div>
+      {info !== undefined && info}
+    </>
+  );
+}
+
+export type CardInfoOverlayProps = {
+  children?: React.ReactNode;
+};
+
+export function CardInfoOverlay(props: CardInfoOverlayProps) {
+  return (
+    <div className="mv-w-full mv-h-full mv-flex mv-justify-between mv-items-end mv-align-bottom mv-flex-nowrap mv-top-28 mv-px-3 mv-py-4">
+      {props.children}
+    </div>
+  );
+}
+
+export type CardInfoProps = {
+  children?: React.ReactNode;
+};
+
+export function CardInfo(props: CardInfoProps) {
+  return (
+    <div className="mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-gap-1 mv-px-4 mv-pt-3">
+      {props.children}
     </div>
   );
 }
 
 export type CardStatusProps = {
   children?: React.ReactNode;
+  variant?: "primary" | "neutral" | "positive" | "negative";
+  inverted?: boolean;
 };
 
 export function CardStatus(props: CardStatusProps) {
-  return (
-    <div className="mv-text-center mv-text-primary mv-bg-primary-100 mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold">
-      {props.children}
-    </div>
+  const { variant = "primary", inverted = false } = props;
+  const classes = classNames(
+    "mv-text-center mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold",
+    variant === "primary" && !inverted && "mv-text-primary mv-bg-primary-100",
+    variant === "primary" && inverted && "mv-text-white mv-bg-primary-300",
+    variant === "neutral" && "mv-text-white mv-bg-neutral",
+    variant === "positive" && "mv-text-white mv-bg-positive",
+    variant === "negative" && "mv-text-white mv-bg-negative"
   );
+
+  return <div className={classes}>{props.children}</div>;
 }
 
 export function CardImage(props: { src: string }) {
@@ -108,7 +164,7 @@ export type CardBodyProps = {
 };
 
 export function CardBody(props: CardBodyProps) {
-  return <div className="mv-mt-[30px] mv-p-4">{props.children}</div>;
+  return <div className="mv-p-4">{props.children}</div>;
 }
 
 export type CardBodySectionProps = {
@@ -157,48 +213,14 @@ export function CardBodySection(props: CardBodySectionProps) {
 
 export type CardFooterProps = {
   children?: React.ReactNode;
-  alignment?: "left" | "center";
-  numberOfAvatars?: number;
-  moreIndicatorProps?: Partial<MoreIndicatorProps>;
 };
 
-function wrapCardFooterChildren(children: React.ReactNode) {
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
-  });
-
-  if (validChildren.length === 0) {
-    return <div className="mv-h-[36px]"></div>;
-  }
-
-  return React.Children.map(validChildren, (child) => {
-    return <div>{child}</div>;
-  });
-}
-
 export function CardFooter(props: CardFooterProps) {
-  const { numberOfAvatars = 2 } = props;
-
-  const avatars = React.Children.toArray(props.children).filter((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
-  });
-
   return (
     <div className="mv-p-4 mv-pt-0 mv-mt-auto">
       <hr className="mv-h-0 mv-border-t mv-border-neutral-200 mv-m-0 mv-mb-4" />
-      <div
-        className={classNames(
-          "mv-flex mv-gap-2",
-          props.alignment === "center" && "mv-justify-center"
-        )}
-      >
-        {wrapCardFooterChildren(avatars.slice(0, numberOfAvatars))}
-        {avatars.length > numberOfAvatars && (
-          <MoreIndicator
-            {...props.moreIndicatorProps}
-            amount={avatars.length - numberOfAvatars}
-          />
-        )}
+      <div className="mv-flex mv-justify-between mv-items-center">
+        {props.children}
       </div>
     </div>
   );

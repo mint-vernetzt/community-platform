@@ -3,7 +3,7 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -24,6 +24,9 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+// import styles from "../../../common/design/styles/styles.css";
+
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;

@@ -3,7 +3,7 @@ import React from "react";
 
 // eigene Komponente für Icon-Button mit Varianten für Circle und Square
 
-export type ButtonSize = "small" | "medium" | "large";
+export type ButtonSize = "x-small" | "small" | "medium" | "large";
 export type ButtonVariant = "normal" | "outline" | "ghost";
 export type ButtonType = "button" | "a";
 export type ButtonLevel =
@@ -47,6 +47,7 @@ function Button(
     "mv-btn-sm",
     "mv-font-semibold",
     // button size
+    size === "x-small" && "mv-text-xs mv-border mv-p-2",
     size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-border",
     size === "medium" && "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
     size === "large" && "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-border-2",
