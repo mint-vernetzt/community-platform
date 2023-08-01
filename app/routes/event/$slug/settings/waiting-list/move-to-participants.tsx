@@ -3,13 +3,20 @@ import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
+import { badRequest, serverError } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/lib/utils/application";
+import {
+  getHTMLMailTemplate,
+  getTextMailTemplate,
+  mailer,
+} from "~/mailer.server";
 import { getProfileByUserId } from "~/profile.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
@@ -17,9 +24,6 @@ import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { submissionMailer } from "~/lib/submissions/mailer/submissionMailer";
-import { serverError } from "remix-utils";
 
 const schema = z.object({
   userId: z.string(),
@@ -62,26 +66,30 @@ export const action: ActionFunction = async (args) => {
         "waitinglistMail"
       );
       if (featureAbilities["waitinglistMail"].hasAccess === true) {
-        // Send dummy text mail (event.url, event.name, short message)
-        const sender = process.env.SUBMISSION_SENDER || "";
+        const sender = process.env.SYSTEM_MAIL_SENDER;
+        if (sender === undefined) {
+          console.error(
+            "No system mail sender address provided. Please add one inside the .env."
+          );
+          return badRequest({
+            message:
+              "No system mail sender address provided. Please add one inside the .env.",
+          });
+        }
         // -> mail of person which was moved to waitinglist
         const recipient = profile.email;
-        const subject = `Deine Teilnahme an der Veranstaltung ${event.name}`;
-        const eventUrl = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`;
-        // Build data object with event.url, event.name, short message (They will resolve in this text mail: "Key: Value\n --- \nKey: Value\n --- \n...")
-        const data = {
-          url: eventUrl,
-          name: event.name,
+        const subject = `Deine Teilnahme an der Veranstaltung\n${event.name}`;
+        const content = {
+          headline: subject,
           message: `Du wurdest bei der Veranstaltung "${event.name}" von der Warteliste zu den Teilnehmenden hinzugefügt.`,
+          buttonText: "Zur Veranstaltung",
+          buttonUrl: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
         };
+        const text = getTextMailTemplate(content);
+        const html = await getHTMLMailTemplate(content);
+
         try {
-          await submissionMailer<typeof data>( // include typeof data object as generic
-            mailerOptions,
-            sender,
-            recipient,
-            subject,
-            data
-          );
+          await mailer(mailerOptions, sender, recipient, subject, text, html);
         } catch (error) {
           // Throw a 500 -> Mailer issue
           console.error(error);
