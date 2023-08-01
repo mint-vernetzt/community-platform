@@ -67,7 +67,7 @@ export const action: ActionFunction = async (args) => {
         // -> mail of person which was moved to waitinglist
         const recipient = profile.email;
         const subject = `Deine Teilnahme an der Veranstaltung ${event.name}`;
-        const eventUrl = `https://${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`;
+        const eventUrl = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`;
         // Build data object with event.url, event.name, short message (They will resolve in this text mail: "Key: Value\n --- \nKey: Value\n --- \n...")
         const data = {
           url: eventUrl,
