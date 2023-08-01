@@ -53,11 +53,26 @@ export const loader = async (args: LoaderArgs) => {
             termsAccepted: false,
           },
         });
+        await prismaClient.profileVisibility.create({
+          data: { profileId: profile.id },
+        });
+        // check if profile visibility exist
       } else {
         // check if profile is connected to session user
         if (profile.id !== user.id) {
           // if not, fail (later: ask if user wants to connect profile)
           throw new Error("Profile is connected to another user.");
+        }
+        // check if profile visibility exist
+        const profileVisibility =
+          await prismaClient.profileVisibility.findFirst({
+            where: { profileId: profile.id },
+          });
+        // if not, create profile visibility
+        if (profileVisibility === null) {
+          await prismaClient.profileVisibility.create({
+            data: { profileId: profile.id },
+          });
         }
       }
       // Default redirect to profile of sessionUser after sign up verification
