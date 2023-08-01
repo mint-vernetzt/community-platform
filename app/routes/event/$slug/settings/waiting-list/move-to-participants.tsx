@@ -6,7 +6,10 @@ import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/lib/utils/application";
 import { getProfileByUserId } from "~/profile.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
@@ -16,6 +19,7 @@ import {
 } from "./utils.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { submissionMailer } from "~/lib/submissions/mailer/submissionMailer";
+import { serverError } from "remix-utils";
 
 const schema = z.object({
   userId: z.string(),
@@ -52,18 +56,37 @@ export const action: ActionFunction = async (args) => {
     if (profile !== null) {
       await connectParticipantToEvent(event.id, profile.id);
       await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
-      // Check feature ability: waitinglistMail
-      // Send dummy text mail (event.url, event.name, short message)
-      try {
-        await submissionMailer<T>( // include typeof data object as generic
-          mailerOptions,
-          sender, // -> Look at process.env.SUBMISSION_SENDER
-          recipient, // -> mail of person which was moved to waitinglist
-          subject, // -> Look at process.env.EVENTSUBMISSION_SUBJECT
-          data // Build data object with event.url, event.name, short message (They will resolve in this text mail: "Key: Value")
-        );
-      } catch (error) {
-        // Throw a 500 -> Mailer issue
+      // Check feature ability: waitinglistMail -> Add it to .env
+      const featureAbilities = await getFeatureAbilities(
+        authClient,
+        "waitinglistMail"
+      );
+      if (featureAbilities["waitinglistMail"].hasAccess === true) {
+        // Send dummy text mail (event.url, event.name, short message)
+        const sender = process.env.SUBMISSION_SENDER || "";
+        // -> mail of person which was moved to waitinglist
+        const recipient = profile.email;
+        const subject = `Deine Teilnahme an der Veranstaltung ${event.name}`;
+        const eventUrl = `https://${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`;
+        // Build data object with event.url, event.name, short message (They will resolve in this text mail: "Key: Value\n --- \nKey: Value\n --- \n...")
+        const data = {
+          url: eventUrl,
+          name: event.name,
+          message: `Du wurdest bei der Veranstaltung "${event.name}" von der Warteliste zu den Teilnehmenden hinzugefügt.`,
+        };
+        try {
+          await submissionMailer<typeof data>( // include typeof data object as generic
+            mailerOptions,
+            sender,
+            recipient,
+            subject,
+            data
+          );
+        } catch (error) {
+          // Throw a 500 -> Mailer issue
+          console.error(error);
+          return serverError({ message: "Mailer Issue" });
+        }
       }
     }
   }
