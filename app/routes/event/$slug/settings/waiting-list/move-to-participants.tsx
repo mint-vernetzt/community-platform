@@ -78,7 +78,11 @@ export const action: ActionFunction = async (args) => {
           startDate: `${event.startTime.getDate()}.${
             event.startTime.getMonth() + 1
           }.${event.startTime.getFullYear()}`,
-          startTime: `${event.startTime.getHours()}:${event.startTime.getMinutes()}`,
+          startTime: `${event.startTime.getHours()}:${
+            event.startTime.getMinutes() < 10
+              ? `${event.startTime.getMinutes()}0`
+              : event.startTime.getMinutes()
+          }`,
           supportContact: {
             firstName:
               event.teamMembers[0].profile.firstName ??
