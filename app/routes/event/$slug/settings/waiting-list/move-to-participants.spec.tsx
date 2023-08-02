@@ -41,6 +41,13 @@ jest.mock("~/lib/utils/application", () => {
   };
 });
 
+jest.mock("~/mailer.server", () => {
+  return {
+    ...jest.requireActual("~/mailer.server"),
+    mailer: jest.fn(),
+  };
+});
+
 describe("/event/$slug/settings/waiting-list/move-to-participants", () => {
   test("anon user", async () => {
     const request = createRequestWithFormData({});
@@ -188,6 +195,18 @@ describe("/event/$slug/settings/waiting-list/move-to-participants", () => {
     (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         id: "some-event-id",
+        name: "some-event-name",
+        slug: "some-event-slug",
+        startTime: new Date(),
+        teamMembers: [
+          {
+            profile: {
+              firstName: "first-name",
+              lastName: "last-name",
+              email: "e@mail.de",
+            },
+          },
+        ],
       };
     });
     (

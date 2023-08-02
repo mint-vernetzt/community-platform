@@ -153,6 +153,7 @@ export async function getEventByField(field: string, value: string) {
               id: true,
               firstName: true,
               lastName: true,
+              email: true,
               username: true,
               avatar: true,
               position: true,

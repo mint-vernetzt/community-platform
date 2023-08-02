@@ -29,7 +29,7 @@ import type {
   SuccessActionData,
 } from "./waiting-list/add-to-waiting-list";
 import { addToWaitingListSchema } from "./waiting-list/add-to-waiting-list";
-import type { ActionData as MoveToParticipantsActionData } from "./waiting-list/move-to-participants";
+import { type ActionData as MoveToParticipantsActionData } from "./waiting-list/move-to-participants";
 import { moveToParticipantsSchema } from "./waiting-list/move-to-participants";
 import type { ActionData as RemoveFromWaitingListActionData } from "./waiting-list/remove-from-waiting-list";
 import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-list";
@@ -223,7 +223,12 @@ function Participants() {
           </Link>
         </p>
       ) : null}
+
       <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
+        {moveToParticipantsFetcher.data !== undefined &&
+          moveToParticipantsFetcher.data.success === true && (
+            <div>Teilnehmende wurde hinzugefügt und per E-Mail informiert.</div>
+          )}
         {loaderData.waitingList.map((waitingParticipant) => {
           const initials = getInitials(waitingParticipant);
           return (
