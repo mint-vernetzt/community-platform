@@ -8,15 +8,8 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/lib/utils/application";
-import {
-  getHTMLMailTemplate,
-  getTextMailTemplate,
-  mailer,
-} from "~/mailer.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { getProfileByUserId } from "~/profile.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
@@ -60,41 +53,62 @@ export const action: ActionFunction = async (args) => {
     if (profile !== null) {
       await connectParticipantToEvent(event.id, profile.id);
       await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
-      // Check feature ability: waitinglistMail -> Add it to .env
-      const featureAbilities = await getFeatureAbilities(
-        authClient,
-        "waitinglistMail"
+      // Send info mail
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      if (sender === undefined) {
+        console.error(
+          "No system mail sender address provided. Please add one inside the .env."
+        );
+        return badRequest({
+          message:
+            "No system mail sender address provided. Please add one inside the .env.",
+        });
+      }
+      // -> mail of person which was moved to waitinglist
+      const recipient = profile.email;
+      const subject = `Deine Teilnahme an der Veranstaltung ${event.name}`;
+      const content = {
+        recipient: {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        },
+        event: {
+          name: event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          // startDate: `${event.startTime}`, // TODO: Format this
+          startDate: `25.05.2023`, // TODO: Format this
+          // startTime: `${event.startTime}`, // TODO: Format this
+          startTime: `10:00`, // TODO: Format this
+          supportContact: {
+            firstName:
+              event.teamMembers[0].profile.firstName ??
+              "Kein zuständiges Teammitglied gefunden",
+            lastName:
+              event.teamMembers[0].profile.lastName ??
+              "Kein zuständiges Teammitglied gefunden",
+            email:
+              event.teamMembers[0].profile.email ??
+              "Kein zuständiges Teammitglied gefunden",
+          },
+        },
+      };
+      const textTemplatePath = "mail-templates/move-to-participants/text.hbs";
+      const text = await getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content
       );
-      if (featureAbilities["waitinglistMail"].hasAccess === true) {
-        const sender = process.env.SYSTEM_MAIL_SENDER;
-        if (sender === undefined) {
-          console.error(
-            "No system mail sender address provided. Please add one inside the .env."
-          );
-          return badRequest({
-            message:
-              "No system mail sender address provided. Please add one inside the .env.",
-          });
-        }
-        // -> mail of person which was moved to waitinglist
-        const recipient = profile.email;
-        const subject = `Deine Teilnahme an der Veranstaltung\n${event.name}`;
-        const content = {
-          headline: subject,
-          message: `Du wurdest bei der Veranstaltung "${event.name}" von der Warteliste zu den Teilnehmenden hinzugefügt.`,
-          buttonText: "Zur Veranstaltung",
-          buttonUrl: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
-        };
-        const text = getTextMailTemplate(content);
-        const html = await getHTMLMailTemplate(content);
+      const htmlTemplatePath = "mail-templates/move-to-participants/html.hbs";
+      const html = await getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content
+      );
 
-        try {
-          await mailer(mailerOptions, sender, recipient, subject, text, html);
-        } catch (error) {
-          // Throw a 500 -> Mailer issue
-          console.error(error);
-          return serverError({ message: "Mailer Issue" });
-        }
+      try {
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        // Throw a 500 -> Mailer issue
+        console.error(error);
+        return serverError({ message: "Mailer Issue" });
       }
     }
   }
