@@ -75,10 +75,10 @@ export const action: ActionFunction = async (args) => {
         event: {
           name: event.name,
           url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
-          // startDate: `${event.startTime}`, // TODO: Format this
-          startDate: `25.05.2023`, // TODO: Format this
-          // startTime: `${event.startTime}`, // TODO: Format this
-          startTime: `10:00`, // TODO: Format this
+          startDate: `${event.startTime.getDate()}.${
+            event.startTime.getMonth() + 1
+          }.${event.startTime.getFullYear()}`,
+          startTime: `${event.startTime.getHours()}:${event.startTime.getMinutes()}`,
           supportContact: {
             firstName:
               event.teamMembers[0].profile.firstName ??
