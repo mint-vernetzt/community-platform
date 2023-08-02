@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "@mint-vernetzt/components";
+import { Link as RemixLink } from "@remix-run/react";
 
 function Footer() {
   const [isExpanded, toggleFooter] = React.useState(false);
@@ -47,14 +48,14 @@ function Footer() {
           <div className="mv-py-4 md:mv-py-0 md:mv-w-6/12">
             <ul className="mv-flex mv-flex-col md:mv-flex-row md:mv-justify-center mv-gap-4 md:mv-gap-6">
               <li>
-                <Link
-                  as="a"
-                  to="https://community.mint-vernetzt.de/imprint"
-                  className=""
-                  isExternal
+                <RemixLink
+                  to="/imprint"
+                  className="hover:mv-underline mv-underline-offset-4 mv-decoration-2"
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   Impressum
-                </Link>
+                </RemixLink>
               </li>
               <li>
                 <Link
