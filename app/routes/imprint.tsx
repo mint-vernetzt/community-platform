@@ -15,8 +15,8 @@ export default function Imprint() {
         und Vertragspartnerin nach diesen Bestimmungen ist die
       </p>
       <p>
-        matrix Gesellschaft für Beratung in Wirtschaft, Politik und Verwaltung
-        mbH &amp; Co. KG
+        matrix gGmbH zur Förderung von Demokratie, Teilhabe und nachhaltiger
+        gesellschaftlicher Entwicklung
       </p>
       <p>Rittergut Haus Morp</p>
       <p>Düsseldorfer Straße 16</p>
@@ -30,15 +30,15 @@ export default function Imprint() {
         E-Mail:{" "}
         <a
           className="text-primary hover:underline"
-          href="mailto:info@matrix-gmbh.de"
+          href="mailto:info@matrix-ggmbh.de"
           target="_blank"
           rel="noreferrer"
         >
-          info@matrix-gmbh.de
+          info@matrix-ggmbh.de
         </a>
       </p>
-      <p>Umsatzsteueridentifikationsnummer: (USt. Ident-Nr) DE 222703085</p>
-      <p>Amtsgericht Düsseldorf – HRA 15120</p>
+      <p>Umsatzsteueridentifikationsnummer: (USt. Ident-Nr) DE 329043660</p>
+      <p>Amtsgericht Wuppertal – HRB 33341</p>
       <p className="mb-2">berufen.</p>
       <p>
         Inhaltlich verantwortlich nach § 18 MStV ist Arne Klauke, erreichbar
