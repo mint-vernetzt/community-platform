@@ -16,7 +16,7 @@ export function generateProjectSlug(name: string) {
 
 // TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
 // (Greek letters, chinese letters, arabic letters, etc...)
-function generateValidSlug(string: string) {
+export function generateValidSlug(string: string) {
   const slug = string
     .toLowerCase()
     .replace(/[áàâãå]/, "a")

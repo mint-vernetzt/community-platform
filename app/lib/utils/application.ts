@@ -74,8 +74,11 @@ export async function validateFeatureAccess(
     });
 
     for (const featureName of featureNames) {
+      const feature = featureList.find(
+        (feature) => feature.name === featureName
+      );
       // Feature flag not present in .env
-      if (!featureList.some((feature) => feature.name === featureName)) {
+      if (typeof feature === "undefined") {
         const message = `Feature flag for "${featureName}" not found`;
         console.error(message);
         if (options.throw) {
@@ -93,27 +96,28 @@ export async function validateFeatureAccess(
         // User id is present in the current looped feature of the featureList
         if (
           user !== null &&
-          featureList.some(
-            (feature) =>
-              feature.name === featureName &&
-              (feature.idsWithAccess.includes(user.id) ||
-                feature.idsWithAccess.length === 0)
-          )
+          (feature.idsWithAccess.includes(user.id) ||
+            feature.idsWithAccess.length === 0)
         ) {
           abilities[featureName] = { hasAccess: true };
         }
         // User is null or not present in the current looped feature of the featureList
         else {
-          const message = `User hasn't access to feature "${featureName}"`;
-          console.error(message);
-          if (options.throw) {
-            throw serverError({ message });
+          // Feature is accessible for everyone
+          if (feature.idsWithAccess.length === 0) {
+            abilities[featureName] = { hasAccess: true };
+          } else {
+            const message = `User hasn't access to feature "${featureName}"`;
+            console.error(message);
+            if (options.throw) {
+              throw serverError({ message });
+            }
+            error = new Error(message);
+            abilities[featureName] = {
+              error,
+              hasAccess: false,
+            };
           }
-          error = new Error(message);
-          abilities[featureName] = {
-            error,
-            hasAccess: false,
-          };
         }
       }
     }

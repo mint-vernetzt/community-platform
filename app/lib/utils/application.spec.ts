@@ -159,7 +159,35 @@ describe("validateFeatureAccess()", () => {
       expect(featureName).toBe("a feature");
     });
 
-    test("feature set for public access", async () => {
+    test("feature set for public access (anon)", async () => {
+      process.env.FEATURE_FLAGS = "a feature: some-user-id; another feature";
+
+      (getSessionUser as jest.Mock).mockImplementationOnce(() => {
+        return null;
+      });
+
+      let error;
+      let hasAccess: boolean | undefined = false;
+      let featureName: string | undefined;
+
+      try {
+        const result = await validateFeatureAccess(
+          authClient,
+          "another feature"
+        );
+        error = result.error;
+        hasAccess = result.hasAccess;
+        featureName = result.featureName;
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).toBeUndefined();
+      expect(hasAccess).toBe(true);
+      expect(featureName).toBe("another feature");
+    });
+
+    test("feature set for public access (logged in user)", async () => {
       process.env.FEATURE_FLAGS = "a feature: some-user-id; another feature";
 
       (getSessionUser as jest.Mock).mockImplementationOnce(() => {

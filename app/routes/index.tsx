@@ -1,3 +1,4 @@
+import { Button } from "@mint-vernetzt/components";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -7,7 +8,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
-import React from "react";
 import CountUp from "react-countup";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps } from "remix-forms";
@@ -18,13 +18,13 @@ import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { H1, H3 } from "~/components/Heading/Heading";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 
 const schema = z.object({
   email: z
@@ -62,6 +62,8 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
+  const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
+
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
@@ -71,6 +73,7 @@ export const loader = async (args: LoaderArgs) => {
       profileCount,
       organizationCount,
       eventCount,
+      abilities,
     },
     { headers: response.headers }
   );
@@ -202,6 +205,16 @@ export default function Index() {
 
               <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-4">
                 <div className="bg-white rounded-lg p-6 shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                  {loaderData.abilities.keycloak.hasAccess && (
+                    <Button
+                      as="a"
+                      href="/auth/keycloak"
+                      variant="outline"
+                      fullSize
+                    >
+                      Mit Keycloak anmelden
+                    </Button>
+                  )}
                   <LoginForm
                     method="post"
                     schema={schema}
