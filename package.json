@@ -50,6 +50,7 @@
     "fs-extra": "^11.1.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
+    "handlebars": "^4.7.7",
     "ics": "^2.40.0",
     "imgproxy": "^1.0.0",
     "inquirer": "^8.2.3",
