@@ -1,12 +1,13 @@
-import { type LoaderArgs, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { createBrowserClient } from "@supabase/auth-helpers-remix";
 import React from "react";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async () => {
   const env = {
-    SUPABASE_URL: process.env.SUPABASE_URL!,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
+    SUPABASE_URL: process.env.SUPABASE_URL || "",
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || "",
+    COMMUNITY_BASE_URL: process.env.COMMUNITY_BASE_URL || "",
   };
 
   return json({ env });
@@ -17,17 +18,18 @@ function Keycloak() {
   const [supabase] = React.useState(() =>
     createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
   );
+  const [urlSearchParams] = useSearchParams();
 
   React.useEffect(() => {
     async function signIn() {
+      const loginRedirect = urlSearchParams.get("login_redirect");
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "keycloak",
         options: {
           scopes: "openid",
-          redirectTo: "http://localhost:3000/auth/keycloak/callback",
-          queryParams: {
-            login_redirect: "/dashboard", // TODO: pass login_redirect from request
-          },
+          redirectTo: `${env.COMMUNITY_BASE_URL}/auth/keycloak/callback${
+            loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+          }`,
         },
       });
       if (error) {
@@ -35,7 +37,7 @@ function Keycloak() {
       }
     }
     signIn();
-  }, [supabase]);
+  }, [supabase, urlSearchParams, env.COMMUNITY_BASE_URL]);
 
   return null;
 }

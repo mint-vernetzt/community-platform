@@ -4,24 +4,33 @@
 import { useSubmit } from "@remix-run/react";
 import { redirect, type LoaderArgs } from "@remix-run/node";
 import React from "react";
-import { createAuthClient, setSession } from "~/auth.server";
+import { createAuthClient, getSession, setSession } from "~/auth.server";
 import { prismaClient } from "~/prisma";
 import { generateValidSlug } from "~/utils";
+import { fi } from "date-fns/locale";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
 
-  // check if user is already logged in and redirect to dashboard or login_redirect
-
-  // login user using access_token and refresh_token
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
   const loginRedirect = urlSearchParams.get("login_redirect");
+
+  // check if user is already logged in and redirect to dashboard or login_redirect
+  const session = await getSession(authClient);
+  if (session !== null) {
+    return redirect(loginRedirect || "/dashboard", {
+      headers: response.headers,
+    });
+  }
+
+  // login user using access_token and refresh_token
   const accessToken = urlSearchParams.get("access_token");
   const refreshToken = urlSearchParams.get("refresh_token");
   let profile;
+  let firstLogin = false;
   if (accessToken !== null && refreshToken !== null) {
     const { user } = await setSession(authClient, accessToken, refreshToken);
     if (
@@ -51,18 +60,20 @@ export const loader = async (args: LoaderArgs) => {
             firstName,
             lastName,
             termsAccepted: false,
+            profileVisibility: {
+              create: {},
+            },
           },
         });
-        await prismaClient.profileVisibility.create({
-          data: { profileId: profile.id },
-        });
-        // check if profile visibility exist
       } else {
+        // if profile is not created, this is the first login
+        firstLogin = true;
         // check if profile is connected to session user
         if (profile.id !== user.id) {
           // if not, fail (later: ask if user wants to connect profile)
           throw new Error("Profile is connected to another user.");
         }
+        // TODO: remove legacy visibility creation in next version (needed during development)
         // check if profile visibility exist
         const profileVisibility =
           await prismaClient.profileVisibility.findFirst({
@@ -75,8 +86,11 @@ export const loader = async (args: LoaderArgs) => {
           });
         }
       }
-      // Default redirect to profile of sessionUser after sign up verification
-      return redirect(loginRedirect || `/profile/${profile.username}`, {
+      // Redirect after sign up verification
+      const defaultRedirect = firstLogin
+        ? `/profile/${profile.username}`
+        : "/dashboard";
+      return redirect(loginRedirect || defaultRedirect, {
         headers: response.headers,
       });
     }
