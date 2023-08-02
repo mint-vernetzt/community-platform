@@ -16,7 +16,7 @@
     "start": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix-serve build",
     "create": "plop",
     "format": "lint-staged",
-    "build:styles": "tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/styles.css --postcss",
+    "build:styles": "tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/legacy-styles.css --postcss",
     "build:new-styles": "npm run styles::build -w design",
     "build:styles:watch": "npm run build:styles -- --watch",
     "build:new-styles:watch": "npm run styles::develop -w design",

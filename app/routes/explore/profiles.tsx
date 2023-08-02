@@ -1,5 +1,5 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -29,6 +29,9 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+// import styles from "../../../common/design/styles/styles.css";
+
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
