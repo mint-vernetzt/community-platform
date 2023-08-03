@@ -70,6 +70,16 @@ function Footer() {
               <li>
                 <Link
                   as="a"
+                  to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                  className=""
+                  isExternal
+                >
+                  Nutzungsbedingungen
+                </Link>
+              </li>
+              <li>
+                <Link
+                  as="a"
                   to="https://www.mint-vernetzt.de/about/wer-ist/#contact-details"
                   className=""
                   isExternal
