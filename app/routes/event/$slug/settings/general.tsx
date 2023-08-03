@@ -27,14 +27,13 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { greaterThanDate } from "~/lib/utils/yup";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormDataValidationResultOrThrow,
+  greaterThanDate,
   greaterThanTimeOnSameDate,
   multiline,
   nullOrString,
-  participantLimit,
   website,
 } from "~/lib/utils/yup";
 import {
@@ -140,7 +139,6 @@ const schema = object({
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
   participantCount: string().required(),
-  participantLimit: participantLimit(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
@@ -641,21 +639,6 @@ function General() {
                 <div>{errors.participationUntilTime.message}</div>
               ) : null}
             </div>
-          </div>
-          <div className="mb-6">
-            <InputText
-              {...register("participantLimit")}
-              id="participantLimit"
-              label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit || ""}
-              errorMessage={errors?.participantLimit?.message}
-              type="number"
-              withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.participantLimit}
-            />
-            {errors?.participantLimit?.message ? (
-              <div>{errors.participantLimit.message}</div>
-            ) : null}
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
           <div className="mb-4">

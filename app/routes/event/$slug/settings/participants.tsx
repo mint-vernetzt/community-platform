@@ -19,17 +19,17 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import { addParticipantSchema } from "./participants/add-participant";
 import type {
   FailureActionData,
   SuccessActionData,
 } from "./participants/add-participant";
+import { addParticipantSchema } from "./participants/add-participant";
 import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
 import { removeParticipantSchema } from "./participants/remove-participant";
 import {
   checkOwnershipOrThrow,
-  getParticipantsDataFromEvent,
   getParticipantSuggestions,
+  getParticipantsDataFromEvent,
 } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
@@ -119,8 +119,31 @@ function Participants() {
       <h1 className="mb-8">Teilnehmende</h1>
       <p className="mb-8">
         Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende
-        hinzu oder entferne sie.
+        hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der
+        Teilnehmenden festlegen.
       </p>
+      <h4 className="mb-4 font-semibold">Begrenzung der Teilnehmenden</h4>
+      <p className="mb-8">
+        Hier kann die Teilnehmerzahl begrenzt werden. Auch wenn die
+        Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von
+        der Warteliste zu den Teilnehmenden verschieben.
+      </p>
+      {/* TODO: Form with zod and conform. Below is the original one */}
+      {/* <div className="mb-6">
+            <InputText
+              {...register("participantLimit")}
+              id="participantLimit"
+              label="Begrenzung der Teilnehmenden"
+              defaultValue={event.participantLimit || ""}
+              errorMessage={errors?.participantLimit?.message}
+              type="number"
+              withPublicPrivateToggle={false}
+              isPublic={eventVisibilities.participantLimit}
+            />
+            {errors?.participantLimit?.message ? (
+              <div>{errors.participantLimit.message}</div>
+            ) : null}
+          </div> */}
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
