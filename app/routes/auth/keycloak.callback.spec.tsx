@@ -1,6 +1,6 @@
 import { Request as NodeRequest } from "@remix-run/web-fetch";
 import { loader } from "./keycloak.callback";
-import { setSession } from "~/auth.server";
+import { createAdminAuthClient, setSession } from "~/auth.server";
 import { prismaClient } from "~/prisma";
 import { redirect } from "@remix-run/node";
 
@@ -8,6 +8,7 @@ jest.mock("~/auth.server", () => {
   return {
     ...jest.requireActual("~/auth.server"),
     setSession: jest.fn(),
+    createAdminAuthClient: jest.fn(),
   };
 });
 
@@ -32,8 +33,7 @@ test("no access_token or refresh_token", async () => {
   );
 
   const response = await loader({ request, context: {} as any, params: {} });
-
-  expect(false).toBeTruthy();
+  expect(response).toBeNull();
 });
 
 test("user newly registered with keycloak", async () => {
@@ -110,4 +110,58 @@ test("user signs in with keycloak", async () => {
   const response = await loader({ request, context: {} as any, params: {} });
 
   expect(response).toStrictEqual(redirect(`/dashboard`));
+});
+
+test("user is still registered with email and signs in with keycloak", async () => {
+  process.env.SUPABASE_URL = "https://some-url.supabase.co";
+  process.env.SERVICE_ROLE_KEY = "some-service-role-key";
+
+  const updateUserById = jest.fn();
+  (createAdminAuthClient as jest.Mock).mockReturnValueOnce({
+    auth: {
+      admin: {
+        updateUserById,
+      },
+    },
+  });
+
+  const request = new NodeRequest(
+    "http://localhost:3000/auth/keycloak/callback?access_token=123&refresh_token=456&login_redirect=/events/some-event-id"
+  );
+  (setSession as jest.Mock).mockResolvedValueOnce({
+    user: {
+      id: "some-user-id",
+      email: "email-user@domain.com",
+      user_metadata: {
+        firstName: "Email",
+        lastName: "User",
+      },
+      app_metadata: {
+        provider: "email",
+        providers: ["email", "keycloak"],
+      },
+      identities: [
+        {
+          id: "some-user-id",
+          user_id: "some-user-id",
+          provider: "email",
+        },
+        {
+          id: "some-keycloak-user-id",
+          user_id: "some-user-id",
+          provider: "keycloak",
+        },
+      ],
+    },
+  });
+
+  const response = await loader({ request, context: {} as any, params: {} });
+  expect(updateUserById).toHaveBeenCalledWith("some-user-id", {
+    app_metadata: { provider: "keycloak" },
+  });
+  expect(response).toStrictEqual(redirect(`/events/some-event-id`));
+
+  // @ts-ignore - delete global variables
+  delete process.env.SUPABASE_URL;
+  delete process.env.SERVICE_ROLE_KEY;
 });
