@@ -1,13 +1,14 @@
-// import { redirect } from "@remix-run/node";
-// import { createServerClient } from "@supabase/auth-helpers-remix";
-
-import { useSubmit } from "@remix-run/react";
 import { redirect, type LoaderArgs } from "@remix-run/node";
+import { useSubmit } from "@remix-run/react";
 import React from "react";
-import { createAuthClient, getSession, setSession } from "~/auth.server";
+import {
+  createAdminAuthClient,
+  createAuthClient,
+  getSession,
+  setSession,
+} from "~/auth.server";
 import { prismaClient } from "~/prisma";
 import { generateValidSlug } from "~/utils";
-import { fi } from "date-fns/locale";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -33,6 +34,7 @@ export const loader = async (args: LoaderArgs) => {
   let firstLogin = false;
   if (accessToken !== null && refreshToken !== null) {
     const { user } = await setSession(authClient, accessToken, refreshToken);
+
     if (
       user !== null &&
       user.email !== undefined &&
@@ -46,6 +48,9 @@ export const loader = async (args: LoaderArgs) => {
       });
       // if not, create profile
       if (profile === null) {
+        // if profile is not created, this is the first login
+        firstLogin = true;
+
         const username = generateValidSlug(user.user_metadata.full_name);
         const fullNameParts = user.user_metadata.full_name.split(" ");
         // combine all parts except the last one to get the first name
@@ -66,13 +71,6 @@ export const loader = async (args: LoaderArgs) => {
           },
         });
       } else {
-        // if profile is not created, this is the first login
-        firstLogin = true;
-        // check if profile is connected to session user
-        if (profile.id !== user.id) {
-          // if not, fail (later: ask if user wants to connect profile)
-          throw new Error("Profile is connected to another user.");
-        }
         // TODO: remove legacy visibility creation in next version (needed during development)
         // check if profile visibility exist
         const profileVisibility =
@@ -91,6 +89,23 @@ export const loader = async (args: LoaderArgs) => {
         ? `/profile/${profile.username}`
         : "/dashboard";
       return redirect(loginRedirect || defaultRedirect, {
+        headers: response.headers,
+      });
+    }
+    // check if user registered with email and wants to sign in with keycloak
+    else if (
+      user !== null &&
+      user.app_metadata.provider === "email" &&
+      user.app_metadata.providers.includes("keycloak")
+    ) {
+      // changes provider of user to keycloak
+      const adminAuthClient = createAdminAuthClient();
+      await adminAuthClient.auth.admin.updateUserById(user.id, {
+        app_metadata: {
+          provider: "keycloak",
+        },
+      });
+      return redirect(loginRedirect || "/dashboard", {
         headers: response.headers,
       });
     }
