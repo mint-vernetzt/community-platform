@@ -46,6 +46,9 @@ export const loader = async (args: LoaderArgs) => {
       });
       // if not, create profile
       if (profile === null) {
+        // if profile is not created, this is the first login
+        firstLogin = true;
+
         const username = generateValidSlug(user.user_metadata.full_name);
         const fullNameParts = user.user_metadata.full_name.split(" ");
         // combine all parts except the last one to get the first name
@@ -66,8 +69,6 @@ export const loader = async (args: LoaderArgs) => {
           },
         });
       } else {
-        // if profile is not created, this is the first login
-        firstLogin = true;
         // check if profile is connected to session user
         if (profile.id !== user.id) {
           // if not, fail (later: ask if user wants to connect profile)
