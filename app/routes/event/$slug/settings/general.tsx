@@ -63,7 +63,6 @@ import {
 } from "./utils.server";
 
 const schema = object({
-  userId: string().required(),
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
@@ -138,7 +137,6 @@ const schema = object({
   tags: array(string().required()).required(),
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
-  participantCount: string().required(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
@@ -512,13 +510,6 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <input name="userId" defaultValue={userId} hidden />
-          <input
-            name="participantCount"
-            defaultValue={loaderData.event._count.participants}
-            hidden
-          />
-
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
