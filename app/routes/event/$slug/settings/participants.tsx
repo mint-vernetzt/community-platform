@@ -1,5 +1,5 @@
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { DataFunctionArgs, LoaderArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -31,6 +31,18 @@ import {
   getParticipantSuggestions,
   getParticipantsDataFromEvent,
 } from "./utils.server";
+import { z } from "zod";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import {
+  getEventWithParticipantCount,
+  updateParticipantLimit,
+} from "./participants.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { useForm } from "@conform-to/react";
+
+const ParticipantLimitSchema = z.object({
+  participantLimit: z.number().optional(),
+});
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -92,6 +104,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       eventId: event.id,
+      participantLimit: event.participantLimit,
       participants: enhancedParticipants,
       participantSuggestions,
       hasFullDepthParticipants:
@@ -103,6 +116,55 @@ export const loader = async (args: LoaderArgs) => {
   );
 };
 
+export async function action({ request, params }: DataFunctionArgs) {
+  const formData = await request.formData();
+  const submission = await parse(formData, {
+    schema: (intent) =>
+      ParticipantLimitSchema.transform(async (data, ctx) => {
+        if (intent !== "submit") {
+          return { ...data };
+        }
+
+        const response = new Response();
+        const authClient = createAuthClient(request, response);
+        await checkFeatureAbilitiesOrThrow(authClient, "events");
+        const sessionUser = await getSessionUserOrThrow(authClient);
+        const eventSlug = params.slug;
+        invariantResponse(eventSlug, "Slug parameter not found", {
+          status: 404,
+        });
+        const event = await getEventWithParticipantCount(eventSlug);
+        invariantResponse(event, "Event not found", { status: 404 });
+        await checkOwnershipOrThrow(event, sessionUser);
+        const participantLimit = data.participantLimit ?? 0;
+
+        if (event._count.participants > participantLimit) {
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+          });
+          return z.NEVER;
+        }
+
+        // All checked, lets update the event
+        await updateParticipantLimit(eventSlug, participantLimit);
+
+        return { ...data };
+      }),
+    async: true,
+  });
+
+  if (submission.intent !== "submit") {
+    return json({ status: "idle", submission } as const);
+  }
+  if (!submission.value) {
+    return json({ status: "error", submission } as const, { status: 400 });
+  }
+
+  return redirect(".");
+}
+
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
@@ -113,6 +175,23 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+
+  // Conform
+  const participantLimitFetcher = useFetcher<typeof action>();
+  const isSubmitting = participantLimitFetcher.state !== "idle";
+  const [form, fields] = useForm({
+    id: "participant-limit-form",
+    constraint: getFieldsetConstraint(ParticipantLimitSchema),
+    lastSubmission: participantLimitFetcher.data?.submission,
+    onValidate({ formData }) {
+      return parse(formData, { schema: ParticipantLimitSchema });
+    },
+    defaultValue: {
+      participantLimit: loaderData.participantLimit
+        ? `${loaderData.participantLimit}`
+        : "0",
+    },
+  });
 
   return (
     <>
