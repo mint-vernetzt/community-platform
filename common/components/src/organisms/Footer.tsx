@@ -3,21 +3,18 @@ import { Link } from "@mint-vernetzt/components";
 import { Link as RemixLink } from "@remix-run/react";
 
 function Footer() {
-  const [isExpanded, toggleFooter] = React.useState(false);
   return (
-    <footer className="mv-fixed mv-bottom-0 mv-left-0 mv-right-0 md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] z-10 bg-white">
-      <div className="md:mv-hidden">
-        <button
-          onClick={() => toggleFooter(!isExpanded)}
-          className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between"
-        >
-          <span className="2  32 mv-w-3"></span>
+    <footer
+      className="
+      mv-fixed mv-bottom-0 mv-left-0 mv-right-0 
+      md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white mv-collapse"
+    >
+      <input type="checkbox" />
+      <div className="mv-collapse-title md:mv-hidden">
+        <button className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between">
+          <span className="mv-w-3"></span>
           <span className="">Impressum</span>
-          <span
-            className={`${
-              isExpanded ? `mv-rotate-180` : `mv-rotate-0`
-            } mv-transition-transform mv-w-3`}
-          >
+          <span className="toggle-arrow mv-transition-transform mv-w-3">
             <svg
               width="12"
               height="12"
@@ -34,11 +31,7 @@ function Footer() {
         </button>
       </div>
       <div
-        className={`${
-          isExpanded
-            ? `mv-max-h-[calc(100vh-37px-50px)] mv-overflow-auto`
-            : `mv-max-h-0 mv-overflow-hidden`
-        } mv-flex mv-flex-col md:mv-max-h-fit`}
+        className={`mv-collapse-content mv-flex mv-flex-col md:mv-max-h-fit`}
       >
         <hr className="mv-hidden md:mv-block md:mv-order-2" />
         <div className="md:mv-order-3 mv-container md:mv-py-6 md:mv-flex ">

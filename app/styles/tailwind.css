@@ -228,3 +228,14 @@
   -ms-hyphens: manual;
   hyphens: manual;
 }
+
+.mv-collapse input[type="checkbox"]:checked ~ .mv-collapse-title .toggle-arrow {
+  @apply rotate-180;
+}
+.mv-collapse-content {
+  transition: max-height 0.25s ease-in-out;
+}
+.mv-collapse input[type="checkbox"]:checked ~ .mv-collapse-content {
+  @apply overflow-auto;
+  max-height: calc(100vh - 37px - 50px) !important;
+}
