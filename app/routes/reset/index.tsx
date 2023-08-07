@@ -35,7 +35,6 @@ export const loader: LoaderFunction = async (args) => {
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
 
-  console.log(sessionUser);
   if (sessionUser !== null) {
     return redirect("/dashboard", { headers: response.headers });
   }
