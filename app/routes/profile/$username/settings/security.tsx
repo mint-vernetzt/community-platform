@@ -4,11 +4,12 @@ import { useActionData, useTransition } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound } from "remix-utils";
+import { forbidden, notFound } from "remix-utils";
 import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
+  getSessionOrThrow,
   getSessionUserOrThrow,
   sendResetEmailLink,
   updatePassword,
@@ -61,7 +62,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const session = await getSessionOrThrow(authClient);
+  const sessionUser = session.user;
+
+  if (sessionUser.app_metadata.provider === "keycloak") {
+    throw forbidden({ message: "not allowed." });
+  }
+
   await handleAuthorization(sessionUser.id, profile.id);
 
   return response;
