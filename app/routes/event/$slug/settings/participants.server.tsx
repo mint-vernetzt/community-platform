@@ -18,7 +18,7 @@ export async function getEventWithParticipantCount(slug: string) {
 
 export async function updateParticipantLimit(
   slug: string,
-  participantLimit: number
+  participantLimit: number | null
 ) {
   await prismaClient.event.update({
     where: {

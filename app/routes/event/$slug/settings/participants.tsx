@@ -1,7 +1,8 @@
 import type { DataFunctionArgs, LoaderArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Link,
+  useActionData,
   useFetcher,
   useLoaderData,
   useParams,
@@ -9,7 +10,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -32,16 +33,24 @@ import {
   getParticipantsDataFromEvent,
 } from "./utils.server";
 import { z } from "zod";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
   getEventWithParticipantCount,
   updateParticipantLimit,
 } from "./participants.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { useForm } from "@conform-to/react";
+import InputText from "~/components/FormElements/InputText/InputText";
+import { InputError, makeDomainFunction } from "remix-domains";
 
-const ParticipantLimitSchema = z.object({
-  participantLimit: z.number().optional(),
+const participantLimitSchema = z.object({
+  participantLimit: z
+    .string({ invalid_type_error: "Bitte eine Zahl eingeben" })
+    .regex(/^\d+$/)
+    .transform(Number)
+    .optional(),
+});
+
+const environmentSchema = z.object({
+  participantsCount: z.number(),
 });
 
 export const loader = async (args: LoaderArgs) => {
@@ -116,53 +125,54 @@ export const loader = async (args: LoaderArgs) => {
   );
 };
 
+const mutation = makeDomainFunction(
+  participantLimitSchema,
+  environmentSchema
+)(async (values, environment) => {
+  const participantLimit =
+    values.participantLimit === undefined || values.participantLimit <= 0
+      ? null
+      : values.participantLimit;
+  if (participantLimit) {
+    if (environment.participantsCount > participantLimit) {
+      throw new InputError(
+        "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+        "participantLimit"
+      );
+    }
+  }
+  return values;
+});
+
 export async function action({ request, params }: DataFunctionArgs) {
-  const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: (intent) =>
-      ParticipantLimitSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") {
-          return { ...data };
-        }
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const eventSlug = params.slug;
+  invariantResponse(eventSlug, "Slug parameter not found", {
+    status: 404,
+  });
+  const event = await getEventWithParticipantCount(eventSlug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  await checkOwnershipOrThrow(event, sessionUser);
 
-        const response = new Response();
-        const authClient = createAuthClient(request, response);
-        await checkFeatureAbilitiesOrThrow(authClient, "events");
-        const sessionUser = await getSessionUserOrThrow(authClient);
-        const eventSlug = params.slug;
-        invariantResponse(eventSlug, "Slug parameter not found", {
-          status: 404,
-        });
-        const event = await getEventWithParticipantCount(eventSlug);
-        invariantResponse(event, "Event not found", { status: 404 });
-        await checkOwnershipOrThrow(event, sessionUser);
-        const participantLimit = data.participantLimit ?? 0;
-
-        if (event._count.participants > participantLimit) {
-          ctx.addIssue({
-            code: "custom",
-            message:
-              "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
-          });
-          return z.NEVER;
-        }
-
-        // All checked, lets update the event
-        await updateParticipantLimit(eventSlug, participantLimit);
-
-        return { ...data };
-      }),
-    async: true,
+  const result = await performMutation({
+    request,
+    schema: participantLimitSchema,
+    mutation,
+    environment: { participantsCount: event._count.participants },
   });
 
-  if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
-  }
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+  if (result.success) {
+    // All checked, lets update the event
+    await updateParticipantLimit(
+      eventSlug,
+      result.data.participantLimit || null
+    );
   }
 
-  return redirect(".");
+  return json(result, { headers: response.headers });
 }
 
 function Participants() {
@@ -175,23 +185,7 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-
-  // Conform
-  const participantLimitFetcher = useFetcher<typeof action>();
-  const isSubmitting = participantLimitFetcher.state !== "idle";
-  const [form, fields] = useForm({
-    id: "participant-limit-form",
-    constraint: getFieldsetConstraint(ParticipantLimitSchema),
-    lastSubmission: participantLimitFetcher.data?.submission,
-    onValidate({ formData }) {
-      return parse(formData, { schema: ParticipantLimitSchema });
-    },
-    defaultValue: {
-      participantLimit: loaderData.participantLimit
-        ? `${loaderData.participantLimit}`
-        : "0",
-    },
-  });
+  const actionData = useActionData<typeof action>();
 
   return (
     <>
@@ -207,22 +201,40 @@ function Participants() {
         Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von
         der Warteliste zu den Teilnehmenden verschieben.
       </p>
-      {/* TODO: Form with zod and conform. Below is the original one */}
-      {/* <div className="mb-6">
-            <InputText
-              {...register("participantLimit")}
-              id="participantLimit"
-              label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit || ""}
-              errorMessage={errors?.participantLimit?.message}
-              type="number"
-              withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.participantLimit}
-            />
-            {errors?.participantLimit?.message ? (
-              <div>{errors.participantLimit.message}</div>
-            ) : null}
-          </div> */}
+      <Form schema={participantLimitSchema}>
+        {({ Field, Errors, Button, register }) => {
+          return (
+            <>
+              <Field name="participantLimit" className="mb-4">
+                {({ Errors }) => (
+                  <>
+                    <InputText
+                      {...register("participantLimit")}
+                      id="participantLimit"
+                      label="Begrenzung der Teilnehmenden"
+                      defaultValue={loaderData.participantLimit || undefined}
+                      type="number"
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <div className="flex flex-row">
+                <Button type="submit" className="btn btn-primary mb-8">
+                  Speichern
+                </Button>
+                <div
+                  className={`text-green-500 text-bold ml-4 mt-2 ${
+                    actionData?.success ? "block animate-fade-out" : "hidden"
+                  }`}
+                >
+                  Deine Informationen wurden aktualisiert.
+                </div>
+              </div>
+            </>
+          );
+        }}
+      </Form>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
