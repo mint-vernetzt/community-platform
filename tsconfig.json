@@ -17,7 +17,8 @@
     "noEmit": true,
     "types": ["cypress", "@testing-library/cypress", "jest", "node"],
     "allowJs": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "module": "ES2020"
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
