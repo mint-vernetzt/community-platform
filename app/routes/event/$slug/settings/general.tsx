@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -21,6 +21,7 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import {
   createAreaOptionFromData,
@@ -62,6 +63,8 @@ import {
   updateEventById,
   validateTimePeriods,
 } from "./utils.server";
+
+import quillStyles from "react-quill/dist/quill.snow.css";
 
 const schema = object({
   userId: string().required(),
@@ -192,6 +195,10 @@ export const loader = async (args: LoaderArgs) => {
     { headers: response.headers }
   );
 };
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
 
 export const action = async (args: ActionArgs) => {
   const { request, params } = args;
@@ -823,6 +830,7 @@ function General() {
               maxCharacters={1000}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
+              rte
             />
             {errors?.description?.message ? (
               <div>{errors.description.message}</div>

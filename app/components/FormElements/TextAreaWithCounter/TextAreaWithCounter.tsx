@@ -19,6 +19,7 @@ const TextAreaWithCounter = React.forwardRef(
       maxCharacters,
       defaultValue = "",
       onChange: defaultOnChange,
+      rte,
       ...rest
     } = props;
     const defaultValueLength = defaultValue
@@ -33,22 +34,26 @@ const TextAreaWithCounter = React.forwardRef(
       if (defaultOnChange) {
         defaultOnChange(event);
       }
-      if (
-        maxCharacters !== undefined &&
-        event.currentTarget.value.length > maxCharacters
-      ) {
+
+      const contentLength =
+        rte === true
+          ? event.currentTarget.value.replace(/<[^>]*>/g, "").length
+          : event.currentTarget.value.length;
+
+      if (maxCharacters !== undefined && contentLength > maxCharacters) {
         event.currentTarget.value = event.currentTarget.value.substring(
           0,
           maxCharacters
         );
       }
-      updateCharacterCount(event.currentTarget.value.length);
+      updateCharacterCount(contentLength);
     };
 
     return (
       <>
         <TextArea
           {...rest}
+          rte
           defaultValue={defaultValue}
           ref={ref}
           onChange={handleTextAreaChange}

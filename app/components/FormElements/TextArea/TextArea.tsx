@@ -9,7 +9,13 @@ export interface TextAreaProps {
   errorMessage?: string;
   publicPosition?: "top" | "side";
   onChange?: Function; // <--- ?
+  rte?: boolean;
 }
+
+let ReactQuill = React.lazy(async () => {
+  const module = await import("react-quill");
+  return { default: module.default };
+});
 
 const TextArea = React.forwardRef(
   (props: React.HTMLProps<HTMLTextAreaElement> & TextAreaProps, ref) => {
@@ -19,8 +25,10 @@ const TextArea = React.forwardRef(
       placeholder,
       errorMessage,
       publicPosition = "side",
+      rte = false,
       ...rest
     } = props;
+
     return (
       <div className="form-control w-full">
         <div className="flex flex-row items-center mb-2">
@@ -41,11 +49,43 @@ const TextArea = React.forwardRef(
         </div>
         <div className="flex flex-row">
           <div className="flex-auto">
+            {rte === true && (
+              <React.Suspense fallback={<div>Loading...</div>}>
+                <ReactQuill
+                  theme="snow"
+                  defaultValue={`${rest.defaultValue}`}
+                  onChange={(text) => {
+                    const $input = document.querySelector(
+                      `[name=${rest.name}]`
+                    );
+                    if (
+                      $input &&
+                      Object?.getOwnPropertyDescriptor !== undefined
+                    ) {
+                      var nativeInputValueSetter =
+                        Object.getOwnPropertyDescriptor(
+                          window.HTMLTextAreaElement.prototype,
+                          "value"
+                        )?.set;
+
+                      if (nativeInputValueSetter) {
+                        nativeInputValueSetter.call($input, text);
+                      }
+
+                      var inputEvent = new Event("input", { bubbles: true });
+                      $input.dispatchEvent(inputEvent);
+                    }
+                  }}
+                />
+              </React.Suspense>
+            )}
             <textarea
               {...rest}
               id={id}
               name={id}
-              className={`textarea textarea-bordered h-24 w-full ${props.className}`}
+              className={`textarea textarea-bordered h-24 w-full ${
+                props.className
+              }${rte === true ? " hidden" : ""}`}
             ></textarea>
           </div>
           {props.withPublicPrivateToggle !== undefined &&
