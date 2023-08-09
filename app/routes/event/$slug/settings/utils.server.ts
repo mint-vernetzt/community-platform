@@ -9,6 +9,7 @@ import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma";
 import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
+import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 
 export async function checkOwnership(
   event: Event,
@@ -218,8 +219,11 @@ export function transformFormToEvent(form: any) {
     "Europe/Berlin"
   );
 
+  const description = sanitizeUserHtml(event.description);
+
   return {
     ...event,
+    description,
     startTime,
     endTime,
     participationUntil,
