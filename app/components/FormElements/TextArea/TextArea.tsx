@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
+import { RTE } from "./RTE";
 
 export interface TextAreaProps {
   id: string;
@@ -11,11 +12,6 @@ export interface TextAreaProps {
   onChange?: Function; // <--- ?
   rte?: boolean;
 }
-
-let ReactQuill = React.lazy(async () => {
-  const module = await import("react-quill");
-  return { default: module.default };
-});
 
 const TextArea = React.forwardRef(
   (props: React.HTMLProps<HTMLTextAreaElement> & TextAreaProps, ref) => {
@@ -36,6 +32,7 @@ const TextArea = React.forwardRef(
             {props.label}
             {props.required === true ? " *" : ""}
           </label>
+
           {props.withPublicPrivateToggle !== undefined &&
             isPublic !== undefined &&
             publicPosition === "top" && (
@@ -50,34 +47,11 @@ const TextArea = React.forwardRef(
         <div className="flex flex-row">
           <div className="flex-auto">
             {rte === true && (
-              <React.Suspense fallback={<div>Loading...</div>}>
-                <ReactQuill
-                  theme="snow"
-                  defaultValue={`${rest.defaultValue}`}
-                  onChange={(text) => {
-                    const $input = document.querySelector(
-                      `[name=${rest.name}]`
-                    );
-                    if (
-                      $input &&
-                      Object?.getOwnPropertyDescriptor !== undefined
-                    ) {
-                      var nativeInputValueSetter =
-                        Object.getOwnPropertyDescriptor(
-                          window.HTMLTextAreaElement.prototype,
-                          "value"
-                        )?.set;
-
-                      if (nativeInputValueSetter) {
-                        nativeInputValueSetter.call($input, text);
-                      }
-
-                      var inputEvent = new Event("input", { bubbles: true });
-                      $input.dispatchEvent(inputEvent);
-                    }
-                  }}
-                />
-              </React.Suspense>
+              <RTE
+                id={id}
+                defaultValue={`${rest.defaultValue}`}
+                maxLength={rest.maxLength}
+              />
             )}
             <textarea
               {...rest}
