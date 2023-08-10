@@ -5,14 +5,19 @@ function Footer() {
     <footer
       className="
       mv-fixed mv-bottom-0 mv-left-0 mv-right-0 
-      md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white mv-collapse"
+      md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white
+      mv-grid mv-grid-rows-[1fr auto]
+      md:mv-block"
     >
-      <input type="checkbox" />
-      <div className="mv-collapse-title md:mv-hidden">
+      <input
+        type="checkbox"
+        className="mv-peer mv-col-start-1 mv-row-start-1 mv-opacity-0 mv-grid md:mv-hidden"
+      />
+      <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 md:mv-hidden">
         <button className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between">
           <span className="mv-w-3"></span>
           <span className="">Impressum</span>
-          <span className="toggle-arrow mv-transition-transform mv-w-3">
+          <span className="mv-toggle-arrow mv-transition-transform mv-w-3 peer-checked:mv-rotate-180">
             <svg
               width="12"
               height="12"
@@ -29,7 +34,7 @@ function Footer() {
         </button>
       </div>
       <div
-        className={`mv-collapse-content mv-flex mv-flex-col md:mv-max-h-fit`}
+        className={`mv-row-span-2 mv-overflow-hidden mv-max-h-0 mv-transition-[max-height_0.25s_ease-in-out] peer-checked:mv-overflow-auto peer-checked:mv-max-h-[calc(100svh-37px-50px)] mv-flex mv-flex-col md:mv-max-h-fit`}
       >
         <hr className="mv-hidden md:mv-block md:mv-order-2" />
         <div className="md:mv-order-3 mv-container md:mv-py-6 md:mv-flex ">
