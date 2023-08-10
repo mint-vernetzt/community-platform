@@ -10,7 +10,7 @@ export interface InputProps {
 const Input = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputProps, forwardRef) => {
     const id = props.id ?? props.label;
-    const { isPublic, errorMessage, ...rest } = props;
+    const { isPublic, withPublicPrivateToggle, errorMessage, ...rest } = props;
 
     return (
       <div className="form-control w-full">
@@ -38,15 +38,14 @@ const Input = React.forwardRef(
               name={id}
             />
           </div>
-          {isPublic !== undefined &&
-            props.withPublicPrivateToggle !== undefined && (
-              <ToggleCheckbox
-                name="privateFields"
-                value={props.name}
-                hidden={!props.withPublicPrivateToggle}
-                defaultChecked={!isPublic}
-              />
-            )}
+          {isPublic !== undefined && withPublicPrivateToggle !== undefined && (
+            <ToggleCheckbox
+              name="privateFields"
+              value={props.name}
+              hidden={!withPublicPrivateToggle}
+              defaultChecked={!isPublic}
+            />
+          )}
         </div>
       </div>
     );

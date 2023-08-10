@@ -18,6 +18,7 @@ const TextArea = React.forwardRef(
     const {
       id,
       isPublic,
+      withPublicPrivateToggle,
       placeholder,
       errorMessage,
       publicPosition = "side",
@@ -33,13 +34,13 @@ const TextArea = React.forwardRef(
             {props.required === true ? " *" : ""}
           </label>
 
-          {props.withPublicPrivateToggle !== undefined &&
+          {withPublicPrivateToggle !== undefined &&
             isPublic !== undefined &&
             publicPosition === "top" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />
             )}
@@ -62,13 +63,13 @@ const TextArea = React.forwardRef(
               }${rte === true ? " hidden" : ""}`}
             ></textarea>
           </div>
-          {props.withPublicPrivateToggle !== undefined &&
+          {withPublicPrivateToggle !== undefined &&
             props.isPublic !== undefined &&
             publicPosition === "side" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />
             )}

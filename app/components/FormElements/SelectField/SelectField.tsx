@@ -29,6 +29,7 @@ const SelectField = React.forwardRef(
       label,
       options = [],
       isPublic,
+      withPublicPrivateToggle,
       publicPosition = "side",
       visibilityName,
       ...rest
@@ -41,13 +42,13 @@ const SelectField = React.forwardRef(
             {label}
             {props.required === true ? " *" : ""}
           </label>
-          {props.withPublicPrivateToggle !== undefined &&
-            props.isPublic !== undefined &&
+          {withPublicPrivateToggle !== undefined &&
+            isPublic !== undefined &&
             publicPosition === "top" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={visibilityName ?? props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!props.isPublic}
               />
             )}
@@ -89,13 +90,13 @@ const SelectField = React.forwardRef(
             </select>
           </div>
 
-          {props.withPublicPrivateToggle !== undefined &&
+          {withPublicPrivateToggle !== undefined &&
             isPublic !== undefined &&
             publicPosition === "side" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />
             )}
