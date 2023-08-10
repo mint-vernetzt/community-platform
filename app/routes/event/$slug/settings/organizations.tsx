@@ -19,6 +19,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
+import { getOwnOrganizationsSuggestions } from "./organizations.server";
 import type {
   FailureActionData,
   SuccessActionData,
@@ -31,7 +32,6 @@ import {
   getResponsibleOrganizationDataFromEvent,
   getResponsibleOrganizationSuggestions,
 } from "./utils.server";
-import { getOwnOrganizationsSuggestions } from "./organizations.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -242,27 +242,29 @@ function Organizations() {
                   schema={addOrganizationSchema}
                   fetcher={addOrganizationFetcher}
                   action={`/event/${slug}/settings/organizations/add-organization`}
-                  hiddenFields={["userId", "eventId"]}
+                  hiddenFields={["userId", "eventId", "id"]}
                   values={{
                     userId: loaderData.userId,
                     eventId: loaderData.eventId,
+                    id: organization.id,
                   }}
                   className="ml-auto"
                 >
                   {(props) => {
-                    const { Field, Button, Errors } = props;
+                    const { Field, Errors } = props;
                     return (
                       <>
                         <Errors />
                         <Field name="userId" />
                         <Field name="eventId" />
-                        <Button
+                        <Field name="id" />
+                        <button
                           className="btn btn-outline-primary ml-auto btn-small"
                           title="Hinzufügen"
                           type="submit"
                         >
                           Hinzufügen
-                        </Button>
+                        </button>
                       </>
                     );
                   }}
