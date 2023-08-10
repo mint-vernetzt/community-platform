@@ -8,7 +8,7 @@ export const LazyQuill = React.lazy(async () => {
 
 const modules = {
   toolbar: [
-    [{ header: [1, 2, false] }],
+    [{ header: [1, 2, 3, false] }],
     ["bold", "italic", "underline"],
     [{ list: "ordered" }, { list: "bullet" }],
     ["link"],
