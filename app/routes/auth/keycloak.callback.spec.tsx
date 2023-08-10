@@ -1,7 +1,7 @@
 import { Request as NodeRequest } from "@remix-run/web-fetch";
 import { loader } from "./keycloak.callback";
 import { createAdminAuthClient, setSession } from "~/auth.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { redirect } from "@remix-run/node";
 
 jest.mock("~/auth.server", () => {
@@ -12,7 +12,7 @@ jest.mock("~/auth.server", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       profile: {

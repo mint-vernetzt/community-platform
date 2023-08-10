@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getScoreOfEntity } from "./utils";
 
 async function main() {

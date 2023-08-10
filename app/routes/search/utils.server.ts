@@ -6,7 +6,7 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 // **************
 // Prismas like filtering with where contains

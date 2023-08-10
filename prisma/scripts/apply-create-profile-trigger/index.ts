@@ -1,6 +1,6 @@
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { program } from "commander";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 program
   .name("apply-create-profile-trigger")

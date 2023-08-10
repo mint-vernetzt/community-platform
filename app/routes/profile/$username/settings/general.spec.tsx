@@ -40,7 +40,7 @@ jest.mock("~/utils.server", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       profileVisibility: {

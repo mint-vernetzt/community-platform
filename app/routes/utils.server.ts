@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();

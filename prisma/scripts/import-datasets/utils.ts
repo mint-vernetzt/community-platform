@@ -8,7 +8,7 @@ import type {
   Tag,
   TargetGroup,
 } from "@prisma/client";
-import { prismaClient } from "../../../app/prisma";
+import { prismaClient } from "../../../app/prisma.server";
 
 export type GenericEntry =
   | Offer

@@ -7,7 +7,7 @@ import {
   getSession,
   setSession,
 } from "~/auth.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils";
 
 export const loader = async (args: LoaderArgs) => {

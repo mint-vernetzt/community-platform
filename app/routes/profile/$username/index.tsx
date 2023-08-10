@@ -38,7 +38,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export function links() {
   return [
@@ -67,7 +67,6 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      // return redirect("/profile/accept-terms", { headers: response.headers });
       return redirect("/accept-terms", { headers: response.headers });
     }
   }

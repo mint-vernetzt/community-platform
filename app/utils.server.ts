@@ -2,7 +2,7 @@ import type { BinaryToTextEncoding } from "crypto";
 import { getSession } from "./auth.server";
 import { forbidden, serverError } from "remix-utils";
 import { createHmac, randomBytes } from "crypto";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 

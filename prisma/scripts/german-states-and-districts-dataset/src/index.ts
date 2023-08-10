@@ -1,6 +1,6 @@
 import https from "https";
 import type { Area, District, DistrictType, State } from "@prisma/client";
-import { prismaClient } from "../../../../app/prisma";
+import { prismaClient } from "../../../../app/prisma.server";
 
 // The main function, which is called by the cli (load-german-states-and-districts.ts)
 export async function main(

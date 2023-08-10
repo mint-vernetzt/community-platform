@@ -1,5 +1,5 @@
 import type { Document } from "@prisma/client";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 
 export async function updateDocument(
   id: string,

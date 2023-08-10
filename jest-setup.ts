@@ -9,6 +9,6 @@ process.env.SUPABASE_ANON_KEY = "random";
 //global.setImmediate = jest.useRealTimers;
 global.setImmediate = (callback) => callback(); // TODO: seems to be unnecessary
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return { prismaClient: {} };
 });

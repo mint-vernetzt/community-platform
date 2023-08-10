@@ -1,6 +1,6 @@
 import { getSessionUser } from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { loader } from ".";
 
 // @ts-ignore
@@ -19,7 +19,7 @@ jest.mock("~/lib/utils/application", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       event: {

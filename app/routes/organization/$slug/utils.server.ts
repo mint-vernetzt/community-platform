@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { badRequest, unauthorized } from "remix-utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export type Mode = "anon" | "authenticated" | "owner";
 
