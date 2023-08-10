@@ -812,7 +812,7 @@ function General() {
               defaultValue={event.subline || ""}
               label="Subline"
               errorMessage={errors?.subline?.message}
-              maxCharacters={70}
+              maxCharacters={100}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.subline}
             />
@@ -827,7 +827,7 @@ function General() {
               defaultValue={event.description || ""}
               label="Beschreibung"
               errorMessage={errors?.description?.message}
-              maxCharacters={1000}
+              maxCharacters={2000}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
               rte
