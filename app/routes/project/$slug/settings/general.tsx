@@ -259,7 +259,9 @@ function General() {
       >
         <h1 className="mb-8">Dein Projekt</h1>
         <h4 className="mb-4 font-semibold">Allgemein</h4>
-        <p className="mb-8">Lorem ipsum</p>
+        <p className="mb-8">
+          Gib den Namen und die Kontaktdaten für Dein Projekt ein.
+        </p>
         <input name="userId" defaultValue={loaderData.userId} hidden />
         <div className="mb-6">
           <InputText
