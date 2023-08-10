@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
@@ -38,6 +38,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
+import { prismaClient } from "~/prisma";
 
 export function links() {
   return [
@@ -60,6 +61,17 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      // return redirect("/profile/accept-terms", { headers: response.headers });
+      return redirect("/accept-terms", { headers: response.headers });
+    }
+  }
+
   const mode = deriveMode(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(authClient, [
     "events",
