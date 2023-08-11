@@ -23,6 +23,9 @@ jest.mock("~/prisma", () => {
       teamMemberOfEvent: {
         findFirst: jest.fn(),
       },
+      organization: {
+        findMany: jest.fn(),
+      },
     },
   };
 });
@@ -154,6 +157,30 @@ describe("/event/$slug/settings/organizations", () => {
         ],
       };
     });
+    (prismaClient.organization.findMany as jest.Mock).mockImplementationOnce(
+      () => {
+        return [
+          {
+            id: "some-organization-id",
+            name: "Some Organization",
+            slug: "someorganization",
+            logo: null,
+          },
+          {
+            id: "another-organization-id",
+            name: "Another Organization",
+            slug: "anotherorganization",
+            logo: null,
+          },
+          {
+            id: "yet-another-organization-id",
+            name: "Yet Another Organization",
+            slug: "yetanotherorganization",
+            logo: null,
+          },
+        ];
+      }
+    );
 
     const response = await loader({
       request: new Request(testURL),
