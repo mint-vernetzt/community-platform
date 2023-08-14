@@ -20,7 +20,7 @@ export function RichtText({ html, additionalClassNames }: RichTextProps) {
   } else {
     return (
       <p
-        className={additionalClassNames}
+        className={`mb-6 ${additionalClassNames ?? ""}`}
         dangerouslySetInnerHTML={{
           __html: nl2br(html, true),
         }}
