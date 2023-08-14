@@ -507,12 +507,13 @@ export default function Index() {
               ) : null}
             </div>
             {typeof loaderData.data.bio === "string" ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.data.bio, true),
-                }}
-              />
+              // <p
+              //   className="mb-6"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.data.bio, true),
+              //   }}
+              // />
+              <p className="mb-6">{loaderData.data.bio}</p>
             ) : null}
             {loaderData.data.areas !== undefined &&
             loaderData.data.areas.length > 0 ? (

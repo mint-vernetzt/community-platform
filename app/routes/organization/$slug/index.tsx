@@ -636,12 +636,13 @@ export default function Index() {
             ) : null}
             {typeof loaderData.organization.bio === "string" &&
             loaderData.organization.bio !== "" ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.organization.bio, true),
-                }}
-              />
+              // <p
+              //   className="mb-6"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.organization.bio, true),
+              //   }}
+              // />
+              <p className="mb-6">{loaderData.organization.bio}</p>
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
