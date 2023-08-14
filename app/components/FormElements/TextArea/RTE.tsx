@@ -7,13 +7,16 @@ export const LazyQuill = React.lazy(async () => {
 });
 
 const modules = {
-  toolbar: [
+  toolbar: "#toolbar",
+  /*
+  [
     [{ header: [1, 2, 3, false] }],
     ["bold", "italic", "underline"],
     [{ list: "ordered" }, { list: "bullet" }],
     ["link"],
     ["clean"],
   ],
+  */
 };
 
 export function setTextareaContentById(id: string, text: string) {
@@ -46,6 +49,10 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
 
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
+      <div id="toolbar">
+        <button className="ql-bold"></button>
+        <button className="ql-italic"></button>
+      </div>
       <LazyQuill
         ref={quillRef}
         theme="snow"

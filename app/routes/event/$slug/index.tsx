@@ -19,7 +19,6 @@ import {
 } from "~/lib/event/utils";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
@@ -46,6 +45,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import { RichtText } from "~/components/Richtext/Richtext";
 
 export function links() {
   return [
@@ -707,11 +707,9 @@ function Index() {
               ) : null}
             </header>
             {loaderData.event.description !== null ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.event.description, true),
-                }}
+              <RichtText
+                html={loaderData.event.description}
+                additionalClassNames="mb-6"
               />
             ) : null}
 
