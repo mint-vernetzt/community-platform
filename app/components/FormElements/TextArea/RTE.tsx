@@ -6,19 +6,6 @@ export const LazyQuill = React.lazy(async () => {
   return { default: module.default };
 });
 
-const modules = {
-  toolbar: "#toolbar",
-  /*
-  [
-    [{ header: [1, 2, 3, false] }],
-    ["bold", "italic", "underline"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    ["link"],
-    ["clean"],
-  ],
-  */
-};
-
 export function setTextareaContentById(id: string, text: string) {
   if (typeof window !== "undefined") {
     const $input = document.getElementById(id);
@@ -46,12 +33,36 @@ interface RTEProps {
 
 export function RTE({ id, defaultValue, maxLength }: RTEProps) {
   const quillRef = React.useRef<ReactQuill>(null);
+  const toolbar = `toolbar_${id}`;
 
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
-      <div id="toolbar">
-        <button className="ql-bold"></button>
-        <button className="ql-italic"></button>
+      <div id={`${toolbar}`}>
+        <div className="ql-formats">
+          <select className="ql-header">
+            <option value="2">Überschrift 1</option>
+            <option value="3">Überschrift 2</option>
+            <option value="4">Überschrift 3</option>
+            <option value="" selected>
+              Text
+            </option>
+          </select>
+        </div>
+        <div className="ql-formats">
+          <button className="ql-bold"></button>
+          <button className="ql-italic"></button>
+          <button className="ql-underline"></button>
+        </div>
+        <div className="ql-formats">
+          <button type="button" className="ql-list" value="ordered" />
+          <button type="button" className="ql-list" value="bullet" />
+        </div>
+        <div className="ql-formats">
+          <button type="button" className="ql-link" />
+        </div>
+        <div className="ql-formats">
+          <button className="ql-clean"></button>
+        </div>
       </div>
       <LazyQuill
         ref={quillRef}
@@ -60,7 +71,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
         onChange={(content) => {
           setTextareaContentById(id, content);
         }}
-        modules={modules}
+        modules={{ toolbar: `#${toolbar}` }}
         onKeyDown={() => {
           if (
             maxLength !== undefined &&
