@@ -1,6 +1,17 @@
 import sanitizeHtml from "sanitize-html";
 
-const allowedTags = ["b", "i", "strong", "a", "ul", "p", "li"];
+const allowedTags = [
+  "b",
+  "i",
+  "strong",
+  "a",
+  "ul",
+  "p",
+  "li",
+  "h2",
+  "h3",
+  "h4",
+];
 const allowedAttributes = {
   a: ["href", "rel", "target"],
 };
