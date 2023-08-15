@@ -24,6 +24,7 @@ import {
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
 import styles from "../../common/design/styles/styles.css";
+import { prismaClient } from "~/prisma.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -43,10 +44,23 @@ export const loader = async (args: LoaderArgs) => {
   if (sessionUser === null) {
     return redirect("/login");
   }
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect("/accept-terms", { headers: response.headers });
+    }
+  }
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
+  }
+
+  if (profile.termsAccepted === false) {
+    return redirect("/accept-terms", { headers: response.headers });
   }
 
   let randomSeed = getRandomSeed(request);

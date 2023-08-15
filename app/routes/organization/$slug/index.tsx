@@ -1,6 +1,6 @@
 import type { Organization } from "@prisma/client";
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
@@ -41,6 +41,7 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
+import { prismaClient } from "~/prisma.server";
 
 export function links() {
   return [
@@ -62,6 +63,16 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect("/accept-terms", { headers: response.headers });
+    }
+  }
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
