@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
-import { RTE } from "./RTE";
+import { RTE } from "./RTE.client";
+import { ClientOnly } from "remix-utils";
 
 export interface TextAreaProps {
   id: string;
@@ -48,11 +49,17 @@ const TextArea = React.forwardRef(
         <div className="flex flex-row">
           <div className="flex-auto">
             {rte === true && (
-              <RTE
-                id={id}
-                defaultValue={`${rest.defaultValue}`}
-                maxLength={rest.maxLength}
-              />
+              <ClientOnly>
+                {() => {
+                  return (
+                    <RTE
+                      id={id}
+                      defaultValue={`${rest.defaultValue}`}
+                      maxLength={rest.maxLength}
+                    />
+                  );
+                }}
+              </ClientOnly>
             )}
             <textarea
               {...rest}

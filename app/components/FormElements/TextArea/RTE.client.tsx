@@ -1,10 +1,5 @@
 import * as React from "react";
-import type ReactQuill from "react-quill";
-
-export const LazyQuill = React.lazy(async () => {
-  const module = await import("react-quill");
-  return { default: module.default };
-});
+import ReactQuill from "react-quill";
 
 export function setTextareaContentById(id: string, text: string) {
   if (typeof window !== "undefined") {
@@ -49,22 +44,28 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
           </select>
         </div>
         <div className="ql-formats">
-          <button className="ql-bold"></button>
-          <button className="ql-italic"></button>
-          <button className="ql-underline"></button>
+          <button className="ql-bold">fett</button>
+          <button className="ql-italic">kursiv</button>
+          <button className="ql-underline">unterstrichen</button>
         </div>
         <div className="ql-formats">
-          <button type="button" className="ql-list" value="ordered" />
-          <button type="button" className="ql-list" value="bullet" />
+          <button type="button" className="ql-list" value="ordered">
+            nummerierte Liste
+          </button>
+          <button type="button" className="ql-list" value="bullet">
+            unnummerierte Liste
+          </button>
         </div>
         <div className="ql-formats">
-          <button type="button" className="ql-link" />
+          <button type="button" className="ql-link">
+            Link
+          </button>
         </div>
         <div className="ql-formats">
-          <button className="ql-clean"></button>
+          <button className="ql-clean">Format entfernen</button>
         </div>
       </div>
-      <LazyQuill
+      <ReactQuill
         ref={quillRef}
         theme="snow"
         defaultValue={defaultValue}
