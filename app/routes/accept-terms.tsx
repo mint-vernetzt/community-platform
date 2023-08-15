@@ -15,7 +15,7 @@ import { prismaClient } from "~/prisma.server";
 
 const schema = z.object({
   termsAccepted: z.boolean(),
-  loginRedirect: z.string().optional(),
+  redirectTo: z.string().optional(),
 });
 
 export const loader = async (args: LoaderArgs) => {
@@ -76,7 +76,7 @@ export const action = async (args: ActionArgs) => {
   });
 
   if (result.success === true) {
-    return redirect(result.data.loginRedirect || "/dashboard", {
+    return redirect(result.data.redirectTo || "/dashboard", {
       headers: response.headers,
     });
   }
@@ -85,7 +85,8 @@ export const action = async (args: ActionArgs) => {
 
 function AcceptTerms() {
   const [urlSearchParams] = useSearchParams();
-  const loginRedirect = urlSearchParams.get("login_redirect");
+  const redirectTo = urlSearchParams.get("redirect_to");
+
   const submit = useSubmit();
   const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
@@ -105,9 +106,9 @@ function AcceptTerms() {
           <RemixForm
             method="post"
             schema={schema}
-            hiddenFields={["loginRedirect"]}
+            hiddenFields={["redirectTo"]}
             values={{
-              loginRedirect: loginRedirect,
+              redirectTo: redirectTo,
             }}
             onKeyDown={handleKeyPress}
           >
@@ -116,6 +117,7 @@ function AcceptTerms() {
                 <div className="mb-8">
                   <div className="form-control checkbox-privacy">
                     <label className="label cursor-pointer items-start">
+                      <Field name="redirectTo" />
                       <Field name="termsAccepted">
                         {({ Errors }) => {
                           const ForwardRefComponent = React.forwardRef<

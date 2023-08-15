@@ -70,7 +70,9 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect("/accept-terms", { headers: response.headers });
+      return redirect(`/accept-terms?redirect_to=/organization/${slug}`, {
+        headers: response.headers,
+      });
     }
   }
 

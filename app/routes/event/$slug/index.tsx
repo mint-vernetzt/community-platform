@@ -47,6 +47,7 @@ import {
   getIsTeamMember,
 } from "./utils.server";
 import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export function links() {
   return [
@@ -63,14 +64,10 @@ export const meta: MetaFunction = (args) => {
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
-  const { slug } = params;
+  const slug = getParamValueOrThrow(params, "slug");
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const abilities = await getFeatureAbilities(authClient, "events");
-
-  if (slug === undefined || typeof slug !== "string") {
-    throw badRequest({ message: '"slug" missing' });
-  }
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -80,7 +77,9 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect("/accept-terms", { headers: response.headers });
+      return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
+        headers: response.headers,
+      });
     }
   }
 

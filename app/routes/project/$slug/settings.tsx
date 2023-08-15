@@ -2,12 +2,14 @@ import { NavLink, Outlet } from "@remix-run/react";
 import { redirect, type LoaderArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export const loader = async (args: LoaderArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -16,7 +18,9 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect("/accept-terms", { headers: response.headers });
+      return redirect(`/accept-terms?redirect_to=/project/${slug}/settings`, {
+        headers: response.headers,
+      });
     }
   }
 };
