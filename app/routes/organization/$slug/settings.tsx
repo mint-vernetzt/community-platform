@@ -24,6 +24,7 @@ export const loader = async (args: LoaderArgs) => {
       );
     }
   }
+  return null;
 };
 
 function Settings() {
