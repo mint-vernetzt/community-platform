@@ -399,7 +399,6 @@ describe("/event/$slug/settings/general", () => {
         tags: [],
         conferenceLink: "",
         conferenceCode: "",
-        participantLimit: "",
         participationUntilDate: "",
         participationUntilTime: "",
         participationFromDate: "",
@@ -411,7 +410,6 @@ describe("/event/$slug/settings/general", () => {
         venueCity: "",
         venueZipCode: "",
         submit: "",
-        participantCount: "",
       };
 
       beforeAll(() => {
@@ -515,7 +513,7 @@ describe("/event/$slug/settings/general", () => {
         expect(responseBody.errors.participationFromDate).toBeDefined();
         expect(responseBody.errors.participationFromTime).toBeDefined();
         expect(responseBody.errors.submit).toBeDefined();
-        expect(Object.keys(responseBody.errors).length).toBe(10);
+        expect(Object.keys(responseBody.errors).length).toBe(9);
       });
 
       test("invalid date time fields (end before start)", async () => {
@@ -531,7 +529,6 @@ describe("/event/$slug/settings/general", () => {
           participationFromDate: "2022-09-21",
           participationFromTime: "23:00",
           submit: "submit",
-          participantCount: "0",
         });
 
         expect.assertions(4);
@@ -562,7 +559,6 @@ describe("/event/$slug/settings/general", () => {
           participationFromDate: "2022-09-21",
           participationFromTime: "23:00",
           submit: "submit",
-          participantCount: "0",
         });
 
         expect.assertions(5);
@@ -612,7 +608,6 @@ describe("/event/$slug/settings/general", () => {
           participationFromDate: "2022-09-12",
           participationFromTime: "23:00",
           submit: "submit",
-          participantCount: "0",
         });
         (
           prismaClient.eventVisibility.findFirst as jest.Mock
@@ -647,7 +642,6 @@ describe("/event/$slug/settings/general", () => {
           participationUntilTime: "23:59",
           participationFromDate: "2022-09-12",
           participationFromTime: "23:00",
-          participantCount: "0",
           [listAction]: listActionItemId,
         });
         const response = await action({

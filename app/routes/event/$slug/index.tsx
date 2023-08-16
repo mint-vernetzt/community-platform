@@ -718,12 +718,13 @@ function Index() {
               ) : null}
             </header>
             {loaderData.event.description !== null ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.event.description, true),
-                }}
-              />
+              // <p
+              //   className="mb-6"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.event.description, true),
+              //   }}
+              // />
+              <p className="mb-6">{loaderData.event.description}</p>
             ) : null}
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">

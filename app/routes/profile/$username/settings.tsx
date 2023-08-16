@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { redirect, type LoaderArgs } from "@remix-run/server-runtime";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -23,10 +23,15 @@ export const loader = async (args: LoaderArgs) => {
         { headers: response.headers }
       );
     }
+    if (sessionUser.app_metadata.provider === "keycloak") {
+      return { provider: "keycloak" };
+    }
   }
+  return { provider: "email" };
 };
 
 function Index() {
+  const loaderData = useLoaderData<typeof loader>();
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -49,14 +54,16 @@ function Index() {
                       Allgemein
                     </NavLink>
                   </li>
-                  <li>
-                    <NavLink
-                      to="security"
-                      className={({ isActive }) => getClassName(isActive)}
-                    >
-                      Login und Sicherheit
-                    </NavLink>
-                  </li>
+                  {loaderData.provider === "email" && (
+                    <li>
+                      <NavLink
+                        to="security"
+                        className={({ isActive }) => getClassName(isActive)}
+                      >
+                        Login und Sicherheit
+                      </NavLink>
+                    </li>
+                  )}
                 </ul>
                 <hr className="border-neutral-400 my-4 lg:my-8" />
                 <div>

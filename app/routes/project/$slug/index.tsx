@@ -543,12 +543,13 @@ function Index() {
 
             {loaderData.project.excerpt !== null &&
             loaderData.project.excerpt !== "" ? (
-              <p
-                className="mb-8"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.project.excerpt, true),
-                }}
-              />
+              // <p
+              //   className="mb-8"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.project.excerpt, true),
+              //   }}
+              // />
+              <p className="mb-8">{loaderData.project.excerpt}</p>
             ) : null}
 
             {loaderData.project.targetGroups.length > 0 ? (
@@ -591,12 +592,13 @@ function Index() {
             loaderData.project.description !== "" ? (
               <>
                 <H4 className="font-bold mb-4">Beschreibung</H4>
-                <p
+                {/* <p
                   className="mb-8"
                   dangerouslySetInnerHTML={{
                     __html: nl2br(loaderData.project.description, true),
                   }}
-                />
+                /> */}
+                <p className="mb-8">{loaderData.project.description}</p>
               </>
             ) : null}
 
