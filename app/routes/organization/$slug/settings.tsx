@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "@remix-run/react";
 import { type LoaderArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
