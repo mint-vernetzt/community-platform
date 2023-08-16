@@ -135,6 +135,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
+  if (sessionUser.app_metadata.provider === "keycloak") {
+    throw forbidden({ message: "not allowed." });
+  }
+
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
   const formData = await requestClone.formData();
 
