@@ -8,12 +8,14 @@ import type { Schema } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import {
+  createAdminAuthClient,
   createAuthClient,
   getSessionUser,
   sendResetPasswordLink,
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { prismaClient } from "~/prisma";
 
 const schema = z.object({
   email: z
@@ -51,15 +53,36 @@ const mutation = makeDomainFunction(
     ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
     : environment.siteUrl;
 
-  const { error } = await sendResetPasswordLink(
-    environment.authClient,
-    values.email,
-    emailRedirectTo
-  );
+  // get profile by email to be able to find user
+  const profile = await prismaClient.profile.findFirst({
+    where: { email: values.email },
+    select: { id: true },
+  });
 
-  if (error !== null && error.message !== "User not found") {
-    throw error.message;
+  if (profile !== null) {
+    const adminAuthClient = createAdminAuthClient();
+    const { data, error } = await adminAuthClient.auth.admin.getUserById(
+      profile.id
+    );
+    if (error !== null) {
+      console.error(error);
+    } else if (data.user !== null) {
+      // if user uses email provider send password reset link
+      if (data.user.app_metadata.provider === "email") {
+        const { error } = await sendResetPasswordLink(
+          environment.authClient,
+          values.email,
+          emailRedirectTo
+        );
+        if (error !== null && error.message !== "User not found") {
+          throw error.message;
+        }
+      } else {
+        console.log("User uses other provider than email.");
+      }
+    }
   }
+
   return values;
 });
 
