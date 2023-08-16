@@ -446,34 +446,6 @@ function General() {
       </p>
       <div className="flex mb-4">
         <RemixForm
-          schema={publishSchema}
-          fetcher={publishFetcher}
-          action={`/event/${slug}/settings/events/publish`}
-          hiddenFields={["eventId", "userId", "publish"]}
-          values={{
-            eventId: event.id,
-            userId: userId,
-            publish: !originalEvent.published,
-          }}
-          className="mr-2"
-        >
-          {(props) => {
-            const { Button, Field } = props;
-            return (
-              <>
-                <Field name="userId" />
-                <Field name="eventId" />
-                <Field name="publish"></Field>
-                <div className="mt-2">
-                  <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
-                  </Button>
-                </div>
-              </>
-            );
-          }}
-        </RemixForm>
-        <RemixForm
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
@@ -919,6 +891,34 @@ function General() {
                 >
                   Speichern
                 </button>
+                <RemixForm
+                  schema={publishSchema}
+                  fetcher={publishFetcher}
+                  action={`/event/${slug}/settings/events/publish`}
+                  hiddenFields={["eventId", "userId", "publish"]}
+                  values={{
+                    eventId: event.id,
+                    userId: userId,
+                    publish: !originalEvent.published,
+                  }}
+                  className="mr-2"
+                >
+                  {(props) => {
+                    const { Button, Field } = props;
+                    return (
+                      <>
+                        <Field name="userId" />
+                        <Field name="eventId" />
+                        <Field name="publish"></Field>
+                        <Button className="btn btn-outline-primary ml-4">
+                          {originalEvent.published
+                            ? "Verstecken"
+                            : "Veröffentlichen"}
+                        </Button>
+                      </>
+                    );
+                  }}
+                </RemixForm>
               </div>
             </div>
           </footer>
