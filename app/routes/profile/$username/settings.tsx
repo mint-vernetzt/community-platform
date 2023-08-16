@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { redirect, type LoaderArgs } from "@remix-run/server-runtime";
+import { redirect, type LoaderArgs, json } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
@@ -24,10 +24,10 @@ export const loader = async (args: LoaderArgs) => {
       );
     }
     if (sessionUser.app_metadata.provider === "keycloak") {
-      return { provider: "keycloak" };
+      return json({ provider: "keycloak" });
     }
   }
-  return { provider: "email" };
+  return json({ provider: "email" });
 };
 
 function Index() {
