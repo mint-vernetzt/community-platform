@@ -8,7 +8,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;

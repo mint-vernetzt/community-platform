@@ -1,4 +1,29 @@
 import { NavLink, Outlet } from "@remix-run/react";
+import { redirect, type LoaderArgs } from "@remix-run/node";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+
+export const loader = async (args: LoaderArgs) => {
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/event/${slug}/settings`, {
+        headers: response.headers,
+      });
+    }
+  }
+};
 
 function Settings() {
   const getClassName = (active: boolean) =>

@@ -1,5 +1,5 @@
 import { program } from "commander";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 program
   .name("truncate-tables")

@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 // QUESTION: Moving utils to event/$slug as it's used inside the detail page?
 

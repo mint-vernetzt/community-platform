@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function getEventWithParticipantCount(slug: string) {
   return await prismaClient.event.findUnique({

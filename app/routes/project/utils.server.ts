@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { unauthorized } from "remix-utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function checkIdentityOrThrow(
   request: Request,

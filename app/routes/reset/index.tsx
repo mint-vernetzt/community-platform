@@ -15,7 +15,7 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 const schema = z.object({
   email: z

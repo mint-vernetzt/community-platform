@@ -1,5 +1,5 @@
 import type { Event } from "@prisma/client";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function getRootEvent(id: string) {
   try {

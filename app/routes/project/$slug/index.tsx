@@ -1,6 +1,6 @@
 import type { Project } from "@prisma/client";
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -26,6 +26,7 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
+import { prismaClient } from "~/prisma.server";
 
 export function links() {
   return [
@@ -84,6 +85,18 @@ export const loader = async (args: LoaderArgs) => {
   const project = await getProjectBySlugOrThrow(slug);
 
   const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/project/${slug}`, {
+        headers: response.headers,
+      });
+    }
+  }
 
   const mode = await deriveMode(project, sessionUser);
 

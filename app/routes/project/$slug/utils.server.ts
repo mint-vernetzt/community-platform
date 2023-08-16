@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function getProjectBySlug(slug: string) {
   return await getProjectByField("slug", slug);

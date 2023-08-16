@@ -4,7 +4,7 @@ import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getSessionUserOrThrow } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
 

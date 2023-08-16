@@ -1,5 +1,5 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -7,7 +7,7 @@ import {
   filterProjectByVisibility,
 } from "./public-fields-filtering.server";
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       profileVisibility: {

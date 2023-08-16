@@ -1,19 +1,33 @@
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { type LoaderArgs } from "@remix-run/node";
-import { createAuthClient, getSessionOrThrow } from "~/auth.server";
+import { redirect, type LoaderArgs, json } from "@remix-run/node";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: LoaderArgs) => {
-  const { request } = args;
+  const { request, params } = args;
+  const username = getParamValueOrThrow(params, "username");
   const response = new Response();
+
   const authClient = createAuthClient(request, response);
-  const session = await getSessionOrThrow(authClient);
-  if (session !== null) {
-    const { user } = session;
-    if (user.app_metadata.provider === "keycloak") {
-      return { provider: "keycloak" };
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(
+        `/accept-terms?redirect_to=/profile/${username}/settings`,
+        { headers: response.headers }
+      );
+    }
+    if (sessionUser.app_metadata.provider === "keycloak") {
+      return json({ provider: "keycloak" });
     }
   }
-  return { provider: "email" };
+  return json({ provider: "email" });
 };
 
 function Index() {

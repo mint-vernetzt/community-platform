@@ -6,7 +6,7 @@ import { GravityType } from "imgproxy/dist/types";
 import { notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import type { FormError } from "~/lib/utils/yup";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
 

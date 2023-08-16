@@ -1,5 +1,5 @@
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
@@ -46,6 +46,8 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 export function links() {
   return [
@@ -62,16 +64,25 @@ export const meta: MetaFunction = (args) => {
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
-  const { slug } = params;
+  const slug = getParamValueOrThrow(params, "slug");
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const abilities = await getFeatureAbilities(authClient, "events");
 
-  if (slug === undefined || typeof slug !== "string") {
-    throw badRequest({ message: '"slug" missing' });
+  const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
+        headers: response.headers,
+      });
+    }
   }
 
-  const sessionUser = await getSessionUser(authClient);
   const rawEvent = await getEvent(slug);
 
   if (rawEvent === null) {

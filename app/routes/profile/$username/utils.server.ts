@@ -6,7 +6,7 @@ import {
   addUserParticipationStatus,
   combineEventsSortChronologically,
 } from "~/lib/event/utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
   filterProfileByVisibility,
