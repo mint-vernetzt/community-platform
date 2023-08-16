@@ -10,7 +10,7 @@ import {
   getRandomUniqueSubset,
 } from "../../../app/lib/utils/array";
 import type { ArrayElement } from "../../../app/lib/utils/types";
-import { prismaClient } from "../../../app/prisma";
+import { prismaClient } from "../../../app/prisma.server";
 import { generatePathName } from "../../../app/storage.server";
 import {
   generateEventSlug,
