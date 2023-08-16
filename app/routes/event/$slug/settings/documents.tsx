@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
 import { Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -17,6 +17,8 @@ import { editDocumentSchema } from "./documents/edit-document";
 import type { ActionData as UploadDocumentActionData } from "./documents/upload-document";
 import { uploadDocumentSchema } from "./documents/upload-document";
 import { checkOwnershipOrThrow } from "./utils.server";
+import { publishSchema } from "./events/publish";
+import type { ActionData as PublishActionData } from "./events/publish";
 
 type LoaderData = {
   userId: string;
@@ -66,10 +68,12 @@ function clearFileInput() {
 
 function Documents() {
   const loaderData = useLoaderData<LoaderData>();
+  const { slug } = useParams();
 
   const uploadDocumentFetcher = useFetcher<UploadDocumentActionData>();
   const editDocumentFetcher = useFetcher<EditDocumentActionData>();
   const deleteDocumentFetcher = useFetcher<DeleteDocumentActionData>();
+  const publishFetcher = useFetcher<PublishActionData>();
 
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -290,6 +294,39 @@ function Documents() {
           </>
         )}
       </RemixForm>
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: loaderData.event.id,
+                userId: loaderData.userId,
+                publish: !loaderData.event.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {loaderData.event.published
+                        ? "Verstecken"
+                        : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
