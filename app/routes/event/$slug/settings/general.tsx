@@ -859,9 +859,9 @@ function General() {
               isPublic={eventVisibilities.areas}
             />
           </div>
-          <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24">
+          <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
             <div className="container">
-              <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
+              <div className="flex flex-row flex-nowrap items-center justify-end my-4">
                 <div
                   className={`text-green-500 text-bold ${
                     actionData?.updated && !isSubmitting
@@ -869,7 +869,7 @@ function General() {
                       : "hidden"
                   }`}
                 >
-                  Deine Informationen wurden aktualisiert.
+                  Informationen wurden aktualisiert.
                 </div>
 
                 {isFormChanged ? (
@@ -891,6 +891,8 @@ function General() {
                 >
                   Speichern
                 </button>
+              </div>
+              <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
                 <RemixForm
                   schema={publishSchema}
                   fetcher={publishFetcher}
@@ -901,7 +903,6 @@ function General() {
                     userId: userId,
                     publish: !originalEvent.published,
                   }}
-                  className="mr-2"
                 >
                   {(props) => {
                     const { Button, Field } = props;
@@ -910,7 +911,7 @@ function General() {
                         <Field name="userId" />
                         <Field name="eventId" />
                         <Field name="publish"></Field>
-                        <Button className="btn btn-outline-primary ml-4">
+                        <Button className="btn btn-outline-primary">
                           {originalEvent.published
                             ? "Verstecken"
                             : "Veröffentlichen"}
