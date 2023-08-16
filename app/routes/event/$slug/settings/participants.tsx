@@ -1,7 +1,8 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { DataFunctionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
+  useActionData,
   useFetcher,
   useLoaderData,
   useParams,
@@ -9,7 +10,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, performMutation } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -19,18 +20,38 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import { addParticipantSchema } from "./participants/add-participant";
 import type {
   FailureActionData,
   SuccessActionData,
 } from "./participants/add-participant";
+import { addParticipantSchema } from "./participants/add-participant";
 import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
 import { removeParticipantSchema } from "./participants/remove-participant";
 import {
   checkOwnershipOrThrow,
-  getParticipantsDataFromEvent,
   getParticipantSuggestions,
+  getParticipantsDataFromEvent,
 } from "./utils.server";
+import { z } from "zod";
+import {
+  getEventWithParticipantCount,
+  updateParticipantLimit,
+} from "./participants.server";
+import { invariantResponse } from "~/lib/utils/response";
+import InputText from "~/components/FormElements/InputText/InputText";
+import { InputError, makeDomainFunction } from "remix-domains";
+
+const participantLimitSchema = z.object({
+  participantLimit: z
+    .string({ invalid_type_error: "Bitte eine Zahl eingeben" })
+    .regex(/^\d+$/)
+    .transform(Number)
+    .optional(),
+});
+
+const environmentSchema = z.object({
+  participantsCount: z.number(),
+});
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -92,6 +113,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       eventId: event.id,
+      participantLimit: event.participantLimit,
       participants: enhancedParticipants,
       participantSuggestions,
       hasFullDepthParticipants:
@@ -103,6 +125,56 @@ export const loader = async (args: LoaderArgs) => {
   );
 };
 
+const mutation = makeDomainFunction(
+  participantLimitSchema,
+  environmentSchema
+)(async (values, environment) => {
+  const participantLimit =
+    values.participantLimit === undefined || values.participantLimit <= 0
+      ? null
+      : values.participantLimit;
+  if (participantLimit) {
+    if (environment.participantsCount > participantLimit) {
+      throw new InputError(
+        "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+        "participantLimit"
+      );
+    }
+  }
+  return values;
+});
+
+export async function action({ request, params }: DataFunctionArgs) {
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const eventSlug = params.slug;
+  invariantResponse(eventSlug, "Slug parameter not found", {
+    status: 404,
+  });
+  const event = await getEventWithParticipantCount(eventSlug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  await checkOwnershipOrThrow(event, sessionUser);
+
+  const result = await performMutation({
+    request,
+    schema: participantLimitSchema,
+    mutation,
+    environment: { participantsCount: event._count.participants },
+  });
+
+  if (result.success) {
+    // All checked, lets update the event
+    await updateParticipantLimit(
+      eventSlug,
+      result.data.participantLimit || null
+    );
+  }
+
+  return json(result, { headers: response.headers });
+}
+
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
@@ -113,14 +185,56 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const actionData = useActionData<typeof action>();
 
   return (
     <>
       <h1 className="mb-8">Teilnehmende</h1>
       <p className="mb-8">
         Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende
-        hinzu oder entferne sie.
+        hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der
+        Teilnehmenden festlegen.
       </p>
+      <h4 className="mb-4 font-semibold">Begrenzung der Teilnehmenden</h4>
+      <p className="mb-8">
+        Hier kann die Teilnehmerzahl begrenzt werden. Auch wenn die
+        Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von
+        der Warteliste zu den Teilnehmenden verschieben.
+      </p>
+      <Form schema={participantLimitSchema}>
+        {({ Field, Errors, Button, register }) => {
+          return (
+            <>
+              <Field name="participantLimit" className="mb-4">
+                {({ Errors }) => (
+                  <>
+                    <InputText
+                      {...register("participantLimit")}
+                      id="participantLimit"
+                      label="Begrenzung der Teilnehmenden"
+                      defaultValue={loaderData.participantLimit || undefined}
+                      type="number"
+                    />
+                    <Errors />
+                  </>
+                )}
+              </Field>
+              <div className="flex flex-row">
+                <Button type="submit" className="btn btn-primary mb-8">
+                  Speichern
+                </Button>
+                <div
+                  className={`text-green-500 text-bold ml-4 mt-2 ${
+                    actionData?.success ? "block animate-fade-out" : "hidden"
+                  }`}
+                >
+                  Deine Informationen wurden aktualisiert.
+                </div>
+              </div>
+            </>
+          );
+        }}
+      </Form>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als

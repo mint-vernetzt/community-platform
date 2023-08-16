@@ -11,7 +11,7 @@ import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
-  event: Event,
+  event: Pick<Event, "id">,
   currentUser: User | null,
   options: {
     throw: boolean;
@@ -39,7 +39,7 @@ export async function checkOwnership(
 }
 
 export async function checkOwnershipOrThrow(
-  event: Event,
+  event: Pick<Event, "id">,
   sessionUser: User | null
 ) {
   return await checkOwnership(event, sessionUser, { throw: true });
