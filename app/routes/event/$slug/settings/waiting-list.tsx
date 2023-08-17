@@ -339,9 +339,7 @@ function Participants() {
             );
           })}
         </div>
-      ) : (
-        <div className="flex flox-col h-screen"></div>
-      )}
+      ) : null}
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
