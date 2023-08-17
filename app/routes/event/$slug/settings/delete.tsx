@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest, notFound } from "remix-utils";
@@ -16,6 +16,8 @@ import {
   deleteEventById,
 } from "./utils.server";
 import { getProfileById } from "./delete.server";
+import { publishSchema } from "./events/publish";
+import type { ActionData as PublishActionData } from "./events/publish";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -43,6 +45,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       eventId: event.id,
+      published: event.published,
       eventName: event.name,
       childEvents: event.childEvents,
     },
@@ -114,6 +117,8 @@ export const action = async (args: ActionArgs) => {
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
+  const { slug } = useParams();
+  const publishFetcher = useFetcher<PublishActionData>();
 
   return (
     <>
@@ -176,6 +181,37 @@ function Delete() {
           </>
         )}
       </RemixForm>
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: loaderData.eventId,
+                userId: loaderData.userId,
+                publish: !loaderData.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

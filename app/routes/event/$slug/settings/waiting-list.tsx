@@ -33,6 +33,9 @@ import { type ActionData as MoveToParticipantsActionData } from "./waiting-list/
 import { moveToParticipantsSchema } from "./waiting-list/move-to-participants";
 import type { ActionData as RemoveFromWaitingListActionData } from "./waiting-list/remove-from-waiting-list";
 import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-list";
+import { publishSchema } from "./events/publish";
+import type { ActionData as PublishActionData } from "./events/publish";
+import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -96,6 +99,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       eventId: event.id,
+      published: event.published,
       waitingList: enhancedWaitingParticipants,
       waitingParticipantSuggestions,
       hasFullDepthWaitingList:
@@ -116,6 +120,7 @@ function Participants() {
   const removeFromWaitingListFetcher =
     useFetcher<RemoveFromWaitingListActionData>();
   const moveToParticipantsFetcher = useFetcher<MoveToParticipantsActionData>();
+  const publishFetcher = useFetcher<PublishActionData>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -224,111 +229,148 @@ function Participants() {
         </p>
       ) : null}
 
-      <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
-        {moveToParticipantsFetcher.data !== undefined &&
-          moveToParticipantsFetcher.data.success === true && (
-            <div>Teilnehmende wurde hinzugefügt und per E-Mail informiert.</div>
-          )}
-        {loaderData.waitingList.map((waitingParticipant) => {
-          const initials = getInitials(waitingParticipant);
-          return (
-            <div
-              key={waitingParticipant.id}
-              className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
-            >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
-                {waitingParticipant.avatar !== null &&
-                waitingParticipant.avatar !== "" ? (
-                  <img src={waitingParticipant.avatar} alt={initials} />
-                ) : (
-                  <>{initials}</>
-                )}
-              </div>
-              <div className="pl-4">
-                <Link to={`/profile/${waitingParticipant.username}`}>
-                  <H3
-                    like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
+      {moveToParticipantsFetcher.data !== undefined &&
+        moveToParticipantsFetcher.data.success === true && (
+          <div>Teilnehmende wurde hinzugefügt und per E-Mail informiert.</div>
+        )}
+      {loaderData.waitingList.length > 0 ? (
+        <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
+          {loaderData.waitingList.map((waitingParticipant) => {
+            const initials = getInitials(waitingParticipant);
+            return (
+              <div
+                key={waitingParticipant.id}
+                className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
+              >
+                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  {waitingParticipant.avatar !== null &&
+                  waitingParticipant.avatar !== "" ? (
+                    <img src={waitingParticipant.avatar} alt={initials} />
+                  ) : (
+                    <>{initials}</>
+                  )}
+                </div>
+                <div className="pl-4">
+                  <Link to={`/profile/${waitingParticipant.username}`}>
+                    <H3
+                      like="h4"
+                      className="text-xl mb-1 no-underline hover:underline"
+                    >
+                      {waitingParticipant.firstName}{" "}
+                      {waitingParticipant.lastName}
+                    </H3>
+                  </Link>
+                  {waitingParticipant.position ? (
+                    <p className="font-bold text-sm cursor-default">
+                      {waitingParticipant.position}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
+                  <Form
+                    schema={moveToParticipantsSchema}
+                    fetcher={moveToParticipantsFetcher}
+                    action={`/event/${slug}/settings/waiting-list/move-to-participants`}
+                    hiddenFields={["userId", "eventId", "profileId"]}
+                    values={{
+                      userId: loaderData.userId,
+                      eventId: loaderData.eventId,
+                      profileId: waitingParticipant.id,
+                    }}
+                    className="ml-auto"
                   >
-                    {waitingParticipant.firstName} {waitingParticipant.lastName}
-                  </H3>
-                </Link>
-                {waitingParticipant.position ? (
-                  <p className="font-bold text-sm cursor-default">
-                    {waitingParticipant.position}
-                  </p>
-                ) : null}
-              </div>
-              <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
-                  schema={moveToParticipantsSchema}
-                  fetcher={moveToParticipantsFetcher}
-                  action={`/event/${slug}/settings/waiting-list/move-to-participants`}
-                  hiddenFields={["userId", "eventId", "profileId"]}
-                  values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    profileId: waitingParticipant.id,
-                  }}
-                  className="ml-auto"
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="profileId" />
-                        <Button className="btn btn-outline-primary ml-auto btn-small">
-                          Zu Teilnehmenden hinzufügen
-                        </Button>
-                      </>
-                    );
-                  }}
-                </Form>
-                <Form
-                  schema={removeFromWaitingListSchema}
-                  fetcher={removeFromWaitingListFetcher}
-                  action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
-                  hiddenFields={["userId", "eventId", "profileId"]}
-                  values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    profileId: waitingParticipant.id,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="profileId" />
-                        <Button className="ml-auto btn-none" title="entfernen">
-                          <svg
-                            viewBox="0 0 10 10"
-                            width="10px"
-                            height="10px"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
+                    {(props) => {
+                      const { Field, Button, Errors } = props;
+                      return (
+                        <>
+                          <Errors />
+                          <Field name="userId" />
+                          <Field name="eventId" />
+                          <Field name="profileId" />
+                          <Button className="btn btn-outline-primary ml-auto btn-small">
+                            Zu Teilnehmenden hinzufügen
+                          </Button>
+                        </>
+                      );
+                    }}
+                  </Form>
+                  <Form
+                    schema={removeFromWaitingListSchema}
+                    fetcher={removeFromWaitingListFetcher}
+                    action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
+                    hiddenFields={["userId", "eventId", "profileId"]}
+                    values={{
+                      userId: loaderData.userId,
+                      eventId: loaderData.eventId,
+                      profileId: waitingParticipant.id,
+                    }}
+                  >
+                    {(props) => {
+                      const { Field, Button, Errors } = props;
+                      return (
+                        <>
+                          <Errors />
+                          <Field name="userId" />
+                          <Field name="eventId" />
+                          <Field name="profileId" />
+                          <Button
+                            className="ml-auto btn-none"
+                            title="entfernen"
                           >
-                            <path
-                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                        </Button>
-                      </>
-                    );
-                  }}
-                </Form>
+                            <svg
+                              viewBox="0 0 10 10"
+                              width="10px"
+                              height="10px"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </Button>
+                        </>
+                      );
+                    }}
+                  </Form>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : null}
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: loaderData.eventId,
+                userId: loaderData.userId,
+                publish: !loaderData.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
