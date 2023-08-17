@@ -158,7 +158,7 @@ function Participants() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der wartenden Person
+                      Name oder Email der wartenden Person
                     </label>
                   </div>
                 </div>
