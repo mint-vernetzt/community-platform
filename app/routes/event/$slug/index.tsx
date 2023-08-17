@@ -46,6 +46,7 @@ import {
   getIsTeamMember,
 } from "./utils.server";
 import { RichtText } from "~/components/Richtext/RichText";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
   return [
@@ -1053,7 +1054,7 @@ function Index() {
                               </p>
                             ) : (
                               <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
-                                {event.description}
+                                {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}
                           </div>

@@ -38,6 +38,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
   return [
@@ -864,7 +865,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
@@ -1047,7 +1048,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
@@ -1209,7 +1210,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
@@ -1336,7 +1337,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
@@ -1444,7 +1445,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
@@ -1533,7 +1534,7 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {event.description}
+                                      {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>

@@ -41,6 +41,7 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
   return [
@@ -933,7 +934,9 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {relation.event.description || ""}
+                                      {removeHtmlTags(
+                                        relation.event.description ?? ""
+                                      )}
                                     </p>
                                   )}
                                 </div>
@@ -1065,7 +1068,9 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {relation.event.description || ""}
+                                      {removeHtmlTags(
+                                        relation.event.description ?? ""
+                                      )}
                                     </p>
                                   )}
                                 </div>

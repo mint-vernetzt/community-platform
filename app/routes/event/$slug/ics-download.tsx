@@ -12,6 +12,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
@@ -79,7 +80,7 @@ function createIcsString(
       event.endTime.getMinutes(),
     ] as DateArray,
     title: event.name,
-    description: event.description || undefined,
+    description: removeHtmlTags(event.description ?? "") || undefined,
     location: location.join(", "),
     url: absoluteEventUrl,
     // TODO:

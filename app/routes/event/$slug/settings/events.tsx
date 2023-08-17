@@ -32,6 +32,7 @@ import {
   getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -513,7 +514,7 @@ function Events() {
                               </p>
                             ) : (
                               <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
-                                {childEvent.description}
+                                {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}
                           </div>
