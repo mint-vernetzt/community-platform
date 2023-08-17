@@ -21,3 +21,9 @@ export function sanitizeUserHtml(html: string) {
     allowedAttributes,
   });
 }
+
+const REMOVE_HTML_TAGS_REGEX = /(<([^>]+)>)/gi;
+const REMOVE_HTML_TAGS_REPLACEMENT = "";
+export function removeHtmlTags(html: string) {
+  return html.replace(REMOVE_HTML_TAGS_REGEX, REMOVE_HTML_TAGS_REPLACEMENT);
+}
