@@ -127,7 +127,7 @@ function Speakers() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der Speaker:in
+                      Name oder Email der Speaker:in
                     </label>
                   </div>
                 </div>

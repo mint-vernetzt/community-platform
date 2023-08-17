@@ -582,6 +582,12 @@ export async function getTeamMemberSuggestions(
             mode: "insensitive",
           },
         },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
       ],
     };
     whereQueries.push(contains);
@@ -698,6 +704,12 @@ export async function getSpeakerSuggestions(
             mode: "insensitive",
           },
         },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
       ],
     };
     whereQueries.push(contains);
@@ -762,6 +774,12 @@ export async function getParticipantSuggestions(
         },
         {
           lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
             contains: word,
             mode: "insensitive",
           },
@@ -832,6 +850,12 @@ export async function getWaitingParticipantSuggestions(
         },
         {
           lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
             contains: word,
             mode: "insensitive",
           },

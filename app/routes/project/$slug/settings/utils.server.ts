@@ -299,6 +299,12 @@ export async function getTeamMemberSuggestions(
             mode: "insensitive",
           },
         },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
       ],
     };
     whereQueries.push(contains);

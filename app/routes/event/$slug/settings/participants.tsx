@@ -267,7 +267,7 @@ function Participants() {
                         htmlFor="Name"
                         className="label"
                       >
-                        Name der Teilnehmer:in
+                        Name oder Email der Teilnehmer:in
                       </label>
                     </div>
                   </div>
