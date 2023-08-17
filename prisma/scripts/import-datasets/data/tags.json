@@ -24,22 +24,10 @@
     "id": "0bf96e64-e9b4-4c85-8e33-df603067249c"
   },
   {
-    "referenceId": 789,
-    "title": "Lexikon",
-    "slug": "encyclopedia",
-    "id": "51e08860-ccf3-428d-b400-60c423118159"
-  },
-  {
     "referenceId": 786,
     "title": "MINT+",
     "slug": "steam",
     "id": "5118c87f-44b2-4f07-abb9-70266d739907"
-  },
-  {
-    "referenceId": 179,
-    "title": "MINTrakete",
-    "slug": "mintrakete",
-    "id": "6a0077ae-8935-458a-b9e9-a59d369a7176"
   },
   {
     "referenceId": 52,
@@ -58,5 +46,41 @@
     "title": "Vernetzung",
     "slug": "networking",
     "id": "1e79b778-20d7-47a4-bbf9-07ef45665e17"
+  },
+  {
+    "referenceId": 1604,
+    "title": "Förderung",
+    "slug": "foerderung",
+    "id": "9f1c6c3b-820a-4d42-8279-f4bbb2ed3b83"
+  },
+  {
+    "referenceId": 1513,
+    "title": "Diversität",
+    "slug": "diversitaet",
+    "id": "f0cfccca-5da4-448a-aeef-4b8c038f76d7"
+  },
+  {
+    "referenceId": 1701,
+    "title": "Bündnis für Frauen",
+    "slug": "buendnis-fuer-frauen",
+    "id": "6a453e7f-688d-4dab-a654-96b1968a2a18"
+  },
+  {
+    "referenceId": 3408,
+    "title": "MINT-Cluster",
+    "slug": "mint-cluster",
+    "id": "3900afae-d799-4d4d-80cf-b2a59f43ebde"
+  },
+  {
+    "referenceId": 3410,
+    "title": "MINT-Regionen",
+    "slug": "mint-regions",
+    "id": "f9b3231b-7a46-4171-bcf8-672cfa55675e"
+  },
+  {
+    "referenceId": 3412,
+    "title": "Teilhabe",
+    "slug": "participation",
+    "id": "2a239c93-8b68-42f3-83ad-f27bcc89093e"
   }
 ]
