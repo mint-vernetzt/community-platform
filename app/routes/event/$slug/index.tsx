@@ -1,6 +1,6 @@
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useTransition } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -47,6 +47,7 @@ import {
 } from "./utils.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Transition } from "@remix-run/react/dist/transition";
 
 export function links() {
   return [
@@ -469,6 +470,7 @@ function Index() {
               <Link
                 className=""
                 to={`/event/${loaderData.event.parentEvent.slug}`}
+                reloadDocument
               >
                 {loaderData.event.parentEvent.name}
               </Link>
@@ -611,6 +613,7 @@ function Index() {
                             <Link
                               className="underline hover:no-underline"
                               to={`/event/${loaderData.event.parentEvent.slug}`}
+                              reloadDocument
                             >
                               {loaderData.event.parentEvent.name}
                             </Link>
@@ -1031,7 +1034,11 @@ function Index() {
                         key={`child-event-${event.id}`}
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
-                        <Link className="flex" to={`/event/${event.slug}`}>
+                        <Link
+                          className="flex"
+                          to={`/event/${event.slug}`}
+                          reloadDocument
+                        >
                           <div className="hidden xl:block w-40 shrink-0">
                             <img
                               src={
