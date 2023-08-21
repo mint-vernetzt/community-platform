@@ -27,3 +27,5 @@ const REMOVE_HTML_TAGS_REPLACEMENT = "";
 export function removeHtmlTags(html: string) {
   return html.replace(REMOVE_HTML_TAGS_REGEX, REMOVE_HTML_TAGS_REPLACEMENT);
 }
+
+function test_removeHtmlTags() {}
