@@ -1,6 +1,6 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useTransition } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
@@ -57,6 +57,7 @@ type RemoveParticipantButtonProps = {
 
 export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
   const fetcher = useFetcher();
+
   return (
     <Form
       action={props.action}

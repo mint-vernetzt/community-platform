@@ -249,7 +249,6 @@ export async function getOrganizationWithEvents(
               description: true,
               _count: {
                 select: {
-                  childEvents: true,
                   participants: true,
                   waitingList: true,
                 },
