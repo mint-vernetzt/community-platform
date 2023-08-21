@@ -3,6 +3,7 @@ import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
 import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
+import { getBaseURL } from "src/utils";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
@@ -121,9 +122,11 @@ async function getEvents(request: Request, skip: number, take: number) {
       }
     }
 
+    let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+
     const url =
-      process.env.COMMUNITY_BASE_URL !== undefined
-        ? decorate(request, `${process.env.COMMUNITY_BASE_URL}event/${slug}`)
+      baseURL !== undefined
+        ? decorate(request, `${baseURL}/event/${slug}`)
         : null;
 
     return {
