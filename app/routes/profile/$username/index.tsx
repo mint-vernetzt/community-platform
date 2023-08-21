@@ -24,7 +24,6 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
@@ -840,20 +839,14 @@ export default function Index() {
                                       ? event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
-                                    {event._count.childEvents === 0 ? (
-                                      <>
-                                        {event.participantLimit === null
-                                          ? " | Unbegrenzte Plätze"
-                                          : ` | ${
-                                              event.participantLimit -
-                                              event._count.participants
-                                            } / ${
-                                              event.participantLimit
-                                            } Plätzen frei`}
-                                      </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    {event.participantLimit === null
+                                      ? " | Unbegrenzte Plätze"
+                                      : ` | ${
+                                          event.participantLimit -
+                                          event._count.participants
+                                        } / ${
+                                          event.participantLimit
+                                        } Plätzen frei`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -946,8 +939,7 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              (event._count.childEvents > 0 &&
-                                loaderData.mode === "anon") ? (
+                              loaderData.mode === "anon" ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -958,8 +950,7 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {loaderData.mode === "anon" &&
-                              event.canceled === false &&
-                              event._count.childEvents === 0 ? (
+                              event.canceled === false ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     className="btn btn-primary"
@@ -1023,20 +1014,14 @@ export default function Index() {
                                       ? event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
-                                    {event._count.childEvents === 0 ? (
-                                      <>
-                                        {event.participantLimit === null
-                                          ? " | Unbegrenzte Plätze"
-                                          : ` | ${
-                                              event.participantLimit -
-                                              event._count.participants
-                                            } / ${
-                                              event.participantLimit
-                                            } Plätzen frei`}
-                                      </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    {event.participantLimit === null
+                                      ? " | Unbegrenzte Plätze"
+                                      : ` | ${
+                                          event.participantLimit -
+                                          event._count.participants
+                                        } / ${
+                                          event.participantLimit
+                                        } Plätzen frei`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -1109,8 +1094,7 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              (event._count.childEvents > 0 &&
-                                loaderData.mode === "anon") ? (
+                              loaderData.mode === "anon" ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1121,8 +1105,7 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {loaderData.mode === "anon" &&
-                              event.canceled === false &&
-                              event._count.childEvents === 0 ? (
+                              event.canceled === false ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     className="btn btn-primary"
@@ -1185,20 +1168,14 @@ export default function Index() {
                                       ? event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
-                                    {event._count.childEvents === 0 ? (
-                                      <>
-                                        {event.participantLimit === null
-                                          ? " | Unbegrenzte Plätze"
-                                          : ` | ${
-                                              event.participantLimit -
-                                              event._count.participants
-                                            } / ${
-                                              event.participantLimit
-                                            } Plätzen frei`}
-                                      </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    {event.participantLimit === null
+                                      ? " | Unbegrenzte Plätze"
+                                      : ` | ${
+                                          event.participantLimit -
+                                          event._count.participants
+                                        } / ${
+                                          event.participantLimit
+                                        } Plätzen frei`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (

@@ -223,7 +223,6 @@ export async function getProfileWithEventsByMode(
               description: true,
               _count: {
                 select: {
-                  childEvents: true,
                   participants: true,
                   waitingList: true,
                 },
