@@ -130,7 +130,7 @@ function Team() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name des Teammitglieds
+                      Name oder Email des Teammitglieds
                     </label>
                   </div>
                 </div>

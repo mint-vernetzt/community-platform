@@ -1,6 +1,37 @@
-import { NavLink, Outlet } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { redirect, type LoaderArgs, json } from "@remix-run/node";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { prismaClient } from "~/prisma.server";
+
+export const loader = async (args: LoaderArgs) => {
+  const { request, params } = args;
+  const username = getParamValueOrThrow(params, "username");
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(
+        `/accept-terms?redirect_to=/profile/${username}/settings`,
+        { headers: response.headers }
+      );
+    }
+    if (sessionUser.app_metadata.provider === "keycloak") {
+      return json({ provider: "keycloak" });
+    }
+  }
+  return json({ provider: "email" });
+};
 
 function Index() {
+  const loaderData = useLoaderData<typeof loader>();
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -23,14 +54,16 @@ function Index() {
                       Allgemein
                     </NavLink>
                   </li>
-                  <li>
-                    <NavLink
-                      to="security"
-                      className={({ isActive }) => getClassName(isActive)}
-                    >
-                      Login und Sicherheit
-                    </NavLink>
-                  </li>
+                  {loaderData.provider === "email" && (
+                    <li>
+                      <NavLink
+                        to="security"
+                        className={({ isActive }) => getClassName(isActive)}
+                      >
+                        Login und Sicherheit
+                      </NavLink>
+                    </li>
+                  )}
                 </ul>
                 <hr className="border-neutral-400 my-4 lg:my-8" />
                 <div>

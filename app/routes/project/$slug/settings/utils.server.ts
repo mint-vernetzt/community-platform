@@ -3,7 +3,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import type { getProjectBySlugOrThrow } from "../utils.server";
 
@@ -295,6 +295,12 @@ export async function getTeamMemberSuggestions(
         },
         {
           lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
             contains: word,
             mode: "insensitive",
           },

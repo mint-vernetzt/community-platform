@@ -31,6 +31,9 @@ import {
   getSpeakerProfileDataFromEvent,
   getSpeakerSuggestions,
 } from "./utils.server";
+import { publishSchema } from "./events/publish";
+import type { ActionData as PublishActionData } from "./events/publish";
+import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -76,6 +79,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       userId: sessionUser.id,
       eventId: event.id,
+      published: event.published,
       speakers: enhancedSpeakers,
       speakerSuggestions,
     },
@@ -89,6 +93,7 @@ function Speakers() {
 
   const addSpeakerFetcher = useFetcher<SuccessActionData | FailureActionData>();
   const removeSpeakerFetcher = useFetcher<RemoveSpeakerActionData>();
+  const publishFetcher = useFetcher<PublishActionData>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -127,7 +132,7 @@ function Speakers() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der Speaker:in
+                      Name oder Email der Speaker:in
                     </label>
                   </div>
                 </div>
@@ -241,6 +246,37 @@ function Speakers() {
           );
         })}
       </div>
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: loaderData.eventId,
+                userId: loaderData.userId,
+                publish: !loaderData.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { loader } from "./organizations";
 
 // @ts-ignore
@@ -14,7 +14,7 @@ const getSessionUserOrThrow = jest.spyOn(
 
 const slug = "slug-test";
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       event: {
@@ -22,6 +22,9 @@ jest.mock("~/prisma", () => {
       },
       teamMemberOfEvent: {
         findFirst: jest.fn(),
+      },
+      organization: {
+        findMany: jest.fn(),
       },
     },
   };
@@ -154,6 +157,30 @@ describe("/event/$slug/settings/organizations", () => {
         ],
       };
     });
+    (prismaClient.organization.findMany as jest.Mock).mockImplementationOnce(
+      () => {
+        return [
+          {
+            id: "some-organization-id",
+            name: "Some Organization",
+            slug: "someorganization",
+            logo: null,
+          },
+          {
+            id: "another-organization-id",
+            name: "Another Organization",
+            slug: "anotherorganization",
+            logo: null,
+          },
+          {
+            id: "yet-another-organization-id",
+            name: "Yet Another Organization",
+            slug: "yetanotherorganization",
+            logo: null,
+          },
+        ];
+      }
+    );
 
     const response = await loader({
       request: new Request(testURL),

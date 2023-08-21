@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import type { Organization, Profile } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 type Mode = "anon" | "authenticated" | "owner";
 

@@ -33,6 +33,9 @@ import {
   getParentEventSuggestions,
 } from "./utils.server";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { publishSchema } from "./events/publish";
+import type { ActionData as PublishActionData } from "./events/publish";
+import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -113,6 +116,7 @@ export const loader = async (args: LoaderArgs) => {
       childEvents: enhancedChildEvents,
       childEventSuggestions,
       eventId: event.id,
+      published: event.published,
       userId: sessionUser.id,
     },
     { headers: response.headers }
@@ -127,6 +131,7 @@ function Events() {
     AddChildSuccessActionData | AddChildFailureActionData
   >();
   const removeChildFetcher = useFetcher<RemoveChildActionData>();
+  const publishFetcher = useFetcher<PublishActionData>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
   if (loaderData.parentEvent !== null) {
@@ -545,6 +550,37 @@ function Events() {
           </ul>
         </div>
       ) : null}
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: loaderData.eventId,
+                userId: loaderData.userId,
+                publish: !loaderData.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

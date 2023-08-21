@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function updateOrganizationTeamMemberPrivilege(
   organizationId: string,

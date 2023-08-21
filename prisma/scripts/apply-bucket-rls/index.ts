@@ -1,7 +1,7 @@
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { createClient } from "@supabase/supabase-js";
 import { program } from "commander";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: "./.env" });

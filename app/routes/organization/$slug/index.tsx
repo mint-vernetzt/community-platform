@@ -1,6 +1,6 @@
 import type { Organization } from "@prisma/client";
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
@@ -24,13 +24,14 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
 } from "~/organization.server";
+import { prismaClient } from "~/prisma.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -41,7 +42,6 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
   return [
@@ -63,6 +63,18 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/organization/${slug}`, {
+        headers: response.headers,
+      });
+    }
+  }
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
@@ -637,12 +649,13 @@ export default function Index() {
             ) : null}
             {typeof loaderData.organization.bio === "string" &&
             loaderData.organization.bio !== "" ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.organization.bio, true),
-                }}
-              />
+              // <p
+              //   className="mb-6"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.organization.bio, true),
+              //   }}
+              // />
+              <p className="mb-6">{loaderData.organization.bio}</p>
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">

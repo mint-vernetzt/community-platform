@@ -556,9 +556,9 @@ function Index() {
             </div>
           ))}
 
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24">
+          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
             <div className="container">
-              <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
+              <div className="flex flex-row flex-nowrap items-center justify-end my-4">
                 <div
                   className={`text-green-500 text-bold ${
                     actionData?.updated && !isSubmitting
@@ -566,7 +566,7 @@ function Index() {
                       : "hidden"
                   }`}
                 >
-                  Deine Informationen wurden aktualisiert.
+                  Informationen wurden aktualisiert.
                 </div>
 
                 {isFormChanged ? (

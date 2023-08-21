@@ -1,5 +1,5 @@
 import { serverError } from "remix-utils";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 // important for testing nested calls (https://stackoverflow.com/a/55193363)
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules

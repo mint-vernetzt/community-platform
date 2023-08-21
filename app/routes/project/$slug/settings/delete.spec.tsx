@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import { redirect } from "@remix-run/node";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { action, loader } from "./delete";
 
 // @ts-ignore
@@ -13,7 +13,7 @@ const getSessionUserOrThrow = jest.spyOn(
   "getSessionUserOrThrow"
 );
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       project: {

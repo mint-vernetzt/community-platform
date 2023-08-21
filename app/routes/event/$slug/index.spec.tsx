@@ -1,6 +1,6 @@
 import { getSessionUser } from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { loader } from ".";
 
 // @ts-ignore
@@ -19,10 +19,13 @@ jest.mock("~/lib/utils/application", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       event: {
+        findFirst: jest.fn(),
+      },
+      profile: {
         findFirst: jest.fn(),
       },
       teamMemberOfEvent: {
@@ -59,6 +62,11 @@ describe("/event/$slug", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return null;
       });
+      (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return null;
+        }
+      );
       (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
       });
@@ -99,7 +107,6 @@ describe("/event/$slug", () => {
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return { slug, published: false };
       });
-
       (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return null;
       });
@@ -162,6 +169,12 @@ describe("/event/$slug", () => {
       (getSessionUser as jest.Mock).mockImplementationOnce(() => {
         return { id: "some-user-id" };
       });
+      (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(
+        () => {
+          return null;
+        }
+      );
+
       (
         prismaClient.teamMemberOfEvent.findFirst as jest.Mock
       ).mockImplementationOnce(() => {

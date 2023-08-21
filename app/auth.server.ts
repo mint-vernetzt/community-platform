@@ -2,7 +2,7 @@ import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { createServerClient } from "@supabase/auth-helpers-remix";
 import { serverError, unauthorized } from "remix-utils";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 import { createClient } from "@supabase/supabase-js";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)

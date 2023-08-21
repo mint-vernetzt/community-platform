@@ -1,4 +1,30 @@
 import { NavLink, Outlet } from "@remix-run/react";
+import { redirect, type LoaderArgs } from "@remix-run/node";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { prismaClient } from "~/prisma.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+
+export const loader = async (args: LoaderArgs) => {
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/event/${slug}/settings`, {
+        headers: response.headers,
+      });
+    }
+  }
+  return null;
+};
 
 function Settings() {
   const getClassName = (active: boolean) =>
@@ -7,7 +33,7 @@ function Settings() {
     }  hover:text-primary py-3`;
   return (
     <div className="container relative">
-      <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
+      <div className="flex flex-col items-stretch lg:flex-row -mx-4 pt-10 lg:pt-0 mb-8">
         <div className="basis-4/12 px-4">
           <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
             <h3 className="font-bold mb-7">Veranstaltung bearbeiten</h3>

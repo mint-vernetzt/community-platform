@@ -28,14 +28,13 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { greaterThanDate } from "~/lib/utils/yup";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormDataValidationResultOrThrow,
+  greaterThanDate,
   greaterThanTimeOnSameDate,
   multiline,
   nullOrString,
-  participantLimit,
   website,
 } from "~/lib/utils/yup";
 import {
@@ -142,8 +141,6 @@ const schema = object({
   tags: array(string().required()).required(),
   conferenceLink: nullOrString(website()),
   conferenceCode: nullOrString(string()),
-  participantCount: string().required(),
-  participantLimit: participantLimit(),
   areas: array(string().required()).required(),
   venueName: nullOrString(string()),
   venueStreet: nullOrString(string()),
@@ -456,34 +453,6 @@ function General() {
       </p>
       <div className="flex mb-4">
         <RemixForm
-          schema={publishSchema}
-          fetcher={publishFetcher}
-          action={`/event/${slug}/settings/events/publish`}
-          hiddenFields={["eventId", "userId", "publish"]}
-          values={{
-            eventId: event.id,
-            userId: userId,
-            publish: !originalEvent.published,
-          }}
-          className="mr-2"
-        >
-          {(props) => {
-            const { Button, Field } = props;
-            return (
-              <>
-                <Field name="userId" />
-                <Field name="eventId" />
-                <Field name="publish"></Field>
-                <div className="mt-2">
-                  <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {originalEvent.published ? "Verstecken" : "Veröffentlichen"}
-                  </Button>
-                </div>
-              </>
-            );
-          }}
-        </RemixForm>
-        <RemixForm
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
@@ -516,18 +485,13 @@ function General() {
       <FormProvider {...methods}>
         <Form
           ref={formRef}
+          id="general-settings-form"
           method="post"
           onSubmit={() => {
             reset({}, { keepValues: true });
           }}
         >
           <input name="userId" defaultValue={userId} hidden />
-          <input
-            name="participantCount"
-            defaultValue={loaderData.event._count.participants}
-            hidden
-          />
-
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -648,21 +612,6 @@ function General() {
                 <div>{errors.participationUntilTime.message}</div>
               ) : null}
             </div>
-          </div>
-          <div className="mb-6">
-            <InputText
-              {...register("participantLimit")}
-              id="participantLimit"
-              label="Begrenzung der Teilnehmenden"
-              defaultValue={event.participantLimit || ""}
-              errorMessage={errors?.participantLimit?.message}
-              type="number"
-              withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.participantLimit}
-            />
-            {errors?.participantLimit?.message ? (
-              <div>{errors.participantLimit.message}</div>
-            ) : null}
           </div>
           <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
           <div className="mb-4">
@@ -919,43 +868,73 @@ function General() {
               isPublic={eventVisibilities.areas}
             />
           </div>
-          <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24">
-            <div className="container">
-              <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
-                <div
-                  className={`text-green-500 text-bold ${
-                    actionData?.updated && !isSubmitting
-                      ? "block animate-fade-out"
-                      : "hidden"
-                  }`}
-                >
-                  Deine Informationen wurden aktualisiert.
-                </div>
-
-                {isFormChanged ? (
-                  <Link
-                    to={`/event/${slug}/settings`}
-                    reloadDocument
-                    className={`btn btn-link`}
-                  >
-                    Änderungen verwerfen
-                  </Link>
-                ) : null}
-                <div></div>
-                <button
-                  type="submit"
-                  name="submit"
-                  value="submit"
-                  className="btn btn-primary ml-4"
-                  disabled={isSubmitting || !isFormChanged}
-                >
-                  Speichern
-                </button>
-              </div>
-            </div>
-          </footer>
         </Form>
       </FormProvider>
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
+        <div className="container">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+            <div
+              className={`text-green-500 text-bold ${
+                actionData?.updated && !isSubmitting
+                  ? "block animate-fade-out"
+                  : "hidden"
+              }`}
+            >
+              Informationen wurden aktualisiert.
+            </div>
+
+            {isFormChanged ? (
+              <Link
+                to={`/event/${slug}/settings`}
+                reloadDocument
+                className={`btn btn-link`}
+              >
+                Änderungen verwerfen
+              </Link>
+            ) : null}
+            <div></div>
+            <button
+              type="submit"
+              name="submit"
+              value="submit"
+              form="general-settings-form"
+              className="btn btn-primary ml-4"
+              disabled={isSubmitting || !isFormChanged}
+            >
+              Speichern
+            </button>
+          </div>
+          <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
+            <RemixForm
+              schema={publishSchema}
+              fetcher={publishFetcher}
+              action={`/event/${slug}/settings/events/publish`}
+              hiddenFields={["eventId", "userId", "publish"]}
+              values={{
+                eventId: event.id,
+                userId: userId,
+                publish: !originalEvent.published,
+              }}
+            >
+              {(props) => {
+                const { Button, Field } = props;
+                return (
+                  <>
+                    <Field name="userId" />
+                    <Field name="eventId" />
+                    <Field name="publish"></Field>
+                    <Button className="btn btn-outline-primary">
+                      {originalEvent.published
+                        ? "Verstecken"
+                        : "Veröffentlichen"}
+                    </Button>
+                  </>
+                );
+              }}
+            </RemixForm>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

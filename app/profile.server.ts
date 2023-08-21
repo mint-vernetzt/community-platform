@@ -6,7 +6,7 @@ import type {
   Profile,
   State,
 } from "@prisma/client";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 import type { ProfileFormType } from "./routes/profile/$username/settings/general";
 
 export type ProfileWithRelations = Profile & {

@@ -134,7 +134,7 @@ const Autocomplete = React.forwardRef(
       <>
         <input
           ref={inputRef}
-          className="input input-bordered w-full mt-1"
+          className="input input-bordered w-full input-lg"
           value={searchedValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}

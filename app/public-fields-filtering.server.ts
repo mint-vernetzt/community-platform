@@ -1,7 +1,7 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import { notFound } from "remix-utils";
 import type { EntitySubset } from "./lib/utils/types";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 
 type ProfileWithRelations = Profile & {
   areas: any;

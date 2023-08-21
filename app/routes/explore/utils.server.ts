@@ -4,7 +4,7 @@ import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getAreaById } from "~/profile.server";
 import {
   filterEventByVisibility,

@@ -2,14 +2,14 @@ import { redirect } from "@remix-run/node";
 // import { createServerClient } from "@supabase/auth-helpers-remix";
 import { getSessionUser, signIn } from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { action, loader } from "./index";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       profile: {

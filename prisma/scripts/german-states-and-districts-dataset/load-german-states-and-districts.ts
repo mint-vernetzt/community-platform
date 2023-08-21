@@ -1,6 +1,6 @@
 import { program } from "commander";
 import { main } from "./src";
-import { prismaClient } from "../../../app/prisma";
+import { prismaClient } from "../../../app/prisma.server";
 
 program
   .name("german-states-and-districts-dataset-generator")

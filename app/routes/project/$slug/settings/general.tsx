@@ -259,7 +259,9 @@ function General() {
       >
         <h1 className="mb-8">Dein Projekt</h1>
         <h4 className="mb-4 font-semibold">Allgemein</h4>
-        <p className="mb-8">Lorem ipsum</p>
+        <p className="mb-8">
+          Gib den Namen und die Kontaktdaten für Dein Projekt ein.
+        </p>
         <input name="userId" defaultValue={loaderData.userId} hidden />
         <div className="mb-6">
           <InputText
@@ -463,9 +465,9 @@ function General() {
           );
         })}
 
-        <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24">
+        <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
           <div className="container">
-            <div className="py-4 md:py-8 flex flex-row flex-nowrap items-center justify-between md:justify-end">
+            <div className="flex flex-row flex-nowrap items-center justify-end my-4">
               <div
                 className={`text-green-500 text-bold ${
                   actionData?.updated && !isSubmitting

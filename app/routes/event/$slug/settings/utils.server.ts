@@ -6,13 +6,13 @@ import { GravityType } from "imgproxy/dist/types";
 import { notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import type { FormError } from "~/lib/utils/yup";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import type { getEventBySlugOrThrow } from "../utils.server";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 
 export async function checkOwnership(
-  event: Event,
+  event: Pick<Event, "id">,
   currentUser: User | null,
   options: {
     throw: boolean;
@@ -40,7 +40,7 @@ export async function checkOwnership(
 }
 
 export async function checkOwnershipOrThrow(
-  event: Event,
+  event: Pick<Event, "id">,
   sessionUser: User | null
 ) {
   return await checkOwnership(event, sessionUser, { throw: true });
@@ -586,6 +586,12 @@ export async function getTeamMemberSuggestions(
             mode: "insensitive",
           },
         },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
       ],
     };
     whereQueries.push(contains);
@@ -702,6 +708,12 @@ export async function getSpeakerSuggestions(
             mode: "insensitive",
           },
         },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
       ],
     };
     whereQueries.push(contains);
@@ -766,6 +778,12 @@ export async function getParticipantSuggestions(
         },
         {
           lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
             contains: word,
             mode: "insensitive",
           },
@@ -836,6 +854,12 @@ export async function getWaitingParticipantSuggestions(
         },
         {
           lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
             contains: word,
             mode: "insensitive",
           },

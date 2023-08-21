@@ -5,7 +5,7 @@ import {
   combineEventsSortChronologically,
 } from "~/lib/event/utils";
 import { testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
@@ -37,7 +37,7 @@ jest.mock("~/lib/event/utils", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       profile: {

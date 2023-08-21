@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
@@ -24,10 +24,11 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { nl2br } from "~/lib/string/nl2br";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
+import { prismaClient } from "~/prisma.server";
 import { getProfileByUsername } from "~/profile.server";
 import {
   filterOrganizationByVisibility,
@@ -38,7 +39,6 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
   return [
@@ -61,6 +61,18 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null && userProfile.termsAccepted === false) {
+      return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
+        headers: response.headers,
+      });
+    }
+  }
+
   const mode = deriveMode(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(authClient, [
     "events",
@@ -508,12 +520,13 @@ export default function Index() {
               ) : null}
             </div>
             {typeof loaderData.data.bio === "string" ? (
-              <p
-                className="mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: nl2br(loaderData.data.bio, true),
-                }}
-              />
+              // <p
+              //   className="mb-6"
+              //   dangerouslySetInnerHTML={{
+              //     __html: nl2br(loaderData.data.bio, true),
+              //   }}
+              // />
+              <p className="mb-6">{loaderData.data.bio}</p>
             ) : null}
             {loaderData.data.areas !== undefined &&
             loaderData.data.areas.length > 0 ? (

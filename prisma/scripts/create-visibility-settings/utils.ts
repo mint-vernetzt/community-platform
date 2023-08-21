@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function createProfileVisibilitySettings(opt: { force: boolean }) {
   if (opt.force) {

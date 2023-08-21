@@ -1,4 +1,4 @@
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findFirst({

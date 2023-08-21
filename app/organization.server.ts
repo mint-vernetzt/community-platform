@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { addUserParticipationStatus } from "~/lib/event/utils";
 import { getImageURL } from "./images.server";
-import { prismaClient } from "./prisma";
+import { prismaClient } from "./prisma.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,

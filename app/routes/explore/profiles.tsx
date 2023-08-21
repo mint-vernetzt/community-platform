@@ -15,7 +15,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { createAreaOptionFromData } from "~/lib/utils/components";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { getAllOffers } from "~/profile.server";
 import {
   filterOrganizationByVisibility,

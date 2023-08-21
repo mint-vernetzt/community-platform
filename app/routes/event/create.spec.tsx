@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import * as crypto from "crypto";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
-import { prismaClient } from "~/prisma";
+import { prismaClient } from "~/prisma.server";
 import { generateEventSlug } from "~/utils";
 import { action, loader } from "./create";
 import { createEventOnProfile } from "./utils.server";
@@ -29,7 +29,7 @@ jest.mock("./utils.server", () => {
   };
 });
 
-jest.mock("~/prisma", () => {
+jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       event: {

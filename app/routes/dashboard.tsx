@@ -15,6 +15,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
+import styles from "../../common/design/styles/styles.css";
 import {
   getOrganizationCount,
   getOrganizationsForCards,
@@ -23,7 +24,6 @@ import {
   getProfilesForCards,
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
-import styles from "../../common/design/styles/styles.css";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -47,6 +47,12 @@ export const loader = async (args: LoaderArgs) => {
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
+  }
+
+  if (profile.termsAccepted === false) {
+    return redirect("/accept-terms?redirect_to=/dashboard", {
+      headers: response.headers,
+    });
   }
 
   let randomSeed = getRandomSeed(request);
