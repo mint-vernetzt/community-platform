@@ -23,6 +23,9 @@ jest.mock("~/prisma.server", () => {
       teamMemberOfProject: {
         findFirst: jest.fn(),
       },
+      organization: {
+        findMany: jest.fn(),
+      },
     },
   };
 });
@@ -123,6 +126,11 @@ describe("/project/$slug/settings/organizations", () => {
     ).mockImplementationOnce(() => {
       return { isPrivileged: true };
     });
+    (prismaClient.organization.findMany as jest.Mock).mockImplementationOnce(
+      () => {
+        return [];
+      }
+    );
     (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
       return {
         slug,
