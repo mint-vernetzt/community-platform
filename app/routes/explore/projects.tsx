@@ -19,6 +19,7 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 import React from "react";
+import { Button } from "@mint-vernetzt/components";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -261,22 +262,21 @@ function Projects() {
             </div>
           );
         })}
+        {shouldFetch && (
+          <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
+            <fetcher.Form method="get">
+              <input key="page" type="hidden" name="page" value={page + 1} />
+              <Button
+                size="large"
+                variant="outline"
+                loading={fetcher.state === "submitting"}
+              >
+                Weitere laden
+              </Button>
+            </fetcher.Form>
+          </div>
+        )}
       </section>
-      {shouldFetch && (
-        <div className="w-full flex justify-center">
-          <fetcher.Form method="get">
-            <input key="page" type="hidden" name="page" value={page + 1} />
-            <button
-              type="submit"
-              className={`btn btn-sm font-semibold h-12 text-base px-6 py-2.5 border-2 bg-neutral-50 border-primary text-primary hover:bg-primary-100 hover:border-primary focus:bg-primary-100 focus:border-primary active:bg-primary-100 active:border-primary ${
-                fetcher.state === "submitting" ? "loading" : undefined
-              }`.trim()}
-            >
-              Weitere laden
-            </button>
-          </fetcher.Form>
-        </div>
-      )}
     </>
   );
 }
