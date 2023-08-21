@@ -5,7 +5,7 @@ interface RichTextProps {
   additionalClassNames?: string;
 }
 
-export function RichtText({ html, additionalClassNames }: RichTextProps) {
+export function RichText({ html, additionalClassNames }: RichTextProps) {
   const isRichtext = html.indexOf("<p>") !== -1;
 
   if (isRichtext) {

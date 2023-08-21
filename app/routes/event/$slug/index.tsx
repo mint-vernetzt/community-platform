@@ -45,7 +45,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { RichtText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/Richtext/RichText";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export function links() {
@@ -708,7 +708,10 @@ function Index() {
               ) : null}
             </header>
             {loaderData.event.description !== null ? (
-              <RichtText html={loaderData.event.description} />
+              <RichText
+                html={loaderData.event.description}
+                additionalClassNames="mb-6"
+              />
             ) : null}
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">
