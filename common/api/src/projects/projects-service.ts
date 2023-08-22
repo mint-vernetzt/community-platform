@@ -1,15 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
-import { getImageURL, getPublicURL } from "../images.server";
-import { prismaClient } from "../prisma";
 import type { Request } from "express";
+import { GravityType } from "imgproxy/dist/types";
+import { filterProjectByVisibility } from "../public-fields-filtering.server";
+import { getBaseURL } from "../../src/utils";
+import { getImageURL, getPublicURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { getBaseURL } from "src/utils";
+import { prismaClient } from "../prisma";
 
 type Projects = Awaited<ReturnType<typeof getProjects>>;
 
 async function getProjects(request: Request, skip: number, take: number) {
-  const publicProjects = await prismaClient.project.findMany({
+  const projects = await prismaClient.project.findMany({
     select: {
       id: true,
       name: true,
@@ -72,45 +73,53 @@ async function getProjects(request: Request, skip: number, take: number) {
     );
   }
 
-  const enhancedProjects = publicProjects.map((project) => {
-    const { slug, logo, background, ...rest } = project;
+  const enhancedProjects = await Promise.all(
+    projects.map(async (project) => {
+      const { slug, logo, background, ...rest } = project;
 
-    let publicLogo: string | null = null;
-    let publicBackground: string | null = null;
-    if (authClient !== undefined) {
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          publicLogo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
+      let publicLogo: string | null = null;
+      let publicBackground: string | null = null;
+      if (authClient !== undefined) {
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL !== null) {
+            publicLogo = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        if (background !== null) {
+          const publicURL = getPublicURL(authClient, background);
+          if (publicURL !== null) {
+            publicBackground = getImageURL(publicURL, {
+              resize: { type: "fill", width: 1488, height: 480, enlarge: true },
+            });
+          }
         }
       }
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          publicBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-          });
-        }
-      }
-    }
 
-    let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
-    const url =
-      baseURL !== undefined
-        ? decorate(request, `${baseURL}/project/${slug}`)
-        : null;
+      const url =
+        baseURL !== undefined
+          ? decorate(request, `${baseURL}/project/${slug}`)
+          : null;
 
-    return {
-      ...rest,
-      url: url,
-      logo: publicLogo,
-      background: publicBackground,
-    };
-  });
+      const enhancedProject = {
+        ...rest,
+        logo: publicLogo,
+        background: publicBackground,
+      };
+
+      const filteredProject = await filterProjectByVisibility(enhancedProject);
+
+      return {
+        ...filteredProject,
+        url: url,
+      };
+    })
+  );
 
   return enhancedProjects;
 }

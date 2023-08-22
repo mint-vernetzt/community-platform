@@ -450,8 +450,12 @@ export async function filterProjectByVisibility<
     if (key !== "id" && key !== "projectId") {
       // Fields in Project with type String
       if (key === "name" || key === "slug") {
-        filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : "";
+        if (typeof project[key] !== "undefined") {
+          filteredFields[key] =
+            projectVisibility[key] === true ? project[key] : "";
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Project with type []
       else if (
@@ -461,15 +465,23 @@ export async function filterProjectByVisibility<
         key === "targetGroups" ||
         key === "teamMembers"
       ) {
-        filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : [];
+        if (typeof project[key] !== "undefined") {
+          filteredFields[key] =
+            projectVisibility[key] === true ? project[key] : [];
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Project with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
-        filteredFields[key] =
-          projectVisibility[key] === true
-            ? project[key]
-            : new Date("1970-01-01T00:00:00.000Z");
+        if (typeof project[key] !== "undefined") {
+          filteredFields[key] =
+            projectVisibility[key] === true
+              ? project[key]
+              : new Date("1970-01-01T00:00:00.000Z");
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // All other fields in Project that are optional (String?)
       else if (
@@ -492,8 +504,12 @@ export async function filterProjectByVisibility<
         key === "xing" ||
         key === "city"
       ) {
-        filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : null;
+        if (typeof project[key] !== "undefined") {
+          filteredFields[key] =
+            projectVisibility[key] === true ? project[key] : null;
+        } else {
+          filteredFields[key] = undefined;
+        }
       } else {
         console.error(
           `The ProjectVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
