@@ -332,7 +332,11 @@ export async function filterEventByVisibility<
     if (key !== "id" && key !== "eventId") {
       // Fields in Event with type String
       if (key === "name" || key === "slug") {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
+        if (typeof event[key] !== "undefined") {
+          filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Event with type []
       else if (
@@ -349,7 +353,11 @@ export async function filterEventByVisibility<
         key === "teamMembers" ||
         key === "waitingList"
       ) {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
+        if (typeof event[key] !== "undefined") {
+          filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Event with type DateTime
       else if (
@@ -360,14 +368,23 @@ export async function filterEventByVisibility<
         key === "participationUntil" ||
         key === "participationFrom"
       ) {
-        filteredFields[key] =
-          eventVisibility[key] === true
-            ? event[key]
-            : new Date("1970-01-01T00:00:00.000Z");
+        if (typeof event[key] !== "undefined") {
+          filteredFields[key] =
+            eventVisibility[key] === true
+              ? event[key]
+              : new Date("1970-01-01T00:00:00.000Z");
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Profile with type Boolean
       else if (key === "published" || key === "canceled") {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : true;
+        if (typeof event[key] !== "undefined") {
+          filteredFields[key] =
+            eventVisibility[key] === true ? event[key] : true;
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
@@ -389,7 +406,12 @@ export async function filterEventByVisibility<
         key === "stage" ||
         key === "stageId"
       ) {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : null;
+        if (typeof event[key] !== "undefined") {
+          filteredFields[key] =
+            eventVisibility[key] === true ? event[key] : null;
+        } else {
+          filteredFields[key] = undefined;
+        }
       } else {
         console.error(
           `The EventVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
