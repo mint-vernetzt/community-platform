@@ -15,19 +15,19 @@ import {
 import { getImageURL, getPublicURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
-import { filterProfileByVisibility } from "../public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "../public-fields-filtering.server";
 import { getBaseURL } from "../utils";
 
-@Route("profile")
-@Tags("Profile")
-export class ProfileController extends Controller {
+@Route("organization")
+@Tags("Organization")
+export class OrganizationController extends Controller {
   /**
-   * Retrieve a profile by username of the community including their public information.
-   * @param username
-   * @summary Retrieve profile by username.
+   * Retrieve a organization by slug of the community including their public information.
+   * @param slug
+   * @summary Retrieve organization by slug.
    */
   @Security("api_key")
-  @Get("{username}")
+  @Get("{slug}")
   @Response<Pick<ValidateError, "status" | "message" | "fields">>(
     401,
     "Authentication failed",
@@ -49,20 +49,23 @@ export class ProfileController extends Controller {
       message: "Internal Server Error",
     }
   )
-  public async getProfile(
+  public async getOrganization(
     @Request() request: ExpressRequest,
-    @Path() username: string
+    @Path() slug: string
   ) {
-    const profile = await prismaClient.profile.findFirst({
-      where: { username },
+    const organization = await prismaClient.organization.findFirst({
+      where: { slug },
       select: {
         id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        avatar: true,
+        slug: true,
+        name: true,
+        logo: true,
         background: true,
+        street: true,
+        streetNumber: true,
+        city: true,
+        zipCode: true,
+        supportedBy: true,
         areas: {
           select: {
             area: {
@@ -72,18 +75,9 @@ export class ProfileController extends Controller {
             },
           },
         },
-        offers: {
+        types: {
           select: {
-            offer: {
-              select: {
-                title: true,
-              },
-            },
-          },
-        },
-        seekings: {
-          select: {
-            offer: {
+            organizationType: {
               select: {
                 title: true,
               },
@@ -92,14 +86,14 @@ export class ProfileController extends Controller {
         },
       },
     });
-    if (!profile) {
-      throw new Error("Profile not found");
+    if (!organization) {
+      throw new Error("Organization not found");
     }
-    const visibility = await prismaClient.profileVisibility.findFirst({
-      where: { profileId: profile.id },
+    const visibility = await prismaClient.organizationVisibility.findFirst({
+      where: { organizationId: organization.id },
     });
     if (!visibility) {
-      throw new Error("Profile visibility not found");
+      throw new Error("Organization visibility not found");
     }
 
     let authClient: ReturnType<typeof createClient> | undefined;
@@ -119,14 +113,14 @@ export class ProfileController extends Controller {
       );
     }
 
-    const { avatar, background, username: profileUsername, ...rest } = profile;
-    let publicAvatar: string | null = null;
+    const { logo, background, slug: organizationSlug, ...rest } = organization;
+    let publicLogo: string | null = null;
     let publicBackground: string | null = null;
     if (authClient !== undefined) {
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
-          publicAvatar = getImageURL(publicURL, {
+          publicLogo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
             gravity: GravityType.center,
           });
@@ -145,16 +139,18 @@ export class ProfileController extends Controller {
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/profile/${username}`)
+        ? decorate(request, `${baseURL}/organization/${slug}`)
         : null;
 
-    const enhancedProfile = {
+    const enhancedOrganization = {
       ...rest,
-      avatar: publicAvatar,
+      logo: publicLogo,
       background: publicBackground,
     };
 
-    const filteredProject = await filterProfileByVisibility(enhancedProfile);
+    const filteredProject = await filterOrganizationByVisibility(
+      enhancedOrganization
+    );
     return {
       ...filteredProject,
       url,
