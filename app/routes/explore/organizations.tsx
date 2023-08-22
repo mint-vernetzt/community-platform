@@ -3,7 +3,7 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
