@@ -1,10 +1,14 @@
+import dotenv from "dotenv";
 import Imgproxy from "imgproxy";
+dotenv.config({ path: "../../.env" });
 
 declare global {
   var __imgproxy: Imgproxy | undefined;
 }
 
 let imgproxy: Imgproxy;
+
+console.log(process.env.IMGPROXY_URL);
 
 if (process.env.NODE_ENV === "production") {
   imgproxy = new Imgproxy({
