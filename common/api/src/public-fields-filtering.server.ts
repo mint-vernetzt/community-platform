@@ -52,6 +52,10 @@ export async function filterProfileByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in profileVisibility) {
+    if (!profile.hasOwnProperty(key)) {
+      continue;
+    }
+
     if (key !== "id" && key !== "profileId") {
       // Fields in Profile with type String
       if (
@@ -60,12 +64,8 @@ export async function filterProfileByVisibility<
         key === "firstName" ||
         key === "lastName"
       ) {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : "";
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : "";
       }
       // Fields in Profile with type []
       else if (
@@ -81,12 +81,8 @@ export async function filterProfileByVisibility<
         key === "teamMemberOfProjects" ||
         key === "waitingForEvents"
       ) {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : [];
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : [];
       }
       // Fields in Profile with type DateTime
       else if (
@@ -94,32 +90,20 @@ export async function filterProfileByVisibility<
         key === "termsAcceptedAt" ||
         key === "updatedAt"
       ) {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true
-              ? profile[key]
-              : new Date("1970-01-01T00:00:00.000Z");
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true
+            ? profile[key]
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "termsAccepted") {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : true;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : true;
       }
       // Fields in Profile with type Int
       else if (key === "score") {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : 0;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : 0;
       }
       // All other fields in Profile that are optional (String?)
       else if (
@@ -137,12 +121,8 @@ export async function filterProfileByVisibility<
         key === "instagram" ||
         key === "youtube"
       ) {
-        if (typeof profile[key] !== "undefined") {
-          filteredFields[key] =
-            profileVisibility[key] === true ? profile[key] : null;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          profileVisibility[key] === true ? profile[key] : null;
       } else {
         console.error(
           `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -207,15 +187,15 @@ export async function filterOrganizationByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in organizationVisibility) {
+    if (!organization.hasOwnProperty(key)) {
+      continue;
+    }
+
     if (key !== "id" && key !== "organizationId") {
       // Fields in Organization with type String
       if (key === "name" || key === "slug") {
-        if (typeof organization[key] !== "undefined") {
-          filteredFields[key] =
-            organizationVisibility[key] === true ? organization[key] : "";
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          organizationVisibility[key] === true ? organization[key] : "";
       }
       // Fields in Organization with type []
       else if (
@@ -229,32 +209,20 @@ export async function filterOrganizationByVisibility<
         key === "responsibleForEvents" ||
         key === "responsibleForProject"
       ) {
-        if (typeof organization[key] !== "undefined") {
-          filteredFields[key] =
-            organizationVisibility[key] === true ? organization[key] : [];
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          organizationVisibility[key] === true ? organization[key] : [];
       }
       // Fields in Organization with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
-        if (typeof organization[key] !== "undefined") {
-          filteredFields[key] =
-            organizationVisibility[key] === true
-              ? organization[key]
-              : new Date("1970-01-01T00:00:00.000Z");
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          organizationVisibility[key] === true
+            ? organization[key]
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Organization with type Int
       else if (key === "score") {
-        if (typeof organization[key] !== "undefined") {
-          filteredFields[key] =
-            organizationVisibility[key] === true ? organization[key] : 0;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          organizationVisibility[key] === true ? organization[key] : 0;
       }
       // All other fields in Organization that are optional (String?)
       else if (
@@ -278,12 +246,8 @@ export async function filterOrganizationByVisibility<
         key === "instagram" ||
         key === "youtube"
       ) {
-        if (typeof organization[key] !== "undefined") {
-          filteredFields[key] =
-            organizationVisibility[key] === true ? organization[key] : null;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          organizationVisibility[key] === true ? organization[key] : null;
       } else {
         console.error(
           `The OrganizationVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -353,14 +317,14 @@ export async function filterEventByVisibility<
 
   const filteredFields: { [key: string]: any } = {};
   for (const key in eventVisibility) {
+    if (!event.hasOwnProperty(key)) {
+      continue;
+    }
+
     if (key !== "id" && key !== "eventId") {
       // Fields in Event with type String
       if (key === "name" || key === "slug") {
-        if (typeof event[key] !== "undefined") {
-          filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
       }
       // Fields in Event with type []
       else if (
@@ -377,11 +341,7 @@ export async function filterEventByVisibility<
         key === "teamMembers" ||
         key === "waitingList"
       ) {
-        if (typeof event[key] !== "undefined") {
-          filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
       }
       // Fields in Event with type DateTime
       else if (
@@ -392,23 +352,14 @@ export async function filterEventByVisibility<
         key === "participationUntil" ||
         key === "participationFrom"
       ) {
-        if (typeof event[key] !== "undefined") {
-          filteredFields[key] =
-            eventVisibility[key] === true
-              ? event[key]
-              : new Date("1970-01-01T00:00:00.000Z");
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          eventVisibility[key] === true
+            ? event[key]
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "published" || key === "canceled") {
-        if (typeof event[key] !== "undefined") {
-          filteredFields[key] =
-            eventVisibility[key] === true ? event[key] : true;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] = eventVisibility[key] === true ? event[key] : true;
       }
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
@@ -430,12 +381,7 @@ export async function filterEventByVisibility<
         key === "stage" ||
         key === "stageId"
       ) {
-        if (typeof event[key] !== "undefined") {
-          filteredFields[key] =
-            eventVisibility[key] === true ? event[key] : null;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] = eventVisibility[key] === true ? event[key] : null;
       } else {
         console.error(
           `The EventVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -493,15 +439,15 @@ export async function filterProjectByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in projectVisibility) {
+    if (!project.hasOwnProperty(key)) {
+      continue;
+    }
+
     if (key !== "id" && key !== "projectId") {
       // Fields in Project with type String
       if (key === "name" || key === "slug") {
-        if (typeof project[key] !== "undefined") {
-          filteredFields[key] =
-            projectVisibility[key] === true ? project[key] : "";
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          projectVisibility[key] === true ? project[key] : "";
       }
       // Fields in Project with type []
       else if (
@@ -511,23 +457,15 @@ export async function filterProjectByVisibility<
         key === "targetGroups" ||
         key === "teamMembers"
       ) {
-        if (typeof project[key] !== "undefined") {
-          filteredFields[key] =
-            projectVisibility[key] === true ? project[key] : [];
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          projectVisibility[key] === true ? project[key] : [];
       }
       // Fields in Project with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
-        if (typeof project[key] !== "undefined") {
-          filteredFields[key] =
-            projectVisibility[key] === true
-              ? project[key]
-              : new Date("1970-01-01T00:00:00.000Z");
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          projectVisibility[key] === true
+            ? project[key]
+            : new Date("1970-01-01T00:00:00.000Z");
       }
       // All other fields in Project that are optional (String?)
       else if (
@@ -550,12 +488,8 @@ export async function filterProjectByVisibility<
         key === "xing" ||
         key === "city"
       ) {
-        if (typeof project[key] !== "undefined") {
-          filteredFields[key] =
-            projectVisibility[key] === true ? project[key] : null;
-        } else {
-          filteredFields[key] = undefined;
-        }
+        filteredFields[key] =
+          projectVisibility[key] === true ? project[key] : null;
       } else {
         console.error(
           `The ProjectVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
