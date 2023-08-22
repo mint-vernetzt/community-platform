@@ -60,8 +60,12 @@ export async function filterProfileByVisibility<
         key === "firstName" ||
         key === "lastName"
       ) {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : "";
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : "";
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Profile with type []
       else if (
@@ -77,8 +81,12 @@ export async function filterProfileByVisibility<
         key === "teamMemberOfProjects" ||
         key === "waitingForEvents"
       ) {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : [];
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : [];
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Profile with type DateTime
       else if (
@@ -86,20 +94,32 @@ export async function filterProfileByVisibility<
         key === "termsAcceptedAt" ||
         key === "updatedAt"
       ) {
-        filteredFields[key] =
-          profileVisibility[key] === true
-            ? profile[key]
-            : new Date("1970-01-01T00:00:00.000Z");
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true
+              ? profile[key]
+              : new Date("1970-01-01T00:00:00.000Z");
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Profile with type Boolean
       else if (key === "termsAccepted") {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : true;
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : true;
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // Fields in Profile with type Int
       else if (key === "score") {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : 0;
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : 0;
+        } else {
+          filteredFields[key] = undefined;
+        }
       }
       // All other fields in Profile that are optional (String?)
       else if (
@@ -117,8 +137,12 @@ export async function filterProfileByVisibility<
         key === "instagram" ||
         key === "youtube"
       ) {
-        filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : null;
+        if (typeof profile[key] !== "undefined") {
+          filteredFields[key] =
+            profileVisibility[key] === true ? profile[key] : null;
+        } else {
+          filteredFields[key] = undefined;
+        }
       } else {
         console.error(
           `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
