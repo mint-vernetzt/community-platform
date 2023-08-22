@@ -8,8 +8,6 @@ declare global {
 
 let imgproxy: Imgproxy;
 
-console.log(process.env.IMGPROXY_URL);
-
 if (process.env.NODE_ENV === "production") {
   imgproxy = new Imgproxy({
     baseUrl: process.env.IMGPROXY_URL || "",
