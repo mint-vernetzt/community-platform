@@ -1,13 +1,10 @@
+import { Button } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
+import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1, H3, H4 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
@@ -18,8 +15,6 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
-import React from "react";
-import { Button } from "@mint-vernetzt/components";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -152,9 +147,9 @@ function Projects() {
               key={`project-${project.id}`}
               className="rounded-2xl bg-white shadow-xl flex flex-col border"
             >
-              <Link
+              <a
                 className="relative flex-initial"
-                to={`/project/${project.slug}`}
+                href={`/project/${project.slug}`}
               >
                 <div className="w-full aspect-4/3 lg:aspect-video rounded-t-2xl hidden">
                   <img
@@ -166,9 +161,9 @@ function Projects() {
                     className="object-cover w-full h-full"
                   />
                 </div>
-              </Link>
-              <Link
-                to={`/project/${project.slug}`}
+              </a>
+              <a
+                href={`/project/${project.slug}`}
                 className="flex flex-nowrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200"
               >
                 <div>
@@ -247,36 +242,36 @@ function Projects() {
                     })}
                   </div>
                 ) : null}
-              </Link>
+              </a>
 
               <div className="items-end px-4">
                 <div className="py-4 border-t text-right">
-                  <Link
-                    to={`/project/${project.slug}`}
+                  <a
+                    href={`/project/${project.slug}`}
                     className="btn btn-primary btn-small"
                   >
                     Zum Projekt
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
           );
         })}
-        {shouldFetch && (
-          <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
-            <fetcher.Form method="get">
-              <input key="page" type="hidden" name="page" value={page + 1} />
-              <Button
-                size="large"
-                variant="outline"
-                loading={fetcher.state === "submitting"}
-              >
-                Weitere laden
-              </Button>
-            </fetcher.Form>
-          </div>
-        )}
       </section>
+      {shouldFetch && (
+        <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
+          <fetcher.Form method="get">
+            <input key="page" type="hidden" name="page" value={page + 1} />
+            <Button
+              size="large"
+              variant="outline"
+              loading={fetcher.state === "submitting"}
+            >
+              Weitere laden
+            </Button>
+          </fetcher.Form>
+        </div>
+      )}
     </>
   );
 }
