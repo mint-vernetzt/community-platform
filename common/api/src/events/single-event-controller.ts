@@ -132,12 +132,6 @@ export class EventController extends Controller {
     if (!event) {
       throw new Error("Event not found");
     }
-    const visibility = await prismaClient.eventVisibility.findFirst({
-      where: { eventId: event.id },
-    });
-    if (!visibility) {
-      throw new Error("Event visibility not found");
-    }
 
     let authClient: ReturnType<typeof createClient> | undefined;
     if (

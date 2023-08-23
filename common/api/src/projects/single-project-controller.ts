@@ -100,12 +100,6 @@ export class ProjectController extends Controller {
     if (!project) {
       throw new Error("Project not found");
     }
-    const visibility = await prismaClient.projectVisibility.findFirst({
-      where: { projectId: project.id },
-    });
-    if (!visibility) {
-      throw new Error("Project visibility not found");
-    }
 
     let authClient: ReturnType<typeof createClient> | undefined;
     if (

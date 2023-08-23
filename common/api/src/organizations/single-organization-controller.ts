@@ -89,12 +89,6 @@ export class OrganizationController extends Controller {
     if (!organization) {
       throw new Error("Organization not found");
     }
-    const visibility = await prismaClient.organizationVisibility.findFirst({
-      where: { organizationId: organization.id },
-    });
-    if (!visibility) {
-      throw new Error("Organization visibility not found");
-    }
 
     let authClient: ReturnType<typeof createClient> | undefined;
     if (
@@ -148,11 +142,11 @@ export class OrganizationController extends Controller {
       background: publicBackground,
     };
 
-    const filteredProject = await filterOrganizationByVisibility(
+    const filteredOrganization = await filterOrganizationByVisibility(
       enhancedOrganization
     );
     return {
-      ...filteredProject,
+      ...filteredOrganization,
       url,
     };
   }

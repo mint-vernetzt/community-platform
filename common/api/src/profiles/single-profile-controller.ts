@@ -95,12 +95,6 @@ export class ProfileController extends Controller {
     if (!profile) {
       throw new Error("Profile not found");
     }
-    const visibility = await prismaClient.profileVisibility.findFirst({
-      where: { profileId: profile.id },
-    });
-    if (!visibility) {
-      throw new Error("Profile visibility not found");
-    }
 
     let authClient: ReturnType<typeof createClient> | undefined;
     if (
@@ -154,9 +148,9 @@ export class ProfileController extends Controller {
       background: publicBackground,
     };
 
-    const filteredProject = await filterProfileByVisibility(enhancedProfile);
+    const filteredProfile = await filterProfileByVisibility(enhancedProfile);
     return {
-      ...filteredProject,
+      ...filteredProfile,
       url,
     };
   }
