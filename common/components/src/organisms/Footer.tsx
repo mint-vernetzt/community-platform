@@ -6,14 +6,20 @@ function Footer() {
       className="
       mv-fixed mv-bottom-0 mv-left-0 mv-right-0 
       md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white
-      mv-grid mv-grid-rows-[1fr auto]
+      mv-grid 
+      peer-checked:mv-grid-rows-[1fr auto]
+      mv-grid-rows-[auto 0fr]
       md:mv-block"
     >
       <input
         type="checkbox"
-        className="mv-peer mv-col-start-1 mv-row-start-1 mv-opacity-0 mv-grid md:mv-hidden"
+        className="mv-peer         
+        mv-absolute mv-inset-x-0
+        mv-opacity-0 md:mv-hidden mv-z-10 mv-cursor-pointer 
+        mv-z-10 mv-h-[37px] mv-w-full
+        "
       />
-      <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 md:mv-hidden">
+      <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 md:mv-hidden mv-z-0 mv-relative ">
         <button className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between">
           <span className="mv-w-3"></span>
           <span className="">Impressum</span>
