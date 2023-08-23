@@ -1,4 +1,6 @@
+import dotenv from "dotenv";
 import Imgproxy from "imgproxy";
+dotenv.config({ path: "../../.env" });
 
 declare global {
   var __imgproxy: Imgproxy | undefined;

@@ -1,27 +1,24 @@
-import { prismaClient } from "./../prisma";
-import { getImageURL, getPublicURL } from "./../images.server";
+import { type Request } from "express";
+import { prismaClient } from "../prisma";
 import { createClient } from "@supabase/supabase-js";
+import { getImageURL, getPublicURL } from "../images.server";
 import { GravityType } from "imgproxy/dist/types";
-import type { Request } from "express";
+import { getBaseURL } from "../utils";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { getBaseURL } from "../../src/utils";
-import { filterOrganizationByVisibility } from "../public-fields-filtering.server";
+import { filterProfileByVisibility } from "../public-fields-filtering.server";
 
-type Organizations = Awaited<ReturnType<typeof getOrganizations>>;
+type Profiles = Awaited<ReturnType<typeof getProfiles>>;
 
-async function getOrganizations(request: Request, skip: number, take: number) {
-  const organizations = await prismaClient.organization.findMany({
+async function getProfiles(request: Request, skip: number, take: number) {
+  const profiles = await prismaClient.profile.findMany({
     select: {
       id: true,
-      slug: true,
-      name: true,
-      logo: true,
+      username: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      avatar: true,
       background: true,
-      street: true,
-      streetNumber: true,
-      city: true,
-      zipCode: true,
-      supportedBy: true,
       areas: {
         select: {
           area: {
@@ -31,9 +28,18 @@ async function getOrganizations(request: Request, skip: number, take: number) {
           },
         },
       },
-      types: {
+      offers: {
         select: {
-          organizationType: {
+          offer: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
+      seekings: {
+        select: {
+          offer: {
             select: {
               title: true,
             },
@@ -62,17 +68,16 @@ async function getOrganizations(request: Request, skip: number, take: number) {
     );
   }
 
-  const enhancedOrganizations = await Promise.all(
-    organizations.map(async (organization) => {
-      const { slug, logo, background, ...rest } = organization;
-
-      let publicLogo: string | null = null;
+  const enhancedProfiles = await Promise.all(
+    profiles.map(async (profile) => {
+      const { username, avatar, background, ...rest } = profile;
+      let publicAvatar: string | null = null;
       let publicBackground: string | null = null;
       if (authClient !== undefined) {
-        if (logo !== null) {
-          const publicURL = getPublicURL(authClient, logo);
+        if (avatar !== null) {
+          const publicURL = getPublicURL(authClient, avatar);
           if (publicURL !== null) {
-            publicLogo = getImageURL(publicURL, {
+            publicAvatar = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
               gravity: GravityType.center,
             });
@@ -87,39 +92,35 @@ async function getOrganizations(request: Request, skip: number, take: number) {
           }
         }
       }
-
       let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined
-          ? decorate(request, `${baseURL}/organization/${slug}`)
+          ? decorate(request, `${baseURL}/profile/${username}`)
           : null;
 
-      let enhancedOrganization = {
+      const enhancedProfile = {
         ...rest,
-        logo: publicLogo,
+        avatar: publicAvatar,
         background: publicBackground,
       };
 
-      let filteredOrganization = await filterOrganizationByVisibility(
-        enhancedOrganization
-      );
+      const filteredProject = await filterProfileByVisibility(enhancedProfile);
 
       return {
-        ...filteredOrganization,
+        ...filteredProject,
         url: url,
       };
     })
   );
-
-  return enhancedOrganizations;
+  return enhancedProfiles;
 }
 
-export async function getAllOrganizations(
+export async function getAllProfiles(
   request: Request,
   skip: number,
   take: number
-): Promise<{ skip: number; take: number; result: Organizations }> {
-  const publicOrganizations = await getOrganizations(request, skip, take);
-  return { skip, take, result: publicOrganizations };
+): Promise<{ skip: number; take: number; result: Profiles }> {
+  const publicProjects = await getProfiles(request, skip, take);
+  return { skip, take, result: publicProjects };
 }
