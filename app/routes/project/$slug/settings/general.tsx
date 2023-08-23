@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -39,6 +39,8 @@ import {
   transformProjectToForm,
   updateProjectById,
 } from "./utils.server";
+
+import quillStyles from "react-quill/dist/quill.snow.css";
 
 const schema = object({
   userId: string().required(),
@@ -97,6 +99,10 @@ export const loader = async (args: LoaderArgs) => {
     { headers: response.headers }
   );
 };
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
 
 export const action = async (args: ActionArgs) => {
   const { request, params } = args;
@@ -382,9 +388,14 @@ function General() {
             defaultValue={project.description || ""}
             label="Ausführliche Beschreibung"
             errorMessage={errors?.description?.message}
+            maxCharacters={2000}
             withPublicPrivateToggle={false}
             isPublic={projectVisibilities.description}
+            rte
           />
+          {errors?.description?.message ? (
+            <div>{errors.description.message}</div>
+          ) : null}
         </div>
         <div className="mb-4">
           <SelectAdd
