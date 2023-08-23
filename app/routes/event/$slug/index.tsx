@@ -471,6 +471,7 @@ function Index() {
               <Link
                 className=""
                 to={`/event/${loaderData.event.parentEvent.slug}`}
+                reloadDocument
               >
                 {loaderData.event.parentEvent.name}
               </Link>
@@ -613,6 +614,7 @@ function Index() {
                             <Link
                               className="underline hover:no-underline"
                               to={`/event/${loaderData.event.parentEvent.slug}`}
+                              reloadDocument
                             >
                               {loaderData.event.parentEvent.name}
                             </Link>
@@ -623,8 +625,7 @@ function Index() {
                           <div className="pr-4 lg:pr-8">
                             <>
                               {loaderData.mode === "anon" &&
-                              loaderData.event.canceled === false &&
-                              loaderData.event.childEvents.length === 0 ? (
+                              loaderData.event.canceled === false ? (
                                 <Link
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
@@ -633,8 +634,7 @@ function Index() {
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
-                              loaderData.event.canceled === false &&
-                              loaderData.event.childEvents.length === 0 ? (
+                              loaderData.event.canceled === false ? (
                                 <>{Form}</>
                               ) : null}
                             </>
@@ -644,26 +644,47 @@ function Index() {
                     </div>
                   ) : loaderData.event.childEvents.length > 0 &&
                     laysInThePast === false ? (
-                    <div className="hidden md:block">
-                      <div className="bg-accent-300 p-8">
-                        <p className="font-bold text-center">
-                          Wähle{" "}
-                          <a
-                            href="#child-events"
-                            className="underline hover:no-underline"
-                          >
-                            zugehörige Veranstaltungen
-                          </a>{" "}
-                          aus, an denen Du teilnehmen möchtest.
-                        </p>
+                    <div className="md:bg-accent-300 md:rounded-b-3xl md:py-6">
+                      <div className="md:flex -mx-[17px] items-center">
+                        <div className="w-full hidden lg:flex lg:flex-1/4 px-4"></div>
+                        <div className="w-full md:flex-auto px-4">
+                          <p className="font-bold xl:text-center md:pl-4 lg:pl-0 pb-4 md:pb-0">
+                            Wähle{" "}
+                            <a
+                              href="#child-events"
+                              className="underline hover:no-underline"
+                            >
+                              zugehörige Veranstaltungen
+                            </a>{" "}
+                            aus, an denen Du teilnehmen möchtest.
+                          </p>
+                        </div>
+                        <div className="w-full lg:flex-1/4 px-4 text-right">
+                          <div className="pr-4 lg:pr-8">
+                            <>
+                              {loaderData.mode === "anon" &&
+                              loaderData.event.canceled === false ? (
+                                <Link
+                                  className="btn btn-primary"
+                                  to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                                >
+                                  Anmelden um teilzunehmen
+                                </Link>
+                              ) : null}
+                              {loaderData.mode !== "anon" &&
+                              loaderData.event.canceled === false ? (
+                                <>{Form}</>
+                              ) : null}
+                            </>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : laysInThePast === false ? (
                     <div className="md:bg-white md:border md:border-neutral-500 md:rounded-b-3xl md:py-6 md:text-right pr-4 lg:pr-8">
                       <>
                         {loaderData.mode === "anon" &&
-                        loaderData.event.canceled === false &&
-                        loaderData.event.childEvents.length === 0 ? (
+                        loaderData.event.canceled === false ? (
                           <Link
                             className="btn btn-primary"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
@@ -672,8 +693,7 @@ function Index() {
                           </Link>
                         ) : null}
                         {loaderData.mode !== "anon" &&
-                        loaderData.event.canceled === false &&
-                        loaderData.event.childEvents.length === 0 ? (
+                        loaderData.event.canceled === false ? (
                           <>{Form}</>
                         ) : null}
                       </>
@@ -1012,7 +1032,11 @@ function Index() {
                         key={`child-event-${event.id}`}
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                       >
-                        <Link className="flex" to={`/event/${event.slug}`}>
+                        <Link
+                          className="flex"
+                          to={`/event/${event.slug}`}
+                          reloadDocument
+                        >
                           <div className="hidden xl:block w-40 shrink-0">
                             <img
                               src={
@@ -1030,20 +1054,12 @@ function Index() {
                                 ? event.stage.title + " | "
                                 : ""}
                               {getDuration(eventStartTime, eventEndTime)}
-                              {event._count.childEvents === 0 ? (
-                                <>
-                                  {event.participantLimit === null
-                                    ? " | Unbegrenzte Plätze"
-                                    : ` | ${
-                                        event.participantLimit -
-                                        event._count.participants
-                                      } / ${
-                                        event.participantLimit
-                                      } Plätzen frei`}
-                                </>
-                              ) : (
-                                ""
-                              )}
+                              {event.participantLimit === null
+                                ? " | Unbegrenzte Plätze"
+                                : ` | ${
+                                    event.participantLimit -
+                                    event._count.participants
+                                  } / ${event.participantLimit} Plätzen frei`}
                               {event.participantLimit !== null &&
                               event._count.participants >=
                                 event.participantLimit ? (
@@ -1134,8 +1150,7 @@ function Index() {
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
                           !event.canceled) ||
-                        (loaderData.userId === undefined &&
-                          event._count.childEvents > 0) ? (
+                        loaderData.userId === undefined ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <Link
                               to={`/event/${event.slug}`}
@@ -1146,8 +1161,7 @@ function Index() {
                           </div>
                         ) : null}
                         {loaderData.mode === "anon" &&
-                        event.canceled === false &&
-                        event._count.childEvents === 0 ? (
+                        event.canceled === false ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <Link
                               className="btn btn-primary"

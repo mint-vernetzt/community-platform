@@ -908,21 +908,14 @@ export default function Index() {
                                       ? relation.event.stage.title + " | "
                                       : ""}
                                     {getDuration(startTime, endTime)}
-                                    {relation.event._count.childEvents === 0 ? (
-                                      <>
-                                        {relation.event.participantLimit ===
-                                        null
-                                          ? " | Unbegrenzte Plätze"
-                                          : ` | ${
-                                              relation.event.participantLimit -
-                                              relation.event._count.participants
-                                            } / ${
-                                              relation.event.participantLimit
-                                            } Plätzen frei`}
-                                      </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    {relation.event.participantLimit === null
+                                      ? " | Unbegrenzte Plätze"
+                                      : ` | ${
+                                          relation.event.participantLimit -
+                                          relation.event._count.participants
+                                        } / ${
+                                          relation.event.participantLimit
+                                        } Plätzen frei`}
                                     {relation.event.participantLimit !== null &&
                                     relation.event._count.participants >=
                                       relation.event.participantLimit ? (
@@ -999,8 +992,7 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(relation.event) &&
                                 !relation.event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              (relation.event._count.childEvents > 0 &&
-                                loaderData.mode === "anon") ? (
+                              loaderData.mode === "anon" ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${relation.event.slug}`}
@@ -1011,8 +1003,7 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {loaderData.mode === "anon" &&
-                              relation.event.canceled === false &&
-                              relation.event._count.childEvents === 0 ? (
+                              relation.event.canceled === false ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     className="btn btn-primary"

@@ -121,18 +121,6 @@ function reachedParticipantLimit(
   }
   return participantCount >= participantLimit;
 }
-// TODO: To much abstraction
-function hasChildEvents(childrenCount: number) {
-  return childrenCount > 0;
-}
-// TODO: To much abstraction
-function isPublished(event: Pick<Event, "published">) {
-  return event.published;
-}
-// TODO: To much abstraction
-function isCanceled(event: Pick<Event, "canceled">) {
-  return event.canceled;
-}
 
 export function canUserParticipate(event: {
   participationFrom: string;
@@ -142,7 +130,6 @@ export function canUserParticipate(event: {
   canceled: boolean;
   _count: {
     participants: number;
-    childEvents: number;
   };
   isParticipant: boolean;
   isOnWaitingList: boolean;
@@ -159,9 +146,8 @@ export function canUserParticipate(event: {
       event._count.participants,
       event.participantLimit
     ) &&
-    !hasChildEvents(event._count.childEvents) &&
-    isPublished(event) &&
-    !isCanceled(event)
+    event.published &&
+    !event.canceled
   );
 }
 
@@ -173,7 +159,6 @@ export function canUserBeAddedToWaitingList(event: {
   canceled: boolean;
   _count: {
     participants: number;
-    childEvents: number;
   };
   isParticipant: boolean;
   isOnWaitingList: boolean;
@@ -190,9 +175,8 @@ export function canUserBeAddedToWaitingList(event: {
       event._count.participants,
       event.participantLimit
     ) &&
-    !hasChildEvents(event._count.childEvents) &&
-    isPublished(event) &&
-    !isCanceled(event)
+    event.published &&
+    !event.canceled
   );
 }
 
@@ -218,7 +202,6 @@ export function canUserAccessConferenceLink(
 ) {
   return (
     (conferenceLinkExists(event) || conferenceLinkToBeAnnounced(event)) &&
-    event._count.childEvents === 0 &&
     (isParticipant || isSpeaker || isTeamMember)
   );
 }

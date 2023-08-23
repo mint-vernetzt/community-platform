@@ -246,3 +246,7 @@
 .rte-content h4 {
   @apply my-2;
 }
+
+footer input[type="checkbox"]:checked ~ .mv-footer-toggle .mv-toggle-arrow {
+  @apply rotate-180;
+}

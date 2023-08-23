@@ -31,6 +31,7 @@ import {
   getResponsibleOrganizationDataFromProject,
   getResponsibleOrganizationSuggestions,
 } from "./utils.server";
+import { getOwnOrganizationsSuggestions } from "./organizations.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -60,6 +61,30 @@ export const loader = async (args: LoaderArgs) => {
     return organization;
   });
 
+  const alreadyResponsibleOrganizationSlugs = organizations.map(
+    (organization) => {
+      return organization.slug;
+    }
+  );
+  const ownOrganizationsSuggestions = await getOwnOrganizationsSuggestions(
+    sessionUser.id,
+    alreadyResponsibleOrganizationSlugs
+  );
+  const enhancedOwnOrganizations = ownOrganizationsSuggestions.map(
+    (organization) => {
+      if (organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, organization.logo);
+        if (publicURL !== null) {
+          organization.logo = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return organization;
+    }
+  );
+
   const url = new URL(request.url);
   const suggestionsQuery =
     url.searchParams.get("autocomplete_query") || undefined;
@@ -85,6 +110,7 @@ export const loader = async (args: LoaderArgs) => {
       projectId: project.id,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
+      ownOrganizationsSuggestions: enhancedOwnOrganizations,
     },
     { headers: response.headers }
   );
@@ -174,6 +200,89 @@ function Organizations() {
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {addOrganizationFetcher.data.message}
         </div>
+      ) : null}
+      {loaderData.ownOrganizationsSuggestions.length > 0 ? (
+        <>
+          <h4 className="mb-4 mt-16 font-semibold">
+            Eigene Organisationen hinzufügen
+          </h4>
+          <p className="mb-8">
+            Hier werden dir Deine eigenen Organisationen vorgeschlagen um sie
+            auf einen Klick als verantwortliche Organisationen hinzuzufügen.
+          </p>
+          <div className="mb-4 md:max-h-[630px] overflow-auto">
+            <ul>
+              {loaderData.ownOrganizationsSuggestions.map((organization) => {
+                const initials = getInitialsOfName(organization.name);
+                return (
+                  <li
+                    className="w-full flex items-center flex-row flex-nowrap border-b border-neutral-400 py-4 md:px-4"
+                    key={organization.id}
+                  >
+                    <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                      {organization.logo !== null &&
+                      organization.logo !== "" ? (
+                        <img src={organization.logo} alt={organization.name} />
+                      ) : (
+                        <>{initials}</>
+                      )}
+                    </div>
+                    <div className="pl-4">
+                      <Link to={`/organization/${organization.slug}`}>
+                        <H3
+                          like="h4"
+                          className="text-xl mb-1 no-underline hover:underline"
+                        >
+                          {organization.name}
+                        </H3>
+                      </Link>
+                      {organization.types.length !== 0 ? (
+                        <p className="font-bold text-sm cursor-default">
+                          {organization.types
+                            .map((relation) => {
+                              return relation.organizationType.title;
+                            })
+                            .join(" / ")}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Form
+                      schema={addOrganizationSchema}
+                      fetcher={addOrganizationFetcher}
+                      action={`/project/${slug}/settings/organizations/add-organization`}
+                      hiddenFields={["userId", "projectId", "id"]}
+                      values={{
+                        userId: loaderData.userId,
+                        projectId: loaderData.projectId,
+                        id: organization.id,
+                      }}
+                      className="ml-auto"
+                    >
+                      {(props) => {
+                        const { Field, Errors } = props;
+                        return (
+                          <>
+                            <Errors />
+                            <Field name="userId" />
+                            <Field name="projectId" />
+                            <Field name="id" />
+                            <button
+                              className="btn btn-outline-primary ml-auto btn-small"
+                              title="Hinzufügen"
+                              type="submit"
+                            >
+                              Hinzufügen
+                            </button>
+                          </>
+                        );
+                      }}
+                    </Form>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">Aktuelle Organisationen</h4>
       <p className="mb-8">
