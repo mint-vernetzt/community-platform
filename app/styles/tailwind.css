@@ -228,3 +228,7 @@
   -ms-hyphens: manual;
   hyphens: manual;
 }
+
+footer input[type="checkbox"]:checked ~ .mv-footer-toggle .mv-toggle-arrow {
+  @apply rotate-180;
+}
