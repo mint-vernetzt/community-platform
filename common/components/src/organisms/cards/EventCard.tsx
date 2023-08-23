@@ -12,6 +12,7 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export type EventCardProps = {
   match?: number;
@@ -198,7 +199,7 @@ function EventCard(
             <div className="mv-h-9">
               {(event.subline || event.description) && (
                 <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-2 mv-px">
-                  {event.subline || event.description}
+                  {event.subline || removeHtmlTags(event.description ?? "")}
                 </p>
               )}
             </div>

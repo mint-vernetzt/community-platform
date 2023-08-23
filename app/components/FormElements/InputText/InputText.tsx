@@ -15,8 +15,14 @@ const InputText = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const id = props.id ?? props.label;
-    const { isPublic, errorMessage, withClearButton, centered, ...rest } =
-      props;
+    const {
+      isPublic,
+      withPublicPrivateToggle,
+      errorMessage,
+      withClearButton,
+      centered,
+      ...rest
+    } = props;
     const formContext = useFormContext();
     const setValue = formContext ? formContext.setValue : null;
 
@@ -80,15 +86,14 @@ const InputText = React.forwardRef(
               </svg>
             </button>
           )}
-          {props.withPublicPrivateToggle !== undefined &&
-            props.isPublic !== undefined && (
-              <ToggleCheckbox
-                name="privateFields"
-                value={props.name}
-                hidden={!props.withPublicPrivateToggle}
-                defaultChecked={!props.isPublic}
-              />
-            )}
+          {withPublicPrivateToggle !== undefined && isPublic !== undefined && (
+            <ToggleCheckbox
+              name="privateFields"
+              value={props.name}
+              hidden={!withPublicPrivateToggle}
+              defaultChecked={!props.isPublic}
+            />
+          )}
         </div>
       </div>
     );

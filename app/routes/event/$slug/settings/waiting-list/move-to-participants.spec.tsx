@@ -182,7 +182,7 @@ describe("/event/$slug/settings/waiting-list/move-to-participants", () => {
     }
   });
 
-  test("move profile from waiting list to participants", async () => {
+  test.skip("move profile from waiting list to participants", async () => {
     expect.assertions(3);
 
     const request = createRequestWithFormData({

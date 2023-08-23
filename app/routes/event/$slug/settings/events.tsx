@@ -32,6 +32,7 @@ import {
   getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { publishSchema } from "./events/publish";
 import type { ActionData as PublishActionData } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
@@ -518,7 +519,7 @@ function Events() {
                               </p>
                             ) : (
                               <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
-                                {childEvent.description}
+                                {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}
                           </div>

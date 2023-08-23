@@ -12,7 +12,7 @@ export interface InputAddProps {
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   const buttonRef = React.createRef<HTMLButtonElement>();
-  const { label, isPublic, ...rest } = props;
+  const { label, isPublic, withPublicPrivateToggle, ...rest } = props;
   const entries = props.entries ?? [];
   const id = props.id ?? props.name;
   const name = props.name ?? "";
@@ -32,15 +32,14 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
             )}
           </div>
 
-          {isPublic !== undefined &&
-            props.withPublicPrivateToggle !== undefined && (
-              <ToggleCheckbox
-                name="privateFields"
-                value={props.name}
-                hidden={!props.withPublicPrivateToggle}
-                defaultChecked={!isPublic}
-              />
-            )}
+          {isPublic !== undefined && withPublicPrivateToggle !== undefined && (
+            <ToggleCheckbox
+              name="privateFields"
+              value={props.name}
+              hidden={!withPublicPrivateToggle}
+              defaultChecked={!isPublic}
+            />
+          )}
         </div>
 
         <div className="flex flex-row items-center">

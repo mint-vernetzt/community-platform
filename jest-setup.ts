@@ -12,3 +12,9 @@ global.setImmediate = (callback) => callback(); // TODO: seems to be unnecessary
 jest.mock("~/prisma.server", () => {
   return { prismaClient: {} };
 });
+
+jest.mock("react-quill", () => {
+  return {
+    __esModule: true,
+  };
+});

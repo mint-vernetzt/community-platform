@@ -25,11 +25,13 @@ import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
 } from "~/organization.server";
+import { prismaClient } from "~/prisma.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -40,7 +42,6 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
-import { prismaClient } from "~/prisma.server";
 
 export function links() {
   return [
@@ -939,7 +940,9 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {relation.event.description || ""}
+                                      {removeHtmlTags(
+                                        relation.event.description ?? ""
+                                      )}
                                     </p>
                                   )}
                                 </div>
@@ -1069,7 +1072,9 @@ export default function Index() {
                                     </p>
                                   ) : (
                                     <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
-                                      {relation.event.description || ""}
+                                      {removeHtmlTags(
+                                        relation.event.description ?? ""
+                                      )}
                                     </p>
                                   )}
                                 </div>

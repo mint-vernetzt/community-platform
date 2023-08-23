@@ -1,6 +1,6 @@
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useTransition } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -11,6 +11,7 @@ import { forbidden, notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import { RichText } from "~/components/Richtext/RichText";
 import { getImageURL } from "~/images.server";
 import {
   canUserAccessConferenceLink,
@@ -20,8 +21,11 @@ import {
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
+import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
   filterListOfEventsByVisibility,
@@ -45,9 +49,6 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { prismaClient } from "~/prisma.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { Transition } from "@remix-run/react/dist/transition";
 
 export function links() {
   return [
@@ -738,13 +739,10 @@ function Index() {
               ) : null}
             </header>
             {loaderData.event.description !== null ? (
-              // <p
-              //   className="mb-6"
-              //   dangerouslySetInnerHTML={{
-              //     __html: nl2br(loaderData.event.description, true),
-              //   }}
-              // />
-              <p className="mb-6">{loaderData.event.description}</p>
+              <RichText
+                html={loaderData.event.description}
+                additionalClassNames="mb-6"
+              />
             ) : null}
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">
@@ -1086,7 +1084,7 @@ function Index() {
                               </p>
                             ) : (
                               <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
-                                {event.description}
+                                {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}
                           </div>

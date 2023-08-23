@@ -1,5 +1,7 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
+import { RTE } from "./RTE.client";
+import { ClientOnly } from "remix-utils";
 
 export interface TextAreaProps {
   id: string;
@@ -9,6 +11,7 @@ export interface TextAreaProps {
   errorMessage?: string;
   publicPosition?: "top" | "side";
   onChange?: Function; // <--- ?
+  rte?: boolean;
 }
 
 const TextArea = React.forwardRef(
@@ -16,11 +19,14 @@ const TextArea = React.forwardRef(
     const {
       id,
       isPublic,
+      withPublicPrivateToggle,
       placeholder,
       errorMessage,
       publicPosition = "side",
+      rte = false,
       ...rest
     } = props;
+
     return (
       <div className="form-control w-full">
         <div className="flex flex-row items-center mb-2">
@@ -28,33 +34,49 @@ const TextArea = React.forwardRef(
             {props.label}
             {props.required === true ? " *" : ""}
           </label>
-          {props.withPublicPrivateToggle !== undefined &&
+
+          {withPublicPrivateToggle !== undefined &&
             isPublic !== undefined &&
             publicPosition === "top" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />
             )}
         </div>
         <div className="flex flex-row">
           <div className="flex-auto">
+            {rte === true && (
+              <ClientOnly>
+                {() => {
+                  return (
+                    <RTE
+                      id={id}
+                      defaultValue={`${rest.defaultValue}`}
+                      maxLength={rest.maxLength}
+                    />
+                  );
+                }}
+              </ClientOnly>
+            )}
             <textarea
               {...rest}
               id={id}
               name={id}
-              className={`textarea textarea-bordered h-24 w-full ${props.className}`}
+              className={`textarea textarea-bordered h-24 w-full ${
+                props.className
+              }${rte === true ? " hidden" : ""}`}
             ></textarea>
           </div>
-          {props.withPublicPrivateToggle !== undefined &&
+          {withPublicPrivateToggle !== undefined &&
             props.isPublic !== undefined &&
             publicPosition === "side" && (
               <ToggleCheckbox
                 name="privateFields"
                 value={props.name}
-                hidden={!props.withPublicPrivateToggle}
+                hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />
             )}
