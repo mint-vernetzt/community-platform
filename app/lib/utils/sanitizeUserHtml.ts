@@ -6,6 +6,7 @@ const allowedTags = [
   "strong",
   "a",
   "ul",
+  "ol",
   "p",
   "li",
   "h2",
