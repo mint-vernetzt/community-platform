@@ -39,6 +39,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
+import { RichText } from "~/components/Richtext/RichText";
 
 export function links() {
   return [
@@ -520,13 +521,10 @@ export default function Index() {
               ) : null}
             </div>
             {typeof loaderData.data.bio === "string" ? (
-              // <p
-              //   className="mb-6"
-              //   dangerouslySetInnerHTML={{
-              //     __html: nl2br(loaderData.data.bio, true),
-              //   }}
-              // />
-              <p className="mb-6">{loaderData.data.bio}</p>
+              <RichText
+                html={loaderData.data.bio}
+                additionalClassNames="mb-6"
+              />
             ) : null}
             {loaderData.data.areas !== undefined &&
             loaderData.data.areas.length > 0 ? (

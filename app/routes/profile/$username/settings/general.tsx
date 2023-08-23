@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -43,6 +43,7 @@ import {
   handleAuthorization,
   updateProfileById,
 } from "../utils.server";
+import quillStyles from "react-quill/dist/quill.snow.css";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -109,6 +110,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     { headers: response.headers }
   );
 };
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
 
 export const action = async ({ request, params }: ActionArgs) => {
   const response = new Response();
@@ -400,6 +405,7 @@ export default function Index() {
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxCharacters={500}
+                rte
               />
             </div>
 
