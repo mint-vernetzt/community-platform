@@ -204,16 +204,33 @@ export default function Index() {
               </div>
 
               <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-4">
-                <div className="bg-white rounded-lg p-6 shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                <div className="py-8 sm:bg-white sm:rounded-3xl sm:p-8 sm:shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   {loaderData.abilities.keycloak.hasAccess && (
-                    <Button
-                      as="a"
-                      href="/auth/keycloak"
-                      variant="outline"
-                      fullSize
-                    >
-                      Mit Keycloak anmelden
-                    </Button>
+                    <div className="text-center">
+                      <Button
+                        as="a"
+                        size="large"
+                        href="/auth/keycloak"
+                        variant="outline"
+                        fullSize
+                      >
+                        Anmelden mit MINT-ID
+                      </Button>
+                      <a
+                        href="https://mintcampus.org/mint-id/"
+                        target="_blank"
+                        rel="noreferrer "
+                        className="block py-2 text-primary font-semibold underline"
+                      >
+                        Mehr Informationen
+                      </a>
+                      <div className="mt-4 mb-8">
+                        <hr className="mx-5" />
+                        <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white font-bold">
+                          oder
+                        </span>
+                      </div>
+                    </div>
                   )}
                   <LoginForm
                     method="post"
@@ -224,7 +241,7 @@ export default function Index() {
                     }}
                     onKeyDown={handleKeyPress}
                   >
-                    {({ Field, Button, Errors, register }) => (
+                    {({ Field, Errors, register }) => (
                       <>
                         <Errors className="alert-error p-3 mb-3 text-white" />
 
@@ -254,40 +271,71 @@ export default function Index() {
                         </Field>
 
                         <Field name="loginRedirect" />
-                        <div className="mt-8 mb-4">
-                          <button
-                            type="submit"
-                            className="btn btn-primary w-full"
-                          >
+                        <div className="mt-4 mb-2">
+                          <Button size="large" fullSize>
                             Anmelden
-                          </button>
+                          </Button>
                         </div>
                       </>
                     )}
                   </LoginForm>
+                  {loaderData.abilities.keycloak.hasAccess ? (
+                    <>
+                      <div className="text-center">Noch kein Mitglied?</div>
+                      <div className="flex justify-center gap-6">
+                        <Link
+                          to={`/register${
+                            loginRedirect
+                              ? `?login_redirect=${loginRedirect}`
+                              : ""
+                          }`}
+                          className="text-primary font-semibold underline"
+                        >
+                          Registrieren mit E-Mail
+                        </Link>
 
-                  <div className="mb-8 text-center">
-                    <Link
-                      to={`/reset${
-                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                      }`}
-                      className="text-primary font-bold underline"
-                    >
-                      Passwort vergessen?
-                    </Link>
-                  </div>
+                        <Link
+                          to={`/auth/keycloak${
+                            loginRedirect
+                              ? `?login_redirect=${loginRedirect}`
+                              : ""
+                          }`}
+                          className="text-primary font-semibold underline"
+                        >
+                          MINT-ID erstellen
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-6 text-center">
+                        <Link
+                          to={`/reset${
+                            loginRedirect
+                              ? `?login_redirect=${loginRedirect}`
+                              : ""
+                          }`}
+                          className="text-primary font-bold underline"
+                        >
+                          Passwort vergessen?
+                        </Link>
+                      </div>
 
-                  <div className="text-center">
-                    Noch kein Mitglied?{" "}
-                    <Link
-                      to={`/register${
-                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                      }`}
-                      className="text-primary font-bold underline"
-                    >
-                      Registrieren
-                    </Link>
-                  </div>
+                      <div className="text-center">
+                        Noch kein Mitglied?{" "}
+                        <Link
+                          to={`/register${
+                            loginRedirect
+                              ? `?login_redirect=${loginRedirect}`
+                              : ""
+                          }`}
+                          className="text-primary font-bold underline"
+                        >
+                          Registrieren
+                        </Link>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="text-center p-4 pb-0 text-primary text-sm">
