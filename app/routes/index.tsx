@@ -295,7 +295,7 @@ export default function Index() {
                         </Link>
 
                         <Link
-                          to={`/auth/keycloak"${
+                          to={`/auth/keycloak${
                             loginRedirect
                               ? `?login_redirect=${loginRedirect}`
                               : ""
