@@ -36,7 +36,7 @@ export class EventsController extends Controller {
         url: "https://community.platform.org/url/to/event",
         background: "https://img.platform.org/public/url/of/event/background",
         description:
-          "Welcome to our event where we present and discuss multiple ways to find consensus in heterogeneous groups. In multiple workshops and keynote speeches we will explore strategies to ...",
+          "Welcome to our event where we present and discuss multiple ways to find consensus in heterogeneous groups. In <strong>multiple workshops</strong> and keynote speeches we will explore strategies to ...",
         subline: "Discussing different approaches to find consensus",
         startTime: new Date("Sat, 17 Jun 2017 10:00:00 GMT"),
         endTime: new Date("Sun, 18 Jun 2017 18:00:00 GMT"),
