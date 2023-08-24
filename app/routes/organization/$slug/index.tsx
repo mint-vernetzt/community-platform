@@ -42,6 +42,7 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import type { Mode } from "./utils.server";
 import { deriveMode } from "./utils.server";
+import { RichText } from "~/components/Richtext/RichText";
 
 export function links() {
   return [
@@ -649,13 +650,10 @@ export default function Index() {
             ) : null}
             {typeof loaderData.organization.bio === "string" &&
             loaderData.organization.bio !== "" ? (
-              // <p
-              //   className="mb-6"
-              //   dangerouslySetInnerHTML={{
-              //     __html: nl2br(loaderData.organization.bio, true),
-              //   }}
-              // />
-              <p className="mb-6">{loaderData.organization.bio}</p>
+              <RichText
+                html={loaderData.organization.bio}
+                additionalClassNames="mb-6"
+              />
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">

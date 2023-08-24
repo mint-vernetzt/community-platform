@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -42,6 +42,8 @@ import {
   handleAuthorization,
   updateOrganizationById,
 } from "./utils.server";
+
+import quillStyles from "react-quill/dist/quill.snow.css";
 
 const organizationSchema = object({
   name: string().required("Bitte gib Euren Namen ein."),
@@ -127,6 +129,10 @@ export const loader = async (args: LoaderArgs) => {
     { headers: response.headers }
   );
 };
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
 
 export const action = async (args: ActionArgs) => {
   const { request, params } = args;
@@ -419,6 +425,7 @@ function Index() {
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
               maxCharacters={500}
+              rte
             />
           </div>
           <div className="mb-4">
