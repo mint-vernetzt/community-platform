@@ -61,6 +61,7 @@ export class OrganizationController extends Controller {
         name: true,
         logo: true,
         background: true,
+        bio: true,
         street: true,
         streetNumber: true,
         city: true,

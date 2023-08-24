@@ -17,6 +17,7 @@ async function getOrganizations(request: Request, skip: number, take: number) {
       name: true,
       logo: true,
       background: true,
+      bio: true,
       street: true,
       streetNumber: true,
       city: true,

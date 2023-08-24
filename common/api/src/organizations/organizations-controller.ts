@@ -36,6 +36,7 @@ export class OrganizationsController extends Controller {
         logo: "https://img.platform.org/public/url/of/organization/logo",
         background:
           "https://img.platform.org/public/url/of/organization/background",
+        bio: "I am a bio",
         street: "Freedom Road",
         streetNumber: "22",
         city: "City of Relief",
@@ -87,6 +88,7 @@ export class OrganizationsController extends Controller {
         url: null,
         logo: null,
         background: null,
+        bio: null,
         street: null,
         streetNumber: null,
         city: null,
