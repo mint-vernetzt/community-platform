@@ -281,6 +281,18 @@ export default function Index() {
                   </LoginForm>
                   {loaderData.abilities.keycloak.hasAccess ? (
                     <>
+                      <div className="mb-6 text-center">
+                        <Link
+                          to={`/reset${
+                            loginRedirect
+                              ? `?login_redirect=${loginRedirect}`
+                              : ""
+                          }`}
+                          className="text-primary font-bold underline"
+                        >
+                          Passwort vergessen?
+                        </Link>
+                      </div>
                       <div className="text-center">Noch kein Mitglied?</div>
                       <div className="flex justify-center gap-6">
                         <Link
