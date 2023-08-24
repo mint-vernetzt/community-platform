@@ -19,6 +19,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
       email: true,
       avatar: true,
       background: true,
+      bio: true,
       areas: {
         select: {
           area: {
