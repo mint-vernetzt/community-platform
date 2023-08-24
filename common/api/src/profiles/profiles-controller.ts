@@ -38,6 +38,7 @@ export class ProfilesController extends Controller {
         url: null,
         avatar: "https://img.platform.org/public/url/of/profile/avatar",
         background: "https://img.platform.org/public/url/of/profile/background",
+        bio: "I am a bio",
         areas: [
           {
             area: {

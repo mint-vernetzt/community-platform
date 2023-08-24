@@ -63,6 +63,7 @@ export class ProfileController extends Controller {
         email: true,
         avatar: true,
         background: true,
+        bio: true,
         areas: {
           select: {
             area: {
