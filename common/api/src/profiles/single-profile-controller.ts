@@ -60,6 +60,7 @@ export class ProfileController extends Controller {
         username: true,
         firstName: true,
         lastName: true,
+        academicTitle: true,
         email: true,
         avatar: true,
         background: true,
