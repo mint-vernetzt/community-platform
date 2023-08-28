@@ -20,6 +20,11 @@ function Keycloak() {
   );
   const [urlSearchParams] = useSearchParams();
 
+  // Remove this page from the browser history and instead add document.referrer or landing page ("/")
+  if (typeof history !== "undefined" && typeof document !== "undefined") {
+    history.pushState({}, "", document.referrer || "/");
+  }
+
   React.useEffect(() => {
     async function signIn() {
       const loginRedirect = urlSearchParams.get("login_redirect");
