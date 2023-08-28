@@ -204,7 +204,7 @@ export default function Index() {
               </div>
 
               <div className="md:col-start-8 md:col-span-5 lg:col-start-9 lg:col-span-4 xl:col-start-8 xl:col-span-4">
-                <div className="py-8 sm:bg-white sm:rounded-3xl sm:p-8 sm:shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                <div className="py-8 mv-bg-white sm:mv-bg-neutral-50 sm:rounded-3xl sm:p-8 sm:shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   {loaderData.abilities.keycloak.hasAccess && (
                     <div className="text-center">
                       <Button
@@ -226,7 +226,7 @@ export default function Index() {
                       </a>
                       <div className="mt-4 mb-8">
                         <hr className="mx-5" />
-                        <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white font-bold">
+                        <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white sm:mv-bg-neutral-50 font-bold">
                           oder
                         </span>
                       </div>
