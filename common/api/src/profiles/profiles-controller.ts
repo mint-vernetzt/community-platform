@@ -34,6 +34,7 @@ export class ProfilesController extends Controller {
         id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
         firstName: "John",
         lastName: "Doe",
+        academicTitle: "Dr.",
         email: "",
         url: null,
         avatar: "https://img.platform.org/public/url/of/profile/avatar",
