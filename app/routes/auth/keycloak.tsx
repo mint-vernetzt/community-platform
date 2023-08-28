@@ -1,45 +1,27 @@
-import { json } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { createBrowserClient } from "@supabase/auth-helpers-remix";
-import React from "react";
+import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { serverError } from "remix-utils";
+import { createAuthClient } from "~/auth.server";
 
-export const loader = async () => {
-  const env = {
-    SUPABASE_URL: process.env.SUPABASE_URL || "",
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || "",
-    COMMUNITY_BASE_URL: process.env.COMMUNITY_BASE_URL || "",
-  };
+export const loader = async ({ request }: DataFunctionArgs) => {
+  const response = new Response();
+  const url = new URL(request.url);
+  const loginRedirect = url.searchParams.get("login_redirect");
+  const authClient = createAuthClient(request, response);
+  const { error, data } = await authClient.auth.signInWithOAuth({
+    provider: "keycloak",
+    options: {
+      scopes: "openid",
+      redirectTo: `${
+        process.env.COMMUNITY_BASE_URL || ""
+      }/auth/keycloak/callback${
+        loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+      }`,
+    },
+  });
+  if (error) {
+    console.log(error);
+    return serverError({ message: error.message });
+  }
 
-  return json({ env });
+  return redirect(data.url);
 };
-
-function Keycloak() {
-  const { env } = useLoaderData<typeof loader>();
-  const [supabase] = React.useState(() =>
-    createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
-  );
-  const [urlSearchParams] = useSearchParams();
-
-  React.useEffect(() => {
-    async function signIn() {
-      const loginRedirect = urlSearchParams.get("login_redirect");
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "keycloak",
-        options: {
-          scopes: "openid",
-          redirectTo: `${env.COMMUNITY_BASE_URL}/auth/keycloak/callback${
-            loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
-          }`,
-        },
-      });
-      if (error) {
-        console.log(error);
-      }
-    }
-    signIn();
-  }, [supabase, urlSearchParams, env.COMMUNITY_BASE_URL]);
-
-  return null;
-}
-
-export default Keycloak;
