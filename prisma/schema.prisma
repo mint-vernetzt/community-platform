@@ -30,7 +30,7 @@ model Profile {
   publicFields         String[]                    @map("public_fields") // legacy
   termsAccepted        Boolean                     @map("terms_accepted")
   termsAcceptedAt      DateTime                    @default(now()) @map("terms_accepted_at")
-  updatedAt            DateTime                    @default(now()) @map("updated_at")
+  updatedAt            DateTime                    @default(now()) @updatedAt @map("updated_at")
   position             String?
   instagram            String?
   youtube              String?
@@ -143,7 +143,7 @@ model Organization {
   quoteAuthorInformation String?                            @map("quote_author_information")
   streetNumber           String?                            @map("street_number")
   supportedBy            String[]                           @map("supported_by")
-  updatedAt              DateTime                           @default(now()) @map("updated_at")
+  updatedAt              DateTime                           @default(now()) @updatedAt @map("updated_at")
   zipCode                String?                            @map("zip_code")
   instagram              String?
   youtube                String?
@@ -265,7 +265,7 @@ model Event {
   description              String?
   published                Boolean                          @default(false)
   createdAt                DateTime                         @default(now()) @map("created_at")
-  updatedAt                DateTime                         @default(now()) @map("updated_at")
+  updatedAt                DateTime                         @default(now()) @updatedAt @map("updated_at")
   experienceLevelId        String?                          @map("experience_level_id")
   background               String?
   conferenceLink           String?                          @map("conference_link")
@@ -581,7 +581,7 @@ model Document {
   createdAt   DateTime          @default(now()) @map("created_at")
   filename    String
   sizeInMB    Float             @map("size_in_mb")
-  updatedAt   DateTime          @default(now()) @map("updated_at")
+  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
   extension   String
   events      DocumentOfEvent[]
 
@@ -610,7 +610,7 @@ model Project {
   instagram                String?
   xing                     String?
   createdAt                DateTime                           @default(now()) @map("created_at")
-  updatedAt                DateTime                           @default(now()) @map("updated_at")
+  updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
   city                     String?
   awards                   AwardOfProject[]
   disciplines              DisciplineOfProject[]
