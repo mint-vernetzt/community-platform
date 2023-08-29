@@ -20,7 +20,7 @@ export async function createProjectOnProfile(
   projectName: string,
   projectSlug: string
 ) {
-  const [profile /*, project*/] = await prismaClient.$transaction([
+  const [profile] = await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
         id: profileId,

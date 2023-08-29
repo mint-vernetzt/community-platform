@@ -202,7 +202,7 @@ export async function createOrganizationOnProfile(
   organizationName: string,
   organizationSlug: string
 ) {
-  const [profile /*, organization*/] = await prismaClient.$transaction([
+  const [profile] = await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
         id: profileId,

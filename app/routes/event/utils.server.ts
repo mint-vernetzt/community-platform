@@ -63,7 +63,7 @@ export async function createEventOnProfile(
     }
   }
 
-  const [profile /*, event*/] = await prismaClient.$transaction([
+  const [profile] = await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
         id: profileId,
