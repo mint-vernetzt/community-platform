@@ -202,28 +202,41 @@ export async function createOrganizationOnProfile(
   organizationName: string,
   organizationSlug: string
 ) {
-  const profile = prismaClient.profile.update({
-    where: {
-      id: profileId,
-    },
-    data: {
-      memberOf: {
-        create: {
-          isPrivileged: true,
-          organization: {
-            create: {
-              name: organizationName,
-              slug: organizationSlug,
-              organizationVisibility: {
-                create: {},
+  const [profile] = await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: {
+        memberOf: {
+          create: {
+            isPrivileged: true,
+            organization: {
+              create: {
+                name: organizationName,
+                slug: organizationSlug,
+                organizationVisibility: {
+                  create: {},
+                },
               },
             },
           },
         },
       },
-      updatedAt: new Date(),
-    },
-  });
+    }),
+    prismaClient.organization.update({
+      where: {
+        slug: organizationSlug,
+      },
+      data: {
+        admins: {
+          create: {
+            profileId: profileId,
+          },
+        },
+      },
+    }),
+  ]);
   return profile;
 }
 
@@ -408,62 +421,6 @@ export async function getFilteredProfiles(
     // TODO: Add orderBy
   });
   return result;
-}
-
-export async function getRelationsOnProfileByUserId(id: string) {
-  return await prismaClient.profile.findUnique({
-    where: { id },
-    select: {
-      memberOf: {
-        select: {
-          isPrivileged: true,
-          organization: {
-            select: {
-              name: true,
-              teamMembers: {
-                select: {
-                  isPrivileged: true,
-                  profileId: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      teamMemberOfEvents: {
-        select: {
-          isPrivileged: true,
-          event: {
-            select: {
-              name: true,
-              teamMembers: {
-                select: {
-                  isPrivileged: true,
-                  profileId: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      teamMemberOfProjects: {
-        select: {
-          isPrivileged: true,
-          project: {
-            select: {
-              name: true,
-              teamMembers: {
-                select: {
-                  isPrivileged: true,
-                  profileId: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
 }
 
 /*
