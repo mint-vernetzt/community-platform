@@ -12,6 +12,7 @@ const allowedTags = [
   "h2",
   "h3",
   "h4",
+  "br",
 ];
 const allowedAttributes = {
   a: ["href", "rel", "target"],
