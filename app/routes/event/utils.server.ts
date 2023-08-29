@@ -63,27 +63,40 @@ export async function createEventOnProfile(
     }
   }
 
-  const profile = prismaClient.profile.update({
-    where: {
-      id: profileId,
-    },
-    data: {
-      teamMemberOfEvents: {
-        create: {
-          isPrivileged: true,
-          event: {
-            create: {
-              ...eventOptions,
-              ...relations,
-              eventVisibility: {
-                create: {},
+  const [profile /*, event*/] = await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: {
+        teamMemberOfEvents: {
+          create: {
+            isPrivileged: true,
+            event: {
+              create: {
+                ...eventOptions,
+                ...relations,
+                eventVisibility: {
+                  create: {},
+                },
               },
             },
           },
         },
       },
-      updatedAt: new Date(),
-    },
-  });
+    }),
+    prismaClient.event.update({
+      where: {
+        slug: eventOptions.slug,
+      },
+      data: {
+        admins: {
+          create: {
+            profileId: profileId,
+          },
+        },
+      },
+    }),
+  ]);
   return profile;
 }

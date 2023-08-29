@@ -202,28 +202,41 @@ export async function createOrganizationOnProfile(
   organizationName: string,
   organizationSlug: string
 ) {
-  const profile = prismaClient.profile.update({
-    where: {
-      id: profileId,
-    },
-    data: {
-      memberOf: {
-        create: {
-          isPrivileged: true,
-          organization: {
-            create: {
-              name: organizationName,
-              slug: organizationSlug,
-              organizationVisibility: {
-                create: {},
+  const [profile /*, organization*/] = await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: {
+        memberOf: {
+          create: {
+            isPrivileged: true,
+            organization: {
+              create: {
+                name: organizationName,
+                slug: organizationSlug,
+                organizationVisibility: {
+                  create: {},
+                },
               },
             },
           },
         },
       },
-      updatedAt: new Date(),
-    },
-  });
+    }),
+    prismaClient.organization.update({
+      where: {
+        slug: organizationSlug,
+      },
+      data: {
+        admins: {
+          create: {
+            profileId: profileId,
+          },
+        },
+      },
+    }),
+  ]);
   return profile;
 }
 
