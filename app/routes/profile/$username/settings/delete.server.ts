@@ -1,62 +1,55 @@
 import { prismaClient } from "~/prisma.server";
 
-export async function getAdministeredOrganizations(profileId: string) {
-  return await prismaClient.organization.findMany({
+export async function getProfileWithAdministrations(profileId: string) {
+  return await prismaClient.profile.findUnique({
     where: {
-      admins: {
-        some: {
-          profileId,
-        },
-      },
+      id: profileId,
     },
     select: {
-      id: true, // For index performance reasons ;)
-      name: true,
-      admins: {
+      id: true,
+      administeredEvents: {
         select: {
-          profileId: true,
+          event: {
+            select: {
+              id: true,
+              name: true,
+              _count: {
+                select: {
+                  admins: true,
+                },
+              },
+            },
+          },
         },
       },
-    },
-  });
-}
-
-export async function getAdministeredEvents(profileId: string) {
-  return await prismaClient.event.findMany({
-    where: {
-      admins: {
-        some: {
-          profileId,
-        },
-      },
-    },
-    select: {
-      id: true, // For index performance reasons ;)
-      name: true,
-      admins: {
+      administeredOrganizations: {
         select: {
-          profileId: true,
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              _count: {
+                select: {
+                  admins: true,
+                },
+              },
+            },
+          },
         },
       },
-    },
-  });
-}
-
-export async function getAdministeredProjects(profileId: string) {
-  return await prismaClient.project.findMany({
-    where: {
-      admins: {
-        some: {
-          profileId,
-        },
-      },
-    },
-    select: {
-      id: true, // For index performance reasons ;)
-      name: true,
-      admins: {
+      administeredProjects: {
         select: {
-          profileId: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+              _count: {
+                select: {
+                  admins: true,
+                },
+              },
+            },
+          },
         },
       },
     },

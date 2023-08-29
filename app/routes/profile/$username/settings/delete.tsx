@@ -16,11 +16,7 @@ import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileByUsername } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
-import {
-  getAdministeredEvents,
-  getAdministeredOrganizations,
-  getAdministeredProjects,
-} from "./delete.server";
+import { getProfileWithAdministrations } from "./delete.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
@@ -53,33 +49,30 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values) => {
-  const administeredOrganizations = await getAdministeredOrganizations(
-    values.userId
-  );
-  let lastAdminOrganizations: typeof administeredOrganizations = [];
-  administeredOrganizations.map((organization) => {
-    if (organization.admins.length === 1) {
-      lastAdminOrganizations.push(organization);
+  const profile = await getProfileWithAdministrations(values.userId);
+  if (profile === null) {
+    throw "Das Profil konnte nicht gefunden werden";
+  }
+  let lastAdminOrganizations: string[] = [];
+  profile.administeredOrganizations.map((relation) => {
+    if (relation.organization._count.admins === 1) {
+      lastAdminOrganizations.push(relation.organization.name);
     }
-    return organization;
+    return null;
   });
-
-  const administeredEvents = await getAdministeredEvents(values.userId);
-  let lastAdminEvents: typeof administeredEvents = [];
-  administeredEvents.map((events) => {
-    if (events.admins.length === 1) {
-      lastAdminEvents.push(events);
+  let lastAdminEvents: string[] = [];
+  profile.administeredEvents.map((relation) => {
+    if (relation.event._count.admins === 1) {
+      lastAdminEvents.push(relation.event.name);
     }
-    return events;
+    return null;
   });
-
-  const administeredProjects = await getAdministeredProjects(values.userId);
-  let lastAdminProjects: typeof administeredProjects = [];
-  administeredProjects.map((project) => {
-    if (project.admins.length === 1) {
-      lastAdminProjects.push(project);
+  let lastAdminProjects: string[] = [];
+  profile.administeredProjects.map((relation) => {
+    if (relation.project._count.admins === 1) {
+      lastAdminProjects.push(relation.project.name);
     }
-    return project;
+    return null;
   });
 
   if (
@@ -89,27 +82,15 @@ const mutation = makeDomainFunction(
   ) {
     throw `Das Profil ist letzter Administrator in${
       lastAdminOrganizations.length > 0
-        ? ` den Organisationen: ${lastAdminOrganizations
-            .map((organization) => {
-              return organization.name;
-            })
-            .join(", ")},`
+        ? ` den Organisationen: ${lastAdminOrganizations.join(", ")},`
         : ""
     }${
       lastAdminEvents.length > 0
-        ? ` den Veranstaltungen: ${lastAdminEvents
-            .map((event) => {
-              return event.name;
-            })
-            .join(", ")},`
+        ? ` den Veranstaltungen: ${lastAdminEvents.join(", ")},`
         : ""
     }${
       lastAdminProjects.length > 0
-        ? ` den Projekten: ${lastAdminProjects
-            .map((event) => {
-              return event.name;
-            })
-            .join(", ")},`
+        ? ` den Projekten: ${lastAdminProjects.join(", ")},`
         : ""
     } weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte.`;
   }
