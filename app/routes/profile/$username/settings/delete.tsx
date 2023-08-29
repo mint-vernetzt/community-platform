@@ -1,11 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -17,8 +15,8 @@ import {
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
-  getRelationsOnProfileByUserId,
   getProfileByUsername,
+  getRelationsOnProfileByUserId,
 } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
 
@@ -34,11 +32,7 @@ const environmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-type LoaderData = {
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -50,7 +44,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
-  return json<LoaderData>({ profile }, { headers: response.headers });
+  return json({ profile }, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(
@@ -111,9 +105,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request, params }) => {
+export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -144,11 +136,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     return redirect("/goodbye", { headers: response.headers });
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const { profile } = useLoaderData<LoaderData>();
+  const { profile } = useLoaderData<typeof loader>();
 
   return (
     <>
