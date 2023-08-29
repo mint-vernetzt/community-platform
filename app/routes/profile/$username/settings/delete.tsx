@@ -14,11 +14,13 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  getProfileByUsername,
-  getRelationsOnProfileByUserId,
-} from "~/profile.server";
+import { getProfileByUsername } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
+import {
+  getAdministeredEvents,
+  getAdministeredOrganizations,
+  getAdministeredProjects,
+} from "./delete.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
@@ -51,49 +53,66 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values) => {
-  const profile = await getRelationsOnProfileByUserId(values.userId);
-  if (profile === null) {
-    throw "Das Profil konnte nicht gefunden werden.";
+  const administeredOrganizations = await getAdministeredOrganizations(
+    values.userId
+  );
+  let lastAdminOrganizations: typeof administeredOrganizations = [];
+  administeredOrganizations.map((organization) => {
+    if (organization.admins.length === 1) {
+      lastAdminOrganizations.push(organization);
+    }
+    return organization;
+  });
+
+  const administeredEvents = await getAdministeredEvents(values.userId);
+  let lastAdminEvents: typeof administeredEvents = [];
+  administeredEvents.map((events) => {
+    if (events.admins.length === 1) {
+      lastAdminEvents.push(events);
+    }
+    return events;
+  });
+
+  const administeredProjects = await getAdministeredProjects(values.userId);
+  let lastAdminProjects: typeof administeredProjects = [];
+  administeredProjects.map((project) => {
+    if (project.admins.length === 1) {
+      lastAdminProjects.push(project);
+    }
+    return project;
+  });
+
+  if (
+    lastAdminOrganizations.length > 0 ||
+    lastAdminEvents.length > 0 ||
+    lastAdminProjects.length > 0
+  ) {
+    throw `Das Profil ist letzter Administrator in${
+      lastAdminOrganizations.length > 0
+        ? ` den Organisationen: ${lastAdminOrganizations
+            .map((organization) => {
+              return organization.name;
+            })
+            .join(", ")},`
+        : ""
+    }${
+      lastAdminEvents.length > 0
+        ? ` den Veranstaltungen: ${lastAdminEvents
+            .map((event) => {
+              return event.name;
+            })
+            .join(", ")},`
+        : ""
+    }${
+      lastAdminProjects.length > 0
+        ? ` den Projekten: ${lastAdminProjects
+            .map((event) => {
+              return event.name;
+            })
+            .join(", ")},`
+        : ""
+    } weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte.`;
   }
-  profile.memberOf.some(({ organization, isPrivileged }) => {
-    const organizationHasOtherPrivilegedMembers = organization.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !organizationHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in der Organisation "${organization.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Organisation.`;
-    }
-    return false;
-  });
-  profile.teamMemberOfEvents.some(({ event, isPrivileged }) => {
-    const eventHasOtherPrivilegedMembers = event.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !eventHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in der Veranstaltung "${event.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Veranstaltung.`;
-    }
-    return false;
-  });
-  profile.teamMemberOfProjects.some(({ project, isPrivileged }) => {
-    const projectHasOtherPrivilegedMembers = project.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !projectHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in dem Projekt "${project.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst dein Projekt.`;
-    }
-    return false;
-  });
 
   const adminAuthClient = createAdminAuthClient();
 
