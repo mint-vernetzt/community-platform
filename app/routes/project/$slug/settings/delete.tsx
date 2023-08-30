@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
@@ -24,13 +24,7 @@ const schema = z.object({
 
 const environmentSchema = z.object({ id: z.string(), name: z.string() });
 
-type LoaderData = {
-  userId: string;
-  projectId: string;
-  projectName: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -43,7 +37,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await checkOwnershipOrThrow(project, sessionUser);
 
-  return json<LoaderData>(
+  return json(
     {
       userId: sessionUser.id,
       projectId: project.id,
@@ -119,7 +113,7 @@ export const action: ActionFunction = async (args) => {
 };
 
 function Delete() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>

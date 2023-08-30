@@ -1,7 +1,7 @@
-import { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, DataFunctionArgs, json } from "@remix-run/server-runtime";
 
-export const loader: LoaderFunction = async (args) => {
-  return null;
+export const loader = async (args: DataFunctionArgs) => {
+  return json({});
 }; 
 
 export const action: ActionFunction = async (args) => {

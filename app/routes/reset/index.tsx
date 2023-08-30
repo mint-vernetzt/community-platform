@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
@@ -7,6 +7,7 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
+import { prismaClient } from "~/prisma.server";
 import {
   createAdminAuthClient,
   createAuthClient,
@@ -15,7 +16,6 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { prismaClient } from "~/prisma.server";
 
 const schema = z.object({
   email: z
@@ -31,7 +31,7 @@ const environmentSchema = z.object({
   siteUrl: z.string(),
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

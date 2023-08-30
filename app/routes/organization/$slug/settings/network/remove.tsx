@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
@@ -29,7 +29,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);

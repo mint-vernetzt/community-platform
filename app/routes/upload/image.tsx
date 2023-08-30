@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -21,7 +21,7 @@ import {
   upload,
 } from "./uploadHandler.server";
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader = ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);

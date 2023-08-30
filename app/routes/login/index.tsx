@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
@@ -8,19 +8,11 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import type { Schema, SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { getProfileByUserId } from "~/profile.server";
-import {
-  createAuthClient,
-  getSessionUser,
-  setSession,
-  signIn,
-} from "../../auth.server";
+import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { serverError } from "remix-utils";
 
 const schema = z.object({
   email: z
@@ -42,7 +34,7 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();

@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
@@ -20,7 +20,7 @@ const schema = z.object({
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

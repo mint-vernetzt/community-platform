@@ -1,6 +1,7 @@
+import { Footer } from "@mint-vernetzt/components";
 import type {
+  DataFunctionArgs,
   LinksFunction,
-  LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -21,7 +22,6 @@ import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { createAuthClient, getSessionUser } from "./auth.server";
-import { Footer } from "@mint-vernetzt/components";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
@@ -37,16 +37,7 @@ export const meta: MetaFunction = () => {
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export type RootRouteData = {
-  matomoUrl: string | undefined;
-  matomoSiteId: string | undefined;
-  sessionUserInfo?: SessionUserInfo;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-};
-
-type LoaderData = RootRouteData;
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();
@@ -93,7 +84,7 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
-  return json<LoaderData>(
+  return json(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
@@ -416,7 +407,7 @@ export default function App() {
     matomoSiteId,
     sessionUserInfo: currentUserInfo,
     abilities,
-  } = useLoaderData<LoaderData>();
+  } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
