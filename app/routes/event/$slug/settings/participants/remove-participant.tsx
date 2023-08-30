@@ -1,10 +1,8 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher, useTransition } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
@@ -23,12 +21,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -45,7 +38,7 @@ export const action: ActionFunction = async (args) => {
     }
     await disconnectParticipantFromEvent(event.id, result.data.profileId);
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 type RemoveParticipantButtonProps = {
@@ -56,7 +49,7 @@ type RemoveParticipantButtonProps = {
 };
 
 export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
 
   return (
     <Form

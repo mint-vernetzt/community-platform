@@ -24,17 +24,14 @@ import {
   getParticipantsDataFromEvent,
   getWaitingParticipantSuggestions,
 } from "./utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./waiting-list/add-to-waiting-list";
+import { type action as addToWaitingListAction } from "./waiting-list/add-to-waiting-list";
 import { addToWaitingListSchema } from "./waiting-list/add-to-waiting-list";
-import { type ActionData as MoveToParticipantsActionData } from "./waiting-list/move-to-participants";
+import { type action as moveToParticipantsAction } from "./waiting-list/move-to-participants";
 import { moveToParticipantsSchema } from "./waiting-list/move-to-participants";
-import type { ActionData as RemoveFromWaitingListActionData } from "./waiting-list/remove-from-waiting-list";
+import { type action as removeFromWaitingListAction } from "./waiting-list/remove-from-waiting-list";
 import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-list";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
@@ -114,13 +111,12 @@ export const loader = async (args: LoaderArgs) => {
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addToWaitingListFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
+  const addToWaitingListFetcher = useFetcher<typeof addToWaitingListAction>();
   const removeFromWaitingListFetcher =
-    useFetcher<RemoveFromWaitingListActionData>();
-  const moveToParticipantsFetcher = useFetcher<MoveToParticipantsActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+    useFetcher<typeof removeFromWaitingListAction>();
+  const moveToParticipantsFetcher =
+    useFetcher<typeof moveToParticipantsAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

@@ -441,18 +441,6 @@ export function getOptionsFromEvents(
   return options;
 }
 
-export function getTeamMemberProfileDataFromEvent(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
-  currentUserId: string
-) {
-  const profileData = event.teamMembers.map((teamMember) => {
-    const { isPrivileged, profile } = teamMember;
-    const isCurrentUser = profile.id === currentUserId;
-    return { isPrivileged, ...profile, isCurrentUser };
-  });
-  return profileData;
-}
-
 export function getSpeakerProfileDataFromEvent(
   event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
 ) {

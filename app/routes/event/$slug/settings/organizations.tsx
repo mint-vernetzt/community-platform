@@ -20,12 +20,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
 import { getOwnOrganizationsSuggestions } from "./organizations.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./organizations/add-organization";
+import { type action as addOrganizationAction } from "./organizations/add-organization";
 import { addOrganizationSchema } from "./organizations/add-organization";
-import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
+import { type action as removeOrganizationAction } from "./organizations/remove-organization";
 import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
@@ -34,7 +31,7 @@ import {
 } from "./utils.server";
 import { Form as RemixForm } from "remix-forms";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -118,11 +115,10 @@ export const loader = async (args: LoaderArgs) => {
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addOrganizationFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
+  const removeOrganizationFetcher =
+    useFetcher<typeof removeOrganizationAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

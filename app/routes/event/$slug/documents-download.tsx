@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getDocumentById } from "~/document.server";
@@ -6,9 +6,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
 
-type LoaderData = Response;
-
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

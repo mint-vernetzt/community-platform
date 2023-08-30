@@ -20,12 +20,9 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./participants/add-participant";
+import { type action as addParticipantAction } from "./participants/add-participant";
 import { addParticipantSchema } from "./participants/add-participant";
-import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
+import { type action as removeParticipantAction } from "./participants/remove-participant";
 import { removeParticipantSchema } from "./participants/remove-participant";
 import {
   checkOwnershipOrThrow,
@@ -41,7 +38,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
 
 const participantLimitSchema = z.object({
@@ -182,11 +179,9 @@ export async function action({ request, params }: DataFunctionArgs) {
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addParticipantFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeParticipantFetcher = useFetcher<RemoveParticipantActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
+  const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

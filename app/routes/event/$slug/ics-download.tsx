@@ -1,10 +1,11 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
 import { forbidden } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import {
   deriveMode,
   getEventBySlugOrThrow,
@@ -12,7 +13,6 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
@@ -113,9 +113,7 @@ function createIcsString(
   return result as string | null;
 }
 
-type LoaderData = Response;
-
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

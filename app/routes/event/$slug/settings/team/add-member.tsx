@@ -1,9 +1,7 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -47,16 +45,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   };
 });
 
-export type SuccessActionData = {
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -74,12 +63,12 @@ export const action: ActionFunction = async (args) => {
     if (teamMemberProfile !== null) {
       await connectProfileToEvent(event.id, teamMemberProfile.id);
     }
-    return json<SuccessActionData>(
+    return json(
       {
         message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
       },
       { headers: response.headers }
     );
   }
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

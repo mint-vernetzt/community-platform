@@ -18,12 +18,11 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type { SuccessActionData as AddChildSuccessActionData } from "./events/add-child";
-import type { FailureActionData as AddChildFailureActionData } from "./events/add-child";
+import { type action as addChildAction } from "./events/add-child";
 import { addChildSchema } from "./events/add-child";
-import type { ActionData as RemoveChildActionData } from "./events/remove-child";
+import { type action as removeChildAction } from "./events/remove-child";
 import { removeChildSchema } from "./events/remove-child";
-import type { FailureActionData, SuccessActionData } from "./events/set-parent";
+import { type action as setParentAction } from "./events/set-parent";
 import { setParentSchema } from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
@@ -34,7 +33,7 @@ import {
 } from "./utils.server";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
@@ -126,12 +125,10 @@ export const loader = async (args: LoaderArgs) => {
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const setParentFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const addChildFetcher = useFetcher<
-    AddChildSuccessActionData | AddChildFailureActionData
-  >();
-  const removeChildFetcher = useFetcher<RemoveChildActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const setParentFetcher = useFetcher<typeof setParentAction>();
+  const addChildFetcher = useFetcher<typeof addChildAction>();
+  const removeChildFetcher = useFetcher<typeof removeChildAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
   if (loaderData.parentEvent !== null) {

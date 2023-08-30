@@ -20,7 +20,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEvent } from "./admins.server";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { publishSchema } from "./events/publish";
 import { type action as addAdminAction } from "./admins/add-admin";
 import { addAdminSchema } from "./admins/add-admin";
@@ -89,7 +89,7 @@ function Admins() {
   const loaderData = useLoaderData<typeof loader>();
   const addAdminFetcher = useFetcher<typeof addAdminAction>();
   const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

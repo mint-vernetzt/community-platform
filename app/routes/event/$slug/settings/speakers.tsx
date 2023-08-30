@@ -19,12 +19,9 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./speakers/add-speaker";
+import { type action as addSpeakerAction } from "./speakers/add-speaker";
 import { addSpeakerSchema } from "./speakers/add-speaker";
-import type { ActionData as RemoveSpeakerActionData } from "./speakers/remove-speaker";
+import { type action as removeSpeakerAction } from "./speakers/remove-speaker";
 import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
@@ -32,7 +29,7 @@ import {
   getSpeakerSuggestions,
 } from "./utils.server";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
@@ -91,9 +88,9 @@ function Speakers() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
 
-  const addSpeakerFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const removeSpeakerFetcher = useFetcher<RemoveSpeakerActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addSpeakerFetcher = useFetcher<typeof addSpeakerAction>();
+  const removeSpeakerFetcher = useFetcher<typeof removeSpeakerAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

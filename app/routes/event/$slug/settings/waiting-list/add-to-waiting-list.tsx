@@ -1,10 +1,8 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
@@ -47,17 +45,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   };
 });
 
-export type SuccessActionData = {
-  success: boolean;
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -78,7 +66,7 @@ export const action: ActionFunction = async (args) => {
     } else {
       await connectToWaitingListOfEvent(event.id, sessionUser.id);
     }
-    return json<SuccessActionData>(
+    return json(
       {
         success: true,
         message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde zur Warteliste hinzugefügt.`,
@@ -86,7 +74,7 @@ export const action: ActionFunction = async (args) => {
       { headers: response.headers }
     );
   }
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 type AddToWaitingListButtonProps = {
@@ -97,7 +85,7 @@ type AddToWaitingListButtonProps = {
 };
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   return (
     <Form
       action={props.action}

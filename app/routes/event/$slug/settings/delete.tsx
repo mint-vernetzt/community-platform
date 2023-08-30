@@ -17,7 +17,7 @@ import {
 } from "./utils.server";
 import { getProfileById } from "./delete.server";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -118,7 +118,7 @@ export const action = async (args: ActionArgs) => {
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const publishFetcher = useFetcher<typeof publishAction>();
 
   return (
     <>

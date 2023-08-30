@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
@@ -10,22 +10,17 @@ import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../utils.server";
-import type { ActionData as DeleteDocumentActionData } from "./documents/delete-document";
+import { type action as deleteDocumentAction } from "./documents/delete-document";
 import { deleteDocumentSchema } from "./documents/delete-document";
-import type { ActionData as EditDocumentActionData } from "./documents/edit-document";
+import { type action as editDocumentAction } from "./documents/edit-document";
 import { editDocumentSchema } from "./documents/edit-document";
-import type { ActionData as UploadDocumentActionData } from "./documents/upload-document";
+import { type action as uploadDocumentAction } from "./documents/upload-document";
 import { uploadDocumentSchema } from "./documents/upload-document";
 import { checkOwnershipOrThrow } from "./utils.server";
 import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 
-type LoaderData = {
-  userId: string;
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -39,7 +34,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await checkOwnershipOrThrow(event, sessionUser);
 
-  return json<LoaderData>(
+  return json(
     {
       userId: sessionUser.id,
       event: event,
@@ -67,13 +62,13 @@ function clearFileInput() {
 }
 
 function Documents() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
 
-  const uploadDocumentFetcher = useFetcher<UploadDocumentActionData>();
-  const editDocumentFetcher = useFetcher<EditDocumentActionData>();
-  const deleteDocumentFetcher = useFetcher<DeleteDocumentActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const uploadDocumentFetcher = useFetcher<typeof uploadDocumentAction>();
+  const editDocumentFetcher = useFetcher<typeof editDocumentAction>();
+  const deleteDocumentFetcher = useFetcher<typeof deleteDocumentAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
 
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {

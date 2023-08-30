@@ -1,8 +1,6 @@
 import type { Document } from "@prisma/client";
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { PerformMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -21,13 +19,7 @@ const schema = z.object({
 
 export const uploadDocumentSchema = schema;
 
-// TODO: wrap with performMutation + makeDomainFunction
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
 
   const response = new Response();

@@ -50,9 +50,9 @@ import {
   getEventBySlugOrThrow,
   getEventVisibilitiesBySlugOrThrow,
 } from "../utils.server";
-import type { ActionData as CancelActionData } from "./events/cancel";
+import { type action as cancelAction } from "./events/cancel";
 import { cancelSchema } from "./events/cancel";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { type action as publishAction } from "./events/publish";
 import { publishSchema } from "./events/publish";
 import {
   checkIdentityOrThrow,
@@ -283,8 +283,8 @@ function General() {
     areas,
   } = loaderData;
 
-  const publishFetcher = useFetcher<PublishActionData>();
-  const cancelFetcher = useFetcher<CancelActionData>();
+  const publishFetcher = useFetcher<typeof publishAction>();
+  const cancelFetcher = useFetcher<typeof cancelAction>();
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
