@@ -27,11 +27,11 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
+import { prismaClient } from "~/prisma.server";
 import {
   getOrganizationBySlug,
   prepareOrganizationEvents,
-} from "~/organization.server";
-import { prismaClient } from "~/prisma.server";
+} from "./index.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,

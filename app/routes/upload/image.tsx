@@ -2,7 +2,6 @@ import type { DataFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getOrganizationBySlug } from "~/organization.server";
 import {
   deriveMode as deriveEventMode,
   getEvent,
@@ -20,6 +19,7 @@ import {
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
+import { getOrganizationBySlug } from "./image.server";
 
 export const loader = ({ request }: DataFunctionArgs) => {
   const response = new Response();
@@ -46,12 +46,12 @@ async function handleAuth(
       throw serverError({ message: "Unknown organization." });
     }
 
-    const organisation = await getOrganizationBySlug(slug);
-    if (organisation === null) {
+    const organization = await getOrganizationBySlug(slug);
+    if (organization === null) {
       throw serverError({ message: "Unknown organization." });
     }
 
-    const isPriviliged = organisation?.teamMembers.some(
+    const isPriviliged = organization.teamMembers.some(
       (member) => member.profileId === profileId && member.isPrivileged
     );
 
@@ -91,7 +91,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
-  handleAuth(profileId, subject, slug, sessionUser);
+  await handleAuth(profileId, subject, slug, sessionUser);
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];

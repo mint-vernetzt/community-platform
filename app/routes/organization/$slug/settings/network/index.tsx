@@ -10,7 +10,7 @@ import {
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
-import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>

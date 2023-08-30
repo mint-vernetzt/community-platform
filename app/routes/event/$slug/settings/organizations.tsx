@@ -31,7 +31,7 @@ import {
 import { Form as RemixForm } from "remix-forms";
 import { publishSchema } from "./events/publish";
 import { type action as publishAction } from "./events/publish";
-import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;

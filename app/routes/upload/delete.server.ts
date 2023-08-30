@@ -3,6 +3,23 @@ import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
 import type { UploadKey } from "./schema";
 
+export async function getOrganizationBySlug(slug: string) {
+  const organization = await prismaClient.organization.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      teamMembers: {
+        select: {
+          profileId: true,
+          isPrivileged: true,
+        },
+      },
+    },
+  });
+
+  return organization;
+}
+
 export async function removeImageFromProfile(
   profileId: string,
   name: UploadKey

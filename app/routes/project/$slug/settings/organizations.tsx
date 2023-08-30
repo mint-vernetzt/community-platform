@@ -17,7 +17,6 @@ import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
 import { getPublicURL } from "~/storage.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
 import { getOwnOrganizationsSuggestions } from "./organizations.server";
@@ -33,6 +32,7 @@ import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
 } from "./utils.server";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;

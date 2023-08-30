@@ -4,9 +4,9 @@ import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
+  getOrganizationBySlug,
   removeImageFromEvent,
   removeImageFromOrganization,
   removeImageFromProfile,
@@ -29,12 +29,12 @@ const mutation = makeDomainFunction(
     }
 
     if (subject === "organization") {
-      const organisation = await getOrganizationBySlug(slug);
-      if (organisation === null) {
+      const organization = await getOrganizationBySlug(slug);
+      if (organization === null) {
         throw serverError({ message: "Unknown organization." });
       }
 
-      const isPriviliged = organisation?.teamMembers.some(
+      const isPriviliged = organization.teamMembers.some(
         (member) => member.profileId === sessionUser.id && member.isPrivileged
       );
 

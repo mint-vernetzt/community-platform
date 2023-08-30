@@ -7,9 +7,9 @@ import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deleteOrganizationBySlug } from "~/organization.server";
 import { getProfileByUserId } from "~/profile.server";
 import { handleAuthorization } from "./utils.server";
+import { deleteOrganizationBySlug } from "./delete.server";
 
 const schema = z.object({
   slug: z.string(),
