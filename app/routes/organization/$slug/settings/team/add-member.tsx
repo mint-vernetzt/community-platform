@@ -1,9 +1,7 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -58,15 +56,7 @@ const mutation = makeDomainFunction(
   };
 });
 
-export type SuccessActionData = {
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -89,7 +79,7 @@ export const action: ActionFunction = async (args) => {
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addTeamMemberToOrganization(organization.id, result.data.profileId);
-    return json<SuccessActionData>(
+    return json(
       {
         message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
       },
@@ -97,5 +87,5 @@ export const action: ActionFunction = async (args) => {
     );
   }
 
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

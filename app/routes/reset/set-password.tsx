@@ -1,11 +1,9 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { badRequest } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -95,9 +93,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -114,7 +110,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function SetPassword() {

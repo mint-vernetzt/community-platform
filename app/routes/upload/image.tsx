@@ -1,4 +1,4 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -78,7 +78,7 @@ async function handleAuth(
   }
 }
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

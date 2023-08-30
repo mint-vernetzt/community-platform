@@ -1,4 +1,4 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { cors } from "remix-utils";
 import type { EventFormData } from "../../lib/submissions/forms/event/eventFormData";
@@ -9,9 +9,7 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   return await cors(request, json(schema));
 };
 
-export const action: ActionFunction = async ({
-  request,
-}): Promise<Response> => {
+export const action = async ({ request }: DataFunctionArgs) => {
   return processSubmission<EventFormData>(
     request,
     schema,

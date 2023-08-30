@@ -151,7 +151,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.organizations);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
@@ -169,11 +169,12 @@ export default function Index() {
   });
 
   React.useEffect(() => {
-    if (
-      fetcher.data !== undefined &&
-      fetcher.data.organizations !== undefined
-    ) {
-      setItems((items) => [...items, ...fetcher.data.organizations]);
+    if (fetcher.data !== undefined) {
+      setItems((organizations) => {
+        return fetcher.data !== undefined
+          ? [...organizations, ...fetcher.data.organizations]
+          : [...organizations];
+      });
       setPage(fetcher.data.pagination.page);
       if (
         fetcher.data.organizations.length < fetcher.data.pagination.itemsPerPage

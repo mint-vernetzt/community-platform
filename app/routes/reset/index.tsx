@@ -1,10 +1,8 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { prismaClient } from "~/prisma.server";
@@ -86,9 +84,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -103,11 +99,11 @@ export const action: ActionFunction = async (args) => {
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 

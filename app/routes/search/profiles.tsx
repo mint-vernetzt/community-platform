@@ -1,5 +1,5 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -114,7 +114,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function Profiles() {
   const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.profiles);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
@@ -132,8 +132,12 @@ export default function Profiles() {
   });
 
   React.useEffect(() => {
-    if (fetcher.data !== undefined && fetcher.data.profiles !== undefined) {
-      setItems((items) => [...items, ...fetcher.data.profiles]);
+    if (fetcher.data !== undefined) {
+      setItems((profiles) => {
+        return fetcher.data !== undefined
+          ? [...profiles, ...fetcher.data.profiles]
+          : [...profiles];
+      });
       setPage(fetcher.data.pagination.page);
       if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
         setShouldFetch(false);

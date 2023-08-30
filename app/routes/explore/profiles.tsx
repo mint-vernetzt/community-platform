@@ -1,5 +1,5 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -160,7 +160,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.profiles);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
@@ -183,8 +183,12 @@ export default function Index() {
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
   React.useEffect(() => {
-    if (fetcher.data !== undefined && fetcher.data.profiles !== undefined) {
-      setItems((items) => [...items, ...fetcher.data.profiles]);
+    if (fetcher.data !== undefined) {
+      setItems((profiles) => {
+        return fetcher.data !== undefined
+          ? [...profiles, ...fetcher.data.profiles]
+          : [...profiles];
+      });
       setPage(fetcher.data.pagination.page);
       if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
         setShouldFetch(false);

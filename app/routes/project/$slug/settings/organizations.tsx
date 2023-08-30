@@ -17,21 +17,22 @@ import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
 import { getPublicURL } from "~/storage.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
+import { getOwnOrganizationsSuggestions } from "./organizations.server";
+import {
+  addOrganizationSchema,
+  type action as addOrganizationAction,
 } from "./organizations/add-organization";
-import { addOrganizationSchema } from "./organizations/add-organization";
-import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
-import { removeOrganizationSchema } from "./organizations/remove-organization";
+import {
+  removeOrganizationSchema,
+  type action as removeOrganizationAction,
+} from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
 } from "./utils.server";
-import { getOwnOrganizationsSuggestions } from "./organizations.server";
-import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -119,10 +120,9 @@ export const loader = async (args: LoaderArgs) => {
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addOrganizationFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
+  const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
+  const removeOrganizationFetcher =
+    useFetcher<typeof removeOrganizationAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

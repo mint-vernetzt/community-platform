@@ -1,10 +1,8 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import type { Schema, z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { getOrganizationBySlug } from "~/organization.server";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
@@ -63,9 +61,7 @@ const mutation = makeDomainFunction(
   return { success };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -85,6 +81,5 @@ export const action: ActionFunction = async ({ request }) => {
     return redirect(redirectUrl, { headers: response.headers });
   }
 
-  // TODO: fix type issue or let it be fixed by aligning with upload documents
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

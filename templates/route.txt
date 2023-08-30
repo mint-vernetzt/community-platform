@@ -1,11 +1,11 @@
-import { ActionFunction, DataFunctionArgs, json } from "@remix-run/server-runtime";
+import { DataFunctionArgs, json } from "@remix-run/server-runtime";
 
 export const loader = async (args: DataFunctionArgs) => {
   return json({});
 }; 
 
-export const action: ActionFunction = async (args) => {
-  return null;
+export const action = async (args: DataFunctionArgs) => {
+  return json({});
 };
 
 export default function {{ pascalCase componentName }}() {

@@ -1,11 +1,9 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useTransition } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden, notFound } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -119,11 +117,7 @@ const emailMutation = makeDomainFunction(
   return values;
 });
 
-type ActionData =
-  | PerformMutation<z.infer<Schema>, z.infer<typeof emailSchema>>
-  | PerformMutation<z.infer<Schema>, z.infer<typeof passwordSchema>>;
-
-export const action: ActionFunction = async ({ request, params }) => {
+export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -161,13 +155,13 @@ export const action: ActionFunction = async ({ request, params }) => {
       environment: { authClient: authClient },
     });
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Security() {
   const transition = useTransition();
 
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
 
   let showPasswordFeedback = false,
     showEmailFeedback = false;

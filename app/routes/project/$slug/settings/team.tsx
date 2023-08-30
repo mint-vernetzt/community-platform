@@ -21,10 +21,14 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { getProject } from "./team.server";
-import type { FailureActionData, SuccessActionData } from "./team/add-member";
-import { addMemberSchema } from "./team/add-member";
-import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
-import { removeMemberSchema } from "./team/remove-member";
+import {
+  addMemberSchema,
+  type action as addMemberAction,
+} from "./team/add-member";
+import {
+  removeMemberSchema,
+  type action as removeMemberAction,
+} from "./team/remove-member";
 import { isProjectAdmin } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
@@ -85,8 +89,8 @@ export const loader = async (args: LoaderArgs) => {
 function Team() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addMemberFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
+  const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

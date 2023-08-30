@@ -14,12 +14,9 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import type {
-  FailureActionData as AddMemberFailureActionData,
-  SuccessActionData as AddMemberSuccessActionData,
-} from "./team/add-member";
+import { type action as addMemberAction } from "./team/add-member";
 import { addMemberSchema } from "./team/add-member";
-import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
+import { type action as removeMemberAction } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
 import { handleAuthorization } from "./utils.server";
 import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
@@ -73,10 +70,8 @@ export const loader = async (args: LoaderArgs) => {
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addMemberFetcher = useFetcher<
-    AddMemberSuccessActionData | AddMemberFailureActionData
-  >();
-  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
+  const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

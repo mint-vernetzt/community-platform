@@ -1,4 +1,4 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   useFetcher,
@@ -7,9 +7,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
@@ -79,15 +77,7 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   return redirect(".", { headers: response.headers });
 };
 
-type SuccessActionData = {
-  message: string;
-};
-
-type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -101,7 +91,7 @@ export const action: ActionFunction = async (args) => {
 
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {
-    return json<SuccessActionData>(
+    return json(
       {
         message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
       },
@@ -109,7 +99,7 @@ export const action: ActionFunction = async (args) => {
     );
   }
 
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 type NetworkMemberProps = {
@@ -118,7 +108,7 @@ type NetworkMemberProps = {
 
 function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
-  const fetcher = useFetcher<SuccessActionData | FailureActionData>();
+  const fetcher = useFetcher<typeof action>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();

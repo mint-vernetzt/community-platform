@@ -1,11 +1,11 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
 import { makeDomainFunction } from "remix-domains";
-import type { FormProps, PerformMutation } from "remix-forms";
+import type { FormProps } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema, SomeZodObject } from "zod";
+import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
@@ -71,12 +71,7 @@ const mutation = makeDomainFunction(
   return { values: { ...values, username: profile?.username } };
 });
 
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -101,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {

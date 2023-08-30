@@ -1,10 +1,8 @@
-import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
@@ -36,9 +34,7 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   return redirect(".", { headers: response.headers });
 };
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -52,13 +48,13 @@ export const action: ActionFunction = async (args) => {
 
   const result = await performMutation({ request, schema, mutation });
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export function NetworkMemberRemoveForm(
   props: NetworkMember & { slug: string }
 ) {
-  const fetcher = useFetcher<ActionData>();
+  const fetcher = useFetcher<typeof action>();
 
   const { networkMember, networkId, slug } = props;
 
