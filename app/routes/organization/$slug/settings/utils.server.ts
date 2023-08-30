@@ -86,27 +86,6 @@ export async function getProfileByEmailCaseInsensitive(email: string) {
   return profile;
 }
 
-export async function getProfileById(id: string) {
-  const profile = await prismaClient.profile.findFirst({
-    where: { id },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      memberOf: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return profile;
-}
-
 export async function getWholeOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findFirst({
     where: {

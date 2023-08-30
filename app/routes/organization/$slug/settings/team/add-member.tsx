@@ -9,10 +9,11 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { checkIdentityOrThrow } from "../../utils.server";
-import { getProfileById, isOrganizationAdmin } from "../utils.server";
+import { isOrganizationAdmin } from "../utils.server";
 import {
   addTeamMemberToOrganization,
   getOrganizationBySlug,
+  getProfileById,
 } from "./add-member.server";
 
 const schema = z.object({
