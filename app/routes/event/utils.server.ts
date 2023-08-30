@@ -1,6 +1,8 @@
-import type { User } from "@supabase/auth-helpers-remix";
+import { type Event } from "@prisma/client";
+import { type User } from "@supabase/auth-helpers-remix";
 import { zonedTimeToUtc } from "date-fns-tz";
 import { unauthorized } from "remix-utils";
+import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 
 export async function checkIdentityOrThrow(
@@ -99,4 +101,61 @@ export async function createEventOnProfile(
     }),
   ]);
   return profile;
+}
+
+export async function getRootEvent(id: string) {
+  try {
+    const result = await prismaClient.$queryRaw`
+      WITH RECURSIVE get_root AS (
+          SELECT id, parent_event_id, name, slug, published 
+          FROM "events" 
+          WHERE id = ${id}
+        UNION
+          SELECT "events".id, "events".parent_event_id, "events".name, "events".slug, "events".published 
+          FROM "events"
+            JOIN get_root ON "events".id = get_root.parent_event_id
+      )
+      SELECT * 
+      FROM get_root 
+      WHERE parent_event_id IS NULL
+      AND published = ${true}
+      ORDER BY name ASC;`;
+
+    return result as Pick<
+      Event,
+      "id" | "parentEventId" | "name" | "slug" | "published"
+    >[];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export async function getRootEvents(
+  events: {
+    event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
+  }[]
+) {
+  let publishedRootEvents: {
+    event: ArrayElement<NonNullable<Awaited<ReturnType<typeof getRootEvent>>>>;
+  }[] = [];
+  await Promise.all(
+    events.map(async (item) => {
+      const result = await getRootEvent(item.event.id);
+
+      if (result !== null && result.length !== 0) {
+        const rootItem = {
+          event: result[0],
+        };
+        if (
+          !publishedRootEvents.some((item) => {
+            return item.event.slug === rootItem.event.slug;
+          })
+        ) {
+          publishedRootEvents.push(rootItem);
+        }
+      }
+    })
+  );
+  return publishedRootEvents;
 }
