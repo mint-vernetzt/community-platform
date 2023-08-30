@@ -1,5 +1,5 @@
 import type { Organization } from "@prisma/client";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { badRequest, forbidden, notFound } from "remix-utils";
 import { getSessionUserOrThrow } from "~/auth.server";
@@ -543,4 +543,27 @@ export async function handleAuthorization(
     organization,
     slug,
   };
+}
+
+export async function isOrganizationAdmin(
+  slug: string,
+  sessionUser: User | null
+) {
+  let isAdmin = false;
+  if (sessionUser !== null) {
+    const relation = await prismaClient.organization.findFirst({
+      where: {
+        slug,
+        admins: {
+          some: {
+            profileId: sessionUser.id,
+          },
+        },
+      },
+    });
+    if (relation !== null) {
+      isAdmin = true;
+    }
+  }
+  return isAdmin;
 }
