@@ -374,67 +374,6 @@ export async function getMembers(organizationId: string) {
   return result;
 }
 
-export async function getMembersOfOrganization(
-  authClient: SupabaseClient,
-  organizationId: string
-) {
-  const members = await prismaClient.memberOfOrganization.findMany({
-    select: {
-      isPrivileged: true,
-      organizationId: true,
-      profile: {
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          position: true,
-        },
-      },
-    },
-    where: {
-      organizationId: organizationId,
-    },
-    orderBy: {
-      profile: {
-        firstName: "asc",
-      },
-    },
-  });
-
-  const enhancedMembers = members.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-        return {
-          ...item,
-          profile: { ...item.profile, avatar },
-        };
-      }
-    }
-    return item;
-  });
-
-  return enhancedMembers;
-}
-
-export function getTeamMemberProfileDataFromOrganization(
-  members: Awaited<ReturnType<typeof getMembersOfOrganization>>,
-  currentUserId: string
-) {
-  const profileData = members.map((teamMember) => {
-    const { isPrivileged, profile } = teamMember;
-    const isCurrentUser = profile.id === currentUserId;
-    return { isPrivileged, ...profile, isCurrentUser };
-  });
-  return profileData;
-}
-
 export async function getNetworkMembersOfOrganization(
   authClient: SupabaseClient,
   organizationId: string

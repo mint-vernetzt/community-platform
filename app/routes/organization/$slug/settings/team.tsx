@@ -21,12 +21,9 @@ import type {
 import { addMemberSchema } from "./team/add-member";
 import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
-import {
-  getMembersOfOrganization,
-  getTeamMemberProfileDataFromOrganization,
-  handleAuthorization,
-} from "./utils.server";
+import { handleAuthorization } from "./utils.server";
 import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
+import { getMembersOfOrganization } from "./team.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -41,10 +38,9 @@ export const loader = async (args: LoaderArgs) => {
   );
 
   const members = await getMembersOfOrganization(authClient, organization.id);
-  const enhancedMembers = getTeamMemberProfileDataFromOrganization(
-    members,
-    sessionUser.id
-  );
+  const enhancedMembers = members.map((relation) => {
+    return relation.profile;
+  });
 
   const url = new URL(request.url);
   const suggestionsQuery =
