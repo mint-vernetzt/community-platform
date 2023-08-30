@@ -39,6 +39,26 @@ export async function checkOwnershipOrThrow(
   return await checkOwnership(project, sessionUser, { throw: true });
 }
 
+export async function isProjectAdmin(slug: string, sessionUser: User | null) {
+  let isAdmin = false;
+  if (sessionUser !== null) {
+    const relation = await prismaClient.project.findFirst({
+      where: {
+        slug,
+        admins: {
+          some: {
+            profileId: sessionUser.id,
+          },
+        },
+      },
+    });
+    if (relation !== null) {
+      isAdmin = true;
+    }
+  }
+  return isAdmin;
+}
+
 export function transformProjectToForm(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
 ) {
