@@ -10,8 +10,6 @@ export async function getMembersOfOrganization(
 ) {
   const members = await prismaClient.memberOfOrganization.findMany({
     select: {
-      isPrivileged: true,
-      organizationId: true,
       profile: {
         select: {
           id: true,
