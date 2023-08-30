@@ -46,6 +46,26 @@ export async function checkOwnershipOrThrow(
   return await checkOwnership(event, sessionUser, { throw: true });
 }
 
+export async function isEventAdmin(slug: string, sessionUser: User | null) {
+  let isAdmin = false;
+  if (sessionUser !== null) {
+    const relation = await prismaClient.event.findFirst({
+      where: {
+        slug,
+        admins: {
+          some: {
+            profileId: sessionUser.id,
+          },
+        },
+      },
+    });
+    if (relation !== null) {
+      isAdmin = true;
+    }
+  }
+  return isAdmin;
+}
+
 // Could be a top level function, as it's used in almost all actions
 export async function checkIdentityOrThrow(
   request: Request,
