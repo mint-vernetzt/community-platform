@@ -25,21 +25,3 @@ export async function disconnectProfileFromEvent(
     },
   });
 }
-
-export async function updateEventTeamMemberPrivilege(
-  eventId: string,
-  teamMemberId: string,
-  isPrivileged: boolean
-) {
-  await prismaClient.teamMemberOfEvent.update({
-    where: {
-      eventId_profileId: {
-        eventId,
-        profileId: teamMemberId,
-      },
-    },
-    data: {
-      isPrivileged,
-    },
-  });
-}

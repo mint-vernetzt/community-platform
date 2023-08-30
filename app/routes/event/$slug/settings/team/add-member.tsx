@@ -5,37 +5,44 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { checkIdentityOrThrow, isEventAdmin } from "../utils.server";
 import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
+  addTeamMemberToEvent,
+  getEventBySlug,
   getProfileById,
-} from "../utils.server";
-import { connectProfileToEvent } from "./utils.server";
+} from "./add-member.server";
 
 const schema = z.object({
   userId: z.string(),
-  eventId: z.string(),
-  id: z.string(),
+  profileId: z.string(),
+});
+
+const environmentSchema = z.object({
+  eventSlug: z.string(),
 });
 
 export const addMemberSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const profile = await getProfileById(values.id);
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const profile = await getProfileById(values.profileId);
   if (profile === null) {
     throw new InputError(
       "Es existiert noch kein Profil unter diesem Namen.",
-      "id"
+      "profileId"
     );
   }
-  const alreadyMember = profile.teamMemberOfEvents.some((entry) => {
-    return entry.event.id === values.eventId;
+  const alreadyMember = profile.teamMemberOfEvents.some((relation) => {
+    return relation.event.slug === environment.eventSlug;
   });
   if (alreadyMember) {
     throw new InputError(
       "Das Profil unter diesem Namen ist bereits Teammitglied Eurer Veranstaltung.",
-      "id"
+      "profileId"
     );
   }
   return {
@@ -46,23 +53,27 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async (args: DataFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { eventSlug: slug },
+  });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, sessionUser);
-    await checkSameEventOrThrow(request, event.id);
-    const teamMemberProfile = await getProfileById(result.data.id);
-    if (teamMemberProfile !== null) {
-      await connectProfileToEvent(event.id, teamMemberProfile.id);
-    }
+    const isAdmin = await isEventAdmin(slug, sessionUser);
+    invariantResponse(isAdmin, "Not privileged", { status: 403 });
+    const event = await getEventBySlug(slug);
+    invariantResponse(event, "Event not found", { status: 404 });
+    await addTeamMemberToEvent(event.id, result.data.profileId);
     return json(
       {
         message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,

@@ -9,30 +9,27 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../utils.server";
-import type { FailureActionData, SuccessActionData } from "./team/add-member";
+import { type action as publishAction } from "./events/publish";
+import { publishSchema } from "./events/publish";
+import { getEvent } from "./team.server";
+import { type action as addMemberAction } from "./team/add-member";
 import { addMemberSchema } from "./team/add-member";
-import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
+import { type action as removeMemberAction } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
-import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
-import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
-  getTeamMemberProfileDataFromEvent,
   getTeamMemberSuggestions,
 } from "./utils.server";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -41,22 +38,22 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEvent(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   await checkOwnershipOrThrow(event, sessionUser);
 
-  const teamMembers = getTeamMemberProfileDataFromEvent(event, sessionUser.id);
-
-  const enhancedTeamMembers = teamMembers.map((teamMember) => {
-    if (teamMember.avatar !== null) {
-      const publicURL = getPublicURL(authClient, teamMember.avatar);
+  const enhancedTeamMembers = event.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        teamMember.avatar = getImageURL(publicURL, {
+        avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
           gravity: GravityType.center,
         });
       }
     }
-    return teamMember;
+    return { ...relation.profile, avatar };
   });
 
   const url = new URL(request.url);
@@ -65,8 +62,8 @@ export const loader = async (args: LoaderArgs) => {
   let teamMemberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    const alreadyTeamMemberIds = teamMembers.map((member) => {
-      return member.id;
+    const alreadyTeamMemberIds = event.teamMembers.map((relation) => {
+      return relation.profile.id;
     });
     teamMemberSuggestions = await getTeamMemberSuggestions(
       authClient,
@@ -90,10 +87,9 @@ export const loader = async (args: LoaderArgs) => {
 function Team() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addMemberFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
-  const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -113,8 +109,8 @@ function Team() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/event/${slug}/settings/team/add-member`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        hiddenFields={["userId"]}
+        values={{ userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -126,19 +122,18 @@ function Team() {
           return (
             <>
               <Errors />
-              <Field name="eventId" />
               <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email des Teammitglieds
+                      Name oder Email
                     </label>
                   </div>
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="profileId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -146,7 +141,7 @@ function Team() {
                           suggestions={loaderData.teamMemberSuggestions || []}
                           suggestionsLoaderPath={`/event/${slug}/settings/team`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("profileId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -205,60 +200,13 @@ function Team() {
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
                 <Form
-                  schema={setPrivilegeSchema}
-                  fetcher={setPrivilegeFetcher}
-                  action={`/event/${slug}/settings/team/set-privilege`}
-                  hiddenFields={[
-                    "userId",
-                    "eventId",
-                    "teamMemberId",
-                    "isPrivileged",
-                  ]}
-                  values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    teamMemberId: teamMember.id,
-                    isPrivileged: !teamMember.isPrivileged,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="teamMemberId" />
-                        <Field name="isPrivileged" />
-                        {teamMember.isCurrentUser === false ? (
-                          <div className="ml-2">
-                            <Button
-                              className="btn btn-outline-primary ml-auto btn-small"
-                              title={
-                                teamMember.isPrivileged
-                                  ? "Privileg entziehen"
-                                  : "Privileg hinzufügen"
-                              }
-                            >
-                              {teamMember.isPrivileged
-                                ? "Privileg entziehen"
-                                : "Privileg hinzufügen"}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </Form>
-                <Form
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/event/${slug}/settings/team/remove-member`}
-                  hiddenFields={["userId", "eventId", "teamMemberId"]}
+                  hiddenFields={["userId", "profileId"]}
                   values={{
                     userId: loaderData.userId,
-                    eventId: loaderData.eventId,
-                    teamMemberId: teamMember.id,
+                    profileId: teamMember.id,
                   }}
                 >
                   {(props) => {
@@ -267,9 +215,8 @@ function Team() {
                       <>
                         <Errors />
                         <Field name="userId" />
-                        <Field name="eventId" />
-                        <Field name="teamMemberId" />
-                        {teamMember.isCurrentUser === false ? (
+                        <Field name="profileId" />
+                        {loaderData.teamMembers.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
                             title="entfernen"
