@@ -28,8 +28,8 @@ import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   checkOwnershipOrThrow,
   getTeamMemberProfileDataFromProject,
-  getTeamMemberSuggestions,
 } from "./utils.server";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -68,7 +68,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyTeamMemberIds = teamMembers.map((member) => {
       return member.id;
     });
-    teamMemberSuggestions = await getTeamMemberSuggestions(
+    teamMemberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyTeamMemberIds,
       query

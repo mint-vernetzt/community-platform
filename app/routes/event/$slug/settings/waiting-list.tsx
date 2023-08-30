@@ -22,7 +22,6 @@ import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
 import {
   checkOwnershipOrThrow,
   getParticipantsDataFromEvent,
-  getWaitingParticipantSuggestions,
 } from "./utils.server";
 import { type action as addToWaitingListAction } from "./waiting-list/add-to-waiting-list";
 import { addToWaitingListSchema } from "./waiting-list/add-to-waiting-list";
@@ -33,6 +32,7 @@ import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-
 import { publishSchema } from "./events/publish";
 import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -80,7 +80,7 @@ export const loader = async (args: LoaderArgs) => {
       ...alreadyParticipantIds,
       ...alreadyWaitingParticipantIds,
     ];
-    waitingParticipantSuggestions = await getWaitingParticipantSuggestions(
+    waitingParticipantSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyParticipatingIds,
       query

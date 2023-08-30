@@ -26,10 +26,8 @@ import { type action as addMemberAction } from "./team/add-member";
 import { addMemberSchema } from "./team/add-member";
 import { type action as removeMemberAction } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
-import {
-  checkOwnershipOrThrow,
-  getTeamMemberSuggestions,
-} from "./utils.server";
+import { checkOwnershipOrThrow } from "./utils.server";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -65,7 +63,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyTeamMemberIds = event.teamMembers.map((relation) => {
       return relation.profile.id;
     });
-    teamMemberSuggestions = await getTeamMemberSuggestions(
+    teamMemberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyTeamMemberIds,
       query

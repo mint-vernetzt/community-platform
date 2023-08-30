@@ -6,18 +6,18 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
   getNetworkMembersOfOrganization,
-  getNetworkMemberSuggestions,
   handleAuthorization,
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
+import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
 
 export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
 >;
 
 export type NetworkMemberSuggestions =
-  | Awaited<ReturnType<typeof getNetworkMemberSuggestions>>
+  | Awaited<ReturnType<typeof getOrganizationSuggestionsForAutocomplete>>
   | undefined;
 
 export const loader = async (args: LoaderArgs) => {
@@ -42,10 +42,9 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
-    networkMemberSuggestions = await getNetworkMemberSuggestions(
+    networkMemberSuggestions = await getOrganizationSuggestionsForAutocomplete(
       authClient,
-      slug,
-      alreadyMemberSlugs,
+      [...alreadyMemberSlugs, slug],
       query
     );
   }

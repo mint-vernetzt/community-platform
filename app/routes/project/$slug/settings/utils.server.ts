@@ -1,10 +1,7 @@
-import type { Organization, Prisma, Profile, Project } from "@prisma/client";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import type { Project } from "@prisma/client";
+import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, unauthorized } from "remix-utils";
-import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
 import type { getProjectBySlugOrThrow } from "../utils.server";
 
 export async function checkOwnership(
@@ -174,81 +171,6 @@ export function getResponsibleOrganizationDataFromProject(
   return organizationData;
 }
 
-export async function getResponsibleOrganizationSuggestions(
-  authClient: SupabaseClient,
-  alreadyResponsibleOrganizationSlugs: string[],
-  query: string[]
-) {
-  let whereQueries = [];
-  for (const word of query) {
-    const contains: {
-      OR: {
-        [K in Organization as string]: {
-          contains: string;
-          mode: Prisma.QueryMode;
-        };
-      }[];
-    } = {
-      OR: [
-        {
-          name: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-    whereQueries.push(contains);
-  }
-  const responsibleOrganizationSuggestions =
-    await prismaClient.organization.findMany({
-      select: {
-        id: true,
-        name: true,
-        logo: true,
-        types: {
-          select: {
-            organizationType: {
-              select: {
-                title: true,
-              },
-            },
-          },
-        },
-      },
-      where: {
-        AND: [
-          {
-            slug: {
-              notIn: alreadyResponsibleOrganizationSlugs,
-            },
-          },
-          ...whereQueries,
-        ],
-      },
-      take: 6,
-      orderBy: {
-        name: "asc",
-      },
-    });
-
-  const enhancedResponsibleOrganizationSuggestions =
-    responsibleOrganizationSuggestions.map((organization) => {
-      if (organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, organization.logo);
-        if (publicURL !== null) {
-          organization.logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return organization;
-    });
-
-  return enhancedResponsibleOrganizationSuggestions;
-}
-
 export async function checkSameProjectOrThrow(
   request: Request,
   projectId: string
@@ -272,80 +194,6 @@ export function getTeamMemberProfileDataFromProject(
     return { isPrivileged, ...profile, isCurrentUser };
   });
   return profileData;
-}
-
-export async function getTeamMemberSuggestions(
-  authClient: SupabaseClient,
-  alreadyTeamMemberIds: string[],
-  query: string[]
-) {
-  let whereQueries = [];
-  for (const word of query) {
-    const contains: {
-      OR: {
-        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
-      }[];
-    } = {
-      OR: [
-        {
-          firstName: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-        {
-          lastName: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-        {
-          email: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-    whereQueries.push(contains);
-  }
-  const teamMemberSuggestions = await prismaClient.profile.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatar: true,
-      position: true,
-    },
-    where: {
-      AND: [
-        {
-          id: {
-            notIn: alreadyTeamMemberIds,
-          },
-        },
-        ...whereQueries,
-      ],
-    },
-    take: 6,
-    orderBy: {
-      firstName: "asc",
-    },
-  });
-
-  const enhancedTeamMemberSuggestions = teamMemberSuggestions.map((member) => {
-    if (member.avatar !== null) {
-      const publicURL = getPublicURL(authClient, member.avatar);
-      if (publicURL !== null) {
-        member.avatar = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-      }
-    }
-    return member;
-  });
-  return enhancedTeamMemberSuggestions;
 }
 
 export async function getProfileById(id: string) {

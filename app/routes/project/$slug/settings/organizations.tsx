@@ -29,9 +29,9 @@ import { removeOrganizationSchema } from "./organizations/remove-organization";
 import {
   checkOwnershipOrThrow,
   getResponsibleOrganizationDataFromProject,
-  getResponsibleOrganizationSuggestions,
 } from "./utils.server";
 import { getOwnOrganizationsSuggestions } from "./organizations.server";
+import { getOrganizationSuggestionsForAutocomplete } from "~/organization.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -97,7 +97,7 @@ export const loader = async (args: LoaderArgs) => {
       }
     );
     responsibleOrganizationSuggestions =
-      await getResponsibleOrganizationSuggestions(
+      await getOrganizationSuggestionsForAutocomplete(
         authClient,
         alreadyResponsibleOrganizationSlugs,
         query

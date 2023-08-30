@@ -26,11 +26,11 @@ import { removeSpeakerSchema } from "./speakers/remove-speaker";
 import {
   checkOwnershipOrThrow,
   getSpeakerProfileDataFromEvent,
-  getSpeakerSuggestions,
 } from "./utils.server";
 import { publishSchema } from "./events/publish";
 import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -65,7 +65,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadySpeakerIds = speakers.map((speaker) => {
       return speaker.id;
     });
-    speakerSuggestions = await getSpeakerSuggestions(
+    speakerSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadySpeakerIds,
       query

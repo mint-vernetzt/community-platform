@@ -26,7 +26,6 @@ import { type action as removeParticipantAction } from "./participants/remove-pa
 import { removeParticipantSchema } from "./participants/remove-participant";
 import {
   checkOwnershipOrThrow,
-  getParticipantSuggestions,
   getParticipantsDataFromEvent,
 } from "./utils.server";
 import { z } from "zod";
@@ -40,6 +39,7 @@ import { InputError, makeDomainFunction } from "remix-domains";
 import { publishSchema } from "./events/publish";
 import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 const participantLimitSchema = z.object({
   participantLimit: z
@@ -97,7 +97,7 @@ export const loader = async (args: LoaderArgs) => {
       ...alreadyParticipantIds,
       ...alreadyWaitingParticipantIds,
     ];
-    participantSuggestions = await getParticipantSuggestions(
+    participantSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyParticipatingIds,
       query

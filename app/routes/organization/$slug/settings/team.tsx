@@ -25,10 +25,10 @@ import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege"
 import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   getMembersOfOrganization,
-  getMemberSuggestions,
   getTeamMemberProfileDataFromOrganization,
   handleAuthorization,
 } from "./utils.server";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -57,7 +57,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyMemberIds = members.map((member) => {
       return member.profile.id;
     });
-    memberSuggestions = await getMemberSuggestions(
+    memberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyMemberIds,
       query

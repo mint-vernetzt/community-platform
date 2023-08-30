@@ -26,10 +26,8 @@ import { type action as addAdminAction } from "./admins/add-admin";
 import { addAdminSchema } from "./admins/add-admin";
 import { type action as removeAdminAction } from "./admins/remove-admin";
 import { removeAdminSchema } from "./admins/remove-admin";
-import {
-  checkOwnershipOrThrow,
-  getTeamMemberSuggestions,
-} from "./utils.server";
+import { checkOwnershipOrThrow } from "./utils.server";
+import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -65,7 +63,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyAdminIds = event.admins.map((relation) => {
       return relation.profile.id;
     });
-    adminSuggestions = await getTeamMemberSuggestions(
+    adminSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyAdminIds,
       query
