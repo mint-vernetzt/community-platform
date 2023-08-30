@@ -6,38 +6,32 @@ import { performMutation } from "remix-forms";
 import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { checkIdentityOrThrow } from "../../utils.server";
+import { isOrganizationAdmin } from "../utils.server";
 import {
-  checkIdentityOrThrow,
-  checkSameOrganizationOrThrow,
-} from "../../utils.server";
-import {
-  disconnectProfileFromOrganization,
-  getMembers,
-  handleAuthorization,
-} from "../utils.server";
+  getOrganizationBySlug,
+  removeTeamMemberFromOrganization,
+} from "./remove-member.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
-  teamMemberId: z.string().uuid(),
-  organizationId: z.string().uuid(),
+  profileId: z.string().uuid(),
 });
 
 export const removeMemberSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { teamMemberId, organizationId } = values;
-  const members = await getMembers(organizationId);
+const environmentSchema = z.object({
+  memberCount: z.number(),
+});
 
-  // Prevent self deletion
-  const privilegedMembersWithoutToRemove = members.filter((member) => {
-    return member.isPrivileged && member.profileId !== teamMemberId;
-  });
-
-  if (privilegedMembersWithoutToRemove.length > 0) {
-    await disconnectProfileFromOrganization(teamMemberId, organizationId);
-  } else {
-    throw "Unable to remove member - last privileged member.";
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  if (environment.memberCount === 1) {
+    throw "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu.";
   }
 
   return values;
@@ -51,16 +45,28 @@ export type ActionData = PerformMutation<
 export const action: ActionFunction = async (args) => {
   const { request, params } = args;
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization } = await handleAuthorization(authClient, slug);
-  await checkSameOrganizationOrThrow(request, organization.id);
+  const organization = await getOrganizationBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { memberCount: organization._count.teamMembers },
+  });
+
+  if (result.success === true) {
+    const isAdmin = await isOrganizationAdmin(slug, sessionUser);
+    invariantResponse(isAdmin, "Not privileged", { status: 403 });
+    await removeTeamMemberFromOrganization(
+      organization.id,
+      result.data.profileId
+    );
+  }
 
   return json<ActionData>(result, { headers: response.headers });
 };

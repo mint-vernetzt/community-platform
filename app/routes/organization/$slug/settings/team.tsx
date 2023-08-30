@@ -21,8 +21,6 @@ import type {
 import { addMemberSchema } from "./team/add-member";
 import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
-import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
-import { setPrivilegeSchema } from "./team/set-privilege";
 import {
   getMembersOfOrganization,
   getTeamMemberProfileDataFromOrganization,
@@ -83,7 +81,6 @@ function Index() {
     AddMemberSuccessActionData | AddMemberFailureActionData
   >();
   const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
-  const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -103,11 +100,9 @@ function Index() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/organization/${slug}/settings/team/add-member`}
-        hiddenFields={["slug", "userId", "organizationId"]}
+        hiddenFields={["userId"]}
         values={{
-          slug,
           userId: loaderData.userId,
-          organizationId: loaderData.organizationId,
         }}
         onSubmit={() => {
           submit({
@@ -123,13 +118,13 @@ function Index() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    Name oder Email des Teammitglieds
+                    Name oder Email
                   </label>
                 </div>
               </div>
 
               <div className="flex flex-row">
-                <Field name="id" className="flex-auto">
+                <Field name="profileId" className="flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -137,7 +132,7 @@ function Index() {
                         suggestions={loaderData.memberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/team`}
                         defaultValue={suggestionsQuery || ""}
-                        {...register("id")}
+                        {...register("profileId")}
                         searchParameter="autocomplete_query"
                       />
                     </>
@@ -149,9 +144,7 @@ function Index() {
                   </Button>
                 </div>
               </div>
-              <Field name="slug" />
               <Field name="userId" />
-              <Field name="organizationId" />
             </div>
           );
         }}
@@ -198,63 +191,12 @@ function Index() {
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
                 <Form
-                  schema={setPrivilegeSchema}
-                  fetcher={setPrivilegeFetcher}
-                  action={`/organization/${slug}/settings/team/set-privilege`}
-                  hiddenFields={[
-                    "userId",
-                    "slug",
-                    "teamMemberId",
-                    "organizationId",
-                    "isPrivileged",
-                  ]}
-                  values={{
-                    userId: loaderData.userId,
-                    slug: loaderData.slug,
-                    teamMemberId: profile.id,
-                    organizationId: loaderData.organizationId,
-                    isPrivileged: !profile.isPrivileged,
-                  }}
-                  className=""
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="slug" />
-                        <Field name="teamMemberId" />
-                        <Field name="organizationId" />
-                        <Field name="isPrivileged" />
-                        {profile.isCurrentUser === false ? (
-                          <div className="ml-2">
-                            <Button
-                              className="btn btn-outline-primary ml-auto btn-small"
-                              title={
-                                profile.isPrivileged
-                                  ? "Privileg entziehen"
-                                  : "Privileg hinzufügen"
-                              }
-                            >
-                              {profile.isPrivileged
-                                ? "Privileg entziehen"
-                                : "Privileg hinzufügen"}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </Form>
-                <Form
                   method="post"
                   action={`/organization/${slug}/settings/team/remove-member`}
                   schema={removeMemberSchema}
-                  hiddenFields={["teamMemberId", "organizationId", "userId"]}
+                  hiddenFields={["profileId", "userId"]}
                   values={{
-                    teamMemberId: profile.id,
-                    organizationId: loaderData.organizationId,
+                    profileId: profile.id,
                     userId: loaderData.userId,
                   }}
                   fetcher={removeMemberFetcher}
@@ -262,7 +204,7 @@ function Index() {
                   {({ Field, Button, Errors }) => {
                     return (
                       <>
-                        {profile.isCurrentUser === false ? (
+                        {loaderData.members.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
                             title="entfernen"
@@ -282,8 +224,7 @@ function Index() {
                           </Button>
                         ) : null}
                         <Field name="userId" />
-                        <Field name="teamMemberId" />
-                        <Field name="organizationId" />
+                        <Field name="profileId" />
                         <Errors />
                       </>
                     );
