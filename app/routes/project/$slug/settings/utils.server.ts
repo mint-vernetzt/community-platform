@@ -204,18 +204,6 @@ export async function checkSameProjectOrThrow(
   }
 }
 
-export function getTeamMemberProfileDataFromProject(
-  project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>,
-  currentUserId: string
-) {
-  const profileData = project.teamMembers.map((teamMember) => {
-    const { isPrivileged, profile } = teamMember;
-    const isCurrentUser = profile.id === currentUserId;
-    return { isPrivileged, ...profile, isCurrentUser };
-  });
-  return profileData;
-}
-
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findFirst({
     where: { id },
