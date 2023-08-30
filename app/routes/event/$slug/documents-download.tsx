@@ -1,10 +1,10 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getDocumentById } from "~/document.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
 import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import { getDocumentById } from "./documents-download.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;

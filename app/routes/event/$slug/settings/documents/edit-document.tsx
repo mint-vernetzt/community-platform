@@ -4,11 +4,11 @@ import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { updateDocument } from "~/document.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getEventBySlugOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import { updateDocument } from "./edit-document.server";
 
 const schema = z.object({
   userId: z.string(),
