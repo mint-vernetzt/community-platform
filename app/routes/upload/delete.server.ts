@@ -64,6 +64,18 @@ export async function removeImageFromEvent(slug: string, name: UploadKey) {
   });
 }
 
+export async function removeImageFromProject(slug: string, name: UploadKey) {
+  return await prismaClient.project.update({
+    where: {
+      slug,
+    },
+    data: {
+      [name]: null,
+      updatedAt: new Date(),
+    },
+  });
+}
+
 export async function removeImageFromStorage(
   authClient: SupabaseClient,
   path: string
@@ -71,4 +83,15 @@ export async function removeImageFromStorage(
   const { error } = await authClient.storage.from("images").remove([path]);
 
   return error === null;
+}
+
+export async function getProjectBySlug(slug: string) {
+  return await prismaClient.project.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug,
+    },
+  });
 }

@@ -7,11 +7,14 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { fileUploadSchema } from "~/lib/utils/schemas";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
+import { deriveMode as deriveProjectMode } from "../project/$slug/utils.server";
 import {
   getOrganizationBySlug,
+  getProjectBySlug,
   removeImageFromEvent,
   removeImageFromOrganization,
   removeImageFromProfile,
+  removeImageFromProject,
 } from "./delete.server";
 
 const environment = z.object({
@@ -59,6 +62,18 @@ const mutation = makeDomainFunction(
         throw serverError({ message: "Not allowed." });
       }
       await removeImageFromEvent(slug, uploadKey);
+    }
+
+    if (subject === "project") {
+      const project = await getProjectBySlug(slug);
+      if (project === null) {
+        throw notFound({ message: `Project not found` });
+      }
+      const mode = await deriveProjectMode(project, sessionUser);
+      if (mode !== "owner") {
+        throw serverError({ message: "Not allowed." });
+      }
+      await removeImageFromProject(slug, uploadKey);
     }
   } catch (e) {
     success = false;
