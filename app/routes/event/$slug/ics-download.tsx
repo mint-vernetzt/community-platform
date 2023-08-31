@@ -46,18 +46,26 @@ function createIcsString(
   if (event.conferenceCode) {
     location.push(`Zugangscode zur Konferenz: ${event.conferenceCode}`);
   }
+  if (
+    event.venueName ||
+    event.venueStreet ||
+    event.venueZipCode ||
+    event.venueCity
+  ) {
+    location.push("Adresse:");
+  }
   if (event.venueName) {
-    location.push(event.venueName);
+    location.push(`${event.venueName}`);
   }
   if (event.venueStreet) {
     const fullStreet = `${event.venueStreet} ${event.venueStreetNumber || ""}`;
     location.push(fullStreet.trim());
   }
-  if (event.venueZipCode) {
-    location.push(event.venueZipCode);
-  }
   if (event.venueCity) {
-    location.push(event.venueCity);
+    const fullCityAdress = `${
+      event.venueZipCode ? `${event.venueZipCode}, ` : ""
+    }${event.venueZipCode}`;
+    location.push(fullCityAdress.trim());
   }
   const tagTitles = event.tags.map((item) => {
     return item.tag.title;
@@ -80,7 +88,7 @@ function createIcsString(
     ] as DateArray,
     title: event.name,
     description: removeHtmlTags(event.description ?? "") || undefined,
-    location: location.join(", "),
+    location: location.join("\n"),
     url: absoluteEventUrl,
     // TODO:
     // organizer: { name: "", email: "", dir: "any url (Maybe the community profile)"}
