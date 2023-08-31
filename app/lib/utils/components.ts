@@ -5,8 +5,12 @@ import type {
   OptionOrGroup,
   OptionsProps,
 } from "~/components/FormElements/SelectField/SelectField";
-import type { AreasWithState } from "~/profile.server";
 import { capitalizeFirstLetter } from "../string/transform";
+import { type Area, type State } from "@prisma/client";
+
+type AreasWithState = (Area & {
+  state: State | null;
+})[];
 
 function getListOperationName(operation: string, key: string) {
   const ucSingularKey = capitalizeFirstLetter(key.slice(0, -1));
