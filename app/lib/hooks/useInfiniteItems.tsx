@@ -1,6 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import React from "react";
 
+// TODO: fix any type
 export function useInfiniteItems(
   initialItems: any[],
   route: string,

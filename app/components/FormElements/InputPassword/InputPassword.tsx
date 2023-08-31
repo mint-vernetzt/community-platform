@@ -31,6 +31,7 @@ const InputPassword = React.forwardRef(
             id={id}
             name={id}
             className="input input-bordered w-full input-lg"
+            // TODO: can this type assertion be removed and proofen by code?
             ref={forwardRef as React.RefObject<HTMLInputElement>}
           />
           <button

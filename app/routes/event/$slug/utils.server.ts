@@ -46,6 +46,7 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
 export async function checkSameEventOrThrow(request: Request, eventId: string) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
+  // TODO: can this type assertion be removed and proofen by code?
   const value = formData.get("eventId") as string | null;
   if (value === null || value !== eventId) {
     throw badRequest({ message: "Event IDs differ" });

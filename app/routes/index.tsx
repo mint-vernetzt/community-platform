@@ -84,6 +84,7 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   const { error } = await signIn(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     values.password

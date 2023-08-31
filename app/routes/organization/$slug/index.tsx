@@ -553,6 +553,7 @@ export default function Index() {
                           <li key={service} className="flex-auto px-1 mb-2">
                             <ExternalServiceIcon
                               service={service}
+                              // TODO: can this type assertion be removed and proofen by code?
                               url={loaderData.organization[service] as string}
                             />
                           </li>

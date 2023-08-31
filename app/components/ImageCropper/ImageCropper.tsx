@@ -128,6 +128,7 @@ function ImageCropper(props: ImageCropperProps) {
   );
 
   function reset() {
+    // TODO: can this type assertion be removed and proofen by code?
     const inputFile = document.getElementById(`${id}-file`) as HTMLInputElement;
     if (inputFile === null) {
       return;
@@ -145,6 +146,7 @@ function ImageCropper(props: ImageCropperProps) {
   function closeModal() {
     const $modalToggle = document.getElementById(
       props.id
+      // TODO: can this type assertion be removed and proofen by code?
     ) as HTMLInputElement | null;
     if ($modalToggle) {
       $modalToggle.checked = false;
@@ -152,6 +154,7 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
+    // TODO: can this type assertion be removed and proofen by code?
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
     const canvasAspect = canvas.width / canvas.height;
     const isLandScape = canvas.width > canvas.height;
@@ -363,6 +366,7 @@ function ImageCropper(props: ImageCropperProps) {
                 max={DEFAULT_SCALE * 2}
                 step={0.05}
                 value={scale}
+                // TODO: can this type assertion be removed and proofen by code?
                 onChange={(v) => setScale(v as number)}
               />
             </div>

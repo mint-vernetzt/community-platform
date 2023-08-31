@@ -74,6 +74,7 @@ const mutation = makeDomainFunction(
     : environment.siteUrl;
 
   const { error } = await signUp(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     values.password,
@@ -304,6 +305,7 @@ export default function Register() {
                                   <>
                                     <input
                                       ref={
+                                        // TODO: can this type assertion be removed and proofen by code?
                                         ref as React.RefObject<HTMLInputElement>
                                       }
                                       {...props}

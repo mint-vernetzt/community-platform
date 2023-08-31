@@ -13,6 +13,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   return processSubmission<NewsFormData>(
     request,
     schema,
+    // TODO: can this type assertion be removed and proofen by code?
     process.env.SUBMISSION_SENDER as string,
     process.env.NEWSSUBMISSION_RECIPIENT as string,
     process.env.NEWSSUBMISSION_SUBJECT as string

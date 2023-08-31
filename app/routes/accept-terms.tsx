@@ -50,6 +50,7 @@ const mutation = makeDomainFunction(
   if (!termsAccepted) {
     throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
   }
+  // TODO: can this type assertion be removed and proofen by code?
   const sessionUser = await getSessionUser(authClient as SupabaseClient);
 
   if (sessionUser === null) {
@@ -127,6 +128,7 @@ function AcceptTerms() {
                             return (
                               <>
                                 <input
+                                  // TODO: can this type assertion be removed and proofen by code?
                                   ref={ref as React.RefObject<HTMLInputElement>}
                                   {...props}
                                 />

@@ -51,6 +51,7 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 function closeModal(id: string) {
+  // TODO: can this type assertion be removed and proofen by code?
   const $modalToggle = document.getElementById(
     `modal-edit-document-${id}`
   ) as HTMLInputElement | null;
@@ -60,6 +61,7 @@ function closeModal(id: string) {
 }
 
 function clearFileInput() {
+  // TODO: can this type assertion be removed and proofen by code?
   const $fileInput = document.getElementById(
     "document-upload-input"
   ) as HTMLInputElement | null;

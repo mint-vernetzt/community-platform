@@ -68,6 +68,7 @@ const mutation = makeDomainFunction(
       // if user uses email provider send password reset link
       if (data.user.app_metadata.provider === "email") {
         const { error } = await sendResetPasswordLink(
+          // TODO: fix type issue
           environment.authClient,
           values.email,
           emailRedirectTo

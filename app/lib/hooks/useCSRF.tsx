@@ -1,5 +1,4 @@
 import { useRouteData } from "remix-utils";
-import { RootRouteData } from "~/root";
 
 // TODO: To use this hook add csrf to RootRouteData on root.tsx
 // export default function useCSRF() {

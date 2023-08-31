@@ -418,6 +418,7 @@ function General() {
         formRef.current.getElementsByClassName("clear-after-submit");
       if ($inputsToClear) {
         Array.from($inputsToClear).forEach(
+          // TODO: can this type assertion be removed and proofen by code?
           (a) => ((a as HTMLInputElement).value = "")
         );
       }

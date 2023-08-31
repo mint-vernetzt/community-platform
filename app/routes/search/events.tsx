@@ -179,6 +179,7 @@ export default function SearchView() {
                         participationUntil,
                         responsibleOrganizations:
                           event.responsibleOrganizations.map(
+                            // TODO: fix any type
                             (item: any) => item.organization
                           ),
                       }}

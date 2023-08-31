@@ -140,7 +140,11 @@ type SessionUserInfo = {
 function NavBar(props: NavBarProps) {
   const closeDropdown = () => {
     if (document.activeElement !== null) {
+      // TODO: can this type assertion be proofen by code?
+      // f.e. with below if statement
+      //if (document.activeElement instanceof HTMLAnchorElement) {
       (document.activeElement as HTMLAnchorElement).blur();
+      //}
     }
   };
 

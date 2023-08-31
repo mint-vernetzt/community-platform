@@ -68,7 +68,7 @@ export function transformProjectToForm(
     disciplines: project.disciplines.map((item) => item.disciplineId) ?? [],
   };
 }
-
+// TODO: fix any type
 export function transformFormToProject(form: any) {
   const { userId: _userId, submit: _submit, ...project } = form;
 
@@ -100,6 +100,7 @@ export async function getOrganizationById(id: string) {
 
 export async function updateProjectById(
   id: string,
+  // TODO: fix any type
   projectData: any,
   privateFields: string[]
 ) {
@@ -189,6 +190,7 @@ export async function checkSameProjectOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
+  // TODO: can this type assertion be removed and proofen by code?
   const value = formData.get("projectId") as string | null;
 
   if (value === null || value !== projectId) {

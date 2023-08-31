@@ -264,7 +264,7 @@ function hasWebsiteOrSocialService(
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
-
+// TODO: fix any type
 function canViewEvents(events: {
   teamMemberOfEvents: any[];
   participatedEvents: any[];
@@ -470,6 +470,7 @@ export default function Index() {
                         <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
+                            // TODO: can this type assertion be removed and proofen by code?
                             url={loaderData.data[service] as string}
                           />
                         </li>

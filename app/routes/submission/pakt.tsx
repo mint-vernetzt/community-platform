@@ -13,6 +13,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   return processSubmission<PaktFormData>(
     request,
     schema,
+    // TODO: can this type assertion be removed and proofen by code?
     process.env.SUBMISSION_SENDER as string,
     process.env.PAKTSUBMISSION_RECIPIENT as string,
     process.env.PAKTSUBMISSION_SUBJECT as string

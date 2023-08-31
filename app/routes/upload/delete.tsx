@@ -30,7 +30,7 @@ const mutation = makeDomainFunction(
   const { subject, slug, uploadKey } = values;
 
   let success = true;
-
+  // TODO: fix type issue
   const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
   try {

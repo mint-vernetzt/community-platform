@@ -72,7 +72,7 @@ export async function checkIdentityOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
-
+  // TODO: can this type assertion be removed and proofen by code?
   const formSenderId = formData.get("userId") as string | null;
 
   if (formSenderId === null || formSenderId !== sessionUser.id) {
@@ -81,6 +81,7 @@ export async function checkIdentityOrThrow(
 }
 
 export function validateTimePeriods(
+  // TODO: fix any type
   newEventData: any,
   parentEvent: { startTime: Date; endTime: Date } | null,
   childEvents: { startTime: Date; endTime: Date }[],
@@ -206,7 +207,7 @@ export function transformEventToForm(
   };
 }
 
-// TODO: any type
+// TODO: fix any type
 export function transformFormToEvent(form: any) {
   const {
     userId: _userId,
@@ -251,7 +252,7 @@ export function transformFormToEvent(form: any) {
   };
 }
 
-// TODO: any type
+// TODO: fix any type
 export async function updateEventById(
   id: string,
   eventData: any,

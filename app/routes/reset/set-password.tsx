@@ -78,12 +78,14 @@ const mutation = makeDomainFunction(
   // This automatically logs in the user
   // Throws error on invalid refreshToken, accessToken combination
   await setSession(
+    // TODO: fix type issue
     environment.authClient,
     values.accessToken,
     values.refreshToken
   );
 
   const { error } = await updatePassword(
+    // TODO: fix type issue
     environment.authClient,
     values.password
   );

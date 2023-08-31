@@ -126,6 +126,7 @@ function Events() {
                     participationUntil,
                     responsibleOrganizations:
                       event.responsibleOrganizations.map(
+                        // TODO: fix any type
                         (item: any) => item.organization
                       ),
                   }}

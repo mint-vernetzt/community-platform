@@ -86,7 +86,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const profileId = sessionUser.id;
 
   const formData = await upload(authClient, request, "images");
-
+  // TODO: can this type assertion be removed and proofen by code?
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
@@ -94,6 +94,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
+  // TODO: can this type assertion be removed and proofen by code?
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
@@ -105,6 +106,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
     filename: string;
     mimeType: string;
     sizeInBytes: number;
+    // TODO: can this type assertion be removed and proofen by code?
   } = JSON.parse(uploadHandlerResponseJSON as string);
 
   if (

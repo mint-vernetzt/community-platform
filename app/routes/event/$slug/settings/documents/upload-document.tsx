@@ -40,6 +40,7 @@ export const action = async (args: DataFunctionArgs) => {
   const parsedData = await parseMultipart(request);
 
   const { uploadHandlerResponse, formData } = parsedData;
+  // TODO: can this type assertion be removed and proofen by code?
   const eventId = formData.get("eventId") as string;
   if (eventId !== event.id) {
     throw "Event id nicht korrekt";

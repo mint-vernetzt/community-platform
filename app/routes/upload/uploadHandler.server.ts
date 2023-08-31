@@ -168,7 +168,7 @@ export const upload = async (
       console.log("No upload Key");
       throw serverError({ message: "Something went wrong on upload." });
     }
-
+    // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
       throw serverError({ message: "Something went wrong on upload." });
@@ -182,6 +182,7 @@ export const upload = async (
       filename: string;
       mimeType: string;
       sizeInBytes: number;
+      // TODO: can this type assertion be removed and proofen by code?
     } = JSON.parse(uploadHandlerResponseJSON as string);
     // Convert buffer data to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
@@ -209,7 +210,7 @@ export const upload = async (
     throw serverError({ message: "Something went wrong on upload." });
   }
 };
-
+// TODO: fix any type
 function validatePersistence(
   authClient: SupabaseClient,
   error: any,

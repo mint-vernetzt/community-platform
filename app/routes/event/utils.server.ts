@@ -17,7 +17,7 @@ export async function checkIdentityOrThrow(
     throw unauthorized({ message: "Identity check failed" });
   }
 }
-
+// TODO: fix any type
 export function transformFormToEvent(form: any) {
   const { startDate, endDate, ...event } = form;
 
@@ -55,6 +55,7 @@ export async function createEventOnProfile(
     parent: string | null;
   }
 ) {
+  // TODO: fix any type
   let relations: { parentEvent?: any; childEvents?: any } = {};
   if (relationOptions !== undefined) {
     if (relationOptions.parent !== null) {

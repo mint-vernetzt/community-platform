@@ -34,6 +34,7 @@ export async function checkSameOrganizationOrThrow(
 ) {
   const clonedRequest = request.clone();
   const formData = await clonedRequest.formData();
+  // TODO: can this type assertion be removed and proofen by code?
   const value = formData.get("organizationId") as string | null;
 
   if (value === null || value !== organizationId) {
