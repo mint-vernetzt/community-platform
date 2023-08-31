@@ -443,7 +443,7 @@ export async function uploadDocumentBucketData(
     const hash = await createHashFromString(Buffer.from(pdfBytes).toString());
     const path = generatePathName(fileTypeResult.ext, hash, "document");
     const { error: uploadObjectError } = await authClient.storage
-      .from("images")
+      .from("documents")
       .upload(path, pdfBytes, {
         upsert: true,
         contentType: fileTypeResult.mime,
