@@ -216,6 +216,7 @@ function Participants() {
                       label="Begrenzung der Teilnehmenden"
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
+                      autoFocus
                     />
                     <Errors />
                   </>
@@ -287,6 +288,7 @@ function Participants() {
                             defaultValue={suggestionsQuery || ""}
                             {...register("id")}
                             searchParameter="autocomplete_query"
+                            autoFocus={false}
                           />
                         </>
                       )}
