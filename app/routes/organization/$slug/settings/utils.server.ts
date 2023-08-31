@@ -91,7 +91,27 @@ export async function getWholeOrganizationBySlug(slug: string) {
     where: {
       slug,
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+      bio: true,
+      supportedBy: true,
+      quote: true,
+      quoteAuthor: true,
+      quoteAuthorInformation: true,
+      website: true,
+      linkedin: true,
+      twitter: true,
+      xing: true,
+      instagram: true,
+      youtube: true,
+      facebook: true,
       types: {
         select: {
           organizationTypeId: true,
@@ -128,7 +148,11 @@ export async function getOrganizationIdBySlug(slug: string) {
 export async function getOrganizationByName(name: string) {
   const organization = await prismaClient.organization.findFirst({
     where: { name },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      logo: true,
+      name: true,
       memberOf: {
         select: {
           network: {
@@ -295,19 +319,6 @@ export async function updateOrganizationById(
   await triggerEntityScore({ entity: "organization", where: { id } });
 }
 
-export async function connectProfileToOrganization(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.create({
-    data: {
-      profileId,
-      organizationId,
-    },
-  });
-  return result;
-}
-
 export async function connectOrganizationToNetwork(
   organizationId: string,
   networkId: string
@@ -316,21 +327,6 @@ export async function connectOrganizationToNetwork(
     data: {
       networkMemberId: organizationId,
       networkId,
-    },
-  });
-  return result;
-}
-
-export async function disconnectProfileFromOrganization(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.delete({
-    where: {
-      profileId_organizationId: {
-        profileId,
-        organizationId,
-      },
     },
   });
   return result;
@@ -363,15 +359,6 @@ export async function allowedToModify(
     },
   });
   return result !== null;
-}
-
-export async function getMembers(organizationId: string) {
-  const result = await prismaClient.memberOfOrganization.findMany({
-    where: {
-      organizationId,
-    },
-  });
-  return result;
 }
 
 export async function getNetworkMembersOfOrganization(

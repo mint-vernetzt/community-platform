@@ -82,6 +82,7 @@ export async function getOrganizationById(id: string) {
     where: { id },
     select: {
       id: true,
+      slug: true,
       name: true,
       responsibleForProject: {
         select: {

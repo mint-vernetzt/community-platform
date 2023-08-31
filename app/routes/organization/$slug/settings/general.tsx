@@ -176,6 +176,7 @@ export const action = async (args: ActionArgs) => {
         const { privateFields, ...organizationData } = data;
         await updateOrganizationById(
           organization.id,
+          // TODO: fix type issue
           organizationData,
           privateFields
         );

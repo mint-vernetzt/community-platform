@@ -6,7 +6,6 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
-import { getOrganizationByName } from "~/routes/organization/$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "~/routes/project/utils.server";
 import {
   checkOwnershipOrThrow,
@@ -40,7 +39,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
       "id"
     );
   }
-  return { ...values, name: organization.name };
+  return {
+    ...values,
+    name: organization.name,
+    slug: organization.slug,
+    organizationId: organization.id,
+  };
 });
 
 export const action = async (args: DataFunctionArgs) => {
@@ -59,10 +63,7 @@ export const action = async (args: DataFunctionArgs) => {
     invariantResponse(project, "Project not Found", { status: 404 });
     await checkOwnershipOrThrow(project, sessionUser);
     await checkSameProjectOrThrow(request, project.id);
-    const organization = await getOrganizationByName(result.data.name);
-    if (organization !== null) {
-      await connectOrganizationToProject(project.id, organization.id);
-    }
+    await connectOrganizationToProject(project.id, result.data.organizationId);
     return json(
       {
         message: `Die Organisation "${result.data.name}" ist jetzt verantwortlich für Euer Projekt.`,
