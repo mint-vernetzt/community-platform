@@ -6,9 +6,9 @@ import {
 } from "~/lib/event/utils";
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
-import { getProfileByUsername } from "~/profile.server";
 import { loader } from "./index";
 import { deriveMode } from "./utils.server";
+import { getProfileByUsername } from "./index.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore

@@ -9,11 +9,11 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
-import { createOrganizationOnProfile } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
 import { checkIdentityOrThrow } from "./$slug/utils.server";
+import { createOrganizationOnProfile } from "./create.server";
 
 const schema = z.object({
   userId: z.string().uuid(),

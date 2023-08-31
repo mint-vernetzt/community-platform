@@ -9,10 +9,11 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUserId } from "~/profile.server";
 import { checkIdentityOrThrow } from "../../utils.server";
 import { getProjectBySlugOrThrow } from "../utils.server";
 import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
+import { getProfileByUserId } from "./delete.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -83,7 +84,8 @@ export const action = async (args: DataFunctionArgs) => {
 
   await checkOwnershipOrThrow(project, sessionUser);
 
-  const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+  const profile = await getProfileByUserId(sessionUser.id);
+  invariantResponse(profile, "Profile not found", { status: 404 });
 
   const result = await performMutation({
     request,

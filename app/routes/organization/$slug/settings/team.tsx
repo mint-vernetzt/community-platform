@@ -19,7 +19,7 @@ import { addMemberSchema } from "./team/add-member";
 import { type action as removeMemberAction } from "./team/remove-member";
 import { removeMemberSchema } from "./team/remove-member";
 import { handleAuthorization } from "./utils.server";
-import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getMembersOfOrganization } from "./team.server";
 
 export const loader = async (args: LoaderArgs) => {

@@ -12,7 +12,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/profile.server";
+import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,

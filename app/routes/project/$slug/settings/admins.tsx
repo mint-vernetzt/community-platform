@@ -17,7 +17,7 @@ import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getProject } from "./admins.server";
 import {

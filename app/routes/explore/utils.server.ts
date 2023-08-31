@@ -5,7 +5,6 @@ import { GravityType } from "imgproxy/dist/types";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getAreaById } from "~/profile.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -543,4 +542,17 @@ export async function prepareEvents(
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
   return enhancedEventsWithParticipationStatus;
+}
+
+export async function getAreaById(areaId: string) {
+  return await prismaClient.area.findUnique({
+    where: {
+      id: areaId,
+    },
+    select: {
+      id: true,
+      type: true,
+      stateId: true,
+    },
+  });
 }

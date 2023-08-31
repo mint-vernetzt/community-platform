@@ -26,9 +26,9 @@ import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
+import { getProfileByUserId } from "./root.server";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -55,12 +55,7 @@ export const loader = async (args: DataFunctionArgs) => {
   let sessionUserInfo;
 
   if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id, [
-      "username",
-      "firstName",
-      "lastName",
-      "avatar",
-    ]);
+    const profile = await getProfileByUserId(sessionUser.id);
 
     let avatar: string | undefined;
 

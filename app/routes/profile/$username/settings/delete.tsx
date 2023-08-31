@@ -14,9 +14,11 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUsername } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
-import { getProfileWithAdministrations } from "./delete.server";
+import {
+  getProfileByUsername,
+  getProfileWithAdministrations,
+} from "./delete.server";
 
 const schema = z.object({
   userId: z.string().uuid(),

@@ -27,7 +27,7 @@ import { addAdminSchema } from "./admins/add-admin";
 import { type action as removeAdminAction } from "./admins/remove-admin";
 import { removeAdminSchema } from "./admins/remove-admin";
 import { checkOwnershipOrThrow } from "./utils.server";
-import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;

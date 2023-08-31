@@ -32,7 +32,7 @@ import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-
 import { publishSchema } from "./events/publish";
 import { type action as publishAction } from "./events/publish";
 import { Form as RemixForm } from "remix-forms";
-import { getProfileSuggestionsForAutocomplete } from "~/profile.server";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;

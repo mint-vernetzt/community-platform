@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
-import { getProfileByUsername } from "~/profile.server";
+import { getProfileByUsername } from "./general.server";
 import {
   getProfileVisibilitiesById,
   getWholeProfileFromUsername,

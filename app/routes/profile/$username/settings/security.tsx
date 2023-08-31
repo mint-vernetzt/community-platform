@@ -15,8 +15,8 @@ import {
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUsername } from "~/profile.server";
 import { handleAuthorization } from "../utils.server";
+import { getProfileByUsername } from "./security.server";
 
 const emailSchema = z.object({
   email: z
@@ -84,6 +84,7 @@ const passwordMutation = makeDomainFunction(
   }
 
   const { error } = await updatePassword(
+    // TODO: fix type issue
     environment.authClient,
     values.password
   );
@@ -106,6 +107,7 @@ const emailMutation = makeDomainFunction(
   }
 
   const { error } = await sendResetEmailLink(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     environment.siteUrl

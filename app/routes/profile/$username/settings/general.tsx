@@ -35,7 +35,7 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import { getAllOffers, getProfileByUsername } from "~/profile.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
   getProfileVisibilitiesById,
@@ -44,6 +44,7 @@ import {
   updateProfileById,
 } from "../utils.server";
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { getProfileByUsername } from "./general.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -155,6 +156,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     if (errors === null) {
       try {
         const { privateFields, ...profileData } = data;
+        // TODO: fix type issue
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
       } catch (error) {

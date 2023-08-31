@@ -29,7 +29,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import { getProfileByUsername } from "~/profile.server";
+import { RichText } from "~/components/Richtext/RichText";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -38,8 +38,8 @@ import {
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
+import { getProfileByUsername } from "./index.server";
 import { deriveMode, prepareProfileEvents } from "./utils.server";
-import { RichText } from "~/components/Richtext/RichText";
 
 export function links() {
   return [
@@ -526,8 +526,7 @@ export default function Index() {
                 additionalClassNames="mb-6"
               />
             ) : null}
-            {loaderData.data.areas !== undefined &&
-            loaderData.data.areas.length > 0 ? (
+            {loaderData.data.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
                   Aktivitätsgebiete
@@ -539,8 +538,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.skills !== undefined &&
-            loaderData.data.skills.length > 0 ? (
+            {loaderData.data.skills.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Kompetenzen
@@ -552,8 +550,7 @@ export default function Index() {
               </div>
             ) : null}
 
-            {loaderData.data.interests !== undefined &&
-            loaderData.data.interests.length > 0 ? (
+            {loaderData.data.interests.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Interessen
@@ -563,8 +560,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.offers !== undefined &&
-            loaderData.data.offers.length > 0 ? (
+            {loaderData.data.offers.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                   Ich biete
@@ -581,8 +577,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.seekings !== undefined &&
-            loaderData.data.seekings.length > 0 ? (
+            {loaderData.data.seekings.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                   Ich suche
@@ -600,8 +595,7 @@ export default function Index() {
               </div>
             ) : null}
 
-            {(loaderData.data.memberOf &&
-              loaderData.data.memberOf.length > 0) ||
+            {loaderData.data.memberOf.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
                 <div
@@ -622,8 +616,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.memberOf &&
-                loaderData.data.memberOf.length > 0 ? (
+                {loaderData.data.memberOf.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
@@ -639,8 +632,7 @@ export default function Index() {
                 ) : null}
               </>
             ) : null}
-            {(loaderData.data.teamMemberOfProjects &&
-              loaderData.data.teamMemberOfProjects.length > 0) ||
+            {loaderData.data.teamMemberOfProjects.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
                 <div
@@ -662,8 +654,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.teamMemberOfProjects &&
-                loaderData.data.teamMemberOfProjects.length > 0 ? (
+                {loaderData.data.teamMemberOfProjects.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.teamMemberOfProjects.map((relation) => (
                       // TODO: Project Card
@@ -695,9 +686,8 @@ export default function Index() {
                               <H3 like="h4" className="text-xl mb-1">
                                 {relation.project.name}
                               </H3>
-                              {relation.project.responsibleOrganizations &&
-                              relation.project.responsibleOrganizations.length >
-                                0 ? (
+                              {relation.project.responsibleOrganizations
+                                .length > 0 ? (
                                 <p className="font-bold text-sm">
                                   {relation.project.responsibleOrganizations
                                     .map(
@@ -708,8 +698,7 @@ export default function Index() {
                               ) : null}
                             </div>
 
-                            {relation.project.awards &&
-                            relation.project.awards.length > 0 ? (
+                            {relation.project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
@@ -792,8 +781,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.futureEvents !== undefined &&
-                loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6
                       id="team-member-future-events"
@@ -967,8 +955,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.futureEvents !== undefined &&
-                loaderData.futureEvents.contributedEvents.length > 0 ? (
+                {loaderData.futureEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6
                       id="future-contributed-events"
@@ -1121,8 +1108,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.futureEvents.participatedEvents !== undefined &&
-                loaderData.futureEvents.participatedEvents.length > 0 ? (
+                {loaderData.futureEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6
                       id="future-participated-events"
@@ -1273,8 +1259,7 @@ export default function Index() {
                     </h3>
                   </div>
                 </div>
-                {loaderData.pastEvents !== undefined &&
-                loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
                       Organisation/Team
@@ -1381,8 +1366,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.pastEvents !== undefined &&
-                loaderData.pastEvents.contributedEvents.length > 0 ? (
+                {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
                       Speaker:in
@@ -1470,8 +1454,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.pastEvents.participatedEvents !== undefined &&
-                loaderData.pastEvents.participatedEvents.length > 0 ? (
+                {loaderData.pastEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6 id="past-participated-events" className="mb-4font-bold">
                       Teilnahme

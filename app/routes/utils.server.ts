@@ -1,4 +1,4 @@
-import { type Organization, type Prisma } from "@prisma/client";
+import { type Profile, type Organization, type Prisma } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
 import { getImageURL } from "~/images.server";
@@ -93,4 +93,91 @@ export async function getOrganizationSuggestionsForAutocomplete(
   );
 
   return enhancedOrganizationSuggestions;
+}
+
+export async function getProfileSuggestionsForAutocomplete(
+  authClient: SupabaseClient,
+  notIncludedIds: string[],
+  query: string[]
+) {
+  let whereQueries = [];
+  for (const word of query) {
+    const contains: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    } = {
+      OR: [
+        {
+          firstName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  const profileSuggestions = await prismaClient.profile.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
+      position: true,
+    },
+    where: {
+      AND: [
+        {
+          id: {
+            notIn: notIncludedIds,
+          },
+        },
+        ...whereQueries,
+      ],
+    },
+    take: 6,
+    orderBy: {
+      firstName: "asc",
+    },
+  });
+
+  const enhancedProfileSuggestions = profileSuggestions.map((profile) => {
+    let avatar = profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return { ...profile, avatar };
+  });
+  return enhancedProfileSuggestions;
+}
+
+export async function getAllOffers() {
+  return await prismaClient.offer.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
 }

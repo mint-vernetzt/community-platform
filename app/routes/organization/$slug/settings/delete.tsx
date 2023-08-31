@@ -7,9 +7,9 @@ import { z } from "zod";
 import { createAuthClient } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUserId } from "~/profile.server";
 import { handleAuthorization } from "./utils.server";
-import { deleteOrganizationBySlug } from "./delete.server";
+import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 const schema = z.object({
   slug: z.string(),
@@ -52,7 +52,8 @@ export const action = async (args: DataFunctionArgs) => {
 
   const { sessionUser } = await handleAuthorization(authClient, slug);
 
-  const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+  const profile = await getProfileByUserId(sessionUser.id);
+  invariantResponse(profile, "Profile not found", { status: 404 });
 
   const result = await performMutation({
     request,
