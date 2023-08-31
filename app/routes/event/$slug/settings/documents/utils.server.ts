@@ -35,3 +35,14 @@ export async function disconnectDocumentFromEvent(id: string) {
     },
   });
 }
+
+export async function getEventBySlug(slug: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug,
+    },
+  });
+}

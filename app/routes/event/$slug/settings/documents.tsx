@@ -8,17 +8,23 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
-import { type action as deleteDocumentAction } from "./documents/delete-document";
-import { deleteDocumentSchema } from "./documents/delete-document";
-import { type action as editDocumentAction } from "./documents/edit-document";
-import { editDocumentSchema } from "./documents/edit-document";
-import { type action as uploadDocumentAction } from "./documents/upload-document";
-import { uploadDocumentSchema } from "./documents/upload-document";
+import { getEventBySlug } from "./documents.server";
+import {
+  deleteDocumentSchema,
+  type action as deleteDocumentAction,
+} from "./documents/delete-document";
+import {
+  editDocumentSchema,
+  type action as editDocumentAction,
+} from "./documents/edit-document";
+import {
+  uploadDocumentSchema,
+  type action as uploadDocumentAction,
+} from "./documents/upload-document";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import { checkOwnershipOrThrow } from "./utils.server";
-import { publishSchema } from "./events/publish";
-import { type action as publishAction } from "./events/publish";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -30,7 +36,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   await checkOwnershipOrThrow(event, sessionUser);
 

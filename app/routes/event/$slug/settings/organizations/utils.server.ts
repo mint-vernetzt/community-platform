@@ -25,3 +25,14 @@ export async function disconnectOrganizationFromEvent(
     },
   });
 }
+
+export async function getEventById(id: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      id,
+    },
+  });
+}

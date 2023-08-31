@@ -1,4 +1,4 @@
-import { Profile } from "@prisma/client";
+import { type Profile } from "@prisma/client";
 
 export function getInitials(
   profile: Pick<Partial<Profile>, "firstName" | "lastName">

@@ -24,12 +24,12 @@ import {
 } from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils.server";
 import { validateTimePeriods } from "./$slug/settings/utils.server";
-import { getEventById } from "./$slug/utils.server";
 import {
   checkIdentityOrThrow,
   createEventOnProfile,
   transformFormToEvent,
 } from "./utils.server";
+import { getEventById } from "./create.server";
 
 const schema = object({
   userId: string().uuid().required(),

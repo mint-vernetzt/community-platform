@@ -10,36 +10,37 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, performMutation } from "remix-forms";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form, Form as RemixForm, performMutation } from "remix-forms";
+import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import { type action as addParticipantAction } from "./participants/add-participant";
-import { addParticipantSchema } from "./participants/add-participant";
-import { type action as removeParticipantAction } from "./participants/remove-participant";
-import { removeParticipantSchema } from "./participants/remove-participant";
+import { getFullDepthProfiles } from "../utils.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  checkOwnershipOrThrow,
-  getParticipantsDataFromEvent,
-} from "./utils.server";
-import { z } from "zod";
-import {
+  getEventBySlug,
   getEventWithParticipantCount,
+  getParticipantsDataFromEvent,
   updateParticipantLimit,
 } from "./participants.server";
-import { invariantResponse } from "~/lib/utils/response";
-import InputText from "~/components/FormElements/InputText/InputText";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { publishSchema } from "./events/publish";
-import { type action as publishAction } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
-import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
+import {
+  addParticipantSchema,
+  type action as addParticipantAction,
+} from "./participants/add-participant";
+import {
+  removeParticipantSchema,
+  type action as removeParticipantAction,
+} from "./participants/remove-participant";
+import { checkOwnershipOrThrow } from "./utils.server";
 
 const participantLimitSchema = z.object({
   participantLimit: z
@@ -60,7 +61,8 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   await checkOwnershipOrThrow(event, sessionUser);
 
   const participants = getParticipantsDataFromEvent(event);

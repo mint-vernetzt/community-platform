@@ -9,28 +9,31 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../utils.server";
-import { type action as addSpeakerAction } from "./speakers/add-speaker";
-import { addSpeakerSchema } from "./speakers/add-speaker";
-import { type action as removeSpeakerAction } from "./speakers/remove-speaker";
-import { removeSpeakerSchema } from "./speakers/remove-speaker";
-import {
-  checkOwnershipOrThrow,
-  getSpeakerProfileDataFromEvent,
-} from "./utils.server";
-import { publishSchema } from "./events/publish";
-import { type action as publishAction } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { getPublicURL } from "~/storage.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
+import {
+  getEventBySlug,
+  getSpeakerProfileDataFromEvent,
+} from "./speakers.server";
+import {
+  addSpeakerSchema,
+  type action as addSpeakerAction,
+} from "./speakers/add-speaker";
+import {
+  removeSpeakerSchema,
+  type action as removeSpeakerAction,
+} from "./speakers/remove-speaker";
+import { checkOwnershipOrThrow } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -39,7 +42,8 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   await checkOwnershipOrThrow(event, sessionUser);
 
   const speakers = getSpeakerProfileDataFromEvent(event);

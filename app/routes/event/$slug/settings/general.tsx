@@ -15,7 +15,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import type { Defined } from "yup/lib/util/types";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -46,14 +45,9 @@ import {
   getTargetGroups,
   getTypes,
 } from "~/utils.server";
-import {
-  getEventBySlugOrThrow,
-  getEventVisibilitiesBySlugOrThrow,
-} from "../utils.server";
-import { type action as cancelAction } from "./events/cancel";
-import { cancelSchema } from "./events/cancel";
-import { type action as publishAction } from "./events/publish";
-import { publishSchema } from "./events/publish";
+import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
+import { cancelSchema, type action as cancelAction } from "./events/cancel";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
@@ -64,6 +58,8 @@ import {
 } from "./utils.server";
 
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { invariantResponse } from "~/lib/utils/response";
+import { getEventBySlug, getEventBySlugForAction } from "./general.server";
 
 const schema = object({
   userId: string().required(),
@@ -163,7 +159,8 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(event, sessionUser);
@@ -209,7 +206,8 @@ export const action = async (args: ActionArgs) => {
 
   await checkIdentityOrThrow(request, sessionUser);
 
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlugForAction(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   await checkOwnershipOrThrow(event, sessionUser);
 
@@ -271,7 +269,7 @@ function General() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const {
-    event: originalEvent,
+    event,
     eventVisibilities,
     userId,
     focuses,
@@ -288,17 +286,9 @@ function General() {
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
-  const newEvent = actionData?.data;
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
-
-  let event: typeof loaderData["event"] | Defined<typeof newEvent>;
-  if (newEvent !== undefined) {
-    event = newEvent;
-  } else {
-    event = originalEvent;
-  }
 
   const methods = useForm<FormType>();
   const {
@@ -460,7 +450,7 @@ function General() {
           values={{
             eventId: event.id,
             userId: userId,
-            cancel: !originalEvent.canceled,
+            cancel: !event.canceled,
           }}
         >
           {(props) => {
@@ -472,9 +462,7 @@ function General() {
                 <Field name="cancel"></Field>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {originalEvent.canceled
-                      ? "Absage rückgängig machen"
-                      : "Absagen"}
+                    {event.canceled ? "Absage rückgängig machen" : "Absagen"}
                   </Button>
                 </div>
               </>
@@ -913,7 +901,7 @@ function General() {
               values={{
                 eventId: event.id,
                 userId: userId,
-                publish: !originalEvent.published,
+                publish: !event.published,
               }}
             >
               {(props) => {
@@ -924,9 +912,7 @@ function General() {
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {originalEvent.published
-                        ? "Verstecken"
-                        : "Veröffentlichen"}
+                      {event.published ? "Verstecken" : "Veröffentlichen"}
                     </Button>
                   </>
                 );

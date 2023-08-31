@@ -5,9 +5,10 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { checkSameEventOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { disconnectOrganizationFromEvent } from "./utils.server";
+import { disconnectOrganizationFromEvent, getEventById } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -32,7 +33,8 @@ export const action = async (args: DataFunctionArgs) => {
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
+    const event = await getEventById(result.data.eventId);
+    invariantResponse(event, "Event not found", { status: 404 });
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     await disconnectOrganizationFromEvent(event.id, result.data.organizationId);

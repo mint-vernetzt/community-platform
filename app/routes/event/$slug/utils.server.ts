@@ -29,284 +29,6 @@ export async function deriveMode(
   return "owner";
 }
 
-export async function getEventByField(field: string, value: string) {
-  const event = await prismaClient.event.findFirst({
-    where: { [field]: value },
-    include: {
-      targetGroups: {
-        select: {
-          targetGroupId: true,
-          targetGroup: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      types: {
-        select: {
-          eventTypeId: true,
-          eventType: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      tags: {
-        select: {
-          tagId: true,
-          tag: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      experienceLevel: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      stage: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      areas: {
-        select: {
-          areaId: true,
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-      focuses: {
-        select: {
-          focusId: true,
-          focus: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      parentEvent: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          startTime: true,
-          endTime: true,
-          background: true,
-          stage: {
-            select: {
-              title: true,
-            },
-          },
-          _count: {
-            select: {
-              childEvents: true,
-              participants: true,
-              waitingList: true,
-            },
-          },
-          participantLimit: true,
-          subline: true,
-          description: true,
-        },
-      },
-      childEvents: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          startTime: true,
-          endTime: true,
-          background: true,
-          stage: {
-            select: {
-              title: true,
-            },
-          },
-          _count: {
-            select: {
-              childEvents: true,
-              participants: true,
-              waitingList: true,
-            },
-          },
-          participantLimit: true,
-          subline: true,
-          description: true,
-        },
-      },
-      teamMembers: {
-        select: {
-          isPrivileged: true,
-          profile: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              username: true,
-              avatar: true,
-              position: true,
-            },
-          },
-        },
-        orderBy: {
-          profile: {
-            firstName: "asc",
-          },
-        },
-      },
-      responsibleOrganizations: {
-        select: {
-          organization: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              logo: true,
-              types: {
-                select: {
-                  organizationType: {
-                    select: {
-                      title: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          organization: {
-            name: "asc",
-          },
-        },
-      },
-      speakers: {
-        select: {
-          profile: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-              avatar: true,
-              position: true,
-            },
-          },
-        },
-        orderBy: {
-          profile: {
-            firstName: "asc",
-          },
-        },
-      },
-      participants: {
-        select: {
-          createdAt: true,
-          profile: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-              email: true,
-              position: true,
-              avatar: true,
-              memberOf: {
-                select: {
-                  organization: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          profile: {
-            firstName: "asc",
-          },
-        },
-      },
-      waitingList: {
-        select: {
-          createdAt: true,
-          profile: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-              email: true,
-              position: true,
-              avatar: true,
-              memberOf: {
-                select: {
-                  organization: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      documents: {
-        select: {
-          document: {
-            select: {
-              id: true,
-              filename: true,
-              path: true,
-              extension: true,
-              sizeInMB: true,
-              title: true,
-              description: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          childEvents: true,
-          participants: true,
-        },
-      },
-    },
-  });
-  return event;
-}
-
-export async function getEventBySlug(slug: string) {
-  return await getEventByField("slug", slug);
-}
-
-export async function getEventBySlugOrThrow(slug: string) {
-  const result = await getEventBySlug(slug);
-  if (result === null) {
-    throw notFound({ message: "Event not found" });
-  }
-  return result;
-}
-
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   const result = await prismaClient.eventVisibility.findFirst({
     where: {
@@ -317,18 +39,6 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   });
   if (result === null) {
     throw notFound({ message: "Event visbilities not found." });
-  }
-  return result;
-}
-
-export async function getEventById(id: string) {
-  return await getEventByField("id", id);
-}
-
-export async function getEventByIdOrThrow(id: string) {
-  const result = await getEventById(id);
-  if (result === null) {
-    throw notFound({ message: "Event not found" });
   }
   return result;
 }
@@ -483,20 +193,6 @@ export async function getFullDepthOrganizers(
   }
 }
 
-export type MaybeEnhancedEvent =
-  | (
-      | Awaited<ReturnType<typeof getEvent>>
-      | Awaited<ReturnType<typeof enhanceChildEventsWithParticipationStatus>>
-    ) & {
-      participants: Awaited<
-        ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-      >;
-    } & {
-      speakers: Awaited<
-        ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
-      >;
-    };
-
 export async function getEvent(slug: string) {
   const result = await prismaClient.event.findFirst({
     where: {
@@ -518,6 +214,11 @@ export async function getEvent(slug: string) {
       conferenceLink: true,
       conferenceCode: true,
       subline: true,
+      participationUntil: true,
+      participationFrom: true,
+      participantLimit: true,
+      description: true,
+      canceled: true,
       stage: {
         select: {
           id: true,
@@ -525,8 +226,6 @@ export async function getEvent(slug: string) {
           slug: true,
         },
       },
-      canceled: true,
-
       parentEvent: {
         select: {
           id: true,
@@ -543,9 +242,6 @@ export async function getEvent(slug: string) {
           },
         },
       },
-      participationUntil: true,
-      participationFrom: true,
-      participantLimit: true,
       types: {
         select: {
           eventType: {
@@ -587,7 +283,6 @@ export async function getEvent(slug: string) {
           title: true,
         },
       },
-      description: true,
       responsibleOrganizations: {
         select: {
           organization: {
@@ -644,17 +339,16 @@ export async function getEvent(slug: string) {
           endTime: true,
           background: true,
           participantLimit: true,
-          stage: {
-            select: {
-              title: true,
-            },
-          },
           canceled: true,
           published: true,
           subline: true,
           participationUntil: true,
           participationFrom: true,
-
+          stage: {
+            select: {
+              title: true,
+            },
+          },
           _count: {
             select: {
               childEvents: true,

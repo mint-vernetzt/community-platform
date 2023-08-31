@@ -9,21 +9,30 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../utils.server";
-import { type action as addChildAction } from "./events/add-child";
-import { addChildSchema } from "./events/add-child";
-import { type action as removeChildAction } from "./events/remove-child";
-import { removeChildSchema } from "./events/remove-child";
-import { type action as setParentAction } from "./events/set-parent";
-import { setParentSchema } from "./events/set-parent";
+import { getEventBySlug } from "./events.server";
+import {
+  addChildSchema,
+  type action as addChildAction,
+} from "./events/add-child";
+import { publishSchema, type action as publishAction } from "./events/publish";
+import {
+  removeChildSchema,
+  type action as removeChildAction,
+} from "./events/remove-child";
+import {
+  setParentSchema,
+  type action as setParentAction,
+} from "./events/set-parent";
 import {
   checkOwnershipOrThrow,
   getChildEventSuggestions,
@@ -31,10 +40,6 @@ import {
   getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
-import { publishSchema } from "./events/publish";
-import { type action as publishAction } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -43,7 +48,8 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   await checkOwnershipOrThrow(event, sessionUser);
 
   const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(

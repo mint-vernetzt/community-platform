@@ -3,12 +3,14 @@ import { badRequest, notFound } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
+import { getFullDepthProfiles } from "../utils.server";
+import { getEventBySlug } from "./csv-download.server";
 import { checkOwnershipOrThrow } from "./utils.server";
 
 async function getProfilesBySearchParams(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
   depth: string | null,
   type: string | null
 ) {
@@ -32,16 +34,12 @@ async function getProfilesBySearchParams(
     if (depth === "full") {
       profiles = await getFullDepthProfiles(event.id, "waitingList", groupBy);
     } else if (depth === "single") {
-      profiles = event.waitingList
-        .sort((a, b) => {
-          return a.createdAt.getTime() - b.createdAt.getTime();
-        })
-        .map((waitingParticipant) => {
-          return {
-            ...waitingParticipant.profile,
-            participatedEvents: event.name,
-          };
-        });
+      profiles = event.waitingList.map((waitingParticipant) => {
+        return {
+          ...waitingParticipant.profile,
+          participatedEvents: event.name,
+        };
+      });
     } else {
       throw badRequest({
         message:
@@ -63,7 +61,7 @@ async function getProfilesBySearchParams(
 }
 
 function getFilenameBySearchParams(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
   depth: string | null,
   type: string | null
 ) {
@@ -119,7 +117,8 @@ export const loader = async (args: DataFunctionArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   await checkOwnershipOrThrow(event, sessionUser);
 
   const url = new URL(request.url);

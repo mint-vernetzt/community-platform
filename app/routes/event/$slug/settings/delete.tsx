@@ -8,16 +8,19 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
+import {
+  getEventBySlug,
+  getEventBySlugForAction,
+  getProfileById,
+} from "./delete.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   checkIdentityOrThrow,
   checkOwnershipOrThrow,
   deleteEventById,
 } from "./utils.server";
-import { getProfileById } from "./delete.server";
-import { publishSchema } from "./events/publish";
-import { type action as publishAction } from "./events/publish";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -37,7 +40,8 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   await checkOwnershipOrThrow(event, sessionUser);
 
@@ -86,7 +90,8 @@ export const action = async (args: ActionArgs) => {
 
   await checkIdentityOrThrow(request, sessionUser);
 
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlugForAction(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   await checkOwnershipOrThrow(event, sessionUser);
 

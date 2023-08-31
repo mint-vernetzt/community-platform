@@ -5,10 +5,11 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
 import { updateDocument } from "./edit-document.server";
+import { getEventBySlug } from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -68,7 +69,8 @@ export const action = async (args: DataFunctionArgs) => {
 
   await checkIdentityOrThrow(request, sessionUser);
 
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   await checkOwnershipOrThrow(event, sessionUser);
 

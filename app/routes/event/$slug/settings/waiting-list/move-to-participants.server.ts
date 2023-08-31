@@ -13,3 +13,29 @@ export async function getProfileByUserId(id: string) {
     },
   });
 }
+
+export async function getEventById(id: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      startTime: true,
+      teamMembers: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      id,
+    },
+  });
+}

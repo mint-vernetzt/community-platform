@@ -1,19 +1,19 @@
 import { prismaClient } from "~/prisma.server";
 
-export async function getEvent(slug: string) {
+export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
       published: true,
-      teamMembers: {
+      speakers: {
         select: {
           profile: {
             select: {
               id: true,
-              username: true,
+              avatar: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              username: true,
               position: true,
             },
           },
@@ -29,4 +29,14 @@ export async function getEvent(slug: string) {
       slug,
     },
   });
+}
+
+export function getSpeakerProfileDataFromEvent(
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>
+) {
+  const profileData = event.speakers.map((speaker) => {
+    const { profile } = speaker;
+    return profile;
+  });
+  return profileData;
 }

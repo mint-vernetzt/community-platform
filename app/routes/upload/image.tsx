@@ -3,12 +3,13 @@ import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  deriveMode as deriveEventMode,
-  getEvent,
-} from "../event/$slug/utils.server";
+import { deriveMode as deriveEventMode } from "../event/$slug/utils.server";
 import { deriveMode as deriveProjectMode } from "../project/$slug/utils.server";
-import { getOrganizationBySlug, getProjectBySlug } from "./image.server";
+import {
+  getEventBySlug,
+  getOrganizationBySlug,
+  getProjectBySlug,
+} from "./image.server";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,
@@ -57,7 +58,7 @@ async function handleAuth(
     }
   }
   if (subject === "event") {
-    const event = await getEvent(slug);
+    const event = await getEventBySlug(slug);
     if (event === null) {
       throw notFound({ message: `Event not found` });
     }

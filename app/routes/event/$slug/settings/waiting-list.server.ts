@@ -1,52 +1,16 @@
 import { prismaClient } from "~/prisma.server";
 
-export async function getEventWithParticipantCount(slug: string) {
-  return await prismaClient.event.findUnique({
-    select: {
-      id: true,
-      _count: {
-        select: {
-          participants: true,
-        },
-      },
-    },
-    where: {
-      slug,
-    },
-  });
-}
-
-export async function updateParticipantLimit(
-  slug: string,
-  participantLimit: number | null
-) {
-  await prismaClient.event.update({
-    where: {
-      slug,
-    },
-    data: {
-      participantLimit,
-    },
-  });
-}
-
 export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
       published: true,
-      participantLimit: true,
       participants: {
         select: {
           createdAt: true,
           profile: {
             select: {
               id: true,
-              username: true,
-              position: true,
-              avatar: true,
-              firstName: true,
-              lastName: true,
             },
           },
         },
@@ -62,6 +26,11 @@ export async function getEventBySlug(slug: string) {
           profile: {
             select: {
               id: true,
+              username: true,
+              position: true,
+              avatar: true,
+              firstName: true,
+              lastName: true,
             },
           },
         },

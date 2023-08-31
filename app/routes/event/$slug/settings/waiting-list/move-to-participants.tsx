@@ -8,13 +8,16 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { checkSameEventOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
 import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
-import { getProfileByUserId } from "./move-to-participants.server";
+import {
+  getEventById,
+  getProfileByUserId,
+} from "./move-to-participants.server";
 import { invariantResponse } from "~/lib/utils/response";
 
 const schema = z.object({
@@ -40,7 +43,8 @@ export const action = async (args: DataFunctionArgs) => {
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
+    const event = await getEventById(result.data.eventId);
+    invariantResponse(event, "Event not found", { status: 404 });
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);
     const profile = await getProfileByUserId(result.data.profileId);

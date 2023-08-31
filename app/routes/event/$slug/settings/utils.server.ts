@@ -1,15 +1,14 @@
-import type { Event, Organization, Prisma, Profile } from "@prisma/client";
+import type { Event, Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import { notFound, unauthorized } from "remix-utils";
 import { getImageURL } from "~/images.server";
+import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import type { getEventBySlugOrThrow } from "../utils.server";
-import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import { type getEventBySlug } from "./general.server";
 
 export async function checkOwnership(
   event: Pick<Event, "id">,
@@ -123,6 +122,7 @@ export function validateTimePeriods(
       } else {
         earliestStartTime =
           earliestStartTime !== undefined &&
+          // TODO: fix type issue
           childEvent.startTime < earliestStartTime
             ? childEvent.startTime
             : earliestStartTime;
@@ -160,7 +160,7 @@ export function validateTimePeriods(
 }
 
 export function transformEventToForm(
-  event: NonNullable<Awaited<ReturnType<typeof getEventBySlugOrThrow>>>
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>
 ) {
   const startTimeZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTimeZoned = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -439,37 +439,6 @@ export function getOptionsFromEvents(
     return { label, value, hasParent: item.event.parentEventId !== null };
   });
   return options;
-}
-
-export function getSpeakerProfileDataFromEvent(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
-) {
-  const profileData = event.speakers.map((speaker) => {
-    const { profile } = speaker;
-    return profile;
-  });
-  return profileData;
-}
-
-export function getResponsibleOrganizationDataFromEvent(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
-) {
-  const organizationData = event.responsibleOrganizations.map((item) => {
-    return item.organization;
-  });
-  return organizationData;
-}
-
-export function getParticipantsDataFromEvent(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>
-) {
-  const participantsData = event.participants.map((item) => {
-    return { ...item.profile, createdAt: item.createdAt };
-  });
-  const waitingListData = event.waitingList.map((item) => {
-    return { ...item.profile, createdAt: item.createdAt };
-  });
-  return { participants: participantsData, waitingList: waitingListData };
 }
 
 export async function getOrganizationById(id: string) {

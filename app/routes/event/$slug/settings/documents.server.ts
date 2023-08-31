@@ -1,31 +1,21 @@
 import { prismaClient } from "~/prisma.server";
 
-export async function getDocumentById(id: string) {
-  return await prismaClient.document.findFirst({
-    where: {
-      id,
-    },
-    select: {
-      title: true,
-      filename: true,
-      path: true,
-    },
-  });
-}
-
 export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
+      slug: true,
       published: true,
-      name: true,
       documents: {
         select: {
           document: {
             select: {
-              path: true,
+              id: true,
               title: true,
               filename: true,
+              sizeInMB: true,
+              extension: true,
+              description: true,
             },
           },
         },

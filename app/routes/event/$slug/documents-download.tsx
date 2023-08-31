@@ -1,10 +1,11 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
-import { getDocumentById } from "./documents-download.server";
+import { getDocumentById, getEventBySlug } from "./documents-download.server";
+import { deriveMode } from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -13,7 +14,8 @@ export const loader = async (args: DataFunctionArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveMode(event, sessionUser);
 
   if (mode !== "owner" && event.published === false) {

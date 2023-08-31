@@ -6,9 +6,10 @@ import { notFound, serverError } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { fileUploadSchema } from "~/lib/utils/schemas";
-import { deriveMode, getEvent } from "../event/$slug/utils.server";
+import { deriveMode } from "../event/$slug/utils.server";
 import { deriveMode as deriveProjectMode } from "../project/$slug/utils.server";
 import {
+  getEventBySlug,
   getOrganizationBySlug,
   getProjectBySlug,
   removeImageFromEvent,
@@ -53,7 +54,7 @@ const mutation = makeDomainFunction(
     }
 
     if (subject === "event") {
-      const event = await getEvent(slug);
+      const event = await getEventBySlug(slug);
       if (event === null) {
         throw notFound({ message: `Event not found` });
       }

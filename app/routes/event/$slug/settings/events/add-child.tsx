@@ -5,9 +5,10 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { checkSameEventOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { addChildEventRelationOrThrow } from "./utils.server";
+import { addChildEventRelationOrThrow, getEventById } from "./utils.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
@@ -19,9 +20,11 @@ const schema = z.object({
 export const addChildSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const event = await getEventByIdOrThrow(values.eventId);
+  const event = await getEventById(values.eventId);
+  invariantResponse(event, "Event not found", { status: 404 });
   if (values.childEventId !== undefined) {
-    const childEvent = await getEventByIdOrThrow(values.childEventId);
+    const childEvent = await getEventById(values.childEventId);
+    invariantResponse(childEvent, "Child event not found", { status: 404 });
     const childStartTime = new Date(childEvent.startTime).getTime();
     const childEndTime = new Date(childEvent.endTime).getTime();
     const eventStartTime = new Date(event.startTime).getTime();
@@ -50,8 +53,10 @@ export const action = async (args: DataFunctionArgs) => {
     "data" in result ? result.data.eventId : result.values.eventId;
   const childEventId =
     "data" in result ? result.data.childEventId : result.values.childEventId;
-  const event = await getEventByIdOrThrow(eventId);
-  const childEvent = await getEventByIdOrThrow(childEventId);
+  const event = await getEventById(eventId);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const childEvent = await getEventById(childEventId);
+  invariantResponse(childEvent, "Child event not found", { status: 404 });
   if (result.success === true) {
     await checkOwnershipOrThrow(event, sessionUser);
     await checkSameEventOrThrow(request, event.id);

@@ -123,3 +123,17 @@ export async function getAllIdsOfChildEvents(eventId: string) {
   );
   return idsWithoutDuplicates;
 }
+
+export async function getEventById(id: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+      startTime: true,
+      endTime: true,
+      name: true,
+    },
+    where: {
+      id,
+    },
+  });
+}

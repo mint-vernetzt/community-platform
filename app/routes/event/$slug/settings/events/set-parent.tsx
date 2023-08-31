@@ -5,9 +5,10 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { checkSameEventOrThrow } from "../../utils.server";
 import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { updateParentEventRelationOrThrow } from "./utils.server";
+import { getEventById, updateParentEventRelationOrThrow } from "./utils.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
@@ -19,9 +20,11 @@ const schema = z.object({
 export const setParentSchema = schema;
 
 const mutation = makeDomainFunction(schema)(async (values) => {
-  const event = await getEventByIdOrThrow(values.eventId);
+  const event = await getEventById(values.eventId);
+  invariantResponse(event, "Event not found", { status: 404 });
   if (values.parentEventId !== undefined) {
-    const parentEvent = await getEventByIdOrThrow(values.parentEventId);
+    const parentEvent = await getEventById(values.parentEventId);
+    invariantResponse(parentEvent, "Parent event not found", { status: 404 });
     const parentStartTime = new Date(parentEvent.startTime).getTime();
     const parentEndTime = new Date(parentEvent.endTime).getTime();
     const eventStartTime = new Date(event.startTime).getTime();
@@ -51,9 +54,11 @@ export const action = async (args: DataFunctionArgs) => {
   const parentEventId =
     "data" in result ? result.data.parentEventId : result.values.parentEventId;
   let parentEvent;
-  const event = await getEventByIdOrThrow(eventId);
+  const event = await getEventById(eventId);
+  invariantResponse(event, "Event not found", { status: 404 });
   if (parentEventId !== undefined) {
-    parentEvent = await getEventByIdOrThrow(parentEventId);
+    parentEvent = await getEventById(parentEventId);
+    invariantResponse(parentEvent, "Parent event not found", { status: 404 });
   }
   if (result.success === true) {
     await checkOwnershipOrThrow(event, sessionUser);

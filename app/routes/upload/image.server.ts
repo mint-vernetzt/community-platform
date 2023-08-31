@@ -27,3 +27,14 @@ export async function getProjectBySlug(slug: string) {
     },
   });
 }
+
+export async function getEventBySlug(slug: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug,
+    },
+  });
+}
