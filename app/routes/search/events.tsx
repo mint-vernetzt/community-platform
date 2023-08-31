@@ -12,11 +12,9 @@ import {
   filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import { getPaginationValues } from "../explore/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
-  getPaginationValues,
-} from "../explore/utils.server";
-import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
