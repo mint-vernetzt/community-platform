@@ -269,7 +269,7 @@ function General() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const {
-    event,
+    event: originalEvent,
     eventVisibilities,
     userId,
     focuses,
@@ -286,6 +286,21 @@ function General() {
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
+  let event: typeof loaderData["event"];
+  if (actionData !== undefined) {
+    const { focuses, types, targetGroups, tags, areas, ...rest } =
+      originalEvent;
+    event = {
+      ...rest,
+      focuses: actionData.data.focuses,
+      types: actionData.data.types,
+      targetGroups: actionData.data.targetGroups,
+      tags: actionData.data.tags,
+      areas: actionData.data.areas,
+    };
+  } else {
+    event = originalEvent;
+  }
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = transition.state === "submitting";
@@ -427,7 +442,9 @@ function General() {
   }, [actionData]);
 
   const isFormChanged =
-    isDirty || (actionData !== undefined && actionData.updated === false);
+    isDirty ||
+    transition.state === "submitting" ||
+    (actionData !== undefined && actionData.updated === false);
 
   return (
     <>
