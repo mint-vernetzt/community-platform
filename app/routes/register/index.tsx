@@ -17,7 +17,7 @@ import InputPassword from "../../components/FormElements/InputPassword/InputPass
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { generateUsername } from "../../utils";
+import { generateUsername } from "../../utils.server";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),

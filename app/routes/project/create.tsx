@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { generateProjectSlug } from "~/utils";
+import { generateProjectSlug } from "~/utils.server";
 import { checkIdentityOrThrow, createProjectOnProfile } from "./utils.server";
 
 const schema = z.object({

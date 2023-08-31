@@ -17,7 +17,7 @@ import {
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
-} from "../../../app/utils";
+} from "../../../app/utils.server";
 import { createHashFromString } from "../../../app/utils.server";
 
 type EntityData = {

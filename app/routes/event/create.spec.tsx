@@ -4,7 +4,7 @@ import * as crypto from "crypto";
 import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
-import { generateEventSlug } from "~/utils";
+import { generateEventSlug } from "~/utils.server";
 import { action, loader } from "./create";
 import { createEventOnProfile } from "./utils.server";
 

@@ -22,7 +22,7 @@ import {
   nullOrString,
   validateForm,
 } from "~/lib/utils/yup";
-import { generateEventSlug } from "~/utils";
+import { generateEventSlug } from "~/utils.server";
 import { validateTimePeriods } from "./$slug/settings/utils.server";
 import { getEventById } from "./$slug/utils.server";
 import {
