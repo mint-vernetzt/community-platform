@@ -2,10 +2,10 @@ import type { Project } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
-import type { getProjectBySlugOrThrow } from "../utils.server";
+import { type getProjectBySlug } from "./general.server";
 
 export async function checkOwnership(
-  project: Project,
+  project: Pick<Project, "id">,
   sessionUser: User | null,
   options: {
     throw: boolean;
@@ -33,7 +33,7 @@ export async function checkOwnership(
 }
 
 export async function checkOwnershipOrThrow(
-  project: Project,
+  project: Pick<Project, "id">,
   sessionUser: User | null
 ) {
   return await checkOwnership(project, sessionUser, { throw: true });
@@ -60,7 +60,7 @@ export async function isProjectAdmin(slug: string, sessionUser: User | null) {
 }
 
 export function transformProjectToForm(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlugOrThrow>>>
+  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlug>>>
 ) {
   return {
     ...project,
@@ -180,15 +180,6 @@ export async function deleteProjectById(id: string) {
       id,
     },
   });
-}
-
-export function getResponsibleOrganizationDataFromProject(
-  project: Awaited<ReturnType<typeof getProjectBySlugOrThrow>>
-) {
-  const organizationData = project.responsibleOrganizations.map((item) => {
-    return item.organization;
-  });
-  return organizationData;
 }
 
 export async function checkSameProjectOrThrow(

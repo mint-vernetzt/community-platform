@@ -16,10 +16,15 @@ import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getProjectBySlugOrThrow } from "../utils.server";
-import { getOwnOrganizationsSuggestions } from "./organizations.server";
+import {
+  getOwnOrganizationsSuggestions,
+  getProjectBySlug,
+  getResponsibleOrganizationDataFromProject,
+} from "./organizations.server";
 import {
   addOrganizationSchema,
   type action as addOrganizationAction,
@@ -28,11 +33,7 @@ import {
   removeOrganizationSchema,
   type action as removeOrganizationAction,
 } from "./organizations/remove-organization";
-import {
-  checkOwnershipOrThrow,
-  getResponsibleOrganizationDataFromProject,
-} from "./utils.server";
-import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { checkOwnershipOrThrow } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -42,7 +43,8 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
 
   await checkOwnershipOrThrow(project, sessionUser);
 

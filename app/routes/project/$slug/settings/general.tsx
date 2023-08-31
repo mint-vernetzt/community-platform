@@ -29,10 +29,7 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getDisciplines, getTargetGroups } from "~/utils.server";
-import {
-  getProjectBySlugOrThrow,
-  getProjectVisibilitiesBySlugOrThrow,
-} from "../utils.server";
+import { getProjectVisibilitiesBySlugOrThrow } from "../utils.server";
 import {
   checkOwnershipOrThrow,
   transformFormToProject,
@@ -41,6 +38,8 @@ import {
 } from "./utils.server";
 
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { invariantResponse } from "~/lib/utils/response";
+import { getProjectBySlug, getProjectBySlugForAction } from "./general.server";
 
 const schema = object({
   userId: string().required(),
@@ -80,7 +79,8 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
   const projectVisibilities = await getProjectVisibilitiesBySlugOrThrow(slug);
 
   await checkOwnershipOrThrow(project, sessionUser);
@@ -112,7 +112,8 @@ export const action = async (args: ActionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlugForAction(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
   await checkOwnershipOrThrow(project, sessionUser);
 
   const result = await getFormDataValidationResultOrThrow<typeof schema>(

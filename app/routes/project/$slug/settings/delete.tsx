@@ -8,12 +8,11 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { checkIdentityOrThrow } from "../../utils.server";
-import { getProjectBySlugOrThrow } from "../utils.server";
+import { getProfileByUserId, getProjectBySlug } from "./delete.server";
 import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
-import { getProfileByUserId } from "./delete.server";
-import { invariantResponse } from "~/lib/utils/response";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -32,7 +31,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
 
   await checkOwnershipOrThrow(project, sessionUser);
 
@@ -80,7 +80,8 @@ export const action = async (args: DataFunctionArgs) => {
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
 
   await checkOwnershipOrThrow(project, sessionUser);
 

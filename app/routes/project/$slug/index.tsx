@@ -13,12 +13,13 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
+import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { nl2br } from "~/lib/string/nl2br";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { prismaClient } from "~/prisma.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -26,8 +27,6 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
-import { prismaClient } from "~/prisma.server";
-import { RichText } from "~/components/Richtext/RichText";
 
 export function links() {
   return [

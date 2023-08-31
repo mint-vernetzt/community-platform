@@ -2,15 +2,13 @@ import type { DataFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import {
   deriveMode as deriveEventMode,
   getEvent,
 } from "../event/$slug/utils.server";
-import {
-  deriveMode as deriveProjectMode,
-  getProjectBySlugOrThrow,
-} from "../project/$slug/utils.server";
-import { uploadKeys, type Subject } from "./utils.server";
+import { deriveMode as deriveProjectMode } from "../project/$slug/utils.server";
+import { getOrganizationBySlug, getProjectBySlug } from "./image.server";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,
@@ -18,7 +16,7 @@ import {
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
-import { getOrganizationBySlug } from "./image.server";
+import { uploadKeys, type Subject } from "./utils.server";
 
 export const loader = ({ request }: DataFunctionArgs) => {
   const response = new Response();
@@ -69,7 +67,8 @@ async function handleAuth(
     }
   }
   if (subject === "project") {
-    const project = await getProjectBySlugOrThrow(slug);
+    const project = await getProjectBySlug(slug);
+    invariantResponse(project, "Project not Found", { status: 404 });
     const mode = await deriveProjectMode(project, sessionUser);
     if (mode !== "owner") {
       throw serverError({ message: "Not allowed." });

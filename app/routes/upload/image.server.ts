@@ -16,3 +16,14 @@ export async function getOrganizationBySlug(slug: string) {
 
   return organization;
 }
+
+export async function getProjectBySlug(slug: string) {
+  return await prismaClient.project.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug,
+    },
+  });
+}
