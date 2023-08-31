@@ -194,24 +194,3 @@ export async function checkSameProjectOrThrow(
     throw badRequest({ message: "Project IDs differ" });
   }
 }
-
-export async function getProfileById(id: string) {
-  const profile = await prismaClient.profile.findFirst({
-    where: { id },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      teamMemberOfProjects: {
-        select: {
-          project: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return profile;
-}
