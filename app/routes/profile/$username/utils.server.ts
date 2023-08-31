@@ -49,7 +49,24 @@ export async function checkIdentityOrThrow(
 export async function getWholeProfileFromUsername(username: string) {
   const result = await prismaClient.profile.findFirst({
     where: { username },
-    include: {
+    select: {
+      id: true,
+      academicTitle: true,
+      position: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      bio: true,
+      skills: true,
+      interests: true,
+      website: true,
+      linkedin: true,
+      twitter: true,
+      xing: true,
+      instagram: true,
+      youtube: true,
+      facebook: true,
       areas: { select: { area: { select: { id: true } } } },
       offers: { select: { offer: { select: { id: true } } } },
       seekings: { select: { offer: { select: { id: true } } } },
