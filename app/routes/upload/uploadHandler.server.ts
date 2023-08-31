@@ -9,7 +9,7 @@ import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString, triggerEntityScore } from "~/utils.server";
-import { uploadKeys } from "./schema";
+import { uploadKeys } from "./utils.server";
 
 const imageUploadKeys = ["avatar", "logo", "background"];
 

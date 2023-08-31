@@ -3,7 +3,9 @@ import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
+import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { fileUploadSchema } from "~/lib/utils/schemas";
 import { deriveMode, getEvent } from "../event/$slug/utils.server";
 import {
   getOrganizationBySlug,
@@ -11,10 +13,14 @@ import {
   removeImageFromOrganization,
   removeImageFromProfile,
 } from "./delete.server";
-import { environment, schema } from "./schema";
+
+const environment = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
 
 const mutation = makeDomainFunction(
-  schema,
+  fileUploadSchema,
   environment
 )(async (values, environment) => {
   const { subject, slug, uploadKey } = values;
@@ -70,7 +76,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
 
   const result = await performMutation({
     request,
-    schema,
+    schema: fileUploadSchema,
     mutation,
     environment: {
       authClient: authClient,

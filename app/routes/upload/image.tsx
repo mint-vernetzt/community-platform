@@ -10,8 +10,7 @@ import {
   deriveMode as deriveProjectMode,
   getProjectBySlugOrThrow,
 } from "../project/$slug/utils.server";
-import type { Subject } from "./schema";
-import { uploadKeys } from "./schema";
+import { uploadKeys, type Subject } from "./utils.server";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,

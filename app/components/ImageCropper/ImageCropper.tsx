@@ -1,16 +1,16 @@
-import React, { useState, useRef } from "react";
 import Pica from "pica";
+import React, { useRef, useState } from "react";
 
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import type { Crop, PixelCrop } from "react-image-crop";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import { Form } from "remix-forms";
 
-import { canvasPreview } from "./canvasPreview";
-import { InputFile } from "./InputFile";
-import { useDebounceEffect } from "./useDebounceEffect";
-import type { UploadKey, Subject } from "~/routes/upload/schema";
-import { schema } from "~/routes/upload/schema";
 import Slider from "rc-slider";
+import { fileUploadSchema } from "~/lib/utils/schemas";
+import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
+import { InputFile } from "./InputFile";
+import { canvasPreview } from "./canvasPreview";
+import { useDebounceEffect } from "./useDebounceEffect";
 
 export interface ImageCropperProps {
   id: string;
@@ -249,7 +249,7 @@ function ImageCropper(props: ImageCropperProps) {
               action={DELETE_URL}
               method="post"
               reloadDocument
-              schema={schema}
+              schema={fileUploadSchema}
               hiddenFields={["subject", "slug", "uploadKey", "redirect"]}
               values={{
                 subject: props.subject,

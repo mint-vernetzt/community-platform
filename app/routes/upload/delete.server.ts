@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
-import type { UploadKey } from "./schema";
+import type { UploadKey } from "./utils.server";
 
 export async function getOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findUnique({
