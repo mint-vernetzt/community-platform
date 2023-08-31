@@ -1,6 +1,6 @@
 import type { ResizingType } from "imgproxy/dist/types";
 import { GravityType } from "imgproxy/dist/types";
-import { builder } from "./imgproxy";
+import { builder } from "./imgproxy.server";
 
 type GetImageURLArguments = {
   resize?: {
