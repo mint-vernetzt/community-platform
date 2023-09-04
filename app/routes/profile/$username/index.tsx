@@ -15,6 +15,7 @@ import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
@@ -29,7 +30,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import { RichText } from "~/components/Richtext/RichText";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -39,7 +39,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { getProfileByUsername } from "./index.server";
-import { deriveModeLegacy, prepareProfileEvents } from "./utils.server";
+import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
 
 export function links() {
   return [
@@ -62,7 +62,8 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
+  const mode = await deriveProfileMode(sessionUser, username);
+  if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
@@ -74,7 +75,6 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const mode = deriveModeLegacy(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
@@ -85,7 +85,7 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter profile
     enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
       enhancedProfile

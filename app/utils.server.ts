@@ -1,10 +1,10 @@
-import type { BinaryToTextEncoding } from "crypto";
-import { getSession } from "./auth.server";
-import { forbidden, serverError } from "remix-utils";
-import { createHmac, randomBytes } from "crypto";
-import { prismaClient } from "./prisma.server";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { BinaryToTextEncoding } from "crypto";
+import { createHmac, randomBytes } from "crypto";
+import { forbidden, serverError } from "remix-utils";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
+import { getSession } from "./auth.server";
+import { prismaClient } from "./prisma.server";
 
 export type Mode = "anon" | "authenticated";
 
@@ -12,7 +12,6 @@ export function deriveMode(sessionUser: User | null): Mode {
   if (sessionUser === null) {
     return "anon";
   }
-
   return "authenticated";
 }
 

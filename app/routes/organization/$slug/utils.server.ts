@@ -29,19 +29,6 @@ export async function deriveOrganizationMode(
   return mode;
 }
 
-export type ModeLegacy = "anon" | "authenticated" | "owner";
-
-export function deriveModeLegacy(
-  sessionUser: User | null,
-  isPrivileged: boolean
-): ModeLegacy {
-  if (sessionUser === null) {
-    return "anon";
-  }
-
-  return isPrivileged ? "owner" : "authenticated";
-}
-
 export async function checkIdentityOrThrow(
   request: Request,
   sessionUser: User

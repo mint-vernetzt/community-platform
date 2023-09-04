@@ -7,7 +7,7 @@ import {
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
 import { loader } from "./index";
-import { deriveModeLegacy } from "./utils.server";
+import { deriveProfileMode } from "./utils.server";
 import { getProfileByUsername } from "./index.server";
 
 /** @type {jest.Expect} */
@@ -209,11 +209,17 @@ const sessionUser: User = {
   aud: "",
   created_at: "",
 };
-
+// TODO: Move this test to the deriveMode utils instead of a route specific test
 test("deriveMode", () => {
-  expect(deriveModeLegacy("profileUserId", sessionUser)).toBe("authenticated");
-  expect(deriveModeLegacy("sessionUserId", sessionUser)).toBe("owner");
-  expect(deriveModeLegacy("profileUser", null)).toBe("anon");
+  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(
+    () => profile
+  );
+  expect(deriveProfileMode(sessionUser, profile.username)).toBe("owner");
+  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(
+    () => profile
+  );
+  expect(deriveProfileMode(sessionUser, "")).toBe("owner");
+  expect(deriveProfileMode(null, "")).toBe("anon");
 });
 
 describe("errors", () => {

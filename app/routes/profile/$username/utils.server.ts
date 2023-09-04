@@ -37,19 +37,6 @@ export async function deriveProfileMode(
   return mode;
 }
 
-export type ModeLegacy = "anon" | "authenticated" | "owner";
-
-export function deriveModeLegacy(
-  profileId: string,
-  sessionUser: User | null
-): ModeLegacy {
-  if (sessionUser === null) {
-    return "anon";
-  }
-
-  return profileId === sessionUser.id ? "owner" : "authenticated";
-}
-
 export async function handleAuthorization(
   sessionUserId: string,
   profileId: string
@@ -212,7 +199,7 @@ export async function updateProfileById(
 
 export async function getProfileWithEventsByMode(
   username: string,
-  mode: ModeLegacy,
+  mode: ProfileMode,
   inFuture: boolean
 ) {
   let teamMemberWhere;
@@ -448,7 +435,7 @@ export async function getProfileWithEventsByMode(
 export async function prepareProfileEvents(
   authClient: SupabaseClient,
   username: string,
-  mode: Mode,
+  mode: ProfileMode,
   sessionUser: User | null,
   inFuture: boolean
 ) {
@@ -462,7 +449,7 @@ export async function prepareProfileEvents(
   };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter profile holding event relations
     enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
       enhancedProfile

@@ -8,9 +8,9 @@ import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialCh
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { deriveEventMode } from "../utils.server";
 import { getEventBySlug } from "./ics-download.server";
 import {
-  deriveMode,
   getIsParticipant,
   getIsSpeaker,
   getIsTeamMember,
@@ -129,7 +129,7 @@ export const loader = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  const mode = await deriveMode(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
 
   const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
   const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);
@@ -142,7 +142,7 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "admin" && event.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 

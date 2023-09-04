@@ -1,5 +1,3 @@
-import { type Project } from "@prisma/client";
-import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 
@@ -133,26 +131,4 @@ export async function getProjectVisibilitiesBySlugOrThrow(slug: string) {
     throw notFound({ message: "Project visbilities not found." });
   }
   return result;
-}
-
-export async function deriveMode(
-  project: Pick<Project, "id">,
-  sessionUser: User | null
-) {
-  if (sessionUser === null) {
-    return "anon";
-  }
-
-  const relation = await prismaClient.teamMemberOfProject.findFirst({
-    where: {
-      projectId: project.id,
-      profileId: sessionUser.id,
-    },
-  });
-
-  if (relation === null || relation.isPrivileged === false) {
-    return "authenticated";
-  }
-
-  return "owner";
 }

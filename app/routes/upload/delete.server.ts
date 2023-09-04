@@ -3,23 +3,6 @@ import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
 import type { UploadKey } from "./utils.server";
 
-export async function getOrganizationBySlug(slug: string) {
-  const organization = await prismaClient.organization.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      teamMembers: {
-        select: {
-          profileId: true,
-          isPrivileged: true,
-        },
-      },
-    },
-  });
-
-  return organization;
-}
-
 export async function removeImageFromProfile(
   profileId: string,
   name: UploadKey
@@ -83,26 +66,4 @@ export async function removeImageFromStorage(
   const { error } = await authClient.storage.from("images").remove([path]);
 
   return error === null;
-}
-
-export async function getProjectBySlug(slug: string) {
-  return await prismaClient.project.findUnique({
-    select: {
-      id: true,
-    },
-    where: {
-      slug,
-    },
-  });
-}
-
-export async function getEventBySlug(slug: string) {
-  return await prismaClient.event.findUnique({
-    select: {
-      id: true,
-    },
-    where: {
-      slug,
-    },
-  });
 }

@@ -15,6 +15,7 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
+import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
@@ -29,10 +30,6 @@ import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
 import {
-  getOrganizationBySlug,
-  prepareOrganizationEvents,
-} from "./index.server";
-import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
   filterProjectByVisibility,
@@ -40,9 +37,11 @@ import {
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import type { ModeLegacy } from "./utils.server";
-import { deriveModeLegacy } from "./utils.server";
-import { RichText } from "~/components/Richtext/RichText";
+import {
+  getOrganizationBySlug,
+  prepareOrganizationEvents,
+} from "./index.server";
+import { deriveOrganizationMode } from "./utils.server";
 
 export function links() {
   return [
@@ -64,8 +63,9 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
 
-  if (sessionUser !== null) {
+  if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
@@ -86,9 +86,8 @@ export const loader = async (args: LoaderArgs) => {
     ...organization,
   };
 
-  let userIsPrivileged;
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter organization
     enhancedOrganization = await filterOrganizationByVisibility<
       typeof enhancedOrganization
@@ -154,15 +153,7 @@ export const loader = async (args: LoaderArgs) => {
         }
       )
     );
-    // Set user privilege to not privileged (sessionUser === null)
-    userIsPrivileged = false;
-  } else {
-    userIsPrivileged = organization.teamMembers.some(
-      (member) => member.profileId === sessionUser.id && member.isPrivileged
-    );
   }
-
-  const mode: ModeLegacy = deriveModeLegacy(sessionUser, userIsPrivileged);
 
   // Get images from image proxy
   let images: {
@@ -287,7 +278,6 @@ export const loader = async (args: LoaderArgs) => {
   return json(
     {
       organization: enhancedOrganization,
-      userIsPrivileged,
       images,
       futureEvents: organizationFutureEvents,
       pastEvents: organizationPastEvents,
@@ -394,7 +384,7 @@ export default function Index() {
               />
             ) : null}
           </div>
-          {loaderData.userIsPrivileged ? (
+          {loaderData.mode === "admin" ? (
             <div className="absolute bottom-6 right-6">
               <label
                 htmlFor="modal-background-upload"
@@ -432,7 +422,7 @@ export default function Index() {
               <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 ">
                 <div className="flex items-center flex-col">
                   <Avatar />
-                  {loaderData.userIsPrivileged ? (
+                  {loaderData.mode === "admin" ? (
                     <>
                       <label
                         htmlFor="modal-avatar"
@@ -634,7 +624,7 @@ export default function Index() {
           </div>
 
           <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20">
-            {loaderData.userIsPrivileged ? (
+            {loaderData.mode === "admin" ? (
               <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
                 <div className="flex-auto pr-4 mb-6">
                   <h1 className="mb-0">{loaderData.organization.name}</h1>

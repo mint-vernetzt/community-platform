@@ -4,8 +4,8 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
+import { deriveEventMode } from "../utils.server";
 import { getDocumentById, getEventBySlug } from "./documents-download.server";
-import { deriveMode } from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -16,9 +16,9 @@ export const loader = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  const mode = await deriveMode(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "admin" && event.published === false) {
     throw forbidden({ message: "Event not published" });
   }
   const url = new URL(request.url);

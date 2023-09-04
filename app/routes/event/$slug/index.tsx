@@ -33,12 +33,12 @@ import {
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
-  deriveMode,
   enhanceChildEventsWithParticipationStatus,
   getEvent,
   getEventParticipants,
@@ -90,9 +90,9 @@ export const loader = async (args: LoaderArgs) => {
     throw notFound({ message: `Event not found` });
   }
 
-  const mode = await deriveMode(rawEvent, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "owner" && rawEvent.published === false) {
+  if (mode !== "admin" && rawEvent.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
@@ -119,7 +119,7 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   // Filtering by publish status
-  if (mode !== "owner") {
+  if (mode !== "admin") {
     enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
       return item.published;
     });
@@ -530,7 +530,7 @@ function Index() {
                   alt={loaderData.event.name}
                 />
               </div>
-              {loaderData.mode === "owner" &&
+              {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
                 <div className="absolute bottom-6 right-6">
                   <label
@@ -562,7 +562,7 @@ function Index() {
               ) : null}
             </div>
           </div>
-          {loaderData.mode === "owner" ? (
+          {loaderData.mode === "admin" ? (
             <>
               {loaderData.event.canceled ? (
                 <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
@@ -584,12 +584,12 @@ function Index() {
             </>
           ) : null}
 
-          {loaderData.mode !== "owner" && loaderData.event.canceled ? (
+          {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
               Abgesagt
             </div>
           ) : null}
-          {loaderData.mode !== "owner" ? (
+          {loaderData.mode !== "admin" ? (
             <>
               {beforeParticipationPeriod || afterParticipationPeriod ? (
                 <div className="bg-accent-300 p-8">
@@ -704,7 +704,7 @@ function Index() {
             </>
           ) : null}
         </div>
-        {loaderData.mode === "owner" &&
+        {loaderData.mode === "admin" &&
         loaderData.abilities.events.hasAccess ? (
           <>
             <div className="bg-accent-white p-8 pb-0">
@@ -1090,7 +1090,7 @@ function Index() {
                           </div>
                         </Link>
 
-                        {loaderData.mode === "owner" && !event.canceled ? (
+                        {loaderData.mode === "admin" && !event.canceled ? (
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
@@ -1110,7 +1110,7 @@ function Index() {
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
-                        loaderData.mode !== "owner" ? (
+                        loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                             <p>Angemeldet</p>
                           </div>
@@ -1128,7 +1128,7 @@ function Index() {
                         ) : null}
                         {event.isOnWaitingList &&
                         !event.canceled &&
-                        loaderData.mode !== "owner" ? (
+                        loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                             <p>Wartend</p>
                           </div>

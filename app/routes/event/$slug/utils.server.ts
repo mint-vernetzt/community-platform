@@ -1,33 +1,8 @@
-import type { Event } from "@prisma/client";
-import { Prisma } from "@prisma/client";
 import type { Organization, Profile } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
-
-type Mode = "anon" | "authenticated" | "owner";
-
-export async function deriveMode(
-  event: Pick<Event, "id">,
-  sessionUser: User | null
-): Promise<Mode> {
-  if (sessionUser === null) {
-    return "anon";
-  }
-
-  const relation = await prismaClient.teamMemberOfEvent.findFirst({
-    where: {
-      eventId: event.id,
-      profileId: sessionUser.id,
-    },
-  });
-
-  if (relation === null || relation.isPrivileged === false) {
-    return "authenticated";
-  }
-
-  return "owner";
-}
 
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   const result = await prismaClient.eventVisibility.findFirst({

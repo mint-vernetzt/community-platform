@@ -26,7 +26,8 @@ import {
   filterProjectByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, getProjectBySlugOrThrow } from "./utils.server";
+import { deriveProjectMode } from "../utils.server";
+import { getProjectBySlugOrThrow } from "./utils.server";
 
 export function links() {
   return [
@@ -85,8 +86,9 @@ export const loader = async (args: LoaderArgs) => {
   const project = await getProjectBySlugOrThrow(slug);
 
   const sessionUser = await getSessionUser(authClient);
+  const mode = await deriveProjectMode(sessionUser, slug);
 
-  if (sessionUser !== null) {
+  if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
@@ -98,14 +100,12 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const mode = await deriveMode(project, sessionUser);
-
   let enhancedProject = {
     ...project,
   };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter project
     enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
       enhancedProject
@@ -238,7 +238,7 @@ function Index() {
               alt={loaderData.project.name}
             />
           </div>
-          {loaderData.mode === "owner" ? (
+          {loaderData.mode === "admin" ? (
             <div className="absolute bottom-2 right-2 lg:bottom-6 lg:right-6">
               <label
                 htmlFor="modal-background-upload"
@@ -269,7 +269,7 @@ function Index() {
           ) : null}
         </div>
         {loaderData.project.awards.length > 0 ? (
-          <div className="mv-awards absolute -top-0.5 right-4 sm: right-8 md:right-14 flex gap-4">
+          <div className="mv-awards absolute -top-0.5 right-4 sm:right-8 md:right-14 flex gap-4">
             {loaderData.project.awards.map((item) => {
               const date = utcToZonedTime(item.award.date, "Europe/Berlin");
               return (
@@ -313,7 +313,7 @@ function Index() {
               <div className="lg:p-8 pb-15 md:pb-5">
                 <div className="flex items-center flex-col">
                   <Logo />
-                  {loaderData.mode === "owner" ? (
+                  {loaderData.mode === "admin" ? (
                     <>
                       <label
                         htmlFor="modal-avatar"
@@ -530,7 +530,7 @@ function Index() {
                   {loaderData.project.headline || loaderData.project.name}
                 </h1>
               </div>
-              {loaderData.mode === "owner" ? (
+              {loaderData.mode === "admin" ? (
                 <div className="flex-initial lg:pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary"

@@ -2,21 +2,19 @@ import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
-import { notFound, serverError } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { fileUploadSchema } from "~/lib/utils/schemas";
-import { deriveMode } from "../event/$slug/utils.server";
-import { deriveMode as deriveProjectMode } from "../project/$slug/utils.server";
 import {
-  getEventBySlug,
-  getOrganizationBySlug,
-  getProjectBySlug,
   removeImageFromEvent,
   removeImageFromOrganization,
   removeImageFromProfile,
   removeImageFromProject,
 } from "./delete.server";
+import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { deriveEventMode } from "../event/utils.server";
+import { deriveProjectMode } from "../project/utils.server";
 
 const environment = z.object({
   authClient: z.unknown(),
@@ -39,41 +37,20 @@ const mutation = makeDomainFunction(
     }
 
     if (subject === "organization") {
-      const organization = await getOrganizationBySlug(slug);
-      if (organization === null) {
-        throw serverError({ message: "Unknown organization." });
-      }
-
-      const isPriviliged = organization.teamMembers.some(
-        (member) => member.profileId === sessionUser.id && member.isPrivileged
-      );
-
-      if (isPriviliged) {
-        await removeImageFromOrganization(slug, uploadKey);
-      }
+      const mode = await deriveOrganizationMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      await removeImageFromOrganization(slug, uploadKey);
     }
 
     if (subject === "event") {
-      const event = await getEventBySlug(slug);
-      if (event === null) {
-        throw notFound({ message: `Event not found` });
-      }
-      const mode = await deriveMode(event, sessionUser);
-      if (mode !== "owner") {
-        throw serverError({ message: "Not allowed." });
-      }
+      const mode = await deriveEventMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
       await removeImageFromEvent(slug, uploadKey);
     }
 
     if (subject === "project") {
-      const project = await getProjectBySlug(slug);
-      if (project === null) {
-        throw notFound({ message: `Project not found` });
-      }
-      const mode = await deriveProjectMode(project, sessionUser);
-      if (mode !== "owner") {
-        throw serverError({ message: "Not allowed." });
-      }
+      const mode = await deriveProjectMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
       await removeImageFromProject(slug, uploadKey);
     }
   } catch (e) {
