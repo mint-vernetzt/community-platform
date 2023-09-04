@@ -1,43 +1,7 @@
-import type { Project } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, notFound, unauthorized } from "remix-utils";
+import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { type getProjectBySlug } from "./general.server";
-
-export async function checkOwnership(
-  project: Pick<Project, "id">,
-  sessionUser: User | null,
-  options: {
-    throw: boolean;
-  } = { throw: false }
-) {
-  let isOwner = false;
-  if (sessionUser !== null) {
-    const relation = await prismaClient.teamMemberOfProject.findFirst({
-      where: {
-        projectId: project.id,
-        profileId: sessionUser.id,
-        isPrivileged: true,
-      },
-    });
-    if (relation !== null) {
-      isOwner = true;
-    }
-  }
-
-  if (isOwner === false && options.throw) {
-    throw unauthorized({ message: "Not privileged" });
-  }
-
-  return { isOwner };
-}
-
-export async function checkOwnershipOrThrow(
-  project: Pick<Project, "id">,
-  sessionUser: User | null
-) {
-  return await checkOwnership(project, sessionUser, { throw: true });
-}
 
 export async function isProjectAdmin(slug: string, sessionUser: User | null) {
   let isAdmin = false;

@@ -6,8 +6,8 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
-import { checkOwnershipOrThrow } from "../utils.server";
 import { createDocumentOnEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
@@ -34,8 +34,8 @@ export const action = async (args: DataFunctionArgs) => {
 
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const parsedData = await parseMultipart(request);
 

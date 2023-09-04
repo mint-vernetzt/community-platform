@@ -18,16 +18,19 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getPublicURL } from "~/storage.server";
-import { getEvent } from "./admins.server";
-import { type action as publishAction } from "./events/publish";
-import { publishSchema } from "./events/publish";
-import { type action as addAdminAction } from "./admins/add-admin";
-import { addAdminSchema } from "./admins/add-admin";
-import { type action as removeAdminAction } from "./admins/remove-admin";
-import { removeAdminSchema } from "./admins/remove-admin";
-import { checkOwnershipOrThrow } from "./utils.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { getPublicURL } from "~/storage.server";
+import { deriveEventMode } from "../../utils.server";
+import { getEvent } from "./admins.server";
+import {
+  addAdminSchema,
+  type action as addAdminAction,
+} from "./admins/add-admin";
+import {
+  removeAdminSchema,
+  type action as removeAdminAction,
+} from "./admins/remove-admin";
+import { publishSchema, type action as publishAction } from "./events/publish";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -38,7 +41,8 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEvent(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const enhancedAdmins = event.admins.map((relation) => {
     let avatar = relation.profile.avatar;

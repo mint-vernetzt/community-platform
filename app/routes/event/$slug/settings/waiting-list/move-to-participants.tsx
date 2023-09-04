@@ -7,18 +7,20 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkSameEventOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import {
-  connectParticipantToEvent,
-  disconnectFromWaitingListOfEvent,
-} from "./utils.server";
+import { checkIdentityOrThrow } from "../utils.server";
 import {
   getEventById,
   getProfileByUserId,
 } from "./move-to-participants.server";
-import { invariantResponse } from "~/lib/utils/response";
+import {
+  connectParticipantToEvent,
+  disconnectFromWaitingListOfEvent,
+} from "./utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -33,19 +35,21 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async (args: DataFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventById(result.data.eventId);
     invariantResponse(event, "Event not found", { status: 404 });
-    await checkOwnershipOrThrow(event, sessionUser);
+    const mode = await deriveEventMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     await checkSameEventOrThrow(request, event.id);
     const profile = await getProfileByUserId(result.data.profileId);
     invariantResponse(profile, "Profile not found", { status: 404 });

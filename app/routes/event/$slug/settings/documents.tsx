@@ -10,6 +10,7 @@ import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./documents.server";
 import {
   deleteDocumentSchema,
@@ -24,7 +25,6 @@ import {
   type action as uploadDocumentAction,
 } from "./documents/upload-document";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { checkOwnershipOrThrow } from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -38,8 +38,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return json(
     {

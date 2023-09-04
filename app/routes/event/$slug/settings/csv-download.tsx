@@ -5,9 +5,9 @@ import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialCh
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { getEventBySlug } from "./csv-download.server";
-import { checkOwnershipOrThrow } from "./utils.server";
 
 async function getProfilesBySearchParams(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
@@ -119,7 +119,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");

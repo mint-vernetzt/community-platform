@@ -10,17 +10,14 @@ import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "../../utils.server";
 import {
   getEventBySlug,
   getEventBySlugForAction,
   getProfileById,
 } from "./delete.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
-  deleteEventById,
-} from "./utils.server";
+import { checkIdentityOrThrow, deleteEventById } from "./utils.server";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -42,8 +39,8 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return json(
     {
@@ -93,7 +90,8 @@ export const action = async (args: ActionArgs) => {
   const event = await getEventBySlugForAction(slug);
   invariantResponse(event, "Event not found", { status: 404 });
 
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,

@@ -6,8 +6,10 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkSameEventOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import { checkIdentityOrThrow } from "../utils.server";
 import { addChildEventRelationOrThrow, getEventById } from "./utils.server";
 
 // TODO: Validate start and end time
@@ -40,12 +42,13 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async (args: DataFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
 
@@ -58,7 +61,8 @@ export const action = async (args: DataFunctionArgs) => {
   const childEvent = await getEventById(childEventId);
   invariantResponse(childEvent, "Child event not found", { status: 404 });
   if (result.success === true) {
-    await checkOwnershipOrThrow(event, sessionUser);
+    const mode = await deriveEventMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     await checkSameEventOrThrow(request, event.id);
     await addChildEventRelationOrThrow(event.id, result.data.childEventId);
     return json(

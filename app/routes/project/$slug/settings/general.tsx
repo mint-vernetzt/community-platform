@@ -31,7 +31,6 @@ import {
 import { getDisciplines, getTargetGroups } from "~/utils.server";
 import { getProjectVisibilitiesBySlugOrThrow } from "../utils.server";
 import {
-  checkOwnershipOrThrow,
   transformFormToProject,
   transformProjectToForm,
   updateProjectById,
@@ -39,6 +38,7 @@ import {
 
 import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
+import { deriveProjectMode } from "../../utils.server";
 import { getProjectBySlug, getProjectBySlugForAction } from "./general.server";
 
 const schema = object({
@@ -82,8 +82,8 @@ export const loader = async (args: LoaderArgs) => {
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
   const projectVisibilities = await getProjectVisibilitiesBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(project, sessionUser);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const targetGroups = await getTargetGroups();
   const disciplines = await getDisciplines();
@@ -114,7 +114,8 @@ export const action = async (args: ActionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugForAction(slug);
   invariantResponse(project, "Project not found", { status: 404 });
-  await checkOwnershipOrThrow(project, sessionUser);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await getFormDataValidationResultOrThrow<typeof schema>(
     request,

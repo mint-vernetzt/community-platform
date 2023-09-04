@@ -19,6 +19,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
+import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./events.server";
 import {
   addChildSchema,
@@ -34,7 +35,6 @@ import {
   type action as setParentAction,
 } from "./events/set-parent";
 import {
-  checkOwnershipOrThrow,
   getChildEventSuggestions,
   getEventsOfPrivilegedMemberExceptOfGivenEvent,
   getOptionsFromEvents,
@@ -50,7 +50,8 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(
     sessionUser.id,

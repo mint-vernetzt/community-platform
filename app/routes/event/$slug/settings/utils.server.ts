@@ -10,41 +10,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
 
-export async function checkOwnership(
-  event: Pick<Event, "id">,
-  currentUser: User | null,
-  options: {
-    throw: boolean;
-  } = { throw: false }
-) {
-  let isOwner = false;
-  if (currentUser !== null) {
-    const relation = await prismaClient.teamMemberOfEvent.findFirst({
-      where: {
-        eventId: event.id,
-        profileId: currentUser.id,
-        isPrivileged: true,
-      },
-    });
-    if (relation !== null) {
-      isOwner = true;
-    }
-  }
-
-  if (isOwner === false && options.throw) {
-    throw unauthorized({ message: "Not privileged" });
-  }
-
-  return { isOwner };
-}
-
-export async function checkOwnershipOrThrow(
-  event: Pick<Event, "id">,
-  sessionUser: User | null
-) {
-  return await checkOwnership(event, sessionUser, { throw: true });
-}
-
 export async function isEventAdmin(slug: string, sessionUser: User | null) {
   let isAdmin = false;
   if (sessionUser !== null) {

@@ -6,8 +6,10 @@ import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkSameEventOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
+import { checkIdentityOrThrow } from "../utils.server";
 import { disconnectFromWaitingListOfEvent, getEventById } from "./utils.server";
 
 const schema = z.object({
@@ -23,11 +25,12 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async (args: DataFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkIdentityOrThrow(request, sessionUser);
+  const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
 
@@ -36,7 +39,8 @@ export const action = async (args: DataFunctionArgs) => {
     invariantResponse(event, "Event not found", { status: 404 });
     await checkSameEventOrThrow(request, event.id);
     if (sessionUser.id !== result.data.profileId) {
-      await checkOwnershipOrThrow(event, sessionUser);
+      const mode = await deriveEventMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     }
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
   }

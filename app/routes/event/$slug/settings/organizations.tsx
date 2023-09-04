@@ -20,6 +20,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveEventMode } from "../../utils.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   getEventBySlug,
@@ -34,7 +35,6 @@ import {
   removeOrganizationSchema,
   type action as removeOrganizationAction,
 } from "./organizations/remove-organization";
-import { checkOwnershipOrThrow } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -45,7 +45,8 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const organizations = getResponsibleOrganizationDataFromEvent(event);
 

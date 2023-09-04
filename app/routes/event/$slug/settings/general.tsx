@@ -50,7 +50,6 @@ import { cancelSchema, type action as cancelAction } from "./events/cancel";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   checkIdentityOrThrow,
-  checkOwnershipOrThrow,
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
@@ -59,6 +58,7 @@ import {
 
 import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
+import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
 
 const schema = object({
@@ -162,8 +162,8 @@ export const loader = async (args: LoaderArgs) => {
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const focuses = await getFocuses();
   const types = await getTypes();
@@ -208,8 +208,8 @@ export const action = async (args: ActionArgs) => {
 
   const event = await getEventBySlugForAction(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,

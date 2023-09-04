@@ -10,9 +10,9 @@ import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkIdentityOrThrow } from "../../utils.server";
+import { checkIdentityOrThrow, deriveProjectMode } from "../../utils.server";
 import { getProfileByUserId, getProjectBySlug } from "./delete.server";
-import { checkOwnershipOrThrow, deleteProjectById } from "./utils.server";
+import { deleteProjectById } from "./utils.server";
 
 const schema = z.object({
   userId: z.string().optional(),
@@ -34,7 +34,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
 
-  await checkOwnershipOrThrow(project, sessionUser);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return json(
     {
@@ -83,7 +84,8 @@ export const action = async (args: DataFunctionArgs) => {
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
 
-  await checkOwnershipOrThrow(project, sessionUser);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const profile = await getProfileByUserId(sessionUser.id);
   invariantResponse(profile, "Profile not found", { status: 404 });
