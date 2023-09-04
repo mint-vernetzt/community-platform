@@ -8,7 +8,6 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveOrganizationMode } from "../../utils.server";
-import { isOrganizationAdmin } from "../utils.server";
 import {
   addAdminToOrganization,
   getOrganizationBySlug,
@@ -71,8 +70,8 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const isAdmin = await isOrganizationAdmin(slug, sessionUser);
-    invariantResponse(isAdmin, "Not privileged", { status: 403 });
+    const mode = await deriveOrganizationMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addAdminToOrganization(organization.id, result.data.profileId);

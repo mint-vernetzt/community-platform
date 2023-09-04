@@ -7,7 +7,6 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveOrganizationMode } from "../../utils.server";
-import { isOrganizationAdmin } from "../utils.server";
 import {
   getOrganizationBySlug,
   removeAdminFromOrganization,
@@ -54,8 +53,6 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const isAdmin = await isOrganizationAdmin(slug, sessionUser);
-    invariantResponse(isAdmin, "Not privileged", { status: 403 });
     await removeAdminFromOrganization(organization.id, result.data.profileId);
     if (sessionUser.id === result.data.profileId) {
       return redirect(`/organization/${slug}`);

@@ -6,11 +6,11 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveProjectMode } from "~/routes/project/utils.server";
 import {
   getProjectBySlug,
   removeAdminFromProject,
 } from "./remove-admin.server";
-import { isProjectAdmin } from "../utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -42,8 +42,8 @@ export const action = async (args: DataFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
-  const isAdmin = await isProjectAdmin(slug, sessionUser);
-  invariantResponse(isAdmin, "Not privileged", { status: 403 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,

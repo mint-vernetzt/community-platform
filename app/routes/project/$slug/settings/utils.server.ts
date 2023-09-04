@@ -1,27 +1,6 @@
-import type { User } from "@supabase/supabase-js";
 import { badRequest, notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { type getProjectBySlug } from "./general.server";
-
-export async function isProjectAdmin(slug: string, sessionUser: User | null) {
-  let isAdmin = false;
-  if (sessionUser !== null) {
-    const relation = await prismaClient.project.findFirst({
-      where: {
-        slug,
-        admins: {
-          some: {
-            profileId: sessionUser.id,
-          },
-        },
-      },
-    });
-    if (relation !== null) {
-      isAdmin = true;
-    }
-  }
-  return isAdmin;
-}
 
 export function transformProjectToForm(
   project: NonNullable<Awaited<ReturnType<typeof getProjectBySlug>>>

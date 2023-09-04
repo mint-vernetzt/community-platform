@@ -415,26 +415,3 @@ export async function getNetworkMembersOfOrganization(
 
   return enhancedNetworkMembers;
 }
-
-export async function isOrganizationAdmin(
-  slug: string,
-  sessionUser: User | null
-) {
-  let isAdmin = false;
-  if (sessionUser !== null) {
-    const relation = await prismaClient.organization.findFirst({
-      where: {
-        slug,
-        admins: {
-          some: {
-            profileId: sessionUser.id,
-          },
-        },
-      },
-    });
-    if (relation !== null) {
-      isAdmin = true;
-    }
-  }
-  return isAdmin;
-}

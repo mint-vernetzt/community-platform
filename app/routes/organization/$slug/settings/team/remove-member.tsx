@@ -6,8 +6,10 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkIdentityOrThrow } from "../../utils.server";
-import { isOrganizationAdmin } from "../utils.server";
+import {
+  checkIdentityOrThrow,
+  deriveOrganizationMode,
+} from "../../utils.server";
 import {
   getOrganizationBySlug,
   removeTeamMemberFromOrganization,
@@ -53,8 +55,8 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const isAdmin = await isOrganizationAdmin(slug, sessionUser);
-    invariantResponse(isAdmin, "Not privileged", { status: 403 });
+    const mode = await deriveOrganizationMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     await removeTeamMemberFromOrganization(
       organization.id,
       result.data.profileId

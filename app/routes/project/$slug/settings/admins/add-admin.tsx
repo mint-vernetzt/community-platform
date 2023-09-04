@@ -7,12 +7,12 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveProjectMode } from "~/routes/project/utils.server";
 import {
   addAdminToProject,
-  getProjectBySlug,
   getProfileById,
+  getProjectBySlug,
 } from "./add-admin.server";
-import { isProjectAdmin } from "../utils.server";
 
 const schema = z.object({
   userId: z.string(),
@@ -59,8 +59,8 @@ export const action = async (args: DataFunctionArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const isAdmin = await isProjectAdmin(slug, sessionUser);
-  invariantResponse(isAdmin, "Not privileged", { status: 403 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,

@@ -20,6 +20,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveProjectMode } from "../../utils.server";
 import { getProject } from "./team.server";
 import {
   addMemberSchema,
@@ -29,7 +30,6 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
-import { isProjectAdmin } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -40,8 +40,8 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProject(slug);
   invariantResponse(project, "Project not found", { status: 404 });
-  const isAdmin = await isProjectAdmin(slug, sessionUser);
-  invariantResponse(isAdmin, "Not privileged", { status: 403 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const teamMembers = project.teamMembers.map((relation) => {
