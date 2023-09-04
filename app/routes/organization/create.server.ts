@@ -13,7 +13,6 @@ export async function createOrganizationOnProfile(
       data: {
         memberOf: {
           create: {
-            isPrivileged: true,
             organization: {
               create: {
                 name: organizationName,

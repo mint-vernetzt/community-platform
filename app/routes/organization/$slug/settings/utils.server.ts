@@ -1,8 +1,7 @@
 import type { Organization } from "@prisma/client";
-import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
-import { badRequest, forbidden, notFound } from "remix-utils";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -345,20 +344,6 @@ export async function disconnectOrganizationFromNetwork(
     },
   });
   return result;
-}
-
-export async function allowedToModify(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.findFirst({
-    where: {
-      profileId,
-      organizationId,
-      isPrivileged: true,
-    },
-  });
-  return result !== null;
 }
 
 export async function getNetworkMembersOfOrganization(

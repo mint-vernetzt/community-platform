@@ -74,7 +74,6 @@ export async function getProjectBySlug(slug: string) {
       },
       teamMembers: {
         select: {
-          isPrivileged: true,
           profile: {
             select: {
               id: true,

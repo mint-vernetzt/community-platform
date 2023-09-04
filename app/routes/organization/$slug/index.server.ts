@@ -59,7 +59,6 @@ export async function getOrganizationBySlug(slug: string) {
       teamMembers: {
         select: {
           profileId: true,
-          isPrivileged: true,
           profile: {
             select: {
               id: true,

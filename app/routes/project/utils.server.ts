@@ -55,7 +55,6 @@ export async function createProjectOnProfile(
       data: {
         teamMemberOfProjects: {
           create: {
-            isPrivileged: true,
             project: {
               create: {
                 name: projectName,

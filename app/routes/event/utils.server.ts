@@ -101,7 +101,6 @@ export async function createEventOnProfile(
       data: {
         teamMemberOfEvents: {
           create: {
-            isPrivileged: true,
             event: {
               create: {
                 ...eventOptions,

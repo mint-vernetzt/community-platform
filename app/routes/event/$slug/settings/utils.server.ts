@@ -359,9 +359,15 @@ export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
       eventId: {
         not: currentEventId,
       },
-      isPrivileged: true,
+      event: {
+        admins: {
+          some: {
+            profileId: privilegedMemberId,
+          },
+        },
+      },
     },
-    include: {
+    select: {
       event: {
         select: {
           id: true,
@@ -524,10 +530,9 @@ export async function getParentEventSuggestions(
           },
         },
         {
-          teamMembers: {
+          admins: {
             some: {
               profileId: userId,
-              isPrivileged: true,
             },
           },
         },
@@ -624,10 +629,9 @@ export async function getChildEventSuggestions(
           },
         },
         {
-          teamMembers: {
+          admins: {
             some: {
               profileId: userId,
-              isPrivileged: true,
             },
           },
         },
