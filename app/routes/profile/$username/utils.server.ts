@@ -13,10 +13,36 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
+import { deriveMode, type Mode } from "~/utils.server";
 
-export type Mode = "anon" | "authenticated" | "owner";
+export type ProfileMode = Mode | "owner";
 
-export function deriveMode(profileId: string, sessionUser: User | null): Mode {
+export async function deriveProfileMode(
+  sessionUser: User | null,
+  username: string
+): Promise<ProfileMode> {
+  const mode = deriveMode(sessionUser);
+  const profile = await prismaClient.profile.findFirst({
+    where: {
+      username,
+      id: sessionUser?.id || "",
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (profile !== null) {
+    return "owner";
+  }
+  return mode;
+}
+
+export type ModeLegacy = "anon" | "authenticated" | "owner";
+
+export function deriveModeLegacy(
+  profileId: string,
+  sessionUser: User | null
+): ModeLegacy {
   if (sessionUser === null) {
     return "anon";
   }
@@ -186,7 +212,7 @@ export async function updateProfileById(
 
 export async function getProfileWithEventsByMode(
   username: string,
-  mode: Mode,
+  mode: ModeLegacy,
   inFuture: boolean
 ) {
   let teamMemberWhere;

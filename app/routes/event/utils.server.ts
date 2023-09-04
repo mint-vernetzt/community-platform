@@ -4,6 +4,33 @@ import { zonedTimeToUtc } from "date-fns-tz";
 import { unauthorized } from "remix-utils";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
+import { deriveMode, type Mode } from "~/utils.server";
+
+export type EventMode = Mode | "admin";
+
+export async function deriveEventMode(
+  sessionUser: User | null,
+  slug: string
+): Promise<EventMode> {
+  const mode = deriveMode(sessionUser);
+  const event = await prismaClient.event.findFirst({
+    where: {
+      slug,
+      admins: {
+        some: {
+          profileId: sessionUser?.id || "",
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (event !== null) {
+    return "admin";
+  }
+  return mode;
+}
 
 export async function checkIdentityOrThrow(
   request: Request,

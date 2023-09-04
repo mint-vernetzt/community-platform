@@ -40,8 +40,8 @@ import {
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import type { Mode } from "./utils.server";
-import { deriveMode } from "./utils.server";
+import type { ModeLegacy } from "./utils.server";
+import { deriveModeLegacy } from "./utils.server";
 import { RichText } from "~/components/Richtext/RichText";
 
 export function links() {
@@ -162,7 +162,7 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  const mode: Mode = deriveMode(sessionUser, userIsPrivileged);
+  const mode: ModeLegacy = deriveModeLegacy(sessionUser, userIsPrivileged);
 
   // Get images from image proxy
   let images: {

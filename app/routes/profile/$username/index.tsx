@@ -39,7 +39,7 @@ import { AddParticipantButton } from "~/routes/event/$slug/settings/participants
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
 import { getProfileByUsername } from "./index.server";
-import { deriveMode, prepareProfileEvents } from "./utils.server";
+import { deriveModeLegacy, prepareProfileEvents } from "./utils.server";
 
 export function links() {
   return [
@@ -74,7 +74,7 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const mode = deriveMode(profile.id, sessionUser);
+  const mode = deriveModeLegacy(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",

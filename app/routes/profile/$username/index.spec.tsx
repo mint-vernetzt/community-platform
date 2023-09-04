@@ -7,7 +7,7 @@ import {
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
 import { loader } from "./index";
-import { deriveMode } from "./utils.server";
+import { deriveModeLegacy } from "./utils.server";
 import { getProfileByUsername } from "./index.server";
 
 /** @type {jest.Expect} */
@@ -211,9 +211,9 @@ const sessionUser: User = {
 };
 
 test("deriveMode", () => {
-  expect(deriveMode("profileUserId", sessionUser)).toBe("authenticated");
-  expect(deriveMode("sessionUserId", sessionUser)).toBe("owner");
-  expect(deriveMode("profileUser", null)).toBe("anon");
+  expect(deriveModeLegacy("profileUserId", sessionUser)).toBe("authenticated");
+  expect(deriveModeLegacy("sessionUserId", sessionUser)).toBe("owner");
+  expect(deriveModeLegacy("profileUser", null)).toBe("anon");
 });
 
 describe("errors", () => {
