@@ -981,24 +981,14 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(relation.event) &&
                                 !relation.event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              loaderData.mode === "anon" ? (
+                              (loaderData.mode === "anon" &&
+                                !relation.event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
-                                  </Link>
-                                </div>
-                              ) : null}
-                              {loaderData.mode === "anon" &&
-                              relation.event.canceled === false ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${relation.event.slug}`}
-                                  >
-                                    Anmelden
                                   </Link>
                                 </div>
                               ) : null}
@@ -1080,11 +1070,13 @@ export default function Index() {
                                 </div>
                               ) : null}
 
-                              {!relation.event.isParticipant &&
-                              !canUserParticipate(relation.event) &&
-                              !relation.event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(relation.event) &&
-                              !relation.event.canceled ? (
+                              {(!relation.event.isParticipant &&
+                                !canUserParticipate(relation.event) &&
+                                !relation.event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(relation.event) &&
+                                !relation.event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !relation.event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${relation.event.slug}`}

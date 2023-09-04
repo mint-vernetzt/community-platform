@@ -927,24 +927,14 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              loaderData.mode === "anon" ? (
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
-                                  </Link>
-                                </div>
-                              ) : null}
-                              {loaderData.mode === "anon" &&
-                              event.canceled === false ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${event.slug}`}
-                                  >
-                                    Anmelden
                                   </Link>
                                 </div>
                               ) : null}
@@ -1081,24 +1071,14 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              loaderData.mode === "anon" ? (
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
-                                  </Link>
-                                </div>
-                              ) : null}
-                              {loaderData.mode === "anon" &&
-                              event.canceled === false ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${event.slug}`}
-                                  >
-                                    Anmelden
                                   </Link>
                                 </div>
                               ) : null}
@@ -1344,12 +1324,14 @@ export default function Index() {
                                   <p>Teilgenommen</p>
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "owner" &&
-                              !event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(loaderData.mode !== "owner" &&
+                                !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1434,11 +1416,13 @@ export default function Index() {
                                   <p>Teilgenommen</p>
                                 </div>
                               ) : null}
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
