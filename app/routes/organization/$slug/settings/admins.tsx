@@ -10,7 +10,7 @@ import {
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { Form } from "remix-forms";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
@@ -19,6 +19,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveOrganizationMode } from "../utils.server";
 import { getOrganization } from "./admins.server";
 import {
   addAdminSchema,
@@ -28,7 +29,6 @@ import {
   removeAdminSchema,
   type action as removeAdminAction,
 } from "./admins/remove-admin";
-import { handleAuthorization } from "./utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -37,7 +37,9 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganization(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });
-  const { sessionUser } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const enhancedAdmins = organization.admins.map((relation) => {
     let avatar = relation.profile.avatar;

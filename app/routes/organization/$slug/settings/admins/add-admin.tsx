@@ -3,11 +3,12 @@ import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { handleAuthorization, isOrganizationAdmin } from "../utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
+import { isOrganizationAdmin } from "../utils.server";
 import {
   addAdminToOrganization,
   getOrganizationBySlug,
@@ -58,7 +59,9 @@ export const action = async (args: DataFunctionArgs) => {
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const { sessionUser } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,

@@ -37,15 +37,6 @@ export async function deriveProfileMode(
   return mode;
 }
 
-export async function handleAuthorization(
-  sessionUserId: string,
-  profileId: string
-) {
-  if (sessionUserId !== profileId) {
-    throw forbidden({ message: "not allowed" });
-  }
-}
-
 export async function checkIdentityOrThrow(
   request: Request,
   sessionUser: User

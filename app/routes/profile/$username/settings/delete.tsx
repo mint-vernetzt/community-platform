@@ -13,8 +13,9 @@ import {
   signOut,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
+import { checkIdentityOrThrow, deriveProfileMode } from "../utils.server";
 import {
   getProfileByUsername,
   getProfileWithAdministrations,
@@ -42,7 +43,8 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     throw notFound({ message: "profile not found." });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   return json({ profile }, { headers: response.headers });
 };
@@ -112,12 +114,9 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    throw notFound({ message: "profile not found." });
-  }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({

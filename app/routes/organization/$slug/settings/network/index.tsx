@@ -1,16 +1,18 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   getNetworkMembersOfOrganization,
-  handleAuthorization,
+  getOrganizationIdBySlug,
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
-import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 
 export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
@@ -26,7 +28,11 @@ export const loader = async (args: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const organization = await getOrganizationIdBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
   const networkMembers = await getNetworkMembersOfOrganization(
     authClient,

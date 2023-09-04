@@ -15,6 +15,7 @@ import { deriveOrganizationMode } from "../organization/$slug/utils.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveProjectMode } from "../project/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 
 const environment = z.object({
   authClient: z.unknown(),
@@ -33,6 +34,9 @@ const mutation = makeDomainFunction(
 
   try {
     if (subject === "user") {
+      const username = slug;
+      const mode = await deriveProfileMode(sessionUser, username);
+      invariantResponse(mode === "owner", "Not privileged", { status: 403 });
       await removeImageFromProfile(sessionUser.id, uploadKey);
     }
 

@@ -9,15 +9,16 @@ import {
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMemberSuggestions } from ".";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   connectOrganizationToNetwork,
   getOrganizationById,
   getOrganizationIdBySlug,
-  handleAuthorization,
 } from "../utils.server";
 
 const schema = z.object({
@@ -87,7 +88,9 @@ export const action = async (args: DataFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({ request, schema, mutation });
   if (result.success) {

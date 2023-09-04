@@ -4,12 +4,12 @@ import { useParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { handleAuthorization } from "./utils.server";
-import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveOrganizationMode } from "../utils.server";
+import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
 const schema = z.object({
   slug: z.string(),
@@ -26,7 +26,9 @@ export const loader = async (args: DataFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return response;
 };
@@ -50,7 +52,9 @@ export const action = async (args: DataFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const { sessionUser } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const profile = await getProfileByUserId(sessionUser.id);
   invariantResponse(profile, "Profile not found", { status: 404 });

@@ -416,40 +416,6 @@ export async function getNetworkMembersOfOrganization(
   return enhancedNetworkMembers;
 }
 
-export async function handleAuthorization(
-  authClient: SupabaseClient,
-  slug: string
-) {
-  if (slug === undefined) {
-    throw badRequest({ message: "Organization slug missing" });
-  }
-
-  const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const organization = await getOrganizationIdBySlug(slug);
-  if (organization === null) {
-    throw notFound({
-      message: `Couldn't find organization with slug "${slug}"`,
-    });
-  }
-
-  const isAllowedToModify = await allowedToModify(
-    sessionUser.id,
-    organization.id
-  );
-
-  if (isAllowedToModify === false) {
-    throw forbidden({ message: "forbidden" });
-  }
-
-  return {
-    sessionUser,
-    isAllowedToModify,
-    organization,
-    slug,
-  };
-}
-
 export async function isOrganizationAdmin(
   slug: string,
   sessionUser: User | null

@@ -4,15 +4,14 @@ import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMember } from ".";
-import {
-  disconnectOrganizationFromNetwork,
-  handleAuthorization,
-} from "../utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
+import { disconnectOrganizationFromNetwork } from "../utils.server";
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -44,7 +43,9 @@ export const action = async (args: DataFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({ request, schema, mutation });
 

@@ -13,7 +13,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -35,15 +35,19 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getAreas, getFocuses } from "~/utils.server";
-import { getOrganizationVisibilitiesById } from "../utils.server";
+import {
+  deriveOrganizationMode,
+  getOrganizationVisibilitiesById,
+} from "../utils.server";
 import {
   getOrganizationTypes,
   getWholeOrganizationBySlug,
-  handleAuthorization,
   updateOrganizationById,
 } from "./utils.server";
 
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { invariantResponse } from "~/lib/utils/response";
+import { getOrganizationBySlug } from "./general.server";
 
 const organizationSchema = object({
   name: string().required("Bitte gib Euren Namen ein."),
@@ -97,7 +101,9 @@ export const loader = async (args: LoaderArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
@@ -143,8 +149,12 @@ export const action = async (args: ActionArgs) => {
   // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
 
   const slug = getParamValueOrThrow(params, "slug");
+  const organization = await getOrganizationBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
-  const { organization } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,

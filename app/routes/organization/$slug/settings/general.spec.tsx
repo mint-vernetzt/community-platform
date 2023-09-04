@@ -19,7 +19,6 @@ const slug = "mintvernetzt";
 jest.mock("./utils.server", () => {
   return {
     getWholeOrganizationBySlug: jest.fn(),
-    handleAuthorization: jest.fn().mockResolvedValue({ organization, slug }),
     updateOrganizationById: jest.fn(),
     getOrganizationTypes: jest.fn(),
   };

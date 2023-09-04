@@ -9,18 +9,23 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitials } from "~/lib/profile/getInitials";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { type action as addMemberAction } from "./team/add-member";
-import { addMemberSchema } from "./team/add-member";
-import { type action as removeMemberAction } from "./team/remove-member";
-import { removeMemberSchema } from "./team/remove-member";
-import { handleAuthorization } from "./utils.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
-import { getMembersOfOrganization } from "./team.server";
+import { deriveOrganizationMode } from "../utils.server";
+import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
+import {
+  addMemberSchema,
+  type action as addMemberAction,
+} from "./team/add-member";
+import {
+  removeMemberSchema,
+  type action as removeMemberAction,
+} from "./team/remove-member";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -29,10 +34,11 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization, sessionUser } = await handleAuthorization(
-    authClient,
-    slug
-  );
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const organization = await getOrganizationBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
   const members = await getMembersOfOrganization(authClient, organization.id);
   const enhancedMembers = members.map((relation) => {

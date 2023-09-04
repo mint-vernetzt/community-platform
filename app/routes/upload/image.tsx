@@ -14,6 +14,7 @@ import {
   upload,
 } from "./uploadHandler.server";
 import { uploadKeys, type Subject } from "./utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 
 export const loader = ({ request }: DataFunctionArgs) => {
   const response = new Response();
@@ -30,6 +31,11 @@ export const loader = ({ request }: DataFunctionArgs) => {
 };
 
 async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
+  if (subject === "user") {
+    const username = slug;
+    const mode = await deriveProfileMode(sessionUser, username);
+    invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  }
   if (subject === "organization") {
     const mode = await deriveOrganizationMode(sessionUser, slug);
     invariantResponse(mode === "admin", "Not privileged", { status: 403 });

@@ -10,6 +10,7 @@ import {
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import quillStyles from "react-quill/dist/quill.snow.css";
 import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
@@ -23,6 +24,7 @@ import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
@@ -38,12 +40,11 @@ import {
 import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
+  deriveProfileMode,
   getProfileVisibilitiesById,
   getWholeProfileFromUsername,
-  handleAuthorization,
   updateProfileById,
 } from "../utils.server";
-import quillStyles from "react-quill/dist/quill.snow.css";
 import { getProfileByUsername } from "./general.server";
 
 const profileSchema = object({
@@ -99,7 +100,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw notFound({ message: "profile visbilities not found." });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, dbProfile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
 
@@ -126,7 +128,8 @@ export const action = async ({ request, params }: ActionArgs) => {
     throw notFound({ message: "profile not found." });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
     request,

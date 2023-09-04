@@ -7,15 +7,15 @@ import { forbidden, notFound } from "remix-utils";
 import { z } from "zod";
 import {
   createAuthClient,
-  getSessionOrThrow,
   getSessionUserOrThrow,
   sendResetEmailLink,
   updatePassword,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { handleAuthorization } from "../utils.server";
+import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
 
 const emailSchema = z.object({
@@ -60,14 +60,13 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const session = await getSessionOrThrow(authClient);
-  const sessionUser = session.user;
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
     throw forbidden({ message: "not allowed." });
   }
-
-  await handleAuthorization(sessionUser.id, profile.id);
 
   return response;
 };
@@ -124,12 +123,9 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    throw notFound({ message: "profile not found." });
-  }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
     throw forbidden({ message: "not allowed." });

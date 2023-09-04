@@ -24,7 +24,6 @@ const getSessionUserOrThrow = jest.spyOn(
 jest.mock("../utils.server", () => {
   return {
     getWholeProfileFromUsername: jest.fn(),
-    handleAuthorization: jest.fn().mockResolvedValue({ id }),
     updateProfileById: jest.fn(),
     getProfileVisibilitiesById: jest.fn(),
   };
