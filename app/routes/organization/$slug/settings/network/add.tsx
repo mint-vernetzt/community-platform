@@ -22,41 +22,40 @@ import {
 } from "../utils.server";
 
 const schema = z.object({
-  id: z.string(),
+  organizationId: z.string(),
+});
+
+const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { id, slug } = values;
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { organizationId } = values;
 
-  const network = await getOrganizationIdBySlug(slug);
+  const network = await getOrganizationIdBySlug(environment.slug);
   if (network === null) {
     throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
-  const organization = await getOrganizationById(id);
+  const organization = await getOrganizationById(organizationId);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation unter diesem Namen.",
-      "id"
+      "organizationId"
     );
   }
 
-  if (network.id === organization.id) {
-    throw new InputError(
-      "Eure Organisation ist bereits Teil Eures Netzwerks.",
-      "id"
-    );
-  }
-
-  const stillMember = organization.memberOf.some((entry) => {
-    return entry.network.slug === slug;
+  const alreadyNetworkMember = organization.memberOf.some((entry) => {
+    return entry.network.slug === environment.slug;
   });
 
-  if (stillMember) {
+  if (alreadyNetworkMember) {
     throw new InputError(
       "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
-      "id"
+      "organizationId"
     );
   }
 
@@ -81,16 +80,18 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
   const slug = getParamValueOrThrow(params, "slug");
-
+  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
   if (result.success) {
     return json(
       {
@@ -124,8 +125,6 @@ function Add(props: NetworkMemberProps) {
         schema={schema}
         fetcher={fetcher}
         action={`/organization/${slug}/settings/network/add`}
-        hiddenFields={["slug"]}
-        values={{ slug }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -146,7 +145,7 @@ function Add(props: NetworkMemberProps) {
               </div>
 
               <div className="flex flex-row">
-                <Field name="id" className="flex-auto">
+                <Field name="organizationId" className="flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -154,7 +153,7 @@ function Add(props: NetworkMemberProps) {
                         suggestions={props.networkMemberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/network`}
                         defaultValue={suggestionsQuery || ""}
-                        {...register("id")}
+                        {...register("organizationId")}
                         searchParameter="autocomplete_query"
                       />
                     </>
@@ -166,7 +165,6 @@ function Add(props: NetworkMemberProps) {
                   </Button>
                 </div>
               </div>
-              <Field name="slug" />
             </div>
           );
         }}

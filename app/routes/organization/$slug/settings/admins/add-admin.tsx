@@ -4,7 +4,6 @@ import { InputError, makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveOrganizationMode } from "../../utils.server";
@@ -55,7 +54,6 @@ export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -69,8 +67,6 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const mode = await deriveOrganizationMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addAdminToOrganization(organization.id, result.data.profileId);

@@ -11,17 +11,31 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMember } from ".";
 import { deriveOrganizationMode } from "../../utils.server";
-import { disconnectOrganizationFromNetwork } from "../utils.server";
+import {
+  disconnectOrganizationFromNetwork,
+  getOrganizationIdBySlug,
+} from "../utils.server";
 
 const schema = z.object({
   organizationId: z.string().uuid(),
-  networkId: z.string().uuid(),
 });
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { organizationId, networkId } = values;
+const environmentSchema = z.object({
+  slug: z.string(),
+});
 
-  await disconnectOrganizationFromNetwork(organizationId, networkId);
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { organizationId } = values;
+
+  const network = await getOrganizationIdBySlug(environment.slug);
+  if (network === null) {
+    throw "Eure Organisation konnte nicht gefunden werden.";
+  }
+
+  await disconnectOrganizationFromNetwork(organizationId, network.id);
 
   return values;
 });
@@ -36,16 +50,18 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
   const slug = getParamValueOrThrow(params, "slug");
-
+  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
 
   return json(result, { headers: response.headers });
 };
@@ -55,7 +71,7 @@ export function NetworkMemberRemoveForm(
 ) {
   const fetcher = useFetcher<typeof action>();
 
-  const { networkMember, networkId, slug } = props;
+  const { networkMember, slug } = props;
 
   return (
     <Form
@@ -63,8 +79,8 @@ export function NetworkMemberRemoveForm(
       key={`${networkMember.slug}`}
       action={`/organization/${slug}/settings/network/remove`}
       schema={schema}
-      hiddenFields={["organizationId", "networkId"]}
-      values={{ organizationId: networkMember.id, networkId }}
+      hiddenFields={["organizationId"]}
+      values={{ organizationId: networkMember.id }}
       fetcher={fetcher}
     >
       {({ Field, Button, Errors }) => {
@@ -112,7 +128,6 @@ export function NetworkMemberRemoveForm(
               </svg>
             </Button>
             <Field name="organizationId" />
-            <Field name="networkId" />
             <Errors />
           </div>
         );

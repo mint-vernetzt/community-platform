@@ -1,5 +1,4 @@
 import type { User } from "@supabase/supabase-js";
-import { badRequest } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, type Mode } from "~/utils.server";
 
@@ -27,20 +26,6 @@ export async function deriveOrganizationMode(
     return "admin";
   }
   return mode;
-}
-
-export async function checkSameOrganizationOrThrow(
-  request: Request,
-  organizationId: string
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  // TODO: can this type assertion be removed and proofen by code?
-  const value = formData.get("organizationId") as string | null;
-
-  if (value === null || value !== organizationId) {
-    throw badRequest({ message: "Organization IDs differ" });
-  }
 }
 
 export async function getOrganizationVisibilitiesById(id: string) {

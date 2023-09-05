@@ -1,6 +1,5 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
@@ -12,10 +11,13 @@ import { deriveOrganizationMode } from "../utils.server";
 import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
 const schema = z.object({
-  slug: z.string(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
+});
+
+const environmentSchema = z.object({
+  slug: z.string(),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -33,9 +35,12 @@ export const loader = async (args: DataFunctionArgs) => {
   return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   try {
-    await deleteOrganizationBySlug(values.slug);
+    await deleteOrganizationBySlug(environment.slug);
   } catch {
     throw "Die Organisation konnte nicht gelöscht werden.";
   }
@@ -45,15 +50,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
   const slug = getParamValueOrThrow(params, "slug");
-
+  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-
   const profile = await getProfileByUserId(sessionUser.id);
   invariantResponse(profile, "Profile not found", { status: 404 });
 
@@ -61,6 +62,9 @@ export const action = async (args: DataFunctionArgs) => {
     request,
     schema,
     mutation,
+    environment: {
+      slug: slug,
+    },
   });
 
   if (result.success) {
@@ -73,7 +77,6 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 export default function Delete() {
-  const { slug } = useParams();
   return (
     <>
       <h1 className="mb-8">Organisation löschen</h1>
@@ -100,18 +103,6 @@ export default function Delete() {
                     placeholder="wirklich löschen"
                     {...register("confirmedToken")}
                   />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="slug">
-              {({ Errors }) => (
-                <>
-                  <input
-                    type="hidden"
-                    value={slug || ""}
-                    {...register("slug")}
-                  ></input>
                   <Errors />
                 </>
               )}

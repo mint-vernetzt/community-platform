@@ -57,9 +57,11 @@ const mutation = makeDomainFunction(
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const slug = getParamValueOrThrow(params, "slug");
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,
@@ -71,8 +73,6 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success) {
-    const mode = await deriveOrganizationMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addTeamMemberToOrganization(organization.id, result.data.profileId);
