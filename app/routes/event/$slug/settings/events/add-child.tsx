@@ -26,9 +26,13 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   const event = await getEventBySlug(environment.slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  if (event === null) {
+    throw "Die Rahmenveranstaltung konnte nicht gefunden werden.";
+  }
   const childEvent = await getEventBySlug(values.childEventId);
-  invariantResponse(childEvent, "Child event not found", { status: 404 });
+  if (childEvent === null) {
+    throw "Die zugehörige Veranstaltung konnte nicht gefunden werden.";
+  }
   const childStartTime = new Date(childEvent.startTime).getTime();
   const childEndTime = new Date(childEvent.endTime).getTime();
   const eventStartTime = new Date(event.startTime).getTime();
