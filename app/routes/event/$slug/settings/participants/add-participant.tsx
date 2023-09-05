@@ -8,32 +8,38 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
-import { checkSameEventOrThrow } from "../../utils.server";
 import { getProfileById } from "../utils.server";
-import { connectParticipantToEvent, getEventById } from "./utils.server";
+import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const schema = z.object({
-  eventId: z.string(),
-  id: z.string(),
+  profileId: z.string(),
 });
 
 export const addParticipantSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const profile = await getProfileById(values.id);
+const environmentSchema = z.object({
+  eventSlug: z.string(),
+});
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const profile = await getProfileById(values.profileId);
   if (profile === null) {
     throw new InputError(
       "Es existiert noch kein Profil unter diesem Namen.",
-      "id"
+      "profileId"
     );
   }
-  const alreadyMember = profile.participatedEvents.some((entry) => {
-    return entry.event.id === values.eventId;
+  const alreadyParticipant = profile.participatedEvents.some((entry) => {
+    return entry.event.slug === environment.eventSlug;
   });
-  if (alreadyMember) {
+  if (alreadyParticipant) {
     throw new InputError(
       "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil.",
-      "id"
+      "profileId"
     );
   }
   return {
@@ -46,25 +52,29 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const slug = getParamValueOrThrow(params, "slug");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: {
+      eventSlug: slug,
+    },
+  });
 
   if (result.success === true) {
-    const event = await getEventById(result.data.eventId);
+    const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
-    await checkSameEventOrThrow(request, event.id);
-    if (sessionUser.id !== result.data.id) {
+    if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
       invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-      const profile = await getProfileById(result.data.id);
-      if (profile !== null) {
-        await connectParticipantToEvent(event.id, profile.id);
-      }
+      await checkFeatureAbilitiesOrThrow(authClient, "events");
+      await connectParticipantToEvent(event.id, result.data.profileId);
     } else {
-      await connectParticipantToEvent(event.id, sessionUser.id);
+      await connectParticipantToEvent(event.id, result.data.profileId);
     }
     return json(
       {
@@ -79,8 +89,7 @@ export const action = async (args: DataFunctionArgs) => {
 
 type AddParticipantButtonProps = {
   action: string;
-  eventId?: string;
-  id?: string;
+  profileId?: string;
 };
 
 export function AddParticipantButton(props: AddParticipantButtonProps) {
@@ -90,18 +99,16 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
       action={props.action}
       fetcher={fetcher}
       schema={schema}
-      hiddenFields={["eventId", "id"]}
+      hiddenFields={["profileId"]}
       values={{
-        eventId: props.eventId,
-        id: props.id,
+        profileId: props.profileId,
       }}
     >
       {(props) => {
         const { Field, Errors } = props;
         return (
           <>
-            <Field name="eventId" />
-            <Field name="id" />
+            <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
               Teilnehmen
             </button>

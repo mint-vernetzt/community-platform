@@ -9,29 +9,17 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { updateDocument } from "./edit-document.server";
-import { getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  eventId: z.string(),
   documentId: z.string(),
   title: z.string().optional(),
   description: z.string().optional(),
   extension: z.string(),
 });
 
-const environmentSchema = z.object({
-  eventId: z.string(),
-});
-
 export const editDocumentSchema = schema;
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventId !== environment.eventId) {
-    throw "Event id nicht korrekt";
-  }
+const mutation = makeDomainFunction(schema)(async (values) => {
   let title;
   if (values.title !== undefined) {
     if (!values.title.includes("." + values.extension)) {
@@ -55,27 +43,18 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-
   const slug = getParamValueOrThrow(params, "slug");
-
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { eventId: event.id },
   });
 
   return json(result, { headers: response.headers });

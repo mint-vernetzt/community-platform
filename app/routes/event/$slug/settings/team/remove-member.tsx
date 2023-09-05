@@ -36,10 +36,12 @@ const mutation = makeDomainFunction(
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const authClient = createAuthClient(request, response);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-  const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
 
@@ -51,8 +53,6 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const mode = await deriveEventMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     await removeTeamMemberFromEvent(event.id, result.data.profileId);
   }
   return json(result, { headers: response.headers });

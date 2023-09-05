@@ -26,13 +26,13 @@ export async function disconnectSpeakerProfileFromEvent(
   });
 }
 
-export async function getEventById(id: string) {
+export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
     },
     where: {
-      id,
+      slug,
     },
   });
 }

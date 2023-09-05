@@ -364,7 +364,6 @@ function getForm(loaderData: {
       <RemoveParticipantButton
         action="./settings/participants/remove-participant"
         profileId={loaderData.userId}
-        eventId={loaderData.event.id}
       />
     );
   } else if (isOnWaitingList) {
@@ -372,7 +371,6 @@ function getForm(loaderData: {
       <RemoveFromWaitingListButton
         action="./settings/waiting-list/remove-from-waiting-list"
         profileId={loaderData.userId}
-        eventId={loaderData.event.id}
       />
     );
   } else {
@@ -380,16 +378,14 @@ function getForm(loaderData: {
       return (
         <AddToWaitingListButton
           action="./settings/waiting-list/add-to-waiting-list"
-          eventId={loaderData.event.id}
-          id={loaderData.userId}
+          profileId={loaderData.userId}
         />
       );
     } else {
       return (
         <AddParticipantButton
           action="./settings/participants/add-participant"
-          eventId={loaderData.event.id}
-          id={loaderData.userId}
+          profileId={loaderData.userId}
         />
       );
     }
@@ -1116,8 +1112,7 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
-                              eventId={event.id}
-                              id={loaderData.userId}
+                              profileId={loaderData.userId}
                             />
                           </div>
                         ) : null}
@@ -1133,8 +1128,7 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                              eventId={event.id}
-                              id={loaderData.userId}
+                              profileId={loaderData.userId}
                             />
                           </div>
                         ) : null}

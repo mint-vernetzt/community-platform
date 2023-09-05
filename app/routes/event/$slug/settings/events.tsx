@@ -121,7 +121,6 @@ export const loader = async (args: LoaderArgs) => {
       parentEventSuggestions,
       childEvents: enhancedChildEvents,
       childEventSuggestions,
-      eventId: event.id,
       published: event.published,
     },
     { headers: response.headers }
@@ -173,8 +172,6 @@ function Events() {
         schema={setParentSchema}
         fetcher={setParentFetcher}
         action={`/event/${slug}/settings/events/set-parent`}
-        hiddenFields={["eventId"]}
-        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -188,7 +185,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
@@ -242,10 +238,9 @@ function Events() {
             schema={setParentSchema}
             fetcher={setParentFetcher}
             action={`/event/${slug}/settings/events/set-parent`}
-            hiddenFields={["eventId", "parentEventId"]}
+            hiddenFields={["parentEventId"]}
             values={{
-              eventId: loaderData.eventId,
-              parentEventId: "",
+              parentEventId: undefined,
             }}
           >
             {(props) => {
@@ -324,7 +319,6 @@ function Events() {
                         )}
                       </div>
                     </Link>
-                    <Field name="eventId" />
                     <Field name="parentEventId" />
                     <Button className="ml-auto btn-none" title="entfernen">
                       <svg
@@ -367,8 +361,6 @@ function Events() {
         schema={addChildSchema}
         fetcher={addChildFetcher}
         action={`/event/${slug}/settings/events/add-child`}
-        hiddenFields={["eventId"]}
-        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -382,7 +374,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
@@ -452,9 +443,8 @@ function Events() {
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
                   action={`/event/${slug}/settings/events/remove-child`}
-                  hiddenFields={["eventId", "childEventId"]}
+                  hiddenFields={["childEventId"]}
                   values={{
-                    eventId: loaderData.eventId,
                     childEventId: childEvent.id,
                   }}
                 >
@@ -523,7 +513,6 @@ function Events() {
                             )}
                           </div>
                         </Link>
-                        <Field name="eventId" />
                         <Field name="childEventId" />
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
@@ -555,9 +544,8 @@ function Events() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
                 publish: !loaderData.published,
               }}
             >
@@ -565,7 +553,6 @@ function Events() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

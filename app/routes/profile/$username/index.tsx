@@ -896,8 +896,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -913,8 +912,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1041,8 +1039,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1056,8 +1053,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1181,8 +1177,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1195,8 +1190,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}

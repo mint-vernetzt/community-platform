@@ -1,8 +1,8 @@
 import type { Event, Prisma } from "@prisma/client";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
-import { notFound, unauthorized } from "remix-utils";
+import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
@@ -326,10 +326,10 @@ export async function updateEventById(
   ]);
 }
 
-export async function deleteEventById(id: string) {
+export async function deleteEventBySlug(slug: string) {
   await prismaClient.event.delete({
     where: {
-      id,
+      slug,
     },
   });
 }
@@ -388,7 +388,7 @@ export async function getOrganizationById(id: string) {
         select: {
           event: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },
@@ -405,20 +405,11 @@ export async function getProfileById(id: string) {
       id: true,
       firstName: true,
       lastName: true,
-      teamMemberOfEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      },
       contributedEvents: {
         select: {
           event: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },
@@ -427,7 +418,7 @@ export async function getProfileById(id: string) {
         select: {
           event: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },
@@ -436,7 +427,7 @@ export async function getProfileById(id: string) {
         select: {
           event: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },

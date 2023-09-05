@@ -145,11 +145,6 @@ function Documents() {
                               value={item.document.id}
                             />
                             <Field
-                              name="eventId"
-                              hidden
-                              value={loaderData.event.id}
-                            />
-                            <Field
                               name="extension"
                               hidden
                               value={item.document.extension}
@@ -217,11 +212,6 @@ function Documents() {
                             hidden
                             value={item.document.id}
                           />
-                          <Field
-                            name="eventId"
-                            hidden
-                            value={loaderData.event.id}
-                          />
                           <button
                             type="submit"
                             className="btn btn-outline-primary ml-auto btn-small mt-2 w-full sm:w-auto"
@@ -260,7 +250,6 @@ function Documents() {
       >
         {({ Field, Errors }) => (
           <>
-            <Field name="eventId" hidden value={loaderData.event.id} />
             <Field name="uploadKey" hidden value={"document"} />
             <Field name="document" label="PDF Dokument auswählen">
               {({ Errors }) => (
@@ -293,9 +282,8 @@ function Documents() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.event.id,
                 publish: !loaderData.event.published,
               }}
             >
@@ -303,7 +291,6 @@ function Documents() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.event.published

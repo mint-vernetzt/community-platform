@@ -8,26 +8,15 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
-import { disconnectDocumentFromEvent, getEventBySlug } from "./utils.server";
+import { disconnectDocumentFromEvent } from "./utils.server";
 
 const schema = z.object({
-  eventId: z.string(),
   documentId: z.string(),
-});
-
-const environmentSchema = z.object({
-  eventId: z.string(),
 });
 
 export const deleteDocumentSchema = schema;
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventId !== environment.eventId) {
-    throw "Event id nicht korrekt";
-  }
+const mutation = makeDomainFunction(schema)(async (values) => {
   try {
     await disconnectDocumentFromEvent(values.documentId);
   } catch (error) {
@@ -38,19 +27,11 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
   await checkFeatureAbilitiesOrThrow(authClient, "events");
-
   const slug = getParamValueOrThrow(params, "slug");
-
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
@@ -58,7 +39,6 @@ export const action = async (args: DataFunctionArgs) => {
     request,
     schema,
     mutation,
-    environment: { eventId: event.id },
   });
 
   return json(result, { headers: response.headers });

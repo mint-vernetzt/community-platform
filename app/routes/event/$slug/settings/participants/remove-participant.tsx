@@ -5,14 +5,13 @@ import { makeDomainFunction } from "remix-domains";
 import { Form, performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
-import { checkSameEventOrThrow } from "../../utils.server";
-import { disconnectParticipantFromEvent, getEventById } from "./utils.server";
+import { disconnectParticipantFromEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  eventId: z.string(),
   profileId: z.string(),
 });
 
@@ -25,19 +24,19 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventById(result.data.eventId);
+    const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
-    await checkSameEventOrThrow(request, event.id);
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
       invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      await checkFeatureAbilitiesOrThrow(authClient, "events");
     }
     await disconnectParticipantFromEvent(event.id, result.data.profileId);
   }
@@ -46,7 +45,6 @@ export const action = async (args: DataFunctionArgs) => {
 
 type RemoveParticipantButtonProps = {
   action: string;
-  eventId?: string;
   profileId?: string;
 };
 
@@ -58,9 +56,8 @@ export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
       action={props.action}
       fetcher={fetcher}
       schema={schema}
-      hiddenFields={["eventId", "profileId"]}
+      hiddenFields={["profileId"]}
       values={{
-        eventId: props.eventId,
         profileId: props.profileId,
       }}
     >
@@ -68,7 +65,6 @@ export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
         const { Field, Errors } = props;
         return (
           <>
-            <Field name="eventId" />
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
               Nicht mehr teilnehmen

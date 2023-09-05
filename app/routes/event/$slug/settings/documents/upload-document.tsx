@@ -8,10 +8,9 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
-import { createDocumentOnEvent, getEventBySlug } from "./utils.server";
+import { createDocumentOnEvent } from "./utils.server";
 
 const schema = z.object({
-  eventId: z.string(),
   uploadKey: z.string(),
   document: z.unknown(),
 });
@@ -20,33 +19,17 @@ export const uploadDocumentSchema = schema;
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-
   const slug = getParamValueOrThrow(params, "slug");
-
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const parsedData = await parseMultipart(request);
-
-  const { uploadHandlerResponse, formData } = parsedData;
-  // TODO: can this type assertion be removed and proofen by code?
-  const eventId = formData.get("eventId") as string;
-  if (eventId !== event.id) {
-    throw "Event id nicht korrekt";
-  }
-
+  const { uploadHandlerResponse } = parsedData;
   await doPersistUpload(authClient, "documents", uploadHandlerResponse);
-
   const document: Pick<
     Document,
     "filename" | "path" | "extension" | "sizeInMB" | "mimeType"
@@ -60,7 +43,7 @@ export const action = async (args: DataFunctionArgs) => {
   };
 
   try {
-    await createDocumentOnEvent(event.id, document);
+    await createDocumentOnEvent(slug, document);
   } catch (error) {
     throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
   }

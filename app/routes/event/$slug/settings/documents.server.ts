@@ -3,7 +3,6 @@ import { prismaClient } from "~/prisma.server";
 export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
-      id: true,
       slug: true,
       published: true,
       documents: {

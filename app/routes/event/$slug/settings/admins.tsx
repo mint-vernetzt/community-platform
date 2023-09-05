@@ -76,7 +76,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      eventId: event.id,
       published: event.published,
       admins: enhancedAdmins,
       adminSuggestions,
@@ -248,9 +247,8 @@ function Admins() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
                 publish: !loaderData.published,
               }}
             >
@@ -258,7 +256,6 @@ function Admins() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

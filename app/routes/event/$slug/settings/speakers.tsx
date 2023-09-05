@@ -79,7 +79,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      eventId: event.id,
       published: event.published,
       speakers: enhancedSpeakers,
       speakerSuggestions,
@@ -114,8 +113,6 @@ function Speakers() {
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
         action={`/event/${slug}/settings/speakers/add-speaker`}
-        hiddenFields={["eventId"]}
-        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -127,7 +124,6 @@ function Speakers() {
           return (
             <>
               <Errors />
-              <Field name="eventId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -138,7 +134,7 @@ function Speakers() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="profileId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -146,7 +142,7 @@ function Speakers() {
                           suggestions={loaderData.speakerSuggestions || []}
                           suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("profileId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -208,10 +204,9 @@ function Speakers() {
                 schema={removeSpeakerSchema}
                 fetcher={removeSpeakerFetcher}
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
-                hiddenFields={["eventId", "speakerId"]}
+                hiddenFields={["profileId"]}
                 values={{
-                  eventId: loaderData.eventId,
-                  speakerId: profile.id,
+                  profileId: profile.id,
                 }}
                 className="ml-auto"
               >
@@ -220,8 +215,7 @@ function Speakers() {
                   return (
                     <>
                       <Errors />
-                      <Field name="eventId" />
-                      <Field name="speakerId" />
+                      <Field name="profileId" />
                       <Button className="ml-auto btn-none" title="entfernen">
                         <svg
                           viewBox="0 0 10 10"
@@ -251,9 +245,8 @@ function Speakers() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
                 publish: !loaderData.published,
               }}
             >
@@ -261,7 +254,6 @@ function Speakers() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

@@ -14,7 +14,7 @@ export async function getProfileByUserId(id: string) {
   });
 }
 
-export async function getEventById(id: string) {
+export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
@@ -35,7 +35,7 @@ export async function getEventById(id: string) {
       },
     },
     where: {
-      id,
+      slug,
     },
   });
 }

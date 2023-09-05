@@ -6,20 +6,19 @@ import { prismaClient } from "~/prisma.server";
 import * as self from "./utils.server";
 
 export async function updateParentEventRelationOrThrow(
-  eventId: string,
+  slug: string,
   parentEventId: string | undefined
 ) {
   try {
     if (parentEventId === undefined) {
       await prismaClient.event.update({
-        where: { id: eventId },
-        data: { updatedAt: new Date(), parentEvent: { disconnect: true } },
+        where: { slug },
+        data: { parentEvent: { disconnect: true } },
       });
     } else {
       await prismaClient.event.update({
-        where: { id: eventId },
+        where: { slug },
         data: {
-          updatedAt: new Date(),
           parentEvent: { connect: { id: parentEventId } },
         },
       });
@@ -31,13 +30,13 @@ export async function updateParentEventRelationOrThrow(
 }
 
 export async function addChildEventRelationOrThrow(
-  eventId: string,
+  slug: string,
   childEventId: string
 ) {
   try {
     await prismaClient.event.update({
       where: {
-        id: eventId,
+        slug,
       },
       data: {
         updatedAt: new Date(),
@@ -53,13 +52,13 @@ export async function addChildEventRelationOrThrow(
 }
 
 export async function removeChildEventRelationOrThrow(
-  eventId: string,
+  slug: string,
   childEventId: string
 ) {
   try {
     await prismaClient.event.update({
       where: {
-        id: eventId,
+        slug,
       },
       data: {
         updatedAt: new Date(),
@@ -74,32 +73,29 @@ export async function removeChildEventRelationOrThrow(
   }
 }
 
-export async function publishEventAndItsChildren(
-  eventId: string,
-  publish = true
-) {
-  const ids = await getAllIdsOfChildEvents(eventId);
+export async function publishEventAndItsChildren(slug: string, publish = true) {
+  const slugs = await getAllSlugsOfChildEvents(slug);
 
   await prismaClient.event.updateMany({
-    where: { id: { in: [eventId, ...ids] } },
-    data: { updatedAt: new Date(), published: publish },
+    where: { slug: { in: [slug, ...slugs] } },
+    data: { published: publish },
   });
 }
 
-export async function cancelEvent(eventId: string, cancel = true) {
+export async function cancelEvent(slug: string, cancel = true) {
   await prismaClient.event.update({
-    where: { id: eventId },
+    where: { slug },
     data: { canceled: cancel, updatedAt: new Date() },
   });
 }
 
-export async function getAllIdsOfChildEvents(eventId: string) {
+export async function getAllSlugsOfChildEvents(slug: string) {
   const result = await prismaClient.event.findFirst({
-    where: { id: eventId },
+    where: { slug },
     select: {
       childEvents: {
         select: {
-          id: true,
+          slug: true,
         },
       },
     },
@@ -109,22 +105,22 @@ export async function getAllIdsOfChildEvents(eventId: string) {
     return [];
   }
 
-  const ids = result.childEvents.map((childEvent) => childEvent.id);
+  const slugs = result.childEvents.map((childEvent) => childEvent.slug);
 
-  let childEventChildrenIds: string[] = [];
-  for (let id of ids) {
-    const childrenIds = await self.getAllIdsOfChildEvents(id);
-    childEventChildrenIds = childEventChildrenIds.concat(childrenIds);
+  let childEventChildrenSlugs: string[] = [];
+  for (let slug of slugs) {
+    const childrenSlugs = await self.getAllSlugsOfChildEvents(slug);
+    childEventChildrenSlugs = childEventChildrenSlugs.concat(childrenSlugs);
   }
 
-  const allCollectedIds = ids.concat(childEventChildrenIds);
-  const idsWithoutDuplicates = allCollectedIds.filter(
-    (id, index, array) => array.indexOf(id) === index
+  const allCollectedSlugs = slugs.concat(childEventChildrenSlugs);
+  const slugsWithoutDuplicates = allCollectedSlugs.filter(
+    (slug, index, array) => array.indexOf(slug) === index
   );
-  return idsWithoutDuplicates;
+  return slugsWithoutDuplicates;
 }
 
-export async function getEventById(id: string) {
+export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
@@ -133,7 +129,7 @@ export async function getEventById(id: string) {
       name: true,
     },
     where: {
-      id,
+      slug,
     },
   });
 }

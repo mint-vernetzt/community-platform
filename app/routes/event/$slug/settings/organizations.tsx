@@ -106,7 +106,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      eventId: event.id,
       published: event.published,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
@@ -143,8 +142,6 @@ function Organizations() {
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/event/${slug}/settings/organizations/add-organization`}
-        hiddenFields={["eventId"]}
-        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -156,7 +153,6 @@ function Organizations() {
           return (
             <>
               <Errors />
-              <Field name="eventId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -167,7 +163,7 @@ function Organizations() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="organizationId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -177,7 +173,7 @@ function Organizations() {
                           }
                           suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("organizationId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -249,10 +245,9 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/event/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["eventId", "id"]}
+                      hiddenFields={["organizationId"]}
                       values={{
-                        eventId: loaderData.eventId,
-                        id: organization.id,
+                        organizationId: organization.id,
                       }}
                       className="ml-auto"
                     >
@@ -261,8 +256,7 @@ function Organizations() {
                         return (
                           <>
                             <Errors />
-                            <Field name="eventId" />
-                            <Field name="id" />
+                            <Field name="organizationId" />
                             <button
                               className="btn btn-outline-primary ml-auto btn-small"
                               title="Hinzufügen"
@@ -326,9 +320,8 @@ function Organizations() {
                   schema={removeOrganizationSchema}
                   fetcher={removeOrganizationFetcher}
                   action={`/event/${slug}/settings/organizations/remove-organization`}
-                  hiddenFields={["eventId", "organizationId"]}
+                  hiddenFields={["organizationId"]}
                   values={{
-                    eventId: loaderData.eventId,
                     organizationId: organization.id,
                   }}
                   className="ml-auto"
@@ -338,7 +331,6 @@ function Organizations() {
                     return (
                       <>
                         <Errors />
-                        <Field name="eventId" />
                         <Field name="organizationId" />
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
@@ -370,9 +362,8 @@ function Organizations() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
                 publish: !loaderData.published,
               }}
             >
@@ -380,7 +371,6 @@ function Organizations() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

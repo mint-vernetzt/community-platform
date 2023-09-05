@@ -114,7 +114,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      eventId: event.id,
       published: event.published,
       participantLimit: event.participantLimit,
       participants: enhancedParticipants,
@@ -249,8 +248,6 @@ function Participants() {
           schema={addParticipantSchema}
           fetcher={addParticipantFetcher}
           action={`/event/${slug}/settings/participants/add-participant`}
-          hiddenFields={["eventId"]}
-          values={{ eventId: loaderData.eventId }}
           onSubmit={() => {
             submit({
               method: "get",
@@ -261,7 +258,6 @@ function Participants() {
           {({ Field, Errors, Button, register }) => {
             return (
               <>
-                <Field name="eventId" />
                 <div className="form-control w-full">
                   <div className="flex flex-row items-center mb-2">
                     <div className="flex-auto">
@@ -276,7 +272,7 @@ function Participants() {
                   </div>
 
                   <div className="flex flex-row">
-                    <Field name="id" className="flex-auto">
+                    <Field name="profileId" className="flex-auto">
                       {({ Errors }) => (
                         <>
                           <Errors />
@@ -286,7 +282,7 @@ function Participants() {
                             }
                             suggestionsLoaderPath={`/event/${slug}/settings/participants`}
                             defaultValue={suggestionsQuery || ""}
-                            {...register("id")}
+                            {...register("profileId")}
                             searchParameter="autocomplete_query"
                             autoFocus={false}
                           />
@@ -369,9 +365,8 @@ function Participants() {
                 schema={removeParticipantSchema}
                 fetcher={removeParticipantFetcher}
                 action={`/event/${slug}/settings/participants/remove-participant`}
-                hiddenFields={["eventId", "profileId"]}
+                hiddenFields={["profileId"]}
                 values={{
-                  eventId: loaderData.eventId,
                   profileId: participant.id,
                 }}
                 className="ml-auto"
@@ -381,7 +376,6 @@ function Participants() {
                   return (
                     <>
                       <Errors />
-                      <Field name="eventId" />
                       <Field name="profileId" />
                       <Button className="ml-auto btn-none" title="entfernen">
                         <svg
@@ -412,9 +406,8 @@ function Participants() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
                 publish: !loaderData.published,
               }}
             >
@@ -422,7 +415,6 @@ function Participants() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

@@ -1,7 +1,7 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, notFound } from "remix-utils";
+import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
@@ -16,16 +16,6 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
     throw notFound({ message: "Event visbilities not found." });
   }
   return result;
-}
-
-export async function checkSameEventOrThrow(request: Request, eventId: string) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  // TODO: can this type assertion be removed and proofen by code?
-  const value = formData.get("eventId") as string | null;
-  if (value === null || value !== eventId) {
-    throw badRequest({ message: "Event IDs differ" });
-  }
 }
 
 export async function getFullDepthProfiles(

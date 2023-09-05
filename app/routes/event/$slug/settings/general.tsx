@@ -458,9 +458,8 @@ function General() {
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
-          hiddenFields={["eventId", "cancel"]}
+          hiddenFields={["cancel"]}
           values={{
-            eventId: event.id,
             cancel: !event.canceled,
           }}
         >
@@ -468,7 +467,6 @@ function General() {
             const { Button, Field } = props;
             return (
               <>
-                <Field name="eventId" />
                 <Field name="cancel"></Field>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
@@ -906,9 +904,8 @@ function General() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: event.id,
                 publish: !event.published,
               }}
             >
@@ -916,7 +913,6 @@ function General() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {event.published ? "Verstecken" : "Veröffentlichen"}
