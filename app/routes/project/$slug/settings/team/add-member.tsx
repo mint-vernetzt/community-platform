@@ -12,6 +12,7 @@ import {
   getProfileById,
   getProjectBySlug,
 } from "./add-member.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const schema = z.object({
   profileId: z.string(),
@@ -62,6 +63,7 @@ export const action = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const mode = await deriveProjectMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const result = await performMutation({
     request,

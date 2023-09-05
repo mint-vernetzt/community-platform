@@ -8,58 +8,68 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProjectMode } from "~/routes/project/utils.server";
-import { checkSameProjectOrThrow, getOrganizationById } from "../utils.server";
-import { connectOrganizationToProject, getProjectById } from "./utils.server";
+import { getOrganizationById } from "../utils.server";
+import { connectOrganizationToProject, getProjectBySlug } from "./utils.server";
 
 const schema = z.object({
-  projectId: z.string(),
-  id: z.string(),
+  organizationId: z.string(),
 });
 
 export const addOrganizationSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationById(values.id);
+const environmentSchema = z.object({
+  slug: z.string(),
+});
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const organization = await getOrganizationById(values.organizationId);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation mit diesem Namen.",
-      "id"
+      "organizationId"
     );
   }
-  const alreadyMember = organization.responsibleForProject.some((entry) => {
-    return entry.project.id === values.projectId;
-  });
-  if (alreadyMember) {
+  const alreadyResponsible = organization.responsibleForProject.some(
+    (entry) => {
+      return entry.project.slug === environment.slug;
+    }
+  );
+  if (alreadyResponsible) {
     throw new InputError(
       "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich.",
-      "id"
+      "organizationId"
     );
   }
   return {
     ...values,
     name: organization.name,
     slug: organization.slug,
-    organizationId: organization.id,
   };
 });
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
-  const slug = getParamValueOrThrow(params, "slug");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
 
   if (result.success === true) {
-    const project = await getProjectById(result.data.projectId);
+    const project = await getProjectBySlug(slug);
     invariantResponse(project, "Project not Found", { status: 404 });
-    const mode = await deriveProjectMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-    await checkSameProjectOrThrow(request, project.id);
     await connectOrganizationToProject(project.id, result.data.organizationId);
     return json(
       {

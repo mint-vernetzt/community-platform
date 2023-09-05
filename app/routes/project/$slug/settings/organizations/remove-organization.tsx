@@ -8,14 +8,12 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProjectMode } from "~/routes/project/utils.server";
-import { checkSameProjectOrThrow } from "../utils.server";
 import {
   disconnectOrganizationFromProject,
-  getProjectById,
+  getProjectBySlug,
 } from "./utils.server";
 
 const schema = z.object({
-  projectId: z.string(),
   organizationId: z.string(),
 });
 
@@ -28,20 +26,18 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
-  const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const project = await getProjectById(result.data.projectId);
+    const project = await getProjectBySlug(slug);
     invariantResponse(project, "Project not Found", { status: 404 });
-    const mode = await deriveProjectMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-    await checkSameProjectOrThrow(request, project.id);
     await disconnectOrganizationFromProject(
       project.id,
       result.data.organizationId

@@ -11,6 +11,7 @@ import {
   getProjectBySlug,
   removeTeamMemberFromProject,
 } from "./remove-member.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const schema = z.object({
   profileId: z.string().uuid(),
@@ -36,11 +37,12 @@ const mutation = makeDomainFunction(
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const slug = getParamValueOrThrow(params, "slug");
   const mode = await deriveProjectMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
 

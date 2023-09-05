@@ -1,4 +1,4 @@
-import { badRequest, notFound } from "remix-utils";
+import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { type getProjectBySlug } from "./general.server";
 
@@ -31,7 +31,7 @@ export async function getOrganizationById(id: string) {
         select: {
           project: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },
@@ -119,24 +119,10 @@ export async function updateProjectById(
   ]);
 }
 
-export async function deleteProjectById(id: string) {
+export async function deleteProjectBySlug(slug: string) {
   await prismaClient.project.delete({
     where: {
-      id,
+      slug,
     },
   });
-}
-
-export async function checkSameProjectOrThrow(
-  request: Request,
-  projectId: string
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  // TODO: can this type assertion be removed and proofen by code?
-  const value = formData.get("projectId") as string | null;
-
-  if (value === null || value !== projectId) {
-    throw badRequest({ message: "Project IDs differ" });
-  }
 }

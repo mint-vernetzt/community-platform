@@ -109,7 +109,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      projectId: project.id,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
       ownOrganizationsSuggestions: enhancedOwnOrganizations,
@@ -144,8 +143,6 @@ function Organizations() {
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/project/${slug}/settings/organizations/add-organization`}
-        hiddenFields={["projectId"]}
-        values={{ projectId: loaderData.projectId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -157,7 +154,6 @@ function Organizations() {
           return (
             <>
               <Errors />
-              <Field name="projectId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -168,7 +164,7 @@ function Organizations() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="organizationId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -178,7 +174,7 @@ function Organizations() {
                           }
                           suggestionsLoaderPath={`/project/${slug}/settings/organizations`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("organizationId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -250,10 +246,9 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/project/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["projectId", "id"]}
+                      hiddenFields={["organizationId"]}
                       values={{
-                        projectId: loaderData.projectId,
-                        id: organization.id,
+                        organizationId: organization.id,
                       }}
                       className="ml-auto"
                     >
@@ -262,8 +257,7 @@ function Organizations() {
                         return (
                           <>
                             <Errors />
-                            <Field name="projectId" />
-                            <Field name="id" />
+                            <Field name="organizationId" />
                             <button
                               className="btn btn-outline-primary ml-auto btn-small"
                               title="Hinzufügen"
@@ -327,9 +321,8 @@ function Organizations() {
                     schema={removeOrganizationSchema}
                     fetcher={removeOrganizationFetcher}
                     action={`/project/${slug}/settings/organizations/remove-organization`}
-                    hiddenFields={["projectId", "organizationId"]}
+                    hiddenFields={["organizationId"]}
                     values={{
-                      projectId: loaderData.projectId,
                       organizationId: organization.id,
                     }}
                   >
@@ -338,7 +331,6 @@ function Organizations() {
                       return (
                         <>
                           <Errors />
-                          <Field name="projectId" />
                           <Field name="organizationId" />
                           <Button
                             className="ml-auto btn-none"

@@ -26,13 +26,13 @@ export async function disconnectOrganizationFromProject(
   });
 }
 
-export async function getProjectById(id: string) {
+export async function getProjectBySlug(slug: string) {
   return await prismaClient.project.findUnique({
     select: {
       id: true,
     },
     where: {
-      id,
+      slug,
     },
   });
 }

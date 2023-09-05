@@ -3,7 +3,6 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -12,14 +11,13 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProjectMode } from "../../utils.server";
 import { getProfileByUserId, getProjectBySlug } from "./delete.server";
-import { deleteProjectById } from "./utils.server";
+import { deleteProjectBySlug } from "./utils.server";
 
 const schema = z.object({
-  projectId: z.string().optional(),
   projectName: z.string().optional(),
 });
 
-const environmentSchema = z.object({ id: z.string(), name: z.string() });
+const environmentSchema = z.object({ slug: z.string(), name: z.string() });
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -38,7 +36,6 @@ export const loader = async (args: DataFunctionArgs) => {
 
   return json(
     {
-      projectId: project.id,
       projectName: project.name,
     },
     { headers: response.headers }
@@ -49,9 +46,6 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  if (values.projectId !== environment.id) {
-    throw new Error("Id nicht korrekt");
-  }
   if (values.projectName !== environment.name) {
     throw new InputError(
       "Der Name des Projekts ist nicht korrekt",
@@ -59,7 +53,7 @@ const mutation = makeDomainFunction(
     );
   }
   try {
-    await deleteProjectById(values.projectId);
+    await deleteProjectBySlug(environment.slug);
   } catch (error) {
     throw "Das Projekt konnte nicht gelöscht werden.";
   }
@@ -68,21 +62,14 @@ const mutation = makeDomainFunction(
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
   const slug = getParamValueOrThrow(params, "slug");
-
+  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, "projects");
-
-  const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
-
   const mode = await deriveProjectMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
   const profile = await getProfileByUserId(sessionUser.id);
   invariantResponse(profile, "Profile not found", { status: 404 });
 
@@ -90,17 +77,10 @@ export const action = async (args: DataFunctionArgs) => {
     request,
     schema,
     mutation,
-    environment: { id: project.id, name: project.name },
+    environment: { slug: slug, name: project.name },
   });
 
-  if (result.success === false) {
-    if (
-      result.errors._global !== undefined &&
-      result.errors._global.includes("Id nicht korrekt")
-    ) {
-      throw badRequest({ message: "Id nicht korrekt" });
-    }
-  } else {
+  if (result.success === true) {
     return redirect(`/profile/${profile.username}`, {
       headers: response.headers,
     });
@@ -125,7 +105,6 @@ function Delete() {
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="projectId" hidden value={loaderData.projectId} />
             <Field name="projectName" className="mb-4">
               {({ Errors }) => (
                 <>
