@@ -146,8 +146,6 @@ export const action = async (args: ActionArgs) => {
 
   const authClient = createAuthClient(request, response);
 
-  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
-
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganizationBySlug(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });

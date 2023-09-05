@@ -78,7 +78,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       teamMembers: enhancedTeamMembers,
       teamMemberSuggestions,
     },
@@ -110,8 +109,6 @@ function Team() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/project/${slug}/settings/team/add-member`}
-        hiddenFields={["userId"]}
-        values={{ userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -123,7 +120,6 @@ function Team() {
           return (
             <>
               <Errors />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -204,9 +200,8 @@ function Team() {
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/project/${slug}/settings/team/remove-member`}
-                  hiddenFields={["userId", "profileId"]}
+                  hiddenFields={["profileId"]}
                   values={{
-                    userId: loaderData.userId,
                     profileId: teamMember.id,
                   }}
                 >
@@ -215,7 +210,6 @@ function Team() {
                     return (
                       <>
                         <Errors />
-                        <Field name="userId" />
                         <Field name="profileId" />
                         {loaderData.teamMembers.length > 1 ? (
                           <Button

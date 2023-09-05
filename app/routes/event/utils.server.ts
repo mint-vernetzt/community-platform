@@ -1,7 +1,6 @@
 import { type Event } from "@prisma/client";
 import { type User } from "@supabase/auth-helpers-remix";
 import { zonedTimeToUtc } from "date-fns-tz";
-import { unauthorized } from "remix-utils";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, type Mode } from "~/utils.server";
@@ -30,19 +29,6 @@ export async function deriveEventMode(
     return "admin";
   }
   return mode;
-}
-
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  const formSenderId = formData.get("userId");
-
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
-  }
 }
 // TODO: fix any type
 export function transformFormToEvent(form: any) {

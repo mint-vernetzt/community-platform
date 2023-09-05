@@ -6,10 +6,7 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  checkIdentityOrThrow,
-  deriveOrganizationMode,
-} from "../../utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   addTeamMemberToOrganization,
   getOrganizationBySlug,
@@ -17,7 +14,6 @@ import {
 } from "./add-member.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   profileId: z.string(),
 });
 
@@ -63,7 +59,6 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({

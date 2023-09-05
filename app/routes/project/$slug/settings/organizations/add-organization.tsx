@@ -7,15 +7,11 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  checkIdentityOrThrow,
-  deriveProjectMode,
-} from "~/routes/project/utils.server";
+import { deriveProjectMode } from "~/routes/project/utils.server";
 import { checkSameProjectOrThrow, getOrganizationById } from "../utils.server";
 import { connectOrganizationToProject, getProjectById } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
   projectId: z.string(),
   id: z.string(),
 });
@@ -53,7 +49,6 @@ export const action = async (args: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
   const slug = getParamValueOrThrow(params, "slug");
 

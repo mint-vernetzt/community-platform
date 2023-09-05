@@ -123,7 +123,6 @@ export const loader = async (args: LoaderArgs) => {
       childEventSuggestions,
       eventId: event.id,
       published: event.published,
-      userId: sessionUser.id,
     },
     { headers: response.headers }
   );
@@ -174,8 +173,8 @@ function Events() {
         schema={setParentSchema}
         fetcher={setParentFetcher}
         action={`/event/${slug}/settings/events/set-parent`}
-        hiddenFields={["userId", "eventId"]}
-        values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
+        hiddenFields={["eventId"]}
+        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -189,7 +188,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="userId" />
               <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
@@ -244,9 +242,8 @@ function Events() {
             schema={setParentSchema}
             fetcher={setParentFetcher}
             action={`/event/${slug}/settings/events/set-parent`}
-            hiddenFields={["userId", "eventId", "parentEventId"]}
+            hiddenFields={["eventId", "parentEventId"]}
             values={{
-              userId: loaderData.userId,
               eventId: loaderData.eventId,
               parentEventId: "",
             }}
@@ -327,7 +324,6 @@ function Events() {
                         )}
                       </div>
                     </Link>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="parentEventId" />
                     <Button className="ml-auto btn-none" title="entfernen">
@@ -371,8 +367,8 @@ function Events() {
         schema={addChildSchema}
         fetcher={addChildFetcher}
         action={`/event/${slug}/settings/events/add-child`}
-        hiddenFields={["userId", "eventId"]}
-        values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
+        hiddenFields={["eventId"]}
+        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -386,7 +382,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="userId" />
               <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
@@ -457,9 +452,8 @@ function Events() {
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
                   action={`/event/${slug}/settings/events/remove-child`}
-                  hiddenFields={["userId", "eventId", "childEventId"]}
+                  hiddenFields={["eventId", "childEventId"]}
                   values={{
-                    userId: loaderData.userId,
                     eventId: loaderData.eventId,
                     childEventId: childEvent.id,
                   }}
@@ -529,7 +523,6 @@ function Events() {
                             )}
                           </div>
                         </Link>
-                        <Field name="userId" />
                         <Field name="eventId" />
                         <Field name="childEventId" />
                         <Button className="ml-auto btn-none" title="entfernen">
@@ -562,10 +555,9 @@ function Events() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -573,7 +565,6 @@ function Events() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

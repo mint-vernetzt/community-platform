@@ -42,7 +42,6 @@ import { deriveProjectMode } from "../../utils.server";
 import { getProjectBySlug, getProjectBySlugForAction } from "./general.server";
 
 const schema = object({
-  userId: string().required(),
   name: string().required(),
   headline: string(),
   excerpt: nullOrString(multiline()),
@@ -90,7 +89,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       project: transformProjectToForm(project),
       projectVisibilities,
       targetGroups,
@@ -271,7 +269,6 @@ function General() {
         <p className="mb-8">
           Gib den Namen und die Kontaktdaten für Dein Projekt ein.
         </p>
-        <input name="userId" defaultValue={loaderData.userId} hidden />
         <div className="mb-6">
           <InputText
             {...register("name")}

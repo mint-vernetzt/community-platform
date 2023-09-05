@@ -9,11 +9,10 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkSameEventOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, getProfileById } from "../utils.server";
+import { getProfileById } from "../utils.server";
 import { connectParticipantToEvent, getEventById } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
   eventId: z.string(),
   id: z.string(),
 });
@@ -49,7 +48,6 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });
@@ -81,7 +79,6 @@ export const action = async (args: DataFunctionArgs) => {
 
 type AddParticipantButtonProps = {
   action: string;
-  userId?: string;
   eventId?: string;
   id?: string;
 };
@@ -93,9 +90,8 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
       action={props.action}
       fetcher={fetcher}
       schema={schema}
-      hiddenFields={["eventId", "userId", "id"]}
+      hiddenFields={["eventId", "id"]}
       values={{
-        userId: props.userId,
         eventId: props.eventId,
         id: props.id,
       }}
@@ -104,7 +100,6 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
         const { Field, Errors } = props;
         return (
           <>
-            <Field name="userId" />
             <Field name="eventId" />
             <Field name="id" />
             <button className="btn btn-primary" type="submit">

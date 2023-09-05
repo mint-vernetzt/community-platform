@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { forbidden, notFound, unauthorized } from "remix-utils";
+import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -12,8 +12,7 @@ import {
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { triggerEntityScore } from "~/utils.server";
-import { deriveMode, type Mode } from "~/utils.server";
+import { deriveMode, triggerEntityScore, type Mode } from "~/utils.server";
 
 export type ProfileMode = Mode | "owner";
 
@@ -35,19 +34,6 @@ export async function deriveProfileMode(
     return "owner";
   }
   return mode;
-}
-
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  const formSenderId = formData.get("userId");
-
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
-  }
 }
 
 export async function getWholeProfileFromUsername(username: string) {

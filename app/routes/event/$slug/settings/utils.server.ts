@@ -10,21 +10,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
 
-// Could be a top level function, as it's used in almost all actions
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  // TODO: can this type assertion be removed and proofen by code?
-  const formSenderId = formData.get("userId") as string | null;
-
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
-  }
-}
-
 export function validateTimePeriods(
   // TODO: fix any type
   newEventData: any,

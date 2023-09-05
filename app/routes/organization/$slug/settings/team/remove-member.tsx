@@ -6,17 +6,13 @@ import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  checkIdentityOrThrow,
-  deriveOrganizationMode,
-} from "../../utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   getOrganizationBySlug,
   removeTeamMemberFromOrganization,
 } from "./remove-member.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   profileId: z.string().uuid(),
 });
 
@@ -42,7 +38,6 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganizationBySlug(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });

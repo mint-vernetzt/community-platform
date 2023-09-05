@@ -9,11 +9,10 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkSameEventOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, getProfileById } from "../utils.server";
+import { getProfileById } from "../utils.server";
 import { connectSpeakerProfileToEvent, getEventById } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
   eventId: z.string(),
   id: z.string(),
 });
@@ -50,7 +49,6 @@ export const action = async (args: DataFunctionArgs) => {
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
 
   const result = await performMutation({ request, schema, mutation });

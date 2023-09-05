@@ -17,10 +17,9 @@ import {
   getProfileById,
 } from "./delete.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { checkIdentityOrThrow, deleteEventById } from "./utils.server";
+import { deleteEventById } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string().optional(),
   eventId: z.string().optional(),
   eventName: z.string().optional(),
 });
@@ -44,7 +43,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       eventId: event.id,
       published: event.published,
       eventName: event.name,
@@ -84,8 +82,6 @@ export const action = async (args: ActionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  await checkIdentityOrThrow(request, sessionUser);
 
   const event = await getEventBySlugForAction(slug);
   invariantResponse(event, "Event not found", { status: 404 });
@@ -160,7 +156,6 @@ function Delete() {
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="userId" hidden value={loaderData.userId} />
             <Field name="eventId" hidden value={loaderData.eventId} />
             <Field name="eventName" className="mb-4">
               {({ Errors }) => (
@@ -191,10 +186,9 @@ function Delete() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -202,7 +196,6 @@ function Delete() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

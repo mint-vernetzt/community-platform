@@ -84,8 +84,6 @@ export const action = async (args: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
 
-  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
-
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);

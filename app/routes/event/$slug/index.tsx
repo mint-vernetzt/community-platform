@@ -363,7 +363,6 @@ function getForm(loaderData: {
     return (
       <RemoveParticipantButton
         action="./settings/participants/remove-participant"
-        userId={loaderData.userId}
         profileId={loaderData.userId}
         eventId={loaderData.event.id}
       />
@@ -372,7 +371,6 @@ function getForm(loaderData: {
     return (
       <RemoveFromWaitingListButton
         action="./settings/waiting-list/remove-from-waiting-list"
-        userId={loaderData.userId}
         profileId={loaderData.userId}
         eventId={loaderData.event.id}
       />
@@ -382,7 +380,6 @@ function getForm(loaderData: {
       return (
         <AddToWaitingListButton
           action="./settings/waiting-list/add-to-waiting-list"
-          userId={loaderData.userId}
           eventId={loaderData.event.id}
           id={loaderData.userId}
         />
@@ -391,7 +388,6 @@ function getForm(loaderData: {
       return (
         <AddParticipantButton
           action="./settings/participants/add-participant"
-          userId={loaderData.userId}
           eventId={loaderData.event.id}
           id={loaderData.userId}
         />
@@ -1120,7 +1116,6 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
-                              userId={loaderData.userId}
                               eventId={event.id}
                               id={loaderData.userId}
                             />
@@ -1138,7 +1133,6 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                              userId={loaderData.userId}
                               eventId={event.id}
                               id={loaderData.userId}
                             />

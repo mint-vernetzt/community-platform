@@ -10,12 +10,11 @@ import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkIdentityOrThrow, deriveProjectMode } from "../../utils.server";
+import { deriveProjectMode } from "../../utils.server";
 import { getProfileByUserId, getProjectBySlug } from "./delete.server";
 import { deleteProjectById } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string().optional(),
   projectId: z.string().optional(),
   projectName: z.string().optional(),
 });
@@ -39,7 +38,6 @@ export const loader = async (args: DataFunctionArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       projectId: project.id,
       projectName: project.name,
     },
@@ -76,8 +74,6 @@ export const action = async (args: DataFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  await checkIdentityOrThrow(request, sessionUser);
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
@@ -129,7 +125,6 @@ function Delete() {
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="userId" hidden value={loaderData.userId} />
             <Field name="projectId" hidden value={loaderData.projectId} />
             <Field name="projectName" className="mb-4">
               {({ Errors }) => (

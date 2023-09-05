@@ -49,7 +49,6 @@ import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
 import { cancelSchema, type action as cancelAction } from "./events/cancel";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  checkIdentityOrThrow,
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
@@ -62,7 +61,6 @@ import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
 
 const schema = object({
-  userId: string().required(),
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
@@ -177,7 +175,6 @@ export const loader = async (args: LoaderArgs) => {
     {
       event: transformEventToForm(event),
       eventVisibilities,
-      userId: sessionUser.id,
       focuses,
       types,
       tags,
@@ -203,8 +200,6 @@ export const action = async (args: ActionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-
-  await checkIdentityOrThrow(request, sessionUser);
 
   const event = await getEventBySlugForAction(slug);
   invariantResponse(event, "Event not found", { status: 404 });
@@ -271,7 +266,6 @@ function General() {
   const {
     event: originalEvent,
     eventVisibilities,
-    userId,
     focuses,
     types,
     targetGroups,
@@ -464,10 +458,9 @@ function General() {
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
-          hiddenFields={["eventId", "userId", "cancel"]}
+          hiddenFields={["eventId", "cancel"]}
           values={{
             eventId: event.id,
-            userId: userId,
             cancel: !event.canceled,
           }}
         >
@@ -475,7 +468,6 @@ function General() {
             const { Button, Field } = props;
             return (
               <>
-                <Field name="userId" />
                 <Field name="eventId" />
                 <Field name="cancel"></Field>
                 <div className="mt-2">
@@ -497,7 +489,6 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <input name="userId" defaultValue={userId} hidden />
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -915,10 +906,9 @@ function General() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: event.id,
-                userId: userId,
                 publish: !event.published,
               }}
             >
@@ -926,7 +916,6 @@ function General() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

@@ -109,7 +109,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       projectId: project.id,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
@@ -145,8 +144,8 @@ function Organizations() {
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/project/${slug}/settings/organizations/add-organization`}
-        hiddenFields={["projectId", "userId"]}
-        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
+        hiddenFields={["projectId"]}
+        values={{ projectId: loaderData.projectId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -159,7 +158,6 @@ function Organizations() {
             <>
               <Errors />
               <Field name="projectId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -252,9 +250,8 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/project/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["userId", "projectId", "id"]}
+                      hiddenFields={["projectId", "id"]}
                       values={{
-                        userId: loaderData.userId,
                         projectId: loaderData.projectId,
                         id: organization.id,
                       }}
@@ -265,7 +262,6 @@ function Organizations() {
                         return (
                           <>
                             <Errors />
-                            <Field name="userId" />
                             <Field name="projectId" />
                             <Field name="id" />
                             <button
@@ -331,9 +327,8 @@ function Organizations() {
                     schema={removeOrganizationSchema}
                     fetcher={removeOrganizationFetcher}
                     action={`/project/${slug}/settings/organizations/remove-organization`}
-                    hiddenFields={["userId", "projectId", "organizationId"]}
+                    hiddenFields={["projectId", "organizationId"]}
                     values={{
-                      userId: loaderData.userId,
                       projectId: loaderData.projectId,
                       organizationId: organization.id,
                     }}
@@ -343,7 +338,6 @@ function Organizations() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
                           <Field name="projectId" />
                           <Field name="organizationId" />
                           <Button

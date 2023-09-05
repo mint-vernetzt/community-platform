@@ -13,7 +13,6 @@ import {
 } from "./remove-member.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   profileId: z.string().uuid(),
 });
 

@@ -13,7 +13,6 @@ import {
 } from "./remove-admin.server";
 
 const schema = z.object({
-  userId: z.string(),
   profileId: z.string(),
 });
 

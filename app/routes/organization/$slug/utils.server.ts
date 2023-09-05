@@ -1,5 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { badRequest, unauthorized } from "remix-utils";
+import { badRequest } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, type Mode } from "~/utils.server";
 
@@ -27,19 +27,6 @@ export async function deriveOrganizationMode(
     return "admin";
   }
   return mode;
-}
-
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  const formSenderId = formData.get("userId");
-
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
-  }
 }
 
 export async function checkSameOrganizationOrThrow(

@@ -76,7 +76,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       eventId: event.id,
       published: event.published,
       teamMembers: enhancedTeamMembers,
@@ -111,8 +110,6 @@ function Team() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/event/${slug}/settings/team/add-member`}
-        hiddenFields={["userId"]}
-        values={{ userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -124,7 +121,6 @@ function Team() {
           return (
             <>
               <Errors />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -205,9 +201,8 @@ function Team() {
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/event/${slug}/settings/team/remove-member`}
-                  hiddenFields={["userId", "profileId"]}
+                  hiddenFields={["profileId"]}
                   values={{
-                    userId: loaderData.userId,
                     profileId: teamMember.id,
                   }}
                 >
@@ -216,7 +211,6 @@ function Team() {
                     return (
                       <>
                         <Errors />
-                        <Field name="userId" />
                         <Field name="profileId" />
                         {loaderData.teamMembers.length > 1 ? (
                           <Button
@@ -253,10 +247,9 @@ function Team() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -264,7 +257,6 @@ function Team() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

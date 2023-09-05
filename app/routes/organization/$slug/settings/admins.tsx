@@ -73,7 +73,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       admins: enhancedAdmins,
       adminSuggestions,
     },
@@ -105,8 +104,6 @@ function Admins() {
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
         action={`/organization/${slug}/settings/admins/add-admin`}
-        hiddenFields={["userId"]}
-        values={{ userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -118,7 +115,6 @@ function Admins() {
           return (
             <>
               <Errors />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -200,9 +196,8 @@ function Admins() {
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
                   action={`/organization/${slug}/settings/admins/remove-admin`}
-                  hiddenFields={["userId", "profileId"]}
+                  hiddenFields={["profileId"]}
                   values={{
-                    userId: loaderData.userId,
                     profileId: admin.id,
                   }}
                 >
@@ -211,7 +206,6 @@ function Admins() {
                     return (
                       <>
                         <Errors />
-                        <Field name="userId" />
                         <Field name="profileId" />
                         {loaderData.admins.length > 1 ? (
                           <Button

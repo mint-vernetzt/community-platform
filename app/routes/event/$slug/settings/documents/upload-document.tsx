@@ -11,7 +11,6 @@ import { doPersistUpload, parseMultipart } from "~/storage.server";
 import { createDocumentOnEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
   eventId: z.string(),
   uploadKey: z.string(),
   document: z.unknown(),

@@ -952,7 +952,6 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${relation.event.slug}/settings/participants/add-participant`}
-                                    userId={loaderData.userId}
                                     eventId={relation.event.id}
                                     id={loaderData.userId}
                                   />
@@ -969,7 +968,6 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${relation.event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    userId={loaderData.userId}
                                     eventId={relation.event.id}
                                     id={loaderData.userId}
                                   />

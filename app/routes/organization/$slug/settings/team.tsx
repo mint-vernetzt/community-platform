@@ -65,7 +65,6 @@ export const loader = async (args: LoaderArgs) => {
     {
       members: enhancedMembers,
       memberSuggestions,
-      userId: sessionUser.id,
       organizationId: organization.id,
       slug: slug,
     },
@@ -97,10 +96,6 @@ function Index() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/organization/${slug}/settings/team/add-member`}
-        hiddenFields={["userId"]}
-        values={{
-          userId: loaderData.userId,
-        }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -141,7 +136,6 @@ function Index() {
                   </Button>
                 </div>
               </div>
-              <Field name="userId" />
             </div>
           );
         }}
@@ -191,10 +185,9 @@ function Index() {
                   method="post"
                   action={`/organization/${slug}/settings/team/remove-member`}
                   schema={removeMemberSchema}
-                  hiddenFields={["profileId", "userId"]}
+                  hiddenFields={["profileId"]}
                   values={{
                     profileId: profile.id,
-                    userId: loaderData.userId,
                   }}
                   fetcher={removeMemberFetcher}
                 >
@@ -220,7 +213,6 @@ function Index() {
                             </svg>
                           </Button>
                         ) : null}
-                        <Field name="userId" />
                         <Field name="profileId" />
                         <Errors />
                       </>

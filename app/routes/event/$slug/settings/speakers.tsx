@@ -79,7 +79,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       eventId: event.id,
       published: event.published,
       speakers: enhancedSpeakers,
@@ -115,8 +114,8 @@ function Speakers() {
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
         action={`/event/${slug}/settings/speakers/add-speaker`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        hiddenFields={["eventId"]}
+        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -129,7 +128,6 @@ function Speakers() {
             <>
               <Errors />
               <Field name="eventId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -210,9 +208,8 @@ function Speakers() {
                 schema={removeSpeakerSchema}
                 fetcher={removeSpeakerFetcher}
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
-                hiddenFields={["userId", "eventId", "speakerId"]}
+                hiddenFields={["eventId", "speakerId"]}
                 values={{
-                  userId: loaderData.userId,
                   eventId: loaderData.eventId,
                   speakerId: profile.id,
                 }}
@@ -223,7 +220,6 @@ function Speakers() {
                   return (
                     <>
                       <Errors />
-                      <Field name="userId" />
                       <Field name="eventId" />
                       <Field name="speakerId" />
                       <Button className="ml-auto btn-none" title="entfernen">
@@ -255,10 +251,9 @@ function Speakers() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -266,7 +261,6 @@ function Speakers() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

@@ -8,14 +8,12 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
-import { checkIdentityOrThrow } from "../utils.server";
 import {
   getEventBySlug,
   removeTeamMemberFromEvent,
 } from "./remove-member.server";
 
 const schema = z.object({
-  userId: z.string(),
   profileId: z.string(),
 });
 
@@ -41,7 +39,6 @@ export const action = async (args: DataFunctionArgs) => {
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });

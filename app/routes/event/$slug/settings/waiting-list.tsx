@@ -102,7 +102,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       eventId: event.id,
       published: event.published,
       waitingList: enhancedWaitingParticipants,
@@ -144,8 +143,8 @@ function Participants() {
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
         action={`/event/${slug}/settings/waiting-list/add-to-waiting-list`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
+        hiddenFields={["eventId"]}
+        values={{ eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -157,7 +156,6 @@ function Participants() {
           return (
             <>
               <Field name="eventId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -275,9 +273,8 @@ function Participants() {
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
                     action={`/event/${slug}/settings/waiting-list/move-to-participants`}
-                    hiddenFields={["userId", "eventId", "profileId"]}
+                    hiddenFields={["eventId", "profileId"]}
                     values={{
-                      userId: loaderData.userId,
                       eventId: loaderData.eventId,
                       profileId: waitingParticipant.id,
                     }}
@@ -288,7 +285,6 @@ function Participants() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
                           <Field name="eventId" />
                           <Field name="profileId" />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
@@ -302,9 +298,8 @@ function Participants() {
                     schema={removeFromWaitingListSchema}
                     fetcher={removeFromWaitingListFetcher}
                     action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
-                    hiddenFields={["userId", "eventId", "profileId"]}
+                    hiddenFields={["eventId", "profileId"]}
                     values={{
-                      userId: loaderData.userId,
                       eventId: loaderData.eventId,
                       profileId: waitingParticipant.id,
                     }}
@@ -314,7 +309,6 @@ function Participants() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
                           <Field name="eventId" />
                           <Field name="profileId" />
                           <Button
@@ -351,10 +345,9 @@ function Participants() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -362,7 +355,6 @@ function Participants() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">

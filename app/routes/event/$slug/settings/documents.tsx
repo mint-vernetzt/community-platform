@@ -43,7 +43,6 @@ export const loader = async (args: DataFunctionArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
       event: event,
     },
     { headers: response.headers }
@@ -141,11 +140,6 @@ function Documents() {
                         {({ Field, Errors, register }) => (
                           <>
                             <Field
-                              name="userId"
-                              hidden
-                              value={loaderData.userId}
-                            />
-                            <Field
                               name="documentId"
                               hidden
                               value={item.document.id}
@@ -219,11 +213,6 @@ function Documents() {
                       {({ Field, Errors }) => (
                         <>
                           <Field
-                            name="userId"
-                            hidden
-                            value={loaderData.userId}
-                          />
-                          <Field
                             name="documentId"
                             hidden
                             value={item.document.id}
@@ -271,7 +260,6 @@ function Documents() {
       >
         {({ Field, Errors }) => (
           <>
-            <Field name="userId" hidden value={loaderData.userId} />
             <Field name="eventId" hidden value={loaderData.event.id} />
             <Field name="uploadKey" hidden value={"document"} />
             <Field name="document" label="PDF Dokument auswählen">
@@ -305,10 +293,9 @@ function Documents() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["eventId", "publish"]}
               values={{
                 eventId: loaderData.event.id,
-                userId: loaderData.userId,
                 publish: !loaderData.event.published,
               }}
             >
@@ -316,7 +303,6 @@ function Documents() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
                     <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
