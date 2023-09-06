@@ -18,6 +18,7 @@ node_modules
 .idea
 .vscode
 .DS_Store
+/*.sql
 
 # Supabase
 **/supabase/.branches
@@ -27,3 +28,4 @@ node_modules
 # Cypress
 /cypress/videos
 /cypress/screenshots
+
