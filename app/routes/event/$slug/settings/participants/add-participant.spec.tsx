@@ -88,32 +88,33 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     }
   });
 
-  test("event not found", async () => {
+  test("profile not found", async () => {
     const request = createRequestWithFormData({
       profileId: "some-user-id",
     });
 
-    expect.assertions(1);
+    expect.assertions(4);
 
     getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
-    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
-      id: "some-user-id",
-      participatedEvents: [],
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
     });
 
-    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-    try {
-      await action({
-        request,
-        context: {},
-        params: { slug: "some-event-slug" },
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-    }
+    const response = await action({
+      request,
+      context: {},
+      params: { slug: "some-event-slug" },
+    });
+    const responseBody = await response.json();
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.profileId).toStrictEqual([
+      "Es existiert noch kein Profil unter diesem Namen.",
+    ]);
   });
 
   test("already participant", async () => {
@@ -147,6 +148,34 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     expect(responseBody.errors.profileId).toContain(
       "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil."
     );
+  });
+
+  test("event not found", async () => {
+    const request = createRequestWithFormData({
+      profileId: "some-user-id",
+    });
+
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-user-id",
+      participatedEvents: [],
+    });
+
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-event-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+    }
   });
 
   test("add different user as participant (admin)", async () => {
