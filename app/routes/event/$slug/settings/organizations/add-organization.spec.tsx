@@ -17,12 +17,9 @@ jest.mock("~/prisma.server", () => {
     prismaClient: {
       event: {
         findFirst: jest.fn(),
-      },
-      teamMemberOfEvent: {
-        findFirst: jest.fn(),
+        findUnique: jest.fn(),
       },
       responsibleOrganizationOfEvent: {
-        findFirst: jest.fn(),
         create: jest.fn(),
       },
       organization: {
@@ -48,7 +45,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       await action({
         request,
         context: {},
-        params: {},
+        params: { slug: "some-event-slug" },
       });
     } catch (error) {
       const response = error as Response;
@@ -59,167 +56,91 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     }
   });
 
-  test("event not found", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
-      id: "some-organization-id",
-    });
+  test("authenticated but not admin user", async () => {
+    const request = createRequestWithFormData({});
 
-    expect.assertions(2);
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
-    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
-      responsibleForEvents: [],
-    });
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    try {
-      await action({ request, context: {}, params: {} });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-
-      const json = await response.json();
-      expect(json.message).toBe("Event not found");
-    }
-  });
-
-  test("not privileged user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
-      id: "some-organization-id",
-    });
-
-    expect.assertions(2);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
-      responsibleForEvents: [],
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
 
     try {
       await action({
         request,
         context: {},
-        params: {},
+        params: { slug: "some-event-slug" },
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
+      expect(response.status).toBe(403);
     }
   });
 
-  test("different user id", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
+  test("organization not found", async () => {
+    const request = createRequestWithFormData({
+      organizationId: "some-organization-id",
+    });
 
-    expect.assertions(2);
+    expect.assertions(4);
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+    });
 
-      const json = await response.json();
-      expect(json.message).toBe("Identity check failed");
-    }
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce(
+      null
+    );
+
+    const response = await action({
+      request,
+      context: {},
+      params: { slug: "some-event-slug" },
+    });
+    const responseBody = await response.json();
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.organizationId).toStrictEqual([
+      "Es existiert noch keine Organisation mit diesem Namen.",
+    ]);
   });
 
-  test("different event id", async () => {
+  test("already responsible", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
-      id: "some-organization-id",
+      organizationId: "some-organization-id",
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "another-event-id" };
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
     });
+
     (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
-      responsibleForEvents: [],
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(400);
-
-      const json = await response.json();
-      expect(json.message).toBe("Event IDs differ");
-    }
-  });
-
-  test("already member", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
       id: "some-organization-id",
-    });
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-event-id" };
-    });
-    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
       responsibleForEvents: [
         {
           event: {
-            id: "some-event-id",
+            slug: "some-event-slug",
           },
         },
       ],
-    });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
     });
 
     const response = await action({
       request,
       context: {},
-      params: {},
+      params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.id).toContain(
+    expect(responseBody.errors.organizationId).toContain(
       "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich."
     );
   });
@@ -228,37 +149,35 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
-      userId: "some-user-id",
-      eventId: "some-event-id",
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+    });
+
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
       id: "some-organization-id",
+      name: "some-organization-name",
+      responsibleForEvents: [
+        {
+          event: {
+            slug: "another-event-slug",
+          },
+        },
+      ],
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "some-event-id",
-      };
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
     });
-    (
-      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementation(
-      () => {
-        return {
-          id: "some-organization-id",
-          name: "some-organization",
-          responsibleForEvents: [],
-        };
-      }
-    );
 
     const response = await action({
       request,
       context: {},
-      params: {},
+      params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
     expect(
@@ -270,7 +189,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       },
     });
     expect(responseBody.message).toBe(
-      'Die Organisation "some-organization" ist jetzt verantwortlich für Eure Veranstaltung.'
+      'Die Organisation "some-organization-name" ist jetzt verantwortlich für Eure Veranstaltung.'
     );
   });
 });

@@ -54,7 +54,12 @@ export const action = async (args: DataFunctionArgs) => {
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { eventSlug: slug },
+  });
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
