@@ -21,7 +21,7 @@ export async function getEventBySlug(slug: string) {
       name: true,
       slug: true,
       startTime: true,
-      teamMembers: {
+      admins: {
         select: {
           profile: {
             select: {

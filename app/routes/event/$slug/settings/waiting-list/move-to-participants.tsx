@@ -55,9 +55,19 @@ export const action = async (args: DataFunctionArgs) => {
       console.error(
         "No system mail sender address provided. Please add one inside the .env."
       );
-      return badRequest({
+      throw badRequest({
         message:
           "No system mail sender address provided. Please add one inside the .env.",
+      });
+    }
+    const baseUrl = process.env.COMMUNITY_BASE_URL;
+    if (baseUrl === undefined) {
+      console.error(
+        "No community base url provided. Please add one inside the .env."
+      );
+      throw badRequest({
+        message:
+          "No community base url provided. Please add one inside the .env.",
       });
     }
     // -> mail of person which was moved to waitinglist
@@ -70,24 +80,24 @@ export const action = async (args: DataFunctionArgs) => {
       },
       event: {
         name: event.name,
-        url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+        url: `${baseUrl}/event/${event.slug}`,
         startDate: `${event.startTime.getDate()}.${
           event.startTime.getMonth() + 1
         }.${event.startTime.getFullYear()}`,
         startTime: `${event.startTime.getHours()}:${
           event.startTime.getMinutes() < 10
-            ? `${event.startTime.getMinutes()}0`
+            ? `0${event.startTime.getMinutes()}`
             : event.startTime.getMinutes()
         }`,
         supportContact: {
           firstName:
-            event.teamMembers[0].profile.firstName ??
+            event.admins[0].profile.firstName ??
             "Kein zuständiges Teammitglied gefunden",
           lastName:
-            event.teamMembers[0].profile.lastName ??
+            event.admins[0].profile.lastName ??
             "Kein zuständiges Teammitglied gefunden",
           email:
-            event.teamMembers[0].profile.email ??
+            event.admins[0].profile.email ??
             "Kein zuständiges Teammitglied gefunden",
         },
       },
