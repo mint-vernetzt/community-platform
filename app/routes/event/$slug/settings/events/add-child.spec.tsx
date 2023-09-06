@@ -54,6 +54,27 @@ describe("/event/$slug/settings/events/add-child", () => {
     }
   });
 
+  test("authenticated but not admin user", async () => {
+    const request = createRequestWithFormData({});
+
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-event-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(403);
+    }
+  });
+
   test("event not found", async () => {
     const request = createRequestWithFormData({
       childEventId: "some-child-id",
@@ -114,29 +135,6 @@ describe("/event/$slug/settings/events/add-child", () => {
     expect(responseBody.errors._global).toStrictEqual([
       "Die zugehörige Veranstaltung konnte nicht gefunden werden.",
     ]);
-  });
-
-  test("not admin user", async () => {
-    const request = createRequestWithFormData({
-      childEventId: "some-child-id",
-    });
-
-    expect.assertions(1);
-
-    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
-
-    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: { slug: "some-event-id" },
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(403);
-    }
   });
 
   test("child event not inside the timespan of parent event", async () => {
