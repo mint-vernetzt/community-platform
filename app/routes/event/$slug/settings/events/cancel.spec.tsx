@@ -20,9 +20,6 @@ jest.mock("~/prisma.server", () => {
         update: jest.fn(),
         updateMany: jest.fn(),
       },
-      teamMemberOfEvent: {
-        findFirst: jest.fn(),
-      },
     },
   };
 });
