@@ -84,7 +84,7 @@ describe("/event/$slug/settings/speakers/remove-speaker", () => {
     getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
-      id: "some-profile-id",
+      id: "some-event-id",
     });
 
     (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -111,7 +111,7 @@ describe("/event/$slug/settings/speakers/remove-speaker", () => {
     getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
     (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
-      id: "some-profile-id",
+      id: "some-event-id",
     });
 
     (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
