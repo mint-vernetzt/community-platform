@@ -334,50 +334,6 @@ export async function deleteEventBySlug(slug: string) {
   });
 }
 
-export async function getEventsOfPrivilegedMemberExceptOfGivenEvent(
-  privilegedMemberId: string,
-  currentEventId: string
-) {
-  const result = await prismaClient.teamMemberOfEvent.findMany({
-    where: {
-      profileId: privilegedMemberId,
-      eventId: {
-        not: currentEventId,
-      },
-      event: {
-        admins: {
-          some: {
-            profileId: privilegedMemberId,
-          },
-        },
-      },
-    },
-    select: {
-      event: {
-        select: {
-          id: true,
-          name: true,
-          parentEventId: true,
-        },
-      },
-    },
-  });
-  return result;
-}
-
-export function getOptionsFromEvents(
-  events: Awaited<
-    ReturnType<typeof getEventsOfPrivilegedMemberExceptOfGivenEvent>
-  >
-) {
-  const options = events.map((item) => {
-    const label = item.event.name;
-    const value = item.event.id;
-    return { label, value, hasParent: item.event.parentEventId !== null };
-  });
-  return options;
-}
-
 export async function getOrganizationById(id: string) {
   const organization = await prismaClient.organization.findFirst({
     where: { id },

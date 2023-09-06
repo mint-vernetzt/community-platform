@@ -36,8 +36,8 @@ import {
 } from "./events/set-parent";
 import {
   getChildEventSuggestions,
-  getEventsOfPrivilegedMemberExceptOfGivenEvent,
-  getOptionsFromEvents,
+  // getEventsOfPrivilegedMemberExceptOfGivenEvent,
+  // getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
 
@@ -52,13 +52,6 @@ export const loader = async (args: LoaderArgs) => {
   invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-
-  const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(
-    sessionUser.id,
-    event.id
-  );
-
-  const options = getOptionsFromEvents(events);
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     if (childEvent.background !== null) {
@@ -116,7 +109,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      options,
       parentEvent: event.parentEvent,
       parentEventSuggestions,
       childEvents: enhancedChildEvents,
