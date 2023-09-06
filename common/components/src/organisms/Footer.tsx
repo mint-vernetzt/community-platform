@@ -5,21 +5,21 @@ function Footer() {
     <footer
       className="
       mv-fixed mv-bottom-0 mv-left-0 mv-right-0 
-      md:mv-relative mv-text-sm md:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white
+      lg:mv-relative mv-text-sm lg:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white
       mv-grid 
       peer-checked:mv-grid-rows-[1fr auto]
       mv-grid-rows-[auto 0fr]
-      md:mv-block"
+      lg:mv-block"
     >
       <input
         type="checkbox"
         className="mv-peer         
         mv-absolute mv-inset-x-0
-        mv-opacity-0 md:mv-hidden mv-z-10 mv-cursor-pointer 
+        mv-opacity-0 lg:mv-hidden mv-z-10 mv-cursor-pointer 
         mv-z-10 mv-h-[37px] mv-w-full
         "
       />
-      <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 md:mv-hidden mv-z-0 mv-relative ">
+      <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 lg:mv-hidden mv-z-0 mv-relative ">
         <button className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between">
           <span className="mv-w-3"></span>
           <span className="">Impressum</span>
@@ -40,15 +40,15 @@ function Footer() {
         </button>
       </div>
       <div
-        className={`mv-row-span-2 mv-overflow-hidden mv-max-h-0 mv-transition-[max-height_0.25s_ease-in-out] peer-checked:mv-overflow-auto peer-checked:mv-max-h-[calc(100svh-37px-50px)] mv-flex mv-flex-col md:mv-max-h-fit`}
+        className={`mv-row-span-2 mv-overflow-hidden mv-max-h-0 mv-transition-[max-height_0.25s_ease-in-out] peer-checked:mv-overflow-auto peer-checked:mv-max-h-[calc(100svh-37px-50px)] mv-flex mv-flex-col lg:mv-max-h-fit`}
       >
-        <hr className="mv-hidden md:mv-block md:mv-order-2" />
-        <div className="md:mv-order-3 mv-container md:mv-py-6 md:mv-flex ">
-          <div className="mv-font-bold mv-hidden md:mv-block md:mv-w-3/12">
+        <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
+        <div className="lg:mv-order-3 mv-container lg:mv-py-6 lg:mv-flex ">
+          <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
             © 2021-2023 matrix gGmbH
           </div>
-          <div className="mv-py-4 md:mv-py-0 md:mv-w-6/12">
-            <ul className="mv-flex mv-flex-col md:mv-flex-row md:mv-justify-center mv-gap-4 md:mv-gap-6">
+          <div className="mv-py-4 lg:mv-py-0 lg:mv-w-6/12">
+            <ul className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-center mv-gap-4 lg:mv-gap-6">
               <li>
                 <Link as="a" to="/imprint" isExternal>
                   Impressum
@@ -86,8 +86,8 @@ function Footer() {
               </li>
             </ul>
           </div>
-          <div className="mv-py-4 md:mv-py-0 md:mv-w-3/12">
-            <ul className="mv-flex mv-items-center md:mv-justify-end mv-gap-4">
+          <div className="mv-py-4 lg:mv-py-0 lg:mv-w-3/12">
+            <ul className="mv-flex mv-items-center lg:mv-justify-end mv-gap-4">
               <li>
                 <Link
                   as="a"
@@ -155,8 +155,8 @@ function Footer() {
           </div>
         </div>
 
-        <div className="md:mv-order-1 mv-container md:mv-pt-12 md:mv-pb-8 md:mv-flex">
-          <div className="mv-font-bold mv-hidden md:mv-block">
+        <div className="lg:mv-order-1 mv-container lg:mv-pt-12 lg:mv-pb-8 lg:mv-flex">
+          <div className="mv-font-bold mv-hidden lg:mv-block">
             <div className="mv-w-48 md:mv-mr-16 xl:mv-mr-20">
               <Link
                 to="/"
@@ -198,12 +198,12 @@ function Footer() {
             </div>
           </div>
 
-          <div className="mv-py-4 mv-flex mv-flex-col mv-gap-4 md:mv-py-0 md:mv-pt-3 md:mv-flex-row md:mv-gap-16">
+          <div className="mv-py-4 mv-flex mv-flex-col mv-gap-4 lg:mv-py-0 lg:mv-pt-3 lg:mv-flex-row lg:mv-gap-16">
             <div className="">
-              <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 md:mv-mb-2">
+              <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
                 Entdecken
               </h5>
-              <ul className="mv-flex mv-flex-col md:mv-justify-center mv-gap-4 md:mv-gap-1">
+              <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                 <li>
                   <Link to="/explore/profiles" className="">
                     Profile
@@ -227,10 +227,10 @@ function Footer() {
               </ul>
             </div>
             <div className="">
-              <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 md:mv-mb-2">
+              <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
                 Mitwirken
               </h5>
-              <ul className="mv-flex mv-flex-col md:mv-justify-center mv-gap-4 md:mv-gap-1">
+              <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                 <li>
                   <Link
                     as="a"
@@ -242,9 +242,26 @@ function Footer() {
                 </li>
               </ul>
             </div>
+            <div className="">
+              <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
+                Mehr erfahren
+              </h5>
+              <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
+                <li>
+                  <Link
+                    as="a"
+                    to="https://mint-vernetzt.de/"
+                    className=""
+                    isExternal
+                  >
+                    MINTvernetzt-Website
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="mv-py-4 md:mv-flex md:mv-justify-end md:mv-ml-auto">
+          <div className="mv-py-4 lg:mv-flex lg:mv-justify-end lg:mv-ml-auto">
             <Link to="https://www.bmbf.de/" isExternal>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -275,7 +292,7 @@ function Footer() {
               </svg>
             </Link>
           </div>
-          <div className="mv-font-bold mv-text-xs md:mv-hidden mv-pt-4 mv-pb-2">
+          <div className="mv-font-bold mv-text-xs lg:mv-hidden mv-pt-4 mv-pb-2">
             © 2021-2023 matrix gGmbH
           </div>
         </div>
