@@ -69,7 +69,7 @@ export async function removeChildEventRelationOrThrow(
     });
   } catch (error) {
     console.error(error);
-    throw serverError({ message: "Couldn't add child event" });
+    throw serverError({ message: "Couldn't remove child event" });
   }
 }
 
