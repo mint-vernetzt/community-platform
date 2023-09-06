@@ -31,7 +31,6 @@ export const action = async (args: DataFunctionArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const result = await performMutation({ request, schema, mutation });
-
   if (result.success === true) {
     await cancelEvent(slug, result.data.cancel);
   }
