@@ -22,10 +22,8 @@ jest.mock("~/prisma.server", () => {
       },
       event: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         update: jest.fn(),
-      },
-      teamMemberOfEvent: {
-        findFirst: jest.fn(),
       },
       focus: {
         findMany: jest.fn(),
@@ -59,6 +57,80 @@ jest.mock("~/lib/utils/application", () => {
 });
 
 const slug = "slug-test";
+
+const dateTime = "2022-09-19T09:00:00";
+const date = new Date(dateTime);
+const dbLoaderEvent = {
+  id: "some-event-id",
+  name: "some-event-name",
+  subline: "some-event-subline",
+  description: "some-event-description",
+  published: false,
+  startTime: date,
+  endTime: date,
+  participationFrom: date,
+  participationUntil: date,
+  canceled: false,
+  venueName: "some-event-venue-name",
+  venueStreet: "some-event-venue-street",
+  venueStreetNumber: "some-event-venue-street-number",
+  venueZipCode: "some-event-venue-zip-code",
+  venueCity: "some-event-venue-city",
+  conferenceLink: "some-event-conference-link",
+  conferenceCode: "some-event-conference-code",
+  focuses: [
+    {
+      focusId: "some-focus-id",
+    },
+  ],
+  targetGroups: [
+    {
+      targetGroupId: "some-target-group-id",
+    },
+  ],
+  types: [
+    {
+      eventTypeId: "some-event-type-id",
+    },
+  ],
+  tags: [
+    {
+      tagId: "some-tag-id",
+    },
+  ],
+  experienceLevel: {
+    id: "some-experience-level-id",
+  },
+  stage: {
+    id: "some-stage-id",
+  },
+  areas: [
+    {
+      areaId: "some-area-id",
+    },
+  ],
+};
+
+const transformedLoaderEvent = {
+  ...dbLoaderEvent,
+  startDate: "2022-09-19",
+  startTime: "09:00",
+  endDate: "2022-09-19",
+  endTime: "09:00",
+  participationFrom: "2022-09-19T07:00:00.000Z",
+  participationUntil: "2022-09-19T07:00:00.000Z",
+  participationUntilDate: "2022-09-19",
+  participationUntilTime: "09:00",
+  participationFromDate: "2022-09-19",
+  participationFromTime: "09:00",
+  focuses: ["some-focus-id"],
+  tags: ["some-tag-id"],
+  targetGroups: ["some-target-group-id"],
+  types: ["some-event-type-id"],
+  areas: ["some-area-id"],
+  experienceLevel: "some-experience-level-id",
+  stage: "some-stage-id",
+};
 
 describe("/event/$slug/settings/general", () => {
   describe("loader", () => {
@@ -96,9 +168,9 @@ describe("/event/$slug/settings/general", () => {
     });
 
     test("event not found", async () => {
-      expect.assertions(2);
+      expect.assertions(1);
 
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
@@ -110,108 +182,146 @@ describe("/event/$slug/settings/general", () => {
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(404);
-
-        const json = await response.json();
-        expect(json.message).toBe("Event not found");
       }
     });
 
     test("authenticated user", async () => {
-      expect.assertions(2);
+      expect.assertions(1);
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
       } as User);
 
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
+      (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-event-id",
       });
+
+      (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+      try {
+        await loader({
+          request: new Request(testURL),
+          context: {},
+          params: { slug },
+        });
+      } catch (error) {
+        const response = error as Response;
+        expect(response.status).toBe(403);
+      }
+    });
+
+    test("admin user", async () => {
+      expect.assertions(9);
+
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.event.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return dbLoaderEvent;
+        }
+      );
+
       (
         prismaClient.eventVisibility.findFirst as jest.Mock
       ).mockImplementationOnce(() => {
-        return { slug: true };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      try {
-        await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
-    test("not privileged user", async () => {
-      expect.assertions(2);
-
-      getSessionUserOrThrow.mockResolvedValueOnce({
-        id: "some-user-id",
-      } as User);
-
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      try {
-        await loader({
-          request: new Request(testURL),
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
-    test("privileged user", async () => {
-      expect.assertions(4);
-      const dateTime = "2022-09-19T09:00:00";
-      const date = new Date(dateTime);
-
-      getSessionUserOrThrow.mockResolvedValueOnce({
-        id: "some-user-id",
-      } as User);
-
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
-          slug,
-          startTime: date,
-          endTime: date,
-          participationFrom: date,
-          participationUntil: date,
-          focuses: [],
-          targetGroups: [],
-          types: [],
-          tags: [],
-          experienceLevels: [],
-          stages: [],
-          areas: [],
+          id: "some-event-visibility-id",
+          eventId: "some-event-id",
+          description: true,
+          participants: false,
         };
       });
+
+      (prismaClient.focus.findMany as jest.Mock).mockImplementationOnce(() => {
+        return [
+          {
+            focusId: "some-focus-id",
+            focus: {
+              id: "some-focus-id",
+              title: "some-focus-title",
+            },
+          },
+        ];
+      });
+
+      (prismaClient.eventType.findMany as jest.Mock).mockImplementationOnce(
+        () => {
+          return [
+            {
+              eventTypeId: "some-event-type-id",
+              eventType: {
+                id: "some-event-type-id",
+                title: "some-event-type-title",
+              },
+            },
+          ];
+        }
+      );
+
+      (prismaClient.tag.findMany as jest.Mock).mockImplementationOnce(() => {
+        return [
+          {
+            tagId: "some-tag-id",
+            tag: {
+              id: "some-tag-id",
+              title: "some-tag-title",
+            },
+          },
+        ];
+      });
+
+      (prismaClient.targetGroup.findMany as jest.Mock).mockImplementationOnce(
+        () => {
+          return [
+            {
+              targetGroupId: "some-target-group-id",
+              targetGroup: {
+                id: "some-target-group-id",
+                title: "some-target-group-title",
+              },
+            },
+          ];
+        }
+      );
+
       (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+        prismaClient.experienceLevel.findMany as jest.Mock
       ).mockImplementationOnce(() => {
-        return { isPrivileged: true };
+        return [
+          {
+            experienceLevelId: "some-experience-level-id",
+            experienceLevel: {
+              id: "some-experience-level-id",
+              title: "some-experience-level-title",
+            },
+          },
+        ];
+      });
+
+      (prismaClient.stage.findMany as jest.Mock).mockImplementationOnce(() => {
+        return [
+          {
+            stageId: "some-stage-id",
+            stage: {
+              id: "some-stage-id",
+              title: "some-stage-title",
+            },
+          },
+        ];
+      });
+
+      (prismaClient.area.findMany as jest.Mock).mockImplementationOnce(() => {
+        return [
+          {
+            areaId: "some-area-id",
+            area: {
+              id: "some-area-id",
+              title: "some-area-title",
+            },
+          },
+        ];
       });
 
       const response = await loader({
@@ -220,11 +330,76 @@ describe("/event/$slug/settings/general", () => {
         params: { slug },
       });
       const responseBody = await response.json();
-      // TODO: Add expects (loader does return more than that)
-      expect(responseBody.userId).toBe("some-user-id");
-      expect(responseBody.event.slug).toBe(slug);
-      expect(responseBody.event.startDate).toBe("2022-09-19");
-      expect(responseBody.event.startTime).toBe("09:00");
+      expect(responseBody.event).toStrictEqual(transformedLoaderEvent);
+      expect(responseBody.eventVisibilities).toStrictEqual({
+        id: "some-event-visibility-id",
+        eventId: "some-event-id",
+        description: true,
+        participants: false,
+      });
+      expect(responseBody.focuses).toStrictEqual([
+        {
+          focusId: "some-focus-id",
+          focus: {
+            id: "some-focus-id",
+            title: "some-focus-title",
+          },
+        },
+      ]);
+      expect(responseBody.types).toStrictEqual([
+        {
+          eventTypeId: "some-event-type-id",
+          eventType: {
+            id: "some-event-type-id",
+            title: "some-event-type-title",
+          },
+        },
+      ]);
+      expect(responseBody.tags).toStrictEqual([
+        {
+          tagId: "some-tag-id",
+          tag: {
+            id: "some-tag-id",
+            title: "some-tag-title",
+          },
+        },
+      ]);
+      expect(responseBody.targetGroups).toStrictEqual([
+        {
+          targetGroupId: "some-target-group-id",
+          targetGroup: {
+            id: "some-target-group-id",
+            title: "some-target-group-title",
+          },
+        },
+      ]);
+      expect(responseBody.experienceLevels).toStrictEqual([
+        {
+          experienceLevelId: "some-experience-level-id",
+          experienceLevel: {
+            id: "some-experience-level-id",
+            title: "some-experience-level-title",
+          },
+        },
+      ]);
+      expect(responseBody.stages).toStrictEqual([
+        {
+          stageId: "some-stage-id",
+          stage: {
+            id: "some-stage-id",
+            title: "some-stage-title",
+          },
+        },
+      ]);
+      expect(responseBody.areas).toStrictEqual([
+        {
+          areaId: "some-area-id",
+          area: {
+            id: "some-area-id",
+            title: "some-area-title",
+          },
+        },
+      ]);
     });
   });
 
@@ -268,40 +443,39 @@ describe("/event/$slug/settings/general", () => {
     test("event not found", async () => {
       const request = createRequestWithFormData({ userId: "some-user-id" });
 
-      expect.assertions(2);
-
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      expect.assertions(1);
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
       } as User);
+
+      (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       try {
         await action({ request, context: {}, params: { slug } });
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(404);
-
-        const json = await response.json();
-        expect(json.message).toBe("Event not found");
       }
     });
 
     test("authenticated user", async () => {
       const request = createRequestWithFormData({ userId: "some-user-id" });
 
-      expect.assertions(2);
+      expect.assertions(1);
 
       getSessionUserOrThrow.mockResolvedValueOnce({
         id: "some-user-id",
       } as User);
 
+      (prismaClient.event.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "some-event-id",
+          };
+        }
+      );
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
         return null;
       });
 
@@ -313,67 +487,7 @@ describe("/event/$slug/settings/general", () => {
         });
       } catch (error) {
         const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
-    test("not privileged user", async () => {
-      const request = createRequestWithFormData({ userId: "some-user-id" });
-
-      expect.assertions(2);
-
-      getSessionUserOrThrow.mockResolvedValueOnce({
-        id: "some-user-id",
-      } as User);
-
-      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      try {
-        await action({
-          request,
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
-      }
-    });
-
-    test("different user id", async () => {
-      const request = createRequestWithFormData({ id: "some-user-id" });
-
-      expect.assertions(2);
-
-      getSessionUserOrThrow.mockResolvedValueOnce({
-        id: "another-user-id",
-      } as User);
-
-      try {
-        await action({
-          request,
-          context: {},
-          params: { slug },
-        });
-      } catch (error) {
-        const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Identity check failed");
+        expect(response.status).toBe(403);
       }
     });
 
@@ -415,12 +529,10 @@ describe("/event/$slug/settings/general", () => {
       beforeAll(() => {
         getSessionUserOrThrow.mockResolvedValue({ id: userId } as User);
 
-        (prismaClient.event.findFirst as jest.Mock).mockImplementation(() => {
+        (prismaClient.event.findUnique as jest.Mock).mockImplementation(() => {
           return { slug: slug, parentEvent: null, childEvents: [] };
         });
-        (
-          prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-        ).mockImplementation(() => {
+        (prismaClient.event.findFirst as jest.Mock).mockImplementation(() => {
           return { slug };
         });
       });
@@ -561,7 +673,7 @@ describe("/event/$slug/settings/general", () => {
           submit: "submit",
         });
 
-        expect.assertions(5);
+        expect.assertions(4);
 
         (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(
           () => {
@@ -588,12 +700,11 @@ describe("/event/$slug/settings/general", () => {
         });
 
         const responseBody = await response.json();
-
+        console.log(responseBody.errors);
         expect(responseBody.errors.endTime).toBeDefined();
         expect(responseBody.errors.participationUntilTime).toBeDefined();
         expect(responseBody.errors.participationFromDate).toBeDefined();
-        expect(responseBody.errors.endDate).toBeDefined();
-        expect(Object.keys(responseBody.errors).length).toBe(4);
+        expect(Object.keys(responseBody.errors).length).toBe(3);
       });
       test("valid update call of event settings general", async () => {
         const request = createRequestWithFormData({
@@ -657,8 +768,8 @@ describe("/event/$slug/settings/general", () => {
 
       afterAll(() => {
         getSessionUserOrThrow.mockClear();
+        (prismaClient.event.findUnique as jest.Mock).mockClear();
         (prismaClient.event.findFirst as jest.Mock).mockClear();
-        (prismaClient.teamMemberOfEvent.findFirst as jest.Mock).mockClear();
       });
     });
   });

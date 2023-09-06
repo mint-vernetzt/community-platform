@@ -171,9 +171,11 @@ export const loader = async (args: LoaderArgs) => {
   const stages = await getStages();
   const areas = await getAreas();
 
+  const transformedEvent = transformEventToForm(event);
+
   return json(
     {
-      event: transformEventToForm(event),
+      event: transformedEvent,
       eventVisibilities,
       focuses,
       types,
