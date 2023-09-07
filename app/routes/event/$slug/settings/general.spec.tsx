@@ -700,7 +700,6 @@ describe("/event/$slug/settings/general", () => {
         });
 
         const responseBody = await response.json();
-        console.log(responseBody.errors);
         expect(responseBody.errors.endTime).toBeDefined();
         expect(responseBody.errors.participationUntilTime).toBeDefined();
         expect(responseBody.errors.participationFromDate).toBeDefined();

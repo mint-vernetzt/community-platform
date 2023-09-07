@@ -148,13 +148,10 @@ const mutation = makeDomainFunction(
 
 export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
+  const eventSlug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const eventSlug = params.slug;
-  invariantResponse(eventSlug, "Slug parameter not found", {
-    status: 404,
-  });
   const event = await getEventWithParticipantCount(eventSlug);
   invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, eventSlug);
@@ -166,7 +163,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     mutation,
     environment: { participantsCount: event._count.participants },
   });
-
+  console.log(result);
   if (result.success) {
     // All checked, lets update the event
     await updateParticipantLimit(
