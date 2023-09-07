@@ -104,11 +104,10 @@ export const loader = async (args: LoaderArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
     throw notFound({
-      message: `Organization with slug "${slug}" not found or not permitted to edit.`,
+      message: `Organization with slug "${slug}" not found.`,
     });
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
@@ -147,12 +146,12 @@ export const action = async (args: ActionArgs) => {
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
-  const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, "Organization not found", { status: 404 });
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const organization = await getOrganizationBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
