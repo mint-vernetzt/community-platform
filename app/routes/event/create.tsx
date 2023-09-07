@@ -108,7 +108,6 @@ export const action = async (args: ActionArgs) => {
   }
   if (errors === null) {
     const slug = generateEventSlug(data.name);
-
     await createEventOnProfile(
       sessionUser.id,
       {
