@@ -77,10 +77,14 @@ export const loader = async (args: LoaderArgs) => {
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
     });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
-        headers: response.headers,
-      });
+    if (userProfile !== null) {
+      if (userProfile.termsAccepted === false) {
+        return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
+          headers: response.headers,
+        });
+      }
+    } else {
+      throw notFound({ message: `Profile not found` });
     }
   }
 
