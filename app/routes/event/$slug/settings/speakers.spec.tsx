@@ -3,6 +3,7 @@ import * as authServerModule from "~/auth.server";
 import { testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
 import { loader } from "./speakers";
+import * as imageServerModule from "~/images.server";
 
 // @ts-ignore
 const expect = global.expect as jest.Expect;
@@ -12,16 +13,19 @@ const getSessionUserOrThrow = jest.spyOn(
   "getSessionUserOrThrow"
 );
 
+const getImageURL = jest.spyOn(imageServerModule, "getImageURL");
+
 const slug = "slug-test";
 
 jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
       event: {
+        findUnique: jest.fn(),
         findFirst: jest.fn(),
       },
-      teamMemberOfEvent: {
-        findFirst: jest.fn(),
+      profile: {
+        findMany: jest.fn(),
       },
     },
   };
@@ -69,11 +73,11 @@ describe("/event/$slug/settings/speakers", () => {
     });
 
     test("event not found", async () => {
-      expect.assertions(2);
-
-      (prismaClient.event.findFirst as jest.Mock).mockResolvedValue(null);
+      expect.assertions(1);
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+      (prismaClient.event.findUnique as jest.Mock).mockResolvedValue(null);
 
       const request = new Request(testURL);
       try {
@@ -81,23 +85,21 @@ describe("/event/$slug/settings/speakers", () => {
       } catch (error) {
         const response = error as Response;
         expect(response.status).toBe(404);
-
-        const json = await response.json();
-        expect(json.message).toBe("Event not found");
       }
     });
 
-    test("not privileged user", async () => {
-      expect.assertions(2);
+    test("authenticated user", async () => {
+      expect.assertions(1);
 
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
+      (prismaClient.event.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return { slug };
+        }
+      );
+
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
-        return { slug };
-      });
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
         return null;
       });
 
@@ -109,54 +111,38 @@ describe("/event/$slug/settings/speakers", () => {
         });
       } catch (error) {
         const response = error as Response;
-        expect(response.status).toBe(401);
-
-        const json = await response.json();
-        expect(json.message).toBe("Not privileged");
+        expect(response.status).toBe(403);
       }
     });
 
-    test("privileged user", async () => {
-      expect.assertions(2);
+    test("admin user without autocomplete query", async () => {
+      expect.assertions(3);
       getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
 
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return { isPrivileged: true };
-      });
+      (prismaClient.event.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "some-event-id",
+            published: true,
+            speakers: [
+              {
+                profile: {
+                  id: "some-user-id",
+                  avatar: null,
+                  firstName: "Some",
+                  lastName: "User",
+                  username: "someuser",
+                  postion: "some-user-position",
+                },
+              },
+            ],
+          };
+        }
+      );
+
       (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
         return {
-          slug,
-          speakers: [
-            {
-              profile: {
-                id: "some-user-id",
-                firstName: "Some",
-                lastName: "User",
-                username: "someuser",
-                avatar: null,
-              },
-            },
-            {
-              profile: {
-                id: "another-user-id",
-                firstName: "Another",
-                lastName: "User",
-                username: "anotheruser",
-                avatar: null,
-              },
-            },
-            {
-              profile: {
-                id: "yet-another-user-id",
-                firstName: "Yet Another",
-                lastName: "User",
-                username: "yetanotheruser",
-                avatar: null,
-              },
-            },
-          ],
+          id: "some-event-id",
         };
       });
 
@@ -168,21 +154,99 @@ describe("/event/$slug/settings/speakers", () => {
 
       const responseBody = await response.json();
 
-      expect(responseBody.speakers.length).toBe(3);
-      expect(responseBody.speakers).toEqual(
-        expect.arrayContaining([
-          {
-            id: "some-user-id",
-            firstName: "Some",
-            lastName: "User",
-            username: "someuser",
-            avatar: null,
-          },
-          expect.objectContaining({
-            id: "yet-another-user-id",
-          }),
-        ])
+      expect(responseBody.published).toBe(true);
+      expect(responseBody.speakers).toStrictEqual([
+        {
+          id: "some-user-id",
+          avatar: null,
+          firstName: "Some",
+          lastName: "User",
+          username: "someuser",
+          postion: "some-user-position",
+        },
+      ]);
+      expect(responseBody.speakerSuggestions).toBe(undefined);
+    });
+
+    test("admin user with autocomplete query", async () => {
+      expect.assertions(3);
+      getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
+
+      (prismaClient.event.findUnique as jest.Mock).mockImplementationOnce(
+        () => {
+          return {
+            id: "some-event-id",
+            published: true,
+            speakers: [
+              {
+                profile: {
+                  id: "some-user-id",
+                  avatar: "some-user-avatar-path",
+                  firstName: "Some",
+                  lastName: "User",
+                  username: "someuser",
+                  postion: "some-user-position",
+                },
+              },
+            ],
+          };
+        }
       );
+
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return {
+          id: "some-event-id",
+        };
+      });
+
+      getImageURL.mockImplementationOnce(() => "some-user-avatar-image-url");
+
+      (prismaClient.profile.findMany as jest.Mock).mockImplementationOnce(
+        () => {
+          return [
+            {
+              id: "suggested-profile-id",
+              firstName: "suggested-profile-first-name",
+              lastName: "suggested-profile-last-name",
+              avatar: "suggested-profile-avatar-path",
+              position: "suggested-profile-position",
+            },
+          ];
+        }
+      );
+
+      getImageURL.mockImplementationOnce(
+        () => "suggested-profile-avatar-image-url"
+      );
+
+      const response = await loader({
+        request: new Request(`${testURL}?autocomplete_query=suggested`),
+        context: {},
+        params: { slug },
+      });
+
+      const responseBody = await response.json();
+
+      expect(responseBody.published).toBe(true);
+      expect(responseBody.speakers).toStrictEqual([
+        {
+          id: "some-user-id",
+          avatar: "some-user-avatar-image-url",
+          firstName: "Some",
+          lastName: "User",
+          username: "someuser",
+          postion: "some-user-position",
+        },
+      ]);
+      expect(responseBody.speakerSuggestions).toStrictEqual([
+        {
+          id: "suggested-profile-id",
+          firstName: "suggested-profile-first-name",
+          lastName: "suggested-profile-last-name",
+          avatar: "suggested-profile-avatar-image-url",
+          position: "suggested-profile-position",
+        },
+      ]);
     });
   });
 });
