@@ -58,6 +58,8 @@ export const action = async (args: DataFunctionArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,
@@ -67,8 +69,6 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success === true) {
-    const mode = await deriveEventMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
     const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
     await addAdminToEvent(event.id, result.data.profileId);
