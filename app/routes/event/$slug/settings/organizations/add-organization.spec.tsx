@@ -145,6 +145,45 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     );
   });
 
+  test("event not found", async () => {
+    expect.assertions(1);
+
+    const request = createRequestWithFormData({
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+    });
+
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-organization-id",
+      name: "some-organization-name",
+      responsibleForEvents: [
+        {
+          event: {
+            slug: "another-event-slug",
+          },
+        },
+      ],
+    });
+
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-event-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+    }
+  });
+
   test("add responsible organization to event", async () => {
     expect.assertions(2);
 

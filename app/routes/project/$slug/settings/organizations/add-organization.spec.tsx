@@ -145,6 +145,45 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     );
   });
 
+  test("project not found", async () => {
+    expect.assertions(1);
+
+    const request = createRequestWithFormData({
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
+    });
+
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-organization-id",
+      name: "some-organization-name",
+      responsibleForProject: [
+        {
+          project: {
+            slug: "another-project-slug",
+          },
+        },
+      ],
+    });
+
+    (prismaClient.project.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-project-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+    }
+  });
+
   test("add responsible organization to project", async () => {
     expect.assertions(2);
 
