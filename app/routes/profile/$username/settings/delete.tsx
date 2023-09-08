@@ -1,11 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -16,11 +14,9 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  getRelationsOnProfileByUserId,
-  getProfileByUsername,
-} from "~/profile.server";
+import { getProfileByUsername } from "~/profile.server";
 import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
+import { getProfileWithAdministrations } from "./delete.server";
 
 const schema = z.object({
   userId: z.string().uuid(),
@@ -34,11 +30,7 @@ const environmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-type LoaderData = {
-  profile: NonNullable<Awaited<ReturnType<typeof getProfileByUsername>>>;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -50,56 +42,58 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
   await handleAuthorization(sessionUser.id, profile.id);
 
-  return json<LoaderData>({ profile }, { headers: response.headers });
+  return json({ profile }, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values) => {
-  const profile = await getRelationsOnProfileByUserId(values.userId);
+  const profile = await getProfileWithAdministrations(values.userId);
   if (profile === null) {
-    throw "Das Profil konnte nicht gefunden werden.";
+    throw "Das Profil konnte nicht gefunden werden";
   }
-  profile.memberOf.some(({ organization, isPrivileged }) => {
-    const organizationHasOtherPrivilegedMembers = organization.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !organizationHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in der Organisation "${organization.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Organisation.`;
+  let lastAdminOrganizations: string[] = [];
+  profile.administeredOrganizations.map((relation) => {
+    if (relation.organization._count.admins === 1) {
+      lastAdminOrganizations.push(relation.organization.name);
     }
-    return false;
+    return null;
   });
-  profile.teamMemberOfEvents.some(({ event, isPrivileged }) => {
-    const eventHasOtherPrivilegedMembers = event.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !eventHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in der Veranstaltung "${event.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst deine Veranstaltung.`;
+  let lastAdminEvents: string[] = [];
+  profile.administeredEvents.map((relation) => {
+    if (relation.event._count.admins === 1) {
+      lastAdminEvents.push(relation.event.name);
     }
-    return false;
+    return null;
   });
-  profile.teamMemberOfProjects.some(({ project, isPrivileged }) => {
-    const projectHasOtherPrivilegedMembers = project.teamMembers.some(
-      (teamMember) => {
-        return (
-          teamMember.profileId !== values.userId && teamMember.isPrivileged
-        );
-      }
-    );
-    if (isPrivileged && !projectHasOtherPrivilegedMembers) {
-      throw `Das Profil ist letzter Administrator in dem Projekt "${project.name}" und kann deshalb nicht gelöscht werden. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst dein Projekt.`;
+  let lastAdminProjects: string[] = [];
+  profile.administeredProjects.map((relation) => {
+    if (relation.project._count.admins === 1) {
+      lastAdminProjects.push(relation.project.name);
     }
-    return false;
+    return null;
   });
+
+  if (
+    lastAdminOrganizations.length > 0 ||
+    lastAdminEvents.length > 0 ||
+    lastAdminProjects.length > 0
+  ) {
+    throw `Das Profil ist letzter Administrator in${
+      lastAdminOrganizations.length > 0
+        ? ` den Organisationen: ${lastAdminOrganizations.join(", ")},`
+        : ""
+    }${
+      lastAdminEvents.length > 0
+        ? ` den Veranstaltungen: ${lastAdminEvents.join(", ")},`
+        : ""
+    }${
+      lastAdminProjects.length > 0
+        ? ` den Projekten: ${lastAdminProjects.join(", ")},`
+        : ""
+    } weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte.`;
+  }
 
   const adminAuthClient = createAdminAuthClient();
 
@@ -111,9 +105,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request, params }) => {
+export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -144,11 +136,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     return redirect("/goodbye", { headers: response.headers });
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {
-  const { profile } = useLoaderData<LoaderData>();
+  const { profile } = useLoaderData<typeof loader>();
 
   return (
     <>

@@ -9,87 +9,93 @@ datasource db {
 }
 
 model Profile {
-  id                   String                      @id @default(uuid())
-  username             String                      @unique
-  email                String
-  phone                String?
-  website              String?
-  avatar               String?
-  background           String? // legacy
-  backgroundImage      Image?                      @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId    String?                     @map("background_image_id")
-  facebook             String?
-  linkedin             String?
-  twitter              String?
-  xing                 String?
-  bio                  String?
-  skills               String[]
-  interests            String[]
-  academicTitle        String?                     @map("academic_title")
-  createdAt            DateTime                    @default(now()) @map("created_at")
-  firstName            String                      @map("first_name")
-  lastName             String                      @map("last_name")
-  publicFields         String[]                    @map("public_fields") // legacy
-  termsAccepted        Boolean                     @map("terms_accepted")
-  termsAcceptedAt      DateTime                    @default(now()) @map("terms_accepted_at")
-  updatedAt            DateTime                    @default(now()) @map("updated_at")
-  position             String?
-  instagram            String?
-  youtube              String?
-  score                Int                         @default(0)
-  areas                AreasOnProfiles[]
-  memberOf             MemberOfOrganization[]
-  offers               OffersOnProfiles[]
-  participatedEvents   ParticipantOfEvent[]
-  seekings             SeekingsOnProfiles[]
-  contributedEvents    SpeakerOfEvent[]
-  teamMemberOfEvents   TeamMemberOfEvent[]
-  teamMemberOfProjects TeamMemberOfProject[]
-  waitingForEvents     WaitingParticipantOfEvent[]
-  profileVisibility    ProfileVisibility?
+  id                        String                      @id @default(uuid())
+  username                  String                      @unique
+  email                     String
+  phone                     String?
+  website                   String?
+  avatar                    String?
+  background                String? // legacy
+  backgroundImage           Image?                      @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId         String?                     @map("background_image_id")
+  facebook                  String?
+  linkedin                  String?
+  twitter                   String?
+  xing                      String?
+  bio                       String?
+  skills                    String[]
+  interests                 String[]
+  academicTitle             String?                     @map("academic_title")
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  firstName                 String                      @map("first_name")
+  lastName                  String                      @map("last_name")
+  publicFields              String[]                    @map("public_fields") // legacy
+  termsAccepted             Boolean                     @map("terms_accepted")
+  termsAcceptedAt           DateTime                    @default(now()) @map("terms_accepted_at")
+  updatedAt                 DateTime                    @default(now()) @map("updated_at")
+  position                  String?
+  instagram                 String?
+  youtube                   String?
+  score                     Int                         @default(0)
+  areas                     AreasOnProfiles[]
+  memberOf                  MemberOfOrganization[]
+  offers                    OffersOnProfiles[]
+  participatedEvents        ParticipantOfEvent[]
+  seekings                  SeekingsOnProfiles[]
+  contributedEvents         SpeakerOfEvent[]
+  teamMemberOfEvents        TeamMemberOfEvent[]
+  teamMemberOfProjects      TeamMemberOfProject[]
+  waitingForEvents          WaitingParticipantOfEvent[]
+  profileVisibility         ProfileVisibility?
+  administeredEvents        AdminOfEvent[]
+  administeredOrganizations AdminOfOrganization[]
+  administeredProjects      AdminOfProject[]
 
   @@map("profiles")
 }
 
 model ProfileVisibility {
-  id                   String  @id @default(uuid())
-  username             Boolean @default(true)
-  email                Boolean @default(false)
-  phone                Boolean @default(false)
-  website              Boolean @default(false)
-  avatar               Boolean @default(true)
-  background           Boolean @default(true) // legacy
-  backgroundImage      Boolean @default(true) @map("background_image")
-  backgroundImageId    Boolean @default(true) @map("background_image_id")
-  facebook             Boolean @default(false)
-  linkedin             Boolean @default(false)
-  twitter              Boolean @default(false)
-  xing                 Boolean @default(false)
-  bio                  Boolean @default(false)
-  skills               Boolean @default(false)
-  interests            Boolean @default(false)
-  academicTitle        Boolean @default(true) @map("academic_title")
-  createdAt            Boolean @default(true) @map("created_at")
-  firstName            Boolean @default(true) @map("first_name")
-  lastName             Boolean @default(true) @map("last_name")
-  termsAccepted        Boolean @default(true) @map("terms_accepted")
-  termsAcceptedAt      Boolean @default(true) @map("terms_accepted_at")
-  updatedAt            Boolean @default(true) @map("updated_at")
-  position             Boolean @default(false)
-  instagram            Boolean @default(false)
-  youtube              Boolean @default(false)
-  score                Boolean @default(true)
-  areas                Boolean @default(true)
-  memberOf             Boolean @default(true)
-  offers               Boolean @default(false)
-  participatedEvents   Boolean @default(false)
-  seekings             Boolean @default(false)
-  contributedEvents    Boolean @default(true)
-  teamMemberOfEvents   Boolean @default(true)
-  teamMemberOfProjects Boolean @default(true)
-  waitingForEvents     Boolean @default(false)
-  profile              Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId            String  @unique
+  id                        String  @id @default(uuid())
+  username                  Boolean @default(true)
+  email                     Boolean @default(false)
+  phone                     Boolean @default(false)
+  website                   Boolean @default(false)
+  avatar                    Boolean @default(true)
+  background                Boolean @default(true) // legacy
+  backgroundImage           Boolean @default(true) @map("background_image")
+  backgroundImageId         Boolean @default(true) @map("background_image_id")
+  facebook                  Boolean @default(false)
+  linkedin                  Boolean @default(false)
+  twitter                   Boolean @default(false)
+  xing                      Boolean @default(false)
+  bio                       Boolean @default(false)
+  skills                    Boolean @default(false)
+  interests                 Boolean @default(false)
+  academicTitle             Boolean @default(true) @map("academic_title")
+  createdAt                 Boolean @default(true) @map("created_at")
+  firstName                 Boolean @default(true) @map("first_name")
+  lastName                  Boolean @default(true) @map("last_name")
+  termsAccepted             Boolean @default(true) @map("terms_accepted")
+  termsAcceptedAt           Boolean @default(true) @map("terms_accepted_at")
+  updatedAt                 Boolean @default(true) @map("updated_at")
+  position                  Boolean @default(false)
+  instagram                 Boolean @default(false)
+  youtube                   Boolean @default(false)
+  score                     Boolean @default(true)
+  areas                     Boolean @default(true)
+  memberOf                  Boolean @default(true)
+  offers                    Boolean @default(false)
+  participatedEvents        Boolean @default(false)
+  seekings                  Boolean @default(false)
+  contributedEvents         Boolean @default(true)
+  teamMemberOfEvents        Boolean @default(true)
+  teamMemberOfProjects      Boolean @default(true)
+  waitingForEvents          Boolean @default(false)
+  profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                 String  @unique
+  administeredOrganizations Boolean @default(false)
+  administeredEvents        Boolean @default(false)
+  administeredProjects      Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -149,7 +155,7 @@ model Organization {
   quoteAuthorInformation String?                            @map("quote_author_information")
   streetNumber           String?                            @map("street_number")
   supportedBy            String[]                           @map("supported_by")
-  updatedAt              DateTime                           @default(now()) @map("updated_at")
+  updatedAt              DateTime                           @default(now()) @updatedAt @map("updated_at")
   zipCode                String?                            @map("zip_code")
   instagram              String?
   youtube                String?
@@ -163,6 +169,7 @@ model Organization {
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
   responsibleForProject  ResponsibleOrganizationOfProject[]
   organizationVisibility OrganizationVisibility?
+  admins                 AdminOfOrganization[]
 
   @@map("organizations")
 }
@@ -201,6 +208,7 @@ model OrganizationVisibility {
   networkMembers         Boolean      @default(true)
   memberOf               Boolean      @default(true)
   teamMembers            Boolean      @default(true)
+  admins                 Boolean      @default(false)
   types                  Boolean      @default(true)
   responsibleForEvents   Boolean      @default(true)
   responsibleForProject  Boolean      @default(true)
@@ -233,13 +241,24 @@ model FocusesOnOrganizations {
 model MemberOfOrganization {
   profileId      String
   organizationId String
-  isPrivileged   Boolean      @default(false)
+  isPrivileged   Boolean      @default(false) // legacy
   createdAt      DateTime     @default(now()) @map("created_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@id([profileId, organizationId])
   @@map("members_of_organizations")
+}
+
+model AdminOfOrganization {
+  profileId      String
+  organizationId String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, organizationId])
+  @@map("admins_of_organizations")
 }
 
 model MemberOfNetwork {
@@ -273,7 +292,7 @@ model Event {
   description              String?
   published                Boolean                          @default(false)
   createdAt                DateTime                         @default(now()) @map("created_at")
-  updatedAt                DateTime                         @default(now()) @map("updated_at")
+  updatedAt                DateTime                         @default(now()) @updatedAt @map("updated_at")
   experienceLevelId        String?                          @map("experience_level_id")
   background               String? // legacy
   backgroundImage          Image?                           @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
@@ -307,6 +326,7 @@ model Event {
   teamMembers              TeamMemberOfEvent[]
   waitingList              WaitingParticipantOfEvent[]
   eventVisibility          EventVisibility?
+  admins                   AdminOfEvent[]
 
   @@map("events")
 }
@@ -353,23 +373,12 @@ model EventVisibility {
   tags                     Boolean @default(true)
   targetGroups             Boolean @default(true)
   teamMembers              Boolean @default(true)
+  admins                   Boolean @default(false)
   waitingList              Boolean @default(false)
   event                    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                  String  @unique
 
   @@map("event_visibilities")
-}
-
-model TeamMemberOfEvent {
-  eventId         String  @map("event_id")
-  profileId       String  @map("profile_id")
-  isPrivileged    Boolean @default(false)
-  responsibileFor String?
-  event           Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  profile         Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@id([eventId, profileId])
-  @@map("team_members_of_events")
 }
 
 model ResponsibleOrganizationOfEvent {
@@ -400,17 +409,6 @@ model AreaOfEvent {
 
   @@id([eventId, areaId])
   @@map("areas_of_events")
-}
-
-model WaitingParticipantOfEvent {
-  profileId String   @map("profile_id")
-  eventId   String   @map("event_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@id([profileId, eventId])
-  @@map("waiting_participants_of_events")
 }
 
 model TagOfEvent {
@@ -456,6 +454,18 @@ model TargetGroupOfEvent {
   @@map("target_groups_of_events")
 }
 
+model TeamMemberOfEvent {
+  eventId         String  @map("event_id")
+  profileId       String  @map("profile_id")
+  isPrivileged    Boolean @default(false) // legacy
+  responsibileFor String? // legacy
+  event           Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  profile         Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, profileId])
+  @@map("team_members_of_events")
+}
+
 model ParticipantOfEvent {
   profileId String   @map("profile_id")
   eventId   String   @map("event_id")
@@ -467,6 +477,17 @@ model ParticipantOfEvent {
   @@map("participants_of_events")
 }
 
+model WaitingParticipantOfEvent {
+  profileId String   @map("profile_id")
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, eventId])
+  @@map("waiting_participants_of_events")
+}
+
 model SpeakerOfEvent {
   profileId String   @map("profile_id")
   eventId   String   @map("event_id")
@@ -476,6 +497,17 @@ model SpeakerOfEvent {
 
   @@id([profileId, eventId])
   @@map("speakers_of_events")
+}
+
+model AdminOfEvent {
+  profileId String   @map("profile_id")
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, eventId])
+  @@map("admins_of_events")
 }
 
 model State {
@@ -593,7 +625,7 @@ model Document {
   createdAt   DateTime          @default(now()) @map("created_at")
   filename    String
   sizeInMB    Float             @map("size_in_mb")
-  updatedAt   DateTime          @default(now()) @map("updated_at")
+  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
   extension   String
   events      DocumentOfEvent[]
 
@@ -624,7 +656,7 @@ model Project {
   instagram                String?
   xing                     String?
   createdAt                DateTime                           @default(now()) @map("created_at")
-  updatedAt                DateTime                           @default(now()) @map("updated_at")
+  updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
   city                     String?
   awards                   AwardOfProject[]
   disciplines              DisciplineOfProject[]
@@ -632,6 +664,7 @@ model Project {
   targetGroups             TargetGroupOfProject[]
   teamMembers              TeamMemberOfProject[]
   projectVisibility        ProjectVisibility?
+  admins                   AdminOfProject[]
 
   @@map("projects")
 }
@@ -667,6 +700,7 @@ model ProjectVisibility {
   responsibleOrganizations Boolean @default(true)
   targetGroups             Boolean @default(true)
   teamMembers              Boolean @default(true)
+  admins                   Boolean @default(false)
   project                  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                String  @unique
 
@@ -743,7 +777,7 @@ model ResponsibleOrganizationOfProject {
 model TeamMemberOfProject {
   profileId    String   @map("pprofile_id")
   projectId    String   @map("project_id")
-  isPrivileged Boolean  @default(false) @map("is_privileged")
+  isPrivileged Boolean  @default(false) @map("is_privileged") // legacy
   createdAt    DateTime @default(now()) @map("created_at")
   profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -764,6 +798,17 @@ model Image {
   Project      Project[]
 
   @@map("image")
+}
+
+model AdminOfProject {
+  profileId String   @map("profile_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, projectId])
+  @@map("admins_of_projects")
 }
 
 enum DistrictType {

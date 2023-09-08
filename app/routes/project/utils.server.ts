@@ -20,27 +20,40 @@ export async function createProjectOnProfile(
   projectName: string,
   projectSlug: string
 ) {
-  const profile = await prismaClient.profile.update({
-    where: {
-      id: profileId,
-    },
-    data: {
-      teamMemberOfProjects: {
-        create: {
-          isPrivileged: true,
-          project: {
-            create: {
-              name: projectName,
-              slug: projectSlug,
-              projectVisibility: {
-                create: {},
+  const [profile] = await prismaClient.$transaction([
+    prismaClient.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: {
+        teamMemberOfProjects: {
+          create: {
+            isPrivileged: true,
+            project: {
+              create: {
+                name: projectName,
+                slug: projectSlug,
+                projectVisibility: {
+                  create: {},
+                },
               },
             },
           },
         },
       },
-      updatedAt: new Date(),
-    },
-  });
+    }),
+    prismaClient.project.update({
+      where: {
+        slug: projectSlug,
+      },
+      data: {
+        admins: {
+          create: {
+            profileId: profileId,
+          },
+        },
+      },
+    }),
+  ]);
   return profile;
 }

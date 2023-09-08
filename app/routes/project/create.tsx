@@ -1,10 +1,8 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -17,11 +15,7 @@ const schema = z.object({
   projectName: z.string().min(1, "Bitte gib den Namen Deines Projekts ein."),
 });
 
-type LoaderData = {
-  userId: string;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -31,10 +25,7 @@ export const loader: LoaderFunction = async (args) => {
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
-  return json<LoaderData>(
-    { userId: sessionUser.id },
-    { headers: response.headers }
-  );
+  return json({ userId: sessionUser.id }, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -42,9 +33,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values, slug };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -70,11 +59,11 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 function Create() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   return (

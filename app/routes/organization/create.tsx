@@ -1,11 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigate } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -24,20 +22,13 @@ const schema = z.object({
     .min(1, "Bitte gib den Namen Deiner Organisation ein."),
 });
 
-type LoaderData = {
-  id: string;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
   const currentUser = await getSessionUserOrThrow(authClient);
 
-  return json<LoaderData>(
-    { id: currentUser.id },
-    { headers: response.headers }
-  );
+  return json({ id: currentUser.id }, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -54,13 +45,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values, slug };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>> & {
-  alreadyExistingOrganization: Awaited<
-    ReturnType<typeof getOrganizationByName>
-  >;
-};
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -106,15 +91,15 @@ export const action: ActionFunction = async ({ request }) => {
       }
     }
   }
-  return json<ActionData>(
+  return json(
     { ...result, alreadyExistingOrganization },
     { headers: response.headers }
   );
 };
 
 export default function Create() {
-  const loaderData = useLoaderData<LoaderData>();
-  const actionData = useActionData<ActionData>();
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
 
   return (
