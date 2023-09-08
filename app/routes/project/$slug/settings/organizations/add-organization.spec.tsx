@@ -17,12 +17,9 @@ jest.mock("~/prisma.server", () => {
     prismaClient: {
       project: {
         findFirst: jest.fn(),
-      },
-      teamMemberOfProject: {
-        findFirst: jest.fn(),
+        findUnique: jest.fn(),
       },
       responsibleOrganizationOfProject: {
-        findFirst: jest.fn(),
         create: jest.fn(),
       },
       organization: {
@@ -48,7 +45,7 @@ describe("/project/$slug/settings/organization/add-organization", () => {
       await action({
         request,
         context: {},
-        params: {},
+        params: { slug: "some-project-slug" },
       });
     } catch (error) {
       const response = error as Response;
@@ -59,181 +56,91 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     }
   });
 
-  test("project not found", async () => {
-    const request = await createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
-      id: "some-organization-id",
-    });
+  test("authenticated but not admin user", async () => {
+    const request = createRequestWithFormData({});
 
-    expect.assertions(2);
+    expect.assertions(1);
 
-    (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return { responsibleForProject: [] };
-      }
-    );
-
-    try {
-      await action({ request, context: {}, params: {} });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-
-      const json = await response.json();
-      expect(json.message).toBe("Project not found");
-    }
-  });
-
-  test("not privileged user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
-      id: "some-organization-id",
-    });
-
-    expect.assertions(2);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return { responsibleForProject: [] };
-      }
-    );
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
     try {
       await action({
         request,
         context: {},
-        params: {},
+        params: { slug: "some-project-slug" },
       });
     } catch (error) {
       const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
+      expect(response.status).toBe(403);
     }
   });
 
-  test("different user id", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
-
-    expect.assertions(2);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Identity check failed");
-    }
-  });
-
-  test("different project id", async () => {
-    expect.assertions(2);
-
+  test("organization not found", async () => {
     const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
-      id: "some-organization-id",
+      organizationId: "some-organization-id",
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "another-project-id" };
-    });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return { responsibleForProject: [] };
-      }
-    );
+    expect.assertions(4);
 
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(400);
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
 
-      const json = await response.json();
-      expect(json.message).toBe("Project IDs differ");
-    }
-  });
-
-  test("already responsible organization", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
-      id: "some-organization-id",
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "some-project-id",
-      };
-    });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return {
-          responsibleForProject: [
-            {
-              project: {
-                id: "some-project-id",
-              },
-            },
-          ],
-        };
-      }
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce(
+      null
     );
 
     const response = await action({
       request,
       context: {},
-      params: {},
+      params: { slug: "some-project-slug" },
+    });
+    const responseBody = await response.json();
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.errors).toBeDefined();
+    expect(responseBody.errors).not.toBeNull();
+    expect(responseBody.errors.organizationId).toStrictEqual([
+      "Es existiert noch keine Organisation mit diesem Namen.",
+    ]);
+  });
+
+  test("already responsible", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
+    });
+
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-organization-id",
+      responsibleForProject: [
+        {
+          project: {
+            slug: "some-project-slug",
+          },
+        },
+      ],
+    });
+
+    const response = await action({
+      request,
+      context: {},
+      params: { slug: "some-project-slug" },
     });
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.id).toContain(
+    expect(responseBody.errors.organizationId).toContain(
       "Die Organisation mit diesem Namen ist bereits für Euer Projekt verantwortlich."
     );
   });
@@ -242,40 +149,35 @@ describe("/project/$slug/settings/organization/add-organization", () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
+    });
+
+    (prismaClient.organization.findFirst as jest.Mock).mockResolvedValueOnce({
       id: "some-organization-id",
+      name: "some-organization-name",
+      responsibleForProject: [
+        {
+          project: {
+            slug: "another-project-slug",
+          },
+        },
+      ],
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "some-project-id",
-      };
+    (prismaClient.project.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
     });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return { responsibleForProject: [], name: "some-organization-name" };
-      }
-    );
-    (prismaClient.organization.findFirst as jest.Mock).mockImplementationOnce(
-      () => {
-        return {
-          id: "some-organization-id",
-        };
-      }
-    );
 
     const response = await action({
       request,
       context: {},
-      params: {},
+      params: { slug: "some-project-slug" },
     });
     const responseBody = await response.json();
     expect(

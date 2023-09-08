@@ -46,7 +46,6 @@ const mutation = makeDomainFunction(
   return {
     ...values,
     name: organization.name,
-    slug: organization.slug,
   };
 });
 
