@@ -14,7 +14,7 @@ import {
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const schema = z.object({
-  profileId: z.string().uuid(),
+  profileId: z.string(),
 });
 
 export const removeMemberSchema = schema;
@@ -45,7 +45,7 @@ export const action = async (args: DataFunctionArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
   const project = await getProjectBySlug(slug);
   invariantResponse(project, "Project not found", { status: 404 });
-
+  console.log(project);
   const result = await performMutation({
     request,
     schema,
