@@ -15,7 +15,9 @@ model Profile {
   phone                     String?
   website                   String?
   avatar                    String?
-  background                String?
+  background                String? // legacy
+  backgroundImage           Image?                      @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId         String?                     @map("background_image_id")
   facebook                  String?
   linkedin                  String?
   twitter                   String?
@@ -30,7 +32,7 @@ model Profile {
   publicFields              String[]                    @map("public_fields") // legacy
   termsAccepted             Boolean                     @map("terms_accepted")
   termsAcceptedAt           DateTime                    @default(now()) @map("terms_accepted_at")
-  updatedAt                 DateTime                    @default(now()) @updatedAt @map("updated_at")
+  updatedAt                 DateTime                    @default(now()) @map("updated_at")
   position                  String?
   instagram                 String?
   youtube                   String?
@@ -59,7 +61,9 @@ model ProfileVisibility {
   phone                     Boolean @default(false)
   website                   Boolean @default(false)
   avatar                    Boolean @default(true)
-  background                Boolean @default(true)
+  background                Boolean @default(true) // legacy
+  backgroundImage           Boolean @default(true) @map("background_image")
+  backgroundImageId         Boolean @default(true) @map("background_image_id")
   facebook                  Boolean @default(false)
   linkedin                  Boolean @default(false)
   twitter                   Boolean @default(false)
@@ -80,18 +84,18 @@ model ProfileVisibility {
   score                     Boolean @default(true)
   areas                     Boolean @default(true)
   memberOf                  Boolean @default(true)
-  administeredOrganizations Boolean @default(false)
   offers                    Boolean @default(false)
   participatedEvents        Boolean @default(false)
   seekings                  Boolean @default(false)
   contributedEvents         Boolean @default(true)
   teamMemberOfEvents        Boolean @default(true)
-  administeredEvents        Boolean @default(false)
   teamMemberOfProjects      Boolean @default(true)
-  administeredProjects      Boolean @default(false)
   waitingForEvents          Boolean @default(false)
   profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId                 String  @unique
+  administeredOrganizations Boolean @default(false)
+  administeredEvents        Boolean @default(false)
+  administeredProjects      Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -136,7 +140,9 @@ model Organization {
   city                   String?
   website                String?
   logo                   String?
-  background             String?
+  background             String? // legacy
+  backgroundImage        Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId      String?                            @map("background_image_id")
   facebook               String?
   linkedin               String?
   twitter                String?
@@ -178,7 +184,9 @@ model OrganizationVisibility {
   city                   Boolean      @default(true)
   website                Boolean      @default(false)
   logo                   Boolean      @default(true)
-  background             Boolean      @default(true)
+  background             Boolean      @default(true) // legacy
+  backgroundImage        Boolean      @default(true) @map("background_image")
+  backgroundImageId      Boolean      @default(true) @map("background_image_id")
   facebook               Boolean      @default(true)
   linkedin               Boolean      @default(true)
   twitter                Boolean      @default(true)
@@ -286,7 +294,9 @@ model Event {
   createdAt                DateTime                         @default(now()) @map("created_at")
   updatedAt                DateTime                         @default(now()) @updatedAt @map("updated_at")
   experienceLevelId        String?                          @map("experience_level_id")
-  background               String?
+  background               String? // legacy
+  backgroundImage          Image?                           @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId        String?                          @map("background_image_id")
   conferenceLink           String?                          @map("conference_link")
   conferenceCode           String?                          @map("conference_code")
   participantLimit         Int?                             @map("participant_limit")
@@ -333,7 +343,9 @@ model EventVisibility {
   createdAt                Boolean @default(true) @map("created_at")
   updatedAt                Boolean @default(true) @map("updated_at")
   experienceLevelId        Boolean @default(true) @map("experience_level_id")
-  background               Boolean @default(true)
+  background               Boolean @default(true) // legacy
+  backgroundImage          Boolean @default(true) @map("background_image")
+  backgroundImageId        Boolean @default(true) @map("background_image_id")
   conferenceLink           Boolean @default(true) @map("conference_link")
   conferenceCode           Boolean @default(true) @map("conference_code")
   participantLimit         Boolean @default(true) @map("participant_limit")
@@ -625,7 +637,9 @@ model Project {
   name                     String
   slug                     String                             @unique
   logo                     String?
-  background               String?
+  background               String? // legacy
+  backgroundImage          Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId        String?                            @map("background_image_id")
   headline                 String?
   excerpt                  String?
   description              String?
@@ -660,7 +674,9 @@ model ProjectVisibility {
   name                     Boolean @default(true)
   slug                     Boolean @default(true)
   logo                     Boolean @default(true)
-  background               Boolean @default(true)
+  background               Boolean @default(true) // legacy
+  backgroundImage          Boolean @default(true) @map("background_image")
+  backgroundImageId        Boolean @default(true) @map("background_image_id")
   headline                 Boolean @default(true)
   excerpt                  Boolean @default(true)
   description              Boolean @default(true)
@@ -768,6 +784,20 @@ model TeamMemberOfProject {
 
   @@id([profileId, projectId])
   @@map("team_members_of_projects")
+}
+
+model Image {
+  id           String         @id @default(uuid())
+  path         String
+  url          String
+  credits      String?
+  alt          String?
+  Profile      Profile[]
+  Organization Organization[]
+  Event        Event[]
+  Project      Project[]
+
+  @@map("image")
 }
 
 model AdminOfProject {
