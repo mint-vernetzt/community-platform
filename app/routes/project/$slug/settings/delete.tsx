@@ -25,6 +25,8 @@ export const loader = async (args: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
 
+  await checkFeatureAbilitiesOrThrow(authClient, "projects");
+
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
