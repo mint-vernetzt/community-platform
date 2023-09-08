@@ -14,6 +14,7 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -101,7 +102,7 @@ export async function filterProfileByVisibility<
         filteredFields[key] =
           profileVisibility[key] === true ? profile[key] : 0;
       }
-      // All other fields in Profile that are optional (String?)
+      // All other fields in Profile that are optional (String? or Relation?)
       else if (
         key === "phone" ||
         key === "website" ||
@@ -115,6 +116,8 @@ export async function filterProfileByVisibility<
         key === "academicTitle" ||
         key === "position" ||
         key === "instagram" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -142,6 +145,7 @@ type OrganizationWithRelations = Organization & {
   responsibleForEvents: any;
   responsibleForProject: any;
   organizationVisibility: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -216,7 +220,7 @@ export async function filterOrganizationByVisibility<
         filteredFields[key] =
           organizationVisibility[key] === true ? organization[key] : 0;
       }
-      // All other fields in Organization that are optional (String?)
+      // All other fields in Organization that are optional (String? or Relation?)
       else if (
         key === "email" ||
         key === "phone" ||
@@ -236,6 +240,8 @@ export async function filterOrganizationByVisibility<
         key === "streetNumber" ||
         key === "zipCode" ||
         key === "instagram" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -269,6 +275,7 @@ type EventWithRelations = Event & {
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -367,6 +374,8 @@ export async function filterEventByVisibility<
         key === "parentEvent" ||
         key === "parentEventId" ||
         key === "stage" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "stageId"
       ) {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : null;
@@ -389,6 +398,7 @@ type ProjectWithRelations = Project & {
   targetGroups: any;
   teamMembers: any;
   projectVisibility: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -451,7 +461,7 @@ export async function filterProjectByVisibility<
             ? project[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
-      // All other fields in Project that are optional (String?)
+      // All other fields in Project that are optional (String?, Relation?, etc...)
       else if (
         key === "logo" ||
         key === "background" ||
@@ -470,6 +480,8 @@ export async function filterProjectByVisibility<
         key === "youtube" ||
         key === "instagram" ||
         key === "xing" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "city"
       ) {
         filteredFields[key] =
