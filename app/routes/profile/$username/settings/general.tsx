@@ -91,6 +91,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
     throw notFound({ message: "profile not found." });
@@ -99,9 +102,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   if (profileVisibilities === null) {
     throw notFound({ message: "profile visbilities not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
 
@@ -123,13 +123,13 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
     request,

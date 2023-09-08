@@ -405,6 +405,10 @@ describe("action", () => {
       id: "some-organization-id",
     });
 
+    (prismaClient.organization.findUnique as jest.Mock).mockResolvedValueOnce(
+      null
+    );
+
     try {
       await action({
         request,

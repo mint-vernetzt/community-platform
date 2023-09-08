@@ -1,61 +1,178 @@
-import type { User } from "@supabase/supabase-js";
-import * as authServerModule from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
-import { getProfileByUsername } from "./general.server";
-import {
-  getProfileVisibilitiesById,
-  getWholeProfileFromUsername,
-  updateProfileById,
-} from "../utils.server";
 import { action, loader } from "./general";
+import * as authServerModule from "~/auth.server";
+import { type User } from "@supabase/supabase-js";
+import { prismaClient } from "~/prisma.server";
+import { updateProfileById } from "../utils.server";
 
 /** @type {jest.Expect} */
 // @ts-ignore
 const expect = global.expect;
 
-const id = "1";
 const username = "sookie";
+
+const fullLoaderProfile = {
+  id: "profile-id",
+  academicTitle: "profile-academic-title",
+  position: "profile-position",
+  firstName: "profile-first-name",
+  lastName: "profile-last-name",
+  email: "profile-email",
+  phone: "profile-phone",
+  bio: "profile-bio",
+  skills: ["profile-skill"],
+  interests: ["profile-interest"],
+  website: "profile-website",
+  linkedin: "profile-linkedin",
+  twitter: "profile-twitter",
+  xing: "profile-xing",
+  instagram: "profile-instagram",
+  youtube: "profile-youtube",
+  facebook: "profile-facebook",
+  areas: [
+    {
+      area: {
+        id: "area-id",
+      },
+    },
+  ],
+  offers: [
+    {
+      offer: {
+        id: "offer-id",
+      },
+    },
+  ],
+  seekings: [
+    {
+      offer: {
+        id: "seeking-id",
+      },
+    },
+  ],
+};
+
+const profileVisibilities = {
+  id: true,
+  academicTitle: true,
+  position: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  bio: true,
+  skills: true,
+  interests: true,
+  website: true,
+  linkedin: true,
+  twitter: true,
+  xing: true,
+  instagram: true,
+  youtube: true,
+  facebook: true,
+  areas: true,
+  offers: true,
+  seekings: true,
+};
 
 const getSessionUserOrThrow = jest.spyOn(
   authServerModule,
   "getSessionUserOrThrow"
 );
 
-jest.mock("../utils.server", () => {
-  return {
-    getWholeProfileFromUsername: jest.fn(),
-    updateProfileById: jest.fn(),
-    getProfileVisibilitiesById: jest.fn(),
-  };
-});
-
-jest.mock("~/profile.server", () => {
-  return { getAllOffers: jest.fn(), getProfileByUsername: jest.fn() };
-});
-
-jest.mock("~/utils.server", () => {
-  return {
-    getAreas: jest.fn(),
-  };
-});
-
 jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {
+      profile: {
+        findFirst: jest.fn(),
+        findUnique: jest.fn(),
+      },
       profileVisibility: {
         findFirst: jest.fn(),
+      },
+      area: {
+        findMany: jest.fn(),
+      },
+      offer: {
+        findMany: jest.fn(),
       },
     },
   };
 });
 
+jest.mock("../utils.server", () => {
+  return {
+    ...jest.requireActual("../utils.server"),
+    updateProfileById: jest.fn(),
+  };
+});
+
 describe("loader", () => {
-  test("no profile found in db", async () => {
-    (getWholeProfileFromUsername as jest.Mock).mockImplementationOnce(() => {
-      return null;
+  test("no params", async () => {
+    expect.assertions(2);
+
+    const request = new Request(testURL);
+    try {
+      await loader({ request, context: {}, params: {} });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(400);
+
+      const json = await response.json();
+      expect(json.message).toBe('"username" missing');
+    }
+  });
+
+  test("anon user", async () => {
+    expect.assertions(2);
+
+    try {
+      await loader({
+        request: new Request(testURL),
+        context: {},
+        params: { username },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(401);
+
+      const json = await response.json();
+      expect(json.message).toBe("No session or session user found");
+    }
+  });
+
+  test("authenticated user", async () => {
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await loader({
+        request: new Request(testURL),
+        context: {},
+        params: { username },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(403);
+    }
+  });
+
+  test("profile not found", async () => {
+    expect.assertions(2);
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
     });
 
-    expect.assertions(2);
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
     try {
       const request = new Request(testURL);
@@ -65,40 +182,69 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("profile not found.");
+      expect(json.message).toBe(`profile not found.`);
     }
   });
-  test("profile found", async () => {
-    const profile = { id, areas: [], offers: [], seekings: [] };
+  test("profile visibilities not found", async () => {
+    expect.assertions(2);
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce(profile);
-
-    (getProfileVisibilitiesById as jest.Mock).mockImplementationOnce(() => {});
-
-    const request = new Request(testURL);
-    const response = await loader({
-      request,
-      context: {},
-      params: { username },
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
     });
 
-    const responseBody = await response.json();
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
+    });
 
-    expect(responseBody.profile).toEqual(profile);
+    (
+      prismaClient.profileVisibility.findFirst as jest.Mock
+    ).mockResolvedValueOnce(null);
+
+    try {
+      const request = new Request(testURL);
+      await loader({ request, context: {}, params: { username } });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+
+      const json = await response.json();
+      expect(json.message).toBe("profile visbilities not found.");
+    }
   });
-  test("flatten areas, offers and seekings", async () => {
-    (getWholeProfileFromUsername as jest.Mock).mockReturnValueOnce({
-      id,
-      areas: [{ area: { id: "area1" } }, { area: { id: "area2" } }],
-      offers: [{ offer: { id: "offer1" } }],
-      seekings: [
-        { offer: { id: "offer1" } },
-        { offer: { id: "offer2" } },
-        { offer: { id: "offer3" } },
-      ],
+  test("admin user full loader call", async () => {
+    expect.assertions(4);
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
     });
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce(
+      fullLoaderProfile
+    );
+
+    (
+      prismaClient.profileVisibility.findFirst as jest.Mock
+    ).mockResolvedValueOnce(profileVisibilities);
+
+    (prismaClient.offer.findMany as jest.Mock).mockResolvedValueOnce([
+      {
+        title: "some-offer-title",
+      },
+    ]);
+
+    (prismaClient.area.findMany as jest.Mock).mockResolvedValueOnce([
+      {
+        name: "some-area-name",
+      },
+    ]);
+
+    const { seekings: _seekings, ...rest } = fullLoaderProfile;
 
     const request = new Request(testURL);
     const response = await loader({
@@ -109,61 +255,81 @@ describe("loader", () => {
 
     const responseBody = await response.json();
 
-    expect(responseBody.profile.areas).toEqual(["area1", "area2"]);
-    expect(responseBody.profile.offers).toEqual(["offer1"]);
-    expect(responseBody.profile.seekings).toEqual([
-      "offer1",
-      "offer2",
-      "offer3",
+    expect(responseBody.profile).toStrictEqual({
+      ...rest,
+      areas: ["area-id"],
+      offers: ["offer-id"],
+      seekings: ["seeking-id"],
+    });
+    expect(responseBody.profileVisibilities).toStrictEqual(profileVisibilities);
+    expect(responseBody.offers).toStrictEqual([
+      {
+        title: "some-offer-title",
+      },
+    ]);
+    expect(responseBody.areas).toStrictEqual([
+      {
+        name: "some-area-name",
+      },
     ]);
   });
 });
 
+const formDefaults = {
+  academicTitle: "",
+  position: "",
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  bio: "",
+  areas: [],
+  skills: [],
+  offers: [],
+  interests: [],
+  seekings: [],
+  privateFields: [],
+  website: "",
+  facebook: "",
+  linkedin: "",
+  twitter: "",
+  youtube: "",
+  instagram: "",
+  xing: "",
+};
+
+const parsedDataDefaults = Object.entries(formDefaults).reduce(
+  (acc: { [key: string]: string | null | string[] }, cur) => {
+    const [key, value] = cur;
+    if (value === "") {
+      acc[key] = null;
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  },
+  {}
+);
+
 describe("action", () => {
-  const formDefaults = {
-    academicTitle: "",
-    position: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    bio: "",
-    website: "",
-    facebook: "",
-    linkedin: "",
-    twitter: "",
-    youtube: "",
-    instagram: "",
-    xing: "",
-    areas: [],
-    skills: [],
-    offers: [],
-    interests: [],
-    seekings: [],
-    privateFields: [],
-  };
-
-  const parsedDataDefaults = Object.entries(formDefaults).reduce(
-    (acc: { [key: string]: string | null | string[] }, cur) => {
-      const [key, value] = cur;
-      if (value === "") {
-        acc[key] = null;
-      } else {
-        acc[key] = value;
-      }
-      return acc;
-    },
-    {}
-  );
-
-  test("all fields required", async () => {
-    const request = createRequestWithFormData({ firstName: "First Name" });
-
+  test("no params", async () => {
     expect.assertions(2);
+    const request = createRequestWithFormData({});
 
-    (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-      return { id: "some-user-id" };
-    });
+    try {
+      await action({ request, context: {}, params: {} });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(400);
+
+      const json = await response.json();
+      expect(json.message).toBe('"username" missing');
+    }
+  });
+
+  test("anon user", async () => {
+    expect.assertions(2);
+    const request = createRequestWithFormData({});
 
     try {
       await action({
@@ -173,6 +339,86 @@ describe("action", () => {
       });
     } catch (error) {
       const response = error as Response;
+      expect(response.status).toBe(401);
+
+      const json = await response.json();
+      expect(json.message).toBe("No session or session user found");
+    }
+  });
+
+  test("authenticated user", async () => {
+    expect.assertions(1);
+    const request = createRequestWithFormData({});
+
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { username },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(403);
+    }
+  });
+
+  test("profile not found", async () => {
+    expect.assertions(1);
+    const request = createRequestWithFormData({});
+
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
+    });
+
+    (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { username },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+    }
+  });
+
+  test("all fields required", async () => {
+    const request = createRequestWithFormData({ name: "MINTvernetzt" });
+
+    expect.assertions(2);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({
+      id: "some-user-id",
+    } as User);
+
+    (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
+    });
+
+    (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-profile-id",
+    });
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { username },
+      });
+    } catch (error) {
+      const response = error as Response; //?
       expect(response.status).toBe(400);
 
       const json = await response.json();
@@ -180,15 +426,24 @@ describe("action", () => {
     }
   });
 
-  describe("validate email", () => {
-    test('email is "undefined"', async () => {
-      const { email: _email, ...otherDefaults } = formDefaults;
+  describe("validate first name", () => {
+    test('firstName is "undefined"', async () => {
+      expect.assertions(2);
+      const { firstName: _firstName, ...otherDefaults } = formDefaults;
       const request = createRequestWithFormData({
         ...otherDefaults,
       });
 
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-user-id" };
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
 
       const response = await action({
@@ -197,18 +452,27 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
-      expect(responseBody.errors.email).not.toBeUndefined();
-      expect(responseBody.errors.email.message).toEqual(
-        expect.stringContaining("email must be a `string` type")
+      expect(responseBody.errors.firstName).not.toBeUndefined();
+      expect(responseBody.errors.firstName.message).toEqual(
+        expect.stringContaining("firstName must be a `string` type")
       );
     });
-    test("email is empty", async () => {
+    test("firstName is empty", async () => {
+      expect.assertions(2);
       const request = createRequestWithFormData({
         ...formDefaults,
       });
 
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-user-id" };
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
 
       const response = await action({
@@ -217,9 +481,9 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
-      expect(responseBody.errors.email).not.toBeUndefined();
-      expect(responseBody.errors.email.message).toEqual(
-        expect.stringContaining("email is a required field")
+      expect(responseBody.errors.firstName).not.toBeUndefined();
+      expect(responseBody.errors.firstName.message).toEqual(
+        expect.stringContaining("Bitte gib Deinen Vornamen ein.")
       );
     });
 
@@ -228,8 +492,18 @@ describe("action", () => {
         ...formDefaults,
         email: "invalid email",
       });
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-user-id" };
+
+      expect.assertions(2);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
 
       const response = await action({
@@ -251,8 +525,18 @@ describe("action", () => {
         ...formDefaults,
         email,
       });
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-user-id" };
+
+      expect.assertions(2);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
 
       const response = await action({
@@ -268,49 +552,72 @@ describe("action", () => {
 
   describe("submit", () => {
     test("add list item", async () => {
+      const firstName = "sookie";
+      const lastName = "holló";
       const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
       const listAction = "addArea";
       const listActionItemId = "2";
 
       const request = createRequestWithFormData({
         ...formDefaults,
-        submit: listAction,
         email,
+        submit: listAction,
         firstName,
         lastName,
         [listAction]: listActionItemId,
       });
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: "some-user-id" };
+
+      expect.assertions(2);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
       const response = await action({
         request,
         context: {},
         params: { username },
       });
+
       const responseBody = await response.json();
+
       expect(responseBody.errors).toBeNull();
       expect(responseBody.profile.areas).toEqual([listActionItemId]);
     });
 
     test("update profile", async () => {
+      const firstName = "sookie";
+      const lastName = "holló";
       const email = "hello@songsforthe.dev";
-      const firstName = "First Name";
-      const lastName = "Last Name";
 
       const request = createRequestWithFormData({
         ...formDefaults,
         submit: "submit",
-        email,
         firstName,
         lastName,
+        email,
       });
-      getSessionUserOrThrow.mockResolvedValue({ id: id } as User);
-      (getProfileByUsername as jest.Mock).mockImplementationOnce(() => {
-        return { id: id };
+
+      expect.assertions(2);
+      getSessionUserOrThrow.mockResolvedValueOnce({
+        id: "some-user-id",
+      } as User);
+
+      (prismaClient.profile.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
       });
+
+      (prismaClient.profile.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: "some-profile-id",
+      });
+
       const response = await action({
         request,
         context: {},
@@ -319,13 +626,13 @@ describe("action", () => {
       const responseBody = await response.json();
       expect(responseBody.errors).toBeNull();
       const { privateFields, ...otherFields } = parsedDataDefaults;
-      expect(updateProfileById).toHaveBeenLastCalledWith(
-        id,
+      expect(updateProfileById).toHaveBeenCalledWith(
+        "some-profile-id",
         {
           ...otherFields,
-          email,
           firstName,
           lastName,
+          email,
         },
         privateFields
       );
