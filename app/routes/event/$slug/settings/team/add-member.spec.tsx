@@ -161,6 +161,8 @@ describe("/event/$slug/settings/team/add-member", () => {
       teamMemberOfEvents: [],
     });
 
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
     try {
       await action({
         request,
