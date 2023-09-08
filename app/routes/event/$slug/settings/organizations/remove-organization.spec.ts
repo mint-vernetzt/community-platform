@@ -101,7 +101,7 @@ describe("/event/$slug/settings/team/add-member", () => {
     }
   });
 
-  test("remove event team member", async () => {
+  test("remove event organization", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
