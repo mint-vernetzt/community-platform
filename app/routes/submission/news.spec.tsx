@@ -35,8 +35,6 @@ const submitForm = async (data: NewsFormData) => {
 };
 
 describe("GET to submission endpoint", () => {
-  // TODO: fix type issue
-  it.todo("should do something great");
   it("should return the news schema.json on GET", async () => {
     const response: Response = await loader({
       request: new Request(`${testURL}/${path}`, {
