@@ -56,23 +56,28 @@ export const loader = async (args: LoaderArgs) => {
 
   const username = getParamValueOrThrow(params, "username");
 
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    throw notFound({ message: "Profile not found" });
-  }
-
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
+
   if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
     });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
-        headers: response.headers,
-      });
+    if (userProfile !== null) {
+      if (userProfile.termsAccepted === false) {
+        return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
+          headers: response.headers,
+        });
+      }
+    } else {
+      throw notFound({ message: "Profile not found" });
     }
+  }
+
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    throw notFound({ message: "Profile not found" });
   }
 
   const abilities = await getFeatureAbilities(authClient, [
