@@ -101,6 +101,7 @@ export const action = async (args: DataFunctionArgs) => {
             "Kein zuständiges Teammitglied gefunden",
         },
       },
+      baseUrl: baseUrl,
     };
     const textTemplatePath = "mail-templates/move-to-participants/text.hbs";
     const text = await getCompiledMailTemplate<typeof textTemplatePath>(
