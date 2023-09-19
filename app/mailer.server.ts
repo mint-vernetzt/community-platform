@@ -46,6 +46,7 @@ type StandardMessageContent = {
   message: string;
   buttonText: string;
   buttonUrl: string;
+  baseUrl: string;
 };
 
 type MoveToParticipantsContent = {
@@ -64,6 +65,7 @@ type MoveToParticipantsContent = {
       email: string;
     };
   };
+  baseUrl: string;
 };
 
 type TemplatePath =
