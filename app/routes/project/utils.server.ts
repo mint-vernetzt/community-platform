@@ -1,18 +1,31 @@
 import type { User } from "@supabase/supabase-js";
-import { unauthorized } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
+import { deriveMode, type Mode } from "~/utils.server";
 
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  const formSenderId = formData.get("userId");
+export type ProjectMode = Mode | "admin";
 
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
+export async function deriveProjectMode(
+  sessionUser: User | null,
+  slug: string
+): Promise<ProjectMode> {
+  const mode = deriveMode(sessionUser);
+  const project = await prismaClient.project.findFirst({
+    where: {
+      slug,
+      admins: {
+        some: {
+          profileId: sessionUser?.id || "",
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (project !== null) {
+    return "admin";
   }
+  return mode;
 }
 
 export async function createProjectOnProfile(
@@ -28,7 +41,6 @@ export async function createProjectOnProfile(
       data: {
         teamMemberOfProjects: {
           create: {
-            isPrivileged: true,
             project: {
               create: {
                 name: projectName,

@@ -9,33 +9,36 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
+import { deriveEventMode } from "../../utils.server";
+import { getFullDepthProfiles } from "../utils.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  checkOwnershipOrThrow,
+  getEventBySlug,
   getParticipantsDataFromEvent,
-  getWaitingParticipantSuggestions,
-} from "./utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
+} from "./waiting-list.server";
+import {
+  addToWaitingListSchema,
+  type action as addToWaitingListAction,
 } from "./waiting-list/add-to-waiting-list";
-import { addToWaitingListSchema } from "./waiting-list/add-to-waiting-list";
-import { type ActionData as MoveToParticipantsActionData } from "./waiting-list/move-to-participants";
-import { moveToParticipantsSchema } from "./waiting-list/move-to-participants";
-import type { ActionData as RemoveFromWaitingListActionData } from "./waiting-list/remove-from-waiting-list";
-import { removeFromWaitingListSchema } from "./waiting-list/remove-from-waiting-list";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
+import {
+  moveToParticipantsSchema,
+  type action as moveToParticipantsAction,
+} from "./waiting-list/move-to-participants";
+import {
+  removeFromWaitingListSchema,
+  type action as removeFromWaitingListAction,
+} from "./waiting-list/remove-from-waiting-list";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -44,8 +47,10 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const participants = getParticipantsDataFromEvent(event);
   const enhancedWaitingParticipants = participants.waitingList.map(
@@ -83,7 +88,7 @@ export const loader = async (args: LoaderArgs) => {
       ...alreadyParticipantIds,
       ...alreadyWaitingParticipantIds,
     ];
-    waitingParticipantSuggestions = await getWaitingParticipantSuggestions(
+    waitingParticipantSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyParticipatingIds,
       query
@@ -97,8 +102,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
-      eventId: event.id,
       published: event.published,
       waitingList: enhancedWaitingParticipants,
       waitingParticipantSuggestions,
@@ -114,13 +117,12 @@ export const loader = async (args: LoaderArgs) => {
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addToWaitingListFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
+  const addToWaitingListFetcher = useFetcher<typeof addToWaitingListAction>();
   const removeFromWaitingListFetcher =
-    useFetcher<RemoveFromWaitingListActionData>();
-  const moveToParticipantsFetcher = useFetcher<MoveToParticipantsActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+    useFetcher<typeof removeFromWaitingListAction>();
+  const moveToParticipantsFetcher =
+    useFetcher<typeof moveToParticipantsAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -140,8 +142,6 @@ function Participants() {
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
         action={`/event/${slug}/settings/waiting-list/add-to-waiting-list`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -152,8 +152,6 @@ function Participants() {
         {({ Field, Errors, Button, register }) => {
           return (
             <>
-              <Field name="eventId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -164,7 +162,7 @@ function Participants() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="profileId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -174,7 +172,7 @@ function Participants() {
                           }
                           suggestionsLoaderPath={`/event/${slug}/settings/waiting-list`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("profileId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -271,10 +269,8 @@ function Participants() {
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
                     action={`/event/${slug}/settings/waiting-list/move-to-participants`}
-                    hiddenFields={["userId", "eventId", "profileId"]}
+                    hiddenFields={["profileId"]}
                     values={{
-                      userId: loaderData.userId,
-                      eventId: loaderData.eventId,
                       profileId: waitingParticipant.id,
                     }}
                     className="ml-auto"
@@ -284,8 +280,6 @@ function Participants() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
-                          <Field name="eventId" />
                           <Field name="profileId" />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
                             Zu Teilnehmenden hinzufügen
@@ -298,10 +292,8 @@ function Participants() {
                     schema={removeFromWaitingListSchema}
                     fetcher={removeFromWaitingListFetcher}
                     action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
-                    hiddenFields={["userId", "eventId", "profileId"]}
+                    hiddenFields={["profileId"]}
                     values={{
-                      userId: loaderData.userId,
-                      eventId: loaderData.eventId,
                       profileId: waitingParticipant.id,
                     }}
                   >
@@ -310,8 +302,6 @@ function Participants() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
-                          <Field name="eventId" />
                           <Field name="profileId" />
                           <Button
                             className="ml-auto btn-none"
@@ -347,10 +337,8 @@ function Participants() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -358,8 +346,6 @@ function Participants() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

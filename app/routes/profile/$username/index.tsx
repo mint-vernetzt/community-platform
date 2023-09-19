@@ -15,6 +15,7 @@ import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
 import { getImageURL } from "~/images.server";
 import {
@@ -29,7 +30,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import { getProfileByUsername } from "~/profile.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -38,8 +38,8 @@ import {
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, prepareProfileEvents } from "./utils.server";
-import { RichText } from "~/components/Richtext/RichText";
+import { getProfileByUsername } from "./index.server";
+import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
 
 export function links() {
   return [
@@ -56,25 +56,30 @@ export const loader = async (args: LoaderArgs) => {
 
   const username = getParamValueOrThrow(params, "username");
 
+  const sessionUser = await getSessionUser(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+
+  if (mode !== "anon" && sessionUser !== null) {
+    const userProfile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { termsAccepted: true },
+    });
+    if (userProfile !== null) {
+      if (userProfile.termsAccepted === false) {
+        return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
+          headers: response.headers,
+        });
+      }
+    } else {
+      throw notFound({ message: "Profile not found" });
+    }
+  }
+
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }
 
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
-        headers: response.headers,
-      });
-    }
-  }
-
-  const mode = deriveMode(profile.id, sessionUser);
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
@@ -85,7 +90,7 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter profile
     enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
       enhancedProfile
@@ -264,7 +269,7 @@ function hasWebsiteOrSocialService(
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
-
+// TODO: fix any type
 function canViewEvents(events: {
   teamMemberOfEvents: any[];
   participatedEvents: any[];
@@ -470,6 +475,7 @@ export default function Index() {
                         <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
+                            // TODO: can this type assertion be removed and proofen by code?
                             url={loaderData.data[service] as string}
                           />
                         </li>
@@ -526,8 +532,7 @@ export default function Index() {
                 additionalClassNames="mb-6"
               />
             ) : null}
-            {loaderData.data.areas !== undefined &&
-            loaderData.data.areas.length > 0 ? (
+            {loaderData.data.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
                   Aktivitätsgebiete
@@ -539,8 +544,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.skills !== undefined &&
-            loaderData.data.skills.length > 0 ? (
+            {loaderData.data.skills.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Kompetenzen
@@ -552,8 +556,7 @@ export default function Index() {
               </div>
             ) : null}
 
-            {loaderData.data.interests !== undefined &&
-            loaderData.data.interests.length > 0 ? (
+            {loaderData.data.interests.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
                   Interessen
@@ -563,8 +566,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.offers !== undefined &&
-            loaderData.data.offers.length > 0 ? (
+            {loaderData.data.offers.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                   Ich biete
@@ -581,8 +583,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.seekings !== undefined &&
-            loaderData.data.seekings.length > 0 ? (
+            {loaderData.data.seekings.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
                   Ich suche
@@ -600,8 +601,7 @@ export default function Index() {
               </div>
             ) : null}
 
-            {(loaderData.data.memberOf &&
-              loaderData.data.memberOf.length > 0) ||
+            {loaderData.data.memberOf.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
                 <div
@@ -622,8 +622,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.memberOf &&
-                loaderData.data.memberOf.length > 0 ? (
+                {loaderData.data.memberOf.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
@@ -639,8 +638,7 @@ export default function Index() {
                 ) : null}
               </>
             ) : null}
-            {(loaderData.data.teamMemberOfProjects &&
-              loaderData.data.teamMemberOfProjects.length > 0) ||
+            {loaderData.data.teamMemberOfProjects.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
                 <div
@@ -662,8 +660,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.teamMemberOfProjects &&
-                loaderData.data.teamMemberOfProjects.length > 0 ? (
+                {loaderData.data.teamMemberOfProjects.length > 0 ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.teamMemberOfProjects.map((relation) => (
                       // TODO: Project Card
@@ -695,9 +692,8 @@ export default function Index() {
                               <H3 like="h4" className="text-xl mb-1">
                                 {relation.project.name}
                               </H3>
-                              {relation.project.responsibleOrganizations &&
-                              relation.project.responsibleOrganizations.length >
-                                0 ? (
+                              {relation.project.responsibleOrganizations
+                                .length > 0 ? (
                                 <p className="font-bold text-sm">
                                   {relation.project.responsibleOrganizations
                                     .map(
@@ -708,8 +704,7 @@ export default function Index() {
                               ) : null}
                             </div>
 
-                            {relation.project.awards &&
-                            relation.project.awards.length > 0 ? (
+                            {relation.project.awards.length > 0 ? (
                               <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
@@ -792,8 +787,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.futureEvents !== undefined &&
-                loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6
                       id="team-member-future-events"
@@ -907,9 +901,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -925,9 +917,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -938,24 +928,14 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              loaderData.mode === "anon" ? (
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
-                                  </Link>
-                                </div>
-                              ) : null}
-                              {loaderData.mode === "anon" &&
-                              event.canceled === false ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${event.slug}`}
-                                  >
-                                    Anmelden
                                   </Link>
                                 </div>
                               ) : null}
@@ -967,8 +947,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.futureEvents !== undefined &&
-                loaderData.futureEvents.contributedEvents.length > 0 ? (
+                {loaderData.futureEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6
                       id="future-contributed-events"
@@ -1065,9 +1044,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1081,9 +1058,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1093,24 +1068,14 @@ export default function Index() {
                                 !canUserBeAddedToWaitingList(event) &&
                                 !event.canceled &&
                                 loaderData.mode !== "anon") ||
-                              loaderData.mode === "anon" ? (
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
                                     Mehr erfahren
-                                  </Link>
-                                </div>
-                              ) : null}
-                              {loaderData.mode === "anon" &&
-                              event.canceled === false ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    className="btn btn-primary"
-                                    to={`/login?login_redirect=/event/${event.slug}`}
-                                  >
-                                    Anmelden
                                   </Link>
                                 </div>
                               ) : null}
@@ -1121,8 +1086,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.futureEvents.participatedEvents !== undefined &&
-                loaderData.futureEvents.participatedEvents.length > 0 ? (
+                {loaderData.futureEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6
                       id="future-participated-events"
@@ -1218,9 +1182,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1233,9 +1195,7 @@ export default function Index() {
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    userId={loaderData.userId}
-                                    eventId={event.id}
-                                    id={loaderData.userId}
+                                    profileId={loaderData.userId}
                                   />
                                 </div>
                               ) : null}
@@ -1273,8 +1233,7 @@ export default function Index() {
                     </h3>
                   </div>
                 </div>
-                {loaderData.pastEvents !== undefined &&
-                loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
                       Organisation/Team
@@ -1358,12 +1317,14 @@ export default function Index() {
                                   <p>Teilgenommen</p>
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "owner" &&
-                              !event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(loaderData.mode !== "owner" &&
+                                !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1381,8 +1342,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.pastEvents !== undefined &&
-                loaderData.pastEvents.contributedEvents.length > 0 ? (
+                {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
                       Speaker:in
@@ -1449,11 +1409,13 @@ export default function Index() {
                                   <p>Teilgenommen</p>
                                 </div>
                               ) : null}
-                              {!event.isParticipant &&
-                              !canUserParticipate(event) &&
-                              !event.isOnWaitingList &&
-                              !canUserBeAddedToWaitingList(event) &&
-                              !event.canceled ? (
+                              {(!event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
@@ -1470,8 +1432,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.pastEvents.participatedEvents !== undefined &&
-                loaderData.pastEvents.participatedEvents.length > 0 ? (
+                {loaderData.pastEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6 id="past-participated-events" className="mb-4font-bold">
                       Teilnahme

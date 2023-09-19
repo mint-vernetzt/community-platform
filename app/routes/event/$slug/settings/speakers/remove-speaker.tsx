@@ -1,20 +1,20 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { disconnectSpeakerProfileFromEvent } from "./utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
+import {
+  disconnectSpeakerProfileFromEvent,
+  getEventBySlug,
+} from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  speakerId: z.string(),
+  profileId: z.string(),
 });
 
 export const removeSpeakerSchema = schema;
@@ -23,30 +23,23 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, sessionUser);
-    await checkSameEventOrThrow(request, event.id);
-    await disconnectSpeakerProfileFromEvent(
-      result.data.eventId,
-      result.data.speakerId
-    );
+    const event = await getEventBySlug(slug);
+    invariantResponse(event, "Event not found", { status: 404 });
+    await disconnectSpeakerProfileFromEvent(event.id, result.data.profileId);
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

@@ -87,6 +87,7 @@ async function persistUpload(
   });
 }
 
+// TODO: fix any type
 function validatePersistence(
   authClient: SupabaseClient,
   error: any,
@@ -116,6 +117,7 @@ export const parseMultipart = async (request: Request) => {
     if (uploadKey === null) {
       throw serverError({ message: "Something went wrong on upload." });
     }
+    // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
       throw serverError({ message: "Something went wrong on upload." });
@@ -130,6 +132,7 @@ export const parseMultipart = async (request: Request) => {
       extension: string;
       mimeType: string;
       sizeInBytes: number;
+      // TODO: can this type assertion be removed and proofen by code?
     } = JSON.parse(uploadHandlerResponseJSON as string);
     // Convert buffer.data (number[]) to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);

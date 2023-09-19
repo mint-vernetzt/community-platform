@@ -1,29 +1,42 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import { checkIdentityOrThrow, checkOwnershipOrThrow } from "../utils.server";
-import { updateParentEventRelationOrThrow } from "./utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
+import {
+  getEventBySlug,
+  updateParentEventRelationOrThrow,
+} from "./utils.server";
 
-// TODO: Validate start and end time
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
   parentEventId: z.string().optional(),
 });
 
 export const setParentSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const event = await getEventByIdOrThrow(values.eventId);
+const environmentSchema = z.object({
+  slug: z.string(),
+});
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const event = await getEventBySlug(environment.slug);
+  if (event === null) {
+    throw "Die aktuelle Veranstaltung konnte nicht gefunden werden.";
+  }
+  let parentEventName;
   if (values.parentEventId !== undefined) {
-    const parentEvent = await getEventByIdOrThrow(values.parentEventId);
+    const parentEvent = await getEventBySlug(values.parentEventId);
+    if (parentEvent === null) {
+      throw "Die Rahmenveranstaltung konnte nicht gefunden werden.";
+    }
     const parentStartTime = new Date(parentEvent.startTime).getTime();
     const parentEndTime = new Date(parentEvent.endTime).getTime();
     const eventStartTime = new Date(event.startTime).getTime();
@@ -34,51 +47,42 @@ const mutation = makeDomainFunction(schema)(async (values) => {
         "parentEventId"
       );
     }
+    parentEventName = parentEvent.name;
   }
-  return values;
+  return { ...values, parentEventName: parentEventName };
 });
 
-export type SuccessActionData = {
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
-
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  const result = await performMutation({ request, schema, mutation });
-  const eventId =
-    "data" in result ? result.data.eventId : result.values.eventId;
-  const parentEventId =
-    "data" in result ? result.data.parentEventId : result.values.parentEventId;
-  let parentEvent;
-  const event = await getEventByIdOrThrow(eventId);
-  if (parentEventId !== undefined) {
-    parentEvent = await getEventByIdOrThrow(parentEventId);
-  }
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
+
   if (result.success === true) {
-    await checkOwnershipOrThrow(event, sessionUser);
-    await checkSameEventOrThrow(request, event.id);
-    await updateParentEventRelationOrThrow(event.id, result.data.parentEventId);
-    if (parentEvent !== undefined) {
-      return json<SuccessActionData>(
+    await updateParentEventRelationOrThrow(slug, result.data.parentEventId);
+    if (
+      result.data.parentEventId !== undefined &&
+      result.data.parentEventName !== undefined
+    ) {
+      return json(
         {
-          message: `Die Veranstaltung "${parentEvent.name}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,
+          message: `Die Veranstaltung "${result.data.parentEventName}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,
         },
         { headers: response.headers }
       );
     } else {
-      return json<SuccessActionData>(
+      return json(
         {
           message: `Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung.`,
         },
@@ -86,5 +90,5 @@ export const action: ActionFunction = async (args) => {
       );
     }
   }
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

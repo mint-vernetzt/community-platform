@@ -1,10 +1,10 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, setSession } from "~/auth.server";
-import { updateProfileByUserId } from "~/profile.server";
+import { updateProfileByUserId } from "./set-email.server";
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

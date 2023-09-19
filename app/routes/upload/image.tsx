@@ -1,18 +1,11 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, notFound, serverError } from "remix-utils";
+import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getOrganizationBySlug } from "~/organization.server";
-import {
-  deriveMode as deriveEventMode,
-  getEvent,
-} from "../event/$slug/utils.server";
-import {
-  deriveMode as deriveProjectMode,
-  getProjectBySlugOrThrow,
-} from "../project/$slug/utils.server";
-import type { Subject } from "./schema";
-import { uploadKeys } from "./schema";
+import { invariantResponse } from "~/lib/utils/response";
+import { deriveEventMode } from "../event/utils.server";
+import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProjectMode } from "../project/utils.server";
 import {
   updateEventBackgroundImage,
   updateOrganizationProfileImage,
@@ -20,8 +13,10 @@ import {
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
+import { uploadKeys, type Subject } from "./utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader = ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);
@@ -35,50 +30,27 @@ export const loader: LoaderFunction = ({ request }) => {
   return response;
 };
 
-async function handleAuth(
-  profileId: string,
-  subject: Subject,
-  slug: string,
-  sessionUser: User
-) {
+async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
+  if (subject === "user") {
+    const username = slug;
+    const mode = await deriveProfileMode(sessionUser, username);
+    invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  }
   if (subject === "organization") {
-    if (slug === "") {
-      throw serverError({ message: "Unknown organization." });
-    }
-
-    const organisation = await getOrganizationBySlug(slug);
-    if (organisation === null) {
-      throw serverError({ message: "Unknown organization." });
-    }
-
-    const isPriviliged = organisation?.teamMembers.some(
-      (member) => member.profileId === profileId && member.isPrivileged
-    );
-
-    if (!isPriviliged) {
-      throw serverError({ message: "Not allowed." });
-    }
+    const mode = await deriveOrganizationMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   }
   if (subject === "event") {
-    const event = await getEvent(slug);
-    if (event === null) {
-      throw notFound({ message: `Event not found` });
-    }
-    const mode = await deriveEventMode(event, sessionUser);
-    if (mode !== "owner") {
-      throw serverError({ message: "Not allowed." });
-    }
+    const mode = await deriveEventMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   }
   if (subject === "project") {
-    const project = await getProjectBySlugOrThrow(slug);
-    const mode = await deriveProjectMode(project, sessionUser);
-    if (mode !== "owner") {
-      throw serverError({ message: "Not allowed." });
-    }
+    const mode = await deriveProjectMode(sessionUser, slug);
+    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   }
 }
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -87,14 +59,15 @@ export const action: ActionFunction = async ({ request }) => {
   const profileId = sessionUser.id;
 
   const formData = await upload(authClient, request, "images");
-
+  // TODO: can this type assertion be removed and proofen by code?
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
-  handleAuth(profileId, subject, slug, sessionUser);
+  await handleAuth(subject, slug, sessionUser);
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
+  // TODO: can this type assertion be removed and proofen by code?
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
@@ -106,6 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
     filename: string;
     mimeType: string;
     sizeInBytes: number;
+    // TODO: can this type assertion be removed and proofen by code?
   } = JSON.parse(uploadHandlerResponseJSON as string);
 
   if (

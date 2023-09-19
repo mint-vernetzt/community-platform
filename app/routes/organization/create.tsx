@@ -1,6 +1,6 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useNavigate } from "@remix-run/react";
+import { useActionData, useNavigate } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -9,33 +9,38 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { getImageURL } from "~/images.server";
-import { createOrganizationOnProfile } from "~/profile.server";
 import { getPublicURL } from "~/storage.server";
-import { generateOrganizationSlug } from "~/utils";
+import { generateOrganizationSlug } from "~/utils.server";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
-import { checkIdentityOrThrow } from "./$slug/utils.server";
+import { createOrganizationOnProfile } from "./create.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   organizationName: z
     .string()
     .min(1, "Bitte gib den Namen Deiner Organisation ein."),
+});
+
+const environmentSchema = z.object({
+  userId: z.string(),
 });
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const currentUser = await getSessionUserOrThrow(authClient);
+  await getSessionUserOrThrow(authClient);
 
-  return json({ id: currentUser.id }, { headers: response.headers });
+  return json({}, { headers: response.headers });
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   const slug = generateOrganizationSlug(values.organizationName);
   try {
     await createOrganizationOnProfile(
-      values.userId,
+      environment.userId,
       values.organizationName,
       slug
     );
@@ -50,12 +55,12 @@ export const action = async ({ request }: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { userId: sessionUser.id },
   });
   let alreadyExistingOrganization: Awaited<
     ReturnType<typeof getOrganizationByName>
@@ -98,7 +103,6 @@ export const action = async ({ request }: DataFunctionArgs) => {
 };
 
 export default function Create() {
-  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
 
@@ -151,18 +155,6 @@ export default function Create() {
                             label="Name der Organisation*"
                             {...register("organizationName")}
                           />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-                    <Field name="userId">
-                      {({ Errors }) => (
-                        <>
-                          <input
-                            type="hidden"
-                            value={loaderData.id}
-                            {...register("userId")}
-                          ></input>
                           <Errors />
                         </>
                       )}

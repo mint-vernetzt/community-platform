@@ -15,7 +15,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import type { Defined } from "yup/lib/util/types";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -46,17 +45,10 @@ import {
   getTargetGroups,
   getTypes,
 } from "~/utils.server";
+import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
+import { cancelSchema, type action as cancelAction } from "./events/cancel";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  getEventBySlugOrThrow,
-  getEventVisibilitiesBySlugOrThrow,
-} from "../utils.server";
-import type { ActionData as CancelActionData } from "./events/cancel";
-import { cancelSchema } from "./events/cancel";
-import type { ActionData as PublishActionData } from "./events/publish";
-import { publishSchema } from "./events/publish";
-import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
@@ -64,9 +56,11 @@ import {
 } from "./utils.server";
 
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { invariantResponse } from "~/lib/utils/response";
+import { deriveEventMode } from "../../utils.server";
+import { getEventBySlug, getEventBySlugForAction } from "./general.server";
 
 const schema = object({
-  userId: string().required(),
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
   startDate: string()
     .transform((value) => {
@@ -163,10 +157,11 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const focuses = await getFocuses();
   const types = await getTypes();
@@ -176,11 +171,12 @@ export const loader = async (args: LoaderArgs) => {
   const stages = await getStages();
   const areas = await getAreas();
 
+  const transformedEvent = transformEventToForm(event);
+
   return json(
     {
-      event: transformEventToForm(event),
+      event: transformedEvent,
       eventVisibilities,
-      userId: sessionUser.id,
       focuses,
       types,
       tags,
@@ -207,11 +203,10 @@ export const action = async (args: ActionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  await checkIdentityOrThrow(request, sessionUser);
-
-  const event = await getEventBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlugForAction(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,
@@ -273,7 +268,6 @@ function General() {
   const {
     event: originalEvent,
     eventVisibilities,
-    userId,
     focuses,
     types,
     targetGroups,
@@ -283,22 +277,29 @@ function General() {
     areas,
   } = loaderData;
 
-  const publishFetcher = useFetcher<PublishActionData>();
-  const cancelFetcher = useFetcher<CancelActionData>();
+  const publishFetcher = useFetcher<typeof publishAction>();
+  const cancelFetcher = useFetcher<typeof cancelAction>();
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
-  const newEvent = actionData?.data;
-
-  const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
-
-  let event: typeof loaderData["event"] | Defined<typeof newEvent>;
-  if (newEvent !== undefined) {
-    event = newEvent;
+  let event: typeof loaderData["event"];
+  if (actionData !== undefined) {
+    const { focuses, types, targetGroups, tags, areas, ...rest } =
+      originalEvent;
+    event = {
+      ...rest,
+      focuses: actionData.data.focuses,
+      types: actionData.data.types,
+      targetGroups: actionData.data.targetGroups,
+      tags: actionData.data.tags,
+      areas: actionData.data.areas,
+    };
   } else {
     event = originalEvent;
   }
+
+  const formRef = React.createRef<HTMLFormElement>();
+  const isSubmitting = transition.state === "submitting";
 
   const methods = useForm<FormType>();
   const {
@@ -413,6 +414,7 @@ function General() {
         formRef.current.getElementsByClassName("clear-after-submit");
       if ($inputsToClear) {
         Array.from($inputsToClear).forEach(
+          // TODO: can this type assertion be removed and proofen by code?
           (a) => ((a as HTMLInputElement).value = "")
         );
       }
@@ -437,7 +439,9 @@ function General() {
   }, [actionData]);
 
   const isFormChanged =
-    isDirty || (actionData !== undefined && actionData.updated === false);
+    isDirty ||
+    transition.state === "submitting" ||
+    (actionData !== undefined && actionData.updated === false);
 
   return (
     <>
@@ -456,25 +460,19 @@ function General() {
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
-          hiddenFields={["eventId", "userId", "cancel"]}
+          hiddenFields={["cancel"]}
           values={{
-            eventId: event.id,
-            userId: userId,
-            cancel: !originalEvent.canceled,
+            cancel: !event.canceled,
           }}
         >
           {(props) => {
             const { Button, Field } = props;
             return (
               <>
-                <Field name="userId" />
-                <Field name="eventId" />
                 <Field name="cancel"></Field>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {originalEvent.canceled
-                      ? "Absage rückgängig machen"
-                      : "Absagen"}
+                    {event.canceled ? "Absage rückgängig machen" : "Absagen"}
                   </Button>
                 </div>
               </>
@@ -491,7 +489,6 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <input name="userId" defaultValue={userId} hidden />
           <div className="flex flex-col md:flex-row -mx-4 mb-2">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
@@ -909,24 +906,18 @@ function General() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: event.id,
-                userId: userId,
-                publish: !originalEvent.published,
+                publish: !event.published,
               }}
             >
               {(props) => {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {originalEvent.published
-                        ? "Verstecken"
-                        : "Veröffentlichen"}
+                      {event.published ? "Verstecken" : "Veröffentlichen"}
                     </Button>
                   </>
                 );

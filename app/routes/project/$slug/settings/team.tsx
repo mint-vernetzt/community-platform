@@ -16,20 +16,20 @@ import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getProjectBySlugOrThrow } from "../utils.server";
-import type { FailureActionData, SuccessActionData } from "./team/add-member";
-import { addMemberSchema } from "./team/add-member";
-import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
-import { removeMemberSchema } from "./team/remove-member";
-import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
-import { setPrivilegeSchema } from "./team/set-privilege";
+import { deriveProjectMode } from "../../utils.server";
+import { getProject } from "./team.server";
 import {
-  checkOwnershipOrThrow,
-  getTeamMemberProfileDataFromProject,
-  getTeamMemberSuggestions,
-} from "./utils.server";
+  addMemberSchema,
+  type action as addMemberAction,
+} from "./team/add-member";
+import {
+  removeMemberSchema,
+  type action as removeMemberAction,
+} from "./team/remove-member";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -38,14 +38,15 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(project, sessionUser);
+  const project = await getProject(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
-  const teamMembers = getTeamMemberProfileDataFromProject(
-    project,
-    sessionUser.id
-  );
+  const teamMembers = project.teamMembers.map((relation) => {
+    return relation.profile;
+  });
   const enhancedTeamMembers = teamMembers.map((teamMember) => {
     if (teamMember.avatar !== null) {
       const publicURL = getPublicURL(authClient, teamMember.avatar);
@@ -68,7 +69,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyTeamMemberIds = teamMembers.map((member) => {
       return member.id;
     });
-    teamMemberSuggestions = await getTeamMemberSuggestions(
+    teamMemberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyTeamMemberIds,
       query
@@ -77,8 +78,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
-      projectId: project.id,
       teamMembers: enhancedTeamMembers,
       teamMemberSuggestions,
     },
@@ -89,9 +88,8 @@ export const loader = async (args: LoaderArgs) => {
 function Team() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addMemberFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
-  const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
+  const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -111,8 +109,6 @@ function Team() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/project/${slug}/settings/team/add-member`}
-        hiddenFields={["projectId", "userId"]}
-        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -124,19 +120,17 @@ function Team() {
           return (
             <>
               <Errors />
-              <Field name="projectId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email des Teammitglieds
+                      Name oder Email
                     </label>
                   </div>
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="profileId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -144,7 +138,7 @@ function Team() {
                           suggestions={loaderData.teamMemberSuggestions || []}
                           suggestionsLoaderPath={`/project/${slug}/settings/team`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("profileId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -203,60 +197,12 @@ function Team() {
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
                 <Form
-                  schema={setPrivilegeSchema}
-                  fetcher={setPrivilegeFetcher}
-                  action={`/project/${slug}/settings/team/set-privilege`}
-                  hiddenFields={[
-                    "userId",
-                    "projectId",
-                    "teamMemberId",
-                    "isPrivileged",
-                  ]}
-                  values={{
-                    userId: loaderData.userId,
-                    projectId: loaderData.projectId,
-                    teamMemberId: teamMember.id,
-                    isPrivileged: !teamMember.isPrivileged,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="projectId" />
-                        <Field name="teamMemberId" />
-                        <Field name="isPrivileged" />
-                        {teamMember.isCurrentUser === false ? (
-                          <div className="ml-2">
-                            <Button
-                              className="btn btn-outline-primary ml-auto btn-small"
-                              title={
-                                teamMember.isPrivileged
-                                  ? "Privileg entziehen"
-                                  : "Privileg hinzufügen"
-                              }
-                            >
-                              {teamMember.isPrivileged
-                                ? "Privileg entziehen"
-                                : "Privileg hinzufügen"}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </Form>
-                <Form
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/project/${slug}/settings/team/remove-member`}
-                  hiddenFields={["userId", "projectId", "teamMemberId"]}
+                  hiddenFields={["profileId"]}
                   values={{
-                    userId: loaderData.userId,
-                    projectId: loaderData.projectId,
-                    teamMemberId: teamMember.id,
+                    profileId: teamMember.id,
                   }}
                 >
                   {(props) => {
@@ -264,10 +210,8 @@ function Team() {
                     return (
                       <>
                         <Errors />
-                        <Field name="userId" />
-                        <Field name="projectId" />
-                        <Field name="teamMemberId" />
-                        {teamMember.isCurrentUser === false ? (
+                        <Field name="profileId" />
+                        {loaderData.teamMembers.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
                             title="entfernen"

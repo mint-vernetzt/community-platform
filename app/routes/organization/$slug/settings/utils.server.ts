@@ -1,8 +1,7 @@
-import type { Organization, Prisma, Profile } from "@prisma/client";
+import type { Organization } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
-import { badRequest, forbidden, notFound } from "remix-utils";
-import { getSessionUserOrThrow } from "~/auth.server";
+import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -86,33 +85,32 @@ export async function getProfileByEmailCaseInsensitive(email: string) {
   return profile;
 }
 
-export async function getProfileById(id: string) {
-  const profile = await prismaClient.profile.findFirst({
-    where: { id },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      memberOf: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return profile;
-}
-
 export async function getWholeOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findFirst({
     where: {
       slug,
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+      bio: true,
+      supportedBy: true,
+      quote: true,
+      quoteAuthor: true,
+      quoteAuthorInformation: true,
+      website: true,
+      linkedin: true,
+      twitter: true,
+      xing: true,
+      instagram: true,
+      youtube: true,
+      facebook: true,
       types: {
         select: {
           organizationTypeId: true,
@@ -149,7 +147,11 @@ export async function getOrganizationIdBySlug(slug: string) {
 export async function getOrganizationByName(name: string) {
   const organization = await prismaClient.organization.findFirst({
     where: { name },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      logo: true,
+      name: true,
       memberOf: {
         select: {
           network: {
@@ -316,19 +318,6 @@ export async function updateOrganizationById(
   await triggerEntityScore({ entity: "organization", where: { id } });
 }
 
-export async function connectProfileToOrganization(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.create({
-    data: {
-      profileId,
-      organizationId,
-    },
-  });
-  return result;
-}
-
 export async function connectOrganizationToNetwork(
   organizationId: string,
   networkId: string
@@ -337,21 +326,6 @@ export async function connectOrganizationToNetwork(
     data: {
       networkMemberId: organizationId,
       networkId,
-    },
-  });
-  return result;
-}
-
-export async function disconnectProfileFromOrganization(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.delete({
-    where: {
-      profileId_organizationId: {
-        profileId,
-        organizationId,
-      },
     },
   });
   return result;
@@ -370,164 +344,6 @@ export async function disconnectOrganizationFromNetwork(
     },
   });
   return result;
-}
-
-export async function allowedToModify(
-  profileId: string,
-  organizationId: string
-) {
-  const result = await prismaClient.memberOfOrganization.findFirst({
-    where: {
-      profileId,
-      organizationId,
-      isPrivileged: true,
-    },
-  });
-  return result !== null;
-}
-
-export async function getMembers(organizationId: string) {
-  const result = await prismaClient.memberOfOrganization.findMany({
-    where: {
-      organizationId,
-    },
-  });
-  return result;
-}
-
-export async function getMembersOfOrganization(
-  authClient: SupabaseClient,
-  organizationId: string
-) {
-  const members = await prismaClient.memberOfOrganization.findMany({
-    select: {
-      isPrivileged: true,
-      organizationId: true,
-      profile: {
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          position: true,
-        },
-      },
-    },
-    where: {
-      organizationId: organizationId,
-    },
-    orderBy: {
-      profile: {
-        firstName: "asc",
-      },
-    },
-  });
-
-  const enhancedMembers = members.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-        return {
-          ...item,
-          profile: { ...item.profile, avatar },
-        };
-      }
-    }
-    return item;
-  });
-
-  return enhancedMembers;
-}
-
-export async function getMemberSuggestions(
-  authClient: SupabaseClient,
-  alreadyMemberIds: string[],
-  query: string[]
-) {
-  let whereQueries = [];
-  for (const word of query) {
-    const contains: {
-      OR: {
-        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
-      }[];
-    } = {
-      OR: [
-        {
-          firstName: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-        {
-          lastName: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-        {
-          email: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-    whereQueries.push(contains);
-  }
-  const memberSuggestions = await prismaClient.profile.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatar: true,
-      position: true,
-    },
-    where: {
-      AND: [
-        {
-          id: {
-            notIn: alreadyMemberIds,
-          },
-        },
-        ...whereQueries,
-      ],
-    },
-    take: 6,
-    orderBy: {
-      firstName: "asc",
-    },
-  });
-
-  const enhancedMemberSuggestions = memberSuggestions.map((member) => {
-    if (member.avatar !== null) {
-      const publicURL = getPublicURL(authClient, member.avatar);
-      if (publicURL !== null) {
-        member.avatar = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-      }
-    }
-    return member;
-  });
-  return enhancedMemberSuggestions;
-}
-
-export function getTeamMemberProfileDataFromOrganization(
-  members: Awaited<ReturnType<typeof getMembersOfOrganization>>,
-  currentUserId: string
-) {
-  const profileData = members.map((teamMember) => {
-    const { isPrivileged, profile } = teamMember;
-    const isCurrentUser = profile.id === currentUserId;
-    return { isPrivileged, ...profile, isCurrentUser };
-  });
-  return profileData;
 }
 
 export async function getNetworkMembersOfOrganization(
@@ -583,119 +399,4 @@ export async function getNetworkMembersOfOrganization(
   });
 
   return enhancedNetworkMembers;
-}
-
-export async function getNetworkMemberSuggestions(
-  authClient: SupabaseClient,
-  ownOrganizationSlug: string,
-  alreadyMemberSlugs: string[],
-  query: string[]
-) {
-  let whereQueries = [];
-  for (const word of query) {
-    const contains: {
-      OR: {
-        [K in Organization as string]: {
-          contains: string;
-          mode: Prisma.QueryMode;
-        };
-      }[];
-    } = {
-      OR: [
-        {
-          name: {
-            contains: word,
-            mode: "insensitive",
-          },
-        },
-      ],
-    };
-    whereQueries.push(contains);
-  }
-  const networkMemberSuggestions = await prismaClient.organization.findMany({
-    select: {
-      id: true,
-      name: true,
-      logo: true,
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      AND: [
-        {
-          NOT: {
-            slug: ownOrganizationSlug,
-          },
-        },
-        {
-          slug: {
-            notIn: alreadyMemberSlugs,
-          },
-        },
-        ...whereQueries,
-      ],
-    },
-    take: 6,
-    orderBy: {
-      name: "asc",
-    },
-  });
-
-  const enhancedNetworkMemberSuggestions = networkMemberSuggestions.map(
-    (networkMember) => {
-      if (networkMember.logo !== null) {
-        const publicURL = getPublicURL(authClient, networkMember.logo);
-        if (publicURL !== null) {
-          networkMember.logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return networkMember;
-    }
-  );
-
-  return enhancedNetworkMemberSuggestions;
-}
-
-export async function handleAuthorization(
-  authClient: SupabaseClient,
-  slug: string
-) {
-  if (slug === undefined) {
-    throw badRequest({ message: "Organization slug missing" });
-  }
-
-  const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const organization = await getOrganizationIdBySlug(slug);
-  if (organization === null) {
-    throw notFound({
-      message: `Couldn't find organization with slug "${slug}"`,
-    });
-  }
-
-  const isAllowedToModify = await allowedToModify(
-    sessionUser.id,
-    organization.id
-  );
-
-  if (isAllowedToModify === false) {
-    throw forbidden({ message: "forbidden" });
-  }
-
-  return {
-    sessionUser,
-    isAllowedToModify,
-    organization,
-    slug,
-  };
 }

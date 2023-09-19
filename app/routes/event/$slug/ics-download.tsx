@@ -1,26 +1,26 @@
-import type { LoaderFunction } from "@remix-run/node";
+import { type Event } from "@prisma/client";
+import type { DataFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
 import { forbidden } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { deriveEventMode } from "../utils.server";
+import { getEventBySlug } from "./ics-download.server";
 import {
-  deriveMode,
-  getEventBySlugOrThrow,
   getIsParticipant,
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
-
-type EventWithRelations = Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
 
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
 function createIcsString(
   event: Pick<
-    EventWithRelations,
+    Event,
     | "id"
     | "startTime"
     | "endTime"
@@ -29,7 +29,6 @@ function createIcsString(
     | "createdAt"
     | "updatedAt"
     | "description"
-    | "tags"
     | "venueCity"
     | "venueName"
     | "venueStreet"
@@ -37,7 +36,7 @@ function createIcsString(
     | "venueZipCode"
     | "conferenceLink"
     | "conferenceCode"
-  >,
+  > & { tags: Array<{ tag: { title: string } }> },
   absoluteEventUrl: string
 ) {
   const location: string[] = [];
@@ -47,18 +46,26 @@ function createIcsString(
   if (event.conferenceCode) {
     location.push(`Zugangscode zur Konferenz: ${event.conferenceCode}`);
   }
+  if (
+    event.venueName ||
+    event.venueStreet ||
+    event.venueZipCode ||
+    event.venueCity
+  ) {
+    location.push("Adresse:");
+  }
   if (event.venueName) {
-    location.push(event.venueName);
+    location.push(`${event.venueName}`);
   }
   if (event.venueStreet) {
     const fullStreet = `${event.venueStreet} ${event.venueStreetNumber || ""}`;
     location.push(fullStreet.trim());
   }
-  if (event.venueZipCode) {
-    location.push(event.venueZipCode);
-  }
   if (event.venueCity) {
-    location.push(event.venueCity);
+    const fullCityAdress = `${
+      event.venueZipCode ? `${event.venueZipCode}, ` : ""
+    }${event.venueZipCode}`;
+    location.push(fullCityAdress.trim());
   }
   const tagTitles = event.tags.map((item) => {
     return item.tag.title;
@@ -81,7 +88,7 @@ function createIcsString(
     ] as DateArray,
     title: event.name,
     description: removeHtmlTags(event.description ?? "") || undefined,
-    location: location.join(", "),
+    location: location.join("\n"),
     url: absoluteEventUrl,
     // TODO:
     // organizer: { name: "", email: "", dir: "any url (Maybe the community profile)"}
@@ -113,17 +120,16 @@ function createIcsString(
   return result as string | null;
 }
 
-type LoaderData = Response;
-
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
-  const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
 
   const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
   const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);
@@ -136,7 +142,7 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
     });
   }
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "admin" && event.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 

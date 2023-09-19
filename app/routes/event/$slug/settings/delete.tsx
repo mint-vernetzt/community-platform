@@ -3,29 +3,30 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest, notFound } from "remix-utils";
+import { notFound } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
+import { deriveEventMode } from "../../utils.server";
 import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
-  deleteEventById,
-} from "./utils.server";
-import { getProfileById } from "./delete.server";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+  getEventBySlug,
+  getEventBySlugForAction,
+  getProfileById,
+} from "./delete.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
+import { deleteEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string().optional(),
-  eventId: z.string().optional(),
   eventName: z.string().optional(),
 });
 
-const environmentSchema = z.object({ id: z.string(), name: z.string() });
+const environmentSchema = z.object({
+  eventSlug: z.string(),
+  eventName: z.string(),
+});
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -37,14 +38,13 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return json(
     {
-      userId: sessionUser.id,
-      eventId: event.id,
       published: event.published,
       eventName: event.name,
       childEvents: event.childEvents,
@@ -57,17 +57,14 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  if (values.eventId !== environment.id) {
-    throw new Error("Id nicht korrekt");
-  }
-  if (values.eventName !== environment.name) {
+  if (values.eventName !== environment.eventName) {
     throw new InputError(
       "Der Name der Veranstaltung ist nicht korrekt",
       "eventName"
     );
   }
   try {
-    await deleteEventById(values.eventId);
+    await deleteEventBySlug(environment.eventSlug);
   } catch (error) {
     throw "Die Veranstaltung konnte nicht gelöscht werden.";
   }
@@ -76,35 +73,24 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
-
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const sessionUser = await getSessionUserOrThrow(authClient);
-
-  await checkIdentityOrThrow(request, sessionUser);
-
-  const event = await getEventBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlugForAction(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { id: event.id, name: event.name },
+    environment: { eventSlug: slug, eventName: event.name },
   });
 
-  if (result.success === false) {
-    if (
-      result.errors._global !== undefined &&
-      result.errors._global.includes("Id nicht korrekt")
-    ) {
-      throw badRequest({ message: "Id nicht korrekt" });
-    }
-  } else {
+  if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
       throw notFound("Profile not found");
@@ -118,7 +104,7 @@ export const action = async (args: ActionArgs) => {
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const publishFetcher = useFetcher<typeof publishAction>();
 
   return (
     <>
@@ -157,8 +143,6 @@ function Delete() {
       <RemixForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="userId" hidden value={loaderData.userId} />
-            <Field name="eventId" hidden value={loaderData.eventId} />
             <Field name="eventName" className="mb-4">
               {({ Errors }) => (
                 <>
@@ -188,10 +172,8 @@ function Delete() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -199,8 +181,6 @@ function Delete() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

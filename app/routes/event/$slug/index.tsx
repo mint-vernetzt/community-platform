@@ -33,12 +33,12 @@ import {
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
-  deriveMode,
   enhanceChildEventsWithParticipationStatus,
   getEvent,
   getEventParticipants,
@@ -77,10 +77,14 @@ export const loader = async (args: LoaderArgs) => {
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
     });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
-        headers: response.headers,
-      });
+    if (userProfile !== null) {
+      if (userProfile.termsAccepted === false) {
+        return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
+          headers: response.headers,
+        });
+      }
+    } else {
+      throw notFound({ message: `Profile not found` });
     }
   }
 
@@ -90,9 +94,9 @@ export const loader = async (args: LoaderArgs) => {
     throw notFound({ message: `Event not found` });
   }
 
-  const mode = await deriveMode(rawEvent, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "owner" && rawEvent.published === false) {
+  if (mode !== "admin" && rawEvent.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
@@ -119,7 +123,7 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   // Filtering by publish status
-  if (mode !== "owner") {
+  if (mode !== "admin") {
     enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
       return item.published;
     });
@@ -363,18 +367,14 @@ function getForm(loaderData: {
     return (
       <RemoveParticipantButton
         action="./settings/participants/remove-participant"
-        userId={loaderData.userId}
         profileId={loaderData.userId}
-        eventId={loaderData.event.id}
       />
     );
   } else if (isOnWaitingList) {
     return (
       <RemoveFromWaitingListButton
         action="./settings/waiting-list/remove-from-waiting-list"
-        userId={loaderData.userId}
         profileId={loaderData.userId}
-        eventId={loaderData.event.id}
       />
     );
   } else {
@@ -382,18 +382,14 @@ function getForm(loaderData: {
       return (
         <AddToWaitingListButton
           action="./settings/waiting-list/add-to-waiting-list"
-          userId={loaderData.userId}
-          eventId={loaderData.event.id}
-          id={loaderData.userId}
+          profileId={loaderData.userId}
         />
       );
     } else {
       return (
         <AddParticipantButton
           action="./settings/participants/add-participant"
-          userId={loaderData.userId}
-          eventId={loaderData.event.id}
-          id={loaderData.userId}
+          profileId={loaderData.userId}
         />
       );
     }
@@ -530,7 +526,7 @@ function Index() {
                   alt={loaderData.event.name}
                 />
               </div>
-              {loaderData.mode === "owner" &&
+              {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
                 <div className="absolute bottom-6 right-6">
                   <label
@@ -562,7 +558,7 @@ function Index() {
               ) : null}
             </div>
           </div>
-          {loaderData.mode === "owner" ? (
+          {loaderData.mode === "admin" ? (
             <>
               {loaderData.event.canceled ? (
                 <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
@@ -584,12 +580,12 @@ function Index() {
             </>
           ) : null}
 
-          {loaderData.mode !== "owner" && loaderData.event.canceled ? (
+          {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
               Abgesagt
             </div>
           ) : null}
-          {loaderData.mode !== "owner" ? (
+          {loaderData.mode !== "admin" ? (
             <>
               {beforeParticipationPeriod || afterParticipationPeriod ? (
                 <div className="bg-accent-300 p-8">
@@ -704,7 +700,7 @@ function Index() {
             </>
           ) : null}
         </div>
-        {loaderData.mode === "owner" &&
+        {loaderData.mode === "admin" &&
         loaderData.abilities.events.hasAccess ? (
           <>
             <div className="bg-accent-white p-8 pb-0">
@@ -1090,7 +1086,7 @@ function Index() {
                           </div>
                         </Link>
 
-                        {loaderData.mode === "owner" && !event.canceled ? (
+                        {loaderData.mode === "admin" && !event.canceled ? (
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
@@ -1110,7 +1106,7 @@ function Index() {
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
-                        loaderData.mode !== "owner" ? (
+                        loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                             <p>Angemeldet</p>
                           </div>
@@ -1120,15 +1116,13 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
-                              userId={loaderData.userId}
-                              eventId={event.id}
-                              id={loaderData.userId}
+                              profileId={loaderData.userId}
                             />
                           </div>
                         ) : null}
                         {event.isOnWaitingList &&
                         !event.canceled &&
-                        loaderData.mode !== "owner" ? (
+                        loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                             <p>Wartend</p>
                           </div>
@@ -1138,9 +1132,7 @@ function Index() {
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                              userId={loaderData.userId}
-                              eventId={event.id}
-                              id={loaderData.userId}
+                              profileId={loaderData.userId}
                             />
                           </div>
                         ) : null}

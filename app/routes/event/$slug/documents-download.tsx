@@ -1,24 +1,24 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { forbidden, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getDocumentById } from "~/document.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
-import { deriveMode, getEventBySlugOrThrow } from "./utils.server";
+import { deriveEventMode } from "../utils.server";
+import { getDocumentById, getEventBySlug } from "./documents-download.server";
 
-type LoaderData = Response;
-
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
-  const event = await getEventBySlugOrThrow(slug);
-  const mode = await deriveMode(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "owner" && event.published === false) {
+  if (mode !== "admin" && event.published === false) {
     throw forbidden({ message: "Event not published" });
   }
   const url = new URL(request.url);

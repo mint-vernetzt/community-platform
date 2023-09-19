@@ -1,6 +1,5 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { notFound, serverError } from "remix-utils";
@@ -13,21 +12,22 @@ import {
   signOut,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUsername } from "~/profile.server";
-import { checkIdentityOrThrow, handleAuthorization } from "../utils.server";
-import { getProfileWithAdministrations } from "./delete.server";
+import { deriveProfileMode } from "../utils.server";
+import {
+  getProfileByUsername,
+  getProfileWithAdministrations,
+} from "./delete.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
 const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
+  userId: z.string(),
 });
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
@@ -40,16 +40,17 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     throw notFound({ message: "profile not found." });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
-  return json({ profile }, { headers: response.headers });
+  return json({}, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(
   schema,
   environmentSchema
-)(async (values) => {
-  const profile = await getProfileWithAdministrations(values.userId);
+)(async (values, environment) => {
+  const profile = await getProfileWithAdministrations(environment.userId);
   if (profile === null) {
     throw "Das Profil konnte nicht gefunden werden";
   }
@@ -97,7 +98,7 @@ const mutation = makeDomainFunction(
 
   const adminAuthClient = createAdminAuthClient();
 
-  const { error } = await deleteUserByUid(adminAuthClient, values.userId);
+  const { error } = await deleteUserByUid(adminAuthClient, environment.userId);
   if (error !== null) {
     console.error(error.message);
     throw "Das Profil konnte nicht gelöscht werden.";
@@ -110,18 +111,15 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    throw notFound({ message: "profile not found." });
-  }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
-  await checkIdentityOrThrow(request, sessionUser);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: { userId: sessionUser.id },
   });
   if (result.success) {
     const { error } = await signOut(authClient);
@@ -140,8 +138,6 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 };
 
 export default function Index() {
-  const { profile } = useLoaderData<typeof loader>();
-
   return (
     <>
       <h1 className="mb-8">Profil löschen</h1>
@@ -166,18 +162,6 @@ export default function Index() {
                     placeholder="wirklich löschen"
                     {...register("confirmedToken")}
                   />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="userId">
-              {({ Errors }) => (
-                <>
-                  <input
-                    type="hidden"
-                    value={profile.id}
-                    {...register("userId")}
-                  ></input>
                   <Errors />
                 </>
               )}

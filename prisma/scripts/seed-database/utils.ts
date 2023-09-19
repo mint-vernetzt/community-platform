@@ -17,7 +17,7 @@ import {
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
-} from "../../../app/utils";
+} from "../../../app/utils.server";
 import { createHashFromString } from "../../../app/utils.server";
 
 type EntityData = {
@@ -443,7 +443,7 @@ export async function uploadDocumentBucketData(
     const hash = await createHashFromString(Buffer.from(pdfBytes).toString());
     const path = generatePathName(fileTypeResult.ext, hash, "document");
     const { error: uploadObjectError } = await authClient.storage
-      .from("images")
+      .from("documents")
       .upload(path, pdfBytes, {
         upsert: true,
         contentType: fileTypeResult.mime,
@@ -651,11 +651,20 @@ export async function seedAllEntities(
           return {
             profileId: id,
             organizationId: standardOrganizationId,
-            isPrivileged: i % 4 === 0,
           };
         }),
       ],
     });
+    for (let i = 0; i < someProfileIds.length; i++) {
+      if (i % 4 === 0) {
+        await prismaClient.adminOfOrganization.create({
+          data: {
+            profileId: someProfileIds[i],
+            organizationId: standardOrganizationId,
+          },
+        });
+      }
+    }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
     >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
@@ -1215,7 +1224,16 @@ export async function seedAllEntities(
         return {
           profileId: eventManagerProfileId,
           eventId: id,
-          isPrivileged: true,
+        };
+      }),
+    ],
+  });
+  await prismaClient.adminOfEvent.createMany({
+    data: [
+      ...standardEventIds.map((id) => {
+        return {
+          profileId: eventManagerProfileId,
+          eventId: id,
         };
       }),
     ],
@@ -1286,7 +1304,16 @@ export async function seedAllEntities(
         return {
           profileId: makerProfileId,
           projectId: id,
-          isPrivileged: true,
+        };
+      }),
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      ...standardProjectIds.map((id) => {
+        return {
+          profileId: makerProfileId,
+          projectId: id,
         };
       }),
     ],
@@ -1510,7 +1537,6 @@ export async function seedAllEntities(
       {
         profileId: coordinatorProfileId,
         organizationId: coordinatorOrganizationId,
-        isPrivileged: true,
       },
       ...networkOrganizationIds.map((id) => {
         return {
@@ -1518,6 +1544,14 @@ export async function seedAllEntities(
           organizationId: id,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: coordinatorProfileId,
+        organizationId: coordinatorOrganizationId,
+      },
     ],
   });
   profileEmails.push(coordinatorProfile.email);
@@ -1628,7 +1662,16 @@ export async function seedAllEntities(
         return {
           profileId: largestProfileId,
           organizationId: id,
-          isPrivileged: true,
+        };
+      }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      ...standardOrganizationIds.map((id) => {
+        return {
+          profileId: largestProfileId,
+          organizationId: id,
         };
       }),
     ],
@@ -1745,7 +1788,6 @@ export async function seedAllEntities(
       {
         profileId: developerProfileId,
         organizationId: developerOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -1753,6 +1795,14 @@ export async function seedAllEntities(
           organizationId: developerOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: developerProfileId,
+        organizationId: developerOrganizationId,
+      },
     ],
   });
   console.log(
@@ -1811,7 +1861,6 @@ export async function seedAllEntities(
       {
         profileId: smallestProfileId,
         organizationId: smallTeamOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -1819,6 +1868,14 @@ export async function seedAllEntities(
           organizationId: smallTeamOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: smallestProfileId,
+        organizationId: smallTeamOrganizationId,
+      },
     ],
   });
   console.log(
@@ -1874,7 +1931,6 @@ export async function seedAllEntities(
       {
         profileId: largestProfileId,
         organizationId: largeTeamOrganizationId,
-        isPrivileged: true,
       },
       ...standardProfileIds.map((id) => {
         return {
@@ -1882,6 +1938,14 @@ export async function seedAllEntities(
           organizationId: largeTeamOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: largestProfileId,
+        organizationId: largeTeamOrganizationId,
+      },
     ],
   });
   console.log(
@@ -1911,7 +1975,14 @@ export async function seedAllEntities(
       {
         profileId: smallestProfileId,
         organizationId: smallestOrganizationId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: smallestProfileId,
+        organizationId: smallestOrganizationId,
       },
     ],
   });
@@ -1971,7 +2042,6 @@ export async function seedAllEntities(
       {
         profileId: privateProfileId,
         organizationId: privateOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -1979,6 +2049,14 @@ export async function seedAllEntities(
           organizationId: privateOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: privateProfileId,
+        organizationId: privateOrganizationId,
+      },
     ],
   });
   console.log(
@@ -2037,7 +2115,6 @@ export async function seedAllEntities(
       {
         profileId: publicProfileId,
         organizationId: publicOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -2045,6 +2122,14 @@ export async function seedAllEntities(
           organizationId: publicOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: publicProfileId,
+        organizationId: publicOrganizationId,
+      },
     ],
   });
   console.log(
@@ -2103,7 +2188,6 @@ export async function seedAllEntities(
       {
         profileId: emptyStringsProfileId,
         organizationId: emptyStringsOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -2111,6 +2195,14 @@ export async function seedAllEntities(
           organizationId: emptyStringsOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: emptyStringsProfileId,
+        organizationId: emptyStringsOrganizationId,
+      },
     ],
   });
   console.log(
@@ -2169,7 +2261,6 @@ export async function seedAllEntities(
       {
         profileId: eventManagerProfileId,
         organizationId: eventCompanionOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -2177,6 +2268,14 @@ export async function seedAllEntities(
           organizationId: eventCompanionOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: eventManagerProfileId,
+        organizationId: eventCompanionOrganizationId,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfEvent.createMany({
@@ -2245,7 +2344,6 @@ export async function seedAllEntities(
       {
         profileId: makerProfileId,
         organizationId: projectCompanionOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -2253,6 +2351,14 @@ export async function seedAllEntities(
           organizationId: projectCompanionOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: makerProfileId,
+        organizationId: projectCompanionOrganizationId,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -2321,7 +2427,6 @@ export async function seedAllEntities(
       {
         profileId: unicodeProfileId,
         organizationId: unicodeOrganizationId,
-        isPrivileged: true,
       },
       ...someProfileIds.map((id) => {
         return {
@@ -2329,6 +2434,14 @@ export async function seedAllEntities(
           organizationId: unicodeOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: unicodeProfileId,
+        organizationId: unicodeOrganizationId,
+      },
     ],
   });
   console.log(
@@ -2414,7 +2527,6 @@ export async function seedAllEntities(
         {
           profileId: largestProfileId,
           eventId: largestEventId,
-          isPrivileged: true,
         },
         ...standardProfileIds
           .slice(0, Math.round(standardProfileIds.length / 3))
@@ -2424,6 +2536,14 @@ export async function seedAllEntities(
               eventId: largestEventId,
             };
           }),
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: largestProfileId,
+          eventId: largestEventId,
+        },
       ],
     });
     await prismaClient.speakerOfEvent.createMany({
@@ -2596,7 +2716,6 @@ export async function seedAllEntities(
       {
         profileId: largestProfileId,
         projectId: largestProjectId,
-        isPrivileged: true,
       },
       ...standardProfileIds.map((id) => {
         return {
@@ -2604,6 +2723,14 @@ export async function seedAllEntities(
           projectId: largestProjectId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: largestProfileId,
+        projectId: largestProjectId,
+      },
     ],
   });
   await prismaClient.responsibleOrganizationOfProject.createMany({
@@ -2685,7 +2812,6 @@ export async function seedAllEntities(
       {
         profileId: largestProfileId,
         organizationId: largestOrganizationId,
-        isPrivileged: true,
       },
       ...standardProfileIds.map((id) => {
         return {
@@ -2693,6 +2819,14 @@ export async function seedAllEntities(
           organizationId: largestOrganizationId,
         };
       }),
+    ],
+  });
+  await prismaClient.adminOfOrganization.createMany({
+    data: [
+      {
+        profileId: largestProfileId,
+        organizationId: largestOrganizationId,
+      },
     ],
   });
   await prismaClient.memberOfNetwork.createMany({
@@ -2795,7 +2929,14 @@ export async function seedAllEntities(
         {
           profileId: developerProfileId,
           eventId: developerEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: developerProfileId,
+          eventId: developerEventId,
         },
       ],
     });
@@ -2929,7 +3070,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: depth2EventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth2EventId,
         },
       ],
     });
@@ -3090,7 +3238,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: depth3EventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: depth3EventId,
         },
       ],
     });
@@ -3255,7 +3410,14 @@ export async function seedAllEntities(
         {
           profileId: smallestProfileId,
           eventId: smallestEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: smallestProfileId,
+          eventId: smallestEventId,
         },
       ],
     });
@@ -3364,7 +3526,14 @@ export async function seedAllEntities(
         {
           profileId: emptyStringsProfileId,
           eventId: emptyStringsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: emptyStringsProfileId,
+          eventId: emptyStringsEventId,
         },
       ],
     });
@@ -3499,7 +3668,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: fullParticipantsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: fullParticipantsEventId,
         },
       ],
     });
@@ -3634,7 +3810,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: canceledEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: canceledEventId,
         },
       ],
     });
@@ -3768,7 +3951,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: unpublishedEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: unpublishedEventId,
         },
       ],
     });
@@ -3873,7 +4063,14 @@ export async function seedAllEntities(
         {
           profileId: smallestProfileId,
           eventId: smallTeamEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: smallestProfileId,
+          eventId: smallTeamEventId,
         },
       ],
     });
@@ -3975,7 +4172,14 @@ export async function seedAllEntities(
         {
           profileId: largestProfileId,
           eventId: largeTeamEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: largestProfileId,
+          eventId: largeTeamEventId,
         },
       ],
     });
@@ -4073,7 +4277,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: manyResponsibleOrganizationsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyResponsibleOrganizationsEventId,
         },
       ],
     });
@@ -4195,7 +4406,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: manySpeakersEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: manySpeakersEventId,
         },
       ],
     });
@@ -4291,7 +4509,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: manyParticipantsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyParticipantsEventId,
         },
       ],
     });
@@ -4410,7 +4635,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: manyDocumentsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: manyDocumentsEventId,
         },
       ],
     });
@@ -4541,7 +4773,14 @@ export async function seedAllEntities(
         {
           profileId: eventManagerProfileId,
           eventId: overfullParticipantsEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: eventManagerProfileId,
+          eventId: overfullParticipantsEventId,
         },
       ],
     });
@@ -4694,7 +4933,14 @@ export async function seedAllEntities(
         {
           profileId: unicodeProfileId,
           eventId: unicodeEventId,
-          isPrivileged: true,
+        },
+      ],
+    });
+    await prismaClient.adminOfEvent.createMany({
+      data: [
+        {
+          profileId: unicodeProfileId,
+          eventId: unicodeEventId,
         },
       ],
     });
@@ -4830,7 +5076,14 @@ export async function seedAllEntities(
       {
         profileId: developerProfileId,
         projectId: developerProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: developerProfileId,
+        projectId: developerProjectId,
       },
     ],
   });
@@ -4907,7 +5160,14 @@ export async function seedAllEntities(
       {
         profileId: smallestProfileId,
         projectId: smallestProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: smallestProfileId,
+        projectId: smallestProjectId,
       },
     ],
   });
@@ -5022,7 +5282,14 @@ export async function seedAllEntities(
       {
         profileId: emptyStringsProfileId,
         projectId: emptyStringsProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: emptyStringsProfileId,
+        projectId: emptyStringsProjectId,
       },
     ],
   });
@@ -5112,7 +5379,14 @@ export async function seedAllEntities(
       {
         profileId: makerProfileId,
         projectId: multipleAwardedProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: makerProfileId,
+        projectId: multipleAwardedProjectId,
       },
     ],
   });
@@ -5200,7 +5474,14 @@ export async function seedAllEntities(
       {
         profileId: smallestProfileId,
         projectId: smallTeamProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: smallestProfileId,
+        projectId: smallTeamProjectId,
       },
     ],
   });
@@ -5266,7 +5547,14 @@ export async function seedAllEntities(
       {
         profileId: largestProfileId,
         projectId: largeTeamProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: largestProfileId,
+        projectId: largeTeamProjectId,
       },
     ],
   });
@@ -5348,7 +5636,14 @@ export async function seedAllEntities(
       {
         profileId: makerProfileId,
         projectId: manyResponsibleOrganizationsProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: makerProfileId,
+        projectId: manyResponsibleOrganizationsProjectId,
       },
     ],
   });
@@ -5452,7 +5747,14 @@ export async function seedAllEntities(
       {
         profileId: unicodeProfileId,
         projectId: unicodeProjectId,
-        isPrivileged: true,
+      },
+    ],
+  });
+  await prismaClient.adminOfProject.createMany({
+    data: [
+      {
+        profileId: unicodeProfileId,
+        projectId: unicodeProjectId,
       },
     ],
   });

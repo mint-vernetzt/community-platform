@@ -39,3 +39,50 @@ export async function getOwnOrganizationsSuggestions(
   });
   return ownOrganizationSuggestions;
 }
+
+export async function getEventBySlug(slug: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
+      published: true,
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              slug: true,
+              logo: true,
+              name: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          organization: {
+            name: "asc",
+          },
+        },
+      },
+    },
+    where: {
+      slug,
+    },
+  });
+}
+
+export function getResponsibleOrganizationDataFromEvent(
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>
+) {
+  const organizationData = event.responsibleOrganizations.map((item) => {
+    return item.organization;
+  });
+  return organizationData;
+}

@@ -1,24 +1,22 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useTransition } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden, notFound } from "remix-utils";
-import type { Schema } from "zod";
 import { z } from "zod";
 import {
   createAuthClient,
-  getSessionOrThrow,
   getSessionUserOrThrow,
   sendResetEmailLink,
   updatePassword,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileByUsername } from "~/profile.server";
-import { handleAuthorization } from "../utils.server";
+import { deriveProfileMode } from "../utils.server";
+import { getProfileByUsername } from "./security.server";
 
 const emailSchema = z.object({
   email: z
@@ -53,7 +51,7 @@ const emailEnvironmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -62,14 +60,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const session = await getSessionOrThrow(authClient);
-  const sessionUser = session.user;
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
     throw forbidden({ message: "not allowed." });
   }
-
-  await handleAuthorization(sessionUser.id, profile.id);
 
   return response;
 };
@@ -86,6 +83,7 @@ const passwordMutation = makeDomainFunction(
   }
 
   const { error } = await updatePassword(
+    // TODO: fix type issue
     environment.authClient,
     values.password
   );
@@ -108,6 +106,7 @@ const emailMutation = makeDomainFunction(
   }
 
   const { error } = await sendResetEmailLink(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     environment.siteUrl
@@ -119,21 +118,14 @@ const emailMutation = makeDomainFunction(
   return values;
 });
 
-type ActionData =
-  | PerformMutation<z.infer<Schema>, z.infer<typeof emailSchema>>
-  | PerformMutation<z.infer<Schema>, z.infer<typeof passwordSchema>>;
-
-export const action: ActionFunction = async ({ request, params }) => {
+export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    throw notFound({ message: "profile not found." });
-  }
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
     throw forbidden({ message: "not allowed." });
@@ -161,13 +153,13 @@ export const action: ActionFunction = async ({ request, params }) => {
       environment: { authClient: authClient },
     });
   }
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Security() {
   const transition = useTransition();
 
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
 
   let showPasswordFeedback = false,
     showEmailFeedback = false;

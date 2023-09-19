@@ -1,14 +1,16 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { badRequest, notFound } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import { checkOwnershipOrThrow } from "./utils.server";
+import { deriveEventMode } from "../../utils.server";
+import { getFullDepthProfiles } from "../utils.server";
+import { getEventBySlug } from "./csv-download.server";
 
 async function getProfilesBySearchParams(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
   depth: string | null,
   type: string | null
 ) {
@@ -32,16 +34,12 @@ async function getProfilesBySearchParams(
     if (depth === "full") {
       profiles = await getFullDepthProfiles(event.id, "waitingList", groupBy);
     } else if (depth === "single") {
-      profiles = event.waitingList
-        .sort((a, b) => {
-          return a.createdAt.getTime() - b.createdAt.getTime();
-        })
-        .map((waitingParticipant) => {
-          return {
-            ...waitingParticipant.profile,
-            participatedEvents: event.name,
-          };
-        });
+      profiles = event.waitingList.map((waitingParticipant) => {
+        return {
+          ...waitingParticipant.profile,
+          participatedEvents: event.name,
+        };
+      });
     } else {
       throw badRequest({
         message:
@@ -63,7 +61,7 @@ async function getProfilesBySearchParams(
 }
 
 function getFilenameBySearchParams(
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>,
+  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
   depth: string | null,
   type: string | null
 ) {
@@ -111,9 +109,7 @@ function createCsvString(
   return csv;
 }
 
-type LoaderData = Response;
-
-export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -121,8 +117,10 @@ export const loader: LoaderFunction = async (args): Promise<LoaderData> => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");

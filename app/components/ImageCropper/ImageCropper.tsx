@@ -1,16 +1,16 @@
-import React, { useState, useRef } from "react";
 import Pica from "pica";
+import React, { useRef, useState } from "react";
 
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import type { Crop, PixelCrop } from "react-image-crop";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import { Form } from "remix-forms";
 
-import { canvasPreview } from "./canvasPreview";
-import { InputFile } from "./InputFile";
-import { useDebounceEffect } from "./useDebounceEffect";
-import type { UploadKey, Subject } from "~/routes/upload/schema";
-import { schema } from "~/routes/upload/schema";
 import Slider from "rc-slider";
+import { fileUploadSchema } from "~/lib/utils/schemas";
+import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
+import { InputFile } from "./InputFile";
+import { canvasPreview } from "./canvasPreview";
+import { useDebounceEffect } from "./useDebounceEffect";
 
 export interface ImageCropperProps {
   id: string;
@@ -128,6 +128,7 @@ function ImageCropper(props: ImageCropperProps) {
   );
 
   function reset() {
+    // TODO: can this type assertion be removed and proofen by code?
     const inputFile = document.getElementById(`${id}-file`) as HTMLInputElement;
     if (inputFile === null) {
       return;
@@ -145,6 +146,7 @@ function ImageCropper(props: ImageCropperProps) {
   function closeModal() {
     const $modalToggle = document.getElementById(
       props.id
+      // TODO: can this type assertion be removed and proofen by code?
     ) as HTMLInputElement | null;
     if ($modalToggle) {
       $modalToggle.checked = false;
@@ -152,6 +154,7 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
+    // TODO: can this type assertion be removed and proofen by code?
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
     const canvasAspect = canvas.width / canvas.height;
     const isLandScape = canvas.width > canvas.height;
@@ -249,7 +252,7 @@ function ImageCropper(props: ImageCropperProps) {
               action={DELETE_URL}
               method="post"
               reloadDocument
-              schema={schema}
+              schema={fileUploadSchema}
               hiddenFields={["subject", "slug", "uploadKey", "redirect"]}
               values={{
                 subject: props.subject,
@@ -363,6 +366,7 @@ function ImageCropper(props: ImageCropperProps) {
                 max={DEFAULT_SCALE * 2}
                 step={0.05}
                 value={scale}
+                // TODO: can this type assertion be removed and proofen by code?
                 onChange={(v) => setScale(v as number)}
               />
             </div>

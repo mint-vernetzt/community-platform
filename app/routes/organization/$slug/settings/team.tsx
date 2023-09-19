@@ -9,26 +9,23 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { Form } from "remix-forms";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitials } from "~/lib/profile/getInitials";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import type {
-  FailureActionData as AddMemberFailureActionData,
-  SuccessActionData as AddMemberSuccessActionData,
-} from "./team/add-member";
-import { addMemberSchema } from "./team/add-member";
-import type { ActionData as RemoveMemberActionData } from "./team/remove-member";
-import { removeMemberSchema } from "./team/remove-member";
-import type { ActionData as SetPrivilegeActionData } from "./team/set-privilege";
-import { setPrivilegeSchema } from "./team/set-privilege";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { deriveOrganizationMode } from "../utils.server";
+import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
 import {
-  getMembersOfOrganization,
-  getMemberSuggestions,
-  getTeamMemberProfileDataFromOrganization,
-  handleAuthorization,
-} from "./utils.server";
+  addMemberSchema,
+  type action as addMemberAction,
+} from "./team/add-member";
+import {
+  removeMemberSchema,
+  type action as removeMemberAction,
+} from "./team/remove-member";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -37,16 +34,16 @@ export const loader = async (args: LoaderArgs) => {
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization, sessionUser } = await handleAuthorization(
-    authClient,
-    slug
-  );
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const organization = await getOrganizationBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
   const members = await getMembersOfOrganization(authClient, organization.id);
-  const enhancedMembers = getTeamMemberProfileDataFromOrganization(
-    members,
-    sessionUser.id
-  );
+  const enhancedMembers = members.map((relation) => {
+    return relation.profile;
+  });
 
   const url = new URL(request.url);
   const suggestionsQuery =
@@ -57,7 +54,7 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyMemberIds = members.map((member) => {
       return member.profile.id;
     });
-    memberSuggestions = await getMemberSuggestions(
+    memberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyMemberIds,
       query
@@ -68,7 +65,6 @@ export const loader = async (args: LoaderArgs) => {
     {
       members: enhancedMembers,
       memberSuggestions,
-      userId: sessionUser.id,
       organizationId: organization.id,
       slug: slug,
     },
@@ -79,11 +75,8 @@ export const loader = async (args: LoaderArgs) => {
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addMemberFetcher = useFetcher<
-    AddMemberSuccessActionData | AddMemberFailureActionData
-  >();
-  const removeMemberFetcher = useFetcher<RemoveMemberActionData>();
-  const setPrivilegeFetcher = useFetcher<SetPrivilegeActionData>();
+  const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -103,12 +96,6 @@ function Index() {
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/organization/${slug}/settings/team/add-member`}
-        hiddenFields={["slug", "userId", "organizationId"]}
-        values={{
-          slug,
-          userId: loaderData.userId,
-          organizationId: loaderData.organizationId,
-        }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -123,13 +110,13 @@ function Index() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    Name oder Email des Teammitglieds
+                    Name oder Email
                   </label>
                 </div>
               </div>
 
               <div className="flex flex-row">
-                <Field name="id" className="flex-auto">
+                <Field name="profileId" className="flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -137,7 +124,7 @@ function Index() {
                         suggestions={loaderData.memberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/team`}
                         defaultValue={suggestionsQuery || ""}
-                        {...register("id")}
+                        {...register("profileId")}
                         searchParameter="autocomplete_query"
                       />
                     </>
@@ -149,9 +136,6 @@ function Index() {
                   </Button>
                 </div>
               </div>
-              <Field name="slug" />
-              <Field name="userId" />
-              <Field name="organizationId" />
             </div>
           );
         }}
@@ -198,71 +182,19 @@ function Index() {
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
                 <Form
-                  schema={setPrivilegeSchema}
-                  fetcher={setPrivilegeFetcher}
-                  action={`/organization/${slug}/settings/team/set-privilege`}
-                  hiddenFields={[
-                    "userId",
-                    "slug",
-                    "teamMemberId",
-                    "organizationId",
-                    "isPrivileged",
-                  ]}
-                  values={{
-                    userId: loaderData.userId,
-                    slug: loaderData.slug,
-                    teamMemberId: profile.id,
-                    organizationId: loaderData.organizationId,
-                    isPrivileged: !profile.isPrivileged,
-                  }}
-                  className=""
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="userId" />
-                        <Field name="slug" />
-                        <Field name="teamMemberId" />
-                        <Field name="organizationId" />
-                        <Field name="isPrivileged" />
-                        {profile.isCurrentUser === false ? (
-                          <div className="ml-2">
-                            <Button
-                              className="btn btn-outline-primary ml-auto btn-small"
-                              title={
-                                profile.isPrivileged
-                                  ? "Privileg entziehen"
-                                  : "Privileg hinzufügen"
-                              }
-                            >
-                              {profile.isPrivileged
-                                ? "Privileg entziehen"
-                                : "Privileg hinzufügen"}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </Form>
-                <Form
                   method="post"
                   action={`/organization/${slug}/settings/team/remove-member`}
                   schema={removeMemberSchema}
-                  hiddenFields={["teamMemberId", "organizationId", "userId"]}
+                  hiddenFields={["profileId"]}
                   values={{
-                    teamMemberId: profile.id,
-                    organizationId: loaderData.organizationId,
-                    userId: loaderData.userId,
+                    profileId: profile.id,
                   }}
                   fetcher={removeMemberFetcher}
                 >
                   {({ Field, Button, Errors }) => {
                     return (
                       <>
-                        {profile.isCurrentUser === false ? (
+                        {loaderData.members.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
                             title="entfernen"
@@ -281,9 +213,7 @@ function Index() {
                             </svg>
                           </Button>
                         ) : null}
-                        <Field name="userId" />
-                        <Field name="teamMemberId" />
-                        <Field name="organizationId" />
+                        <Field name="profileId" />
                         <Errors />
                       </>
                     );

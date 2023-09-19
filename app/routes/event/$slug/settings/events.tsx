@@ -9,33 +9,37 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getImageURL } from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../utils.server";
-import type { SuccessActionData as AddChildSuccessActionData } from "./events/add-child";
-import type { FailureActionData as AddChildFailureActionData } from "./events/add-child";
-import { addChildSchema } from "./events/add-child";
-import type { ActionData as RemoveChildActionData } from "./events/remove-child";
-import { removeChildSchema } from "./events/remove-child";
-import type { FailureActionData, SuccessActionData } from "./events/set-parent";
-import { setParentSchema } from "./events/set-parent";
+import { deriveEventMode } from "../../utils.server";
+import { getEventBySlug } from "./events.server";
 import {
-  checkOwnershipOrThrow,
+  addChildSchema,
+  type action as addChildAction,
+} from "./events/add-child";
+import { publishSchema, type action as publishAction } from "./events/publish";
+import {
+  removeChildSchema,
+  type action as removeChildAction,
+} from "./events/remove-child";
+import {
+  setParentSchema,
+  type action as setParentAction,
+} from "./events/set-parent";
+import {
   getChildEventSuggestions,
-  getEventsOfPrivilegedMemberExceptOfGivenEvent,
-  getOptionsFromEvents,
+  // getEventsOfPrivilegedMemberExceptOfGivenEvent,
+  // getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -44,15 +48,10 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, sessionUser);
-
-  const events = await getEventsOfPrivilegedMemberExceptOfGivenEvent(
-    sessionUser.id,
-    event.id
-  );
-
-  const options = getOptionsFromEvents(events);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     if (childEvent.background !== null) {
@@ -110,14 +109,11 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      options,
       parentEvent: event.parentEvent,
       parentEventSuggestions,
       childEvents: enhancedChildEvents,
       childEventSuggestions,
-      eventId: event.id,
       published: event.published,
-      userId: sessionUser.id,
     },
     { headers: response.headers }
   );
@@ -126,12 +122,10 @@ export const loader = async (args: LoaderArgs) => {
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const setParentFetcher = useFetcher<SuccessActionData | FailureActionData>();
-  const addChildFetcher = useFetcher<
-    AddChildSuccessActionData | AddChildFailureActionData
-  >();
-  const removeChildFetcher = useFetcher<RemoveChildActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const setParentFetcher = useFetcher<typeof setParentAction>();
+  const addChildFetcher = useFetcher<typeof addChildAction>();
+  const removeChildFetcher = useFetcher<typeof removeChildAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
   if (loaderData.parentEvent !== null) {
@@ -170,8 +164,6 @@ function Events() {
         schema={setParentSchema}
         fetcher={setParentFetcher}
         action={`/event/${slug}/settings/events/set-parent`}
-        hiddenFields={["userId", "eventId"]}
-        values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -185,8 +177,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="userId" />
-              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
@@ -240,11 +230,9 @@ function Events() {
             schema={setParentSchema}
             fetcher={setParentFetcher}
             action={`/event/${slug}/settings/events/set-parent`}
-            hiddenFields={["userId", "eventId", "parentEventId"]}
+            hiddenFields={["parentEventId"]}
             values={{
-              userId: loaderData.userId,
-              eventId: loaderData.eventId,
-              parentEventId: "",
+              parentEventId: undefined,
             }}
           >
             {(props) => {
@@ -323,8 +311,6 @@ function Events() {
                         )}
                       </div>
                     </Link>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="parentEventId" />
                     <Button className="ml-auto btn-none" title="entfernen">
                       <svg
@@ -367,8 +353,6 @@ function Events() {
         schema={addChildSchema}
         fetcher={addChildFetcher}
         action={`/event/${slug}/settings/events/add-child`}
-        hiddenFields={["userId", "eventId"]}
-        values={{ userId: loaderData.userId, eventId: loaderData.eventId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -382,8 +366,6 @@ function Events() {
           return (
             <div className="form-control w-full">
               <Errors />
-              <Field name="userId" />
-              <Field name="eventId" />
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
@@ -402,6 +384,7 @@ function Events() {
                         defaultValue={childEventSuggestionsQuery || ""}
                         {...register("childEventId")}
                         searchParameter="child_autocomplete_query"
+                        autoFocus={false}
                       />
                       <Errors />
                     </>
@@ -452,10 +435,8 @@ function Events() {
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
                   action={`/event/${slug}/settings/events/remove-child`}
-                  hiddenFields={["userId", "eventId", "childEventId"]}
+                  hiddenFields={["childEventId"]}
                   values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
                     childEventId: childEvent.id,
                   }}
                 >
@@ -524,8 +505,6 @@ function Events() {
                             )}
                           </div>
                         </Link>
-                        <Field name="userId" />
-                        <Field name="eventId" />
                         <Field name="childEventId" />
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
@@ -557,10 +536,8 @@ function Events() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -568,8 +545,6 @@ function Events() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

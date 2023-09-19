@@ -63,7 +63,7 @@ export const loader = async (args: LoaderArgs) => {
 function Events() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
 
   const [events, setEvents] = React.useState(loaderData.events);
@@ -83,12 +83,14 @@ function Events() {
 
   React.useEffect(() => {
     if (fetcher.data !== undefined) {
-      if (fetcher.data !== undefined) {
-        setEvents((events) => [...events, ...fetcher.data.events]);
-        setPage(fetcher.data.pagination.page);
-        if (fetcher.data.events.length < fetcher.data.pagination.itemsPerPage) {
-          setShouldFetchEvents(false);
-        }
+      setEvents((events) => {
+        return fetcher.data !== undefined
+          ? [...events, ...fetcher.data.events]
+          : [...events];
+      });
+      setPage(fetcher.data.pagination.page);
+      if (fetcher.data.events.length < fetcher.data.pagination.itemsPerPage) {
+        setShouldFetchEvents(false);
       }
     }
   }, [fetcher.data]);
@@ -124,6 +126,7 @@ function Events() {
                     participationUntil,
                     responsibleOrganizations:
                       event.responsibleOrganizations.map(
+                        // TODO: fix any type
                         (item: any) => item.organization
                       ),
                   }}

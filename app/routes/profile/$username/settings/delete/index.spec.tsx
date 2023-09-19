@@ -5,6 +5,7 @@ describe("TODO", () => {
 });
 
 // import { deleteUserByUid } from "../../../../auth.server";
+// NOTE: Auth handling is now done by deriveProfileMode()
 // import { handleAuthorization } from "~/app/routes/profile/$username/utils.server.ts";
 // import { getProfileByUserId } from "~/profile.server";
 // import { action, loader } from "./index";
@@ -22,6 +23,7 @@ describe("TODO", () => {
 //     jest.resetAllMocks();
 //   });
 //   test("call loader", async () => {
+//     // NOTE: Auth handling is now done by deriveProfileMode()
 //     (handleAuthorization as jest.Mock).mockReturnValue({ id: 1 });
 //     (getProfileByUserId as jest.Mock).mockReturnValue({
 //       firstName: "Firstname",
@@ -34,7 +36,7 @@ describe("TODO", () => {
 //       },
 //       context: {},
 //     });
-
+//     // NOTE: Auth handling is now done by deriveProfileMode()
 //     expect(handleAuthorization as jest.Mock).toBeCalledTimes(1);
 //     expect(getProfileByUserId as jest.Mock).toBeCalledTimes(1);
 //     expect(res).toStrictEqual({
@@ -57,6 +59,7 @@ describe("TODO", () => {
 //     });
 
 //     // expect(deleteUserByUid as jest.Mock).toBeCalledTimes(1);
+//     // NOTE: Auth handling is now done by deriveProfileMode()
 //     expect(handleAuthorization as jest.Mock).toBeCalledTimes(1);
 //     expect(res).toBeNull();
 //   });

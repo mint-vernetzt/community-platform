@@ -5,8 +5,12 @@ import type {
   OptionOrGroup,
   OptionsProps,
 } from "~/components/FormElements/SelectField/SelectField";
-import type { AreasWithState } from "~/profile.server";
 import { capitalizeFirstLetter } from "../string/transform";
+import { type Area, type State } from "@prisma/client";
+
+type AreasWithState = (Area & {
+  state: State | null;
+})[];
 
 function getListOperationName(operation: string, key: string) {
   const ucSingularKey = capitalizeFirstLetter(key.slice(0, -1));
@@ -21,6 +25,7 @@ function addListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
 ) {
   return {
     ...object,
+    // TODO: can this type assertion be removed and proofen by code?
     [key]: [...(object[key] as string[]), value],
   };
 }
@@ -33,6 +38,7 @@ function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
 ) {
   return {
     ...object,
+    // TODO: can this type assertion be removed and proofen by code?
     [key]: (object[key] as string[]).filter((v) => v !== value) as string[],
   };
 }
@@ -41,6 +47,7 @@ function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
 export function objectListOperationResolver<
   T extends InferType<OptionalObjectSchema<AnyObject>>
 >(object: T, key: keyof T, formData: FormData) {
+  // TODO: can this type assertion be removed and proofen by code?
   key = key as string;
 
   const submit = formData.get("submit");
@@ -49,6 +56,7 @@ export function objectListOperationResolver<
   if (submit === addOperation && formData.get(addOperation) !== "") {
     return addListEntry<T>(
       key,
+      // TODO: can this type assertion be removed and proofen by code?
       (formData.get(addOperation) as string) ?? "",
       object
     );
@@ -58,6 +66,7 @@ export function objectListOperationResolver<
   if (formData.get(removeOperation) !== "") {
     return removeListEntry<T>(
       key,
+      // TODO: can this type assertion be removed and proofen by code?
       (formData.get(removeOperation) as string) ?? "",
       object
     );

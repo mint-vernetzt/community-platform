@@ -11,10 +11,12 @@ export function createRequestWithFormData(keyValuePairs: {
   const formData = new NodeFormData();
   for (let key in keyValuePairs) {
     if (Array.isArray(keyValuePairs[key])) {
+      // TODO: can this type assertion be removed and proofen by code?
       (keyValuePairs[key] as string[]).forEach((item) => {
         formData.set(key, item);
       });
     } else {
+      // TODO: can this type assertion be removed and proofen by code?
       formData.set(key, keyValuePairs[key] as string);
     }
   }

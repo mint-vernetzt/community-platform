@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
@@ -8,24 +8,25 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import Modal from "~/components/Modal/Modal";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getEventBySlugOrThrow } from "../utils.server";
-import type { ActionData as DeleteDocumentActionData } from "./documents/delete-document";
-import { deleteDocumentSchema } from "./documents/delete-document";
-import type { ActionData as EditDocumentActionData } from "./documents/edit-document";
-import { editDocumentSchema } from "./documents/edit-document";
-import type { ActionData as UploadDocumentActionData } from "./documents/upload-document";
-import { uploadDocumentSchema } from "./documents/upload-document";
-import { checkOwnershipOrThrow } from "./utils.server";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+import { deriveEventMode } from "../../utils.server";
+import { getEventBySlug } from "./documents.server";
+import {
+  deleteDocumentSchema,
+  type action as deleteDocumentAction,
+} from "./documents/delete-document";
+import {
+  editDocumentSchema,
+  type action as editDocumentAction,
+} from "./documents/edit-document";
+import {
+  uploadDocumentSchema,
+  type action as uploadDocumentAction,
+} from "./documents/upload-document";
+import { publishSchema, type action as publishAction } from "./events/publish";
 
-type LoaderData = {
-  userId: string;
-  event: Awaited<ReturnType<typeof getEventBySlugOrThrow>>;
-};
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -35,13 +36,13 @@ export const loader: LoaderFunction = async (args) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  await checkOwnershipOrThrow(event, sessionUser);
-
-  return json<LoaderData>(
+  return json(
     {
-      userId: sessionUser.id,
       event: event,
     },
     { headers: response.headers }
@@ -49,6 +50,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 function closeModal(id: string) {
+  // TODO: can this type assertion be removed and proofen by code?
   const $modalToggle = document.getElementById(
     `modal-edit-document-${id}`
   ) as HTMLInputElement | null;
@@ -58,6 +60,7 @@ function closeModal(id: string) {
 }
 
 function clearFileInput() {
+  // TODO: can this type assertion be removed and proofen by code?
   const $fileInput = document.getElementById(
     "document-upload-input"
   ) as HTMLInputElement | null;
@@ -67,13 +70,13 @@ function clearFileInput() {
 }
 
 function Documents() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
 
-  const uploadDocumentFetcher = useFetcher<UploadDocumentActionData>();
-  const editDocumentFetcher = useFetcher<EditDocumentActionData>();
-  const deleteDocumentFetcher = useFetcher<DeleteDocumentActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const uploadDocumentFetcher = useFetcher<typeof uploadDocumentAction>();
+  const editDocumentFetcher = useFetcher<typeof editDocumentAction>();
+  const deleteDocumentFetcher = useFetcher<typeof deleteDocumentAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
 
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,19 +140,9 @@ function Documents() {
                         {({ Field, Errors, register }) => (
                           <>
                             <Field
-                              name="userId"
-                              hidden
-                              value={loaderData.userId}
-                            />
-                            <Field
                               name="documentId"
                               hidden
                               value={item.document.id}
-                            />
-                            <Field
-                              name="eventId"
-                              hidden
-                              value={loaderData.event.id}
                             />
                             <Field
                               name="extension"
@@ -215,19 +208,9 @@ function Documents() {
                       {({ Field, Errors }) => (
                         <>
                           <Field
-                            name="userId"
-                            hidden
-                            value={loaderData.userId}
-                          />
-                          <Field
                             name="documentId"
                             hidden
                             value={item.document.id}
-                          />
-                          <Field
-                            name="eventId"
-                            hidden
-                            value={loaderData.event.id}
                           />
                           <button
                             type="submit"
@@ -267,8 +250,6 @@ function Documents() {
       >
         {({ Field, Errors }) => (
           <>
-            <Field name="userId" hidden value={loaderData.userId} />
-            <Field name="eventId" hidden value={loaderData.event.id} />
             <Field name="uploadKey" hidden value={"document"} />
             <Field name="document" label="PDF Dokument auswählen">
               {({ Errors }) => (
@@ -301,10 +282,8 @@ function Documents() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.event.id,
-                userId: loaderData.userId,
                 publish: !loaderData.event.published,
               }}
             >
@@ -312,8 +291,6 @@ function Documents() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.event.published

@@ -248,8 +248,10 @@ export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
   let parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
     if (schema.fields[key].type === "array") {
+      // TODO: can this type assertion be removed and proofen by code?
       parsedFormData[key] = formData.getAll(key) as string[];
     } else {
+      // TODO: can this type assertion be removed and proofen by code?
       parsedFormData[key] = formData.get(key) as string;
     }
   }

@@ -1,49 +1,31 @@
-import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProjectBySlug(slug: string) {
-  return await getProjectByField("slug", slug);
-}
-
-export async function getProjectBySlugOrThrow(slug: string) {
-  const result = await getProjectBySlug(slug);
-  if (result === null) {
-    throw notFound({ message: "Project not found" });
-  }
-  return result;
-}
-
-export async function getProjectVisibilitiesBySlugOrThrow(slug: string) {
-  const result = await prismaClient.projectVisibility.findFirst({
-    where: {
-      project: {
-        slug,
-      },
-    },
-  });
-  if (result === null) {
-    throw notFound({ message: "Project visbilities not found." });
-  }
-  return result;
-}
-
-export async function getProjectById(id: string) {
-  return await getProjectByField("id", id);
-}
-
-export async function getProjectByIdOrThrow(id: string) {
-  const result = await getProjectById(id);
-  if (result === null) {
-    throw notFound({ message: "Project not found" });
-  }
-  return result;
-}
-
-export async function getProjectByField(field: string, value: string) {
   const result = await prismaClient.project.findFirst({
-    where: { [field]: value },
-    include: {
+    where: { slug },
+    select: {
+      id: true,
+      slug: true,
+      logo: true,
+      background: true,
+      name: true,
+      email: true,
+      phone: true,
+      website: true,
+      linkedin: true,
+      twitter: true,
+      xing: true,
+      instagram: true,
+      youtube: true,
+      facebook: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+      headline: true,
+      excerpt: true,
+      description: true,
       targetGroups: {
         select: {
           targetGroupId: true,
@@ -92,7 +74,6 @@ export async function getProjectByField(field: string, value: string) {
       },
       teamMembers: {
         select: {
-          isPrivileged: true,
           profile: {
             select: {
               id: true,
@@ -129,24 +110,24 @@ export async function getProjectByField(field: string, value: string) {
   return result;
 }
 
-export async function deriveMode(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlug>>>,
-  sessionUser: User | null
-) {
-  if (sessionUser === null) {
-    return "anon";
+export async function getProjectBySlugOrThrow(slug: string) {
+  const result = await getProjectBySlug(slug);
+  if (result === null) {
+    throw notFound({ message: "Project not found" });
   }
+  return result;
+}
 
-  const relation = await prismaClient.teamMemberOfProject.findFirst({
+export async function getProjectVisibilitiesBySlugOrThrow(slug: string) {
+  const result = await prismaClient.projectVisibility.findFirst({
     where: {
-      projectId: project.id,
-      profileId: sessionUser.id,
+      project: {
+        slug,
+      },
     },
   });
-
-  if (relation === null || relation.isPrivileged === false) {
-    return "authenticated";
+  if (result === null) {
+    throw notFound({ message: "Project visbilities not found." });
   }
-
-  return "owner";
+  return result;
 }

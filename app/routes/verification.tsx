@@ -22,6 +22,7 @@ export default function Index() {
         submit(
           loginRedirect
             ? {
+                // TODO: fix type issue
                 login_redirect: loginRedirect,
                 access_token: accessToken,
                 refresh_token: refreshToken,
@@ -56,6 +57,7 @@ export default function Index() {
       if (type === "email_change") {
         submit(
           {
+            // TODO: fix type issue
             access_token: accessToken,
             refresh_token: refreshToken,
             type: type,

@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   useFetcher,
@@ -7,57 +7,55 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMemberSuggestions } from ".";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   connectOrganizationToNetwork,
   getOrganizationById,
   getOrganizationIdBySlug,
-  handleAuthorization,
 } from "../utils.server";
 
 const schema = z.object({
-  id: z.string(),
+  organizationId: z.string(),
+});
+
+const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { id, slug } = values;
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { organizationId } = values;
 
-  const network = await getOrganizationIdBySlug(slug);
+  const network = await getOrganizationIdBySlug(environment.slug);
   if (network === null) {
     throw "Eure Organisation konnte nicht gefunden werden.";
   }
 
-  const organization = await getOrganizationById(id);
+  const organization = await getOrganizationById(organizationId);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation unter diesem Namen.",
-      "id"
+      "organizationId"
     );
   }
 
-  if (network.id === organization.id) {
-    throw new InputError(
-      "Eure Organisation ist bereits Teil Eures Netzwerks.",
-      "id"
-    );
-  }
-
-  const stillMember = organization.memberOf.some((entry) => {
-    return entry.network.slug === slug;
+  const alreadyNetworkMember = organization.memberOf.some((entry) => {
+    return entry.network.slug === environment.slug;
   });
 
-  if (stillMember) {
+  if (alreadyNetworkMember) {
     throw new InputError(
       "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
-      "id"
+      "organizationId"
     );
   }
 
@@ -72,36 +70,30 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values, name: organization.name };
 });
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);
   return redirect(".", { headers: response.headers });
 };
 
-type SuccessActionData = {
-  message: string;
-};
-
-type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
-  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
-
   const slug = getParamValueOrThrow(params, "slug");
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  await handleAuthorization(authClient, slug);
-
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
   if (result.success) {
-    return json<SuccessActionData>(
+    return json(
       {
         message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
       },
@@ -109,7 +101,7 @@ export const action: ActionFunction = async (args) => {
     );
   }
 
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 type NetworkMemberProps = {
@@ -118,7 +110,7 @@ type NetworkMemberProps = {
 
 function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
-  const fetcher = useFetcher<SuccessActionData | FailureActionData>();
+  const fetcher = useFetcher<typeof action>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -133,8 +125,6 @@ function Add(props: NetworkMemberProps) {
         schema={schema}
         fetcher={fetcher}
         action={`/organization/${slug}/settings/network/add`}
-        hiddenFields={["slug"]}
-        values={{ slug }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -155,7 +145,7 @@ function Add(props: NetworkMemberProps) {
               </div>
 
               <div className="flex flex-row">
-                <Field name="id" className="flex-auto">
+                <Field name="organizationId" className="flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -163,7 +153,7 @@ function Add(props: NetworkMemberProps) {
                         suggestions={props.networkMemberSuggestions || []}
                         suggestionsLoaderPath={`/organization/${slug}/settings/network`}
                         defaultValue={suggestionsQuery || ""}
-                        {...register("id")}
+                        {...register("organizationId")}
                         searchParameter="autocomplete_query"
                       />
                     </>
@@ -175,7 +165,6 @@ function Add(props: NetworkMemberProps) {
                   </Button>
                 </div>
               </div>
-              <Field name="slug" />
             </div>
           );
         }}

@@ -14,20 +14,6 @@ export async function connectParticipantToEvent(
   });
 }
 
-export async function disconnectParticipantFromEvent(
-  eventId: string,
-  profileId: string
-) {
-  await prismaClient.participantOfEvent.delete({
-    where: {
-      profileId_eventId: {
-        eventId,
-        profileId,
-      },
-    },
-  });
-}
-
 export async function connectToWaitingListOfEvent(
   eventId: string,
   profileId: string
@@ -54,21 +40,13 @@ export async function disconnectFromWaitingListOfEvent(
   });
 }
 
-export async function getNumberOfParticipants(eventId: string) {
-  const number = await prismaClient.participantOfEvent.count({
-    where: {
-      eventId,
+export async function getEventBySlug(slug: string) {
+  return await prismaClient.event.findUnique({
+    select: {
+      id: true,
     },
-  });
-  return number;
-}
-
-export async function updateParticipantLimit(
-  eventId: string,
-  participantLimit: number | undefined
-) {
-  await prismaClient.event.update({
-    where: { id: eventId },
-    data: { updatedAt: new Date(), participantLimit },
+    where: {
+      slug,
+    },
   });
 }

@@ -998,6 +998,7 @@ export async function searchEventsViaLike(
       stage: {
         select: {
           title: true,
+          slug: true,
         },
       },
       canceled: true,
@@ -1819,6 +1820,86 @@ function getProjectWhereQueries(
     whereQueries.push(contains);
   }
   return whereQueries;
+}
+
+export async function enhanceEventsWithParticipationStatus(
+  sessionUser: User | null,
+  events: Awaited<ReturnType<typeof searchEventsViaLike>>
+) {
+  if (sessionUser === null) {
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = false;
+      const isOnWaitingList = false;
+      const isSpeaker = false;
+      const isTeamMember = false;
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  } else {
+    const eventIdsWhereParticipant = (
+      await prismaClient.participantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereOnWaitingList = (
+      await prismaClient.waitingParticipantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereSpeaker = (
+      await prismaClient.speakerOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereTeamMember = (
+      await prismaClient.teamMemberOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = eventIdsWhereParticipant.includes(item.id);
+      const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
+      const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
+      const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  }
 }
 
 // **************

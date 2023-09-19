@@ -1,43 +1,44 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
-  getProfileById,
-} from "../utils.server";
-import { connectSpeakerProfileToEvent } from "./utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
+import { getProfileById } from "../utils.server";
+import { connectSpeakerProfileToEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  id: z.string(),
+  profileId: z.string(),
 });
 
 export const addSpeakerSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const profile = await getProfileById(values.id);
+const environmentSchema = z.object({
+  eventSlug: z.string(),
+});
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const profile = await getProfileById(values.profileId);
   if (profile === null) {
     throw new InputError(
       "Es existiert noch kein Profil unter diesem Namen.",
-      "id"
+      "profileId"
     );
   }
-  const alreadyMember = profile.contributedEvents.some((entry) => {
-    return entry.event.id === values.eventId;
+  const alreadySpeaker = profile.contributedEvents.some((entry) => {
+    return entry.event.slug === environment.eventSlug;
   });
-  if (alreadyMember) {
+  if (alreadySpeaker) {
     throw new InputError(
       "Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung.",
-      "id"
+      "profileId"
     );
   }
   return {
@@ -47,34 +48,30 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   };
 });
 
-export type SuccessActionData = {
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: {
+      eventSlug: slug,
+    },
+  });
 
   if (result.success) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, sessionUser);
-    await checkSameEventOrThrow(request, event.id);
-    const profile = await getProfileById(result.data.id);
-    if (profile !== null) {
-      await connectSpeakerProfileToEvent(result.data.eventId, profile.id);
-    }
-    return json<SuccessActionData>(
+    const event = await getEventBySlug(slug);
+    invariantResponse(event, "Event not found", { status: 404 });
+    await connectSpeakerProfileToEvent(event.id, result.data.profileId);
+    return json(
       {
         message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde als Speaker:in hinzugefügt.`,
       },
@@ -82,5 +79,5 @@ export const action: ActionFunction = async (args) => {
     );
   }
 
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

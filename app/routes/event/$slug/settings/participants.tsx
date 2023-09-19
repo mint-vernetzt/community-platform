@@ -10,39 +10,37 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, performMutation } from "remix-forms";
+import { InputError, makeDomainFunction } from "remix-domains";
+import { Form, Form as RemixForm, performMutation } from "remix-forms";
+import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow, getFullDepthProfiles } from "../utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./participants/add-participant";
-import { addParticipantSchema } from "./participants/add-participant";
-import type { ActionData as RemoveParticipantActionData } from "./participants/remove-participant";
-import { removeParticipantSchema } from "./participants/remove-participant";
+import { deriveEventMode } from "../../utils.server";
+import { getFullDepthProfiles } from "../utils.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  checkOwnershipOrThrow,
-  getParticipantSuggestions,
-  getParticipantsDataFromEvent,
-} from "./utils.server";
-import { z } from "zod";
-import {
+  getEventBySlug,
   getEventWithParticipantCount,
+  getParticipantsDataFromEvent,
   updateParticipantLimit,
 } from "./participants.server";
-import { invariantResponse } from "~/lib/utils/response";
-import InputText from "~/components/FormElements/InputText/InputText";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
-import { Form as RemixForm } from "remix-forms";
+import {
+  addParticipantSchema,
+  type action as addParticipantAction,
+} from "./participants/add-participant";
+import {
+  removeParticipantSchema,
+  type action as removeParticipantAction,
+} from "./participants/remove-participant";
 
 const participantLimitSchema = z.object({
   participantLimit: z
@@ -63,8 +61,10 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const participants = getParticipantsDataFromEvent(event);
   const enhancedParticipants = participants.participants.map((participant) => {
@@ -100,7 +100,7 @@ export const loader = async (args: LoaderArgs) => {
       ...alreadyParticipantIds,
       ...alreadyWaitingParticipantIds,
     ];
-    participantSuggestions = await getParticipantSuggestions(
+    participantSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyParticipatingIds,
       query
@@ -114,8 +114,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
-      eventId: event.id,
       published: event.published,
       participantLimit: event.participantLimit,
       participants: enhancedParticipants,
@@ -150,16 +148,14 @@ const mutation = makeDomainFunction(
 
 export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
+  const eventSlug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const eventSlug = params.slug;
-  invariantResponse(eventSlug, "Slug parameter not found", {
-    status: 404,
-  });
   const event = await getEventWithParticipantCount(eventSlug);
   invariantResponse(event, "Event not found", { status: 404 });
-  await checkOwnershipOrThrow(event, sessionUser);
+  const mode = await deriveEventMode(sessionUser, eventSlug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await performMutation({
     request,
@@ -167,7 +163,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     mutation,
     environment: { participantsCount: event._count.participants },
   });
-
+  console.log(result);
   if (result.success) {
     // All checked, lets update the event
     await updateParticipantLimit(
@@ -182,11 +178,9 @@ export async function action({ request, params }: DataFunctionArgs) {
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addParticipantFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeParticipantFetcher = useFetcher<RemoveParticipantActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
+  const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -219,6 +213,7 @@ function Participants() {
                       label="Begrenzung der Teilnehmenden"
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
+                      autoFocus
                     />
                     <Errors />
                   </>
@@ -250,8 +245,6 @@ function Participants() {
           schema={addParticipantSchema}
           fetcher={addParticipantFetcher}
           action={`/event/${slug}/settings/participants/add-participant`}
-          hiddenFields={["eventId", "userId"]}
-          values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
           onSubmit={() => {
             submit({
               method: "get",
@@ -262,8 +255,6 @@ function Participants() {
           {({ Field, Errors, Button, register }) => {
             return (
               <>
-                <Field name="eventId" />
-                <Field name="userId" />
                 <div className="form-control w-full">
                   <div className="flex flex-row items-center mb-2">
                     <div className="flex-auto">
@@ -278,7 +269,7 @@ function Participants() {
                   </div>
 
                   <div className="flex flex-row">
-                    <Field name="id" className="flex-auto">
+                    <Field name="profileId" className="flex-auto">
                       {({ Errors }) => (
                         <>
                           <Errors />
@@ -288,8 +279,9 @@ function Participants() {
                             }
                             suggestionsLoaderPath={`/event/${slug}/settings/participants`}
                             defaultValue={suggestionsQuery || ""}
-                            {...register("id")}
+                            {...register("profileId")}
                             searchParameter="autocomplete_query"
+                            autoFocus={false}
                           />
                         </>
                       )}
@@ -370,10 +362,8 @@ function Participants() {
                 schema={removeParticipantSchema}
                 fetcher={removeParticipantFetcher}
                 action={`/event/${slug}/settings/participants/remove-participant`}
-                hiddenFields={["userId", "eventId", "profileId"]}
+                hiddenFields={["profileId"]}
                 values={{
-                  userId: loaderData.userId,
-                  eventId: loaderData.eventId,
                   profileId: participant.id,
                 }}
                 className="ml-auto"
@@ -383,8 +373,6 @@ function Participants() {
                   return (
                     <>
                       <Errors />
-                      <Field name="userId" />
-                      <Field name="eventId" />
                       <Field name="profileId" />
                       <Button className="ml-auto btn-none" title="entfernen">
                         <svg
@@ -415,10 +403,8 @@ function Participants() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -426,8 +412,6 @@ function Participants() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}

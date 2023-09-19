@@ -9,32 +9,32 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
+import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../utils.server";
-import { getOwnOrganizationsSuggestions } from "./organizations.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./organizations/add-organization";
-import { addOrganizationSchema } from "./organizations/add-organization";
-import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
-import { removeOrganizationSchema } from "./organizations/remove-organization";
+import { deriveEventMode } from "../../utils.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
-  checkOwnershipOrThrow,
+  getEventBySlug,
+  getOwnOrganizationsSuggestions,
   getResponsibleOrganizationDataFromEvent,
-  getResponsibleOrganizationSuggestions,
-} from "./utils.server";
-import { Form as RemixForm } from "remix-forms";
-import { publishSchema } from "./events/publish";
-import type { ActionData as PublishActionData } from "./events/publish";
+} from "./organizations.server";
+import {
+  addOrganizationSchema,
+  type action as addOrganizationAction,
+} from "./organizations/add-organization";
+import {
+  removeOrganizationSchema,
+  type action as removeOrganizationAction,
+} from "./organizations/remove-organization";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -43,8 +43,10 @@ export const loader = async (args: LoaderArgs) => {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const event = await getEventBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(event, sessionUser);
+  const event = await getEventBySlug(slug);
+  invariantResponse(event, "Event not found", { status: 404 });
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const organizations = getResponsibleOrganizationDataFromEvent(event);
 
@@ -95,7 +97,7 @@ export const loader = async (args: LoaderArgs) => {
     const query = suggestionsQuery.split(" ");
 
     responsibleOrganizationSuggestions =
-      await getResponsibleOrganizationSuggestions(
+      await getOrganizationSuggestionsForAutocomplete(
         authClient,
         alreadyResponsibleOrganizationSlugs,
         query
@@ -104,8 +106,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
-      eventId: event.id,
       published: event.published,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
@@ -118,11 +118,10 @@ export const loader = async (args: LoaderArgs) => {
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addOrganizationFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
-  const publishFetcher = useFetcher<PublishActionData>();
+  const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
+  const removeOrganizationFetcher =
+    useFetcher<typeof removeOrganizationAction>();
+  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -143,8 +142,6 @@ function Organizations() {
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/event/${slug}/settings/organizations/add-organization`}
-        hiddenFields={["eventId", "userId"]}
-        values={{ eventId: loaderData.eventId, userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -156,8 +153,6 @@ function Organizations() {
           return (
             <>
               <Errors />
-              <Field name="eventId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -168,7 +163,7 @@ function Organizations() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="organizationId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -178,7 +173,7 @@ function Organizations() {
                           }
                           suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("organizationId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -250,11 +245,9 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/event/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["userId", "eventId", "id"]}
+                      hiddenFields={["organizationId"]}
                       values={{
-                        userId: loaderData.userId,
-                        eventId: loaderData.eventId,
-                        id: organization.id,
+                        organizationId: organization.id,
                       }}
                       className="ml-auto"
                     >
@@ -263,9 +256,7 @@ function Organizations() {
                         return (
                           <>
                             <Errors />
-                            <Field name="userId" />
-                            <Field name="eventId" />
-                            <Field name="id" />
+                            <Field name="organizationId" />
                             <button
                               className="btn btn-outline-primary ml-auto btn-small"
                               title="Hinzufügen"
@@ -329,10 +320,8 @@ function Organizations() {
                   schema={removeOrganizationSchema}
                   fetcher={removeOrganizationFetcher}
                   action={`/event/${slug}/settings/organizations/remove-organization`}
-                  hiddenFields={["userId", "eventId", "organizationId"]}
+                  hiddenFields={["organizationId"]}
                   values={{
-                    userId: loaderData.userId,
-                    eventId: loaderData.eventId,
                     organizationId: organization.id,
                   }}
                   className="ml-auto"
@@ -342,8 +331,6 @@ function Organizations() {
                     return (
                       <>
                         <Errors />
-                        <Field name="userId" />
-                        <Field name="eventId" />
                         <Field name="organizationId" />
                         <Button className="ml-auto btn-none" title="entfernen">
                           <svg
@@ -375,10 +362,8 @@ function Organizations() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["eventId", "userId", "publish"]}
+              hiddenFields={["publish"]}
               values={{
-                eventId: loaderData.eventId,
-                userId: loaderData.userId,
                 publish: !loaderData.published,
               }}
             >
@@ -386,8 +371,6 @@ function Organizations() {
                 const { Button, Field } = props;
                 return (
                   <>
-                    <Field name="userId" />
-                    <Field name="eventId" />
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published ? "Verstecken" : "Veröffentlichen"}
