@@ -3,6 +3,7 @@ import { loader } from "./keycloak.callback";
 import { createAdminAuthClient, setSession } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { redirect } from "@remix-run/node";
+import { redirectWithAlert } from "~/alert.server";
 
 jest.mock("~/auth.server", () => {
   return {
@@ -159,7 +160,15 @@ test("user is still registered with email and signs in with keycloak", async () 
   expect(updateUserById).toHaveBeenCalledWith("some-user-id", {
     app_metadata: { provider: "keycloak" },
   });
-  expect(response).toStrictEqual(redirect(`/events/some-event-id`));
+  expect(response).toStrictEqual(
+    await redirectWithAlert(
+      `/events/some-event-id`,
+      {
+        message: "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
+      },
+      { headers: {} }
+    )
+  );
 
   // @ts-ignore - delete global variables
   delete process.env.SUPABASE_URL;

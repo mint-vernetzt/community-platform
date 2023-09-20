@@ -17,11 +17,20 @@ const allowedTags = [
 const allowedAttributes = {
   a: ["href", "rel", "target"],
 };
-export function sanitizeUserHtml(html: string) {
-  return sanitizeHtml(html, {
-    allowedTags,
-    allowedAttributes,
-  });
+export function sanitizeUserHtml(
+  html: string,
+  options?: {
+    allowedTags?: string[];
+    allowedAttributes?: { [key: string]: string[] };
+  }
+) {
+  return sanitizeHtml(
+    html,
+    options ?? {
+      allowedTags,
+      allowedAttributes,
+    }
+  );
 }
 
 const REMOVE_HTML_TAGS_REGEX = /(<([^>]+)>)/gi;

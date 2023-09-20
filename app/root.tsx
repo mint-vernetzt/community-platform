@@ -1,4 +1,4 @@
-import { Footer } from "@mint-vernetzt/components";
+import { Alert, Footer } from "@mint-vernetzt/components";
 import type {
   DataFunctionArgs,
   LinksFunction,
@@ -21,14 +21,16 @@ import {
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
+import { getAlert, type Alert as AlertType } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
+import { getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
-import { getProfileByUserId } from "./root.server";
+import { combineHeaders } from "./utils.server";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -36,6 +38,14 @@ export const meta: MetaFunction = () => {
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+export type RootRouteData = {
+  matomoUrl: string | undefined;
+  matomoSiteId: string | undefined;
+  sessionUserInfo?: SessionUserInfo;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+  alert: AlertType | undefined;
+};
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
@@ -79,14 +89,17 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   }
 
+  const { alert, headers: alertHeaders } = await getAlert(request);
+
   return json(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
       abilities,
+      alert,
     },
-    { headers: response.headers }
+    { headers: combineHeaders(response.headers, alertHeaders) }
   );
 };
 
@@ -406,6 +419,7 @@ export default function App() {
     matomoSiteId,
     sessionUserInfo: currentUserInfo,
     abilities,
+    alert,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
@@ -419,6 +433,7 @@ export default function App() {
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
   );
+  const isIndexRoute = location.pathname === "/";
 
   return (
     <html lang="de" data-theme="light">
@@ -453,9 +468,15 @@ export default function App() {
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
           <main className="flex-auto relative pb-24 md:pb-8">
+            {typeof alert !== "undefined" &&
+            isNonAppBaseRoute === false &&
+            isIndexRoute === false ? (
+              <div className="container">
+                <Alert level={alert.level}>{alert.message}</Alert>
+              </div>
+            ) : null}
             <Outlet />
           </main>
-
           <Footer />
         </div>
         <ScrollRestoration />

@@ -1,8 +1,10 @@
+import { redirect } from "@remix-run/node";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import type { BinaryToTextEncoding } from "crypto";
 import { createHmac, randomBytes } from "crypto";
 import { forbidden, serverError } from "remix-utils";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
+import { getAlert, redirectWithAlert } from "./alert.server";
 import { getSession } from "./auth.server";
 import { prismaClient } from "./prisma.server";
 
@@ -165,6 +167,19 @@ export async function triggerEntityScore(options: {
       data: { score },
     });
   }
+}
+
+export function combineHeaders(
+  ...headers: Array<ResponseInit["headers"] | null>
+) {
+  const combined = new Headers();
+  for (const header of headers) {
+    if (!header) continue;
+    for (const [key, value] of new Headers(header).entries()) {
+      combined.append(key, value);
+    }
+  }
+  return combined;
 }
 
 export function generateUsername(firstName: string, lastName: string) {

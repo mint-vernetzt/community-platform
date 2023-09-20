@@ -17,6 +17,7 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
+  enhancedRedirect,
   getOrganizationCount,
   getOrganizationsForCards,
   getProfileById,
@@ -58,8 +59,10 @@ export const loader = async (args: LoaderArgs) => {
   let randomSeed = getRandomSeed(request);
   if (randomSeed === undefined) {
     randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
-    return redirect(`/dashboard?randomSeed=${randomSeed}`, {
-      headers: response.headers,
+    // use enhanced redirect to preserve flash cookies
+    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, {
+      response: { headers: response.headers },
+      request,
     });
   }
 
@@ -230,8 +233,8 @@ function Dashboard() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-        <div className="mv-mx-4">
+      <section className="mv-w-full mv-mx-auto mv-my-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-px-4 xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
             Willkommen,
             <br />
@@ -254,7 +257,7 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1120px]"> */}
         {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
-        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
             Profile
           </div>
@@ -266,14 +269,16 @@ function Dashboard() {
             </Link>
           </div>
         </div>
-        <CardContainer>
-          {loaderData.profiles.map((profile) => {
-            return <ProfileCard key={profile.username} profile={profile} />;
-          })}
-        </CardContainer>
+        <div className="xl:mv-px-2">
+          <CardContainer>
+            {loaderData.profiles.map((profile) => {
+              return <ProfileCard key={profile.username} profile={profile} />;
+            })}
+          </CardContainer>
+        </div>
       </section>
       <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
             Organisationen
           </div>
@@ -285,16 +290,18 @@ function Dashboard() {
             </Link>
           </div>
         </div>
-        <CardContainer>
-          {loaderData.organizations.map((organization) => {
-            return (
-              <OrganizationCard
-                key={organization.slug}
-                organization={organization}
-              />
-            );
-          })}
-        </CardContainer>
+        <div className="xl:mv-px-2">
+          <CardContainer>
+            {loaderData.organizations.map((organization) => {
+              return (
+                <OrganizationCard
+                  key={organization.slug}
+                  organization={organization}
+                />
+              );
+            })}
+          </CardContainer>
+        </div>
       </section>
     </>
   );

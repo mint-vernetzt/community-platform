@@ -37,7 +37,7 @@ describe("sanitizeUserHtml", () => {
     expect(sanitizeUserHtml("<iframe><script>alert('');</script>")).toBe("");
   });
 
-  test("allow some attributesin anchors", () => {
+  test("allow some attributes in anchors", () => {
     expect(
       sanitizeUserHtml(
         `<a href="https://google.com" rel="noopener" target="_blank">link</a>`
@@ -47,7 +47,7 @@ describe("sanitizeUserHtml", () => {
     );
   });
 
-  test("remove some attributesin anchors", () => {
+  test("remove some attributes in anchors", () => {
     expect(
       sanitizeUserHtml(
         `<a onClick="alert('XSS')" onclick="alert('XSS')">link</a>`
@@ -61,6 +61,28 @@ describe("sanitizeUserHtml", () => {
         `<b onClick="">text</b><strong onClick="">text</strong><h2 onClick=""></h2><h3 onClick=""></h3>`
       )
     ).toBe(`<b>text</b><strong>text</strong><h2></h2><h3></h3>`);
+  });
+
+  test("keep passed allowed tags", () => {
+    expect(
+      sanitizeUserHtml(`<b>text</b><strong>text</strong><h2></h2><h3></h3>`, {
+        allowedTags: ["b", "strong"],
+      })
+    ).toBe(`<b>text</b><strong>text</strong>`);
+  });
+
+  test("remove disallowed attributes from passed allowed tags", () => {
+    expect(
+      sanitizeUserHtml(
+        `<b onClick="">text</b><strong onClick="" data-testid="strong-text">text</strong><h2 onClick=""></h2><h3 onClick=""></h3>`,
+        {
+          allowedTags: ["b", "strong"],
+          allowedAttributes: {
+            strong: ["data-testid"],
+          },
+        }
+      )
+    ).toBe(`<b>text</b><strong data-testid="strong-text">text</strong>`);
   });
 });
 

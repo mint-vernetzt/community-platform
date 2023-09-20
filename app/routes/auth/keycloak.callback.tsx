@@ -1,6 +1,7 @@
 import { redirect, type LoaderArgs } from "@remix-run/node";
 import { useSubmit } from "@remix-run/react";
 import React from "react";
+import { redirectWithAlert } from "~/alert.server";
 import {
   createAdminAuthClient,
   createAuthClient,
@@ -105,9 +106,16 @@ export const loader = async (args: LoaderArgs) => {
           provider: "keycloak",
         },
       });
-      return redirect(loginRedirect || "/dashboard", {
-        headers: response.headers,
-      });
+      return redirectWithAlert(
+        loginRedirect || "/dashboard",
+        {
+          message:
+            "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
+        },
+        {
+          headers: response.headers,
+        }
+      );
     }
   }
 
