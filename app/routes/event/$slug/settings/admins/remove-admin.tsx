@@ -53,7 +53,11 @@ export const action = async (args: DataFunctionArgs) => {
   if (result.success === true) {
     await removeAdminFromEvent(event.id, result.data.profileId);
     if (sessionUser.id === result.data.profileId) {
-      return redirect(`/event/${slug}`);
+      if (event.published) {
+        return redirect(`/event/${slug}`);
+      } else {
+        return redirect("/dashboard");
+      }
     }
   }
   return json(result, { headers: response.headers });

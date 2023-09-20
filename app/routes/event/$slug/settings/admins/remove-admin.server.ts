@@ -4,6 +4,7 @@ export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
     select: {
       id: true,
+      published: true,
       _count: {
         select: {
           admins: true,
