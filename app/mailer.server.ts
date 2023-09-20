@@ -46,7 +46,6 @@ type StandardMessageContent = {
   message: string;
   buttonText: string;
   buttonUrl: string;
-  baseUrl: string;
 };
 
 type MoveToParticipantsContent = {
@@ -65,7 +64,6 @@ type MoveToParticipantsContent = {
       email: string;
     };
   };
-  baseUrl: string;
 };
 
 type TemplatePath =
@@ -86,12 +84,28 @@ type TemplateContent<TemplatePath> = TemplatePath extends
 
 export async function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
-  content: TemplateContent<T>
+  content: TemplateContent<T>,
+  baseUrl: string,
+  type: "text" | "html" = "html"
 ) {
-  const mailTemplateSource = await fs.readFileSync(templatePath, {
+  const bodyTemplateSource = await fs.readFileSync(templatePath, {
     encoding: "utf8",
   });
-  const mailTemplate = Handlebars.compile(mailTemplateSource, {});
-  const html = mailTemplate({ ...content });
-  return html;
+  const bodyTemplate = Handlebars.compile(bodyTemplateSource, {});
+  const body = bodyTemplate(content);
+  if (type === "text") {
+    return body;
+  }
+  // On html templates we have header and footer (see mail-templates/layout.hbs)
+  const layoutTemplateSource = await fs.readFileSync(
+    "mail-templates/layout.hbs",
+    {
+      encoding: "utf8",
+    }
+  );
+  const layoutTemplate = Handlebars.compile(layoutTemplateSource, {});
+  Handlebars.registerPartial("body", body);
+  const compiledHtml = layoutTemplate({ baseUrl });
+
+  return compiledHtml;
 }
