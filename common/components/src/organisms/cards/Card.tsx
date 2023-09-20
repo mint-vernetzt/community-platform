@@ -1,7 +1,6 @@
 import classNames from "classnames";
-import React, { Children } from "react";
-import type { MoreIndicatorProps } from "../../molecules/Avatar";
-import Avatar, { MoreIndicator } from "../../molecules/Avatar";
+import React from "react";
+import Avatar from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 
 export type CardProps = {

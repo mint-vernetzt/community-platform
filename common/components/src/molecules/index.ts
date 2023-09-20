@@ -6,5 +6,4 @@ export { default as Chip } from "./Chip";
 export { type ChipProps } from "./Chip";
 export { default as Link } from "./Link";
 export { type LinkProps } from "./Link";
-export { default as Alert } from "./Alert";
-export { type AlertProps } from "./Alert";
+export { default as Alert, type AlertProps, type AlertLevel } from "./Alert";

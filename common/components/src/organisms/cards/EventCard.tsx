@@ -1,6 +1,6 @@
 import React from "react";
+import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
 import Avatar, { AvatarList } from "../../molecules/Avatar";
-import Button from "../../molecules/Button";
 import { getDateDuration, getTimeDuration } from "../../utils";
 import {
   Card,
@@ -12,7 +12,6 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export type EventCardProps = {
   match?: number;
