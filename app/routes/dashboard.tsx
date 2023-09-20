@@ -24,6 +24,7 @@ import {
   getProfilesForCards,
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
+import { enhancedRedirect } from "~/utils.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -58,8 +59,10 @@ export const loader = async (args: LoaderArgs) => {
   let randomSeed = getRandomSeed(request);
   if (randomSeed === undefined) {
     randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
-    return redirect(`/dashboard?randomSeed=${randomSeed}`, {
-      headers: response.headers,
+    // use enhanced redirect to preserve flash cookies
+    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, {
+      response: { headers: response.headers },
+      request,
     });
   }
 
