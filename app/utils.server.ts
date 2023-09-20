@@ -182,20 +182,6 @@ export function combineHeaders(
   return combined;
 }
 
-export async function enhancedRedirect(
-  url: string,
-  options: {
-    request: Request;
-    response?: ResponseInit;
-  }
-) {
-  const { alert } = await getAlert(options.request);
-  if (alert !== undefined) {
-    return redirectWithAlert(url, alert, options.response);
-  }
-  return redirect(url, options.response);
-}
-
 export function generateUsername(firstName: string, lastName: string) {
   return generateValidSlug(`${firstName}${lastName}`);
 }

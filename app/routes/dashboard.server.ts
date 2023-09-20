@@ -1,3 +1,5 @@
+import { redirect } from "@remix-run/node";
+import { getAlert, redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
@@ -103,4 +105,18 @@ export async function getOrganizationsForCards(skip: number, take: number) {
   });
 
   return profiles;
+}
+
+export async function enhancedRedirect(
+  url: string,
+  options: {
+    request: Request;
+    response?: ResponseInit;
+  }
+) {
+  const { alert } = await getAlert(options.request);
+  if (alert !== undefined) {
+    return redirectWithAlert(url, alert, options.response);
+  }
+  return redirect(url, options.response);
 }

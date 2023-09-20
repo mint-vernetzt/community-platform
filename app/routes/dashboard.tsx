@@ -17,6 +17,7 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
+  enhancedRedirect,
   getOrganizationCount,
   getOrganizationsForCards,
   getProfileById,
@@ -24,7 +25,6 @@ import {
   getProfilesForCards,
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
-import { enhancedRedirect } from "~/utils.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
