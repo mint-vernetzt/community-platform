@@ -218,7 +218,7 @@ export default function Index() {
                         Anmelden mit MINT-ID
                       </Button>
                       <a
-                        href="https://mintcampus.org/mint-id/"
+                        href="https://mint-id.org/faq"
                         target="_blank"
                         rel="noreferrer "
                         className="block py-2 text-primary font-semibold underline"
