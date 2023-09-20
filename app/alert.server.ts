@@ -15,7 +15,10 @@ export const alertSessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     path: "/",
     httpOnly: true,
-    secrets: process.env.SESSION_SECRET.split(","),
+    secrets:
+      process.env.NODE_ENV !== "test"
+        ? process.env.SESSION_SECRET.split(",")
+        : ["secret"],
     secure: process.env.NODE_ENV === "production",
   },
 });
