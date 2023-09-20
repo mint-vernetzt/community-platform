@@ -92,20 +92,20 @@ export async function getCompiledMailTemplate<T extends TemplatePath>(
     encoding: "utf8",
   });
   const bodyTemplate = Handlebars.compile(bodyTemplateSource, {});
-  const bodyHtml = bodyTemplate(content);
-  if (type === "html") {
-    const layoutTemplateSource = await fs.readFileSync(
-      "mail-templates/layout.hbs",
-      {
-        encoding: "utf8",
-      }
-    );
-    const layoutTemplate = Handlebars.compile(layoutTemplateSource, {});
-    Handlebars.registerPartial("body", bodyHtml);
-    const html = layoutTemplate({ baseUrl });
-
-    return html;
-  } else {
-    return bodyHtml;
+  const body = bodyTemplate(content);
+  if (type === "text") {
+    return body;
   }
+  // On html templates we have header and footer (see mail-templates/layout.hbs)
+  const layoutTemplateSource = await fs.readFileSync(
+    "mail-templates/layout.hbs",
+    {
+      encoding: "utf8",
+    }
+  );
+  const layoutTemplate = Handlebars.compile(layoutTemplateSource, {});
+  Handlebars.registerPartial("body", body);
+  const compiledHtml = layoutTemplate({ baseUrl });
+
+  return compiledHtml;
 }
