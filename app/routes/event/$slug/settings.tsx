@@ -51,6 +51,12 @@ function Settings() {
                 Verknüpfte Veranstaltungen
               </NavLink>
               <NavLink
+                to="admins"
+                className={({ isActive }) => getClassName(isActive)}
+              >
+                Administrator:innen
+              </NavLink>
+              <NavLink
                 to="team"
                 className={({ isActive }) => getClassName(isActive)}
               >

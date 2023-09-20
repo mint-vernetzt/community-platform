@@ -1,26 +1,18 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
 import { makeDomainFunction } from "remix-domains";
-import type { FormProps, PerformMutation } from "remix-forms";
+import type { FormProps } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema, SomeZodObject } from "zod";
+import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { getProfileByUserId } from "~/profile.server";
-import {
-  createAuthClient,
-  getSessionUser,
-  setSession,
-  signIn,
-} from "../../auth.server";
+import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { serverError } from "remix-utils";
 
 const schema = z.object({
   email: z
@@ -42,7 +34,7 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixForm<Schema> {...props} />;
 }
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();
@@ -60,6 +52,7 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   const { error } = await signIn(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     values.password
@@ -79,12 +72,7 @@ const mutation = makeDomainFunction(
   return { values: { ...values, username: profile?.username } };
 });
 
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -109,7 +97,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Index() {

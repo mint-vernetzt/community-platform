@@ -1,75 +1,43 @@
-import type { Organization } from ".prisma/client";
-import type { AreaType } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
+import { getImageURL } from "~/images.server";
 import { addUserParticipationStatus } from "~/lib/event/utils";
-import { getImageURL } from "./images.server";
-import { prismaClient } from "./prisma.server";
+import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "./public-fields-filtering.server";
-import { getPublicURL } from "./storage.server";
-
-export type OrganizationWithRelations = Organization & {
-  types: {
-    organizationType: {
-      title: string;
-    };
-  }[];
-  focuses: {
-    focus: {
-      title: string;
-    };
-  }[];
-  teamMembers: {
-    profileId: string;
-    isPrivileged: boolean;
-    profile: {
-      username: string;
-      avatar: string | null;
-      firstName: string;
-      lastName: string;
-      academicTitle: string | null;
-      position: string | null;
-    };
-  }[];
-  memberOf: {
-    network: {
-      slug: string;
-      logo: string | null;
-      name: string;
-      types: {
-        organizationType: {
-          title: string;
-        };
-      }[];
-    };
-  }[];
-  networkMembers: {
-    networkMember: {
-      slug: string;
-      logo: string | null;
-      name: string;
-      types: {
-        organizationType: {
-          title: string;
-        };
-      }[];
-    };
-  }[];
-  areas: {
-    area: {
-      name: string;
-    };
-  }[];
-};
+} from "~/public-fields-filtering.server";
+import { getPublicURL } from "~/storage.server";
 
 export async function getOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findUnique({
     where: { slug },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      logo: true,
+      background: true,
+      name: true,
+      email: true,
+      phone: true,
+      website: true,
+      linkedin: true,
+      facebook: true,
+      youtube: true,
+      instagram: true,
+      xing: true,
+      twitter: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+      createdAt: true,
+      quote: true,
+      quoteAuthor: true,
+      quoteAuthorInformation: true,
+      bio: true,
+      supportedBy: true,
       types: {
         select: {
           organizationType: {
@@ -91,7 +59,6 @@ export async function getOrganizationBySlug(slug: string) {
       teamMembers: {
         select: {
           profileId: true,
-          isPrivileged: true,
           profile: {
             select: {
               id: true,
@@ -198,7 +165,6 @@ export async function getOrganizationBySlug(slug: string) {
                     select: {
                       id: true,
                       name: true,
-                      slug: true,
                     },
                   },
                 },
@@ -340,164 +306,4 @@ export async function prepareOrganizationEvents(
   };
 
   return enhancedOrganizationWithParticipationStatus;
-}
-
-export async function getOrganizationMembersBySlug(slug: string) {
-  const organization = await prismaClient.organization.findUnique({
-    where: { slug },
-    select: {
-      teamMembers: true,
-    },
-  });
-
-  return organization;
-}
-
-export async function deleteOrganizationBySlug(slug: string) {
-  await prismaClient.organization.delete({ where: { slug: slug } });
-}
-
-export async function getAllOrganizations() {
-  const organizations = await prismaClient.organization.findMany({
-    select: {
-      name: true,
-      slug: true,
-      logo: true,
-      bio: true,
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return organizations;
-}
-
-export async function getFilteredOrganizations(
-  areaToFilter:
-    | { id: string; type: AreaType; stateId: string | null }
-    | null
-    | undefined
-) {
-  let areaQuery = {};
-
-  if (areaToFilter !== null && areaToFilter !== undefined) {
-    if (areaToFilter.type === "country") {
-      areaQuery = {
-        areas: {
-          some: {},
-        },
-      };
-      // TODO: Order by area type: country -> state -> district
-    }
-    if (areaToFilter.type === "state") {
-      areaQuery = {
-        OR: [
-          {
-            areas: {
-              some: {
-                area: {
-                  stateId: areaToFilter.stateId,
-                },
-              },
-            },
-          },
-          {
-            areas: {
-              some: {
-                area: {
-                  type: "country",
-                },
-              },
-            },
-          },
-        ],
-      };
-      // TODO: Order by area type: state -> district -> country
-    }
-    if (areaToFilter.type === "district") {
-      areaQuery = {
-        OR: [
-          {
-            areas: {
-              some: {
-                area: {
-                  id: areaToFilter.id,
-                },
-              },
-            },
-          },
-          {
-            areas: {
-              some: {
-                area: {
-                  type: "state",
-                  stateId: areaToFilter.stateId,
-                },
-              },
-            },
-          },
-          {
-            areas: {
-              some: {
-                area: {
-                  type: "country",
-                },
-              },
-            },
-          },
-        ],
-      };
-      // TODO: Order by area type: district -> state -> country
-    }
-  }
-  if (areaQuery === undefined) {
-    return [];
-  }
-
-  const result = await prismaClient.organization.findMany({
-    where: areaQuery,
-    select: {
-      name: true,
-      slug: true,
-      logo: true,
-      bio: true,
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-              type: true,
-              stateId: true,
-            },
-          },
-        },
-      },
-    },
-    // TODO: Add orderBy
-  });
-  return result;
 }

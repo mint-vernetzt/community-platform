@@ -18,7 +18,7 @@ export function useBlocker(blocker, when = true) {
 
   useEffect(() => {
     if (!when) return;
-
+    // TODO: fix type issues
     const unblock = navigator.block((tx) => {
       const autoUnblockingTx = {
         ...tx,
@@ -45,6 +45,7 @@ export function useBlocker(blocker, when = true) {
  */
 export function usePrompt(message, when = true) {
   const blocker = useCallback(
+    // TODO: fix any type
     (tx: any) => {
       // eslint-disable-next-line no-alert
       if (window.confirm(message)) tx.retry();

@@ -1,3 +1,4 @@
+// TODO: can this type assertion be removed and proofen by code?
 export const mailerOptions = {
   host: process.env.MAILER_HOST as string,
   port: parseInt(process.env.MAILER_PORT as string) as number,

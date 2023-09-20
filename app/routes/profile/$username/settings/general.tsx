@@ -10,6 +10,7 @@ import {
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import quillStyles from "react-quill/dist/quill.snow.css";
 import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
@@ -23,6 +24,7 @@ import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { socialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
@@ -35,15 +37,15 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import { getAllOffers, getProfileByUsername } from "~/profile.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
+  deriveProfileMode,
   getProfileVisibilitiesById,
   getWholeProfileFromUsername,
-  handleAuthorization,
   updateProfileById,
 } from "../utils.server";
-import quillStyles from "react-quill/dist/quill.snow.css";
+import { getProfileByUsername } from "./general.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -89,6 +91,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
     throw notFound({ message: "profile not found." });
@@ -97,8 +102,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   if (profileVisibilities === null) {
     throw notFound({ message: "profile visbilities not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, dbProfile.id);
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
 
@@ -120,12 +123,13 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound({ message: "profile not found." });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  await handleAuthorization(sessionUser.id, profile.id);
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
     request,
@@ -155,6 +159,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     if (errors === null) {
       try {
         const { privateFields, ...profileData } = data;
+        // TODO: fix type issue
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
       } catch (error) {
@@ -245,6 +250,7 @@ export default function Index() {
         formRef?.current?.getElementsByClassName("clear-after-submit");
       if ($inputsToClear) {
         Array.from($inputsToClear).forEach(
+          // TODO: can this type assertion be removed and proofen by code?
           (a) => ((a as HTMLInputElement).value = "")
         );
       }

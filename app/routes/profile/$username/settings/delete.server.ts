@@ -1,5 +1,15 @@
 import { prismaClient } from "~/prisma.server";
 
+export async function getProfileByUsername(username: string) {
+  const profile = await prismaClient.profile.findUnique({
+    where: { username },
+    select: {
+      id: true,
+    },
+  });
+  return profile;
+}
+
 export async function getProfileWithAdministrations(profileId: string) {
   return await prismaClient.profile.findUnique({
     where: {

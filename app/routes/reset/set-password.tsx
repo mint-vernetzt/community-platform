@@ -1,10 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
+import { badRequest } from "remix-utils";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -15,7 +14,6 @@ import {
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { badRequest } from "remix-utils";
 
 const schema = z.object({
   password: z
@@ -44,7 +42,7 @@ const environmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -80,12 +78,14 @@ const mutation = makeDomainFunction(
   // This automatically logs in the user
   // Throws error on invalid refreshToken, accessToken combination
   await setSession(
+    // TODO: fix type issue
     environment.authClient,
     values.accessToken,
     values.refreshToken
   );
 
   const { error } = await updatePassword(
+    // TODO: fix type issue
     environment.authClient,
     values.password
   );
@@ -95,9 +95,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -114,7 +112,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function SetPassword() {

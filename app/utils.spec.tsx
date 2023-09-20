@@ -2,7 +2,7 @@ import {
   generateEventSlug,
   generateOrganizationSlug,
   generateUsername,
-} from "./utils";
+} from "./utils.server";
 
 // TODO: add more names to test
 test("generate username", () => {

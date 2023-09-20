@@ -1,59 +1,35 @@
 import type { Document } from "@prisma/client";
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { PerformMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
-import { getEventBySlugOrThrow } from "../../utils.server";
-import { checkOwnershipOrThrow } from "../utils.server";
 import { createDocumentOnEvent } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
   uploadKey: z.string(),
   document: z.unknown(),
 });
 
 export const uploadDocumentSchema = schema;
 
-// TODO: wrap with performMutation + makeDomainFunction
-export type ActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-
   const response = new Response();
-
   const authClient = createAuthClient(request, response);
-
+  const slug = getParamValueOrThrow(params, "slug");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const sessionUser = await getSessionUserOrThrow(authClient);
-
-  const event = await getEventBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(event, sessionUser);
-
   const parsedData = await parseMultipart(request);
-
-  const { uploadHandlerResponse, formData } = parsedData;
-  const eventId = formData.get("eventId") as string;
-  if (eventId !== event.id) {
-    throw "Event id nicht korrekt";
-  }
-
+  const { uploadHandlerResponse } = parsedData;
   await doPersistUpload(authClient, "documents", uploadHandlerResponse);
-
   const document: Pick<
     Document,
     "filename" | "path" | "extension" | "sizeInMB" | "mimeType"
@@ -67,7 +43,7 @@ export const action: ActionFunction = async (args) => {
   };
 
   try {
-    await createDocumentOnEvent(event.id, document);
+    await createDocumentOnEvent(slug, document);
   } catch (error) {
     throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
   }

@@ -22,17 +22,12 @@ import {
   nullOrString,
   validateForm,
 } from "~/lib/utils/yup";
-import { generateEventSlug } from "~/utils";
+import { generateEventSlug } from "~/utils.server";
 import { validateTimePeriods } from "./$slug/settings/utils.server";
-import { getEventById } from "./$slug/utils.server";
-import {
-  checkIdentityOrThrow,
-  createEventOnProfile,
-  transformFormToEvent,
-} from "./utils.server";
+import { getEventById } from "./create.server";
+import { createEventOnProfile, transformFormToEvent } from "./utils.server";
 
 const schema = object({
-  userId: string().uuid().required(),
   name: string().required("Bitte einen Veranstaltungsnamen angeben"),
   startDate: string()
     .transform((value) => {
@@ -72,7 +67,7 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
   const child = url.searchParams.get("child") || "";
@@ -80,10 +75,7 @@ export const loader = async (args: LoaderArgs) => {
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  return json(
-    { id: sessionUser.id, child, parent },
-    { headers: response.headers }
-  );
+  return json({ child, parent }, { headers: response.headers });
 };
 
 export const action = async (args: ActionArgs) => {
@@ -91,7 +83,6 @@ export const action = async (args: ActionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
 
   let parsedFormData = await getFormValues<SchemaType>(request, schema);
 
@@ -117,7 +108,6 @@ export const action = async (args: ActionArgs) => {
   }
   if (errors === null) {
     const slug = generateEventSlug(data.name);
-
     await createEventOnProfile(
       sessionUser.id,
       {
@@ -170,7 +160,6 @@ export default function Create() {
             <h4 className="font-semibold">Veranstaltung anlegen</h4>
             <div className="pt-10 lg:pt-0">
               <Form method="post">
-                <input name="userId" defaultValue={loaderData.id} hidden />
                 <input name="child" defaultValue={loaderData.child} hidden />
                 <input name="parent" defaultValue={loaderData.parent} hidden />
                 <div className="mb-2">

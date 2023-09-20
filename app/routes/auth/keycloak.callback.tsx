@@ -9,7 +9,7 @@ import {
   setSession,
 } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
-import { generateValidSlug } from "~/utils";
+import { generateValidSlug } from "~/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;

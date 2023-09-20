@@ -1,81 +1,76 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { checkSameEventOrThrow, getEventByIdOrThrow } from "../../utils.server";
-import {
-  checkIdentityOrThrow,
-  checkOwnershipOrThrow,
-  getOrganizationById,
-} from "../utils.server";
-import { connectOrganizationToEvent } from "./utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { deriveEventMode } from "~/routes/event/utils.server";
+import { getOrganizationById } from "../utils.server";
+import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string(),
-  eventId: z.string(),
-  id: z.string(),
+  organizationId: z.string(),
 });
 
 export const addOrganizationSchema = schema;
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const organization = await getOrganizationById(values.id);
+const environmentSchema = z.object({
+  eventSlug: z.string(),
+});
+
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const organization = await getOrganizationById(values.organizationId);
   if (organization === null) {
     throw new InputError(
       "Es existiert noch keine Organisation mit diesem Namen.",
-      "id"
+      "organizationId"
     );
   }
-  const alreadyMember = organization.responsibleForEvents.some((entry) => {
-    return entry.event.id === values.eventId;
+  const alreadyResponsible = organization.responsibleForEvents.some((entry) => {
+    return entry.event.slug === environment.eventSlug;
   });
-  if (alreadyMember) {
+  if (alreadyResponsible) {
     throw new InputError(
       "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich.",
-      "id"
+      "organizationId"
     );
   }
   return { ...values, name: organization.name };
 });
 
-export type SuccessActionData = {
-  message: string;
-};
-
-export type FailureActionData = PerformMutation<
-  z.infer<Schema>,
-  z.infer<typeof schema>
->;
-
-export const action: ActionFunction = async (args) => {
-  const { request } = args;
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
   const response = new Response();
+  const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  const result = await performMutation({ request, schema, mutation });
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { eventSlug: slug },
+  });
 
   if (result.success === true) {
-    const event = await getEventByIdOrThrow(result.data.eventId);
-    await checkOwnershipOrThrow(event, sessionUser);
-    await checkSameEventOrThrow(request, event.id);
-    const organization = await getOrganizationById(result.data.id);
-    if (organization !== null) {
-      await connectOrganizationToEvent(event.id, organization.id);
-    }
-    return json<SuccessActionData>(
+    const event = await getEventBySlug(slug);
+    invariantResponse(event, "Event not found", { status: 404 });
+    await connectOrganizationToEvent(event.id, result.data.organizationId);
+    return json(
       {
         message: `Die Organisation "${result.data.name}" ist jetzt verantwortlich für Eure Veranstaltung.`,
       },
       { headers: response.headers }
     );
   }
-  return json<FailureActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

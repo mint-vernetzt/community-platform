@@ -1,17 +1,16 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { generateProjectSlug } from "~/utils";
-import { checkIdentityOrThrow, createProjectOnProfile } from "./utils.server";
+import { generateProjectSlug } from "~/utils.server";
+import { createProjectOnProfile } from "./utils.server";
 
 const schema = z.object({
-  userId: z.string().uuid(),
   projectName: z.string().min(1, "Bitte gib den Namen Deines Projekts ein."),
 });
 
@@ -21,11 +20,11 @@ export const loader = async (args: DataFunctionArgs) => {
 
   const authClient = createAuthClient(request, response);
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  await getSessionUserOrThrow(authClient);
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
-  return json({ userId: sessionUser.id }, { headers: response.headers });
+  return json({}, { headers: response.headers });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -40,7 +39,6 @@ export const action = async (args: DataFunctionArgs) => {
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  await checkIdentityOrThrow(request, sessionUser);
 
   const result = await performMutation({
     request,
@@ -63,7 +61,6 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 function Create() {
-  const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   return (
@@ -97,8 +94,6 @@ function Create() {
               <RemixForm
                 method="post"
                 schema={schema}
-                hiddenFields={["userId"]}
-                values={{ userId: loaderData.userId }}
                 onTransition={({ reset, formState }) => {
                   if (formState.isSubmitSuccessful) {
                     reset();
@@ -119,7 +114,6 @@ function Create() {
                         </>
                       )}
                     </Field>
-                    <Field name="userId" />
                     <button
                       type="submit"
                       className="btn btn-outline-primary ml-auto btn-small mb-8"

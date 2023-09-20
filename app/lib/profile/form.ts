@@ -10,6 +10,7 @@ areas: array(
   ),
 */
 
+// TODO: can this type assertions be removed and proofen by code?
 export function createProfileFromFormData(formData: FormData) {
   return {
     academicTitle: formData.get("academicTitle") as string,
@@ -44,6 +45,7 @@ export function addListEntry(
 ) {
   return {
     ...profile,
+    // TODO: can this type assertion be removed and proofen by code?
     [name]: [...(profile[name] as string[]), value],
   };
 }
@@ -55,6 +57,7 @@ export function removeListEntry(
 ) {
   return {
     ...profile,
+    // TODO: can this type assertion be removed and proofen by code?
     [name]: (profile[name] as string[]).filter((v) => v !== value) as string[],
   };
 }
@@ -70,6 +73,7 @@ export function profileListOperationResolver(
   if (submit === addOperation && formData.get(addOperation) !== "") {
     return addListEntry(
       name,
+      // TODO: can this type assertion be removed and proofen by code?
       (formData.get(addOperation) as string) ?? "",
       profile
     );
@@ -79,6 +83,7 @@ export function profileListOperationResolver(
   if (formData.get(removeOperation) !== "") {
     return removeListEntry(
       name,
+      // TODO: can this type assertion be removed and proofen by code?
       (formData.get(removeOperation) as string) ?? "",
       profile
     );

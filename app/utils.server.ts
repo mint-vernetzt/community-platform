@@ -1,12 +1,21 @@
-import type { BinaryToTextEncoding } from "crypto";
-import { getSession } from "./auth.server";
-import { forbidden, serverError } from "remix-utils";
-import { createHmac, randomBytes } from "crypto";
-import { prismaClient } from "./prisma.server";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { redirect } from "@remix-run/node";
+import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { BinaryToTextEncoding } from "crypto";
+import { createHmac, randomBytes } from "crypto";
+import { forbidden, serverError } from "remix-utils";
+import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { getAlert, redirectWithAlert } from "./alert.server";
+import { getSession } from "./auth.server";
+import { prismaClient } from "./prisma.server";
+
+export type Mode = "anon" | "authenticated";
+
+export function deriveMode(sessionUser: User | null): Mode {
+  if (sessionUser === null) {
+    return "anon";
+  }
+  return "authenticated";
+}
 
 export async function createHashFromString(
   string: string,
@@ -185,4 +194,44 @@ export async function enhancedRedirect(
     return redirectWithAlert(url, alert, options.response);
   }
   return redirect(url, options.response);
+}
+
+export function generateUsername(firstName: string, lastName: string) {
+  return generateValidSlug(`${firstName}${lastName}`);
+}
+
+export function generateOrganizationSlug(name: string) {
+  return generateValidSlug(name);
+}
+
+export function generateEventSlug(name: string) {
+  return generateValidSlug(name);
+}
+
+export function generateProjectSlug(name: string) {
+  return generateValidSlug(name);
+}
+
+// TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
+// (Greek letters, chinese letters, arabic letters, etc...)
+export function generateValidSlug(string: string) {
+  const slug = string
+    .toLowerCase()
+    .replace(/[áàâãå]/, "a")
+    .replace(/[äæ]/, "ae")
+    .replace(/[ç]/, "c")
+    .replace(/[éèêë]/, "e")
+    .replace(/[íìîï]/, "i")
+    .replace(/[ñ]/, "n")
+    .replace(/[ß]/, "ss")
+    .replace(/[óòôõ]/, "o")
+    .replace(/[öœø]/, "oe")
+    .replace(/[úùû]/, "u")
+    .replace(/[ü]/, "ue")
+    .replace(/[^\w ]/g, "")
+    .replace(/[\s]/g, "");
+
+  const timestamp = Date.now();
+  const stringFromTimestamp = timestamp.toString(36);
+  return `${slug}-${stringFromTimestamp}`;
 }

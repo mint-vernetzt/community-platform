@@ -24,6 +24,7 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
     setValue("");
   };
 
+  // TODO: fix any type
   React.useEffect(() => {
     const handler = (evt: any) => {
       if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {

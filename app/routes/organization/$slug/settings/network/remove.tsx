@@ -1,66 +1,77 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { NetworkMember } from ".";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   disconnectOrganizationFromNetwork,
-  handleAuthorization,
+  getOrganizationIdBySlug,
 } from "../utils.server";
 
 const schema = z.object({
   organizationId: z.string().uuid(),
-  networkId: z.string().uuid(),
 });
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const { organizationId, networkId } = values;
+const environmentSchema = z.object({
+  slug: z.string(),
+});
 
-  await disconnectOrganizationFromNetwork(organizationId, networkId);
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
+  const { organizationId } = values;
+
+  const network = await getOrganizationIdBySlug(environment.slug);
+  if (network === null) {
+    throw "Eure Organisation konnte nicht gefunden werden.";
+  }
+
+  await disconnectOrganizationFromNetwork(organizationId, network.id);
 
   return values;
 });
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);
   return redirect(".", { headers: response.headers });
 };
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
-  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
-
   const slug = getParamValueOrThrow(params, "slug");
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  await handleAuthorization(authClient, slug);
+  const result = await performMutation({
+    request,
+    schema,
+    mutation,
+    environment: { slug: slug },
+  });
 
-  const result = await performMutation({ request, schema, mutation });
-
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export function NetworkMemberRemoveForm(
   props: NetworkMember & { slug: string }
 ) {
-  const fetcher = useFetcher<ActionData>();
+  const fetcher = useFetcher<typeof action>();
 
-  const { networkMember, networkId, slug } = props;
+  const { networkMember, slug } = props;
 
   return (
     <Form
@@ -68,8 +79,8 @@ export function NetworkMemberRemoveForm(
       key={`${networkMember.slug}`}
       action={`/organization/${slug}/settings/network/remove`}
       schema={schema}
-      hiddenFields={["organizationId", "networkId"]}
-      values={{ organizationId: networkMember.id, networkId }}
+      hiddenFields={["organizationId"]}
+      values={{ organizationId: networkMember.id }}
       fetcher={fetcher}
     >
       {({ Field, Button, Errors }) => {
@@ -117,7 +128,6 @@ export function NetworkMemberRemoveForm(
               </svg>
             </Button>
             <Field name="organizationId" />
-            <Field name="networkId" />
             <Errors />
           </div>
         );

@@ -3,6 +3,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
+import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
@@ -11,12 +12,9 @@ import {
   filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { GravityType } from "imgproxy/dist/types";
+import { getPaginationValues } from "../explore/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
-  getPaginationValues,
-} from "../explore/utils.server";
-import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
@@ -112,7 +110,7 @@ export default function SearchView() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [items, setItems] = React.useState(loaderData.events);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
     if (loaderData.events.length < loaderData.pagination.itemsPerPage) {
@@ -128,8 +126,12 @@ export default function SearchView() {
     return 1;
   });
   React.useEffect(() => {
-    if (fetcher.data !== undefined && fetcher.data.events !== undefined) {
-      setItems((items) => [...items, ...fetcher.data.events]);
+    if (fetcher.data !== undefined) {
+      setItems((events) => {
+        return fetcher.data !== undefined
+          ? [...events, ...fetcher.data.events]
+          : [...events];
+      });
       setPage(fetcher.data.pagination.page);
       if (fetcher.data.events.length < fetcher.data.pagination.itemsPerPage) {
         setShouldFetch(false);
@@ -177,6 +179,7 @@ export default function SearchView() {
                         participationUntil,
                         responsibleOrganizations:
                           event.responsibleOrganizations.map(
+                            // TODO: fix any type
                             (item: any) => item.organization
                           ),
                       }}

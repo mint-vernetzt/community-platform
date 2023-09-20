@@ -169,6 +169,10 @@ async function main(
   ]);
   await executeCommand("npx", [
     "ts-node",
+    "prisma/scripts/apply-bucket-rls/index.ts",
+  ]);
+  await executeCommand("npx", [
+    "ts-node",
     "supabase/scripts/delete-users/index.ts",
   ]);
 

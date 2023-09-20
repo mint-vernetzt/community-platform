@@ -29,6 +29,7 @@ const Input = React.forwardRef(
           <div className="flex-auto">
             <input
               {...rest}
+              // TODO: can this type assertion be removed and proofen by code?
               ref={forwardRef as React.RefObject<HTMLInputElement>}
               type={props.type ?? "text"}
               className={`input input-bordered input-lg w-full ${

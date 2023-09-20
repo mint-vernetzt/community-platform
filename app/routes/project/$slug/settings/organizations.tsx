@@ -16,22 +16,24 @@ import { H3 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getProjectBySlugOrThrow } from "../utils.server";
-import type {
-  FailureActionData,
-  SuccessActionData,
-} from "./organizations/add-organization";
-import { addOrganizationSchema } from "./organizations/add-organization";
-import type { ActionData as RemoveOrganizationActionData } from "./organizations/remove-organization";
-import { removeOrganizationSchema } from "./organizations/remove-organization";
+import { deriveProjectMode } from "../../utils.server";
 import {
-  checkOwnershipOrThrow,
+  getOwnOrganizationsSuggestions,
+  getProjectBySlug,
   getResponsibleOrganizationDataFromProject,
-  getResponsibleOrganizationSuggestions,
-} from "./utils.server";
-import { getOwnOrganizationsSuggestions } from "./organizations.server";
+} from "./organizations.server";
+import {
+  addOrganizationSchema,
+  type action as addOrganizationAction,
+} from "./organizations/add-organization";
+import {
+  removeOrganizationSchema,
+  type action as removeOrganizationAction,
+} from "./organizations/remove-organization";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -41,9 +43,10 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const project = await getProjectBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(project, sessionUser);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
@@ -97,7 +100,7 @@ export const loader = async (args: LoaderArgs) => {
       }
     );
     responsibleOrganizationSuggestions =
-      await getResponsibleOrganizationSuggestions(
+      await getOrganizationSuggestionsForAutocomplete(
         authClient,
         alreadyResponsibleOrganizationSlugs,
         query
@@ -106,8 +109,6 @@ export const loader = async (args: LoaderArgs) => {
 
   return json(
     {
-      userId: sessionUser.id,
-      projectId: project.id,
       responsibleOrganizations: enhancedOrganizations,
       responsibleOrganizationSuggestions,
       ownOrganizationsSuggestions: enhancedOwnOrganizations,
@@ -119,10 +120,9 @@ export const loader = async (args: LoaderArgs) => {
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const addOrganizationFetcher = useFetcher<
-    SuccessActionData | FailureActionData
-  >();
-  const removeOrganizationFetcher = useFetcher<RemoveOrganizationActionData>();
+  const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
+  const removeOrganizationFetcher =
+    useFetcher<typeof removeOrganizationAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -143,8 +143,6 @@ function Organizations() {
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/project/${slug}/settings/organizations/add-organization`}
-        hiddenFields={["projectId", "userId"]}
-        values={{ projectId: loaderData.projectId, userId: loaderData.userId }}
         onSubmit={() => {
           submit({
             method: "get",
@@ -156,8 +154,6 @@ function Organizations() {
           return (
             <>
               <Errors />
-              <Field name="projectId" />
-              <Field name="userId" />
               <div className="form-control w-full">
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
@@ -168,7 +164,7 @@ function Organizations() {
                 </div>
 
                 <div className="flex flex-row">
-                  <Field name="id" className="flex-auto">
+                  <Field name="organizationId" className="flex-auto">
                     {({ Errors }) => (
                       <>
                         <Errors />
@@ -178,7 +174,7 @@ function Organizations() {
                           }
                           suggestionsLoaderPath={`/project/${slug}/settings/organizations`}
                           defaultValue={suggestionsQuery || ""}
-                          {...register("id")}
+                          {...register("organizationId")}
                           searchParameter="autocomplete_query"
                         />
                       </>
@@ -250,11 +246,9 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/project/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["userId", "projectId", "id"]}
+                      hiddenFields={["organizationId"]}
                       values={{
-                        userId: loaderData.userId,
-                        projectId: loaderData.projectId,
-                        id: organization.id,
+                        organizationId: organization.id,
                       }}
                       className="ml-auto"
                     >
@@ -263,9 +257,7 @@ function Organizations() {
                         return (
                           <>
                             <Errors />
-                            <Field name="userId" />
-                            <Field name="projectId" />
-                            <Field name="id" />
+                            <Field name="organizationId" />
                             <button
                               className="btn btn-outline-primary ml-auto btn-small"
                               title="Hinzufügen"
@@ -329,10 +321,8 @@ function Organizations() {
                     schema={removeOrganizationSchema}
                     fetcher={removeOrganizationFetcher}
                     action={`/project/${slug}/settings/organizations/remove-organization`}
-                    hiddenFields={["userId", "projectId", "organizationId"]}
+                    hiddenFields={["organizationId"]}
                     values={{
-                      userId: loaderData.userId,
-                      projectId: loaderData.projectId,
                       organizationId: organization.id,
                     }}
                   >
@@ -341,8 +331,6 @@ function Organizations() {
                       return (
                         <>
                           <Errors />
-                          <Field name="userId" />
-                          <Field name="projectId" />
                           <Field name="organizationId" />
                           <Button
                             className="ml-auto btn-none"

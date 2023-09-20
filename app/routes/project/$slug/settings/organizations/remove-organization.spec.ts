@@ -17,15 +17,10 @@ jest.mock("~/prisma.server", () => {
     prismaClient: {
       project: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
       },
       responsibleOrganizationOfProject: {
         delete: jest.fn(),
-      },
-      teamMemberOfProject: {
-        findFirst: jest.fn(),
-      },
-      profile: {
-        findFirst: jest.fn(),
       },
     },
   };
@@ -47,7 +42,7 @@ describe("/project/$slug/settings/team/add-member", () => {
       await action({
         request,
         context: {},
-        params: {},
+        params: { slug: "some-project-slug" },
       });
     } catch (error) {
       const response = error as Response;
@@ -58,141 +53,75 @@ describe("/project/$slug/settings/team/add-member", () => {
     }
   });
 
+  test("authenticated but not admin user", async () => {
+    const request = createRequestWithFormData({});
+
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-project-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(403);
+    }
+  });
+
   test("project not found", async () => {
     const request = createRequestWithFormData({
-      userId: "some-user-id",
-    });
-
-    expect.assertions(2);
-
-    (prismaClient.project.findFirst as jest.Mock).mockResolvedValue(null);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    try {
-      await action({ request, context: {}, params: {} });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(404);
-
-      const json = await response.json();
-      expect(json.message).toBe("Project not found");
-    }
-  });
-
-  test("not privileged user", async () => {
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-    });
-
-    expect.assertions(2);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {};
-    });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return null;
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Not privileged");
-    }
-  });
-
-  test("different user id", async () => {
-    const request = createRequestWithFormData({ userId: "some-user-id" });
-
-    expect.assertions(2);
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "another-user-id" } as User);
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(401);
-
-      const json = await response.json();
-      expect(json.message).toBe("Identity check failed");
-    }
-  });
-
-  test("different project id", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
-    });
-
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return { id: "another-project-id" };
-    });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
-    });
-
-    try {
-      await action({
-        request,
-        context: {},
-        params: {},
-      });
-    } catch (error) {
-      const response = error as Response;
-      expect(response.status).toBe(400);
-
-      const json = await response.json();
-      expect(json.message).toBe("Project IDs differ");
-    }
-  });
-
-  test("remove responsible organization from project", async () => {
-    expect.assertions(2);
-
-    const request = createRequestWithFormData({
-      userId: "some-user-id",
-      projectId: "some-project-id",
       organizationId: "some-organization-id",
     });
 
-    getSessionUserOrThrow.mockResolvedValue({ id: "some-user-id" } as User);
-    (prismaClient.project.findFirst as jest.Mock).mockImplementationOnce(() => {
-      return {
-        id: "some-project-id",
-      };
+    expect.assertions(1);
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
     });
-    (
-      prismaClient.teamMemberOfProject.findFirst as jest.Mock
-    ).mockImplementationOnce(() => {
-      return { isPrivileged: true };
+
+    (prismaClient.project.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    try {
+      await action({
+        request,
+        context: {},
+        params: { slug: "some-project-slug" },
+      });
+    } catch (error) {
+      const response = error as Response;
+      expect(response.status).toBe(404);
+    }
+  });
+
+  test("remove project organization", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      organizationId: "some-organization-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.project.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
+    });
+
+    (prismaClient.project.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-project-id",
     });
 
     const response = await action({
       request,
       context: {},
-      params: {},
+      params: { slug: "some-project-slug" },
     });
     const responseBody = await response.json();
     expect(

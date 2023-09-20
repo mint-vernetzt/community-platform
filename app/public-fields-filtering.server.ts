@@ -14,6 +14,9 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  administeredEvents: any;
+  administeredOrganizations: any;
+  administeredProjects: any;
   backgroundImage: any;
   _count: any;
 };
@@ -76,6 +79,9 @@ export async function filterProfileByVisibility<
         key === "contributedEvents" ||
         key === "teamMemberOfEvents" ||
         key === "teamMemberOfProjects" ||
+        key === "administeredEvents" ||
+        key === "administeredOrganizations" ||
+        key === "administeredProjects" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -145,10 +151,9 @@ type OrganizationWithRelations = Organization & {
   responsibleForEvents: any;
   responsibleForProject: any;
   organizationVisibility: any;
+  admins: any;
   backgroundImage: any;
-  _count: any;
 };
-
 export async function filterListOfOrganizationsByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T>
 >(organizations: T[]) {
@@ -203,6 +208,7 @@ export async function filterOrganizationByVisibility<
         key === "teamMembers" ||
         key === "types" ||
         key === "responsibleForEvents" ||
+        key === "admins" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
@@ -275,6 +281,7 @@ type EventWithRelations = Event & {
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
+  admins: any;
   backgroundImage: any;
   _count: any;
 };
@@ -334,6 +341,7 @@ export async function filterEventByVisibility<
         key === "tags" ||
         key === "targetGroups" ||
         key === "teamMembers" ||
+        key === "admins" ||
         key === "waitingList"
       ) {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
@@ -398,6 +406,7 @@ type ProjectWithRelations = Project & {
   targetGroups: any;
   teamMembers: any;
   projectVisibility: any;
+  admins: any;
   backgroundImage: any;
   _count: any;
 };
@@ -449,6 +458,7 @@ export async function filterProjectByVisibility<
         key === "disciplines" ||
         key === "responsibleOrganizations" ||
         key === "targetGroups" ||
+        key === "admins" ||
         key === "teamMembers"
       ) {
         filteredFields[key] =

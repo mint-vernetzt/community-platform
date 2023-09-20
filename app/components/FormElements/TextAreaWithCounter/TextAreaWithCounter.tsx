@@ -22,7 +22,8 @@ const TextAreaWithCounter = React.forwardRef(
       ...rest
     } = props;
     const defaultValueLength = defaultValue
-      ? (defaultValue as string).length
+      ? // TODO: can this type assertion be removed and proofen by code?
+        (defaultValue as string).length
       : 0;
     const [characterCount, updateCharacterCount] =
       React.useState(defaultValueLength);

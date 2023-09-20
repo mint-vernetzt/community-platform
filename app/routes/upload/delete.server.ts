@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
-import type { UploadKey } from "./schema";
+import type { UploadKey } from "./utils.server";
 
 export async function removeImageFromProfile(
   profileId: string,
@@ -37,6 +37,18 @@ export async function removeImageFromOrganization(
 
 export async function removeImageFromEvent(slug: string, name: UploadKey) {
   return await prismaClient.event.update({
+    where: {
+      slug,
+    },
+    data: {
+      [name]: null,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function removeImageFromProject(slug: string, name: UploadKey) {
+  return await prismaClient.project.update({
     where: {
       slug,
     },

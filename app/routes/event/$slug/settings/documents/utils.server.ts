@@ -2,7 +2,7 @@ import type { Document } from "@prisma/client";
 import { prismaClient } from "~/prisma.server";
 
 export async function createDocumentOnEvent(
-  eventId: string,
+  slug: string,
   document: Pick<
     Document,
     "filename" | "path" | "sizeInMB" | "mimeType" | "extension"
@@ -10,7 +10,7 @@ export async function createDocumentOnEvent(
 ) {
   const profile = prismaClient.event.update({
     where: {
-      id: eventId,
+      slug,
     },
     data: {
       documents: {

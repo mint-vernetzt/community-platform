@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Link,
@@ -9,9 +9,7 @@ import {
 import type { KeyboardEvent } from "react";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -19,7 +17,7 @@ import InputPassword from "../../components/FormElements/InputPassword/InputPass
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { generateUsername } from "../../utils";
+import { generateUsername } from "../../utils.server";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
@@ -45,7 +43,7 @@ const environmentSchema = z.object({
   siteUrl: z.string(),
 });
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -76,6 +74,7 @@ const mutation = makeDomainFunction(
     : environment.siteUrl;
 
   const { error } = await signUp(
+    // TODO: fix type issue
     environment.authClient,
     values.email,
     values.password,
@@ -95,9 +94,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
@@ -112,11 +109,11 @@ export const action: ActionFunction = async (args) => {
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Register() {
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const submit = useSubmit();
@@ -308,6 +305,7 @@ export default function Register() {
                                   <>
                                     <input
                                       ref={
+                                        // TODO: can this type assertion be removed and proofen by code?
                                         ref as React.RefObject<HTMLInputElement>
                                       }
                                       {...props}

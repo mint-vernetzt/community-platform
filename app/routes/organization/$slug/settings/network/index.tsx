@@ -1,13 +1,15 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
+import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { deriveOrganizationMode } from "../../utils.server";
 import {
   getNetworkMembersOfOrganization,
-  getNetworkMemberSuggestions,
-  handleAuthorization,
+  getOrganizationIdBySlug,
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
@@ -17,7 +19,7 @@ export type NetworkMember = ArrayElement<
 >;
 
 export type NetworkMemberSuggestions =
-  | Awaited<ReturnType<typeof getNetworkMemberSuggestions>>
+  | Awaited<ReturnType<typeof getOrganizationSuggestionsForAutocomplete>>
   | undefined;
 
 export const loader = async (args: LoaderArgs) => {
@@ -26,7 +28,11 @@ export const loader = async (args: LoaderArgs) => {
 
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
-  const { organization } = await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const organization = await getOrganizationIdBySlug(slug);
+  invariantResponse(organization, "Organization not found", { status: 404 });
 
   const networkMembers = await getNetworkMembersOfOrganization(
     authClient,
@@ -42,10 +48,9 @@ export const loader = async (args: LoaderArgs) => {
     const alreadyMemberSlugs = networkMembers.map((member) => {
       return member.networkMember.slug;
     });
-    networkMemberSuggestions = await getNetworkMemberSuggestions(
+    networkMemberSuggestions = await getOrganizationSuggestionsForAutocomplete(
       authClient,
-      slug,
-      alreadyMemberSlugs,
+      [...alreadyMemberSlugs, slug],
       query
     );
   }

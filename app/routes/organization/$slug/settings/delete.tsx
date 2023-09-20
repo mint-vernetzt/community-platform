@@ -1,26 +1,26 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import type { Schema } from "zod";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deleteOrganizationBySlug } from "~/organization.server";
-import { getProfileByUserId } from "~/profile.server";
-import { handleAuthorization } from "./utils.server";
+import { deriveOrganizationMode } from "../utils.server";
+import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
 const schema = z.object({
-  slug: z.string(),
   confirmedToken: z
     .string()
     .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
 });
 
-export const loader: LoaderFunction = async (args) => {
+const environmentSchema = z.object({
+  slug: z.string(),
+});
+
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -28,40 +28,43 @@ export const loader: LoaderFunction = async (args) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  await handleAuthorization(authClient, slug);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   return response;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
+const mutation = makeDomainFunction(
+  schema,
+  environmentSchema
+)(async (values, environment) => {
   try {
-    await deleteOrganizationBySlug(values.slug);
+    await deleteOrganizationBySlug(environment.slug);
   } catch {
     throw "Die Organisation konnte nicht gelöscht werden.";
   }
   return values;
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async (args) => {
+export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
-  // TODO: Investigate: checkIdentityOrThrow is missing here but present in other actions
-
   const slug = getParamValueOrThrow(params, "slug");
-
-  const { sessionUser } = await handleAuthorization(authClient, slug);
-
-  const profile = await getProfileByUserId(sessionUser.id, ["username"]);
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const profile = await getProfileByUserId(sessionUser.id);
+  invariantResponse(profile, "Profile not found", { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
     mutation,
+    environment: {
+      slug: slug,
+    },
   });
 
   if (result.success) {
@@ -70,11 +73,10 @@ export const action: ActionFunction = async (args) => {
     });
   }
 
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };
 
 export default function Delete() {
-  const { slug } = useParams();
   return (
     <>
       <h1 className="mb-8">Organisation löschen</h1>
@@ -101,18 +103,6 @@ export default function Delete() {
                     placeholder="wirklich löschen"
                     {...register("confirmedToken")}
                   />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <Field name="slug">
-              {({ Errors }) => (
-                <>
-                  <input
-                    type="hidden"
-                    value={slug || ""}
-                    {...register("slug")}
-                  ></input>
                   <Errors />
                 </>
               )}

@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { forbidden, notFound, unauthorized } from "remix-utils";
+import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -12,44 +12,51 @@ import {
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { triggerEntityScore } from "~/utils.server";
+import { deriveMode, triggerEntityScore, type Mode } from "~/utils.server";
 
-export type Mode = "anon" | "authenticated" | "owner";
+export type ProfileMode = Mode | "owner";
 
-export function deriveMode(profileId: string, sessionUser: User | null): Mode {
-  if (sessionUser === null) {
-    return "anon";
+export async function deriveProfileMode(
+  sessionUser: User | null,
+  username: string
+): Promise<ProfileMode> {
+  const mode = deriveMode(sessionUser);
+  const profile = await prismaClient.profile.findFirst({
+    where: {
+      username,
+      id: sessionUser?.id || "",
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (profile !== null) {
+    return "owner";
   }
-
-  return profileId === sessionUser.id ? "owner" : "authenticated";
-}
-
-export async function handleAuthorization(
-  sessionUserId: string,
-  profileId: string
-) {
-  if (sessionUserId !== profileId) {
-    throw forbidden({ message: "not allowed" });
-  }
-}
-
-export async function checkIdentityOrThrow(
-  request: Request,
-  sessionUser: User
-) {
-  const clonedRequest = request.clone();
-  const formData = await clonedRequest.formData();
-  const formSenderId = formData.get("userId");
-
-  if (formSenderId === null || formSenderId !== sessionUser.id) {
-    throw unauthorized({ message: "Identity check failed" });
-  }
+  return mode;
 }
 
 export async function getWholeProfileFromUsername(username: string) {
   const result = await prismaClient.profile.findFirst({
     where: { username },
-    include: {
+    select: {
+      id: true,
+      academicTitle: true,
+      position: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      bio: true,
+      skills: true,
+      interests: true,
+      website: true,
+      linkedin: true,
+      twitter: true,
+      xing: true,
+      instagram: true,
+      youtube: true,
+      facebook: true,
       areas: { select: { area: { select: { id: true } } } },
       offers: { select: { offer: { select: { id: true } } } },
       seekings: { select: { offer: { select: { id: true } } } },
@@ -169,7 +176,7 @@ export async function updateProfileById(
 
 export async function getProfileWithEventsByMode(
   username: string,
-  mode: Mode,
+  mode: ProfileMode,
   inFuture: boolean
 ) {
   let teamMemberWhere;
@@ -405,7 +412,7 @@ export async function getProfileWithEventsByMode(
 export async function prepareProfileEvents(
   authClient: SupabaseClient,
   username: string,
-  mode: Mode,
+  mode: ProfileMode,
   sessionUser: User | null,
   inFuture: boolean
 ) {
@@ -419,7 +426,7 @@ export async function prepareProfileEvents(
   };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
+  if (mode === "anon") {
     // Filter profile holding event relations
     enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
       enhancedProfile

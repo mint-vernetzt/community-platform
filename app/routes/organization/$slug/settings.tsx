@@ -52,6 +52,14 @@ function Settings() {
                   </li>
                   <li>
                     <NavLink
+                      to="admins"
+                      className={({ isActive }) => getClassName(isActive)}
+                    >
+                      Administrator:innen
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
                       to="team"
                       className={({ isActive }) => getClassName(isActive)}
                     >

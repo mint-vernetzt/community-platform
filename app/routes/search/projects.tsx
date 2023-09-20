@@ -113,7 +113,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function SearchView() {
   const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
   const [items, setItems] = React.useState(loaderData.projects);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
@@ -132,7 +132,11 @@ export default function SearchView() {
 
   React.useEffect(() => {
     if (fetcher.data !== undefined && fetcher.data.projects !== undefined) {
-      setItems((items) => [...items, ...fetcher.data.projects]);
+      setItems((projects) => {
+        return fetcher.data !== undefined
+          ? [...projects, ...fetcher.data.projects]
+          : [...projects];
+      });
       setPage(fetcher.data.pagination.page);
       if (fetcher.data.projects.length < fetcher.data.pagination.itemsPerPage) {
         setShouldFetch(false);

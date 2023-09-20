@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { badRequest } from "remix-utils";
+import { badRequest, serverError } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -46,16 +46,30 @@ export const loader = async (args: LoaderArgs) => {
   const confirmationLinkUrl = new URL(confirmationLink);
 
   // Get search param redirect_to
-  const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
+  let redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
   if (redirectTo === null) {
     throw badRequest("Did not provide a redirect_to search parameter");
   }
 
-  // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
-  if (
-    !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
-  ) {
+  // Check if COMMUNITY_BASE_URL is present in .env
+  if (process.env.COMMUNITY_BASE_URL === undefined) {
+    throw serverError("COMMUNITY_BASE_URL is not defined in .env");
+  }
+
+  // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}.
+  if (!redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}`)) {
     throw badRequest("The redirect_to url has not the right structure");
+  } else {
+    // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
+    // If thats the case the user initialized the password reset
+    // If not we were the ones who sent a password recovery manually from supabase.com and we need to add /verification here.
+    if (
+      !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
+    ) {
+      redirectTo = `${
+        process.env.COMMUNITY_BASE_URL
+      }/verification${redirectTo.slice(process.env.COMMUNITY_BASE_URL.length)}`;
+    }
   }
 
   const redirectToUrl = new URL(redirectTo);

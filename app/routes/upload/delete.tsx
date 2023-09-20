@@ -1,60 +1,61 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import type { PerformMutation } from "remix-forms";
 import { performMutation } from "remix-forms";
-import { notFound, serverError } from "remix-utils";
-import type { Schema, z } from "zod";
+import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getOrganizationBySlug } from "~/organization.server";
-import { deriveMode, getEvent } from "../event/$slug/utils.server";
+import { fileUploadSchema } from "~/lib/utils/schemas";
 import {
   removeImageFromEvent,
   removeImageFromOrganization,
   removeImageFromProfile,
+  removeImageFromProject,
 } from "./delete.server";
-import { environment, schema } from "./schema";
+import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { deriveEventMode } from "../event/utils.server";
+import { deriveProjectMode } from "../project/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
+
+const environment = z.object({
+  authClient: z.unknown(),
+  // authClient: z.instanceof(SupabaseClient),
+});
 
 const mutation = makeDomainFunction(
-  schema,
+  fileUploadSchema,
   environment
 )(async (values, environment) => {
   const { subject, slug, uploadKey } = values;
 
   let success = true;
-
+  // TODO: fix type issue
   const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
   try {
     if (subject === "user") {
+      const username = slug;
+      const mode = await deriveProfileMode(sessionUser, username);
+      invariantResponse(mode === "owner", "Not privileged", { status: 403 });
       await removeImageFromProfile(sessionUser.id, uploadKey);
     }
 
     if (subject === "organization") {
-      const organisation = await getOrganizationBySlug(slug);
-      if (organisation === null) {
-        throw serverError({ message: "Unknown organization." });
-      }
-
-      const isPriviliged = organisation?.teamMembers.some(
-        (member) => member.profileId === sessionUser.id && member.isPrivileged
-      );
-
-      if (isPriviliged) {
-        await removeImageFromOrganization(slug, uploadKey);
-      }
+      const mode = await deriveOrganizationMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      await removeImageFromOrganization(slug, uploadKey);
     }
 
     if (subject === "event") {
-      const event = await getEvent(slug);
-      if (event === null) {
-        throw notFound({ message: `Event not found` });
-      }
-      const mode = await deriveMode(event, sessionUser);
-      if (mode !== "owner") {
-        throw serverError({ message: "Not allowed." });
-      }
+      const mode = await deriveEventMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
       await removeImageFromEvent(slug, uploadKey);
+    }
+
+    if (subject === "project") {
+      const mode = await deriveProjectMode(sessionUser, slug);
+      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      await removeImageFromProject(slug, uploadKey);
     }
   } catch (e) {
     success = false;
@@ -63,9 +64,7 @@ const mutation = makeDomainFunction(
   return { success };
 });
 
-type ActionData = PerformMutation<z.infer<Schema>, z.infer<typeof schema>>;
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -74,7 +73,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const result = await performMutation({
     request,
-    schema,
+    schema: fileUploadSchema,
     mutation,
     environment: {
       authClient: authClient,
@@ -85,6 +84,5 @@ export const action: ActionFunction = async ({ request }) => {
     return redirect(redirectUrl, { headers: response.headers });
   }
 
-  // TODO: fix type issue or let it be fixed by aligning with upload documents
-  return json<ActionData>(result, { headers: response.headers });
+  return json(result, { headers: response.headers });
 };

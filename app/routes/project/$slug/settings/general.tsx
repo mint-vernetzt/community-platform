@@ -29,21 +29,19 @@ import {
   website,
 } from "~/lib/utils/yup";
 import { getDisciplines, getTargetGroups } from "~/utils.server";
+import { getProjectVisibilitiesBySlugOrThrow } from "../utils.server";
 import {
-  getProjectBySlugOrThrow,
-  getProjectVisibilitiesBySlugOrThrow,
-} from "../utils.server";
-import {
-  checkOwnershipOrThrow,
   transformFormToProject,
   transformProjectToForm,
   updateProjectById,
 } from "./utils.server";
 
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { invariantResponse } from "~/lib/utils/response";
+import { deriveProjectMode } from "../../utils.server";
+import { getProjectBySlug, getProjectBySlugForAction } from "./general.server";
 
 const schema = object({
-  userId: string().required(),
   name: string().required(),
   headline: string(),
   excerpt: nullOrString(multiline()),
@@ -80,17 +78,17 @@ export const loader = async (args: LoaderArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
+  const project = await getProjectBySlug(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
   const projectVisibilities = await getProjectVisibilitiesBySlugOrThrow(slug);
-
-  await checkOwnershipOrThrow(project, sessionUser);
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const targetGroups = await getTargetGroups();
   const disciplines = await getDisciplines();
 
   return json(
     {
-      userId: sessionUser.id,
       project: transformProjectToForm(project),
       projectVisibilities,
       targetGroups,
@@ -112,8 +110,10 @@ export const action = async (args: ActionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const project = await getProjectBySlugOrThrow(slug);
-  await checkOwnershipOrThrow(project, sessionUser);
+  const project = await getProjectBySlugForAction(slug);
+  invariantResponse(project, "Project not found", { status: 404 });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
   const result = await getFormDataValidationResultOrThrow<typeof schema>(
     request,
@@ -228,6 +228,7 @@ function General() {
         formRef.current.getElementsByClassName("clear-after-submit");
       if ($inputsToClear) {
         Array.from($inputsToClear).forEach(
+          // TODO: can this type assertion be removed and proofen by code?
           (a) => ((a as HTMLInputElement).value = "")
         );
       }
@@ -268,7 +269,6 @@ function General() {
         <p className="mb-8">
           Gib den Namen und die Kontaktdaten für Dein Projekt ein.
         </p>
-        <input name="userId" defaultValue={loaderData.userId} hidden />
         <div className="mb-6">
           <InputText
             {...register("name")}

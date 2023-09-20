@@ -1,6 +1,7 @@
+import { Alert, Footer } from "@mint-vernetzt/components";
 import type {
+  DataFunctionArgs,
   LinksFunction,
-  LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -20,17 +21,15 @@ import {
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
+import { getAlert, type Alert as AlertType } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
-import { Footer } from "@mint-vernetzt/components";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./profile.server";
+import { getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
-import { Alert } from "@mint-vernetzt/components";
-import { getAlert, type Alert as AlertType } from "./alert.server";
 import { combineHeaders } from "./utils.server";
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -48,9 +47,7 @@ export type RootRouteData = {
   alert: AlertType | undefined;
 };
 
-type LoaderData = RootRouteData;
-
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();
@@ -68,12 +65,7 @@ export const loader: LoaderFunction = async (args) => {
   let sessionUserInfo;
 
   if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id, [
-      "username",
-      "firstName",
-      "lastName",
-      "avatar",
-    ]);
+    const profile = await getProfileByUserId(sessionUser.id);
 
     let avatar: string | undefined;
 
@@ -99,7 +91,7 @@ export const loader: LoaderFunction = async (args) => {
 
   const { alert, headers: alertHeaders } = await getAlert(request);
 
-  return json<LoaderData>(
+  return json(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
@@ -161,7 +153,11 @@ type SessionUserInfo = {
 function NavBar(props: NavBarProps) {
   const closeDropdown = () => {
     if (document.activeElement !== null) {
+      // TODO: can this type assertion be proofen by code?
+      // f.e. with below if statement
+      //if (document.activeElement instanceof HTMLAnchorElement) {
       (document.activeElement as HTMLAnchorElement).blur();
+      //}
     }
   };
 
@@ -424,7 +420,7 @@ export default function App() {
     sessionUserInfo: currentUserInfo,
     abilities,
     alert,
-  } = useLoaderData<LoaderData>();
+  } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
