@@ -64,8 +64,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
-  // const provider = sessionUser.app_metadata.provider || "email";
-  const provider = "keycloak";
+  const provider = sessionUser.app_metadata.provider || "email";
 
   return json({ provider });
 };
@@ -184,16 +183,16 @@ export default function Security() {
           </h4>
           <p className="mb-8">
             Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und
-            dein Passwort nur über diese ändern.{" "}
+            dein Passwort nur auf{" "}
             <a
               href="https://mint-id.org"
               target="_blank"
               rel="noreferrer"
-              className="text-primary hover:underline font-bold"
+              className="text-primary hover:underline"
             >
-              Hier
+              mint-id.org
             </a>{" "}
-            kommst du zur Benutzerverwaltung der MINT-ID.
+            ändern.
           </p>
         </>
       ) : (
