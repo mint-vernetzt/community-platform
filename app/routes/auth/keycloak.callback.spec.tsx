@@ -164,7 +164,7 @@ test("user is still registered with email and signs in with keycloak", async () 
     await redirectWithAlert(
       `/events/some-event-id`,
       {
-        message: "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft",
+        message: "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
       },
       { headers: {} }
     )
