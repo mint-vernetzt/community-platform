@@ -135,7 +135,7 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
     );
   });
 
-  test("remove event admin (self)", async () => {
+  test("remove event admin on published event (self)", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -150,6 +150,7 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
 
     (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
       id: "some-event-id",
+      published: true,
       _count: {
         admins: 2,
       },
@@ -171,6 +172,43 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
     expect(response).toStrictEqual(redirect(`/event/some-event-slug`));
   });
 
+  test("remove event admin on unpublished event (self)", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      profileId: "some-user-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+    });
+
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+      published: false,
+      _count: {
+        admins: 2,
+      },
+    });
+
+    const response = await action({
+      request,
+      context: {},
+      params: { slug: "some-event-slug" },
+    });
+    expect(prismaClient.adminOfEvent.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
+        },
+      },
+    });
+    expect(response).toStrictEqual(redirect(`/dashboard`));
+  });
+
   test("remove event admin (other user)", async () => {
     expect.assertions(2);
 
@@ -186,6 +224,7 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
 
     (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
       id: "some-event-id",
+      published: true,
       _count: {
         admins: 2,
       },
