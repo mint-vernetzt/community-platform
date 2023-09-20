@@ -110,7 +110,7 @@ export const loader = async (args: LoaderArgs) => {
         loginRedirect || "/dashboard",
         {
           message:
-            "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft",
+            "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
         },
         {
           headers: response.headers,

@@ -477,7 +477,6 @@ export default function App() {
             ) : null}
             <Outlet />
           </main>
-
           <Footer />
         </div>
         <ScrollRestoration />
