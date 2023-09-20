@@ -1,6 +1,6 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useTransition } from "@remix-run/react";
+import { useActionData, useLoaderData, useTransition } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden, notFound } from "remix-utils";
@@ -64,11 +64,9 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
-  if (sessionUser.app_metadata.provider === "keycloak") {
-    throw forbidden({ message: "not allowed." });
-  }
+  const provider = sessionUser.app_metadata.provider || "email";
 
-  return response;
+  return json({ provider });
 };
 
 const passwordMutation = makeDomainFunction(
@@ -158,6 +156,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 
 export default function Security() {
   const transition = useTransition();
+  const loaderData = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
 
@@ -176,138 +175,160 @@ export default function Security() {
 
   return (
     <>
-      <fieldset disabled={transition.state === "submitting"}>
-        <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+      <h1 className="mb-8">Login und Sicherheit</h1>
+      {loaderData.provider === "keycloak" ? (
+        <>
+          <h4 className="mb-4 font-semibold">
+            Passwort oder E-Mail-Adresse ändern
+          </h4>
+          <p className="mb-8">
+            Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und
+            dein Passwort nur auf{" "}
+            <a
+              href="https://mint-id.org"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              mint-id.org
+            </a>{" "}
+            ändern.
+          </p>
+        </>
+      ) : (
+        <fieldset disabled={transition.state === "submitting"}>
+          <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
-        <p className="mb-8">
-          Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang
-          sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.
-        </p>
-        <input type="hidden" name="action" value="changePassword" />
+          <p className="mb-8">
+            Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen
+            lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.
+          </p>
+          <input type="hidden" name="action" value="changePassword" />
 
-        <RemixForm method="post" schema={passwordSchema}>
-          {({ Field, Button, Errors, register }) => (
-            <>
-              <Field name="password" label="Neues Passwort" className="mb-4">
-                {({ Errors }) => (
-                  <>
-                    <InputPassword
-                      id="password"
-                      label="Neues Passwort"
-                      {...register("password")}
-                    />
-                    <Errors />
-                  </>
-                )}
-              </Field>
+          <RemixForm method="post" schema={passwordSchema}>
+            {({ Field, Button, Errors, register }) => (
+              <>
+                <Field name="password" label="Neues Passwort" className="mb-4">
+                  {({ Errors }) => (
+                    <>
+                      <InputPassword
+                        id="password"
+                        label="Neues Passwort"
+                        {...register("password")}
+                      />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
 
-              <Field name="confirmPassword" label="Wiederholen">
-                {({ Errors }) => (
-                  <>
-                    <InputPassword
-                      id="confirmPassword"
-                      label="Passwort wiederholen"
-                      {...register("confirmPassword")}
-                    />
-                    <Errors />
-                  </>
-                )}
-              </Field>
-              <Field name="submittedForm">
-                {({ Errors }) => (
-                  <>
-                    <input
-                      type="hidden"
-                      value="changePassword"
-                      {...register("submittedForm")}
-                    ></input>
-                    <Errors />
-                  </>
-                )}
-              </Field>
+                <Field name="confirmPassword" label="Wiederholen">
+                  {({ Errors }) => (
+                    <>
+                      <InputPassword
+                        id="confirmPassword"
+                        label="Passwort wiederholen"
+                        {...register("confirmPassword")}
+                      />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
+                <Field name="submittedForm">
+                  {({ Errors }) => (
+                    <>
+                      <input
+                        type="hidden"
+                        value="changePassword"
+                        {...register("submittedForm")}
+                      ></input>
+                      <Errors />
+                    </>
+                  )}
+                </Field>
 
-              <button type="submit" className="btn btn-primary mt-8">
-                Passwort ändern
-              </button>
-              {showPasswordFeedback ? (
-                <span
-                  className={
-                    "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                  }
-                >
-                  Dein Passwort wurde geändert.
-                </span>
-              ) : null}
-              <Errors />
-            </>
-          )}
-        </RemixForm>
-        <hr className="border-neutral-400 my-10 lg:my-16" />
+                <button type="submit" className="btn btn-primary mt-8">
+                  Passwort ändern
+                </button>
+                {showPasswordFeedback ? (
+                  <span
+                    className={
+                      "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                    }
+                  >
+                    Dein Passwort wurde geändert.
+                  </span>
+                ) : null}
+                <Errors />
+              </>
+            )}
+          </RemixForm>
+          <hr className="border-neutral-400 my-10 lg:my-16" />
 
-        <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
+          <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
 
-        <p className="mb-8">
-          Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der
-          Community-Plattform ändern.
-        </p>
-        <RemixForm method="post" schema={emailSchema}>
-          {({ Field, Button, Errors, register }) => (
-            <>
-              <Field name="email" label="Neue E-Mail" className="mb-4">
-                {({ Errors }) => (
-                  <>
-                    <Input
-                      id="email"
-                      label="Neue E-Mail"
-                      {...register("email")}
-                    />
-                    <Errors />
-                  </>
-                )}
-              </Field>
+          <p className="mb-8">
+            Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der
+            Community-Plattform ändern.
+          </p>
+          <RemixForm method="post" schema={emailSchema}>
+            {({ Field, Button, Errors, register }) => (
+              <>
+                <Field name="email" label="Neue E-Mail" className="mb-4">
+                  {({ Errors }) => (
+                    <>
+                      <Input
+                        id="email"
+                        label="Neue E-Mail"
+                        {...register("email")}
+                      />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
 
-              <Field name="confirmEmail" label="Wiederholen">
-                {({ Errors }) => (
-                  <>
-                    <Input
-                      id="confirmEmail"
-                      label="E-Mail wiederholen"
-                      {...register("confirmEmail")}
-                    />
-                    <Errors />
-                  </>
-                )}
-              </Field>
+                <Field name="confirmEmail" label="Wiederholen">
+                  {({ Errors }) => (
+                    <>
+                      <Input
+                        id="confirmEmail"
+                        label="E-Mail wiederholen"
+                        {...register("confirmEmail")}
+                      />
+                      <Errors />
+                    </>
+                  )}
+                </Field>
 
-              <Field name="submittedForm">
-                {({ Errors }) => (
-                  <>
-                    <input
-                      type="hidden"
-                      value="changeEmail"
-                      {...register("submittedForm")}
-                    ></input>
-                    <Errors />
-                  </>
-                )}
-              </Field>
-              <button type="submit" className="btn btn-primary mt-8">
-                E-Mail ändern
-              </button>
-              {showEmailFeedback ? (
-                <span
-                  className={
-                    "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                  }
-                >
-                  Ein Bestätigungslink wurde Dir zugesendet.
-                </span>
-              ) : null}
-              <Errors />
-            </>
-          )}
-        </RemixForm>
-      </fieldset>
+                <Field name="submittedForm">
+                  {({ Errors }) => (
+                    <>
+                      <input
+                        type="hidden"
+                        value="changeEmail"
+                        {...register("submittedForm")}
+                      ></input>
+                      <Errors />
+                    </>
+                  )}
+                </Field>
+                <button type="submit" className="btn btn-primary mt-8">
+                  E-Mail ändern
+                </button>
+                {showEmailFeedback ? (
+                  <span
+                    className={
+                      "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
+                    }
+                  >
+                    Ein Bestätigungslink wurde Dir zugesendet.
+                  </span>
+                ) : null}
+                <Errors />
+              </>
+            )}
+          </RemixForm>
+        </fieldset>
+      )}
     </>
   );
 }

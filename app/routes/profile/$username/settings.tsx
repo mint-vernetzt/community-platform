@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { redirect, type LoaderArgs, json } from "@remix-run/node";
+import { json, redirect, type LoaderArgs } from "@remix-run/node";
+import { NavLink, Outlet } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
@@ -17,21 +17,18 @@ export const loader = async (args: LoaderArgs) => {
       where: { id: sessionUser.id },
       select: { termsAccepted: true },
     });
+    // TODO: Could this be moved to root.tsx?
     if (userProfile !== null && userProfile.termsAccepted === false) {
       return redirect(
         `/accept-terms?redirect_to=/profile/${username}/settings`,
         { headers: response.headers }
       );
     }
-    if (sessionUser.app_metadata.provider === "keycloak") {
-      return json({ provider: "keycloak" });
-    }
   }
-  return json({ provider: "email" });
+  return json({});
 };
 
 function Index() {
-  const loaderData = useLoaderData<typeof loader>();
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -54,16 +51,14 @@ function Index() {
                       Allgemein
                     </NavLink>
                   </li>
-                  {loaderData.provider === "email" && (
-                    <li>
-                      <NavLink
-                        to="security"
-                        className={({ isActive }) => getClassName(isActive)}
-                      >
-                        Login und Sicherheit
-                      </NavLink>
-                    </li>
-                  )}
+                  <li>
+                    <NavLink
+                      to="security"
+                      className={({ isActive }) => getClassName(isActive)}
+                    >
+                      Login und Sicherheit
+                    </NavLink>
+                  </li>
                 </ul>
                 <hr className="border-neutral-400 my-4 lg:my-8" />
                 <div>
