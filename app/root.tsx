@@ -29,6 +29,9 @@ import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./profile.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
+import { Alert } from "@mint-vernetzt/components";
+import { getAlert, type Alert as AlertType } from "./alert.server";
+import { combineHeaders } from "./utils.server";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -42,6 +45,7 @@ export type RootRouteData = {
   matomoSiteId: string | undefined;
   sessionUserInfo?: SessionUserInfo;
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+  alert: AlertType | undefined;
 };
 
 type LoaderData = RootRouteData;
@@ -93,14 +97,17 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
+  const { alert, headers: alertHeaders } = await getAlert(request);
+
   return json<LoaderData>(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
       abilities,
+      alert,
     },
-    { headers: response.headers }
+    { headers: combineHeaders(response.headers, alertHeaders) }
   );
 };
 
@@ -416,6 +423,7 @@ export default function App() {
     matomoSiteId,
     sessionUserInfo: currentUserInfo,
     abilities,
+    alert,
   } = useLoaderData<LoaderData>();
 
   React.useEffect(() => {
@@ -429,6 +437,7 @@ export default function App() {
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
   );
+  const isIndexRoute = location.pathname === "/";
 
   return (
     <html lang="de" data-theme="light">
@@ -463,6 +472,13 @@ export default function App() {
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
           <main className="flex-auto relative pb-24 md:pb-8">
+            {typeof alert !== "undefined" &&
+            isNonAppBaseRoute === false &&
+            isIndexRoute === false ? (
+              <div className="container">
+                <Alert level={alert.level}>{alert.message}</Alert>
+              </div>
+            ) : null}
             <Outlet />
           </main>
 

@@ -5,6 +5,8 @@ import { createHmac, randomBytes } from "crypto";
 import { prismaClient } from "./prisma.server";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
+import { redirect } from "@remix-run/node";
+import { getAlert, redirectWithAlert } from "./alert.server";
 
 export async function createHashFromString(
   string: string,
@@ -156,4 +158,31 @@ export async function triggerEntityScore(options: {
       data: { score },
     });
   }
+}
+
+export function combineHeaders(
+  ...headers: Array<ResponseInit["headers"] | null>
+) {
+  const combined = new Headers();
+  for (const header of headers) {
+    if (!header) continue;
+    for (const [key, value] of new Headers(header).entries()) {
+      combined.append(key, value);
+    }
+  }
+  return combined;
+}
+
+export async function enhancedRedirect(
+  url: string,
+  options: {
+    request: Request;
+    response?: ResponseInit;
+  }
+) {
+  const { alert } = await getAlert(options.request);
+  if (alert !== undefined) {
+    return redirectWithAlert(url, alert, options.response);
+  }
+  return redirect(url, options.response);
 }
