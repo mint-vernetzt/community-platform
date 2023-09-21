@@ -140,11 +140,24 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   // Filtering by publish status
-  if (mode !== "admin") {
-    enhancedEvent.childEvents = enhancedEvent.childEvents.filter((item) => {
-      return item.published;
-    });
+  const filteredChildEvents = [];
+  for (let childEvent of enhancedEvent.childEvents) {
+    if (childEvent.published) {
+      filteredChildEvents.push(childEvent);
+    } else {
+      if (sessionUser !== null) {
+        const childMode = await deriveEventMode(sessionUser, childEvent.slug);
+        const isTeamMember = await getIsTeamMember(
+          childEvent.id,
+          sessionUser.id
+        );
+        if (childMode === "admin" || isTeamMember) {
+          filteredChildEvents.push(childEvent);
+        }
+      }
+    }
   }
+  enhancedEvent = { ...enhancedEvent, childEvents: filteredChildEvents };
 
   // Filtering by visbility settings
   if (sessionUser === null) {
@@ -547,7 +560,7 @@ function Index() {
               ) : null}
             </div>
           </div>
-          {loaderData.mode === "admin" ? (
+          {loaderData.mode === "admin" || loaderData.isTeamMember ? (
             <>
               {loaderData.event.canceled ? (
                 <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
@@ -1075,7 +1088,9 @@ function Index() {
                           </div>
                         </Link>
 
-                        {loaderData.mode === "admin" && !event.canceled ? (
+                        {(loaderData.mode === "admin" ||
+                          loaderData.isTeamMember) &&
+                        !event.canceled ? (
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">

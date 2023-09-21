@@ -893,6 +893,16 @@ describe("/event/$slug", () => {
         ];
       });
 
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
       getImageURL.mockImplementationOnce(
         () => "full-depth-speaker-avatar-image-url"
       );
