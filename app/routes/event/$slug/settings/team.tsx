@@ -97,9 +97,13 @@ function Team() {
   return (
     <>
       <h1 className="mb-8">Das Team</h1>
-      <p className="mb-8">
+      <p className="mb-2">
         Wer ist Teil Eures Veranstaltungsteams? Füge hier weitere Teammitglieder
         hinzu oder entferne sie.
+      </p>
+      <p className="mb-8">
+        Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können
+        Events im Entwurf einsehen, diese aber nicht bearbeiten.
       </p>
       <h4 className="mb-4 mt-4 font-semibold">Teammitglied hinzufügen</h4>
       <p className="mb-8">

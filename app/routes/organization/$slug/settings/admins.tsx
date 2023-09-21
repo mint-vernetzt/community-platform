@@ -92,9 +92,18 @@ function Admins() {
   return (
     <>
       <h1 className="mb-8">Die Administrator:innen</h1>
-      <p className="mb-8">
+      <p className="mb-2">
         Wer verwaltet die Organisation auf der Community Plattform? Füge hier
         weitere Administrator:innen hinzu oder entferne sie.
+      </p>
+      <p className="mb-2">
+        Administrator:innen können Organisationen anlegen, bearbeiten, löschen,
+        sowie Team-Mitglieder hinzufügen. Sie sind nicht auf der
+        Organisations-Detailseite sichtbar.
+      </p>
+      <p className="mb-8">
+        Team-Mitglieder werden auf der Organisations-Detailseite gezeigt. Sie
+        können Organisationen nicht bearbeiten.
       </p>
       <h4 className="mb-4 mt-4 font-semibold">Administrator:in hinzufügen</h4>
       <p className="mb-8">
