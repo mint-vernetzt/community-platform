@@ -251,7 +251,7 @@ export const loader = async (args: LoaderArgs) => {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 162, height: 108 },
+          resize: { type: "fill", width: 144, height: 96 },
         });
       }
       blurredChildBackground = getImageURL(publicURL, {
@@ -1070,8 +1070,8 @@ function Index() {
                           to={`/event/${event.slug}`}
                           reloadDocument
                         >
-                          <div className="hidden xl:block w-40 shrink-0 aspect-[3/2]">
-                            <div className="w-full h-full relative">
+                          <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                            <div className="w-36 h-full relative">
                               <img
                                 src={
                                   event.blurredChildBackground ||
@@ -1092,7 +1092,7 @@ function Index() {
                               />
                             </div>
                           </div>
-                          <div className="px-4 py-6">
+                          <div className="px-4 py-4">
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
