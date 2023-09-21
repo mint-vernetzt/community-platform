@@ -9,6 +9,7 @@ import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
 import { prismaClient } from "~/prisma.server";
+import { useHydrated } from "remix-utils";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -95,6 +96,8 @@ function Events() {
     }
   }, [fetcher.data]);
 
+  const isHydrated = useHydrated();
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
@@ -119,6 +122,7 @@ function Events() {
                 <EventCard
                   key={event.id}
                   publicAccess={typeof loaderData.userId === "undefined"}
+                  isHydrated={isHydrated}
                   event={{
                     ...event,
                     startTime,

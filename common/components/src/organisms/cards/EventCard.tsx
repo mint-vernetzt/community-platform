@@ -16,6 +16,7 @@ import {
 export type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
+  isHydrated?: boolean;
   event: {
     name: string;
     slug: string;
@@ -27,6 +28,7 @@ export type EventCardProps = {
     published: boolean;
     canceled: boolean;
     background?: string | null;
+    blurredBackground?: string;
     participantLimit?: number | null;
     stage?: { title: string; slug: string } | null;
     _count: {
@@ -106,8 +108,15 @@ function EventCard(
 
   return (
     <Card to={`/event/${event.slug}`}>
-      <CardHeader>
-        {event.background && <CardImage src={event.background} />}
+      <CardHeader cardType="event">
+        {event.background && (
+          <CardImage
+            src={event.background}
+            blurSrc={event.blurredBackground}
+            isHydrated={props.isHydrated}
+            cardType="event"
+          />
+        )}
         {props.match !== undefined && (
           <CardStatus>{props.match}% Match</CardStatus>
         )}

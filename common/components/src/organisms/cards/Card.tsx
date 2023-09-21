@@ -48,6 +48,7 @@ export function Card(props: CardProps) {
 
 export type CardHeaderProps = {
   children?: React.ReactNode;
+  cardType?: "profile" | "organization" | "event" | "project";
 };
 
 export function CardHeader(props: CardHeaderProps) {
@@ -76,14 +77,26 @@ export function CardHeader(props: CardHeaderProps) {
 
   return (
     <>
-      <div className="mv-bg-positive mv-h-40 mv-overflow-hidden">
+      <div
+        className={`mv-bg-positive mv-w-full mv-overflow-hidden ${
+          props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
+        }`}
+      >
         {image !== undefined && (
-          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+          <div
+            className={`mv-absolute mv-w-full mv-overflow-hidden ${
+              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
+            }`}
+          >
             {image}
           </div>
         )}
         {status !== undefined && (
-          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+          <div
+            className={`mv-absolute mv-w-full mv-overflow-hidden ${
+              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
+            }`}
+          >
             {status}
           </div>
         )}
@@ -94,7 +107,11 @@ export function CardHeader(props: CardHeaderProps) {
         )}
 
         {infoOverlay !== undefined && (
-          <div className="mv-absolute mv-w-full mv-h-40 mv-overflow-hidden">
+          <div
+            className={`mv-absolute mv-w-full mv-overflow-hidden ${
+              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
+            }`}
+          >
             {infoOverlay}
           </div>
         )}
@@ -148,13 +165,54 @@ export function CardStatus(props: CardStatusProps) {
   return <div className={classes}>{props.children}</div>;
 }
 
-export function CardImage(props: { src: string }) {
+export function CardImage(props: {
+  src: string;
+  blurSrc?: string;
+  isHydrated?: boolean;
+  cardType?: "profile" | "organization" | "event" | "project";
+}) {
   return (
-    <img
-      src={props.src}
-      className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
-      alt=""
-    />
+    <>
+      {props.cardType === "event" ? (
+        <div className="mv-w-full mv-h-full mv-absolute">
+          {props.blurSrc ? (
+            <img
+              src={props.blurSrc}
+              alt="Rahmen des Hintergrundbildes"
+              className="mv-w-full mv-h-full mv-object-cover"
+            />
+          ) : null}
+          <img
+            src={props.src}
+            className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0
+                  ${
+                    props.isHydrated === undefined
+                      ? ""
+                      : props.isHydrated
+                      ? ""
+                      : "hidden"
+                  }
+                  `}
+            alt=""
+          />
+          {props.isHydrated !== undefined && (
+            <noscript>
+              <img
+                src={props.src}
+                className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0`}
+                alt=""
+              />
+            </noscript>
+          )}
+        </div>
+      ) : (
+        <img
+          src={props.src}
+          className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
+          alt=""
+        />
+      )}
+    </>
   );
 }
 
