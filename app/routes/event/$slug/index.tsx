@@ -562,6 +562,16 @@ function Index() {
                   ${isHydrated ? "" : "hidden"}
                   `}
                 />
+                <noscript>
+                  <img
+                    src={
+                      loaderData.event.background ||
+                      "/images/default-event-background.jpg"
+                    }
+                    alt={loaderData.event.name}
+                    className={`w-full h-full object-contain absolute inset-0`}
+                  />
+                </noscript>
               </div>
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
@@ -1090,6 +1100,16 @@ function Index() {
                                   isHydrated ? "" : "hidden"
                                 }`}
                               />
+                              <noscript>
+                                <img
+                                  src={
+                                    event.background ||
+                                    "/images/default-event-background.jpg"
+                                  }
+                                  alt={event.name}
+                                  className={`w-full h-full object-contain absolute inset-0`}
+                                />
+                              </noscript>
                             </div>
                           </div>
                           <div className="px-4 py-4">

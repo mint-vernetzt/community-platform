@@ -902,6 +902,16 @@ export default function Index() {
                                         isHydrated ? "" : "hidden"
                                       }`}
                                     />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          relation.event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={relation.event.name}
+                                        className={`w-full h-full object-contain absolute inset-0`}
+                                      />
+                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1054,6 +1064,16 @@ export default function Index() {
                                         isHydrated ? "" : "hidden"
                                       }`}
                                     />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          relation.event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={relation.event.name}
+                                        className={`w-full h-full object-contain absolute inset-0`}
+                                      />
+                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
