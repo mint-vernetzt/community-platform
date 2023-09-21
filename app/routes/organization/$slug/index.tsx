@@ -909,7 +909,7 @@ export default function Index() {
                                           "/images/default-event-background.jpg"
                                         }
                                         alt={relation.event.name}
-                                        className={`w-full h-full object-contain absolute inset-0`}
+                                        className={`w-full h-full object-cover absolute inset-0`}
                                       />
                                     </noscript>
                                   </div>
@@ -1071,7 +1071,7 @@ export default function Index() {
                                           "/images/default-event-background.jpg"
                                         }
                                         alt={relation.event.name}
-                                        className={`w-full h-full object-contain absolute inset-0`}
+                                        className={`w-full h-full object-cover absolute inset-0`}
                                       />
                                     </noscript>
                                   </div>
