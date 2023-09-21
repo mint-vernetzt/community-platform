@@ -1187,6 +1187,7 @@ function Index() {
                         ) : null}
                         {(event.published &&
                           !event.isParticipant &&
+                          loaderData.mode !== "admin" &&
                           !canUserParticipate(event) &&
                           !event.isOnWaitingList &&
                           !canUserBeAddedToWaitingList(event) &&
