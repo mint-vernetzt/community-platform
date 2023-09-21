@@ -72,8 +72,8 @@ export const loader = async ({ request }: LoaderArgs) => {
         blur: 5,
       });
     } else {
-      enhancedEvent.background = "/images/default-event-background-small.jpg";
-      blurredBackground = "/images/default-event-background-small-blurred.jpg";
+      enhancedEvent.background = "/images/default-event-background.jpg";
+      blurredBackground = "/images/default-event-background-blurred.jpg";
     }
 
     enhancedEvent.responsibleOrganizations =
