@@ -244,17 +244,22 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  enhancedEvent.childEvents = enhancedEvent.childEvents.map((relation) => {
+  const imageEnhancedChildEvents = enhancedEvent.childEvents.map((relation) => {
     let background = relation.background;
+    let blurredChildBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
+          resize: { type: "fill", width: 162, height: 108 },
         });
       }
+      blurredChildBackground = getImageURL(publicURL, {
+        resize: { type: "fill", width: 18, height: 12 },
+        blur: 5,
+      });
     }
-    return { ...relation, background };
+    return { ...relation, background, blurredChildBackground };
   });
 
   enhancedEvent.responsibleOrganizations =
@@ -271,14 +276,20 @@ export const loader = async (args: LoaderArgs) => {
       return { ...relation, organization: { ...relation.organization, logo } };
     });
 
+  const imageEnhancedEvent = {
+    ...enhancedEvent,
+    blurredBackground,
+    childEvents: imageEnhancedChildEvents,
+  };
+
   // Adding participation status
   const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
     sessionUser,
-    enhancedEvent.childEvents
+    imageEnhancedEvent.childEvents
   );
 
   const eventWithParticipationStatus = {
-    ...enhancedEvent,
+    ...imageEnhancedEvent,
     childEvents: enhancedChildEvents,
   };
 
@@ -336,7 +347,6 @@ export const loader = async (args: LoaderArgs) => {
     {
       mode,
       event: eventWithParticipationStatus,
-      blurredBackground,
       userId: sessionUser?.id || undefined,
       isParticipant,
       isOnWaitingList,
@@ -536,7 +546,7 @@ function Index() {
               <div className="w-full h-full relative">
                 <img
                   src={
-                    loaderData.blurredBackground ||
+                    loaderData.event.blurredBackground ||
                     "/images/default-event-background-blurred.jpg"
                   }
                   alt="Rahmen des Hintergrundbildes"
@@ -1060,15 +1070,27 @@ function Index() {
                           to={`/event/${event.slug}`}
                           reloadDocument
                         >
-                          <div className="hidden xl:block w-40 shrink-0">
-                            <img
-                              src={
-                                event.background ||
-                                "/images/default-event-background.jpg"
-                              }
-                              alt={event.name}
-                              className="object-cover w-full h-full"
-                            />
+                          <div className="hidden xl:block w-40 shrink-0 aspect-[3/2]">
+                            <div className="w-full h-full relative">
+                              <img
+                                src={
+                                  event.blurredChildBackground ||
+                                  "/images/default-event-background-blurred.jpg"
+                                }
+                                alt="Rahmen des Hintergrundbildes"
+                                className="w-full h-full object-cover"
+                              />
+                              <img
+                                src={
+                                  event.background ||
+                                  "/images/default-event-background.jpg"
+                                }
+                                alt={event.name}
+                                className={`w-full h-full object-cover absolute inset-0 ${
+                                  isHydrated ? "" : "hidden"
+                                }`}
+                              />
+                            </div>
                           </div>
                           <div className="px-4 py-6">
                             <p className="text-xs mb-1">
@@ -1102,11 +1124,11 @@ function Index() {
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
                                 {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}
