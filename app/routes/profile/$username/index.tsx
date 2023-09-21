@@ -7,7 +7,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound } from "remix-utils";
+import { notFound, useHydrated } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -313,6 +313,9 @@ export default function Index() {
   );
 
   const uploadRedirect = `/profile/${loaderData.data.username}`;
+
+  const isHydrated = useHydrated();
+
   return (
     <>
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
@@ -815,17 +818,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -859,11 +874,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -975,17 +990,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -1019,11 +1046,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1114,17 +1141,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -1158,11 +1197,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1258,17 +1297,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -1280,11 +1331,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1367,17 +1418,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -1389,11 +1452,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1457,17 +1520,29 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated ? "" : "hidden"
+                                      }`}
+                                    />
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
@@ -1479,11 +1554,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
