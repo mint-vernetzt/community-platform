@@ -96,7 +96,24 @@ export const loader = async (args: LoaderArgs) => {
 
   const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "admin" && rawEvent.published === false) {
+  // TODO: Could this be inserted in deriveEventMode? It defines a mode for the session user in this specific context.
+  let isParticipant;
+  let isOnWaitingList;
+  let isSpeaker;
+  let isTeamMember;
+  if (sessionUser !== null) {
+    isParticipant = await getIsParticipant(rawEvent.id, sessionUser.id);
+    isOnWaitingList = await getIsOnWaitingList(rawEvent.id, sessionUser.id);
+    isSpeaker = await getIsSpeaker(rawEvent.id, sessionUser.id);
+    isTeamMember = await getIsTeamMember(rawEvent.id, sessionUser.id);
+  } else {
+    isParticipant = false;
+    isOnWaitingList = false;
+    isSpeaker = false;
+    isTeamMember = false;
+  }
+
+  if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
     throw forbidden({ message: "Event not published" });
   }
 
@@ -276,34 +293,6 @@ export const loader = async (args: LoaderArgs) => {
     ...enhancedEvent,
     childEvents: enhancedChildEvents,
   };
-
-  let isParticipant;
-  let isOnWaitingList;
-  let isSpeaker;
-  let isTeamMember;
-  if (sessionUser !== null) {
-    isParticipant = await getIsParticipant(
-      eventWithParticipationStatus.id,
-      sessionUser.id
-    );
-    isOnWaitingList = await getIsOnWaitingList(
-      eventWithParticipationStatus.id,
-      sessionUser.id
-    );
-    isSpeaker = await getIsSpeaker(
-      eventWithParticipationStatus.id,
-      sessionUser.id
-    );
-    isTeamMember = await getIsTeamMember(
-      eventWithParticipationStatus.id,
-      sessionUser.id
-    );
-  } else {
-    isParticipant = false;
-    isOnWaitingList = false;
-    isSpeaker = false;
-    isTeamMember = false;
-  }
 
   // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
