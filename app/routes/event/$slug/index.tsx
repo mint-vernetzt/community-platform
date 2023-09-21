@@ -230,11 +230,16 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
+  let blurredBackground;
   if (enhancedEvent.background !== null) {
     const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480, enlarge: true },
+        resize: { type: "fit", width: 720, height: 480, enlarge: true },
+      });
+      blurredBackground = getImageURL(publicURL, {
+        resize: { type: "fit", width: 3, height: 2 },
+        blur: 0.5,
       });
     }
   }
@@ -331,6 +336,7 @@ export const loader = async (args: LoaderArgs) => {
     {
       mode,
       event: eventWithParticipationStatus,
+      blurredBackground,
       userId: sessionUser?.id || undefined,
       isParticipant,
       isOnWaitingList,
@@ -517,13 +523,22 @@ function Index() {
         <div className="md:rounded-3xl overflow-hidden w-full relative">
           <div className="hidden md:block">
             <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
-              <div className="w-full h-full">
+              <div className="w-full h-full relative">
+                <img
+                  src={
+                    loaderData.blurredBackground ||
+                    "/images/default-event-background.jpg"
+                  }
+                  alt="Rahmen des Hintergrundbildes"
+                  className="w-full h-full object-cover"
+                />
                 <img
                   src={
                     loaderData.event.background ||
                     "/images/default-event-background.jpg"
                   }
                   alt={loaderData.event.name}
+                  className="w-full h-full object-contain absolute inset-0"
                 />
               </div>
               {loaderData.mode === "admin" &&
@@ -543,10 +558,10 @@ function Index() {
                       id="modal-background-upload"
                       uploadKey="background"
                       image={loaderData.event.background || undefined}
-                      aspect={31 / 10}
-                      minCropWidth={620}
-                      minCropHeight={62}
-                      maxTargetWidth={1488}
+                      aspect={3 / 2}
+                      minCropWidth={72}
+                      minCropHeight={48}
+                      maxTargetWidth={720}
                       maxTargetHeight={480}
                       slug={loaderData.event.slug}
                       redirect={`/event/${loaderData.event.slug}`}
