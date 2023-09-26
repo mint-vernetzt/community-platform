@@ -165,7 +165,7 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   return (
-    <header id="header" className="z-20 shadow-md mb-8">
+    <header id="header" className="shadow-md mb-8">
       <div className="container relative">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
