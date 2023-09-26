@@ -1140,13 +1140,14 @@ function Index() {
                             />
                           </div>
                         ) : null}
-                        {(event.published &&
-                          !event.isParticipant &&
-                          !canUserParticipate(event) &&
-                          !event.isOnWaitingList &&
-                          !canUserBeAddedToWaitingList(event) &&
-                          !event.canceled) ||
-                        loaderData.userId === undefined ? (
+                        {event.published &&
+                        !event.isParticipant &&
+                        loaderData.mode !== "admin" &&
+                        !canUserParticipate(event) &&
+                        !event.isOnWaitingList &&
+                        !canUserBeAddedToWaitingList(event) &&
+                        !event.canceled &&
+                        loaderData.mode === "authenticated" ? (
                           <div className="flex items-center ml-auto pr-4 py-6">
                             <Link
                               to={`/event/${event.slug}`}
