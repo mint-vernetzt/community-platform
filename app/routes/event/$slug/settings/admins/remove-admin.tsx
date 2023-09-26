@@ -9,6 +9,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getEventBySlug, removeAdminFromEvent } from "./remove-admin.server";
+import { getIsTeamMember } from "../../utils.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -53,7 +54,8 @@ export const action = async (args: DataFunctionArgs) => {
   if (result.success === true) {
     await removeAdminFromEvent(event.id, result.data.profileId);
     if (sessionUser.id === result.data.profileId) {
-      if (event.published) {
+      const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
+      if (event.published || isTeamMember) {
         return redirect(`/event/${slug}`);
       } else {
         return redirect("/dashboard");

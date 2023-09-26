@@ -23,6 +23,9 @@ jest.mock("~/prisma.server", () => {
       adminOfEvent: {
         delete: jest.fn(),
       },
+      teamMemberOfEvent: {
+        findFirst: jest.fn(),
+      },
     },
   };
 });
@@ -156,6 +159,14 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
       },
     });
 
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return {
+        eventId: "some-event-id",
+      };
+    });
+
     const response = await action({
       request,
       context: {},
@@ -172,7 +183,7 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
     expect(response).toStrictEqual(redirect(`/event/some-event-slug`));
   });
 
-  test("remove event admin on unpublished event (self)", async () => {
+  test("remove event admin on unpublished event (self / not team member)", async () => {
     expect.assertions(2);
 
     const request = createRequestWithFormData({
@@ -193,6 +204,12 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
       },
     });
 
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return null;
+    });
+
     const response = await action({
       request,
       context: {},
@@ -207,6 +224,51 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
       },
     });
     expect(response).toStrictEqual(redirect(`/dashboard`));
+  });
+
+  test("remove event admin on unpublished event (self / team member)", async () => {
+    expect.assertions(2);
+
+    const request = createRequestWithFormData({
+      profileId: "some-user-id",
+    });
+
+    getSessionUserOrThrow.mockResolvedValueOnce({ id: "some-user-id" } as User);
+
+    (prismaClient.event.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+    });
+
+    (prismaClient.event.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: "some-event-id",
+      published: false,
+      _count: {
+        admins: 2,
+      },
+    });
+
+    (
+      prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+    ).mockImplementationOnce(() => {
+      return {
+        eventId: "some-event-id",
+      };
+    });
+
+    const response = await action({
+      request,
+      context: {},
+      params: { slug: "some-event-slug" },
+    });
+    expect(prismaClient.adminOfEvent.delete).toHaveBeenLastCalledWith({
+      where: {
+        profileId_eventId: {
+          eventId: "some-event-id",
+          profileId: "some-user-id",
+        },
+      },
+    });
+    expect(response).toStrictEqual(redirect(`/event/some-event-slug`));
   });
 
   test("remove event admin (other user)", async () => {

@@ -470,6 +470,30 @@ describe("/event/$slug", () => {
         return null;
       });
 
+      (
+        prismaClient.participantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.waitingParticipantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.speakerOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
       const request = new Request(testURL);
       try {
         await loader({ request, context: {}, params: { slug } });
@@ -817,6 +841,30 @@ describe("/event/$slug", () => {
         return null;
       });
 
+      (
+        prismaClient.participantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.waitingParticipantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.speakerOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
+      });
+
       (prismaClient.$queryRaw as jest.Mock).mockImplementationOnce(() => {
         return [
           {
@@ -843,6 +891,16 @@ describe("/event/$slug", () => {
             academicTitle: "full-depth-participant-academic-title",
           },
         ];
+      });
+
+      (prismaClient.event.findFirst as jest.Mock).mockImplementationOnce(() => {
+        return null;
+      });
+
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return null;
       });
 
       getImageURL.mockImplementationOnce(
@@ -899,30 +957,6 @@ describe("/event/$slug", () => {
             eventId: "another-event-id",
           },
         ];
-      });
-
-      (
-        prismaClient.participantOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      (
-        prismaClient.waitingParticipantOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      (
-        prismaClient.speakerOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
-      });
-
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return null;
       });
 
       const request = new Request(testURL);
@@ -1039,6 +1073,38 @@ describe("/event/$slug", () => {
         };
       });
 
+      (
+        prismaClient.participantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return {
+          eventId: "some-event-id",
+        };
+      });
+
+      (
+        prismaClient.waitingParticipantOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return {
+          eventId: "some-event-id",
+        };
+      });
+
+      (
+        prismaClient.speakerOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return {
+          eventId: "some-event-id",
+        };
+      });
+
+      (
+        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
+      ).mockImplementationOnce(() => {
+        return {
+          eventId: "some-event-id",
+        };
+      });
+
       (prismaClient.$queryRaw as jest.Mock).mockImplementationOnce(() => {
         return [
           {
@@ -1105,38 +1171,6 @@ describe("/event/$slug", () => {
             eventId: "some-child-id",
           },
         ];
-      });
-
-      (
-        prismaClient.participantOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return {
-          eventId: "some-event-id",
-        };
-      });
-
-      (
-        prismaClient.waitingParticipantOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return {
-          eventId: "some-event-id",
-        };
-      });
-
-      (
-        prismaClient.speakerOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return {
-          eventId: "some-event-id",
-        };
-      });
-
-      (
-        prismaClient.teamMemberOfEvent.findFirst as jest.Mock
-      ).mockImplementationOnce(() => {
-        return {
-          eventId: "some-event-id",
-        };
       });
 
       const request = new Request(testURL);

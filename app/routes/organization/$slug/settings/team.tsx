@@ -84,9 +84,13 @@ function Index() {
   return (
     <>
       <h1 className="mb-8">Das Team</h1>
-      <p className="mb-8">
+      <p className="mb-2">
         Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
         oder entferne sie.
+      </p>
+      <p className="mb-8">
+        Team-Mitglieder werden auf der Organisations-Detailseite gezeigt. Sie
+        können Organisationen nicht bearbeiten.
       </p>
       <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
       <p className="mb-8">
