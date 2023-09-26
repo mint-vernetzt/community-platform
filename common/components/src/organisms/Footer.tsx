@@ -16,7 +16,7 @@ function Footer() {
         className="mv-peer         
         mv-absolute mv-inset-x-0
         mv-opacity-0 lg:mv-hidden mv-cursor-pointer 
-        mv-h-[37px] mv-w-full
+        mv-z-10 mv-h-[37px] mv-w-full
         "
       />
       <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 lg:mv-hidden mv-z-0 mv-relative ">
