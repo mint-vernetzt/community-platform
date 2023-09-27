@@ -7,7 +7,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound } from "remix-utils";
+import { notFound, useHydrated } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -370,6 +370,8 @@ export default function Index() {
   );
 
   const uploadRedirect = `/organization/${loaderData.organization.slug}`;
+
+  const isHydrated = useHydrated();
 
   return (
     <>
@@ -880,17 +882,41 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      relation.event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={relation.event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        relation.event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        relation.event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={relation.event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
+                                      }`}
+                                    />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          relation.event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={relation.event.name}
+                                        className={`w-full h-full object-cover absolute inset-0`}
+                                      />
+                                    </noscript>
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {relation.event.stage !== null
@@ -1020,17 +1046,41 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-40 shrink-0">
-                                  <img
-                                    src={
-                                      relation.event.background ||
-                                      "/images/default-event-background.jpg"
-                                    }
-                                    alt={relation.event.name}
-                                    className="object-cover w-full h-full"
-                                  />
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        relation.event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt="Rahmen des Hintergrundbildes"
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        relation.event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={relation.event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
+                                      }`}
+                                    />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          relation.event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={relation.event.name}
+                                        className={`w-full h-full object-cover absolute inset-0`}
+                                      />
+                                    </noscript>
+                                  </div>
                                 </div>
-                                <div className="px-4 py-6">
+                                <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {relation.event.stage !== null
@@ -1042,11 +1092,11 @@ export default function Index() {
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-2">
+                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}

@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
 import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
+import type { ArrayElement } from "~/lib/utils/types";
 
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   const result = await prismaClient.eventVisibility.findFirst({
@@ -406,10 +407,14 @@ export async function getEventSpeakers(currentEventId: string) {
 
 export async function enhanceChildEventsWithParticipationStatus(
   sessionUser: User | null,
-  childEvents: Pick<
-    NonNullable<Awaited<ReturnType<typeof getEvent>>>,
-    "childEvents"
-  >["childEvents"]
+  childEvents: Array<
+    ArrayElement<
+      Pick<
+        NonNullable<Awaited<ReturnType<typeof getEvent>>>,
+        "childEvents"
+      >["childEvents"]
+    > & { blurredChildBackground: string | undefined }
+  >
 ) {
   if (sessionUser === null) {
     const enhancedChildEvents = childEvents.map((childEvent) => {

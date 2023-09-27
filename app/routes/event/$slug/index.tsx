@@ -7,7 +7,7 @@ import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
-import { forbidden, notFound } from "remix-utils";
+import { forbidden, notFound, useHydrated } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
@@ -260,26 +260,36 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
+  let blurredBackground;
   if (enhancedEvent.background !== null) {
     const publicURL = getPublicURL(authClient, enhancedEvent.background);
     if (publicURL) {
       enhancedEvent.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480, enlarge: true },
+        resize: { type: "fill", width: 720, height: 480, enlarge: true },
+      });
+      blurredBackground = getImageURL(publicURL, {
+        resize: { type: "fill", width: 72, height: 48 },
+        blur: 5,
       });
     }
   }
 
-  enhancedEvent.childEvents = enhancedEvent.childEvents.map((relation) => {
+  const imageEnhancedChildEvents = enhancedEvent.childEvents.map((relation) => {
     let background = relation.background;
+    let blurredChildBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
+          resize: { type: "fill", width: 144, height: 96 },
         });
       }
+      blurredChildBackground = getImageURL(publicURL, {
+        resize: { type: "fill", width: 18, height: 12 },
+        blur: 5,
+      });
     }
-    return { ...relation, background };
+    return { ...relation, background, blurredChildBackground };
   });
 
   enhancedEvent.responsibleOrganizations =
@@ -296,14 +306,20 @@ export const loader = async (args: LoaderArgs) => {
       return { ...relation, organization: { ...relation.organization, logo } };
     });
 
+  const imageEnhancedEvent = {
+    ...enhancedEvent,
+    blurredBackground,
+    childEvents: imageEnhancedChildEvents,
+  };
+
   // Adding participation status
   const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
     sessionUser,
-    enhancedEvent.childEvents
+    imageEnhancedEvent.childEvents
   );
 
   const eventWithParticipationStatus = {
-    ...enhancedEvent,
+    ...imageEnhancedEvent,
     childEvents: enhancedChildEvents,
   };
 
@@ -449,16 +465,26 @@ function Index() {
   const background = loaderData.event.background;
   const Background = React.useCallback(
     () => (
-      <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
+      <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
         {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+          <img
+            src={background}
+            alt={`Aktuelles Hintergrundbild`}
+            className="w-full h-full"
+          />
         ) : (
-          <div className="w-[336px] min-h-[108px]" />
+          <img
+            src={"/images/default-event-background.jpg"}
+            alt={`Aktuelles Hintergrundbild`}
+            className="w-full h-full"
+          />
         )}
       </div>
     ),
     [background]
   );
+
+  const isHydrated = useHydrated();
 
   return (
     <>
@@ -518,15 +544,39 @@ function Index() {
       <section className="container mt-6">
         <div className="md:rounded-3xl overflow-hidden w-full relative">
           <div className="hidden md:block">
-            <div className="relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
-              <div className="w-full h-full">
+            <div className="relative overflow-hidden w-full aspect-[31/10]">
+              <div className="w-full h-full relative">
                 <img
+                  src={
+                    loaderData.event.blurredBackground ||
+                    "/images/default-event-background-blurred.jpg"
+                  }
+                  alt="Rahmen des Hintergrundbildes"
+                  className="w-full h-full object-cover"
+                />
+                <img
+                  id="background"
                   src={
                     loaderData.event.background ||
                     "/images/default-event-background.jpg"
                   }
                   alt={loaderData.event.name}
+                  className={`w-full h-full object-contain absolute inset-0 ${
+                    isHydrated
+                      ? "opacity-100 transition-opacity duration-200 ease-in"
+                      : "opacity-0 invisible"
+                  }`}
                 />
+                <noscript>
+                  <img
+                    src={
+                      loaderData.event.background ||
+                      "/images/default-event-background.jpg"
+                    }
+                    alt={loaderData.event.name}
+                    className={`w-full h-full object-contain absolute inset-0`}
+                  />
+                </noscript>
               </div>
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
@@ -545,10 +595,10 @@ function Index() {
                       id="modal-background-upload"
                       uploadKey="background"
                       image={loaderData.event.background || undefined}
-                      aspect={31 / 10}
-                      minCropWidth={620}
-                      minCropHeight={62}
-                      maxTargetWidth={1488}
+                      aspect={3 / 2}
+                      minCropWidth={72}
+                      minCropHeight={48}
+                      maxTargetWidth={720}
                       maxTargetHeight={480}
                       slug={loaderData.event.slug}
                       redirect={`/event/${loaderData.event.slug}`}
@@ -1035,17 +1085,41 @@ function Index() {
                           to={`/event/${event.slug}`}
                           reloadDocument
                         >
-                          <div className="hidden xl:block w-40 shrink-0">
-                            <img
-                              src={
-                                event.background ||
-                                "/images/default-event-background.jpg"
-                              }
-                              alt={event.name}
-                              className="object-cover w-full h-full"
-                            />
+                          <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                            <div className="w-36 h-full relative">
+                              <img
+                                src={
+                                  event.blurredChildBackground ||
+                                  "/images/default-event-background-blurred.jpg"
+                                }
+                                alt="Rahmen des Hintergrundbildes"
+                                className="w-full h-full object-cover"
+                              />
+                              <img
+                                src={
+                                  event.background ||
+                                  "/images/default-event-background.jpg"
+                                }
+                                alt={event.name}
+                                className={`w-full h-full object-cover absolute inset-0 ${
+                                  isHydrated
+                                    ? "opacity-100 transition-opacity duration-200 ease-in"
+                                    : "opacity-0 invisible"
+                                }`}
+                              />
+                              <noscript>
+                                <img
+                                  src={
+                                    event.background ||
+                                    "/images/default-event-background.jpg"
+                                  }
+                                  alt={event.name}
+                                  className={`w-full h-full object-cover absolute inset-0`}
+                                />
+                              </noscript>
+                            </div>
                           </div>
-                          <div className="px-4 py-6">
+                          <div className="px-4 py-4">
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
@@ -1077,11 +1151,11 @@ function Index() {
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
                                 {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}

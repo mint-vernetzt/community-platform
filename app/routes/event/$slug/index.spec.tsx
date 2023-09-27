@@ -915,7 +915,15 @@ describe("/event/$slug", () => {
 
       getImageURL.mockImplementationOnce(() => "event-background-image-url");
 
+      getImageURL.mockImplementationOnce(
+        () => "event-background-blurred-image-url"
+      );
+
       getImageURL.mockImplementationOnce(() => "child-background-image-url");
+
+      getImageURL.mockImplementationOnce(
+        () => "child-background-blurred-image-url"
+      );
 
       getImageURL.mockImplementationOnce(() => "organization-logo-image-url");
 
@@ -978,6 +986,7 @@ describe("/event/$slug", () => {
             participationUntil: "2022-09-19T07:00:00.000Z",
             published: true,
             background: "child-background-image-url",
+            blurredChildBackground: "child-background-blurred-image-url",
             isTeamMember: false,
             isOnWaitingList: false,
             isParticipant: false,
@@ -987,6 +996,7 @@ describe("/event/$slug", () => {
         conferenceLink: null,
         conferenceCode: null,
         background: "event-background-image-url",
+        blurredBackground: "event-background-blurred-image-url",
         startTime: "2022-09-19T07:00:00.000Z",
         endTime: "2022-09-19T07:00:00.000Z",
         participationFrom: "2022-09-19T07:00:00.000Z",

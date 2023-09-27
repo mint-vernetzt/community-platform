@@ -867,11 +867,27 @@ describe("loader", () => {
 
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
 
-    getImageURL.mockImplementationOnce(() => "event-background-image-url");
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
 
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
 
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
+
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
+
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
+
+    getImageURL.mockImplementationOnce(() => "event-background-image-url");
+
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
 
     (
       prismaClient.participantOfEvent.findFirst as jest.Mock
@@ -947,11 +963,27 @@ describe("loader", () => {
 
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
 
-    getImageURL.mockImplementationOnce(() => "event-background-image-url");
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
 
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
 
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
+
     getImageURL.mockImplementationOnce(() => "event-background-image-url");
+
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
+
+    getImageURL.mockImplementationOnce(() => "event-background-image-url");
+
+    getImageURL.mockImplementationOnce(
+      () => "event-background-blurred-image-url"
+    );
 
     (
       prismaClient.participantOfEvent.findFirst as jest.Mock
@@ -1037,6 +1069,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.teamMemberOfEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1053,6 +1086,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.participatedEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1067,6 +1101,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.waitingForEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1083,6 +1118,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.contributedEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1102,6 +1138,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.teamMemberOfEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1118,6 +1155,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.participatedEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1132,6 +1170,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.waitingForEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,
@@ -1148,6 +1187,7 @@ describe("loader", () => {
           event: {
             ...profileEvents.contributedEvents[0].event,
             background: "event-background-image-url",
+            blurredBackground: "event-background-blurred-image-url",
             isParticipant: true,
             isOnWaitingList: true,
             isTeamMember: true,

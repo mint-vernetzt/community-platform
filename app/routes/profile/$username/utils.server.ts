@@ -470,80 +470,122 @@ export async function prepareProfileEvents(
   }
 
   // Get images from image proxy
-  enhancedProfile.teamMemberOfEvents = enhancedProfile.teamMemberOfEvents.map(
+  const imageEnhancedTeamMemberEvents = enhancedProfile.teamMemberOfEvents.map(
     (relation) => {
       let background = relation.event.background;
+      let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {
           background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+            resize: { type: "fill", width: 144, height: 96 },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: { type: "fill", width: 18, height: 12 },
+            blur: 5,
           });
         }
       }
-      return { ...relation, event: { ...relation.event, background } };
+      return {
+        ...relation,
+        event: { ...relation.event, background, blurredBackground },
+      };
     }
   );
 
-  enhancedProfile.contributedEvents = enhancedProfile.contributedEvents.map(
+  const imageEnhancedContributedEvents = enhancedProfile.contributedEvents.map(
     (relation) => {
       let background = relation.event.background;
+      let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {
           background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+            resize: { type: "fill", width: 144, height: 96 },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: { type: "fill", width: 18, height: 12 },
+            blur: 5,
           });
         }
       }
-      return { ...relation, event: { ...relation.event, background } };
+      return {
+        ...relation,
+        event: { ...relation.event, background, blurredBackground },
+      };
     }
   );
 
-  enhancedProfile.participatedEvents = enhancedProfile.participatedEvents.map(
-    (relation) => {
+  const imageEnhancedParticipatedEvents =
+    enhancedProfile.participatedEvents.map((relation) => {
       let background = relation.event.background;
+      let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {
           background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+            resize: { type: "fill", width: 144, height: 96 },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: { type: "fill", width: 18, height: 12 },
+            blur: 5,
           });
         }
       }
-      return { ...relation, event: { ...relation.event, background } };
+      return {
+        ...relation,
+        event: { ...relation.event, background, blurredBackground },
+      };
+    });
+
+  const imageEnhancedWaitingEvents = enhancedProfile.waitingForEvents.map(
+    (relation) => {
+      let background = relation.event.background;
+      let blurredBackground;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fill", width: 144, height: 96 },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: { type: "fill", width: 18, height: 12 },
+            blur: 5,
+          });
+        }
+      }
+      return {
+        ...relation,
+        event: { ...relation.event, background, blurredBackground },
+      };
     }
   );
 
-  enhancedProfile.waitingForEvents = enhancedProfile.waitingForEvents.map(
-    (relation) => {
-      let background = relation.event.background;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL) {
-          background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
-          });
-        }
-      }
-      return { ...relation, event: { ...relation.event, background } };
-    }
-  );
+  const imageEnhancedProfile = {
+    ...enhancedProfile,
+    teamMemberOfEvents: imageEnhancedTeamMemberEvents,
+    contributedEvents: imageEnhancedContributedEvents,
+    participatedEvents: imageEnhancedParticipatedEvents,
+    waitingForEvents: imageEnhancedWaitingEvents,
+  };
 
   const combinedParticipatedAndWaitingForEvents =
     combineEventsSortChronologically<
-      typeof enhancedProfile.participatedEvents,
-      typeof enhancedProfile.waitingForEvents
-    >(enhancedProfile.participatedEvents, enhancedProfile.waitingForEvents);
+      typeof imageEnhancedProfile.participatedEvents,
+      typeof imageEnhancedProfile.waitingForEvents
+    >(
+      imageEnhancedProfile.participatedEvents,
+      imageEnhancedProfile.waitingForEvents
+    );
 
   const enhancedProfileWithParticipationStatus = {
-    ...enhancedProfile,
+    ...imageEnhancedProfile,
     teamMemberOfEvents: await addUserParticipationStatus<
-      typeof enhancedProfile.teamMemberOfEvents
-    >(enhancedProfile.teamMemberOfEvents, sessionUser?.id),
+      typeof imageEnhancedProfile.teamMemberOfEvents
+    >(imageEnhancedProfile.teamMemberOfEvents, sessionUser?.id),
     contributedEvents: await addUserParticipationStatus<
-      typeof enhancedProfile.contributedEvents
-    >(enhancedProfile.contributedEvents, sessionUser?.id),
+      typeof imageEnhancedProfile.contributedEvents
+    >(imageEnhancedProfile.contributedEvents, sessionUser?.id),
     participatedEvents: await addUserParticipationStatus<
       typeof combinedParticipatedAndWaitingForEvents
     >(combinedParticipatedAndWaitingForEvents, sessionUser?.id),

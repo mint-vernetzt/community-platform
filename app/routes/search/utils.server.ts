@@ -6,6 +6,7 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
+import { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 
 // **************
@@ -1824,7 +1825,11 @@ function getProjectWhereQueries(
 
 export async function enhanceEventsWithParticipationStatus(
   sessionUser: User | null,
-  events: Awaited<ReturnType<typeof searchEventsViaLike>>
+  events: Array<
+    ArrayElement<Awaited<ReturnType<typeof searchEventsViaLike>>> & {
+      blurredBackground: string | undefined;
+    }
+  >
 ) {
   if (sessionUser === null) {
     const enhancedEvents = events.map((item) => {

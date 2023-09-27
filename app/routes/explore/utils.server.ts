@@ -4,6 +4,7 @@ import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
 import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
+import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
@@ -392,7 +393,11 @@ export async function getEvents(
 
 export async function enhanceEventsWithParticipationStatus(
   sessionUser: User | null,
-  events: Awaited<ReturnType<typeof getEvents>>
+  events: Array<
+    ArrayElement<Awaited<ReturnType<typeof getEvents>>> & {
+      blurredBackground: string | undefined;
+    }
+  >
 ) {
   if (sessionUser === null) {
     const enhancedEvents = events.map((item) => {
@@ -506,15 +511,21 @@ export async function prepareEvents(
     }
 
     // Add images from image proxy
+    let blurredBackground;
     if (enhancedEvent.background !== null) {
       const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
         enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
+          resize: { type: "fill", width: 594, height: 396 },
         });
       }
+      blurredBackground = getImageURL(publicURL, {
+        resize: { type: "fill", width: 18, height: 12 },
+        blur: 5,
+      });
     } else {
-      enhancedEvent.background = "/images/default-event-background-small.jpg";
+      enhancedEvent.background = "/images/default-event-background.jpg";
+      blurredBackground = "/images/default-event-background-blurred.jpg";
     }
 
     enhancedEvent.responsibleOrganizations =
@@ -535,7 +546,12 @@ export async function prepareEvents(
         };
       });
 
-    enhancedEvents.push(enhancedEvent);
+    const imageEnhancedEvent = {
+      ...enhancedEvent,
+      blurredBackground,
+    };
+
+    enhancedEvents.push(imageEnhancedEvent);
   }
 
   const enhancedEventsWithParticipationStatus =

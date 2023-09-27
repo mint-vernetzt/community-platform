@@ -284,25 +284,39 @@ export async function prepareOrganizationEvents(
   }
 
   // Get images from image proxy
-  enhancedOrganization.responsibleForEvents =
-    enhancedOrganization.responsibleForEvents.map((relation) => {
+  const imageEnhancedEvents = enhancedOrganization.responsibleForEvents.map(
+    (relation) => {
       let background = relation.event.background;
+      let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {
           background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+            resize: { type: "fill", width: 144, height: 96 },
           });
         }
+        blurredBackground = getImageURL(publicURL, {
+          resize: { type: "fill", width: 18, height: 12 },
+          blur: 5,
+        });
       }
-      return { ...relation, event: { ...relation.event, background } };
-    });
+      return {
+        ...relation,
+        event: { ...relation.event, background, blurredBackground },
+      };
+    }
+  );
+
+  const imageEnhancedOrganization = {
+    ...enhancedOrganization,
+    responsibleForEvents: imageEnhancedEvents,
+  };
 
   const enhancedOrganizationWithParticipationStatus = {
-    ...enhancedOrganization,
+    ...imageEnhancedOrganization,
     responsibleForEvents: await addUserParticipationStatus<
-      typeof enhancedOrganization.responsibleForEvents
-    >(enhancedOrganization.responsibleForEvents, sessionUser?.id),
+      typeof imageEnhancedOrganization.responsibleForEvents
+    >(imageEnhancedOrganization.responsibleForEvents, sessionUser?.id),
   };
 
   return enhancedOrganizationWithParticipationStatus;

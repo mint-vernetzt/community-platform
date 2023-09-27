@@ -18,6 +18,7 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
+import { useHydrated } from "remix-utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -58,15 +59,21 @@ export const loader = async ({ request }: LoaderArgs) => {
     }
 
     // Add images from image proxy
+    let blurredBackground;
     if (enhancedEvent.background !== null) {
       const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
         enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
+          resize: { type: "fill", width: 594, height: 396 },
         });
       }
+      blurredBackground = getImageURL(publicURL, {
+        resize: { type: "fill", width: 18, height: 12 },
+        blur: 5,
+      });
     } else {
-      enhancedEvent.background = "/images/default-event-background-small.jpg";
+      enhancedEvent.background = "/images/default-event-background.jpg";
+      blurredBackground = "/images/default-event-background-blurred.jpg";
     }
 
     enhancedEvent.responsibleOrganizations =
@@ -87,7 +94,12 @@ export const loader = async ({ request }: LoaderArgs) => {
         };
       });
 
-    enhancedEvents.push(enhancedEvent);
+    const imageEnhancedEvent = {
+      ...enhancedEvent,
+      blurredBackground,
+    };
+
+    enhancedEvents.push(imageEnhancedEvent);
   }
 
   const enhancedEventsWithParticipationStatus =
@@ -148,6 +160,8 @@ export default function SearchView() {
 
   const query = searchParams.get("query") ?? "";
 
+  const isHydrated = useHydrated();
+
   return (
     <>
       {items.length > 0 ? (
@@ -172,6 +186,7 @@ export default function SearchView() {
                     <EventCard
                       key={event.id}
                       publicAccess={typeof loaderData.userId === "undefined"}
+                      isHydrated={isHydrated}
                       event={{
                         ...event,
                         startTime,
