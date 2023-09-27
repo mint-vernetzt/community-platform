@@ -19,6 +19,7 @@ import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
+import { utcToZonedTime } from "date-fns-tz";
 
 const schema = z.object({
   profileId: z.string(),
@@ -73,6 +74,7 @@ export const action = async (args: DataFunctionArgs) => {
     // -> mail of person which was moved to waitinglist
     const recipient = profile.email;
     const subject = `Deine Teilnahme an der Veranstaltung ${event.name}`;
+    const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
     const content = {
       recipient: {
         firstName: profile.firstName,
@@ -81,13 +83,13 @@ export const action = async (args: DataFunctionArgs) => {
       event: {
         name: event.name,
         url: `${baseUrl}/event/${event.slug}`,
-        startDate: `${event.startTime.getDate()}.${
-          event.startTime.getMonth() + 1
-        }.${event.startTime.getFullYear()}`,
-        startTime: `${event.startTime.getHours()}:${
-          event.startTime.getMinutes() < 10
-            ? `0${event.startTime.getMinutes()}`
-            : event.startTime.getMinutes()
+        startDate: `${startTime.getDate()}.${
+          startTime.getMonth() + 1
+        }.${startTime.getFullYear()}`,
+        startTime: `${startTime.getHours()}:${
+          startTime.getMinutes() < 10
+            ? `0${startTime.getMinutes()}`
+            : startTime.getMinutes()
         }`,
         supportContact: {
           firstName:
