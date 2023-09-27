@@ -464,9 +464,14 @@ export default function App() {
 
       <body>
         <div className="flex flex-col min-h-screen">
-          {isNonAppBaseRoute ? null : (
+          {isNonAppBaseRoute || isIndexRoute ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
+          {isIndexRoute ? (
+            <div className="z-10">
+              <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
+            </div>
+          ) : null}
           <main className="flex-auto relative pb-24 md:pb-8">
             {typeof alert !== "undefined" &&
             isNonAppBaseRoute === false &&
