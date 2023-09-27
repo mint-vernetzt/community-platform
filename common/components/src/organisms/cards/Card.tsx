@@ -189,8 +189,8 @@ export function CardImage(props: {
                     props.isHydrated === undefined
                       ? ""
                       : props.isHydrated
-                      ? ""
-                      : "hidden"
+                      ? "opacity-100 transition-opacity duration-200 ease-in"
+                      : "opacity-0 invisible"
                   }
                   `}
             alt=""

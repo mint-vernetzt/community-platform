@@ -899,7 +899,9 @@ export default function Index() {
                                       }
                                       alt={relation.event.name}
                                       className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated ? "" : "hidden"
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
                                       }`}
                                     />
                                     <noscript>
@@ -1061,7 +1063,9 @@ export default function Index() {
                                       }
                                       alt={relation.event.name}
                                       className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated ? "" : "hidden"
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
                                       }`}
                                     />
                                     <noscript>

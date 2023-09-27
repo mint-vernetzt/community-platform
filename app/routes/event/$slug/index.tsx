@@ -555,14 +555,17 @@ function Index() {
                   className="w-full h-full object-cover"
                 />
                 <img
+                  id="background"
                   src={
                     loaderData.event.background ||
                     "/images/default-event-background.jpg"
                   }
                   alt={loaderData.event.name}
-                  className={`w-full h-full object-contain absolute inset-0 
-                  ${isHydrated ? "" : "hidden"}
-                  `}
+                  className={`w-full h-full object-contain absolute inset-0 ${
+                    isHydrated
+                      ? "opacity-100 transition-opacity duration-200 ease-in"
+                      : "opacity-0 invisible"
+                  }`}
                 />
                 <noscript>
                   <img
@@ -1099,7 +1102,9 @@ function Index() {
                                 }
                                 alt={event.name}
                                 className={`w-full h-full object-cover absolute inset-0 ${
-                                  isHydrated ? "" : "hidden"
+                                  isHydrated
+                                    ? "opacity-100 transition-opacity duration-200 ease-in"
+                                    : "opacity-0 invisible"
                                 }`}
                               />
                               <noscript>
