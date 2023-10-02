@@ -53,6 +53,14 @@ function Index() {
                   </li>
                   <li>
                     <NavLink
+                      to="notifications"
+                      className={({ isActive }) => getClassName(isActive)}
+                    >
+                      Benachrichtigungen
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
                       to="security"
                       className={({ isActive }) => getClassName(isActive)}
                     >
