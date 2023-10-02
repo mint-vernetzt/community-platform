@@ -51,6 +51,7 @@ model Profile {
   administeredEvents        AdminOfEvent[]
   administeredOrganizations AdminOfOrganization[]
   administeredProjects      AdminOfProject[]
+  notificationSettings      NotificationSettings?
 
   @@map("profiles")
 }
@@ -97,8 +98,18 @@ model ProfileVisibility {
   administeredOrganizations Boolean @default(false)
   administeredEvents        Boolean @default(false)
   administeredProjects      Boolean @default(false)
+  notificationSettings      Boolean @default(false) @map("notfication_settings")
 
   @@map("profile_visibilities")
+}
+
+model NotificationSettings {
+  id        String  @id @default(uuid())
+  updates   Boolean @default(true)
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String  @unique
+
+  @@map("notification_settings")
 }
 
 model AreasOnProfiles {
