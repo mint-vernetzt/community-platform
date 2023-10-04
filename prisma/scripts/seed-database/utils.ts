@@ -5787,6 +5787,8 @@ export async function seedAllEntities(
     `Successfully seeded unicode project with id: ${unicodeProjectId}`
   );
 
+  await prismaClient.$disconnect();
+
   return profileEmails;
 }
 

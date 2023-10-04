@@ -109,17 +109,17 @@ export async function importDataset(
 
   const entriesToUpdate = dataToBeUpdated(datasets, existingEntries);
   if (entriesToUpdate.length > 0) {
-    entriesToUpdate.forEach(async ({ id, ...rest }) => {
+    for (const entry of entriesToUpdate) {
       // @ts-ignore
       await prismaClient[tableName].update({
         where: {
-          id,
+          id: entry.id,
         },
         data: {
-          ...rest,
+          ...entry,
         },
       });
-    });
+    }
 
     console.log(`updated: "${tableName}s"`, entriesToUpdate);
   }
