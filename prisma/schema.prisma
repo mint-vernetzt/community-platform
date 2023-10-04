@@ -658,6 +658,7 @@ model Project {
   xing                     String?
   createdAt                DateTime                           @default(now()) @map("created_at")
   updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
+  published                Boolean                            @default(false)
   city                     String?
   awards                   AwardOfProject[]
   disciplines              DisciplineOfProject[]
@@ -695,6 +696,7 @@ model ProjectVisibility {
   xing                     Boolean @default(true)
   createdAt                Boolean @default(true) @map("created_at")
   updatedAt                Boolean @default(true) @map("updated_at")
+  published                Boolean @default(true)
   city                     Boolean @default(true)
   awards                   Boolean @default(true)
   disciplines              Boolean @default(true)
