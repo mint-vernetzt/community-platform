@@ -28,6 +28,7 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../utils.server";
 import { getProjectBySlugOrThrow } from "./utils.server";
+import { notFound } from "remix-utils";
 
 export function links() {
   return [
@@ -104,8 +105,11 @@ export const loader = async (args: LoaderArgs) => {
     ...project,
   };
 
-  // Filtering by visbility settings
+  if (mode === "anon" && project.published === false) {
+    throw notFound("Project not found");
+  }
   if (mode === "anon") {
+    // Filtering by visbility settings
     // Filter project
     enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
       enhancedProject

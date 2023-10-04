@@ -55,6 +55,11 @@ export async function getProfileByUsername(username: string) {
         },
       },
       teamMemberOfProjects: {
+        where: {
+          project: {
+            published: true,
+          },
+        },
         select: {
           project: {
             select: {

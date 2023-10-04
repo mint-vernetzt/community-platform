@@ -1440,7 +1440,7 @@ export async function searchProjectsViaLike(
       },
     },
     where: {
-      AND: whereQueries,
+      AND: [...whereQueries, { published: true }],
     },
     skip: skip,
     take: take,
@@ -1461,7 +1461,7 @@ export async function countSearchedProjects(
   const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
   const projectCount = await prismaClient.project.count({
     where: {
-      AND: whereQueries,
+      AND: [...whereQueries, { published: true }],
     },
   });
   return projectCount;

@@ -26,6 +26,7 @@ export async function getProjectBySlug(slug: string) {
       headline: true,
       excerpt: true,
       description: true,
+      published: true,
       targetGroups: {
         select: {
           targetGroupId: true,

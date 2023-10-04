@@ -139,6 +139,11 @@ export async function getOrganizationBySlug(slug: string) {
         },
       },
       responsibleForProject: {
+        where: {
+          project: {
+            published: true,
+          },
+        },
         select: {
           project: {
             select: {
