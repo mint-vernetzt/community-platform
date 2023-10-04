@@ -1,7 +1,12 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { json, type DataFunctionArgs } from "@remix-run/node";
-import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+} from "@remix-run/react";
 import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -9,17 +14,15 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
 import { z } from "zod";
+import { Button } from "@mint-vernetzt/components";
 
 const schema = z.object({
   updates: z.preprocess((value) => {
+    if (Array.isArray(value)) {
+      return value.includes("on");
+    }
     return value === "on";
   }, z.boolean()),
-  // .boolean(),
-  // .refine((value) => {
-  //   console.log({ value });
-  //   return value === "on" || value === "off";
-  // })
-  // .transform(),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -48,65 +51,87 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 export const action = async (args: DataFunctionArgs) => {
-  const { request } = args;
-  const formData = await request.formData();
+  const { request, params } = args;
+  const response = new Response();
 
-  const data = {};
-  formData.forEach((value, key) => {
-    console.log({ key, value });
-    data[key] = value;
-  });
-  console.log({ data });
-  return json({ data });
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const username = getParamValueOrThrow(params, "username");
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+  if (
+    submission.intent === "submit" &&
+    submission.value !== null &&
+    typeof submission.value !== "undefined"
+  ) {
+    await prismaClient.profile.update({
+      where: {
+        id: sessionUser.id,
+      },
+      data: {
+        notificationSettings: {
+          update: {
+            ...submission.value,
+          },
+        },
+      },
+    });
+  }
+
+  return json(submission, { headers: response.headers });
 };
 
 function Option(props: React.HTMLProps<HTMLInputElement>) {
-  console.log("props", props);
   return (
-    <div className="mv-flex mv-justify-between">
-      <label htmlFor={props.name}>{props.label}:</label>
-      <input
-        id={`${props.name}-disable`}
-        type="hidden"
-        name={props.name}
-        value="off"
-      />
-      <input
-        id={props.name}
-        type="checkbox"
-        // className="toggle toggle-checkbox"
-        name={props.name}
-        defaultChecked={props.checked}
-      />
-    </div>
+    <>
+      <div className="mv-flex mv-justify-between">
+        <label className="mv-font-semibold" htmlFor={props.name}>
+          {props.label}:
+        </label>
+        <input
+          id={`${props.name}-disable`}
+          type="hidden"
+          name={props.name}
+          value="off"
+        />
+        <input
+          id={props.name}
+          type="checkbox"
+          name={props.name}
+          defaultChecked={props.checked}
+        />
+      </div>
+      {props.children}
+    </>
   );
 }
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [form, fields] = useForm({
     shouldValidate: "onInput",
     defaultValue: {
       updates: loaderData.profile.notificationSettings.updates ? "on" : "off",
     },
-    onValidate({ formData }) {
+    onValidate: (args) => {
+      const { formData } = args;
       const submission = parse(formData, { schema });
-      formData.set("__intent__", "submit");
-      submit(formData, {
-        method: "post",
-      });
+      if (Object.keys(submission.error).length === 0) {
+        // if no errors change intent
+        formData.set("__intent__", "submit");
+        submit(formData, {
+          method: "post",
+        });
+      }
       return submission;
     },
+    lastSubmission: actionData,
   });
-
-  console.log("fields.updates", fields.updates);
-
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   console.log(event.target);
-  //   console.log(event.target.values);
-  // };
 
   return (
     <>
@@ -118,18 +143,18 @@ function Notifications() {
               name="updates"
               label="Über Plattform-Updates informieren"
               checked={loaderData.profile.notificationSettings.updates}
-              // checked={loaderData.profile.notificationSettings.updates}
-            />
-            {/* <label htmlFor="updates">Über Plattform-Updates informieren:</label>
-            <input
-            id="updates"
-            type="checkbox"
-              name="updates"
-            /> */}
-            {/* <li>
-              <div className="mv-flex mv-justify-between">
+            >
+              {fields.updates.error && (
+                <div className="mv-text-negative-600 mv-text-sm">
+                  {fields.updates.error}
+                </div>
+              )}
+            </Option>
+            <noscript>
+              <div className="mv-mt-2">
+                <Button variant="outline">Speichern</Button>
               </div>
-            </li> */}
+            </noscript>
           </Form>
         </ul>
       ) : (
