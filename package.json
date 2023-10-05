@@ -32,6 +32,8 @@
     "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open"
   },
   "dependencies": {
+    "@conform-to/react": "^0.9.0",
+    "@conform-to/zod": "^0.9.0",
     "@fontsource/source-sans-pro": "^4.5.6",
     "@hookform/resolvers": "^2.8.8",
     "@prisma/client": "^4.7.0",
@@ -77,7 +79,7 @@
     "tailwindcss-opentype": "^1.1.0",
     "ts-node": "^10.7.0",
     "yup": "^0.32.11",
-    "zod": "^3.17.3"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
