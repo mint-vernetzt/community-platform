@@ -54,6 +54,14 @@ function ProjectSettings() {
           Team
         </NavLink>
         <NavLink
+          to="./admins"
+          className={({ isActive }) => {
+            return isActive ? "mv-underline" : "mv-text-primary";
+          }}
+        >
+          Admins
+        </NavLink>
+        <NavLink
           to="./attachments"
           className={({ isActive }) => {
             return isActive ? "mv-underline" : "mv-text-primary";
