@@ -1,3 +1,4 @@
+import { prismaClient } from "~/prisma.server";
 import disciplines from "./data/disciplines.json";
 import eventTypes from "./data/eventTypes.json";
 import experienceLevels from "./data/experienceLevels.json";
@@ -33,6 +34,7 @@ Promise.all(
   .catch((e) => {
     throw e;
   })
-  .finally(() => {
+  .finally(async () => {
+    await prismaClient.$disconnect();
     console.log("done.");
   });

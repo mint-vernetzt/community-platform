@@ -249,6 +249,9 @@ export async function getAllProjects(
   const projects = await prismaClient.project.findMany({
     skip,
     take,
+    where: {
+      published: true,
+    },
     select: {
       id: true,
       slug: true,

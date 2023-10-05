@@ -45,6 +45,7 @@ export async function createProjectOnProfile(
               create: {
                 name: projectName,
                 slug: projectSlug,
+                published: true,
                 projectVisibility: {
                   create: {},
                 },
