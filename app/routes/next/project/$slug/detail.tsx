@@ -30,7 +30,7 @@ function ProjectDetail() {
           Attachments
         </NavLink>
       </div>
-      <Link to="./settings">⚙️</Link>
+      <Link to="./../settings">⚙️</Link>
       <Outlet />
     </>
   );

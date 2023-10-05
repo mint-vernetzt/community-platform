@@ -67,7 +67,7 @@ function ProjectSettings() {
             return isActive ? "mv-underline" : "mv-text-primary";
           }}
         >
-          Danger
+          Danger Zone
         </NavLink>
       </div>
       <Outlet />

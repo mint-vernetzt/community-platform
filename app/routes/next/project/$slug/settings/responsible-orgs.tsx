@@ -1,4 +1,5 @@
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
+import { useParams } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
@@ -23,5 +24,17 @@ export const loader = async (args: DataFunctionArgs) => {
     authClient,
   });
 
-  return redirect(redirectPath ?? "./general", { headers: response.headers });
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+
+  return null;
 };
+
+function ResponsibleOrgs() {
+  const params = useParams();
+
+  return <h1>/next/project/{params.slug}/settings/responsible-orgs</h1>;
+}
+
+export default ResponsibleOrgs;
