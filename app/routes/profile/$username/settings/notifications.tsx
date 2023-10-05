@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { json, type DataFunctionArgs } from "@remix-run/node";
 import {
@@ -17,12 +17,15 @@ import { z } from "zod";
 import { Button } from "@mint-vernetzt/components";
 
 const schema = z.object({
-  updates: z.preprocess((value) => {
-    if (Array.isArray(value)) {
-      return value.includes("on");
-    }
-    return value === "on";
-  }, z.boolean()),
+  updates: z
+    .boolean()
+    .optional()
+    .transform((value) => {
+      if (typeof value === "undefined") {
+        return false;
+      }
+      return value;
+    }),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -62,6 +65,9 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const submission = parse(formData, { schema });
+
+  console.log("submission", submission);
+
   if (
     submission.intent === "submit" &&
     submission.value !== null &&
@@ -83,31 +89,6 @@ export const action = async (args: DataFunctionArgs) => {
 
   return json(submission, { headers: response.headers });
 };
-
-function Option(props: React.HTMLProps<HTMLInputElement>) {
-  return (
-    <>
-      <div className="mv-flex mv-justify-between">
-        <label className="mv-font-semibold" htmlFor={props.name}>
-          {props.label}:
-        </label>
-        <input
-          id={`${props.name}-disable`}
-          type="hidden"
-          name={props.name}
-          value="off"
-        />
-        <input
-          id={props.name}
-          type="checkbox"
-          name={props.name}
-          defaultChecked={props.checked}
-        />
-      </div>
-      {props.children}
-    </>
-  );
-}
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
@@ -139,17 +120,17 @@ function Notifications() {
       {loaderData.profile.notificationSettings !== null ? (
         <ul>
           <Form method="post" {...form.props}>
-            <Option
-              name="updates"
-              label="Über Plattform-Updates informieren"
-              checked={loaderData.profile.notificationSettings.updates}
-            >
-              {fields.updates.error && (
-                <div className="mv-text-negative-600 mv-text-sm">
-                  {fields.updates.error}
-                </div>
-              )}
-            </Option>
+            <div className="mv-flex mv-justify-between">
+              <label className="mv-font-semibold" htmlFor={fields.updates.name}>
+                Über Plattform-Updates informieren
+              </label>
+              <input {...conform.input(fields.updates, { type: "checkbox" })} />
+            </div>
+            {fields.updates.error && (
+              <div className="mv-text-negative-600 mv-text-sm">
+                {fields.updates.error}
+              </div>
+            )}
             <noscript>
               <div className="mv-mt-2">
                 <Button variant="outline">Speichern</Button>
