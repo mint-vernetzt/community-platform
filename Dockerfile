@@ -1,5 +1,7 @@
 FROM node:19-alpine as build
 
+RUN apk add openssl1.1-compat
+
 WORKDIR /app
 
 COPY .npmrc /app/
