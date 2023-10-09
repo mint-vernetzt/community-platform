@@ -1,8 +1,10 @@
-FROM node:19-alpine as build
+FROM node:19-slim as build
 
-RUN apk add openssl1.1-compat rsync
+RUN apt-get update -y && apt-get install -y openssl libssl-dev python3 make gcc g++ rsync
 
 WORKDIR /app
+
+RUN npm config set script-shell /bin/bash
 
 COPY .npmrc /app/
 COPY package.json /app/
