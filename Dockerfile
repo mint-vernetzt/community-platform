@@ -18,7 +18,7 @@ RUN npm run build
 
 RUN npm prune --omit=dev
 
-FROM node:19-alpine
+FROM node:19-slim
 
 WORKDIR /app
 
