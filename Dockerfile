@@ -5,6 +5,7 @@ WORKDIR /app
 COPY .npmrc /app/
 COPY package.json /app/
 COPY package-lock.json /app/
+COPY common /app/common/
 RUN npm install
 
 COPY ./ /app/
