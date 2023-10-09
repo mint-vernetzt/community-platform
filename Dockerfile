@@ -1,6 +1,6 @@
 FROM node:19-alpine as build
 
-RUN apk add openssl1.1-compat
+RUN apk add openssl1.1-compat rsync
 
 WORKDIR /app
 
