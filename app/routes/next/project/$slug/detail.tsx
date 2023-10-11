@@ -1,4 +1,4 @@
-import { TabBar, TabBarItem } from "@mint-vernetzt/components";
+import { TabBar } from "@mint-vernetzt/components";
 import { Link, NavLink, Outlet, useMatches } from "@remix-run/react";
 
 function ProjectDetail() {
@@ -15,15 +15,15 @@ function ProjectDetail() {
     <>
       <h1>Project Detail</h1>
       <TabBar>
-        <TabBarItem active={pathname.endsWith("/about")}>
+        <TabBar.Item active={pathname.endsWith("/about")}>
           <NavLink to="./about">about</NavLink>
-        </TabBarItem>
-        <TabBarItem active={pathname.endsWith("/requirements")}>
+        </TabBar.Item>
+        <TabBar.Item active={pathname.endsWith("/requirements")}>
           <NavLink to="./requirements">requirements</NavLink>
-        </TabBarItem>
-        <TabBarItem active={pathname.endsWith("/attachments")}>
+        </TabBar.Item>
+        <TabBar.Item active={pathname.endsWith("/attachments")}>
           <NavLink to="./attachments">attachments</NavLink>
-        </TabBarItem>
+        </TabBar.Item>
       </TabBar>
       <Link to="./../settings">⚙️</Link>
       <Outlet />

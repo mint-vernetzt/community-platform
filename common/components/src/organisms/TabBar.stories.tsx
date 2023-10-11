@@ -1,13 +1,13 @@
-import TabBar, { TabBarItem } from "./TabBar";
+import TabBar from "./TabBar";
 
 export function Playground() {
   return (
     <div className="mv-mx-4">
       <TabBar>
-        <TabBarItem active>about</TabBarItem>
-        <TabBarItem>requirements</TabBarItem>
-        <TabBarItem>accessibility</TabBarItem>
-        <TabBarItem>attachments</TabBarItem>
+        <TabBar.Item active>about</TabBar.Item>
+        <TabBar.Item>requirements</TabBar.Item>
+        <TabBar.Item>accessibility</TabBar.Item>
+        <TabBar.Item>attachments</TabBar.Item>
       </TabBar>
     </div>
   );

@@ -6,7 +6,7 @@ export type TabBarItemProps = {
   active?: boolean;
 };
 
-export function TabBarItem(props: React.PropsWithChildren<TabBarItemProps>) {
+function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   const { active } = props;
 
   const children = React.Children.toArray(props.children);
@@ -50,6 +50,8 @@ export function TabBarItem(props: React.PropsWithChildren<TabBarItemProps>) {
   return null;
 }
 
+export const TabBarItem = Item;
+
 export type TabBarProps = {
   children: React.ReactNode;
 };
@@ -63,7 +65,7 @@ function TabBar(props: TabBarProps) {
   const [showScrollRight, setShowScrollRight] = React.useState(false);
 
   const validChildren = children.filter((child) => {
-    return React.isValidElement(child) && child.type === TabBarItem;
+    return React.isValidElement(child) && child.type === Item;
   });
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -207,5 +209,7 @@ function TabBar(props: TabBarProps) {
     </>
   );
 }
+
+TabBar.Item = Item;
 
 export default TabBar;
