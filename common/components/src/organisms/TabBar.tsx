@@ -135,12 +135,14 @@ function TabBar(props: TabBarProps) {
   }, []);
 
   const leftScrollClasses = classNames(
-    "mv-absolute mv-left-0 mv-top-0 mv-h-full mv-flex mv-justify-start mv-items-center",
-    showScrollLeft ? "mv-visible" : "mv-invisible"
+    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-left-0 mv-top-0 mv-h-16 mv-flex mv-justify-start mv-items-end",
+    showScrollLeft ? "mv-opacity-100" : "mv-opacity-0 mv-pointer-events-none"
   );
   const rightScrollClasses = classNames(
-    "mv-absolute mv-right-0 mv-top-0 mv-h-full mv-flex mv-justify-end mv-items-center",
-    showScrollRight ? "mv-visible" : "mv-invisible"
+    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-right-0 mv-top-0 mv-h-16 mv-flex mv-justify-end mv-items-end",
+    showScrollRight
+      ? "mv-visible mv-opacity-100"
+      : "mv-invisible mv-opacity-0 mv-pointer-events-none"
   );
 
   return (
@@ -155,7 +157,11 @@ function TabBar(props: TabBarProps) {
             {validChildren}
           </ul>
         </div>
-        <button className={leftScrollClasses} onClick={handleLeftClick}>
+        <button
+          className={leftScrollClasses}
+          onClick={handleLeftClick}
+          disabled={!showScrollLeft}
+        >
           <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -174,7 +180,11 @@ function TabBar(props: TabBarProps) {
           </span>
           <span className="mv-h-full mv-w-5 mv-bg-gradient-to-r mv-from-white" />
         </button>
-        <button className={rightScrollClasses} onClick={handleRightClick}>
+        <button
+          className={rightScrollClasses}
+          onClick={handleRightClick}
+          disabled={!showScrollRight}
+        >
           <span className="mv-h-full mv-w-5 mv-bg-gradient-to-l mv-from-white" />
           <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
             <svg
