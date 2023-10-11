@@ -57,6 +57,8 @@ export type TabBarProps = {
 function TabBar(props: TabBarProps) {
   const children = React.Children.toArray(props.children);
 
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
   const [showScrollLeft, setShowScrollLeft] = React.useState(false);
   const [showScrollRight, setShowScrollRight] = React.useState(false);
 
@@ -82,10 +84,54 @@ function TabBar(props: TabBarProps) {
     }
   };
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      setShowScrollRight(true);
+  const handleLeftClick = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft -= 40;
     }
+  };
+
+  const handleRightClick = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft += 40;
+    }
+  };
+
+  // check if scroll container is scrollable on mount
+  React.useEffect(() => {
+    if (scrollContainerRef.current) {
+      if (
+        scrollContainerRef.current.scrollWidth >
+        scrollContainerRef.current.clientWidth
+      ) {
+        setShowScrollRight(true);
+      }
+    }
+  }, []);
+
+  // check if scroll container is scrollable on resize
+  React.useLayoutEffect(() => {
+    const handleResize = () => {
+      if (scrollContainerRef.current) {
+        if (
+          scrollContainerRef.current.scrollWidth >
+          scrollContainerRef.current.clientWidth
+        ) {
+          setShowScrollRight(true);
+        } else {
+          setShowScrollRight(false);
+        }
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
   }, []);
 
   const leftScrollClasses = classNames(
@@ -100,12 +146,16 @@ function TabBar(props: TabBarProps) {
   return (
     <>
       <div className="mv-w-full mv-relative">
-        <div className="mv-overflow-x-scroll" onScroll={handleScroll}>
+        <div
+          className="mv-overflow-x-scroll"
+          onScroll={handleScroll}
+          ref={scrollContainerRef}
+        >
           <ul className="mv-mb-4 mv-flex mv-justify-between mv-flex-nowrap mv-w-fit mv-gap-4 sm:mv-gap-14 mv-font-semibold">
             {validChildren}
           </ul>
         </div>
-        <button className={leftScrollClasses}>
+        <button className={leftScrollClasses} onClick={handleLeftClick}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -122,7 +172,7 @@ function TabBar(props: TabBarProps) {
             />
           </svg>
         </button>
-        <button className={rightScrollClasses}>
+        <button className={rightScrollClasses} onClick={handleRightClick}>
           <svg
             className="-mr-2"
             xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +189,6 @@ function TabBar(props: TabBarProps) {
             />
           </svg>
         </button>
-        {/* </div> */}
       </div>
     </>
   );
