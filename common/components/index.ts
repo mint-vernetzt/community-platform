@@ -15,7 +15,7 @@ export type {
   ChipProps,
   LinkProps,
 } from "./src/molecules";
-export { Footer } from "./src/organisms";
+export { Footer, TabBar, TabBarItem } from "./src/organisms";
 export {
   EventCard,
   OrganizationCard,
