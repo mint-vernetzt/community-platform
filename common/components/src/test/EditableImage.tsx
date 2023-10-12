@@ -9,7 +9,7 @@ import classNames from "classnames";
 
 export type EditableImageProps = {
   mode: ProfileMode | EventMode | ProjectMode | OrganizationMode;
-  editPosition: "bottomRightCorner" | "below";
+  editPosition?: "bottomRightCorner" | "below";
   children: ReactNode;
 };
 
