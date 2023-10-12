@@ -136,12 +136,18 @@ function TabBar(props: TabBarProps) {
     };
   }, []);
 
+  const scrollClasses = classNames(
+    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-top-1 mv-h-16 mv-flex mv-items-end mv-text-gray-400"
+  );
+
   const leftScrollClasses = classNames(
-    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-left-0 mv-top-0 mv-h-16 mv-flex mv-justify-start mv-items-end",
+    scrollClasses,
+    "mv-left-0 mv-justify-start",
     showScrollLeft ? "mv-opacity-100" : "mv-opacity-0 mv-pointer-events-none"
   );
   const rightScrollClasses = classNames(
-    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-right-0 mv-top-0 mv-h-16 mv-flex mv-justify-end mv-items-end",
+    scrollClasses,
+    "mv-right-0 mv-justify-end",
     showScrollRight
       ? "mv-visible mv-opacity-100"
       : "mv-invisible mv-opacity-0 mv-pointer-events-none"
@@ -167,16 +173,14 @@ function TabBar(props: TabBarProps) {
           <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
             >
               <path
                 fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.12588 14.887C7.08598 14.8513 7.05432 14.8089 7.03272 14.7621C7.01112 14.7154 7 14.6653 7 14.6147C7 14.5642 7.01112 14.5141 7.03272 14.4673C7.05432 14.4206 7.08598 14.3782 7.12588 14.3425L11.9649 9.9999L7.12588 5.65733C7.08604 5.62158 7.05444 5.57913 7.03288 5.53241C7.01132 5.48569 7.00022 5.43562 7.00022 5.38506C7.00022 5.33449 7.01132 5.28442 7.03288 5.2377C7.05444 5.19098 7.08604 5.14854 7.12588 5.11278C7.16571 5.07702 7.21301 5.04866 7.26506 5.02931C7.3171 5.00996 7.37289 5 7.42923 5C7.48557 5 7.54135 5.00996 7.5934 5.02931C7.64545 5.04866 7.69274 5.07702 7.73258 5.11278L12.8741 9.72762C12.914 9.76335 12.9457 9.80578 12.9673 9.85251C12.9889 9.89923 13 9.94932 13 9.9999C13 10.0505 12.9889 10.1006 12.9673 10.1473C12.9457 10.194 12.914 10.2365 12.8741 10.2722L7.73258 14.887C7.69278 14.9228 7.6455 14.9512 7.59344 14.9706C7.54139 14.99 7.48559 15 7.42923 15C7.37287 15 7.31707 14.99 7.26501 14.9706C7.21296 14.9512 7.16568 14.9228 7.12588 14.887Z"
-                fill="#8893A7"
-                transform="rotate(180 10 10)"
+                d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"
               />
             </svg>
           </span>
@@ -190,17 +194,16 @@ function TabBar(props: TabBarProps) {
           <span className="mv-h-full mv-w-5 mv-bg-gradient-to-l mv-from-white" />
           <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
             <svg
-              className="-mr-2"
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+              className="-mr-2"
             >
               <path
                 fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.12588 14.887C7.08598 14.8513 7.05432 14.8089 7.03272 14.7621C7.01112 14.7154 7 14.6653 7 14.6147C7 14.5642 7.01112 14.5141 7.03272 14.4673C7.05432 14.4206 7.08598 14.3782 7.12588 14.3425L11.9649 9.9999L7.12588 5.65733C7.08604 5.62158 7.05444 5.57913 7.03288 5.53241C7.01132 5.48569 7.00022 5.43562 7.00022 5.38506C7.00022 5.33449 7.01132 5.28442 7.03288 5.2377C7.05444 5.19098 7.08604 5.14854 7.12588 5.11278C7.16571 5.07702 7.21301 5.04866 7.26506 5.02931C7.3171 5.00996 7.37289 5 7.42923 5C7.48557 5 7.54135 5.00996 7.5934 5.02931C7.64545 5.04866 7.69274 5.07702 7.73258 5.11278L12.8741 9.72762C12.914 9.76335 12.9457 9.80578 12.9673 9.85251C12.9889 9.89923 13 9.94932 13 9.9999C13 10.0505 12.9889 10.1006 12.9673 10.1473C12.9457 10.194 12.914 10.2365 12.8741 10.2722L7.73258 14.887C7.69278 14.9228 7.6455 14.9512 7.59344 14.9706C7.54139 14.99 7.48559 15 7.42923 15C7.37287 15 7.31707 14.99 7.26501 14.9706C7.21296 14.9512 7.16568 14.9228 7.12588 14.887Z"
-                fill="#8893A7"
+                d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
               />
             </svg>
           </span>
