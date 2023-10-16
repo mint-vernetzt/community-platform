@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { get } from "cypress/types/lodash";
 import React from "react";
 
 export type TextButtonVariants = "primary" | "neutral";
@@ -15,18 +16,67 @@ export type TextButtonProps = {
   arrowRight?: boolean;
 };
 
+function getIconSize(size: TextButtonSize) {
+  let iconSize = "0.875rem";
+  if (size === "small") {
+    iconSize = "0.75rem";
+  }
+  if (size === "large") {
+    iconSize = "1.25rem";
+  }
+  return iconSize;
+}
+
+function ChevronLeft(props: { size: TextButtonSize }) {
+  const iconSize = getIconSize(props.size);
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={iconSize}
+      height={iconSize}
+      fill="currentColor"
+      viewBox="0 0 16 16"
+    >
+      <path
+        fillRule="evenodd"
+        d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"
+      />
+    </svg>
+  );
+}
+
+function ChevronRight(props: { size: TextButtonSize }) {
+  const iconSize = getIconSize(props.size);
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={iconSize}
+      height={iconSize}
+      fill="currentColor"
+      viewBox="0 0 16 16"
+    >
+      <path
+        fillRule="evenodd"
+        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
+      />
+    </svg>
+  );
+}
+
 function TextButton(
   props: TextButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
       | React.AnchorHTMLAttributes<HTMLAnchorElement>
+      | React.PropsWithChildren
     )
 ) {
   const {
     variant = "primary",
     size = "medium",
     weight = "normal",
-    as = "button",
     ...otherProps
   } = props;
 
@@ -40,47 +90,37 @@ function TextButton(
     weight === "normal" && "mv-font-semibold"
   );
 
-  let iconSize = "0.875rem";
-  if (size === "small") {
-    iconSize = "0.75rem";
-  }
-  if (size === "large") {
-    iconSize = "1.25rem";
+  // If component is used as a wrapper, we need to clone inner node, apply the styles and rearrange the children
+  if (typeof props.as === "undefined" && typeof props.children !== "string") {
+    const element = React.Children.only(props.children);
+    if (React.isValidElement(element)) {
+      const elementChildren = React.Children.toArray(element.props.children);
+      const clone = React.cloneElement(
+        element as React.ReactElement,
+        {
+          className: classes,
+        },
+        <>
+          {props.arrowLeft && <ChevronLeft size={size} />}
+          {elementChildren}
+          {props.arrowRight && <ChevronRight size={size} />}
+        </>
+      );
+      return clone;
+    }
+
+    return null;
   }
 
   const children = (
     <>
-      {props.arrowLeft && (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={iconSize}
-          height={iconSize}
-          fill="currentColor"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fillRule="evenodd"
-            d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"
-          />
-        </svg>
-      )}
+      {props.arrowLeft && <ChevronLeft size={size} />}
       {props.children}
-      {props.arrowRight && (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={iconSize}
-          height={iconSize}
-          fill="currentColor"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fillRule="evenodd"
-            d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-          />
-        </svg>
-      )}
+      {props.arrowRight && <ChevronRight size={size} />}
     </>
   );
+
+  const as = props.as || "button";
 
   const element = React.createElement(
     as,

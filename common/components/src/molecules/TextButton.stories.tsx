@@ -1,50 +1,133 @@
-import TextButton from "./TextButton";
+import React from "react";
+import TextButton, { type TextButtonProps } from "./TextButton";
 
-export function TextButtonPlayground() {
+type TextButtonPlaygroundArgs = TextButtonProps & {
+  onClick?: () => void;
+  text: string;
+};
+
+export function AsWrapperPlayground(props: TextButtonPlaygroundArgs) {
+  const { text, ...otherProps } = props;
   return (
-    <div className="mv-flex mv-flex-col">
-      <TextButton size="large">Text Button Large</TextButton>
-      <TextButton>Text Button</TextButton>
-      <TextButton size="small">Text Button small</TextButton>
-      <TextButton arrowLeft arrowRight size="large">
-        Text Button Large
+    <TextButton {...otherProps}>
+      <button>{text}</button>
+    </TextButton>
+  );
+}
+AsWrapperPlayground.storyName = "Playground (as wrapper)";
+AsWrapperPlayground.args = {
+  size: "normal",
+  variant: "primary",
+  weight: "normal",
+  text: "Text Button",
+  arrowLeft: false,
+  arrowRight: false,
+};
+AsWrapperPlayground.argTypes = {
+  size: {
+    control: "select",
+    options: ["large", "normal", "small"],
+    default: "normal",
+  },
+  variant: {
+    control: "select",
+    options: ["primary", "neutral"],
+    default: "primary",
+  },
+  weight: {
+    control: "select",
+    options: ["thin", "normal"],
+    default: "normal",
+  },
+};
+AsWrapperPlayground.parameters = {
+  controls: { disable: false },
+};
+
+export function AsLinkPlayground(args: TextButtonPlaygroundArgs) {
+  const { text, ...otherProps } = args;
+  return (
+    <TextButton
+      {...otherProps}
+      as="a"
+      target="__blank"
+      rel="noopener noreferrer"
+    >
+      {text}
+    </TextButton>
+  );
+}
+AsLinkPlayground.storyName = "Playground (as link)";
+AsLinkPlayground.args = {
+  size: "normal",
+  variant: "primary",
+  weight: "normal",
+  text: "Text Button",
+  href: "https://github.com/mint-vernetzt/community-platform",
+  arrowLeft: false,
+  arrowRight: false,
+};
+AsLinkPlayground.argTypes = {
+  size: {
+    control: "select",
+    options: ["large", "normal", "small"],
+    default: "normal",
+  },
+  variant: {
+    control: "select",
+    options: ["primary", "neutral"],
+  },
+  weight: {
+    control: "select",
+    options: ["thin", "normal"],
+  },
+};
+AsLinkPlayground.parameters = {
+  controls: { disable: false },
+};
+
+export function AsButtonPlayground(args: TextButtonPlaygroundArgs) {
+  const [count, setCount] = React.useState(0);
+
+  const handleClick = () => {
+    setCount(count + 1);
+  };
+
+  const { text, ...otherProps } = args;
+  return (
+    <div>
+      <TextButton {...otherProps} as="button" onClick={handleClick}>
+        {text}
       </TextButton>
-      <TextButton arrowLeft>Text Button</TextButton>
-      <TextButton arrowLeft size="small">
-        Text Button small
-      </TextButton>
-      <TextButton weight="thin" arrowLeft size="large">
-        Text Button Large
-      </TextButton>
-      <TextButton weight="thin" arrowLeft>
-        Text Button
-      </TextButton>
-      <TextButton weight="thin" arrowLeft size="small">
-        Text Button small
-      </TextButton>
-      <TextButton variant="neutral" size="large">
-        Text Button Large neutral
-      </TextButton>
-      <TextButton variant="neutral">Text Button neutral</TextButton>
-      <TextButton variant="neutral" size="small">
-        Text Button small neutral
-      </TextButton>
-      <TextButton arrowLeft variant="neutral" size="large">
-        Text Button Large neutral
-      </TextButton>
-      <TextButton arrowLeft variant="neutral">
-        Text Button neutral
-      </TextButton>
-      <TextButton arrowLeft variant="neutral" size="small">
-        Text Button small neutral
-      </TextButton>
+      clicked {count} times
     </div>
   );
 }
-TextButtonPlayground.storyName = "Playground";
-TextButtonPlayground.args = {};
-TextButtonPlayground.argTypes = {};
-TextButtonPlayground.parameters = {
+AsButtonPlayground.storyName = "Playground (as button)";
+AsButtonPlayground.args = {
+  size: "normal",
+  variant: "primary",
+  weight: "normal",
+  text: "Text Button",
+  arrowLeft: false,
+  arrowRight: false,
+};
+AsButtonPlayground.argTypes = {
+  size: {
+    control: "select",
+    options: ["large", "normal", "small"],
+    default: "normal",
+  },
+  variant: {
+    control: "select",
+    options: ["primary", "neutral"],
+  },
+  weight: {
+    control: "select",
+    options: ["thin", "normal"],
+  },
+};
+AsButtonPlayground.parameters = {
   controls: { disable: false },
 };
 
