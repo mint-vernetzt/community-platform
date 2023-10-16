@@ -21,7 +21,6 @@ function Status(props: StatusProps) {
     return isValid;
   });
 
-  // TODO: leading-5 überprüfen
   const classes = classNames(
     "mv-absolute mv-top-0 mv-w-full mv-py-2 mv-px-4 mv-text-center mv-font-semibold mv-leading-5",
     variant === "primary" && inverted && "mv-text-primary mv-bg-primary-100",
