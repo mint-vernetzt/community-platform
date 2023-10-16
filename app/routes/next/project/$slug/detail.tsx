@@ -3,6 +3,7 @@ import Header from "~/components/test/Header";
 import Status from "~/components/test/Status";
 import Image from "~/components/test/Image";
 import Layout from "~/components/test/Layout";
+import React from "react";
 
 {
   /* <Header>
