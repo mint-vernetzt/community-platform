@@ -14,6 +14,7 @@ RUN npm install
 
 COPY ./ /app/
 RUN npx prisma generate
+RUN npm run copy:fonts
 RUN npm run build
 
 RUN npm prune --omit=dev

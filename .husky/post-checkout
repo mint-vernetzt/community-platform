@@ -1,4 +1,9 @@
 #!/bin/sh
+
+if [ -n "$CI" ]; then
+    exit 0
+fi
+
 . "$(dirname "$0")/_/husky.sh"
 
 exec < /dev/tty && npx ts-node scripts/check-diffs.ts
