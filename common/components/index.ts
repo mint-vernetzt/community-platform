@@ -21,4 +21,4 @@ export {
   OrganizationCard,
   ProfileCard,
 } from "./src/organisms/cards";
-export { CardContainer } from "./src/organisms/containers";
+export { CardContainer, Section } from "./src/organisms/containers";
