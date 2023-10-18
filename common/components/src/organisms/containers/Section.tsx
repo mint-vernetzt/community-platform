@@ -2,13 +2,16 @@ import classNames from "classnames";
 import React from "react";
 
 export type SectionVariant = "primary";
-
+export type SectionType = "section" | "div";
 export type SectionProps = {
+  as?: SectionType;
   variant?: SectionVariant;
   withBorder?: boolean;
 };
 
-export function SectionHeader(props: React.PropsWithChildren<SectionProps>) {
+export function SectionHeader(
+  props: React.PropsWithChildren<Pick<SectionProps, "variant" | "withBorder">>
+) {
   const { children, variant, withBorder } = props;
 
   const classes = classNames(
@@ -21,7 +24,9 @@ export function SectionHeader(props: React.PropsWithChildren<SectionProps>) {
   return <div className={classes}>{children}</div>;
 }
 
-export function SectionBody(props: React.PropsWithChildren<SectionProps>) {
+export function SectionBody(
+  props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
+) {
   const classes = classNames(
     "mv-p-6 mv-text-neutral",
     props.withBorder && "mv-border-y mv-border-x mv-border-gray-200"
@@ -29,7 +34,9 @@ export function SectionBody(props: React.PropsWithChildren<SectionProps>) {
   return <div className={classes}>{props.children}</div>;
 }
 
-export function SectionFooter(props: React.PropsWithChildren<SectionProps>) {
+export function SectionFooter(
+  props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
+) {
   const classes = classNames(
     "mv-min-h-[0.5rem]",
     "mv-rounded-b-lg",
@@ -39,6 +46,8 @@ export function SectionFooter(props: React.PropsWithChildren<SectionProps>) {
 }
 
 function Section(props: React.PropsWithChildren<SectionProps>) {
+  const { as = "section" } = props;
+
   const children = React.Children.toArray(props.children);
 
   const validChildren = children.filter((child) => {
@@ -89,19 +98,21 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
     noSectionItems && props.withBorder && "mv-border mv-border-gray-200"
   );
 
-  return (
-    <section className={classes}>
-      {noSectionItems ? (
-        children
-      ) : (
-        <>
-          {headerClone}
-          {bodyClone}
-          {footerClone}
-        </>
-      )}
-    </section>
+  const element = React.createElement(
+    as,
+    { className: classes },
+    noSectionItems ? (
+      children
+    ) : (
+      <>
+        {headerClone}
+        {bodyClone}
+        {footerClone}
+      </>
+    )
   );
+
+  return element;
 }
 
 Section.Header = SectionHeader;

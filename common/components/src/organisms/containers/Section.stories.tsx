@@ -5,6 +5,7 @@ type SectionPlaygroundProps = {
   body: string;
   primary: boolean;
   withBorder: boolean;
+  as: "div" | "section";
 };
 
 export function SectionWithItems(props: SectionPlaygroundProps) {
@@ -28,6 +29,7 @@ SectionWithItems.args = {
   body: "Body text",
   primary: true,
   withBorder: true,
+  as: "section",
 };
 SectionWithItems.argTypes = {
   header: {
@@ -41,6 +43,10 @@ SectionWithItems.argTypes = {
   },
   withBorder: {
     control: "boolean",
+  },
+  as: {
+    control: "select",
+    options: ["div", "section"],
   },
 };
 SectionWithItems.parameters = {
@@ -67,6 +73,7 @@ SectionWithoutItems.storyName = "Playground (without items)";
 SectionWithoutItems.args = {
   body: "Body text",
   withBorder: true,
+  as: "section",
 };
 SectionWithoutItems.argTypes = {
   body: {
@@ -74,6 +81,10 @@ SectionWithoutItems.argTypes = {
   },
   withBorder: {
     control: "boolean",
+  },
+  as: {
+    control: "select",
+    options: ["div", "section"],
   },
 };
 SectionWithoutItems.parameters = {
