@@ -1,4 +1,4 @@
-import { Section } from "@mint-vernetzt/components";
+import { Section, TextButton } from "@mint-vernetzt/components";
 import {
   Link,
   Outlet,
@@ -85,7 +85,16 @@ function ProjectSettings() {
 
   return (
     <div className="md:container">
-      <h1>Project Settings</h1>
+      <div className="mv-hidden md:mv-block mv-mb-8">
+        <div className="mv-flex mv-flex-col mv-gap-8 lg:mv-gap-14">
+          <TextButton weight="thin" variant="neutral" arrowLeft>
+            <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
+              Zum Projekt
+            </Link>
+          </TextButton>
+          <h1 className="mv-mb-0">Projekt bearbeiten</h1>
+        </div>
+      </div>
       <div className="mv-hidden md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>
