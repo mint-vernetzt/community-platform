@@ -1,8 +1,8 @@
-import { TextButton } from "@mint-vernetzt/components";
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { Link, useLocation } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -37,11 +37,9 @@ function WebSocial() {
 
   return (
     <>
-      <TextButton arrowLeft size="large">
-        <Link to={location.pathname} prefetch="intent">
-          Website und Soziale Netwerke
-        </Link>
-      </TextButton>
+      <BackButton to={location.pathname}>
+        Website und Soziale Netwerke
+      </BackButton>
       <h1>{location.pathname}</h1>
     </>
   );

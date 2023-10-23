@@ -4,6 +4,7 @@ import { Link, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { BackButton } from "./__components";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -37,11 +38,9 @@ function ResponsibleOrgs() {
 
   return (
     <>
-      <TextButton arrowLeft size="large">
-        <Link to={location.pathname} prefetch="intent">
-          Verantwortliche Organisationen
-        </Link>
-      </TextButton>
+      <BackButton to={location.pathname}>
+        Verantwortliche Organisationen
+      </BackButton>
       <h1>{location.pathname}</h1>
     </>
   );
