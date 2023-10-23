@@ -1,9 +1,17 @@
-export { Alert, Avatar, Button, Chip, Link } from "./src/molecules";
+export {
+  Alert,
+  Avatar,
+  Button,
+  CircleButton,
+  Chip,
+  Link,
+} from "./src/molecules";
 export type {
   AlertProps,
   AlertLevel,
   AvatarProps,
   ButtonProps,
+  CircleButtonProps,
   ChipProps,
   LinkProps,
 } from "./src/molecules";
