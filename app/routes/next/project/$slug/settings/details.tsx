@@ -1,5 +1,6 @@
+import { TextButton } from "@mint-vernetzt/components";
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
@@ -32,9 +33,18 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 function Details() {
-  const params = useParams();
+  const location = useLocation();
 
-  return <h1>/next/project/{params.slug}/settings/details</h1>;
+  return (
+    <>
+      <TextButton arrowLeft size="large">
+        <Link to={location.pathname} prefetch="intent">
+          Projektdetails
+        </Link>
+      </TextButton>
+      <h1>{location.pathname}</h1>
+    </>
+  );
 }
 
 export default Details;
