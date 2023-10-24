@@ -137,21 +137,22 @@ function ProjectSettings() {
               const isActive = location.pathname.endsWith(absolutePath);
 
               const itemClasses = classNames(
-                "md:mv-border-b md:last:mv-border-b-0",
+                "md:mv-border-b md:last:mv-border-b-0 mv-overflow-hidden",
                 isActive && "md:mv-border-l-8",
                 navLink.variant === "negative"
                   ? "md:mv-border-l-negative"
                   : "md:mv-border-l-primary"
               );
               const linkClasses = classNames(
-                "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8 mv-text-lg md:mv-text-2xl mv-font-semibold mv-line-clamp-1",
+                "mv-text-lg md:mv-text-2xl mv-font-semibold mv-block",
+                "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8",
                 navLink.variant === "negative"
                   ? "mv-text-negative"
                   : "mv-text-primary",
+                isActive && "md:mv-pl-6 md:mv-pr-8",
                 isActive === false &&
                   navLink.variant !== "negative" &&
-                  "md:mv-text-neutral md:hover:mv-text-primary",
-                isActive && "md:mv-pl-6 md:mv-pr-8"
+                  "md:mv-text-neutral md:hover:mv-text-primary"
               );
 
               return (
@@ -163,7 +164,9 @@ function ProjectSettings() {
                     prefetch="intent"
                     // TODO: after update to Remix v2 add preventScrollReset
                   >
-                    {navLink.label}
+                    <span className="mv-truncate mv-overflow-hidden mv-block">
+                      {navLink.label}
+                    </span>
                   </Link>
                 </li>
               );
