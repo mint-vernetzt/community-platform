@@ -138,8 +138,10 @@ function ProjectSettings() {
 
               const itemClasses = classNames(
                 "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8 md:mv-border-b md:last:mv-border-b-0",
-                isActive &&
-                  "md:mv-pl-6 md:mv-pr-8 md:mv-border-l-8 md:mv-border-l-primary"
+                isActive && "md:mv-pl-6 md:mv-pr-8 md:mv-border-l-8",
+                navLink.variant === "negative"
+                  ? "md:mv-border-l-negative"
+                  : "md:mv-border-l-primary"
               );
               const linkClasses = classNames(
                 "mv-text-lg md:mv-text-2xl mv-font-semibold mv-line-clamp-1",
