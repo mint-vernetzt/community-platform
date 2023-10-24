@@ -43,7 +43,7 @@ function ProjectCard(props: ProjectCardProps) {
         </div>
       </Card.Body>
       <Card.Footer>
-        <Avatar.List visibleAvatars={1}>
+        <Avatar.List visibleAvatars={2}>
           {project.responsibleOrganizations.map((item) => {
             const { organization } = item;
             return (
