@@ -23,7 +23,7 @@ function ProjectCard(props: ProjectCardProps) {
   const { project } = props;
   return (
     <Card to={`/project/${project.slug}`}>
-      <Card.Header>
+      <Card.Header cardType="project">
         <Avatar {...project} size="xl" />
         {project.background && <Card.Image src={project.background} />}
       </Card.Header>
