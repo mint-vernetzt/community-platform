@@ -2,6 +2,7 @@ import Button from "../../molecules/Button";
 import EventCard from "./EventCard";
 import OrganizationCard from "./OrganizationCard";
 import ProfileCard from "./ProfileCard";
+import ProjectCard from "./ProjectCard";
 
 export function Profile() {
   return (
@@ -826,6 +827,67 @@ EventStory.args = {
 EventStory.parameters = {
   controls: { disable: false },
 };
+
+export function ProjectStory() {
+  return (
+    <div className="mv-flex mv-gap-[39px]">
+      <div className="mv-w-[253px]">
+        <ProjectCard
+          project={{
+            slug: "errormusic-len1g1op",
+            name: "Error Music - don't delete!",
+            responsibleOrganizations: [],
+          }}
+        />
+      </div>
+      <div className="mv-w-[253px]">
+        <ProjectCard
+          project={{
+            slug: "errormusic-len1g1op",
+            name: "Error Music - don't delete!",
+            excerpt:
+              "Sound x Tech Format für Mädchen*, trans*, inter* und non-binäre Jugenliche ab 12 Jahren.",
+            responsibleOrganizations: [],
+          }}
+        />
+      </div>
+      <div className="mv-w-[253px]">
+        <ProjectCard
+          project={{
+            slug: "errormusic-len1g1op",
+            name: "Error Music - don't delete!",
+            background: "./error-music-background.jpeg",
+            logo: "./error-music-logo.jpg",
+            excerpt:
+              "Sound x Tech Format für Mädchen*, trans*, inter* und non-binäre Jugenliche ab 12 Jahren.",
+            responsibleOrganizations: [
+              {
+                name: "MINTvernetzt",
+                slug: "mintvernetzt",
+                logo: "./mintvernetzt-logo.png",
+              },
+              {
+                name: "matrix ggmbh",
+                slug: "matrixggmbh",
+                logo: "./matrixggmbh-logo.png",
+              },
+              {
+                name: "MINT-Campus",
+                slug: "mintcampus-len1g1op",
+              },
+
+              {
+                name: "matrix GmbH & Co. KG",
+                slug: "matrixgmbhcokg",
+              },
+            ],
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+ProjectStory.storyName = "project";
 
 export default {
   title: "Organism/Cards",
