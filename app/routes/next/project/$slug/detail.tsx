@@ -86,8 +86,10 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 
   // TODO: Use default project background when provided
-  let background = "/images/default-event-background.jpg";
-  let blurredBackground = "/images/default-event-background-blurred.jpg";
+  let background = null;
+  let defaultBackground = "/images/default-event-background.jpg";
+  let blurredBackground = null;
+  let defaultBlurredBackground = "/images/default-event-background-blurred.jpg";
   if (project.background !== null) {
     const publicURL = getPublicURL(authClient, project.background);
     if (publicURL) {
@@ -104,7 +106,9 @@ export const loader = async (args: DataFunctionArgs) => {
   const enhancedProject = {
     ...project,
     background,
+    defaultBackground,
     blurredBackground,
+    defaultBlurredBackground,
   };
 
   return json(
@@ -115,6 +119,7 @@ export const loader = async (args: DataFunctionArgs) => {
 
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
+  const { project, mode } = loaderData;
   const matches = useMatches();
   let pathname = "";
 
@@ -140,14 +145,17 @@ function ProjectDetail() {
       )}
       <section className="md:container">
         <Header>
-          {loaderData.mode === "admin" &&
-            loaderData.project.published === false && <Status>Entwurf</Status>}
+          {mode === "admin" && project.published === false && (
+            <Status>Entwurf</Status>
+          )}
           <Image
-            src={loaderData.project.background}
+            src={project.background || project.defaultBackground}
             alt=""
-            blurredSrc={loaderData.project.blurredBackground}
+            blurredSrc={
+              project.blurredBackground || project.defaultBlurredBackground
+            }
           />
-          {loaderData.mode === "admin" && (
+          {mode === "admin" && (
             <Controls>
               <CircleButton variant="outline">
                 <label
@@ -172,26 +180,28 @@ function ProjectDetail() {
           )}
         </Header>
       </section>
-      {loaderData.mode === "admin" && (
+      {mode === "admin" && (
         <Modal id="modal-background-upload">
           <ImageCropper
             headline="Hintergrundbild"
             subject="project"
             id="modal-background-upload"
             uploadKey="background"
-            image={loaderData.project.background}
+            image={project.background || undefined}
             aspect={31 / 10}
             minCropWidth={620}
             minCropHeight={62}
             maxTargetWidth={1488}
             maxTargetHeight={480}
-            slug={loaderData.project.slug}
+            slug={project.slug}
             redirect={pathname}
           >
             <Image
-              src={loaderData.project.background}
+              src={project.background || project.defaultBackground}
               alt=""
-              blurredSrc={loaderData.project.blurredBackground}
+              blurredSrc={
+                project.blurredBackground || project.defaultBlurredBackground
+              }
             />
           </ImageCropper>
         </Modal>
