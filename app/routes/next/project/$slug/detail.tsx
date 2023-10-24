@@ -1,5 +1,4 @@
 import { CircleButton } from "@mint-vernetzt/components";
-import { Link, NavLink, Outlet } from "@remix-run/react";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
@@ -9,6 +8,11 @@ import Controls from "~/components/test/Controls";
 import Header from "~/components/test/Header";
 import Image from "~/components/test/Image";
 import Status from "~/components/test/Status";
+import { TabBar, TextButton } from "@mint-vernetzt/components";
+import { json, type DataFunctionArgs } from "@remix-run/node";
+import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { prismaClient } from "~/prisma.server";
 
 {
   /* <Header>
@@ -33,7 +37,39 @@ export function links() {
   ];
 }
 
+export const loader = async (args: DataFunctionArgs) => {
+  const { request } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+
+  let username: string | null = null;
+
+  if (sessionUser !== null) {
+    const profile = await prismaClient.profile.findFirst({
+      where: { id: sessionUser.id },
+      select: { username: true },
+    });
+    if (profile !== null) {
+      username = profile.username;
+    }
+  }
+
+  return json({ username }, { headers: response.headers });
+};
+
 function ProjectDetail() {
+  const loaderData = useLoaderData<typeof loader>();
+  const matches = useMatches();
+  let pathname = "";
+
+  const lastMatch = matches[matches.length - 1];
+
+  if (typeof lastMatch.pathname !== "undefined") {
+    pathname = lastMatch.pathname;
+  }
+
   const background = "/images/default-event-background.jpg";
   const blurredBackground = "/images/default-event-background-blurred.jpg";
   const Background = React.useCallback(
@@ -56,6 +92,18 @@ function ProjectDetail() {
   );
   return (
     <>
+      {loaderData.username !== null && (
+        <>
+          <TextButton weight="thin" variant="neutral" arrowLeft>
+            <Link
+              to={`/profile/${loaderData.username}/#projects`}
+              prefetch="intent"
+            >
+              Meine Projekte
+            </Link>
+          </TextButton>
+        </>
+      )}
       <section className="md:container">
         <Header>
           <Status>Entwurf</Status>
@@ -109,32 +157,17 @@ function ProjectDetail() {
           />
         </ImageCropper>
       </Modal>
-      <div className="mv-flex mv-gap-4">
-        <NavLink
-          to="./about"
-          className={({ isActive }) => {
-            return isActive ? "mv-underline" : "mv-text-primary";
-          }}
-        >
-          About
-        </NavLink>
-        <NavLink
-          to="./requirements"
-          className={({ isActive }) => {
-            return isActive ? "mv-underline" : "mv-text-primary";
-          }}
-        >
-          Requirements
-        </NavLink>
-        <NavLink
-          to="./attachments"
-          className={({ isActive }) => {
-            return isActive ? "mv-underline" : "mv-text-primary";
-          }}
-        >
-          Attachments
-        </NavLink>
-      </div>
+      <TabBar>
+        <TabBar.Item active={pathname.endsWith("/about")}>
+          <Link to="./about">about</Link>
+        </TabBar.Item>
+        <TabBar.Item active={pathname.endsWith("/requirements")}>
+          <Link to="./requirements">requirements</Link>
+        </TabBar.Item>
+        <TabBar.Item active={pathname.endsWith("/attachments")}>
+          <Link to="./attachments">attachments</Link>
+        </TabBar.Item>
+      </TabBar>
       <Link to="./../settings">⚙️</Link>
       <Outlet />
     </>

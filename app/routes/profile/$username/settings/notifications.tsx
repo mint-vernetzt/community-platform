@@ -122,7 +122,7 @@ function Notifications() {
           <Form method="post" {...form.props}>
             <div className="mv-flex mv-justify-between">
               <label className="mv-font-semibold" htmlFor={fields.updates.name}>
-                Über Plattform-Updates informieren
+                Ich möchte zu Plattform-Updates informiert werden.
               </label>
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>

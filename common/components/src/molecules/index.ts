@@ -9,3 +9,4 @@ export { type ChipProps } from "./Chip";
 export { default as Link } from "./Link";
 export { type LinkProps } from "./Link";
 export { default as Alert, type AlertProps, type AlertLevel } from "./Alert";
+export { default as TextButton, type TextButtonProps } from "./TextButton";
