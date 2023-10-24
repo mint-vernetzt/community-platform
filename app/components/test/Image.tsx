@@ -1,8 +1,8 @@
 import React from "react";
 
 export type ImageProps = {
-  src: string;
-  alt: string;
+  src?: string;
+  alt?: string;
   blurredSrc?: string;
   resizeType?: "fit" | "fill";
 };
@@ -24,7 +24,7 @@ function Image(props: ImageProps) {
 
   return (
     <>
-      <div className="mv-w-full mv-h-full mv-bg-positive">
+      <div className="mv-w-full mv-h-full">
         {props.blurredSrc ? (
           <img
             ref={blurredImageRef}
@@ -37,27 +37,31 @@ function Image(props: ImageProps) {
             }`}
           />
         ) : null}
-        <img
-          ref={imageRef}
-          src={props.src}
-          alt={props.alt}
-          className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
-            resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
-          } ${
-            imageLoaded
-              ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-              : "mv-opacity-0 mv-invisible"
-          }`}
-        />
-        <noscript>
-          <img
-            src={props.src}
-            alt={props.alt}
-            className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
-              resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
-            }`}
-          />
-        </noscript>
+        {props.src ? (
+          <>
+            <img
+              ref={imageRef}
+              src={props.src}
+              alt={props.alt || ""}
+              className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
+                resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
+              } ${
+                imageLoaded
+                  ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
+                  : "mv-opacity-0 mv-invisible"
+              }`}
+            />
+            <noscript>
+              <img
+                src={props.src}
+                alt={props.alt || ""}
+                className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
+                  resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
+                }`}
+              />
+            </noscript>
+          </>
+        ) : null}
       </div>
     </>
   );
