@@ -31,7 +31,7 @@ function CircleButton(
   const isDisabled = "disabled" in props && props.disabled;
 
   const classes = classNames(
-    "mvx-btn",
+    "mv-btn",
     "mv-btn-circle",
     size === "small" && "mv-w-8 mv-h-8 mv-border-1  mv-text-xl",
     size === "medium" && "mv-w-12 mv-h-12 mv-border-1  mv-text-5xl",
