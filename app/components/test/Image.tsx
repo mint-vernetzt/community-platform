@@ -24,7 +24,7 @@ function Image(props: ImageProps) {
 
   return (
     <>
-      <div className="mv-absolute mv-w-full mv-h-full mv-bg-positive">
+      <div className="mv-w-full mv-h-full mv-bg-positive">
         {props.blurredSrc ? (
           <img
             ref={blurredImageRef}
@@ -53,7 +53,9 @@ function Image(props: ImageProps) {
           <img
             src={props.src}
             alt={props.alt}
-            className="mv-absolute mv-w-full mv-h-full mv-inset-0"
+            className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
+              resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
+            }`}
           />
         </noscript>
       </div>
