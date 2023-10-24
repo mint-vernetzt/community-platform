@@ -121,6 +121,8 @@ export function CardHeader(props: CardHeaderProps) {
   );
 }
 
+Card.Header = CardHeader;
+
 export type CardInfoOverlayProps = {
   children?: React.ReactNode;
 };
@@ -133,6 +135,8 @@ export function CardInfoOverlay(props: CardInfoOverlayProps) {
   );
 }
 
+Card.InfoOverlay = CardInfoOverlay;
+
 export type CardInfoProps = {
   children?: React.ReactNode;
 };
@@ -144,6 +148,8 @@ export function CardInfo(props: CardInfoProps) {
     </div>
   );
 }
+
+Card.Info = CardInfo;
 
 export type CardStatusProps = {
   children?: React.ReactNode;
@@ -164,6 +170,8 @@ export function CardStatus(props: CardStatusProps) {
 
   return <div className={classes}>{props.children}</div>;
 }
+
+Card.Status = CardStatus;
 
 export function CardImage(props: {
   src: string;
@@ -215,6 +223,8 @@ export function CardImage(props: {
     </>
   );
 }
+
+Card.Image = CardImage;
 
 export type CardBodyProps = {
   children?: React.ReactNode;
@@ -268,6 +278,8 @@ export function CardBodySection(props: CardBodySectionProps) {
   );
 }
 
+Card.Body = CardBody;
+
 export type CardFooterProps = {
   children?: React.ReactNode;
 };
@@ -282,6 +294,8 @@ export function CardFooter(props: CardFooterProps) {
     </div>
   );
 }
+
+Card.Footer = CardFooter;
 
 export type CardRowContainerProps = {
   children?: React.ReactNode;
@@ -325,3 +339,5 @@ export function CardRowContainer(props: CardRowContainerProps) {
     </div>
   );
 }
+
+Card.RowContainer = CardRowContainer;
