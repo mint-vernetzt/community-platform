@@ -36,7 +36,7 @@ function ProjectCard(props: ProjectCardProps) {
         <div className="mv-h-14">
           {typeof project.excerpt !== "undefined" &&
             project.excerpt !== null && (
-              <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-3 mv-px">
+              <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-3">
                 {removeHtmlTags(project.excerpt)}
               </p>
             )}
