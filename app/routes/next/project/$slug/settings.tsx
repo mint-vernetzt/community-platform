@@ -137,20 +137,21 @@ function ProjectSettings() {
               const isActive = location.pathname.endsWith(absolutePath);
 
               const itemClasses = classNames(
-                "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8 md:mv-border-b md:last:mv-border-b-0",
-                isActive && "md:mv-pl-6 md:mv-pr-8 md:mv-border-l-8",
+                "md:mv-border-b md:last:mv-border-b-0",
+                isActive && "md:mv-border-l-8",
                 navLink.variant === "negative"
                   ? "md:mv-border-l-negative"
                   : "md:mv-border-l-primary"
               );
               const linkClasses = classNames(
-                "mv-text-lg md:mv-text-2xl mv-font-semibold mv-line-clamp-1",
+                "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8 mv-text-lg md:mv-text-2xl mv-font-semibold mv-line-clamp-1",
                 navLink.variant === "negative"
                   ? "mv-text-negative"
                   : "mv-text-primary",
                 isActive === false &&
                   navLink.variant !== "negative" &&
-                  "md:mv-text-neutral md:hover:mv-text-primary"
+                  "md:mv-text-neutral md:hover:mv-text-primary",
+                isActive && "md:mv-pl-6 md:mv-pr-8"
               );
 
               return (
@@ -160,6 +161,7 @@ function ProjectSettings() {
                     to={`${navLink.to}?deep`}
                     className={linkClasses}
                     prefetch="intent"
+                    // TODO: after update to Remix v2 add preventScrollReset
                   >
                     {navLink.label}
                   </Link>
