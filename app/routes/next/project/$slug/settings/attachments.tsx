@@ -1,7 +1,8 @@
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -32,9 +33,14 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 function Attachments() {
-  const params = useParams();
+  const location = useLocation();
 
-  return <h1>/next/project/{params.slug}/settings/attachments</h1>;
+  return (
+    <>
+      <BackButton to={location.pathname}>Material verwalten</BackButton>
+      <h1>{location.pathname}</h1>
+    </>
+  );
 }
 
 export default Attachments;

@@ -1,8 +1,10 @@
+import { TextButton } from "@mint-vernetzt/components";
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { BackButton } from "./__components";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -32,9 +34,16 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 function ResponsibleOrgs() {
-  const params = useParams();
+  const location = useLocation();
 
-  return <h1>/next/project/{params.slug}/settings/responsible-orgs</h1>;
+  return (
+    <>
+      <BackButton to={location.pathname}>
+        Verantwortliche Organisationen
+      </BackButton>
+      <h1>{location.pathname}</h1>
+    </>
+  );
 }
 
 export default ResponsibleOrgs;

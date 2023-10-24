@@ -16,8 +16,10 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useMatches,
   useSearchParams,
 } from "@remix-run/react";
+import classNames from "classnames";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
@@ -164,8 +166,13 @@ function NavBar(props: NavBarProps) {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
 
+  const matches = useMatches();
+  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+
+  const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
+
   return (
-    <header id="header" className="shadow-md mb-8">
+    <header id="header" className={classes}>
       <div className="container relative">
         <div className="pt-3 md:pb-3 flex flex-row flex-wrap xl:flex-nowrap md:items-center xl:justify-between">
           <div className="flex-initial w-1/2 xl:w-[150px] xl:order-1">
@@ -435,6 +442,9 @@ export default function App() {
   );
   const isIndexRoute = location.pathname === "/";
 
+  const matches = useMatches();
+  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+
   return (
     <html lang="de" data-theme="light">
       <head>
@@ -482,7 +492,7 @@ export default function App() {
             ) : null}
             <Outlet />
           </main>
-          <Footer />
+          <Footer isSettings={isSettings} />
         </div>
         <ScrollRestoration />
         <Scripts />
