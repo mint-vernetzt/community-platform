@@ -1,7 +1,14 @@
+import { CircleButton } from "@mint-vernetzt/components";
 import { Link, NavLink, Outlet } from "@remix-run/react";
+import rcSliderStyles from "rc-slider/assets/index.css";
+import React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import Modal from "~/components/Modal/Modal";
+import Controls from "~/components/test/Controls";
 import Header from "~/components/test/Header";
-import Status from "~/components/test/Status";
 import Image from "~/components/test/Image";
+import Status from "~/components/test/Status";
 
 {
   /* <Header>
@@ -19,17 +26,89 @@ import Image from "~/components/test/Image";
 </Header> */
 }
 
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
+
 function ProjectDetail() {
+  const background = "/images/default-event-background.jpg";
+  const blurredBackground = "/images/default-event-background-blurred.jpg";
+  const Background = React.useCallback(
+    () => (
+      // <Image
+      //   src={background}
+      //   alt="Standard Hintergrund"
+      //   blurredSrc={blurredBackground}
+      // />
+      <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
+        {background ? (
+          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+        ) : (
+          <div className="w-[336px] min-h-[108px]" />
+        )}
+      </div>
+    ),
+    [background]
+    // [background, blurredBackground]
+  );
   return (
     <>
-      <Header>
-        <Status>Entwurf</Status>
-        <Image
-          src="/images/default-event-background.jpg"
-          alt="Standard Hintergrund"
-          blurredSrc="/images/default-event-background-blurred.jpg"
-        />
-      </Header>
+      <section className="md:container">
+        <Header>
+          <Status>Entwurf</Status>
+          <Image
+            src="/images/default-event-background.jpg"
+            alt="Standard Hintergrund"
+            blurredSrc="/images/default-event-background-blurred.jpg"
+          />
+          <Controls>
+            <CircleButton variant="outline">
+              <label
+                htmlFor="modal-background-upload"
+                className="mv-absolute mv-top-4 mv-left-4 mv-w-full mv-h-full mv-modal-button mv-cursor-pointer"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12.1464 0.146447C12.3417 -0.0488155 12.6583 -0.0488155 12.8536 0.146447L15.8536 3.14645C16.0488 3.34171 16.0488 3.65829 15.8536 3.85355L5.85355 13.8536C5.80567 13.9014 5.74857 13.9391 5.6857 13.9642L0.685695 15.9642C0.499987 16.0385 0.287878 15.995 0.146446 15.8536C0.00501511 15.7121 -0.0385219 15.5 0.0357614 15.3143L2.03576 10.3143C2.06091 10.2514 2.09857 10.1943 2.14645 10.1464L12.1464 0.146447ZM11.2071 2.5L13.5 4.79289L14.7929 3.5L12.5 1.20711L11.2071 2.5ZM12.7929 5.5L10.5 3.20711L4 9.70711V10H4.5C4.77614 10 5 10.2239 5 10.5V11H5.5C5.77614 11 6 11.2239 6 11.5V12H6.29289L12.7929 5.5ZM3.03165 10.6755L2.92612 10.781L1.39753 14.6025L5.21902 13.0739L5.32454 12.9683C5.13495 12.8973 5 12.7144 5 12.5V12H4.5C4.22386 12 4 11.7761 4 11.5V11H3.5C3.2856 11 3.10271 10.865 3.03165 10.6755Z"
+                    fill="#454C5C"
+                  />
+                </svg>
+              </label>
+            </CircleButton>
+          </Controls>
+        </Header>
+      </section>
+      <Modal id="modal-background-upload">
+        <ImageCropper
+          headline="Hintergrundbild"
+          subject="project"
+          id="modal-background-upload"
+          uploadKey="background"
+          image={undefined}
+          aspect={31 / 10}
+          minCropWidth={620}
+          minCropHeight={62}
+          maxTargetWidth={1488}
+          maxTargetHeight={480}
+          slug="some-slug"
+          redirect="/upload/redirect"
+        >
+          <Image
+            src={background}
+            alt="Standard Hintergrund"
+            blurredSrc={blurredBackground}
+          />
+        </ImageCropper>
+      </Modal>
       <div className="mv-flex mv-gap-4">
         <NavLink
           to="./about"
