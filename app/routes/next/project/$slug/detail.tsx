@@ -93,7 +93,7 @@ function ProjectDetail() {
   return (
     <>
       {loaderData.username !== null && (
-        <>
+        <section className="container mb-4">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link
               to={`/profile/${loaderData.username}/#projects`}
@@ -102,7 +102,7 @@ function ProjectDetail() {
               Meine Projekte
             </Link>
           </TextButton>
-        </>
+        </section>
       )}
       <section className="md:container">
         <Header>
@@ -157,6 +157,7 @@ function ProjectDetail() {
           />
         </ImageCropper>
       </Modal>
+
       <TabBar>
         <TabBar.Item active={pathname.endsWith("/about")}>
           <Link to="./about">about</Link>
