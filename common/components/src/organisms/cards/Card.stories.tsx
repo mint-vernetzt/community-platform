@@ -862,23 +862,31 @@ export function ProjectStory() {
               "Sound x Tech Format für Mädchen*, trans*, inter* und non-binäre Jugenliche ab 12 Jahren.",
             responsibleOrganizations: [
               {
-                name: "MINTvernetzt",
-                slug: "mintvernetzt",
-                logo: "./mintvernetzt-logo.png",
+                organization: {
+                  name: "MINTvernetzt",
+                  slug: "mintvernetzt",
+                  logo: "./mintvernetzt-logo.png",
+                },
               },
               {
-                name: "matrix ggmbh",
-                slug: "matrixggmbh",
-                logo: "./matrixggmbh-logo.png",
+                organization: {
+                  name: "matrix ggmbh",
+                  slug: "matrixggmbh",
+                  logo: "./matrixggmbh-logo.png",
+                },
               },
               {
-                name: "MINT-Campus",
-                slug: "mintcampus-len1g1op",
+                organization: {
+                  name: "MINT-Campus",
+                  slug: "mintcampus-len1g1op",
+                },
               },
 
               {
-                name: "matrix GmbH & Co. KG",
-                slug: "matrixgmbhcokg",
+                organization: {
+                  name: "matrix GmbH & Co. KG",
+                  slug: "matrixgmbhcokg",
+                },
               },
             ],
           }}

@@ -10,9 +10,11 @@ export type ProjectCardProps = {
     background?: string | null;
     logo?: string | null;
     responsibleOrganizations: {
-      name: string;
-      slug: string;
-      logo?: string | null;
+      organization: {
+        name: string;
+        slug: string;
+        logo?: string | null;
+      };
     }[];
   };
 };
@@ -42,7 +44,8 @@ function ProjectCard(props: ProjectCardProps) {
       </Card.Body>
       <Card.Footer>
         <Avatar.List visibleAvatars={1}>
-          {project.responsibleOrganizations.map((organization) => {
+          {project.responsibleOrganizations.map((item) => {
+            const { organization } = item;
             return (
               <Avatar
                 key={organization.slug}
