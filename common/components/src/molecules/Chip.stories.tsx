@@ -16,6 +16,7 @@ export function ChipVariantsStory() {
           </button>
         </Chip>
         <Chip disabled>disabled Chip</Chip>
+        <Chip responsive>Chip</Chip>
       </div>
       <div className="mv-flex mv-flex-row mv-gap-4">
         <Chip color="secondary">Chip</Chip>
@@ -29,6 +30,9 @@ export function ChipVariantsStory() {
         </Chip>
         <Chip color="secondary" disabled>
           disabled Chip
+        </Chip>
+        <Chip color="secondary" responsive>
+          Chip
         </Chip>
       </div>
     </div>
@@ -47,6 +51,7 @@ ChipPlayground.args = {
   interactive: false,
   removable: false,
   disabled: false,
+  responsive: false,
 };
 ChipPlayground.argTypes = {
   title: {

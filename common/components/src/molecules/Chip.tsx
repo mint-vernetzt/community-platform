@@ -30,6 +30,7 @@ export type ChipProps = {
   interactive?: boolean;
   removable?: boolean;
   disabled?: boolean;
+  responsive?: boolean;
 };
 
 function Cross() {
@@ -74,7 +75,8 @@ function Chip(props: ChipProps) {
     disabled && "mv-bg-white mv-text-gray-300 mv-border-gray-300",
     interactive && "mv-cursor-pointer",
     props.removable && "mv-flex mv-gap-2 mv-items-center",
-    "mv-text-xs mv-py-1.5 mv-px-3 mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden"
+    "mv-text-xs mv-py-1.5 mv-px-3 mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden",
+    props.responsive && "md:mv-px-4 md:mv-py-2 md:mv-text-sm"
   );
 
   if (typeof props.children === "string") {
