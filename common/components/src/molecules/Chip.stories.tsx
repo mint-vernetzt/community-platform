@@ -3,7 +3,7 @@ import Chip, { type ChipColor } from "./Chip";
 export function ChipVariantsStory(props: { responsive: boolean }) {
   return (
     <div className="mv-flex mv-flex-col mv-gap-4">
-      <div className="mv-flex mv-flex-row mv-gap-4">
+      <Chip.Container>
         <Chip responsive={props.responsive}>Chip</Chip>
         <Chip responsive={props.responsive}>
           Chip with delete{" "}
@@ -32,8 +32,8 @@ export function ChipVariantsStory(props: { responsive: boolean }) {
             <button onClick={() => console.log("delete click")}>Delete</button>
           </Chip.Delete>
         </Chip>
-      </div>
-      <div className="mv-flex mv-flex-row mv-gap-4">
+      </Chip.Container>
+      <Chip.Container>
         <Chip color="secondary" responsive={props.responsive}>
           Chip
         </Chip>
@@ -69,7 +69,7 @@ export function ChipVariantsStory(props: { responsive: boolean }) {
             <button onClick={() => console.log("delete click")}>Delete</button>
           </Chip.Delete>
         </Chip>
-      </div>
+      </Chip.Container>
     </div>
   );
 }
