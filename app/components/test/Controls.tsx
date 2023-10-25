@@ -6,7 +6,7 @@ export type ControlsProps = {
 
 function Controls(props: ControlsProps) {
   const children = React.Children.toArray(props.children).filter((child) => {
-    const isValid = React.isValidElement(child) || typeof child === "string";
+    const isValid = React.isValidElement(child);
     if (!isValid) {
       console.warn(
         `The child you passed to <Controls> is not a valid element and will be ignored: ${child}`
@@ -15,7 +15,13 @@ function Controls(props: ControlsProps) {
     return isValid;
   });
 
-  return <div className="mv-flex mv-gap-4">{children}</div>;
+  // TODO: Flex Items with equal width
+
+  return (
+    <div className={`grid grid-cols-${children.length} mv-gap-4 mv-w-full`}>
+      {children}
+    </div>
+  );
 }
 
 export default Controls;

@@ -45,15 +45,17 @@ export function Header(props: HeaderProps) {
           <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
         )}
       </div>
-      <div
-        className={`${
-          avatar !== undefined
-            ? "mv-mt-24 md:mv-mt-[140px]"
-            : "mv-mt-2 md:mv-mt-4"
-        } mv-mb-2 md:mv-mb-4`}
-      >
-        {body || null}
-      </div>
+      {body !== undefined && (
+        <div
+          className={`${
+            avatar !== undefined
+              ? "mv-mt-24 md:mv-mt-[140px]"
+              : "mv-mt-2 md:mv-mt-4"
+          } mv-mb-2 md:mv-mb-4`}
+        >
+          {body || null}
+        </div>
+      )}
       {footer || null}
     </div>
   );
@@ -115,7 +117,7 @@ export function HeaderFooter(props: HeaderFooterProps) {
 
   return (
     <div
-      className={`mv-flex mv-flex-col md:mv-flex-row mv-gap-4 md:mv-gap-0 mv-justify-end mv-w-full md:mv-border-t mv-p-6 ${
+      className={`mv-flex mv-flex-col lg:mv-flex-row mv-gap-4 lg:mv-gap-0 mv-justify-end mv-w-full md:mv-border-t mv-p-6 ${
         otherChilds.length > 0 ? "mv-bg-accent-300" : ""
       }`}
     >
@@ -123,7 +125,7 @@ export function HeaderFooter(props: HeaderFooterProps) {
         {otherChilds}
       </div>
       {controls !== undefined && (
-        <div className="mv-flex mv-shrink md:mv-w-auto mv-items-center mv-justify-center md:mv-justify-end">
+        <div className="mv-flex mv-shrink mv-w-full lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
           {controls}
         </div>
       )}

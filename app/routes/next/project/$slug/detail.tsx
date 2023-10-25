@@ -234,7 +234,11 @@ function ProjectDetail() {
             <p>Hier steht z.B. beim Veranstaltungs Header etwas.</p>
             {mode === "admin" && (
               <Controls>
-                <Button>Projekt bearbeiten</Button>
+                <Button as="a" href="./../settings">
+                  {/* TODO: Use absolute path */}
+                  Projekt bearbeiten
+                </Button>
+                {/* TODO: Add conform, zod, Form and Action for publish */}
                 <Button variant="outline">
                   {project.published ? "Verstecken" : "Veröffentlichen"}
                 </Button>
