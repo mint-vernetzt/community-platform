@@ -1434,6 +1434,7 @@ export async function searchProjectsViaLike(
               id: true,
               name: true,
               slug: true,
+              logo: true,
             },
           },
         },

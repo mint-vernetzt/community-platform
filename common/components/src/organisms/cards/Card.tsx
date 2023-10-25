@@ -48,6 +48,7 @@ export function Card(props: CardProps) {
 
 export type CardHeaderProps = {
   children?: React.ReactNode;
+  // TODO: We do pass in here the context. The header should handle different appearances without knowing the card/application context.
   cardType?: "profile" | "organization" | "event" | "project";
 };
 
@@ -75,13 +76,22 @@ export function CardHeader(props: CardHeaderProps) {
     return React.isValidElement(child) && child.type === CardInfoOverlay;
   });
 
+  const dimension = props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40";
+
+  const containerClasses = classNames(
+    "mv-w-full mv-overflow-hidden",
+    dimension,
+    props.cardType === "project" ? "mv-bg-attention" : "mv-bg-positive"
+  );
+
+  const overlayClasses = classNames(
+    "mv-absolute mv-w-full mv-overflow-hidden",
+    dimension
+  );
+
   return (
     <>
-      <div
-        className={`mv-bg-positive mv-w-full mv-overflow-hidden ${
-          props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
-        }`}
-      >
+      <div className={containerClasses}>
         {image !== undefined && (
           <div
             className={`mv-absolute mv-w-full mv-overflow-hidden ${
@@ -91,15 +101,7 @@ export function CardHeader(props: CardHeaderProps) {
             {image}
           </div>
         )}
-        {status !== undefined && (
-          <div
-            className={`mv-absolute mv-w-full mv-overflow-hidden ${
-              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
-            }`}
-          >
-            {status}
-          </div>
-        )}
+        {status !== undefined && <div className={overlayClasses}>{status}</div>}
         {avatar !== undefined && (
           <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
             {avatar}
@@ -107,19 +109,15 @@ export function CardHeader(props: CardHeaderProps) {
         )}
 
         {infoOverlay !== undefined && (
-          <div
-            className={`mv-absolute mv-w-full mv-overflow-hidden ${
-              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
-            }`}
-          >
-            {infoOverlay}
-          </div>
+          <div className={overlayClasses}>{infoOverlay}</div>
         )}
       </div>
       {info !== undefined && info}
     </>
   );
 }
+
+Card.Header = CardHeader;
 
 export type CardInfoOverlayProps = {
   children?: React.ReactNode;
@@ -133,6 +131,8 @@ export function CardInfoOverlay(props: CardInfoOverlayProps) {
   );
 }
 
+Card.InfoOverlay = CardInfoOverlay;
+
 export type CardInfoProps = {
   children?: React.ReactNode;
 };
@@ -144,6 +144,8 @@ export function CardInfo(props: CardInfoProps) {
     </div>
   );
 }
+
+Card.Info = CardInfo;
 
 export type CardStatusProps = {
   children?: React.ReactNode;
@@ -164,6 +166,8 @@ export function CardStatus(props: CardStatusProps) {
 
   return <div className={classes}>{props.children}</div>;
 }
+
+Card.Status = CardStatus;
 
 export function CardImage(props: {
   src: string;
@@ -215,6 +219,8 @@ export function CardImage(props: {
     </>
   );
 }
+
+Card.Image = CardImage;
 
 export type CardBodyProps = {
   children?: React.ReactNode;
@@ -268,6 +274,8 @@ export function CardBodySection(props: CardBodySectionProps) {
   );
 }
 
+Card.Body = CardBody;
+
 export type CardFooterProps = {
   children?: React.ReactNode;
 };
@@ -282,6 +290,8 @@ export function CardFooter(props: CardFooterProps) {
     </div>
   );
 }
+
+Card.Footer = CardFooter;
 
 export type CardRowContainerProps = {
   children?: React.ReactNode;
@@ -325,3 +335,5 @@ export function CardRowContainer(props: CardRowContainerProps) {
     </div>
   );
 }
+
+Card.RowContainer = CardRowContainer;

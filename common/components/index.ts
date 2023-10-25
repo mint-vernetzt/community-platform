@@ -20,5 +20,6 @@ export {
   EventCard,
   OrganizationCard,
   ProfileCard,
+  ProjectCard,
 } from "./src/organisms/cards";
 export { CardContainer, Section } from "./src/organisms/containers";

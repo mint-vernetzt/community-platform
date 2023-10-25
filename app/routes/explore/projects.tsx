@@ -1,14 +1,12 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1, H3, H4 } from "~/components/Heading/Heading";
+import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
@@ -23,7 +21,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
-    itemsPerPage: 6,
+    itemsPerPage: 8,
   });
 
   const authClient = createAuthClient(request, response);
@@ -48,6 +46,7 @@ export const loader = async ({ request }: LoaderArgs) => {
           const filteredOrganization = await filterOrganizationByVisibility<
             typeof relation.organization
           >(relation.organization);
+
           return { ...relation, organization: filteredOrganization };
         })
       );
@@ -85,6 +84,24 @@ export const loader = async ({ request }: LoaderArgs) => {
       }
       return { ...relation, award: { ...relation.award, logo } };
     });
+
+    enhancedProject.responsibleOrganizations =
+      enhancedProject.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
 
     enhancedProjects.push(enhancedProject);
   }
@@ -144,123 +161,14 @@ function Projects() {
           MINT-Community werfen.
         </p>
       </section>
-      <section className="container my-8 md:mt-10 lg:mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 items-stretch">
-        {items.map((project) => {
-          return (
-            <div
-              key={`project-${project.id}`}
-              className="rounded-2xl bg-white shadow-xl flex flex-col border"
-            >
-              <a
-                className="relative flex-initial"
-                href={`/project/${project.slug}`}
-              >
-                <div className="w-full aspect-4/3 lg:aspect-video rounded-t-2xl hidden">
-                  <img
-                    src={
-                      project.background ||
-                      "/images/default-event-background.jpg"
-                    }
-                    alt={project.name}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </a>
-              <a
-                href={`/project/${project.slug}`}
-                className="flex flex-nowrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200"
-              >
-                <div>
-                  <div className="w-full flex items-center flex-row">
-                    {project.logo !== "" && project.logo !== null ? (
-                      <div className="h-11 w-11 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                        <img
-                          className="max-w-full w-auto max-h-16 h-auto"
-                          src={project.logo}
-                          alt={project.name}
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                        {getInitialsOfName(project.name)}
-                      </div>
-                    )}
-                    <div className="pl-4">
-                      <H3 like="h4" className="text-base mb-0 font-bold">
-                        {project.name}
-                      </H3>
-                      {project.responsibleOrganizations.length > 0 ? (
-                        <p className="font-bold text-sm">
-                          {project.responsibleOrganizations
-                            .map((relation) => relation.organization.name)
-                            .join(" / ")}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                  {project.excerpt !== null && project.excerpt !== "" ? (
-                    <div className="mt-2 line-clamp-3 text-sm">
-                      {project.excerpt}
-                    </div>
-                  ) : null}
-                </div>
-                {project.awards.length > 0 ? (
-                  <div className="-mt-4 flex ml-4">
-                    {project.awards.map((relation) => {
-                      const date = utcToZonedTime(
-                        relation.award.date,
-                        "Europe/Berlin"
-                      );
-                      return (
-                        <div
-                          key={`award-${relation.award.id}`}
-                          className="bg-[url('/images/award_bg.svg')] -mt-px bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
-                        >
-                          <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
-                            <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                              {relation.award.logo !== "" ? (
-                                <img
-                                  src={relation.award.logo}
-                                  alt={relation.award.title}
-                                />
-                              ) : (
-                                getInitialsOfName(relation.award.title)
-                              )}
-                            </div>
-                            <div className="px-2 pt-1 mb-4">
-                              {relation.award.shortTitle ? (
-                                <H4
-                                  like="h4"
-                                  className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
-                                >
-                                  {relation.award.shortTitle}
-                                </H4>
-                              ) : null}
-                              <p className="text-xxs text-center leading-none">
-                                {date.getFullYear()}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : null}
-              </a>
-
-              <div className="items-end px-4">
-                <div className="py-4 border-t text-right">
-                  <a
-                    href={`/project/${project.slug}`}
-                    className="btn btn-primary btn-small"
-                  >
-                    Zum Projekt
-                  </a>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <CardContainer type="multi row">
+          {items.map((project) => {
+            return (
+              <ProjectCard key={`project-${project.id}`} project={project} />
+            );
+          })}
+        </CardContainer>
       </section>
       {shouldFetch && (
         <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
