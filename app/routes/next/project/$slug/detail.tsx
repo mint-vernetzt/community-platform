@@ -1,11 +1,11 @@
-import { Avatar, CircleButton } from "@mint-vernetzt/components";
+import { Avatar, Button, CircleButton } from "@mint-vernetzt/components";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import Controls from "~/components/test/Controls";
-import { Header, HeaderBody } from "~/components/test/Header";
+import { Header, HeaderBody, HeaderFooter } from "~/components/test/Header";
 import Image from "~/components/test/Image";
 import Status from "~/components/test/Status";
 import { TabBar, TextButton } from "@mint-vernetzt/components";
@@ -218,12 +218,29 @@ function ProjectDetail() {
                 </label>
               </Controls>
             )}
-            <H1 like="h3">{project.name}</H1>
-            <p className="mv-text-base mv-font-semibold">
-              Hier steht eine Subline. Was ist das Äquivalent auf der Settings
-              Seite?
+            <H1 like="h3" className="mv-mb-0">
+              {project.name}
+            </H1>
+            <p className="mv-text-base md:mv-text-2xl">
+              Sound x Tech Format für Mädchen*, trans*, inter*
+              undhghghhfghfhghfhghfghfhghfhgfhnon-binäre Jugendliche ab 12
+              Jahren.
             </p>
+            {project.excerpt !== null && (
+              <p className="mv-text-base md:mv-text-2xl">{project.excerpt}</p>
+            )}
           </HeaderBody>
+          <HeaderFooter>
+            <p>Hier steht z.B. beim Veranstaltungs Header etwas.</p>
+            {mode === "admin" && (
+              <Controls>
+                <Button>Projekt bearbeiten</Button>
+                <Button variant="outline">
+                  {project.published ? "Verstecken" : "Veröffentlichen"}
+                </Button>
+              </Controls>
+            )}
+          </HeaderFooter>
         </Header>
       </section>
       {mode === "admin" && (

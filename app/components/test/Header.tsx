@@ -25,8 +25,9 @@ export function Header(props: HeaderProps) {
   const body = children.find((child) => {
     return React.isValidElement(child) && child.type === HeaderBody;
   });
-
-  console.log(avatar);
+  const footer = children.find((child) => {
+    return React.isValidElement(child) && child.type === HeaderFooter;
+  });
 
   return (
     <div className="mv-relative mv-w-full mv-border mv-rounded-none md:mv-rounded-3xl mv-overflow-hidden">
@@ -49,10 +50,11 @@ export function Header(props: HeaderProps) {
           avatar !== undefined
             ? "mv-mt-24 md:mv-mt-[140px]"
             : "mv-mt-2 md:mv-mt-4"
-        }`}
+        } mv-mb-2 md:mv-mb-4`}
       >
         {body || null}
       </div>
+      {footer || null}
     </div>
   );
 }
@@ -80,11 +82,51 @@ export function HeaderBody(props: HeaderBodyProps) {
 
   // TODO:
   // gaps between childs
-  // layer avatar on top
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-w-full mv-gap-4">
-      {controls || null}
+    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 md:mv-mb-8 mv-px-4 md:mv-px-52 mv-text-center">
+      {controls !== undefined && (
+        <div className="mv-my-0 md:mv-my-2">{controls}</div>
+      )}
       {otherChilds}
+    </div>
+  );
+}
+
+type HeaderFooterProps = {
+  children: ReactNode;
+};
+
+export function HeaderFooter(props: HeaderFooterProps) {
+  const children = React.Children.toArray(props.children).filter((child) => {
+    const isValid = React.isValidElement(child) || typeof child === "string";
+    if (!isValid) {
+      console.warn(
+        `The child you passed to <HeaderFooter> is not a valid element and will be ignored: ${child}`
+      );
+    }
+    return isValid;
+  });
+  const controls = children.find((child) => {
+    return React.isValidElement(child) && child.type === Controls;
+  });
+  const otherChilds = children.filter((child) => {
+    return React.isValidElement(child) && child.type !== Controls;
+  });
+
+  return (
+    <div
+      className={`mv-flex mv-flex-col md:mv-flex-row mv-gap-4 md:mv-gap-0 mv-justify-end mv-w-full md:mv-border-t mv-p-6 ${
+        otherChilds.length > 0 ? "mv-bg-accent-300" : ""
+      }`}
+    >
+      <div className="mv-flex mv-grow mv-items-center mv-justify-center mv-font-bold">
+        {otherChilds}
+      </div>
+      {controls !== undefined && (
+        <div className="mv-flex mv-shrink md:mv-w-auto mv-items-center mv-justify-center md:mv-justify-end">
+          {controls}
+        </div>
+      )}
     </div>
   );
 }
