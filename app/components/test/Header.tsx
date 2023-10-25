@@ -26,6 +26,8 @@ export function Header(props: HeaderProps) {
     return React.isValidElement(child) && child.type === HeaderBody;
   });
 
+  console.log(avatar);
+
   return (
     <div className="mv-relative mv-w-full mv-border mv-rounded-none md:mv-rounded-3xl mv-overflow-hidden">
       <div className="mv-relative mv-w-full mv-aspect-[3/2] md:mv-aspect-[2/1] lg:mv-aspect-[31/10] mv-bg-attention-400">
@@ -44,7 +46,9 @@ export function Header(props: HeaderProps) {
       </div>
       <div
         className={`${
-          avatar !== null ? "mv-mt-24 md:mv-mt-[140px]" : "mv-mt-2 md:mv-mt-4"
+          avatar !== undefined
+            ? "mv-mt-24 md:mv-mt-[140px]"
+            : "mv-mt-2 md:mv-mt-4"
         }`}
       >
         {body || null}
@@ -78,7 +82,7 @@ export function HeaderBody(props: HeaderBodyProps) {
   // gaps between childs
   // layer avatar on top
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-w-full">
+    <div className="mv-flex mv-flex-col mv-items-center mv-w-full mv-gap-4">
       {controls || null}
       {otherChilds}
     </div>

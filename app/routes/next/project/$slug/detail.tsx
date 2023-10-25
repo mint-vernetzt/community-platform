@@ -18,6 +18,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { deriveProjectMode } from "../../utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getImageURL } from "~/images.server";
+import { H1, H2 } from "~/components/Heading/Heading";
 
 {
   /* <Header>
@@ -217,11 +218,11 @@ function ProjectDetail() {
                 </label>
               </Controls>
             )}
-            <h1>{project.name}</h1>
-            <h5>
+            <H1 like="h3">{project.name}</H1>
+            <p className="mv-text-base mv-font-semibold">
               Hier steht eine Subline. Was ist das Äquivalent auf der Settings
               Seite?
-            </h5>
+            </p>
           </HeaderBody>
         </Header>
       </section>
