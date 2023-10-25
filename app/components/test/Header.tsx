@@ -16,6 +16,9 @@ export function Header(props: HeaderProps) {
   const image = children.find((child) => {
     return React.isValidElement(child) && child.type === Image;
   });
+  const avatar = children.find((child) => {
+    return React.isValidElement(child) && child.type === Avatar;
+  });
   const controls = children.find((child) => {
     return React.isValidElement(child) && child.type === Controls;
   });
@@ -31,8 +34,21 @@ export function Header(props: HeaderProps) {
         {controls !== null && (
           <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
         )}
+        {avatar !== null && (
+          <div className="mv-absolute mv-inset-x-0 mv--bottom-20 md:mv--bottom-[124px] mv-flex mv-flex-col mv-items-center">
+            <div className="mv-w-40 md:mv-w-[248px] mv-aspect-[1]">
+              {avatar}
+            </div>
+          </div>
+        )}
       </div>
-      {body || null}
+      <div
+        className={`${
+          avatar !== null ? "mv-mt-24 md:mv-mt-[140px]" : "mv-mt-2 md:mv-mt-4"
+        }`}
+      >
+        {body || null}
+      </div>
     </div>
   );
 }
@@ -51,18 +67,11 @@ export function HeaderBody(props: HeaderBodyProps) {
     }
     return isValid;
   });
-  const avatar = children.find((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
-  });
   const controls = children.find((child) => {
     return React.isValidElement(child) && child.type === Controls;
   });
   const otherChilds = children.filter((child) => {
-    return (
-      React.isValidElement(child) &&
-      child.type !== Avatar &&
-      child.type !== Controls
-    );
+    return React.isValidElement(child) && child.type !== Controls;
   });
 
   // TODO:
@@ -70,11 +79,6 @@ export function HeaderBody(props: HeaderBodyProps) {
   // layer avatar on top
   return (
     <div className="mv-flex mv-flex-col mv-items-center mv-w-full">
-      {avatar !== null && (
-        <div className="mv-w-40 md:mv-w-[248px] mv-aspect-[1] mv--mt-20 md:mv--mt-[124px]">
-          {avatar}
-        </div>
-      )}
       {controls || null}
       {otherChilds}
     </div>

@@ -168,6 +168,12 @@ function ProjectDetail() {
             alt=""
             blurredSrc={project.blurredBackground || undefined}
           />
+          <Avatar
+            name={project.name}
+            logo={project.logo}
+            size="full"
+            textSize="xl"
+          />
           {mode === "admin" && (
             <Controls>
               <CircleButton variant="outline">
@@ -192,12 +198,6 @@ function ProjectDetail() {
             </Controls>
           )}
           <HeaderBody>
-            <Avatar
-              name={project.name}
-              logo={project.logo}
-              size="full"
-              textSize="xl"
-            />
             {mode === "admin" && (
               <Controls>
                 <label
