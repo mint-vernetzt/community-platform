@@ -34,15 +34,15 @@ export function Header(props: HeaderProps) {
       <div className="mv-relative mv-w-full mv-aspect-[3/2] md:mv-aspect-[2/1] lg:mv-aspect-[31/10] mv-bg-attention-400">
         {image || null}
         {status || null}
-        {controls !== null && (
-          <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
-        )}
         {avatar !== null && (
           <div className="mv-absolute mv-inset-x-0 mv--bottom-20 md:mv--bottom-[124px] mv-flex mv-flex-col mv-items-center">
             <div className="mv-w-40 md:mv-w-[248px] mv-aspect-[1]">
               {avatar}
             </div>
           </div>
+        )}
+        {controls !== null && (
+          <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
         )}
       </div>
       <div
