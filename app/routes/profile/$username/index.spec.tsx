@@ -471,7 +471,7 @@ describe("loader", () => {
       const json = await response.json();
 
       expect(response.status).toBe(404);
-      expect(json).toEqual({ message: "Profile not found" });
+      expect(json).toEqual({ message: "error.profileNotFound" });
     }
   });
 
@@ -534,7 +534,7 @@ describe("loader", () => {
       const json = await response.json();
 
       expect(response.status).toBe(404);
-      expect(json).toEqual({ message: "Profile not found" });
+      expect(json).toEqual("error.profileNotFound");
     }
   });
 

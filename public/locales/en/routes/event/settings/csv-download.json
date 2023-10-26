@@ -1,0 +1,10 @@
+{
+  "error": {
+    "badRequest": {
+      "depth": "[en] search parameter - depth = full || single - must be provided.",
+      "type": "[en] search parameter - type = participants || waitingList - must be provided.",
+      "notFound": "[en] Participants not found",
+      "notPrivileged": "[en] Not privileged"
+    }
+  }
+}

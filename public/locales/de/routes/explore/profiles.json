@@ -1,0 +1,11 @@
+{
+  "headline": "Entdecke die Community",
+  "intro": "Hier findest du die Profile von Akteur:innen der MINT-Community.",
+  "search": {
+    "activityAreas": "Aktivitätsgebiet",
+    "lookingFor": "Ich suche",
+    "support": "Ich möchte unterstützen mit"
+  },
+  "more": "Weitere laden",
+  "empty": "Für Deine Filterkriterien konnten leider keine Profile gefunden werden."
+}

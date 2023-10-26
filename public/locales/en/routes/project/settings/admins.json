@@ -1,0 +1,22 @@
+{
+  "error": {
+    "notFound": "Project not found",
+    "notPrivileged": "Not privileged"
+  },
+  "content": {
+    "headline": "Die Administrator:innen",
+    "intro1": "Wer verwaltet das Projekt auf der Community Plattform? Füge hier weitere Administrator:innen hinzu oder entferne sie.",
+    "intro2": "Administrator:innen können Projekte bearbeiten, veröffentlichen oder löschen. Sie sind nicht auf der Projekt-Detailseite sichtbar.",
+    "intro3": "Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten.",
+    "add": {
+      "headline": "Administrator:in hinzufügen",
+      "intro": "Füge hier Deinem Projekt ein bereits bestehendes Profil hinzu.",
+      "label": "Name oder Email"
+    },
+    "current": {
+      "headline": "Aktuelle Administrator:innen",
+      "intro": "Hier siehst du alle Administrator:innen des Projekts auf einen Blick.",
+      "remove": "entfernen"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "content": {
+    "headline": "[en] Projekt bearbeiten",
+    "navigation": {
+      "general": "[en] Allgemein",
+      "admins": "[en] Administrator:innen",
+      "team": "[en] Team",
+      "organizations": "[en] Verantwortliche Organisationen",
+      "delete": "[en] Projekt löschen"
+    }
+  }
+}

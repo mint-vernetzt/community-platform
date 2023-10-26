@@ -267,9 +267,7 @@ describe("/event/$slug/settings/delete", () => {
       const responseBody = await response.json();
 
       expect(responseBody.errors.eventName).toBeDefined();
-      expect(responseBody.errors.eventName[0]).toBe(
-        "Der Name der Veranstaltung ist nicht korrekt"
-      );
+      expect(responseBody.errors.eventName[0]).toBe("error.input");
     });
 
     test("profile not found", async () => {

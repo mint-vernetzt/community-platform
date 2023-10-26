@@ -10,6 +10,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getEventBySlug, removeAdminFromEvent } from "./remove-admin.server";
 import { getIsTeamMember } from "../../utils.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -21,33 +23,40 @@ const environmentSchema = z.object({
   adminCount: z.number(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (environment.adminCount === 1) {
-    throw "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.";
-  }
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    if (environment.adminCount === 1) {
+      throw t("error.adminCount");
+    }
 
-  return values;
-});
+    return values;
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/admins/remove-admin",
+  ]);
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { adminCount: event._count.admins },
   });
 

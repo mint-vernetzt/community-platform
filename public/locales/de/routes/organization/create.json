@@ -1,0 +1,22 @@
+{
+  "error": {
+    "serverError": "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
+  },
+  "validation": {
+    "organizationName": {
+      "min": "Bitte gib den Namen Deiner Organisation ein."
+    }
+  },
+  "content": {
+    "back": "Zurück",
+    "headline": "Organisation oder Netzwerk hinzufügen"
+  },
+  "form": {
+    "organizationName": {
+      "label": "Name der Organisation*"
+    },
+    "submit": {
+      "label": "Anlegen"
+    }
+  }
+}

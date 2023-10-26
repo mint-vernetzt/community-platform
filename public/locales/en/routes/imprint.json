@@ -1,0 +1,22 @@
+{
+  "title": "[en] Impressum",
+  "project": {
+    "title": "[en] MINTvernetzt ist ein Verbundprojekt des / der:",
+    "members": "[en] Körber-Stiftung; matrix gGmbH; Stifterverbands für die deutsche Wissenschaft e.V.; Nationalen MINT Forum e.V.; Universität Regensburg"
+  },
+  "serviceProvider": {
+    "intro": "[en] Als Dienstanbieterin im Sinne des § 5 TMG, Kontaktstelle, Betreiberin und Vertragspartnerin nach diesen Bestimmungen ist die",
+    "name": "[en] matrix gGmbH zur Förderung von Demokratie, Teilhabe und nachhaltiger gesellschaftlicher Entwicklung",
+    "address1": "[en] Rittergut Haus Morp",
+    "address2": "[en] Düsseldorfer Straße 16",
+    "address3": "[en] 40699 Erkrath"
+  },
+  "represented": {
+    "title": "[en] Vertretungsberechtigt:",
+    "email": "[en] E-Mail:",
+    "vat": "[en] Umsatzsteueridentifikationsnummer: (USt. Ident-Nr) ",
+    "register": "[en] Amtsgericht Wuppertal –",
+    "appointed": "[en] berufen.",
+    "responsible": "[en] Inhaltlich verantwortlich nach § 18 MStV ist Arne Klauke, erreichbar über die Dienstanbieter."
+  }
+}

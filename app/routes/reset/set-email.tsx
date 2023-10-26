@@ -3,10 +3,12 @@ import { redirect } from "@remix-run/node";
 import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, setSession } from "~/auth.server";
 import { updateProfileByUserId } from "./set-email.server";
+import i18next from "~/i18next.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, ["routes/reset/set-email"]);
   const authClient = createAuthClient(request, response);
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
@@ -37,14 +39,12 @@ export const loader = async (args: DataFunctionArgs) => {
       });
     } else {
       throw serverError({
-        message:
-          "Could not set the session. Either the access and refresh token combination is invalid or an internal server occured.",
+        message: t("error.server"),
       });
     }
   } else {
     throw badRequest({
-      message:
-        "Request not from confirmation link or confirmation link expired.",
+      message: t("error.badRequest"),
     });
   }
 };

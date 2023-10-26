@@ -1,0 +1,26 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Warteliste",
+    "intro": "[en] Wer wartet aktuell auf eine Teilnahme? Füge hier weitere Teilnehmende der Warteliste hinzu oder füge Wartende der Teilnehmendenliste hinzu.",
+    "add": {
+      "headline": "[en] Zur Warteliste hinzufügen",
+      "intro": "[en] Füge hier der Warteliste ein bereits bestehendes Profil hinzu.",
+      "label": "[en] Name oder Email der wartenden Person"
+    },
+    "current": {
+      "headline": "[en] Warteliste",
+      "intro": "[en] Folgende Profile stehen aktuell auf der Warteliste (in Reihenfolge ihrer Anmeldung.)",
+      "download1": "[en] Warteliste herunterladen",
+      "download2": "[en] Warteliste aller Subveranstaltungen herunterladen",
+      "feedback": "[en] Teilnehmende wurde hinzugefügt und per E-Mail informiert.",
+      "action": "[en] Zu Teilnehmenden hinzufügen",
+      "remove": "[en] entfernen"
+    },
+    "hide": "[en] Verstecken",
+    "publish": "[en] Veröffentlichen"
+  }
+}

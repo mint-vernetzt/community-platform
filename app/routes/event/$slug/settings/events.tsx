@@ -22,36 +22,39 @@ import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./events.server";
 import {
-  addChildSchema,
   type action as addChildAction,
+  addChildSchema,
 } from "./events/add-child";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
-  removeChildSchema,
   type action as removeChildAction,
+  removeChildSchema,
 } from "./events/remove-child";
 import {
-  setParentSchema,
   type action as setParentAction,
+  setParentSchema,
 } from "./events/set-parent";
 import {
   getChildEventSuggestions,
-  // getEventsOfPrivilegedMemberExceptOfGivenEvent,
-  // getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
+  const t = await i18next.getFixedT(request, ["routes/event/settings/events"]);
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
     if (childEvent.background !== null) {
@@ -146,20 +149,14 @@ function Events() {
     "child_autocomplete_query"
   );
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/events"]);
 
   return (
     <>
-      <h1 className="mb-8">Verknüpfte Veranstaltungen</h1>
-      <h4 className="mb-4 font-semibold">Rahmenveranstaltung zuweisen</h4>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <h4 className="mb-4 font-semibold">{t("content.assign.headline")}</h4>
 
-      <p className="mb-4">
-        Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie
-        beispielsweise im Rahmen einer Tagung statt? Füge hier deiner
-        Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.
-        Allerdings musst du priviligiertes Teammitglied der Rahmenveranstaltung
-        sein und deine Veranstaltung muss sich innerhalb des Zeitraums der
-        Rahmenveranstaltung befinden.
-      </p>
+      <p className="mb-4">{t("content.assign.intro")}</p>
       <Form
         schema={setParentSchema}
         fetcher={setParentFetcher}
@@ -180,7 +177,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    Name der Veranstaltung
+                    {t("content.assign.name")}
                   </label>
                 </div>
               </div>
@@ -216,13 +213,13 @@ function Events() {
           {setParentFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-4 font-semibold">Aktuelle Rahmenveranstaltung</h4>
+      <h4 className="mb-4 mt-4 font-semibold">
+        {t("content.parent.headline")}
+      </h4>
       <p className="mb-8">
-        Hier siehst du die aktuelle Rahmenveranstaltung deiner Veranstaltung.
+        {t("content.parent.intro")}
         <br></br>
-        {loaderData.parentEvent === null
-          ? "\nAktuell ist deiner Veranstaltung keine Rahmenveranstaltung zugewiesen."
-          : ""}
+        {loaderData.parentEvent === null ? t("content.parent.empty") : ""}
       </p>
       {loaderData.parentEvent !== null ? (
         <div>
@@ -271,13 +268,15 @@ function Events() {
                           {loaderData.parentEvent._count.childEvents === 0 ? (
                             <>
                               {loaderData.parentEvent.participantLimit === null
-                                ? " | Unbegrenzte Plätze"
-                                : ` | ${
-                                    loaderData.parentEvent.participantLimit -
-                                    loaderData.parentEvent._count.participants
-                                  } / ${
-                                    loaderData.parentEvent.participantLimit
-                                  } Plätzen frei`}
+                                ? t("content.parent.seats.unlimited")
+                                : t("content.parent.seats.exact", {
+                                    number:
+                                      loaderData.parentEvent.participantLimit -
+                                      loaderData.parentEvent._count
+                                        .participants,
+                                    total:
+                                      loaderData.parentEvent.participantLimit,
+                                  })}
                             </>
                           ) : (
                             ""
@@ -289,8 +288,10 @@ function Events() {
                               {" "}
                               |{" "}
                               <span>
-                                {loaderData.parentEvent._count.waitingList} auf
-                                der Warteliste
+                                {t("content.parent.seats.waiting", {
+                                  number:
+                                    loaderData.parentEvent._count.waitingList,
+                                })}
                               </span>
                             </>
                           ) : (
@@ -336,19 +337,9 @@ function Events() {
         </div>
       ) : null}
       <hr className="border-neutral-400 my-4 lg:my-8" />
-      <h4 className="mb-4 font-semibold">
-        Zugehörige Veranstaltungen hinzufügen
-      </h4>
+      <h4 className="mb-4 font-semibold">{t("content.related.headline")}</h4>
 
-      <p className="mb-4">
-        Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist
-        deine Veranstaltung beispielsweise eine Tagung und hat mehrere
-        Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches?
-        Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne
-        sie. Beachte, dass du priviligiertes Teammitglied in den zugehörigen
-        Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im
-        Zeitraum deiner Veranstaltung stattfinden müssen.
-      </p>
+      <p className="mb-4">{t("content.related.intro")}</p>
       <Form
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -369,7 +360,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    Name der Veranstaltung
+                    {t("content.related.name")}
                   </label>
                 </div>
               </div>
@@ -407,15 +398,12 @@ function Events() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
-        Aktuelle zugehörige Veranstaltungen
+        {t("content.current.headline")}
       </h4>
       <p className="mb-8">
-        Hier siehst du die aktuellen zugehörigen Veranstaltung deiner
-        Veranstaltung.
+        {t("content.current.intro")}
         <br></br>
-        {loaderData.childEvents.length === 0
-          ? "\nAktuell besitzt deine Veranstaltung keine zugehörigen Veranstaltungen."
-          : ""}
+        {loaderData.childEvents.length === 0 ? t("content.current.empty") : ""}
       </p>
       {loaderData.childEvents.length > 0 ? (
         <div className="mt-6">
@@ -465,13 +453,13 @@ function Events() {
                               {childEvent._count.childEvents === 0 ? (
                                 <>
                                   {childEvent.participantLimit === null
-                                    ? " | Unbegrenzte Plätze"
-                                    : ` | ${
-                                        childEvent.participantLimit -
-                                        childEvent._count.participants
-                                      } / ${
-                                        childEvent.participantLimit
-                                      } Plätzen frei`}
+                                    ? t("content.current.seats.unlimited")
+                                    : t("content.current.seats.exact", {
+                                        number:
+                                          childEvent.participantLimit -
+                                          childEvent._count.participants,
+                                        total: childEvent.participantLimit,
+                                      })}
                                 </>
                               ) : (
                                 ""
@@ -483,8 +471,9 @@ function Events() {
                                   {" "}
                                   |{" "}
                                   <span>
-                                    {childEvent._count.waitingList} auf der
-                                    Warteliste
+                                    {t("content.current.seats.waiting", {
+                                      number: childEvent._count.waitingList,
+                                    })}
                                   </span>
                                 </>
                               ) : (
@@ -506,7 +495,10 @@ function Events() {
                           </div>
                         </Link>
                         <Field name="childEventId" />
-                        <Button className="ml-auto btn-none" title="entfernen">
+                        <Button
+                          className="ml-auto btn-none"
+                          title={t("form.remove.label")}
+                        >
                           <svg
                             viewBox="0 0 10 10"
                             width="10px"
@@ -547,7 +539,9 @@ function Events() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

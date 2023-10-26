@@ -10,6 +10,12 @@ import { getPaginationValues, prepareEvents } from "./utils.server";
 
 import { prismaClient } from "~/prisma.server";
 import { useHydrated } from "remix-utils";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/explore/events"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -114,11 +120,13 @@ function Events() {
 
   const isHydrated = useHydrated();
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke Veranstaltungen</H1>
-        <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -154,10 +162,7 @@ function Events() {
               );
             })
           ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
+            <p>{t("empty")}</p>
           )}
         </CardContainer>
       </section>
@@ -170,7 +175,7 @@ function Events() {
               variant="outline"
               loading={fetcher.state === "submitting"}
             >
-              Weitere laden
+              {t("more")}
             </Button>
           </fetcher.Form>
         </div>

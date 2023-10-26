@@ -1,0 +1,106 @@
+{
+  "error": {
+    "serverError": "[en] Something went wrong on update.",
+    "validation": "[en] Validation failed",
+    "notPrivileged": "[en] Not privileged",
+    "notFound": {
+      "organization": "[en] Organization not found",
+      "named": "[en] Organization with slug \"{{slug}}\" not found.",
+      "visibilities": "[en] Organization visibilities not found."
+    }
+  },
+  "validation": {
+    "name": {
+      "required": "[en] Bitte gib Euren Namen ein."
+    },
+    "email": {
+      "email": "[en] Deine Eingabe entspricht nicht dem Format einer E-Mail."
+    }
+  },
+  "content": {
+    "headline": "[en] Deine Organisation",
+    "general": {
+      "headline": "[en] Allgemein",
+      "intro": "[en] Wie kann die Community Euch erreichen?"
+    },
+    "address": {
+      "headline": "[en] Anschrift"
+    },
+    "about": {
+      "headline": "[en] Über uns",
+      "intro": "[en] Teile der Community mehr über Deine Organisation mit."
+    },
+    "websiteAndSocial": {
+      "headline": "[en] Website und Soziale Netzwerke",
+      "website": {
+        "headline": "[en] Website",
+        "intro": "[en] Wo kann die Community mehr über Euer Angebot erfahren?"
+      },
+      "social": {
+        "headline": "[en] Soziale Netzwerke",
+        "intro": "[en] In welchen Netzwerken ist Deine Organisation vertreten?"
+      }
+    },
+    "feedback": "[en] Informationen wurden aktualisiert."
+  },
+  "form": {
+    "name": {
+      "label": "[en] Name"
+    },
+    "email": {
+      "label": "[en] E-Mail"
+    },
+    "phone": {
+      "label": "[en] Telefon"
+    },
+    "street": {
+      "label": "[en] Straßenname"
+    },
+    "streetNumber": {
+      "label": "[en] Hausnummer"
+    },
+    "zipCode": {
+      "label": "[en] PLZ"
+    },
+    "city": {
+      "label": "[en] Stadt"
+    },
+    "bio": {
+      "label": "[en] Kurzbeschreibung"
+    },
+    "organizationForm": {
+      "label": "[en] ",
+      "placeholder": "[en] Füge Eure Organisationsformen hinzu."
+    },
+    "areas": {
+      "label": "[en] Aktivitätsgebiete",
+      "placeholder": "[en] Füge Eure Aktivitätsgebiete hinzu."
+    },
+    "supportedBy": {
+      "label": "[en] Gefördert von"
+    },
+    "focuses": {
+      "label": "[en] MINT-Schwerpunkte",
+      "placeholder": "[en] Füge Eure MINT-Schwerpunkte hinzu."
+    },
+    "quote": {
+      "label": "[en] Zitat"
+    },
+    "quoteAuthor": {
+      "label": "[en] Von wem stammt das Zitat?"
+    },
+    "quoteAuthorInformation": {
+      "label": "[en] Zusatzinformationen des Zitatautors (Position/Beruf)"
+    },
+    "website": {
+      "label": "[en] Website",
+      "placeholder": "[en] domainname.tld"
+    },
+    "reset": {
+      "label": "[en] Änderungen verwerfen"
+    },
+    "submit": {
+      "label": "[en] Speichern"
+    }
+  }
+}

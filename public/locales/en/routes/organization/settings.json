@@ -1,0 +1,14 @@
+{
+  "headline": "[en] Organisation bearbeiten",
+  "navigation": {
+    "general": "[en] Allgemein",
+    "admins": "[en] Administrator:innen",
+    "team": "[en] Das Team",
+    "network": "[en] Euer Netzwerk",
+    "delete": "[en] Organisation löschen"
+  },
+  "state": {
+    "public": "[en] Für alle sichtbar",
+    "private": "[en] Für unregistrierte Nutzer:innen nicht sichtbar"
+  }
+}

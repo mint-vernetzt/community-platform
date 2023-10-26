@@ -1,0 +1,152 @@
+{
+  "validation": {
+    "name": {
+      "required": "[en] Bitte gib den Namen der Veranstaltung an"
+    },
+    "startDate": {
+      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+    },
+    "startTime": {
+      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+    },
+    "endDate": {
+      "required": "[en] Bitte gib das Ende der Veranstaltung an",
+      "greaterThan": "[en] Das Enddatum darf nicht vor dem Startdatum liegen"
+    },
+    "endTime": {
+      "required": "[en] Bitte gib das Ende der Veranstaltung an",
+      "greaterThan": "[en] Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+    },
+    "participationUntilDate": {
+      "required": "[en] Bitte gib das Ende für die Registrierung an",
+      "greaterThan": "[en] Das Registrierungsende darf nicht vor dem Registrierungsstart liegen"
+    },
+    "participationUntilTime": {
+      "required": "[en] Bitte gib das Ende für die Registrierung an",
+      "greaterThan": "[en] Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen"
+    },
+    "participationFromDate": {
+      "required": "[en] Bitte gib den Beginn für die Registrierung an",
+      "greaterThan": "[en] Das Startdatum darf nicht vor dem Registrierungsstart liegen"
+    },
+    "participationFromTime": {
+      "required": "[en] Bitte gib den Beginn für die Registrierung an",
+      "greaterThan": "[en] Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen"
+    }
+  },
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Deine Veranstaltung",
+    "start": {
+      "headline": "[en] Start und Registrierung",
+      "intro": "[en] Wann startet deine Veranstaltung, wie lange dauert sie und wie viele Personen können teilnehmen? Hier kannst du Einstellungen rund um das Thema Start und Registrierung vornehmen. Außerdem kannst du die Veranstaltung veröffentlichen oder verstecken und gegebenenfalls absagen."
+    },
+    "cancel": "[en] Absagen",
+    "revert": "[en] Absage rückgängig machen",
+    "location": "[en] Veranstaltungsort",
+    "generic": {
+      "headline": "[en] Allgemein",
+      "intro": "[en] Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende erwarten und wen möchtest du damit abholen? Nehme hier allgemeine Einstellungen vor, wie beispielsweise der Name, die Beschreibung oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst du außerdem Schlagworte und die Veranstaltungstypen festlegen."
+    },
+    "feedback": "[en] Informationen wurden aktualisiert."
+  },
+  "form": {
+    "startDate": {
+      "label": "[en] Startet am"
+    },
+    "startTime": {
+      "label": "[en] Startet um"
+    },
+    "endDate": {
+      "label": "[en] Endet am"
+    },
+    "endTime": {
+      "label": "[en] Endet um"
+    },
+    "participationFromDate": {
+      "label": "[en] Registrierung startet am"
+    },
+    "participationFromTime": {
+      "label": "[en] Registrierung startet um"
+    },
+    "participationUntilDate": {
+      "label": "[en] Registrierung endet am"
+    },
+    "participationUntilTime": {
+      "label": "[en] Registrierung endet um"
+    },
+    "stage": {
+      "label": "[en] Veranstaltungstyp",
+      "placeholder": "[en] Wähle den Veranstaltungstyp aus."
+    },
+    "venueName": {
+      "label": "[en] Name des Veranstaltungsorts"
+    },
+    "venueStreet": {
+      "label": "[en] Straßenname"
+    },
+    "venueStreetNumber": {
+      "label": "[en] Hausnummer"
+    },
+    "venueZipCode": {
+      "label": "[en] PLZ"
+    },
+    "venueCity": {
+      "label": "[en] Stadt"
+    },
+    "conferenceLink": {
+      "label": "[en] Konferenzlink"
+    },
+    "conferenceCode": {
+      "label": "[en] Zugangscode zur Konferenz"
+    },
+    "name": {
+      "label": "[en] Name"
+    },
+    "subline": {
+      "label": "[en] Subline"
+    },
+    "description": {
+      "label": "[en] Beschreibung"
+    },
+    "types": {
+      "label": "[en] Veranstaltungstypen",
+      "placeholder": "[en] Füge die veranstaltungstypen hinzu."
+    },
+    "tags": {
+      "label": "[en] Schlagworte",
+      "placeholder": "[en] Füge die Schlagworte hinzu."
+    },
+    "targetGroups": {
+      "label": "[en] Zielgruppen",
+      "placeholder": "[en] Füge die Zielgruppen hinzu."
+    },
+    "experienceLevel": {
+      "label": "[en] Erfahrungsstufe",
+      "placeholder": "[en] Wähle die Erfahrungsstufe aus."
+    },
+    "focuses": {
+      "label": "[en] MINT-Schwerpunkte",
+      "placeholder": "[en] Füge die MINT-Schwerpunkte hinzu."
+    },
+    "areas": {
+      "label": "[en] Aktivitätsgebiete",
+      "placeholder": "[en] Füge die Aktivitätsgebiete hinzu."
+    },
+    "reset": {
+      "label": "[en] Änderungen verwerfen"
+    },
+    "submit": {
+      "label": "[en] Speichern"
+    },
+    "publish": {
+      "label": "[en] Veröffentlichen"
+    },
+    "hide": {
+      "label": "[en] Verstecken"
+    }
+  }
+}

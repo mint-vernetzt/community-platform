@@ -3,6 +3,12 @@ import { type LoaderArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/organization/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -32,6 +38,7 @@ function Settings() {
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -39,7 +46,7 @@ function Settings() {
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Organisation bearbeiten</h3>
+              <h3 className="font-bold mb-7">{t("headline")}</h3>
               <menu>
                 <ul>
                   <li>
@@ -47,7 +54,7 @@ function Settings() {
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Allgemein
+                      {t("navigation.general")}
                     </NavLink>
                   </li>
                   <li>
@@ -55,7 +62,7 @@ function Settings() {
                       to="admins"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Administrator:innen
+                      {t("navigation.admins")}
                     </NavLink>
                   </li>
                   <li>
@@ -63,7 +70,7 @@ function Settings() {
                       to="team"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Das Team
+                      {t("navigation.team")}
                     </NavLink>
                   </li>
                   <li>
@@ -71,7 +78,7 @@ function Settings() {
                       to="network"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Euer Netzwerk
+                      {t("navigation.network")}
                     </NavLink>
                   </li>
                 </ul>
@@ -81,7 +88,7 @@ function Settings() {
                     to="./delete"
                     className={({ isActive }) => getClassName(isActive)}
                   >
-                    Organisation löschen
+                    {t("navigation.delete")}
                   </NavLink>
                 </div>
               </menu>
@@ -104,7 +111,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>Für alle sichtbar</span>
+                <span>{t("state.public")}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -129,7 +136,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>Für unregistrierte Nutzer:innen nicht sichtbar</span>
+                <span>{t("state.private")}</span>
               </p>
             </div>
           </div>

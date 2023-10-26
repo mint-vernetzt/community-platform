@@ -1,0 +1,28 @@
+{
+  "validation": {
+    "confirmedToken": {
+      "regex": "[en] /wirklich löschen/",
+      "message": "[en] Bitte \"wirklich löschen\" eingeben."
+    }
+  },
+  "error": {
+    "serverError": "[en] Die Organisation konnte nicht gelöscht werden.",
+    "validation": "[en] Validation failed",
+    "notPrivileged": "[en] Not privileged",
+    "notFound": "[en] Profile not found"
+  },
+  "content": {
+    "headline": "[en] Organisation löschen",
+    "intro": "[en] Schade, dass Du Eure Organisation löschen willst.",
+    "confirmation": "[en] Bitte gib \"wirklich löschen\" ein, um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht."
+  },
+  "form": {
+    "confirmedToken": {
+      "label": "[en] Löschung bestätigen",
+      "placeholder": "[en] wirklich löschen"
+    },
+    "submit": {
+      "label": "[en] Organisation endgültig löschen"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "error": {
+    "notPrivileged": "[en] Not privileged",
+    "notFound": "[en] Eure Organisation konnte nicht gefunden werden.",
+    "inputError": {
+      "doesNotExist": "[en] Es existiert noch keine Organisation unter diesem Namen.",
+      "alreadyMember": "[en] Die angegebene Organisation ist bereits Teil Eures Netzwerks."
+    },
+    "serverError": "[en] Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden."
+  },
+  "content": {
+    "headline": "[en] Netzwerkmitglied hinzufügen",
+    "intro": "[en] Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.",
+    "label": "[en] Name der Organisation"
+  },
+  "feedback": "[en] Die Organisation \"{{title}}\" ist jetzt Teil Eures Netzwerks."
+}

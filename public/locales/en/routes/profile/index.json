@@ -1,0 +1,50 @@
+{
+  "error": {
+    "profileNotFound": "[en] Profile not found"
+  },
+  "profile": {
+    "contact": "[en] Kontakt",
+    "changeImage": "[en] Bild ändern",
+    "existsSince": "[en] Profil besteht seit dem {{timestamp}}",
+    "introduction": "[en] Hi, ich bin {{name}}",
+    "editProfile": "[en] Profil bearbeiten",
+    "activityAreas": "[en] Aktivitätsgebiete",
+    "competences": "[en] Kompetenzen",
+    "interests": "[en] Interessen",
+    "offer": "[en] Ich biete",
+    "lookingFor": "[en] Ich suche"
+  },
+  "images": {
+    "currentBackground": "[en] Aktuelles Hintergrundbild",
+    "blurredBackground": "[en] Rahmen des Hintergrundbildes"
+  },
+  "section": {
+    "organizations": {
+      "title": "[en] Organisationen",
+      "create": "[en] Organisation anlegen"
+    },
+    "projects": {
+      "title": "[en] Projekte",
+      "create": "[en] Projekt anlegen",
+      "to": "[en] Zum Projekt"
+    },
+    "comingEvents": {
+      "title": "[en] Bevorstehende Veranstaltungen",
+      "create": "[en] Veranstaltung anlegen",
+      "team": "[en] Organisation/Team"
+    },
+    "pastEvents": {
+      "title": "[en] Bevorstehende Veranstaltungen",
+      "team": "[en] Organisation/Team"
+    },
+    "event": {
+      "published": "[en] Veröffentlicht",
+      "draft": "[en] Entwurf",
+      "cancelled": "[en] Wurde abgesagt",
+      "participated": "[en] Teilgenommen",
+      "more": "[en] Mehr erfahren",
+      "speaker": "[en] Speaker:in",
+      "wasCancelled": "[en] Wurde abgesagt"
+    }
+  }
+}

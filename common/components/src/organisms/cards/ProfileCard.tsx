@@ -11,6 +11,7 @@ import {
   CardStatus,
 } from "./Card";
 import { getFullName } from "../../utils";
+import { useTranslation } from "react-i18next";
 
 export type ProfileCardProps = {
   match?: number;
@@ -38,11 +39,13 @@ function ProfileCard(
 ) {
   const { profile, publicAccess = false } = props;
 
+  const { t } = useTranslation(["organisms/cards/profile-card"]);
+
   const fullName = getFullName(profile);
 
   const emptyMessage = publicAccess
-    ? "-nicht öffentlich-"
-    : "-nicht angegeben-";
+    ? t("nonPublic", "-nicht öffentlich-")
+    : t("nonStated", "-nicht angegeben-");
 
   return (
     <Card to={`/profile/${profile.username}`}>
@@ -50,7 +53,9 @@ function ProfileCard(
         <Avatar {...profile} size="xl" />
         {profile.background && <CardImage src={profile.background} />}
         {props.match !== undefined && (
-          <CardStatus>{props.match}% Match</CardStatus>
+          <CardStatus>
+            {props.match}% {t("match")}
+          </CardStatus>
         )}
       </CardHeader>
       <CardBody>
@@ -73,10 +78,13 @@ function ProfileCard(
             </div>
           </div>
         }
-        <CardBodySection title="Aktivitätsgebiete" emptyMessage={emptyMessage}>
+        <CardBodySection
+          title={t("areasOfActivity")}
+          emptyMessage={emptyMessage}
+        >
           {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection title="Ich biete" emptyMessage={emptyMessage}>
+        <CardBodySection title={t("offer")} emptyMessage={emptyMessage}>
           {profile.offers.length === 0 ? (
             ""
           ) : (

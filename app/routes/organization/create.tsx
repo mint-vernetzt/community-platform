@@ -13,12 +13,20 @@ import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
 import { createOrganizationOnProfile } from "./create.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const schema = z.object({
-  organizationName: z
-    .string()
-    .min(1, "Bitte gib den Namen Deiner Organisation ein."),
-});
+const i18nNS = ["routes/organization/create"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
+  return z.object({
+    organizationName: z.string().min(1, t("validation.organizationName.min")),
+  });
+};
 
 const environmentSchema = z.object({
   userId: z.string(),
@@ -33,33 +41,36 @@ export const loader = async ({ request }: DataFunctionArgs) => {
   return json({}, { headers: response.headers });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const slug = generateOrganizationSlug(values.organizationName);
-  try {
-    await createOrganizationOnProfile(
-      environment.userId,
-      values.organizationName,
-      slug
-    );
-  } catch (error) {
-    throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
-  }
-  return { ...values, slug };
-});
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    const slug = generateOrganizationSlug(values.organizationName);
+    try {
+      await createOrganizationOnProfile(
+        environment.userId,
+        values.organizationName,
+        slug
+      );
+    } catch (error) {
+      throw t("error.serverError");
+    }
+    return { ...values, slug };
+  });
+};
 
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { userId: sessionUser.id },
   });
   let alreadyExistingOrganization: Awaited<
@@ -72,9 +83,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   } else {
     if (
       result.errors._global !== undefined &&
-      result.errors._global.includes(
-        "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
-      )
+      result.errors._global.includes(t("error.serverError"))
     ) {
       alreadyExistingOrganization = await getOrganizationByName(
         result.values.organizationName
@@ -105,6 +114,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
 export default function Create() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   return (
     <>
@@ -125,16 +136,14 @@ export default function Create() {
                 d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
               />
             </svg>
-            <span className="ml-2">Zurück</span>
+            <span className="ml-2">{t("content.back")}</span>
           </button>
         </div>
       </section>
       <div className="container relative pt-20 pb-44">
         <div className="flex -mx-4 justify-center">
           <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
-            <h4 className="font-semibold">
-              Organisation oder Netzwerk hinzufügen
-            </h4>
+            <h4 className="font-semibold">{t("content.headline")}</h4>
             <div className="pt-10 lg:pt-0">
               <RemixForm
                 method="post"
@@ -152,7 +161,7 @@ export default function Create() {
                         <>
                           <Input
                             id="organizationName"
-                            label="Name der Organisation*"
+                            label={t("form.organizationName.label")}
                             {...register("organizationName")}
                           />
                           <Errors />
@@ -164,7 +173,7 @@ export default function Create() {
                       type="submit"
                       className="btn btn-outline-primary ml-auto btn-small mb-8"
                     >
-                      Anlegen
+                      {t("form.submit.label")}
                     </button>
                     <Errors />
                   </>

@@ -131,20 +131,18 @@ describe("action", () => {
     const responseBody = await response.json();
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
-    expect(responseBody.errors.name.message).toBe(
-      "Bitte einen Veranstaltungsnamen angeben"
-    );
+    expect(responseBody.errors.name.message).toBe("validation.name.required");
     expect(responseBody.errors.startDate.message).toBe(
-      "Bitte gib den Beginn der Veranstaltung an"
+      "validation.startDate.required"
     );
     expect(responseBody.errors.startTime.message).toBe(
-      "Bitte eine Startzeit angeben"
+      "validation.startTime.required"
     );
     expect(responseBody.errors.endDate.message).toBe(
-      "Bitte gib das Ende der Veranstaltung an"
+      "validation.endDate.required"
     );
     expect(responseBody.errors.endTime.message).toBe(
-      "Bitte gib das Ende der Veranstaltung an"
+      "validation.endTime.required"
     );
   });
   test("invalid time values (end before start", async () => {
@@ -164,7 +162,7 @@ describe("action", () => {
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
     expect(responseBody.errors.endTime.message).toBe(
-      "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+      "validation.endTime.greaterThan"
     );
   });
   test("invalid time values (not in parent time span)", async () => {

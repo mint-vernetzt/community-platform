@@ -394,7 +394,7 @@ describe("/event/$slug", () => {
         expect(response.status).toBe(404);
 
         const json = await response.json();
-        expect(json.message).toBe("Profile not found");
+        expect(json.message).toBe("error.notFound");
       }
     });
 
@@ -440,7 +440,7 @@ describe("/event/$slug", () => {
         expect(response.status).toBe(404);
 
         const json = await response.json();
-        expect(json.message).toBe("Event not found");
+        expect(json.message).toBe("error.notFound");
       }
     });
 
@@ -502,7 +502,7 @@ describe("/event/$slug", () => {
         expect(response.status).toBe(403);
 
         const json = await response.json();
-        expect(json.message).toBe("Event not published");
+        expect(json.message).toBe("error.notPublished");
       }
     });
 
@@ -532,7 +532,7 @@ describe("/event/$slug", () => {
         expect(response.status).toBe(403);
 
         const json = await response.json();
-        expect(json.message).toBe("Event not published");
+        expect(json.message).toBe("error.notPublished");
       }
     });
 

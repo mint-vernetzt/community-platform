@@ -19,26 +19,39 @@ import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
 import {
-  addMemberSchema,
   type action as addMemberAction,
+  addMemberSchema,
 } from "./team/add-member";
 import {
-  removeMemberSchema,
   type action as removeMemberAction,
+  removeMemberSchema,
 } from "./team/remove-member";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/organization/settings/team"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+
+  const t = await i18next.getFixedT(request, [
+    "routes/organization/settings/team",
+  ]);
 
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, "Organization not found", { status: 404 });
+  invariantResponse(organization, t("error.notFound"), { status: 404 });
 
   const members = await getMembersOfOrganization(authClient, organization.id);
   const enhancedMembers = members.map((relation) => {
@@ -80,22 +93,15 @@ function Index() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">Das Team</h1>
-      <p className="mb-2">
-        Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu
-        oder entferne sie.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Organisations-Detailseite gezeigt. Sie
-        können Organisationen nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 font-semibold">Teammitglied hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.
-      </p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro1")}</p>
+      <p className="mb-8">{t("content.intro2")}</p>
+      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <Form
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
@@ -114,7 +120,7 @@ function Index() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    Name oder Email
+                    {t("content.add.label")}
                   </label>
                 </div>
               </div>
@@ -150,10 +156,10 @@ function Index() {
           {addMemberFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teammitglieder</h4>
-      <p className="mb-8">
-        Hier siehst du alle Teammitglieder auf einen Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.members.map((profile) => {
           const initials = getInitials(profile);
@@ -201,7 +207,7 @@ function Index() {
                         {loaderData.members.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={"content.current.remove"}
                           >
                             <svg
                               viewBox="0 0 10 10"

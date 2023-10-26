@@ -102,7 +102,7 @@ describe("/event/$slug/settings/team/add-member", () => {
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -139,7 +139,7 @@ describe("/event/$slug/settings/team/add-member", () => {
 
     expect(responseBody.success).toBe(false);
     expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Teammitglied Eurer Veranstaltung."
+      "error.inputError.alreadyIn"
     );
   });
 
@@ -217,8 +217,6 @@ describe("/event/$slug/settings/team/add-member", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.message).toBe(
-      'Ein neues Teammitglied mit dem Namen "another-user-firstname another-user-lastname" wurde hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 });

@@ -1,0 +1,26 @@
+{
+  "description": "[en] Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
+  "discover": {
+    "title": "[en] Entdecken",
+    "profiles": "[en] Profile",
+    "organizations": "[en] Organisationen",
+    "events": "[en] Veranstaltungen",
+    "projects": "[en] Projekte"
+  },
+  "participate": {
+    "title": "[en] Mitwirken",
+    "github": "[en] GitHub Repository"
+  },
+  "learnMore": {
+    "title": "[en] Mehr erfahren",
+    "website": "[en] MINTvernetzt-Website"
+  },
+  "meta": {
+    "copyright": "[en] © 2021-2023 matrix gGmbH",
+    "imprint": "[en] Impressum",
+    "privacyPolicy": "[en] Datenschutzerklärung",
+    "termsOfUse": "[en] Nutzungsbedingungen",
+    "contact": "[en] Kontakt",
+    "needHelp": "[en] Benötigst du Hilfe? Melde dich bei"
+  }
+}

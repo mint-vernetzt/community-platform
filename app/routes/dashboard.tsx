@@ -25,12 +25,21 @@ import {
   getProfilesForCards,
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/dashboard"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
+
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
@@ -47,7 +56,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw notFound({ message: t("error.profileNotFound") });
   }
 
   if (profile.termsAccepted === false) {
@@ -230,26 +239,25 @@ export const loader = async (args: LoaderArgs) => {
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-my-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <div className="mv-px-4 xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-            Willkommen,
+            {t("content.welcome")}
             <br />
             {loaderData.firstName} {loaderData.lastName}
           </h1>
-          <p className="mv-font-semibold mv-mb-6">
-            in Deiner MINTvernetzt-Community!
-          </p>
+          <p className="mv-font-semibold mv-mb-6">{t("content.community")}</p>
           <p>
             <Button
               variant="outline"
               as="a"
               href={`/profile/${loaderData.username}`}
             >
-              Mein Profil besuchen
+              {t("content.myProfile")}
             </Button>
           </p>
         </div>
@@ -264,7 +272,7 @@ function Dashboard() {
           <div className="mv-text-right">
             <Link to="/explore/profiles">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                Alle Profile
+                {t("content.allProfiles")}
               </span>
             </Link>
           </div>
@@ -280,12 +288,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-            Organisationen
+            {t("content.organizations")}
           </div>
           <div className="mv-text-right">
             <Link to="/explore/organizations">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                Alle Organisationen
+                {t("content.allOrganizations")}
               </span>
             </Link>
           </div>

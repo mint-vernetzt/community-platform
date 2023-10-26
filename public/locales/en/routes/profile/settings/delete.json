@@ -1,0 +1,35 @@
+{
+  "error": {
+    "profileNotFound": "[en] Profile not found",
+    "notPrivileged": "[en] Not privileged",
+    "notFound": "[en] Das Profil konnte nicht gefunden werden",
+    "lastAdmin": {
+      "intro": "[en] Das Profil ist letzter Administrator in ",
+      "organizations": "[en] den Organisationen: {{organizations}}",
+      "events": "[en] den Veranstaltungen: {{events}}",
+      "projects": "[en] den Projekten: {{projects}}",
+      "outro": "[en] weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte."
+    },
+    "serverError": "[en] Das Profil konnte nicht gelöscht werden."
+  },
+  "validation": {
+    "confirmed": {
+      "regex": "[en] wirklich löschen",
+      "message": "[en] Bitte \"wirklich löschen\" eingeben."
+    }
+  },
+  "content": {
+    "headline": "[en] Profil löschen",
+    "subline": "[en] Schade, dass Du gehst.",
+    "intro": "[en] Bitte gib \"wirklich löschen\" ein, um das Löschen zu bestätigen. Wenn Du danach auf “Profil endgültig löschen” klickst, wird Dein Profil ohne erneute Abfrage gelöscht."
+  },
+  "form": {
+    "confirmed": {
+      "label": "[en] Löschung bestätigen",
+      "placeholder": "[en] wirklich löschen"
+    },
+    "submit": {
+      "label": "[en] Profil endgültig löschen"
+    }
+  }
+}

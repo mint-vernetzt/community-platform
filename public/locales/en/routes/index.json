@@ -1,0 +1,44 @@
+{
+  "welcome": "[en] Willkommen in Deiner MINT-Community",
+  "intro": "[en] Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+  "opportunities": "[en] <strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
+  "login": {
+    "intro": "[en] Anmelden mit MINT-ID",
+    "moreInformation": "[en] Mehr Informationen",
+    "or": "[en] oder",
+    "passwordForgotten": "[en] Passwort vergessen?",
+    "noMember": "[en] Noch kein Mitglied?",
+    "registerByEmail": "[en] Registrieren mit E-Mail",
+    "createMintId": "[en] MINT-ID erstellen",
+    "register": "[en] Registrieren"
+  },
+  "form": {
+    "label": {
+      "email": "[en] E-Mail",
+      "password": "[en] Passwort",
+      "submit": "[en] Anmelden"
+    }
+  },
+  "content": {
+    "education": {
+      "headline": "[en] Miteinander Bildung gestalten",
+      "content": "[en] Die bundesweite MINT-Community lebt davon, <0>sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen</0>. Auf der Community-Plattform könnt Ihr Euch <0>untereinander und mit Organisationen vernetzen und Inspiration oder <1>Expert:innen</1></0> zu konkreten Themen in Eurer Umgebung <0>finden</0>.",
+      "action": "[en] Jetzt registrieren"
+    },
+    "growth": {
+      "headline": "[en] Wie unsere Community wächst",
+      "profiles_one": "[en] Profil",
+      "profiles_other": "[en] Profile",
+      "organizations_one": "[en] Organisation",
+      "organizations_other": "[en] Organisationen",
+      "events_one": "[en] Veranstaltung",
+      "events_other": "[en] Veranstaltungen",
+      "join": "[en] Werde auch Du Teil unserer ständig wachsenden MINT-Community."
+    },
+    "more": {
+      "headline": "[en] Mehr erfahren",
+      "content": "[en] Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt, das 2021 gestartet ist, um die <0>MINT-Community deutschlandweit nachhaltig zu stärken</0>. Erfahre mehr über die Projekte von <0>MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen</0> auf der MINTvernetzt-Website.",
+      "action": "[en] MINTvernetzt-Website besuchen"
+    }
+  }
+}

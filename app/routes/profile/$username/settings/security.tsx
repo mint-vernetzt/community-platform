@@ -17,28 +17,36 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
 
-const emailSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
-    .email("Bitte gib eine gültige E-Mail-Adresse ein."),
-  confirmEmail: z
-    .string()
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
-    .email("Bitte gib eine gültige E-Mail-Adresse ein. "),
-  submittedForm: z.enum(["changeEmail"]),
-});
+const i18nNS = ["routes/profile/settings/security"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-const passwordSchema = z.object({
-  password: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  confirmPassword: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  submittedForm: z.enum(["changePassword"]),
-});
+const createEmailSchema = (t: TFunction) => {
+  return z.object({
+    email: z
+      .string()
+      .min(1, t("validation.email.min"))
+      .email(t("validation.email.email")),
+    confirmEmail: z
+      .string()
+      .min(1, t("validation.confirmEmail.min"))
+      .email(t("validation.confirmEmail.email")),
+    submittedForm: z.enum(["changeEmail"]),
+  });
+};
+
+const createPasswordSchema = (t: TFunction) => {
+  return z.object({
+    password: z.string().min(8, t("validation.password.min")),
+    confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
+    submittedForm: z.enum(["changePassword"]),
+  });
+};
 
 const passwordEnvironmentSchema = z.object({
   authClient: z.unknown(),
@@ -54,6 +62,9 @@ const emailEnvironmentSchema = z.object({
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/security",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
@@ -69,64 +80,70 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   return json({ provider });
 };
 
-const passwordMutation = makeDomainFunction(
-  passwordSchema,
-  passwordEnvironmentSchema
-)(async (values, environment) => {
-  if (values.confirmPassword !== values.password) {
-    throw new InputError(
-      "Deine Passwörter stimmen nicht überein.",
-      "confirmPassword"
-    ); // -- Field error
-  }
+const createPasswordMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createPasswordSchema(t),
+    passwordEnvironmentSchema
+  )(async (values, environment) => {
+    if (values.confirmPassword !== values.password) {
+      throw new InputError(
+        "Deine Passwörter stimmen nicht überein.",
+        "confirmPassword"
+      ); // -- Field error
+    }
 
-  const { error } = await updatePassword(
-    // TODO: fix type issue
-    environment.authClient,
-    values.password
-  );
-  if (error !== null) {
-    throw error.message;
-  }
+    const { error } = await updatePassword(
+      // @ts-ignore TODO: fix type issue
+      environment.authClient,
+      values.password
+    );
+    if (error !== null) {
+      throw error.message;
+    }
 
-  return values;
-});
+    return values;
+  });
+};
 
-const emailMutation = makeDomainFunction(
-  emailSchema,
-  emailEnvironmentSchema
-)(async (values, environment) => {
-  if (values.confirmEmail !== values.email) {
-    throw new InputError(
-      "Deine E-Mails stimmen nicht überein.",
-      "confirmEmail"
-    ); // -- Field error
-  }
+const createEmailMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createEmailSchema(t),
+    emailEnvironmentSchema
+  )(async (values, environment) => {
+    if (values.confirmEmail !== values.email) {
+      throw new InputError(t("error.emailsDontMatch"), "confirmEmail"); // -- Field error
+    }
 
-  const { error } = await sendResetEmailLink(
-    // TODO: fix type issue
-    environment.authClient,
-    values.email,
-    environment.siteUrl
-  );
-  if (error !== null) {
-    throw error.message;
-  }
+    const { error } = await sendResetEmailLink(
+      // @ts-ignore TODO: fix type issue
+      environment.authClient,
+      values.email,
+      environment.siteUrl
+    );
+    if (error !== null) {
+      throw error.message;
+    }
 
-  return values;
-});
+    return values;
+  });
+};
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/security",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
-    throw forbidden({ message: "not allowed." });
+    throw forbidden({ message: t("error.notAllowed") });
   }
 
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
@@ -139,15 +156,15 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
     result = await performMutation({
       request,
-      schema: emailSchema,
-      mutation: emailMutation,
+      schema: createEmailSchema(t),
+      mutation: createEmailMutation(t),
       environment: { authClient: authClient, siteUrl: siteUrl },
     });
   } else {
     result = await performMutation({
       request,
-      schema: passwordSchema,
-      mutation: passwordMutation,
+      schema: createPasswordSchema(t),
+      mutation: createPasswordMutation(t),
       environment: { authClient: authClient },
     });
   }
@@ -158,6 +175,7 @@ export default function Security() {
   const transition = useTransition();
   const loaderData = useLoaderData<typeof loader>();
 
+  const { t } = useTranslation(i18nNS);
   const actionData = useActionData<typeof action>();
 
   let showPasswordFeedback = false,
@@ -173,36 +191,39 @@ export default function Security() {
       actionData.data.email !== undefined;
   }
 
+  const passwordSchema = createPasswordSchema(t);
+  const emailSchema = createEmailSchema(t);
+
   return (
     <>
-      <h1 className="mb-8">Login und Sicherheit</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
       {loaderData.provider === "keycloak" ? (
         <>
           <h4 className="mb-4 font-semibold">
-            Passwort oder E-Mail-Adresse ändern
+            {t("section.changePassword1.headline")}
           </h4>
           <p className="mb-8">
-            Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und
-            dein Passwort nur auf{" "}
-            <a
-              href="https://mint-id.org"
-              target="_blank"
-              rel="noreferrer"
-              className="text-primary hover:underline"
-            >
-              mint-id.org
-            </a>{" "}
-            ändern.
+            <Trans
+              i18nKey="section.changePassword1.intro"
+              ns={i18nNS}
+              components={[
+                <a
+                  href="https://mint-id.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                />,
+              ]}
+            />
           </p>
         </>
       ) : (
         <fieldset disabled={transition.state === "submitting"}>
-          <h4 className="mb-4 font-semibold">Passwort ändern</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("section.changePassword2.headline")}
+          </h4>
 
-          <p className="mb-8">
-            Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen
-            lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.
-          </p>
+          <p className="mb-8">{t("section.changePassword2.intro")}</p>
           <input type="hidden" name="action" value="changePassword" />
 
           <RemixForm method="post" schema={passwordSchema}>
@@ -213,7 +234,7 @@ export default function Security() {
                     <>
                       <InputPassword
                         id="password"
-                        label="Neues Passwort"
+                        label={t("section.changePassword2.form.password.label")}
                         {...register("password")}
                       />
                       <Errors />
@@ -226,7 +247,9 @@ export default function Security() {
                     <>
                       <InputPassword
                         id="confirmPassword"
-                        label="Passwort wiederholen"
+                        label={t(
+                          "section.changePassword2.form.confirmPassword.label"
+                        )}
                         {...register("confirmPassword")}
                       />
                       <Errors />
@@ -247,7 +270,7 @@ export default function Security() {
                 </Field>
 
                 <button type="submit" className="btn btn-primary mt-8">
-                  Passwort ändern
+                  {t("section.changePassword2.form.submit.label")}
                 </button>
                 {showPasswordFeedback ? (
                   <span
@@ -255,7 +278,7 @@ export default function Security() {
                       "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                     }
                   >
-                    Dein Passwort wurde geändert.
+                    {t("section.changePassword2.feedback")}
                   </span>
                 ) : null}
                 <Errors />
@@ -264,12 +287,11 @@ export default function Security() {
           </RemixForm>
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
-          <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("section.changeEmail.headline")}
+          </h4>
 
-          <p className="mb-8">
-            Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der
-            Community-Plattform ändern.
-          </p>
+          <p className="mb-8">{t("section.changeEmail.intro")}</p>
           <RemixForm method="post" schema={emailSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
@@ -278,7 +300,7 @@ export default function Security() {
                     <>
                       <Input
                         id="email"
-                        label="Neue E-Mail"
+                        label={t("section.changeEmail.form.email.label")}
                         {...register("email")}
                       />
                       <Errors />
@@ -291,7 +313,7 @@ export default function Security() {
                     <>
                       <Input
                         id="confirmEmail"
-                        label="E-Mail wiederholen"
+                        label={t("section.changeEmail.form.confirmEmail.label")}
                         {...register("confirmEmail")}
                       />
                       <Errors />
@@ -312,7 +334,7 @@ export default function Security() {
                   )}
                 </Field>
                 <button type="submit" className="btn btn-primary mt-8">
-                  E-Mail ändern
+                  {t("section.changeEmail.form.submit.label")}
                 </button>
                 {showEmailFeedback ? (
                   <span
@@ -320,7 +342,7 @@ export default function Security() {
                       "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                     }
                   >
-                    Ein Bestätigungslink wurde Dir zugesendet.
+                    {t("section.changeEmail.feedback")}
                   </span>
                 ) : null}
                 <Errors />

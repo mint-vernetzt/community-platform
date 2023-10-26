@@ -3,6 +3,12 @@ import { NavLink, Outlet } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/profile/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -34,13 +40,15 @@ function Index() {
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <div className="container relative">
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+              <h3 className="font-bold mb-7">{t("context.headline")}</h3>
               <menu>
                 <ul>
                   <li>
@@ -48,7 +56,7 @@ function Index() {
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Allgemein
+                      {t("context.general")}
                     </NavLink>
                   </li>
                   <li>
@@ -56,7 +64,7 @@ function Index() {
                       to="notifications"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Benachrichtigungen
+                      {t("context.notifications")}
                     </NavLink>
                   </li>
                   <li>
@@ -64,7 +72,7 @@ function Index() {
                       to="security"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Login und Sicherheit
+                      {t("context.security")}
                     </NavLink>
                   </li>
                 </ul>
@@ -74,7 +82,7 @@ function Index() {
                     to="delete"
                     className={({ isActive }) => getClassName(isActive)}
                   >
-                    Profil löschen
+                    {t("context.delete")}
                   </NavLink>
                 </div>
               </menu>
@@ -97,7 +105,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>Für alle sichtbar</span>
+                <span>{t("state.public")}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -122,7 +130,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>Für unregistrierte Nutzer:innen nicht sichtbar</span>
+                <span>{t("state.registered")}</span>
               </p>
             </div>
           </div>

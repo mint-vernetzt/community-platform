@@ -16,57 +16,74 @@ import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveProjectMode } from "../project/utils.server";
 import { deriveProfileMode } from "../profile/$username/utils.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+
+const i18nNS = ["routes/upload/delete"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const environment = z.object({
   authClient: z.unknown(),
   // authClient: z.instanceof(SupabaseClient),
 });
 
-const mutation = makeDomainFunction(
-  fileUploadSchema,
-  environment
-)(async (values, environment) => {
-  const { subject, slug, uploadKey } = values;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    fileUploadSchema,
+    environment
+  )(async (values, environment) => {
+    const { subject, slug, uploadKey } = values;
 
-  let success = true;
-  // TODO: fix type issue
-  const sessionUser = await getSessionUserOrThrow(environment.authClient);
+    let success = true;
+    // @ts-ignore TODO: fix type issue
+    const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
-  try {
-    if (subject === "user") {
-      const username = slug;
-      const mode = await deriveProfileMode(sessionUser, username);
-      invariantResponse(mode === "owner", "Not privileged", { status: 403 });
-      await removeImageFromProfile(sessionUser.id, uploadKey);
+    try {
+      if (subject === "user") {
+        const username = slug;
+        const mode = await deriveProfileMode(sessionUser, username);
+        invariantResponse(mode === "owner", t("error.notPrivileged"), {
+          status: 403,
+        });
+        await removeImageFromProfile(sessionUser.id, uploadKey);
+      }
+
+      if (subject === "organization") {
+        const mode = await deriveOrganizationMode(sessionUser, slug);
+        invariantResponse(mode === "admin", t("error.notPrivileged"), {
+          status: 403,
+        });
+        await removeImageFromOrganization(slug, uploadKey);
+      }
+
+      if (subject === "event") {
+        const mode = await deriveEventMode(sessionUser, slug);
+        invariantResponse(mode === "admin", t("error.notPrivileged"), {
+          status: 403,
+        });
+        await removeImageFromEvent(slug, uploadKey);
+      }
+
+      if (subject === "project") {
+        const mode = await deriveProjectMode(sessionUser, slug);
+        invariantResponse(mode === "admin", t("error.notPrivileged"), {
+          status: 403,
+        });
+        await removeImageFromProject(slug, uploadKey);
+      }
+    } catch (e) {
+      success = false;
     }
 
-    if (subject === "organization") {
-      const mode = await deriveOrganizationMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-      await removeImageFromOrganization(slug, uploadKey);
-    }
-
-    if (subject === "event") {
-      const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-      await removeImageFromEvent(slug, uploadKey);
-    }
-
-    if (subject === "project") {
-      const mode = await deriveProjectMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-      await removeImageFromProject(slug, uploadKey);
-    }
-  } catch (e) {
-    success = false;
-  }
-
-  return { success };
-});
+    return { success };
+  });
+};
 
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
-
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();
@@ -74,7 +91,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const result = await performMutation({
     request,
     schema: fileUploadSchema,
-    mutation,
+    mutation: createMutation(t),
     environment: {
       authClient: authClient,
     },

@@ -31,11 +31,14 @@ import {
   getSubmissionHash,
 } from "./utils.server";
 import { combineHeaders } from "~/utils.server";
+import i18next from "~/i18next.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/admins",
+  ]);
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
@@ -313,6 +316,7 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/project/settings/admins"]);
 
   const [searchForm, searchFields] = useForm({
     defaultValue: {

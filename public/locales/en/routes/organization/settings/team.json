@@ -1,0 +1,21 @@
+{
+  "error": {
+    "notFound": "[en] Organization not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Das Team",
+    "intro1": "[en] Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu oder entferne sie.",
+    "intro2": "[en] Team-Mitglieder werden auf der Organisations-Detailseite gezeigt. Sie können Organisationen nicht bearbeiten.",
+    "add": {
+      "headline": "[en] Teammitglied hinzufügen",
+      "intro": "[en] Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.",
+      "label": "[en] Name oder Email"
+    },
+    "current": {
+      "headline": "[en] Aktuelle Teammitglieder",
+      "intro": "[en] Hier siehst du alle Teammitglieder auf einen Blick.",
+      "remove": "[en] entfernen"
+    }
+  }
+}

@@ -12,6 +12,13 @@ import {
   getOrganizationBySlug,
   getProfileById,
 } from "./add-member.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
+
+const i18nNS = ["routes/organization/settings/network/remove"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   profileId: z.string(),
@@ -23,50 +30,51 @@ const environmentSchema = z.object({
 
 export const addMemberSchema = schema;
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const profile = await getProfileById(values.profileId);
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const profile = await getProfileById(values.profileId);
 
-  if (profile === null) {
-    throw new InputError(
-      "Es existiert noch kein Profil unter diesem Namen.",
-      "profileId"
-    );
-  }
+    if (profile === null) {
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
+    }
 
-  const alreadyMember = profile.memberOf.some((relation) => {
-    return relation.organization.slug === environment.organizationSlug;
+    const alreadyMember = profile.memberOf.some((relation) => {
+      return relation.organization.slug === environment.organizationSlug;
+    });
+
+    if (alreadyMember) {
+      throw new InputError(t("error.inputError.alreadyMember"), "profileId");
+    }
+
+    return {
+      ...values,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    };
   });
-
-  if (alreadyMember) {
-    throw new InputError(
-      "Das Profil unter diesem Namen ist bereits Mitglied Eurer Organisation.",
-      "profileId"
-    );
-  }
-
-  return {
-    ...values,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-  };
-});
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/organization/settings/team/add-member",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: {
       organizationSlug: slug,
     },
@@ -74,11 +82,14 @@ export const action = async (args: DataFunctionArgs) => {
 
   if (result.success) {
     const organization = await getOrganizationBySlug(slug);
-    invariantResponse(organization, "Organization not found", { status: 404 });
+    invariantResponse(organization, t("error.notFound"), { status: 404 });
     await addTeamMemberToOrganization(organization.id, result.data.profileId);
     return json(
       {
-        message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
+        message: t("feedback", {
+          firstName: result.data.firstName,
+          lastName: result.data.lastName,
+        }),
       },
       { headers: response.headers }
     );

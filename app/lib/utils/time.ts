@@ -6,6 +6,7 @@ export function getDuration(startTime: Date, endTime: Date) {
     month: "short",
     day: "2-digit",
   });
+
   const formattedEndDate = endTime.toLocaleDateString("de-DE", {
     year: "numeric",
     month: "short",

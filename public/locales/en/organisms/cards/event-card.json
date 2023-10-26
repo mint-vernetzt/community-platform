@@ -1,0 +1,20 @@
+{
+  "match": "[en] Match",
+  "cancelled": "[en] Wurde abgesagt",
+  "passed": "[en] Vergangen",
+  "draft": "[en] Entwurf",
+  "published": "[en] Veröffentlicht",
+  "seats": {
+    "unlimited": "[en] Unbegrenzte Plätze",
+    "default": "[en] Plätze frei",
+    "free_one": "[en] Platz frei",
+    "free_other": "[en] Plätze frei"
+  },
+  "waitingList": {
+    "default": "[en] Wartelistenplätze",
+    "places_one": "[en] Wartelistenplatz",
+    "places_other": "[en] Wartelistenplätze"
+  },
+  "registered": "[en] Angemeldet",
+  "onWaitingList": "[en] Auf Warteliste"
+}

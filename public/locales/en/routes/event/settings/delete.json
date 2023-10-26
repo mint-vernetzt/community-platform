@@ -1,0 +1,28 @@
+{
+  "error": {
+    "eventNotFound": "[en] Event not found",
+    "profileNotFound": "[en] Profile not found",
+    "notPrivileged": "[en] Not privileged",
+    "input": "[en] Der Name der Veranstaltung ist nicht korrekt",
+    "delete": "[en] Die Veranstaltung konnte nicht gelöscht werden."
+  },
+  "content": {
+    "headline": "[en] Veranstaltung löschen",
+    "intro": "[en] Bitte gib den Namen der Veranstaltung \"{{name}}\" ein, um das Löschen zu bestätigen. Wenn Du danach auf \"Veranstaltung löschen\" klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.",
+    "list": "[en] Folgende Veranstaltung und zugehörige Veranstaltung werden auch gelöscht:"
+  },
+  "form": {
+    "eventName": {
+      "label": "[en] Löschung bestätigen"
+    },
+    "submit": {
+      "label": "[en] Veranstaltung löschen"
+    },
+    "publish": {
+      "label": "[en] Veröffentlichen"
+    },
+    "hide": {
+      "label": "[en] Veröffentlichen"
+    }
+  }
+}

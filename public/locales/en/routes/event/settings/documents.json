@@ -1,0 +1,42 @@
+{
+  "error": {
+    "notPrivileged": "[en] Not privileged",
+    "notFound": "[en] Event not found",
+    "fileTooBig": "[en] Die Datei ist zu groß. Maximal 5MB."
+  },
+  "content": {
+    "headline": "[en] Dokumente verwalten",
+    "current": {
+      "headline": "[en] Aktuelle Dokumente",
+      "download": "[en] Herunterladen",
+      "edit": "[en] Editieren"
+    },
+    "downloadAll": "[en] Alle Herunterladen"
+  },
+  "form": {
+    "title": {
+      "label": "[en] Titel"
+    },
+    "description": {
+      "label": "[en] Titel"
+    },
+    "submit": {
+      "label": "[en] Speichern"
+    },
+    "cancel": {
+      "label": "[en] Abbrechen"
+    },
+    "delete": {
+      "label": "[en] Abbrechen"
+    },
+    "upload": {
+      "label": "[en] PDF Dokument hochladen"
+    },
+    "publish": {
+      "label": "[en] Veröffentlichen"
+    },
+    "hide": {
+      "label": "[en] Verstecken"
+    }
+  }
+}

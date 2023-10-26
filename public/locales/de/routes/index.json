@@ -1,0 +1,44 @@
+{
+  "welcome": "Willkommen in Deiner MINT-Community",
+  "intro": "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+  "opportunities": "<strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
+  "login": {
+    "intro": "Anmelden mit MINT-ID",
+    "moreInformation": "Mehr Informationen",
+    "or": "oder",
+    "passwordForgotten": "Passwort vergessen?",
+    "noMember": "Noch kein Mitglied?",
+    "registerByEmail": "Registrieren mit E-Mail",
+    "createMintId": "MINT-ID erstellen",
+    "register": "Registrieren"
+  },
+  "form": {
+    "label": {
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden"
+    }
+  },
+  "content": {
+    "education": {
+      "headline": "Miteinander Bildung gestalten",
+      "content": "Die bundesweite MINT-Community lebt davon, <0>sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen</0>. Auf der Community-Plattform könnt Ihr Euch <0>untereinander und mit Organisationen vernetzen und Inspiration oder <1>Expert:innen</1></0> zu konkreten Themen in Eurer Umgebung <0>finden</0>.",
+      "action": "Jetzt registrieren"
+    },
+    "growth": {
+      "headline": "Wie unsere Community wächst",
+      "profiles_one": "Profil",
+      "profiles_other": "Profile",
+      "organizations_one": "Organisation",
+      "organizations_other": "Organisationen",
+      "events_one": "Veranstaltung",
+      "events_other": "Veranstaltungen",
+      "join": "Werde auch Du Teil unserer ständig wachsenden MINT-Community."
+    },
+    "more": {
+      "headline": "Mehr erfahren",
+      "content": "Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt, das 2021 gestartet ist, um die <0>MINT-Community deutschlandweit nachhaltig zu stärken</0>. Erfahre mehr über die Projekte von <0>MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen</0> auf der MINTvernetzt-Website.",
+      "action": "MINTvernetzt-Website besuchen"
+    }
+  }
+}

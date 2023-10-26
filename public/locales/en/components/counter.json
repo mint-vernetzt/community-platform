@@ -1,0 +1,5 @@
+{
+  "counter": {
+    "numberOfChars": "[en] Zeichenanzahl: {{current}}/{{total}}"
+  }
+}

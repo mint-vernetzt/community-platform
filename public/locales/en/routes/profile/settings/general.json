@@ -1,0 +1,116 @@
+{
+  "error": {
+    "profileNotFound": "[en] Profile not found.",
+    "validationFailed": "[en] Validation failed",
+    "serverError": "[en] Something went wrong on update.",
+    "notPrivileged": "[en] Not privileged",
+    "noVisibilities": "[en] profile visbilities not found."
+  },
+  "validation": {
+    "firstName": {
+      "required": "[en] Bitte gib Deinen Vornamen ein."
+    },
+    "lastName": {
+      "required": "[en] Bitte gib Deinen Nachnamen ein."
+    }
+  },
+  "headline": "[en] Persönliche Daten",
+  "general": {
+    "headline": "[en] Allgemein",
+    "intro": "[en] Welche Informationen möchtest Du über Dich mit der Community teilen? Über das Augen-Symbol kannst Du auswählen, ob die\nInformationen für alle öffentlich sichtbar sind oder ob Du sie nur mit registrierten Nutzer:innen teilst.",
+    "form": {
+      "title": {
+        "label": "[en] Titel",
+        "options": {
+          "dr": "[en] Dr.",
+          "prof": "[en] Prof.",
+          "profdr": "[en] Prof. Dr."
+        }
+      },
+      "position": {
+        "label": "[en] Position"
+      },
+      "firstName": {
+        "label": "[en] Vorname"
+      },
+      "lastName": {
+        "label": "[en] Nachname"
+      },
+      "email": {
+        "label": "[en] E-Mail"
+      },
+      "phone": {
+        "label": "[en] Telefon"
+      }
+    }
+  },
+  "aboutMe": {
+    "headline": "[en] Über mich",
+    "intro": "[en] Erzähl der Community etwas über Dich: Wer bist Du und was machst Du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche Themen interessieren Dich im MINT-Kontext besonders?",
+    "form": {
+      "description": {
+        "label": "[en] Kurzbeschreibung",
+        "placeholder": "[en] Beschreibe Dich und Dein Tätigkeitsfeld näher."
+      },
+      "activityAreas": {
+        "label": "[en] Aktivitätsgebiete",
+        "placeholder": "[en] Füge Regionen hinzu, in denen Du aktiv bist."
+      },
+      "skills": {
+        "label": "[en] Kompetenzen",
+        "placeholder": "[en] Füge Deine Kompetenzen hinzu."
+      },
+      "interests": {
+        "label": "[en] Interessen",
+        "placeholder": "[en] Füge Deine Interessen hinzu."
+      }
+    }
+  },
+  "offer": {
+    "headline": "[en] Ich biete",
+    "intro": "[en] Was bringst Du mit, wovon die Community profitieren kann? Wie kannst Du andere Mitglieder unterstützen?",
+    "form": {
+      "quote": {
+        "label": "[en] Angebot",
+        "placeholder": "[en] Füge Deine Angebote hinzu."
+      }
+    }
+  },
+  "lookingFor": {
+    "headline": "[en] Ich suche",
+    "intro": "[en] Wonach suchst Du? Wie können Dich andere Mitglieder unterstützen?",
+    "form": {
+      "seeking": {
+        "label": "[en] ",
+        "placeholder": "[en] "
+      }
+    }
+  },
+  "websiteSocialMedia": {
+    "headline": "[en] Website und Soziale Netzwerke",
+    "website": {
+      "headline": "[en] Website",
+      "intro": "[en] Wo kann die Community mehr über Dich und Dein Angebot erfahren?",
+      "form": {
+        "website": {
+          "label": "[en] Website",
+          "placeholder": "[en] domainname.tld"
+        }
+      }
+    },
+    "socialMedia": {
+      "headline": "[en] Soziale Netzwerke",
+      "intro": "[en] Wo kann die Community in Kontakt mit Dir treten?"
+    }
+  },
+  "network": {
+    "headline": "[en] Organisation oder Netzwerk hinzufügen",
+    "action": "[en] Organisation anlegen",
+    "intro": "[en] Die Organisation oder das Netzwerk, in dem Du tätig bist, hat noch kein Profil? Füge es direkt hinzu, damit auch andere Mitglieder über darüber erfahren können.<br /><br />Falls die Organisation bereits existiert, melde dich bei der Person, die diese angelegt hat.<br /><br />Zukünfig wirst du dich selbstständig zu Organisationen hinzufügen können."
+  },
+  "footer": {
+    "profileUpdated": "[en] Dein Profil wurde aktualisiert.",
+    "ignoreChanges": "[en] Änderungen verwerfen",
+    "save": "[en] Speichern"
+  }
+}
