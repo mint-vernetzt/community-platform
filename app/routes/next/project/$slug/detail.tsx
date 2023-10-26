@@ -1,12 +1,17 @@
-import { Avatar, Button, CircleButton } from "@mint-vernetzt/components";
+import {
+  Avatar,
+  Button,
+  CircleButton,
+  Controls,
+  Header,
+  Image,
+  Status,
+} from "@mint-vernetzt/components";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
-import { Header, HeaderBody, HeaderFooter } from "~/components/test/Header";
-import Image from "~/components/test/Image";
-import Status from "~/components/test/Status";
 import { TabBar, TextButton } from "@mint-vernetzt/components";
 import { json, type DataFunctionArgs } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
@@ -18,7 +23,6 @@ import { deriveProjectMode } from "../../utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getImageURL } from "~/images.server";
 import { H1 } from "~/components/Heading/Heading";
-import Controls from "~/components/test/Controls";
 
 export function links() {
   return [
@@ -56,7 +60,6 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       slug: true,
       name: true,
-      // TODO: Check if excerpt is the correct field to use inside Header
       excerpt: true,
       logo: true,
       published: true,
@@ -182,7 +185,7 @@ function ProjectDetail() {
               </CircleButton>
             </Controls>
           )}
-          <HeaderBody>
+          <Header.Body>
             {mode === "admin" && (
               <Controls>
                 <label
@@ -208,8 +211,8 @@ function ProjectDetail() {
             {project.excerpt !== null && (
               <p className="mv-text-base md:mv-text-2xl">{project.excerpt}</p>
             )}
-          </HeaderBody>
-          <HeaderFooter>
+          </Header.Body>
+          <Header.Footer>
             <p>Hier steht z.B. beim Veranstaltungs Header etwas.</p>
             {mode === "admin" && (
               <Controls>
@@ -223,7 +226,7 @@ function ProjectDetail() {
                 </Button>
               </Controls>
             )}
-          </HeaderFooter>
+          </Header.Footer>
         </Header>
       </section>
       {mode === "admin" && (

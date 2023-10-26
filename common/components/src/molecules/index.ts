@@ -10,3 +10,5 @@ export { default as Link } from "./Link";
 export { type LinkProps } from "./Link";
 export { default as Alert, type AlertProps, type AlertLevel } from "./Alert";
 export { default as TextButton, type TextButtonProps } from "./TextButton";
+export { default as Image, type ImageProps } from "./Image";
+export { default as Status, type StatusProps } from "./Status";

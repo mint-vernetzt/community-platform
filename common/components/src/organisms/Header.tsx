@@ -1,8 +1,5 @@
+import { Avatar, Controls, Image, Status } from "@mint-vernetzt/components";
 import React, { type ReactNode } from "react";
-import Status from "./Status";
-import Image from "./Image";
-import { Avatar } from "@mint-vernetzt/components";
-import Controls from "./Controls";
 
 type HeaderProps = {
   children: ReactNode;
@@ -23,10 +20,10 @@ export function Header(props: HeaderProps) {
     return React.isValidElement(child) && child.type === Controls;
   });
   const body = children.find((child) => {
-    return React.isValidElement(child) && child.type === HeaderBody;
+    return React.isValidElement(child) && child.type === Body;
   });
   const footer = children.find((child) => {
-    return React.isValidElement(child) && child.type === HeaderFooter;
+    return React.isValidElement(child) && child.type === Footer;
   });
 
   return (
@@ -61,11 +58,11 @@ export function Header(props: HeaderProps) {
   );
 }
 
-type HeaderBodyProps = {
+type BodyProps = {
   children: ReactNode;
 };
 
-export function HeaderBody(props: HeaderBodyProps) {
+function Body(props: BodyProps) {
   const children = React.Children.toArray(props.children).filter((child) => {
     const isValid = React.isValidElement(child);
     if (!isValid) {
@@ -94,11 +91,11 @@ export function HeaderBody(props: HeaderBodyProps) {
   );
 }
 
-type HeaderFooterProps = {
+type FooterProps = {
   children: ReactNode;
 };
 
-export function HeaderFooter(props: HeaderFooterProps) {
+function Footer(props: FooterProps) {
   const children = React.Children.toArray(props.children).filter((child) => {
     const isValid = React.isValidElement(child) || typeof child === "string";
     if (!isValid) {
@@ -132,3 +129,8 @@ export function HeaderFooter(props: HeaderFooterProps) {
     </div>
   );
 }
+
+Header.Body = Body;
+Header.Footer = Footer;
+
+export default Header;
