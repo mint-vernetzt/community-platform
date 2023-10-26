@@ -1,10 +1,13 @@
+import classNames from "classnames";
 import React, { type ReactNode } from "react";
 
 export type ControlsProps = {
+  direction?: "horizontal" | "vertical";
   children: ReactNode;
 };
 
 function Controls(props: ControlsProps) {
+  const { direction = "horizontal" } = props;
   const children = React.Children.toArray(props.children).filter((child) => {
     const isValid = React.isValidElement(child);
     if (!isValid) {
@@ -15,13 +18,13 @@ function Controls(props: ControlsProps) {
     return isValid;
   });
 
-  return (
-    <div
-      className={`mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-4 mv-w-full`}
-    >
-      {children}
-    </div>
+  const classes = classNames(
+    "mv-grid mv-gap-4 mv-w-full",
+    direction === "horizontal" && "mv-grid-flow-col mv-auto-cols-fr",
+    direction === "vertical" && "mv-grid-flow-row mv-auto-rows-fr"
   );
+
+  return <div className={classes}>{children}</div>;
 }
 
 export default Controls;
