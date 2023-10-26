@@ -1,0 +1,56 @@
+{
+  "eventCard": {
+    "match": "Match",
+    "cancelled": "Wurde abgesagt",
+    "passed": "Vergangen",
+    "draft": "Entwurf",
+    "published": "Veröffentlicht",
+    "unlimitedSeats": "Unbegrenzte Plätze",
+    "seatsFree_one": "Platz frei",
+    "seatsFree_other": "Plätze frei",
+    "waitingListPlaces_one": "Wartelistenplatz",
+    "waitingListPlaces_other": "Wartelistenplätze",
+    "registered": "Angemeldet",
+    "onWaitingList": "Auf Warteliste"
+  },
+  "organizationCard": {
+    "nonPublic": "-nicht öffentlich-",
+    "nonStated": "-nicht angegeben-",
+    "match": "Match",
+    "areasOfActivity": "Aktivitätsgebiete",
+    "focus": "Schwerpunkte"
+  },
+  "profileCard": {
+    "nonPublic": "-nicht öffentlich-",
+    "nonStated": "-nicht angegeben-",
+    "match": "Match",
+    "areasOfActivity": "Aktivitätsgebiete",
+    "offer": "Ich biete"
+  },
+  "footer": {
+    "description": "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
+    "discover": {
+      "title": "Entdecken",
+      "profiles": "Profile",
+      "organizations": "Organisationen",
+      "events": "Veranstaltungen",
+      "projects": "Projekte"
+    },
+    "participate": {
+      "title": "Mitwirken",
+      "github": "GitHub Repository"
+    },
+    "learnMore": {
+      "title": "Mehr erfahren",
+      "website": "MINTvernetzt-Website"
+    },
+    "meta": {
+      "copyright": "© 2021-2023 matrix gGmbH",
+      "imprint": "Impressum",
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfUse": "Nutzungsbedingungen",
+      "contact": "Kontakt",
+      "needHelp": "Benötigst du Hilfe? Melde dich bei"
+    }
+  }
+}

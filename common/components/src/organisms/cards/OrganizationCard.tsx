@@ -10,6 +10,7 @@ import {
   CardImage,
   CardStatus,
 } from "./Card";
+import { useTranslation } from "react-i18next";
 
 export type OrganizationCardProps = {
   match?: number;
@@ -36,9 +37,11 @@ function OrganizationCard(
 ) {
   const { organization, publicAccess = false } = props;
 
+  const { t } = useTranslation(["organisms"]);
+
   const emptyMessage = publicAccess
-    ? "-nicht öffentlich-"
-    : "-nicht angegeben-";
+    ? t("organizationCard.nonPublic", "-nicht öffentlich-")
+    : t("organizationCard.nonStated", "-nicht angegeben-");
 
   return (
     <Card to={`/organization/${organization.slug}`}>
@@ -46,7 +49,9 @@ function OrganizationCard(
         <Avatar {...organization} size="xl" />
         {organization.background && <CardImage src={organization.background} />}
         {props.match !== undefined && (
-          <CardStatus>{props.match}% Match</CardStatus>
+          <CardStatus>
+            {props.match}% {t("organizationCard.match", "Match")}
+          </CardStatus>
         )}
       </CardHeader>
       <CardBody>
@@ -66,10 +71,16 @@ function OrganizationCard(
             </div>
           </div>
         }
-        <CardBodySection title="Aktivitätsgebiete" emptyMessage={emptyMessage}>
+        <CardBodySection
+          title={t("organizationCard.areasOfActivity", "Aktivitätsgebiete")}
+          emptyMessage={emptyMessage}
+        >
           {organization.areas.length > 0 ? organization.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection title="Schwerpunkte" emptyMessage={emptyMessage}>
+        <CardBodySection
+          title={t("organizationCard.focus", "Schwerpunkte")}
+          emptyMessage={emptyMessage}
+        >
           {organization.focuses.length === 0 ? (
             ""
           ) : (

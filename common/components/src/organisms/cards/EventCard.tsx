@@ -12,6 +12,7 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
+import { useTranslation } from "react-i18next";
 
 export type EventCardProps = {
   match?: number;
@@ -99,6 +100,7 @@ function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
   const { event } = props;
+  const { t } = useTranslation(["organisms"]);
 
   const now = new Date();
 
@@ -118,21 +120,29 @@ function EventCard(
           />
         )}
         {props.match !== undefined && (
-          <CardStatus>{props.match}% Match</CardStatus>
+          <CardStatus>
+            {props.match}% {t("eventCard.match", "Match")}
+          </CardStatus>
         )}
         {event.canceled && event.published && (
-          <CardStatus variant="negative">Wurde abgesagt</CardStatus>
+          <CardStatus variant="negative">
+            {t("eventCard.cancelled", "Wurde abgesagt")}
+          </CardStatus>
         )}
         {event.endTime.getTime() < now.getTime() && (
-          <CardStatus variant="neutral">Vergangen</CardStatus>
+          <CardStatus variant="neutral">
+            {t("eventCard.passed", "Vergangen")}
+          </CardStatus>
         )}
         {!event.published && event.isTeamMember && (
           <CardStatus variant="primary" inverted>
-            Entwurf
+            {t("eventCard.draft", "Entwurf")}
           </CardStatus>
         )}
         {event.published && event.isTeamMember && (
-          <CardStatus variant="positive">Veröffentlicht</CardStatus>
+          <CardStatus variant="positive">
+            {t("eventCard.published", "Veröffentlicht")}
+          </CardStatus>
         )}
         <CardInfoOverlay>
           {event._count.childEvents === 0 &&
@@ -148,7 +158,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                Unbegrenzte Plätze
+                {t("eventCard.unlimitedSeats", "Unbegrenzte Plätze")}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -156,14 +166,22 @@ function EventCard(
             event.participantLimit - event._count.participants > 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event.participantLimit - event._count.participants} /{" "}
-                {event.participantLimit} Plätze frei
+                {event.participantLimit}{" "}
+                {t("eventCard.seatsFree", {
+                  default: "Plätze frei",
+                  count: event.participantLimit - event._count.participants,
+                })}
               </span>
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
             event.participantLimit - event._count.participants <= 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                {event._count.waitingList} Wartelistenplätze
+                {event._count.waitingList}{" "}
+                {t("eventCard.waitingListPlaces", {
+                  count: event._count.waitingList,
+                  default: "Wartelistenplätze",
+                })}
               </span>
             )}
         </CardInfoOverlay>
@@ -265,7 +283,7 @@ function EventCard(
           !event.canceled &&
           event.isParticipant && (
             <span className="mv-text-xs mv-font-bold mv-text-positive">
-              Angemeldet
+              {t("eventCard.registered", "Angemeldet")}
             </span>
           )}
         {!props.publicAccess &&
@@ -275,7 +293,7 @@ function EventCard(
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
             <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
-              Auf Warteliste
+              {t("eventCard.onWaitingList", "Auf Warteliste")}
             </span>
           )}
       </CardFooter>
