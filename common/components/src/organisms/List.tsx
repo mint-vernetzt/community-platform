@@ -168,8 +168,32 @@ export function ListItem(
   }) as React.ReactElement;
 
   let infoClone: React.ReactElement | undefined;
+  let title: React.ReactElement | undefined;
+  let subtitle: React.ReactElement | undefined;
+
   if (typeof info !== "undefined") {
     infoClone = React.cloneElement(info as React.ReactElement, {
+      size,
+    });
+  } else {
+    title = validChildren.find((child) => {
+      return React.isValidElement(child) && child.type === ListItemTitle;
+    }) as React.ReactElement;
+    subtitle = validChildren.find((child) => {
+      return React.isValidElement(child) && child.type === ListItemSubtitle;
+    }) as React.ReactElement;
+  }
+
+  let titleClone: React.ReactElement | undefined;
+  let subtitleClone: React.ReactElement | undefined;
+
+  if (typeof title !== "undefined") {
+    titleClone = React.cloneElement(title as React.ReactElement, {
+      size,
+    });
+  }
+  if (typeof subtitle !== "undefined") {
+    subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
       size,
     });
   }
@@ -178,7 +202,14 @@ export function ListItem(
     <li className={listItemClasses}>
       <div className={containerClasses}>
         {typeof avatar !== "undefined" && avatar}
-        {typeof infoClone !== "undefined" && infoClone}
+        {typeof infoClone !== "undefined" ? (
+          infoClone
+        ) : (
+          <ListItemInfo size={size}>
+            {typeof titleClone !== "undefined" && titleClone}
+            {typeof subtitleClone !== "undefined" && subtitleClone}
+          </ListItemInfo>
+        )}
         {typeof controls !== "undefined" && controls}
       </div>
     </li>
