@@ -15,7 +15,7 @@ const config = {
         postCss: true,
       },
     },
-    { name: "@storybook/addon-storysource" },
+    // { name: "@storybook/addon-storysource" },
   ],
   framework: {
     name: "@storybook/react-webpack5",
