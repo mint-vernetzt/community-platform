@@ -1,6 +1,6 @@
 import React from "react";
 import List from "./organisms/List";
-import { Avatar, Button } from "./molecules";
+import { Avatar, Button, Toast } from "./molecules";
 
 const defaultUsers = [
   {
@@ -50,6 +50,9 @@ export function AutoCompleteReplacementPlayground() {
     reducer,
     defaultUsers
   );
+  const [removedUser, setRemovedUser] = React.useState<typeof users[0] | null>(
+    null
+  );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -74,18 +77,32 @@ export function AutoCompleteReplacementPlayground() {
     dispatch({ type: action, payload: username });
   };
 
+  const handleHide = () => {
+    setRemovedUser(null);
+  };
+
   React.useEffect(() => {
+    const userToRemove = results.find((result) => {
+      const user = users.find((user) => {
+        return user.username === result.username;
+      });
+
+      return typeof user === "undefined";
+    });
     const filteredResults = results.filter((result) => {
       const user = users.find((user) => {
         return user.username === result.username;
       });
       return typeof user !== "undefined";
     });
+    if (typeof userToRemove !== "undefined") {
+      setRemovedUser(userToRemove);
+    }
     setResults(filteredResults);
   }, [users]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="mv-p-6">
+    <div className="mv-p-6 mv-flex mv-flex-col mv-gap-4">
       <input onChange={handleChange} />
       <List>
         {results.map((item) => {
@@ -113,6 +130,11 @@ export function AutoCompleteReplacementPlayground() {
           );
         })}
       </List>
+      {removedUser !== null && (
+        <Toast onHide={handleHide}>
+          {removedUser.firstName} {removedUser.lastName} remove!
+        </Toast>
+      )}
     </div>
   );
 }
