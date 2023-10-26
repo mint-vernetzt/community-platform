@@ -1,8 +1,8 @@
 import React from "react";
 import List from "./organisms/List";
-import Avatar from "./molecules/Avatar";
+import { Avatar, Button } from "./molecules";
 
-const users = [
+const defaultUsers = [
   {
     firstName: "Maria",
     lastName: "Lupan",
@@ -33,8 +33,23 @@ const users = [
   },
 ];
 
+function reducer(state: typeof defaultUsers, action: any) {
+  switch (action.type) {
+    case "remove":
+      return state.filter((user) => {
+        return user.username !== action.payload;
+      });
+    default:
+      return state;
+  }
+}
+
 export function AutoCompleteReplacementPlayground() {
   const [results, setResults] = React.useState<typeof users>([]);
+  const [users, dispatch] = React.useReducer<typeof reducer>(
+    reducer,
+    defaultUsers
+  );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -53,6 +68,22 @@ export function AutoCompleteReplacementPlayground() {
     }
   };
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const { value } = event.currentTarget;
+    const [action, username] = value.split("_");
+    dispatch({ type: action, payload: username });
+  };
+
+  React.useEffect(() => {
+    const filteredResults = results.filter((result) => {
+      const user = users.find((user) => {
+        return user.username === result.username;
+      });
+      return typeof user !== "undefined";
+    });
+    setResults(filteredResults);
+  }, [users]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="mv-p-6">
       <input onChange={handleChange} />
@@ -69,6 +100,15 @@ export function AutoCompleteReplacementPlayground() {
                 {item.firstName} {item.lastName}
               </List.Item.Title>
               <List.Item.Subtitle>{item.position}</List.Item.Subtitle>
+              <List.Item.Controls>
+                <Button
+                  value={`remove_${item.username}`}
+                  variant="outline"
+                  onClick={handleClick}
+                >
+                  Remove
+                </Button>
+              </List.Item.Controls>
             </List.Item>
           );
         })}
