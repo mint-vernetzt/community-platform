@@ -1,9 +1,25 @@
-import List from "./List";
+import Button from "../molecules/Button";
+import Avatar from "../molecules/Avatar";
+import { ListItem } from "./List";
 
 export function LinkItemPlayground() {
   return (
     <div className="mv-p-6">
-      <List.Item />
+      <ListItem>
+        <Avatar
+          firstName="Maria"
+          lastName="Lupan"
+          avatar="./maria-lupan-fE5IaNta2KM-unsplash.jpg"
+          size="lg"
+        />
+        <ListItem.Info>
+          <ListItem.Title>Item title</ListItem.Title>
+          <ListItem.Subtitle>Item subtitle</ListItem.Subtitle>
+        </ListItem.Info>
+        <ListItem.Controls>
+          <Button variant="outline">Edit</Button>
+        </ListItem.Controls>
+      </ListItem>
     </div>
   );
 }
