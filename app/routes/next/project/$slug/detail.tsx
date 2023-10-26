@@ -214,7 +214,6 @@ function ProjectDetail() {
             )}
           </Header.Body>
           <Header.Footer>
-            <p>Hier steht z.B. beim Veranstaltungs Header etwas.</p>
             {mode === "admin" && (
               <Controls>
                 {/* TODO: Use absolute path */}
