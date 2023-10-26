@@ -164,6 +164,7 @@ function ProjectDetail() {
           />
           {mode === "admin" && (
             <Controls>
+              {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton container */}
               <CircleButton variant="outline">
                 <label
                   htmlFor="modal-background-upload"
