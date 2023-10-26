@@ -30,15 +30,17 @@ export function Header(props: HeaderProps) {
     <div className="mv-relative mv-w-full mv-border mv-rounded-none md:mv-rounded-3xl mv-overflow-hidden">
       <div className="mv-relative mv-w-full mv-aspect-[3/2] md:mv-aspect-[2/1] lg:mv-aspect-[31/10] mv-bg-attention-400">
         {image || null}
-        {status || null}
-        {avatar !== null && (
+        {status !== undefined && (
+          <div className="mv-absolute mv-top-0 mv-inset-x-0">{status}</div>
+        )}
+        {avatar !== undefined && (
           <div className="mv-absolute mv-inset-x-0 mv--bottom-20 md:mv--bottom-[124px] mv-flex mv-flex-col mv-items-center">
             <div className="mv-w-40 md:mv-w-[248px] mv-aspect-[1]">
               {avatar}
             </div>
           </div>
         )}
-        {controls !== null && (
+        {controls !== undefined && (
           <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
         )}
       </div>
@@ -50,7 +52,7 @@ export function Header(props: HeaderProps) {
               : "mv-mt-2 md:mv-mt-4"
           } mv-mb-2 md:mv-mb-4`}
         >
-          {body || null}
+          {body}
         </div>
       )}
       {footer || null}
@@ -118,9 +120,11 @@ function Footer(props: FooterProps) {
         otherChilds.length > 0 ? "mv-bg-accent-300" : ""
       }`}
     >
-      <div className="mv-flex mv-grow mv-items-center mv-justify-center mv-font-bold">
-        {otherChilds}
-      </div>
+      {otherChilds.length > 0 && (
+        <div className="mv-flex mv-grow mv-items-center mv-justify-center mv-font-bold">
+          {otherChilds}
+        </div>
+      )}
       {controls !== undefined && (
         <div className="mv-flex mv-shrink mv-w-full lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
           {controls}

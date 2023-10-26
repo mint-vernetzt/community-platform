@@ -22,7 +22,7 @@ function Status(props: StatusProps) {
   });
 
   const classes = classNames(
-    "mv-absolute mv-top-0 mv-w-full mv-py-2 mv-px-4 mv-text-center mv-font-semibold mv-leading-5",
+    "mv-py-2 mv-px-4 mv-text-center mv-font-semibold mv-leading-5",
     variant === "primary" && inverted && "mv-text-primary mv-bg-primary-100",
     variant === "primary" && !inverted && "mv-text-white mv-bg-primary-300",
     variant === "neutral" && "mv-text-white mv-bg-neutral",
@@ -30,7 +30,7 @@ function Status(props: StatusProps) {
     variant === "negative" && "mv-text-white mv-bg-negative"
   );
 
-  return <span className={classes}>{children}</span>;
+  return <div className={classes}>{children}</div>;
 }
 
 export default Status;
