@@ -4,7 +4,6 @@ import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
-import Controls from "~/components/test/Controls";
 import { Header, HeaderBody, HeaderFooter } from "~/components/test/Header";
 import Image from "~/components/test/Image";
 import Status from "~/components/test/Status";
@@ -18,23 +17,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { deriveProjectMode } from "../../utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getImageURL } from "~/images.server";
-import { H1, H2 } from "~/components/Heading/Heading";
-
-{
-  /* <Header>
-  <Image />
-  <Controls><button>toogle fullscreen</button><button>Edit Background Image</button></Controls>
-  <Body>
-    <Avatar>
-    <Controls></Controls>
-    <h1></h1>
-    <h2></h2>
-  </Body>
-  <Footer>
-    <Controls></Controls>
-  </Footer>
-</Header> */
-}
+import { H1 } from "~/components/Heading/Heading";
+import Controls from "~/components/test/Controls";
 
 export function links() {
   return [
@@ -221,11 +205,6 @@ function ProjectDetail() {
             <H1 like="h3" className="mv-mb-0">
               {project.name}
             </H1>
-            <p className="mv-text-base md:mv-text-2xl">
-              Sound x Tech Format für Mädchen*, trans*, inter*
-              undhghghhfghfhghfhghfghfhghfhgfhnon-binäre Jugendliche ab 12
-              Jahren.
-            </p>
             {project.excerpt !== null && (
               <p className="mv-text-base md:mv-text-2xl">{project.excerpt}</p>
             )}
@@ -234,8 +213,8 @@ function ProjectDetail() {
             <p>Hier steht z.B. beim Veranstaltungs Header etwas.</p>
             {mode === "admin" && (
               <Controls>
+                {/* TODO: Use absolute path */}
                 <Button as="a" href="./../settings">
-                  {/* TODO: Use absolute path */}
                   Projekt bearbeiten
                 </Button>
                 {/* TODO: Add conform, zod, Form and Action for publish */}

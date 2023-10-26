@@ -1,8 +1,8 @@
 import React, { type ReactNode } from "react";
 import Status from "./Status";
 import Image from "./Image";
-import Controls from "./Controls";
 import { Avatar } from "@mint-vernetzt/components";
+import Controls from "./Controls";
 
 type HeaderProps = {
   children: ReactNode;

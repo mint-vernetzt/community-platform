@@ -15,10 +15,10 @@ function Controls(props: ControlsProps) {
     return isValid;
   });
 
-  // TODO: Flex Items with equal width
-
   return (
-    <div className={`grid grid-cols-${children.length} mv-gap-4 mv-w-full`}>
+    <div
+      className={`mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-4 mv-w-full`}
+    >
       {children}
     </div>
   );
