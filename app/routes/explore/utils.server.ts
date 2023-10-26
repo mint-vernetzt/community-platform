@@ -279,6 +279,7 @@ export async function getAllProjects(
               id: true,
               name: true,
               slug: true,
+              logo: true,
             },
           },
         },

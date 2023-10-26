@@ -26,6 +26,7 @@ export {
   EventCard,
   OrganizationCard,
   ProfileCard,
+  ProjectCard,
 } from "./src/organisms/cards";
 export {
   CardContainer,
