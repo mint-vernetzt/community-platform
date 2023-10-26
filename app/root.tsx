@@ -23,7 +23,7 @@ import classNames from "classnames";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getAlert, type Alert as AlertType } from "./alert.server";
+import { type Alert as AlertType, getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
@@ -33,6 +33,9 @@ import { getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { useChangeLanguage } from "remix-i18next";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -47,10 +50,13 @@ export type RootRouteData = {
   sessionUserInfo?: SessionUserInfo;
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   alert: AlertType | undefined;
+  locale: string;
 };
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
+
+  const locale = await i18next.getLocale(request);
 
   const response = new Response();
 
@@ -100,9 +106,18 @@ export const loader = async (args: DataFunctionArgs) => {
       sessionUserInfo,
       abilities,
       alert,
+      locale,
     },
     { headers: combineHeaders(response.headers, alertHeaders) }
   );
+};
+
+export const handle = {
+  // In the handle export, we can add a i18n key with namespaces our route
+  // will need to load. This key can be a single string or an array of strings.
+  // TIP: In most cases, you should set this to your defaultNS from your i18n config
+  // or if you did not set one, set it to the i18next default namespace "translation"
+  i18n: "translations",
 };
 
 function HeaderLogo() {
@@ -445,8 +460,15 @@ export default function App() {
   const matches = useMatches();
   const isSettings = matches[1].id === "routes/next/project/$slug/settings";
 
+  const { locale } = useLoaderData<typeof loader>();
+
+  const { i18n } = useTranslation();
+  useChangeLanguage(locale);
+
+  console.log("Locale: ", locale);
+
   return (
-    <html lang="de" data-theme="light">
+    <html lang={locale} dir={i18n.dir()} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />

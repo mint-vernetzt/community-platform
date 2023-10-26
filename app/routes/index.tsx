@@ -25,6 +25,7 @@ import {
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   email: z
@@ -84,7 +85,7 @@ const mutation = makeDomainFunction(
   environmentSchema
 )(async (values, environment) => {
   const { error } = await signIn(
-    // TODO: fix type issue
+    // @ts-ignore TODO: fix type issue
     environment.authClient,
     values.email,
     values.password
@@ -143,6 +144,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function Index() {
+  const { t } = useTranslation();
   const submit = useSubmit();
   const loaderData = useLoaderData<typeof loader>();
   const [urlSearchParams] = useSearchParams();
@@ -194,7 +196,7 @@ export default function Index() {
               <div className="md:col-start-1 md:col-span-7 xl:col-start-2 xl:col-span-5 md:flex md:items-center">
                 <div>
                   <H1 className="text-center sm:text-left leading-none">
-                    Willkommen in Deiner MINT-Community
+                    Willkommen in Deiner MINT-Community {t("title")}
                   </H1>
                   <p className="mt-8 mb-8 lg:mb-0 text-primary">
                     Entdecke auf der MINTvernetzt Community-Plattform andere
