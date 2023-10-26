@@ -20,7 +20,7 @@ export function ListItemPlayground() {
           <Button variant="outline">Edit</Button>
         </ListItem.Controls>
       </ListItem>
-      <ListItem interactive noBorder>
+      <ListItem size="sm" interactive noBorder>
         <a href="#">
           <Avatar
             firstName="Maria"

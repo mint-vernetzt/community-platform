@@ -2,27 +2,38 @@ import React from "react";
 import Avatar from "../molecules/Avatar";
 import classNames from "classnames";
 
+type Size = "sm" | "md";
+
 function List() {
   return <>List</>;
 }
 
-function ListItemTitle(props: React.PropsWithChildren<{}>) {
-  return (
-    <span className="mv-w-full mv-text-primary mv-font-bold mv-line-clamp-1">
-      {props.children}
-    </span>
+function ListItemTitle(props: React.PropsWithChildren<{ size?: Size }>) {
+  const { size = "md" } = props;
+
+  const classes = classNames(
+    size === "sm" && "mv-text-sm",
+    size === "md" && "mv-text-base",
+    "mv-w-full mv-text-primary mv-font-bold mv-line-clamp-1"
   );
+
+  return <span className={classes}>{props.children}</span>;
 }
 
-function ListItemSubtitle(props: React.PropsWithChildren<{}>) {
-  return (
-    <span className="mv-text-neutral-700 mv-font-bold mv-text-sm mv-line-clamp-1">
-      {props.children}
-    </span>
+function ListItemSubtitle(props: React.PropsWithChildren<{ size?: Size }>) {
+  const { size = "md" } = props;
+
+  const classes = classNames(
+    size === "sm" && "mv-font-normal",
+    size === "md" && "mv-font-bold",
+    "mv-text-sm mv-text-neutral-700 mv-line-clamp-1"
   );
+
+  return <span className={classes}>{props.children}</span>;
 }
 
-function ListItemInfo(props: React.PropsWithChildren<{}>) {
+function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
+  const { size = "md" } = props;
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return typeof child === "string" || React.isValidElement(child);
@@ -40,10 +51,24 @@ function ListItemInfo(props: React.PropsWithChildren<{}>) {
     return React.isValidElement(child) && child.type === ListItemSubtitle;
   });
 
+  let titleClone: React.ReactElement | undefined;
+  let subtitleClone: React.ReactElement | undefined;
+
+  if (typeof title !== "undefined") {
+    titleClone = React.cloneElement(title as React.ReactElement, {
+      size,
+    });
+  }
+  if (typeof subtitle !== "undefined") {
+    subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+      size,
+    });
+  }
+
   return (
     <div className="mv-flex-1">
-      {typeof title !== "undefined" && title}
-      {typeof subtitle !== "undefined" && subtitle}
+      {typeof titleClone !== "undefined" && titleClone}
+      {typeof subtitleClone !== "undefined" && subtitleClone}
     </div>
   );
 }
@@ -56,13 +81,14 @@ function ListItemControls(props: React.PropsWithChildren<{}>) {
   );
 }
 
-export type ListItemProps = {
-  noBorder?: boolean;
-  interactive?: boolean;
-};
-
-export function ListItem(props: React.PropsWithChildren<ListItemProps>) {
-  const { noBorder = false, interactive = false } = props;
+export function ListItem(
+  props: React.PropsWithChildren<{
+    noBorder?: boolean;
+    interactive?: boolean;
+    size?: Size;
+  }>
+) {
+  const { noBorder = false, interactive = false, size = "md" } = props;
 
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
@@ -84,7 +110,9 @@ export function ListItem(props: React.PropsWithChildren<ListItemProps>) {
   );
 
   const containerClasses = classNames(
-    "mv-p-4 mv-flex mv-flex-row mv-items-center mv-no-wrap mv-gap-2"
+    size === "sm" && "mv-p-2",
+    size === "md" && "mv-p-4",
+    "mv-flex mv-flex-row mv-items-center mv-no-wrap mv-gap-2"
   );
 
   if (interactive) {
@@ -102,6 +130,13 @@ export function ListItem(props: React.PropsWithChildren<ListItemProps>) {
       return React.isValidElement(child) && child.type === ListItemInfo;
     }) as React.ReactElement;
 
+    let infoClone: React.ReactElement | undefined;
+    if (typeof info !== "undefined") {
+      infoClone = React.cloneElement(info as React.ReactElement, {
+        size,
+      });
+    }
+
     const wrapperClasses = classNames(containerClasses, "mv-flex-1");
 
     const wrapperClone = React.cloneElement(
@@ -111,7 +146,7 @@ export function ListItem(props: React.PropsWithChildren<ListItemProps>) {
       },
       <>
         {typeof avatar !== "undefined" && avatar}
-        {typeof info !== "undefined" && info}
+        {typeof infoClone !== "undefined" && infoClone}
       </>
     );
 
@@ -125,11 +160,18 @@ export function ListItem(props: React.PropsWithChildren<ListItemProps>) {
     return React.isValidElement(child) && child.type === ListItemInfo;
   }) as React.ReactElement;
 
+  let infoClone: React.ReactElement | undefined;
+  if (typeof info !== "undefined") {
+    infoClone = React.cloneElement(info as React.ReactElement, {
+      size,
+    });
+  }
+
   return (
     <li className={listItemClasses}>
       <div className={containerClasses}>
         {typeof avatar !== "undefined" && avatar}
-        {typeof info !== "undefined" && info}
+        {typeof infoClone !== "undefined" && infoClone}
         {typeof controls !== "undefined" && controls}
       </div>
     </li>
