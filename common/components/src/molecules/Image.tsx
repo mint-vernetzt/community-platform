@@ -24,13 +24,13 @@ function Image(props: ImageProps) {
 
   return (
     <>
-      <div className="mv-w-full mv-h-full">
+      <div className="mv-relative mv-w-full mv-h-full">
         {props.blurredSrc ? (
           <img
             ref={blurredImageRef}
             src={props.blurredSrc}
             alt=""
-            className={`mv-w-full mv-h-full mv-object-cover ${
+            className={`mv-absolute mv-inset-0 mv-w-full mv-h-full mv-object-cover ${
               blurredImageLoaded
                 ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
                 : "mv-opacity-0 mv-invisible"
@@ -43,19 +43,19 @@ function Image(props: ImageProps) {
               ref={imageRef}
               src={props.src}
               alt={props.alt || ""}
-              className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
+              className={`mv-relative mv-w-full mv-h-full mv-inset-0 ${
                 resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
               } ${
                 imageLoaded
                   ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-                  : "mv-opacity-0 mv-invisible"
+                  : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
               }`}
             />
             <noscript>
               <img
                 src={props.src}
                 alt={props.alt || ""}
-                className={`mv-absolute mv-w-full mv-h-full mv-inset-0 ${
+                className={`mv-w-full mv-h-full ${
                   resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
                 }`}
               />
