@@ -1,6 +1,7 @@
 import { Link } from "@mint-vernetzt/components";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
+import { LocaleSwitch } from "./buttons/LocaleSwitch";
 
 function Footer(props: { isSettings?: boolean }) {
   const classes = classNames(
@@ -222,7 +223,7 @@ function Footer(props: { isSettings?: boolean }) {
                   </li>
                   <li>
                     <Link to="/explore/organizations" className="">
-                      {t("footer.discover.organisations", "Organisationen")}
+                      {t("footer.discover.organizations", "Organisationen")}
                     </Link>
                   </li>
                   <li>
@@ -269,6 +270,9 @@ function Footer(props: { isSettings?: boolean }) {
                     </Link>
                   </li>
                 </ul>
+              </div>
+              <div>
+                <LocaleSwitch />
               </div>
             </div>
 

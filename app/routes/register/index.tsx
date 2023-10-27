@@ -75,6 +75,7 @@ const mutation = makeDomainFunction(
 
   const { error } = await signUp(
     // TODO: fix type issue
+    // @ts-ignore
     environment.authClient,
     values.email,
     values.password,
@@ -121,6 +122,7 @@ export default function Register() {
     if (event.key === "Enter") {
       event.preventDefault();
       // TODO: Type issue
+      // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
       }
