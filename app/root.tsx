@@ -39,7 +39,8 @@ import { useChangeLanguage } from "remix-i18next";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
-  return { title: "MINTvernetzt Community Plattform" };
+  const { t } = useTranslation(["meta"]);
+  return { title: t("root.title", "MINTvernetzt Community Plattform") };
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -55,9 +56,7 @@ export type RootRouteData = {
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
-
   const locale = await i18next.getLocale(request);
-
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -113,10 +112,11 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 export const handle = {
-  i18n: ["organisms"],
+  i18n: [],
 };
 
 function HeaderLogo() {
+  const { t } = useTranslation(["meta"]);
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -128,7 +128,9 @@ function HeaderLogo() {
         role="img"
         className="w-10 h-10 md:w-auto md:h-auto"
       >
-        <title id="mint-title-header">Logo: mint vernetzt</title>
+        <title id="mint-title-header">
+          {t("root.logo", "Logo: mint vernetzt")}
+        </title>
         <g fill="none">
           <path
             fill="#154194"
@@ -145,7 +147,7 @@ function HeaderLogo() {
         </g>
       </svg>
       <span className="hidden md:block font-bold text-primary ml-2">
-        Community
+        {t("root.community", "Community")}
       </span>
     </div>
   );
@@ -182,6 +184,8 @@ function NavBar(props: NavBarProps) {
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
 
+  const { t } = useTranslation(["meta"]);
+
   return (
     <header id="header" className={classes}>
       <div className="container relative">
@@ -206,7 +210,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/profiles"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Profile
+                  {t("root.profiles", "Profile")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -214,7 +218,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/organizations"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Organisationen
+                  {t("root.organizations", "Organisationen")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -222,7 +226,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/events"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Veranstaltungen
+                  {t("root.events", "Veranstaltungen")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -230,7 +234,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/projects"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Projekte
+                  {t("root.projects", "Projekte")}
                 </Link>
               </li>
             </ul>
@@ -291,7 +295,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Mein Profil
+                      {t("root.myProfile", "Mein Profil")}
                     </h5>
                   </li>
                   <li>
@@ -300,7 +304,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Profil anzeigen
+                      {t("root.showProfile", "Profil anzeigen")}
                     </Link>
                   </li>
                   <li className="p-4 pb-6">
@@ -308,7 +312,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Organisationen
+                      {t("root.myOrganizations", "Meine Organisationen")}
                     </h5>
                   </li>
                   <li>
@@ -317,7 +321,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisationen anzeigen
+                      {t("root.showOrganizations", "Organisationen anzeigen")}
                     </Link>
                   </li>
                   <li>
@@ -326,7 +330,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisation anlegen
+                      {t("root.createOrganization", "Organisation anlegen")}
                     </Link>
                   </li>
 
@@ -336,7 +340,7 @@ function NavBar(props: NavBarProps) {
                     </li>
                     <li>
                       <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                        Meine Veranstaltungen
+                        {t("root.myEvents", "Meine Veranstaltungen")}
                       </h5>
                     </li>
                     <li>
@@ -345,7 +349,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Veranstaltungen anzeigen
+                        {t("root.showEvents", "Veranstaltungen anzeigen")}
                       </Link>
                     </li>
                     {props.abilities.events !== undefined &&
@@ -356,7 +360,7 @@ function NavBar(props: NavBarProps) {
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                           onClick={closeDropdown}
                         >
-                          Veranstaltung anlegen
+                          {t("root.createEvent", "Veranstaltung anlegen")}
                         </Link>
                       </li>
                     ) : null}
@@ -366,7 +370,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Projekte
+                      {t("root.myProjects", "Meine Projekte")}
                     </h5>
                   </li>
                   <li>
@@ -375,7 +379,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Projekte anzeigen
+                      {t("root.showProjects", "Projekte anzeigen")}
                     </Link>
                   </li>
                   {props.abilities.projects !== undefined &&
@@ -386,7 +390,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Projekt anlegen
+                        {t("root.createProject", "Projekt anlegen")}
                       </Link>
                     </li>
                   ) : null}
@@ -400,7 +404,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300 rounded-none"
                     >
                       <button type="submit" className="w-full text-left">
-                        Logout
+                        {t("root.logout", "Logout")}
                       </button>
                     </Form>
                   </li>
@@ -413,14 +417,14 @@ function NavBar(props: NavBarProps) {
                 to="/login"
                 className="text-primary font-semibold hover:underline"
               >
-                Anmelden
+                {t("root.login", "Anmelden")}
               </Link>{" "}
               /{" "}
               <Link
                 to="/register"
                 className="text-primary font-semibold hover:underline"
               >
-                Registrieren
+                {t("root.register", "Registrieren")}
               </Link>
             </div>
           )}
@@ -460,8 +464,6 @@ export default function App() {
 
   const { i18n } = useTranslation();
   useChangeLanguage(locale);
-
-  console.log("Locale: ", locale);
 
   return (
     <html lang={locale} dir={i18n.dir()} data-theme="light">
