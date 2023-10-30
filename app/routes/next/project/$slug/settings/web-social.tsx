@@ -308,6 +308,7 @@ function WebSocial() {
           <button type="reset">Änderungen verwerfen</button>
         </div>
         <div>
+          {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
           <button type="submit">Speichern und weiter</button>
         </div>
       </Form>
