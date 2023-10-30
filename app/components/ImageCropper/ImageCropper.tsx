@@ -247,6 +247,7 @@ function ImageCropper(props: ImageCropperProps) {
       <h2 className="text-center font-bold">{headline}</h2>
       <div className="flex items-center">
         <div className="relative max-h-72">
+          {!imgSrc && props.children}
           {image && !completedCrop && (
             <Form
               action={DELETE_URL}
@@ -268,7 +269,7 @@ function ImageCropper(props: ImageCropperProps) {
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button
-                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute top-0 right-2 rounded-full border-2 border-neutral-200"
+                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute top-2 right-2 rounded-full border-2 border-neutral-200"
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
@@ -296,7 +297,6 @@ function ImageCropper(props: ImageCropperProps) {
               )}
             </Form>
           )}
-          {!imgSrc && props.children}
 
           {Boolean(imgSrc) && (
             <ReactCrop
