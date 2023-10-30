@@ -6816,7 +6816,7 @@ function generatePublished<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event (default false)
   let published;
-  if (entityType === "event") {
+  if (entityType === "event" || entityType === "project") {
     if (entityStructure === "Unpublished") {
       published = false;
     } else {
