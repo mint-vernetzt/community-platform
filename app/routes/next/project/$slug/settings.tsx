@@ -83,6 +83,11 @@ function ProjectSettings() {
     deep !== null && deep !== "false" && "mv-hidden md:mv-block"
   );
 
+  const outletClasses = classNames(
+    "mv-overflow-hidden md:mv-w-2/3 2xl:mv-w-3/4 md:mv-border-x md:mv-border-b md:mv-rounded-b-xl md:-mv-mb-2",
+    (deep === null || deep === "false") && "mv-hidden md:mv-block"
+  );
+
   return (
     <div className="md:container">
       <div className="mv-hidden md:mv-block mv-mb-8">
@@ -173,7 +178,7 @@ function ProjectSettings() {
             })}
           </ul>
         </div>
-        <div className="mv-overflow-hidden md:mv-w-2/3 2xl:mv-w-3/4 md:mv-border-x md:mv-border-b md:mv-rounded-b-xl md:-mv-mb-2">
+        <div className={outletClasses}>
           <Outlet />
         </div>
       </div>
