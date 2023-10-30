@@ -14,9 +14,44 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { phoneSchema } from "~/lib/utils/schemas";
 
 // TODO: Validation and transformation
-const generalSchema = z.object({});
+const generalSchema = z.object({
+  name: z
+    .string({
+      required_error: "Der Projektname ist eine erforderliche Angabe.",
+    })
+    .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
+  format: z.array(z.string().uuid()),
+  furtherFormats: z.array(z.string()),
+  areas: z.array(z.string().uuid()),
+  email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
+  phone: phoneSchema
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  // TODO: "Ansprechpartner:in / Name des Projekts*"
+  street: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  streetNumber: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  streetNumberAddition: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  zipCode: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  city: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
