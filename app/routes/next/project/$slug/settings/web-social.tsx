@@ -1,5 +1,10 @@
 import { redirect, type DataFunctionArgs, json } from "@remix-run/node";
-import { useActionData, useLocation } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "./__components";
@@ -16,7 +21,7 @@ import {
   xingSchema,
   youtubeSchema,
 } from "~/lib/utils/schemas";
-import { useForm } from "@conform-to/react";
+import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
@@ -57,7 +62,27 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect(redirectPath, { headers: response.headers });
   }
 
-  return null;
+  const project = await prismaClient.project.findUnique({
+    select: {
+      website: true,
+      facebook: true,
+      linkedin: true,
+      xing: true,
+      twitter: true,
+      mastodon: true,
+      blueSky: true,
+      instagram: true,
+      youtube: true,
+    },
+    where: {
+      slug: params.slug,
+    },
+  });
+  invariantResponse(project !== null, "Project not found", {
+    status: 404,
+  });
+
+  return json({ project });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -85,13 +110,14 @@ export async function action({ request, params }: DataFunctionArgs) {
         if (intent !== "submit") return { ...data };
         try {
           // TODO: Investigate why typescript does not show an type error...
-          const someData = { test: "", ...data };
+          // const someData = { test: "", ...data };
           await prismaClient.project.update({
             where: {
               slug: params.slug,
             },
             data: {
-              ...someData,
+              // ...someData,
+              ...data,
             },
           });
         } catch (e) {
@@ -117,24 +143,33 @@ export async function action({ request, params }: DataFunctionArgs) {
   }
 
   return redirectWithAlert(
-    ".",
+    `/next/project/${params.slug}/settings/details?deep`,
     {
       message: "Deine Änderungen wurden gespeichert.",
-    },
-    { status: 200 }
+    }
   );
 }
 
 function WebSocial() {
   const location = useLocation();
-
+  const loaderData = useLoaderData<typeof loader>();
+  const { project } = loaderData;
   const actionData = useActionData<typeof action>();
-
   const formId = "web-social-form";
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(webSocialSchema),
-    // defaultValue: { redirectTo },
+    defaultValue: {
+      website: project.website || undefined,
+      facebook: project.facebook || undefined,
+      linkedin: project.linkedin || undefined,
+      xing: project.xing || undefined,
+      twitter: project.twitter || undefined,
+      mastodon: project.mastodon || undefined,
+      blueSky: project.blueSky || undefined,
+      instagram: project.instagram || undefined,
+      youtube: project.youtube || undefined,
+    },
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
       return parse(formData, { schema: webSocialSchema });
@@ -146,6 +181,136 @@ function WebSocial() {
       <BackButton to={location.pathname}>
         Website und Soziale Netwerke
       </BackButton>
+      <p>
+        Wo kann die Community mehr über Dein Projekt oder Bildungsangebot
+        erfahren?
+      </p>
+      <Form method="post" {...form.props}>
+        <h2>Website</h2>
+        <div>
+          <label htmlFor={fields.website.id}>URL</label>
+          <input className="ml-2" {...conform.input(fields.website)} />
+          {fields.website.errors !== undefined &&
+            fields.website.errors.length > 0 && (
+              <ul id={fields.website.errorId}>
+                {fields.website.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <h2>Soziale Netzwerke</h2>
+        <div>
+          <label htmlFor={fields.facebook.id}>facebook</label>
+          <input className="ml-2" {...conform.input(fields.facebook)} />
+          {fields.facebook.errors !== undefined &&
+            fields.facebook.errors.length > 0 && (
+              <ul id={fields.facebook.errorId}>
+                {fields.facebook.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.linkedin.id}>LinkedIn</label>
+          <input className="ml-2" {...conform.input(fields.linkedin)} />
+          {fields.linkedin.errors !== undefined &&
+            fields.linkedin.errors.length > 0 && (
+              <ul id={fields.linkedin.errorId}>
+                {fields.linkedin.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.xing.id}>Xing</label>
+          <input className="ml-2" {...conform.input(fields.xing)} />
+          {fields.xing.errors !== undefined && fields.xing.errors.length > 0 && (
+            <ul id={fields.xing.errorId}>
+              {fields.xing.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div>
+          <label htmlFor={fields.twitter.id}>X (Twitter)</label>
+          <input className="ml-2" {...conform.input(fields.twitter)} />
+          {fields.twitter.errors !== undefined &&
+            fields.twitter.errors.length > 0 && (
+              <ul id={fields.twitter.errorId}>
+                {fields.twitter.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.mastodon.id}>Mastodon</label>
+          <input className="ml-2" {...conform.input(fields.mastodon)} />
+          {fields.mastodon.errors !== undefined &&
+            fields.mastodon.errors.length > 0 && (
+              <ul id={fields.mastodon.errorId}>
+                {fields.mastodon.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.blueSky.id}>Blue Sky</label>
+          <input className="ml-2" {...conform.input(fields.blueSky)} />
+          {fields.blueSky.errors !== undefined &&
+            fields.blueSky.errors.length > 0 && (
+              <ul id={fields.blueSky.errorId}>
+                {fields.blueSky.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.instagram.id}>Instagram</label>
+          <input className="ml-2" {...conform.input(fields.instagram)} />
+          {fields.instagram.errors !== undefined &&
+            fields.instagram.errors.length > 0 && (
+              <ul id={fields.instagram.errorId}>
+                {fields.instagram.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <div>
+          <label htmlFor={fields.youtube.id}>YouTube</label>
+          <input className="ml-2" {...conform.input(fields.youtube)} />
+          {fields.youtube.errors !== undefined &&
+            fields.youtube.errors.length > 0 && (
+              <ul id={fields.youtube.errorId}>
+                {fields.youtube.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <ul id={form.errorId}>
+          {form.errors.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+
+        <p>*Erforderliche Angaben</p>
+
+        <div>
+          <button type="reset">Änderungen verwerfen</button>
+        </div>
+        <div>
+          <button type="submit">Speichern und weiter</button>
+        </div>
+      </Form>
     </>
   );
 }

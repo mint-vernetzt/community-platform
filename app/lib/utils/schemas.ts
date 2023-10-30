@@ -19,7 +19,7 @@ function addProtocolToUrl(url: string) {
 export const websiteSchema = z
   .string()
   .regex(
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
+    /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
     {
       message: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
     }
