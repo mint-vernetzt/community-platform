@@ -1,11 +1,12 @@
 import classNames from "classnames";
-
 import React from "react";
+
 export type ToastVariant = "positive" | "attention" | "negative";
 
 export type ToastProps = {
   variant?: ToastVariant;
   delay?: number;
+  onHide?: () => void;
 };
 
 function Toast(props: React.PropsWithChildren<ToastProps>) {
@@ -16,6 +17,9 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
     let timeout: NodeJS.Timeout;
     if (!hide) {
       timeout = setTimeout(() => {
+        if (typeof props.onHide !== "undefined") {
+          props.onHide();
+        }
         setHide(true);
       }, delay);
     }
