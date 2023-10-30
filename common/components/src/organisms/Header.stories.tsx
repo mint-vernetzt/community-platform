@@ -106,23 +106,33 @@ Playground.args = {
   status: true,
   image: true,
   imageResizeType: "fill",
-  avatar: true,
   controls: true,
   body: true,
+  avatar: true,
   bodyControls: true,
   footer: true,
   footerControls: true,
+  footerText: false,
 };
 Playground.argTypes = {
+  status: { control: "boolean" },
+  image: { control: "boolean" },
   imageResizeType: {
     control: "select",
     options: ["fill", "fit"],
   },
+  controls: { control: "boolean" },
+  body: { control: "boolean" },
+  avatar: { control: "boolean", if: { arg: "body" } },
+  bodyControls: { control: "boolean", if: { arg: "body" } },
+  footer: { control: "boolean" },
+  footerControls: { control: "boolean", if: { arg: "footer" } },
+  footerText: { control: "boolean", if: { arg: "footer" } },
 };
 Playground.parameters = {
   controls: { disable: false },
   viewport: {
-    defaultViewport: "2xl",
+    defaultViewport: "lg",
   },
 };
 

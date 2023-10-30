@@ -26,6 +26,12 @@ export function Header(props: HeaderProps) {
     return React.isValidElement(child) && child.type === Footer;
   });
 
+  if (body === undefined && avatar !== undefined) {
+    console.warn(
+      "You are using the <Avatar> component without the <Header.Body> component. This will lead to hidden overflow of the <Avatar>. Please add a <Header.Body>."
+    );
+  }
+
   return (
     <div className="mv-relative mv-w-full mv-border mv-rounded-none md:mv-rounded-3xl mv-overflow-hidden">
       <div className="mv-relative mv-w-full mv-aspect-[3/2] md:mv-aspect-[2/1] lg:mv-aspect-[31/10] mv-bg-attention-400">
