@@ -2,22 +2,8 @@ import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 import React from "react";
 
-export type AvatarSize = "sm" | "md" | "lg" | "xl";
-
-export type AvatarProps = { size?: AvatarSize; to?: string } & (
-  | {
-      name: string;
-      logo?: string | null;
-    }
-  | {
-      firstName: string;
-      lastName: string;
-      avatar?: string | null;
-    }
-);
-
 function Avatar(props: AvatarProps) {
-  const { size = "md" } = props;
+  const { size = "md", textSize = "md" } = props;
 
   let displayName = "";
   let initials = getInitials(props);
@@ -35,20 +21,27 @@ function Avatar(props: AvatarProps) {
 
   const classes = classNames(
     {
+      "mv-w-full mv-aspect-[1]": size === "full",
       "mv-h-[136px] mv-w-[136px]": size === "xl",
       "mv-h-[44px] mv-w-[44px]": size === "lg",
       "mv-h-[40px] mv-w-[40px]": size === "md",
       "mv-h-[36px] mv-w-[36px]": size === "sm",
     },
     {
-      "mv-text-[70px]": size === "xl",
-      "mv-text-[22px]": size === "lg",
-      "mv-text-[20px]": size === "md",
-      "mv-text-[14px]": size === "sm",
+      "mv-text-[70px]": size === "xl" || textSize === "xl",
+      "mv-text-[22px]": size === "lg" || textSize === "lg",
+      "mv-text-[20px]": size === "md" || textSize === "md",
+      "mv-text-[14px]": size === "sm" || textSize === "sm",
     },
     {
-      "mv-border-2": size === "xl",
-      "mv-border": size === "lg" || size === "md" || size === "sm",
+      "mv-border-2": size === "xl" || textSize === "xl",
+      "mv-border":
+        size === "lg" ||
+        size === "md" ||
+        size === "sm" ||
+        textSize === "lg" ||
+        textSize === "md" ||
+        textSize === "sm",
     },
     "mv-bg-primary mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
     "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
@@ -133,6 +126,26 @@ export function AvatarList(props: AvatarListProps) {
     </div>
   );
 }
+
+export type AvatarSize = "sm" | "md" | "lg" | "xl" | "full";
+
+export type TextSize = "sm" | "md" | "lg" | "xl";
+
+export type AvatarProps = {
+  size?: AvatarSize;
+  textSize?: TextSize;
+  to?: string;
+} & (
+  | {
+      name: string;
+      logo?: string | null;
+    }
+  | {
+      firstName: string;
+      lastName: string;
+      avatar?: string | null;
+    }
+);
 
 Avatar.List = AvatarList;
 

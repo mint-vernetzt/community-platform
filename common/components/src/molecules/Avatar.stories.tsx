@@ -89,7 +89,11 @@ AvatarListPlayground.parameters = {
 
 export function AvatarPlayground(props: AvatarPlaygroundProps) {
   const { avatar, ...otherProps } = props;
-  return <Avatar avatar={avatar === "" ? undefined : avatar} {...otherProps} />;
+  return (
+    <div className="mv-w-[248px]">
+      <Avatar avatar={avatar === "" ? undefined : avatar} {...otherProps} />
+    </div>
+  );
 }
 AvatarPlayground.args = {
   firstName: "Sirko",
@@ -107,6 +111,10 @@ AvatarPlayground.argTypes = {
     control: "text",
   },
   size: {
+    control: "select",
+    options: ["sm", "md", "lg", "xl", "full"],
+  },
+  textSize: {
     control: "select",
     options: ["sm", "md", "lg", "xl"],
   },
