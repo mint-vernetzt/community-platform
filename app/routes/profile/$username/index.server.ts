@@ -1,6 +1,10 @@
 import { prismaClient } from "~/prisma.server";
+import { type ProfileMode } from "./utils.server";
 
-export async function getProfileByUsername(username: string) {
+export async function getProfileByUsername(
+  username: string,
+  mode: ProfileMode
+) {
   const profile = await prismaClient.profile.findUnique({
     where: { username },
     select: {
@@ -55,11 +59,14 @@ export async function getProfileByUsername(username: string) {
         },
       },
       teamMemberOfProjects: {
-        where: {
-          project: {
-            published: true,
-          },
-        },
+        where:
+          mode !== "owner"
+            ? {
+                project: {
+                  published: true,
+                },
+              }
+            : {},
         select: {
           project: {
             select: {
