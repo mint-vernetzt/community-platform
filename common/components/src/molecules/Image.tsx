@@ -30,6 +30,9 @@ function Image(props: ImageProps) {
             ref={blurredImageRef}
             src={props.blurredSrc}
             alt=""
+            onLoad={() => {
+              setBlurredImageLoaded(true);
+            }}
             className={`mv-absolute mv-inset-0 mv-w-full mv-h-full mv-object-cover ${
               blurredImageLoaded
                 ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
@@ -43,6 +46,9 @@ function Image(props: ImageProps) {
               ref={imageRef}
               src={props.src}
               alt={props.alt || ""}
+              onLoad={() => {
+                setImageLoaded(true);
+              }}
               className={`mv-relative mv-w-full mv-h-full mv-inset-0 ${
                 resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
               } ${
