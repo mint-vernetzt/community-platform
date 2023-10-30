@@ -1,9 +1,22 @@
-import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { useLocation } from "@remix-run/react";
+import { useForm } from "@conform-to/react";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
+import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+
+// TODO: Validation and transformation
+const generalSchema = z.object({});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -29,16 +42,128 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect(redirectPath, { headers: response.headers });
   }
 
-  return null;
+  // TODO: Get data
+  const project = await prismaClient.project.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug: params.slug,
+    },
+  });
+  invariantResponse(project !== null, "Project not found", {
+    status: 404,
+  });
+
+  return json({ project });
 };
+
+export async function action({ request, params }: DataFunctionArgs) {
+  const response = new Response();
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+  // Validation
+  const formData = await request.formData();
+  const submission = await parse(formData, {
+    schema: (intent) =>
+      generalSchema.transform(async (data, ctx) => {
+        if (intent !== "submit") return { ...data };
+        try {
+          // TODO: Investigate why typescript does not show an type error...
+          // const someData = { test: "", ...data };
+          await prismaClient.project.update({
+            where: {
+              slug: params.slug,
+            },
+            data: {
+              // ...someData,
+              ...data,
+            },
+          });
+        } catch (e) {
+          console.warn(e);
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
+          });
+          return z.NEVER;
+        }
+
+        return { ...data };
+      }),
+    async: true,
+  });
+
+  if (submission.intent !== "submit") {
+    return json({ status: "idle", submission } as const);
+  }
+  if (!submission.value) {
+    return json({ status: "error", submission } as const, { status: 400 });
+  }
+
+  return redirectWithAlert(
+    `/next/project/${params.slug}/settings/web-social?deep`,
+    {
+      message: "Deine Änderungen wurden gespeichert.",
+    }
+  );
+}
 
 function General() {
   const location = useLocation();
+  const loaderData = useLoaderData<typeof loader>();
+  const { project } = loaderData;
+  const actionData = useActionData<typeof action>();
+  const formId = "general-form";
+  const [form, fields] = useForm({
+    id: formId,
+    constraint: getFieldsetConstraint(generalSchema),
+    defaultValue: {},
+    lastSubmission: actionData?.submission,
+    onValidate({ formData }) {
+      return parse(formData, { schema: generalSchema });
+    },
+  });
 
   return (
     <>
-      <BackButton to={location.pathname}>Projekteckdaten</BackButton>
-      <h1>{location.pathname}</h1>
+      <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
+      <p>
+        Wo kann die Community mehr über Dein Projekt oder Bildungsangebot
+        erfahren?
+      </p>
+      <Form method="post" {...form.props}>
+        {/* TODO: Input fields */}
+
+        <ul id={form.errorId}>
+          {form.errors.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+
+        <p>*Erforderliche Angaben</p>
+
+        <div>
+          <button type="reset">Änderungen verwerfen</button>
+        </div>
+        <div>
+          <button type="submit">Speichern und weiter</button>
+        </div>
+      </Form>
     </>
   );
 }
