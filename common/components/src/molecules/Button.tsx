@@ -48,6 +48,7 @@ function Button(
     "mv-btn",
     "mv-btn-sm",
     "mv-font-semibold",
+    "mv-whitespace-nowrap",
     // button size
     size === "x-small" && "mv-text-xs mv-border mv-p-2",
     size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-border",

@@ -6,6 +6,7 @@ export function CircleButtonPlayground(props: CircleButtonProps) {
 CircleButtonPlayground.storyName = "Playground";
 CircleButtonPlayground.args = {
   variant: "normal",
+  size: "medium",
   disabled: false,
   floating: false,
 };
@@ -13,6 +14,10 @@ CircleButtonPlayground.argTypes = {
   variant: {
     control: "select",
     options: ["normal", "outline", "ghost"],
+  },
+  size: {
+    control: "select",
+    options: ["small", "medium", "large"],
   },
 };
 CircleButtonPlayground.parameters = {
