@@ -115,10 +115,8 @@ model NotificationSettings {
 model AreasOnProfiles {
   profileId String
   areaId    String
-  area      Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  Project   Project? @relation(fields: [projectId], references: [id])
-  projectId String?
+  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@id([profileId, areaId])
   @@map("areas_on_profiles")
@@ -692,8 +690,7 @@ model Project {
   teamMembers              TeamMemberOfProject[]
   projectVisibility        ProjectVisibility?
   admins                   AdminOfProject[]
-  areas                    AreasOnProfiles[]
-  AreasOnProjects          AreasOnProjects[]
+  areas                    AreasOnProjects[]
 
   @@map("projects")
 }

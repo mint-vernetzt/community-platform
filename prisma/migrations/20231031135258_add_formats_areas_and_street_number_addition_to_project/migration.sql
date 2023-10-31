@@ -1,7 +1,4 @@
 -- AlterTable
-ALTER TABLE "areas_on_profiles" ADD COLUMN     "projectId" TEXT;
-
--- AlterTable
 ALTER TABLE "project_visibilities" ADD COLUMN     "areas" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "formats" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "furtherFormats" BOOLEAN NOT NULL DEFAULT true,
@@ -38,9 +35,6 @@ CREATE TABLE "areas_on_projects" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "formats_title_key" ON "formats"("title");
-
--- AddForeignKey
-ALTER TABLE "areas_on_profiles" ADD CONSTRAINT "areas_on_profiles_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "projects"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "formats_of_projects" ADD CONSTRAINT "formats_of_projects_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
