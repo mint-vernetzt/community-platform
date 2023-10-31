@@ -405,6 +405,7 @@ type ProjectWithRelations = Project & {
   responsibleOrganizations: any;
   targetGroups: any;
   formats: any;
+  areas: any;
   teamMembers: any;
   projectVisibility: any;
   admins: any;
