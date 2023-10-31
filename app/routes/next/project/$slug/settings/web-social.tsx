@@ -189,7 +189,11 @@ function WebSocial() {
         <h2>Website</h2>
         <div>
           <label htmlFor={fields.website.id}>URL</label>
-          <input className="ml-2" {...conform.input(fields.website)} />
+          <input
+            autoFocus
+            className="ml-2"
+            {...conform.input(fields.website)}
+          />
           {fields.website.errors !== undefined &&
             fields.website.errors.length > 0 && (
               <ul id={fields.website.errorId}>
