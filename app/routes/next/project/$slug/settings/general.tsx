@@ -22,14 +22,18 @@ const generalSchema = z.object({
       required_error: "Der Projektname ist eine erforderliche Angabe.",
     })
     .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
-  format: z.array(z.string().uuid()),
+  formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
   areas: z.array(z.string().uuid()),
   email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
   phone: phoneSchema
     .optional()
     .transform((value) => (value === undefined ? null : value)),
-  // TODO: "Ansprechpartner:in / Name des Projekts*"
+  // TODO: Bea fragen:
+  // - "Ansprechpartner:in / Name des Projekts*"
+  //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
+  //    -> Sind das Profile oder ist das einfach eine freie Eingabe
+  // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
   street: z
     .string()
     .optional()
