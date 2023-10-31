@@ -3,6 +3,7 @@ import type {
   EventType,
   ExperienceLevel,
   Focus,
+  Format,
   Offer,
   OrganizationType,
   Tag,
@@ -18,6 +19,7 @@ export type GenericEntry =
   | TargetGroup
   | EventType
   | Discipline
+  | Format
   | ExperienceLevel;
 
 export type TableName =
@@ -29,6 +31,7 @@ export type TableName =
   | "eventType"
   | "experienceLevel"
   | "discipline"
+  | "format"
   | "stage";
 
 type Lookup = {

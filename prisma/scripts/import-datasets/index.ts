@@ -7,6 +7,7 @@ import offers from "./data/offers.json";
 import organizationTypes from "./data/organizationTypes.json";
 import stages from "./data/stages.json";
 import tags from "./data/tags.json";
+import formats from "./data/formats.json";
 import targetGroups from "./data/targetGroups.json";
 import type { GenericEntry, TableName } from "./utils";
 import { importDataset } from "./utils";
@@ -21,6 +22,7 @@ const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "experienceLevel", data: experienceLevels },
   { tableName: "stage", data: stages },
   { tableName: "discipline", data: disciplines },
+  { tableName: "format", data: formats },
 ];
 
 Promise.all(
