@@ -80,10 +80,37 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect(redirectPath, { headers: response.headers });
   }
 
-  // TODO: Change schema and get data
   const project = await prismaClient.project.findUnique({
     select: {
-      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      street: true,
+      streetNumber: true,
+      streetNumberAddition: true,
+      zipCode: true,
+      city: true,
+      furtherFormats: true,
+      formats: {
+        select: {
+          format: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
     where: {
       slug: params.slug,
