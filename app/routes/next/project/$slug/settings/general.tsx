@@ -1,4 +1,4 @@
-import { useForm } from "@conform-to/react";
+import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
@@ -17,43 +17,45 @@ import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { phoneSchema } from "~/lib/utils/schemas";
 
 const generalSchema = z.object({
+  // TODO: Bea fragen:
+  // - Strikt nur 55 Zeichen zulassen oder soll das nur ein Hinweis sein?
   name: z
     .string({
       required_error: "Der Projektname ist eine erforderliche Angabe.",
     })
     .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
   formats: z.array(z.string().uuid()),
-  furtherFormats: z.array(z.string()),
-  areas: z.array(z.string().uuid()),
-  email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
-  phone: phoneSchema
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  // TODO: Bea fragen:
-  // - "Ansprechpartner:in / Name des Projekts*"
-  //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
-  //    -> Sind das Profile oder ist das einfach eine freie Eingabe
-  // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
-  street: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  streetNumber: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  streetNumberAddition: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  zipCode: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  city: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
+  // furtherFormats: z.array(z.string()),
+  // areas: z.array(z.string().uuid()),
+  // email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
+  // phone: phoneSchema
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
+  // // TODO: Bea fragen:
+  // // - "Ansprechpartner:in / Name des Projekts*"
+  // //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
+  // //    -> Sind das Profile oder ist das einfach eine freie Eingabe
+  // // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
+  // street: z
+  //   .string()
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
+  // streetNumber: z
+  //   .string()
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
+  // streetNumberAddition: z
+  //   .string()
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
+  // zipCode: z
+  //   .string()
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
+  // city: z
+  //   .string()
+  //   .optional()
+  //   .transform((value) => (value === undefined ? null : value)),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -120,7 +122,14 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json({ project });
+  const formats = await prismaClient.format.findMany({
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+
+  return json({ project, formats });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -140,6 +149,17 @@ export async function action({ request, params }: DataFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath, { headers: response.headers });
   }
+  const project = await prismaClient.project.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      slug: params.slug,
+    },
+  });
+  invariantResponse(project !== null, "Project not found", {
+    status: 404,
+  });
   // Validation
   const formData = await request.formData();
   const submission = await parse(formData, {
@@ -147,15 +167,28 @@ export async function action({ request, params }: DataFunctionArgs) {
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
         try {
-          // TODO: Investigate why typescript does not show an type error...
-          // const someData = { test: "", ...data };
           await prismaClient.project.update({
             where: {
               slug: params.slug,
             },
             data: {
-              // ...someData,
-              ...data,
+              name: data.name,
+              formats: {
+                deleteMany: {},
+                connectOrCreate: data.formats.map((formatId: string) => {
+                  return {
+                    where: {
+                      formatId_projectId: {
+                        formatId,
+                        projectId: project.id,
+                      },
+                    },
+                    create: {
+                      formatId,
+                    },
+                  };
+                }),
+              },
             },
           });
         } catch (e) {
@@ -163,7 +196,7 @@ export async function action({ request, params }: DataFunctionArgs) {
           ctx.addIssue({
             code: "custom",
             message:
-              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
+              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
           });
           return z.NEVER;
         }
@@ -191,18 +224,22 @@ export async function action({ request, params }: DataFunctionArgs) {
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project } = loaderData;
+  const { project, formats } = loaderData;
   const actionData = useActionData<typeof action>();
   const formId = "general-form";
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(generalSchema),
-    defaultValue: {},
+    defaultValue: {
+      name: project.name,
+      formats: project.formats.map((relation) => relation.format.id),
+    },
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
       return parse(formData, { schema: generalSchema });
     },
   });
+  const formatList = useFieldList(form.ref, fields.formats);
 
   return (
     <>
@@ -212,7 +249,85 @@ function General() {
         erfahren?
       </p>
       <Form method="post" {...form.props}>
-        {/* TODO: Input fields */}
+        <button type="submit" hidden></button>
+        <h2>Projektname</h2>
+        <div>
+          <label htmlFor={fields.name.id}>
+            Titel des Projekts oder Bildungsangebotes*
+          </label>
+          {/* TODO: Bea fragen: Soll hier ein input mit Counter hin (max 55 Zeichen)? Aktuell nur ein Hinweis designed */}
+          <input autoFocus className="ml-2" {...conform.input(fields.name)} />
+          {fields.name.errors !== undefined && fields.name.errors.length > 0 && (
+            <ul id={fields.name.errorId}>
+              {fields.name.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <p>Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.</p>
+
+        <h2>Projektformat</h2>
+        <div>
+          <label htmlFor={fields.formats.id}>
+            In welchem Format findet das Projekt statt?
+          </label>
+          <div className="grid grid-cols-2">
+            <div className="flex flex-col">
+              {formats
+                .filter((format) => {
+                  return !formatList.some((listFormat) => {
+                    return listFormat.defaultValue === format.id;
+                  });
+                })
+                .map((filteredFormat) => {
+                  return (
+                    <>
+                      <button
+                        key={filteredFormat.id}
+                        className="my-2"
+                        {...list.insert(fields.formats.name, {
+                          defaultValue: filteredFormat.id,
+                        })}
+                      >
+                        {filteredFormat.title}
+                      </button>
+                    </>
+                  );
+                })}
+            </div>
+            <ul>
+              {formatList.map((listFormat, index) => {
+                return (
+                  <li className="flex flex-row my-2" key={listFormat.key}>
+                    <p>
+                      {formats.find((format) => {
+                        return format.id === listFormat.defaultValue;
+                      })?.title || "Not Found"}
+                    </p>
+                    <input hidden {...conform.input(listFormat)} />
+                    <button
+                      className="ml-2"
+                      {...list.remove(fields.formats.name, { index })}
+                    >
+                      - Delete
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {fields.formats.errors !== undefined &&
+            fields.formats.errors.length > 0 && (
+              <ul id={fields.formats.errorId}>
+                {fields.formats.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <p>Mehrfachnennungen sind möglich.</p>
 
         <ul id={form.errorId}>
           {form.errors.map((e) => (
