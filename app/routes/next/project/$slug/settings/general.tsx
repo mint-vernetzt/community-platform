@@ -29,35 +29,35 @@ const generalSchema = z.object({
   // TODO: Bea fragen
   // - Soll bei Aktivitätsgebieten eine Mehrfachauswahl möglich sein?
   areas: z.array(z.string().uuid()),
-  // email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
-  // phone: phoneSchema
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
-  // // TODO: Bea fragen:
-  // // - "Ansprechpartner:in / Name des Projekts*"
-  // //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
-  // //    -> Sind das Profile oder ist das einfach eine freie Eingabe
-  // // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
-  // street: z
-  //   .string()
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
-  // streetNumber: z
-  //   .string()
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
-  // streetNumberAddition: z
-  //   .string()
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
-  // zipCode: z
-  //   .string()
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
-  // city: z
-  //   .string()
-  //   .optional()
-  //   .transform((value) => (value === undefined ? null : value)),
+  email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
+  phone: phoneSchema
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  // TODO: Bea fragen:
+  // - "Ansprechpartner:in / Name des Projekts*"
+  //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
+  //    -> Sind das Profile oder ist das einfach eine freie Eingabe
+  // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
+  street: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  streetNumber: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  streetNumberAddition: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  zipCode: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
+  city: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -124,21 +124,21 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  const formats = await prismaClient.format.findMany({
+  const allFormats = await prismaClient.format.findMany({
     select: {
       id: true,
       title: true,
     },
   });
 
-  const areas = await prismaClient.area.findMany({
+  const allAreas = await prismaClient.area.findMany({
     select: {
       id: true,
       name: true,
     },
   });
 
-  return json({ project, formats, areas });
+  return json({ project, allFormats, allAreas });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -175,17 +175,17 @@ export async function action({ request, params }: DataFunctionArgs) {
     schema: (intent) =>
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
+        const { formats, areas, ...rest } = data;
         try {
           await prismaClient.project.update({
             where: {
               slug: params.slug,
             },
             data: {
-              name: data.name,
-              furtherFormats: data.furtherFormats,
+              ...rest,
               formats: {
                 deleteMany: {},
-                connectOrCreate: data.formats.map((formatId: string) => {
+                connectOrCreate: formats.map((formatId: string) => {
                   return {
                     where: {
                       formatId_projectId: {
@@ -201,7 +201,7 @@ export async function action({ request, params }: DataFunctionArgs) {
               },
               areas: {
                 deleteMany: {},
-                connectOrCreate: data.areas.map((areaId: string) => {
+                connectOrCreate: areas.map((areaId: string) => {
                   return {
                     where: {
                       projectId_areaId: {
@@ -250,16 +250,17 @@ export async function action({ request, params }: DataFunctionArgs) {
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, formats, areas } = loaderData;
+  const { project, allFormats, allAreas } = loaderData;
+  const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
   const formId = "general-form";
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(generalSchema),
     defaultValue: {
-      name: project.name,
+      // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
+      ...rest,
       formats: project.formats.map((relation) => relation.format.id),
-      furtherFormats: project.furtherFormats,
       areas: project.areas.map((relation) => relation.area.id),
     },
     lastSubmission: actionData?.submission,
@@ -283,6 +284,7 @@ function General() {
         <button type="submit" hidden></button>
 
         <h2>Projektname</h2>
+
         <div>
           <label htmlFor={fields.name.id}>
             Titel des Projekts oder Bildungsangebotes*
@@ -300,13 +302,14 @@ function General() {
         <p>Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.</p>
 
         <h2>Projektformat</h2>
+
         <div>
           <label htmlFor={fields.formats.id}>
             In welchem Format findet das Projekt statt?
           </label>
           <div className="grid grid-cols-2 h-96 overflow-scroll">
             <div className="flex flex-col">
-              {formats
+              {allFormats
                 .filter((format) => {
                   return !formatList.some((listFormat) => {
                     return listFormat.defaultValue === format.id;
@@ -333,7 +336,7 @@ function General() {
                 return (
                   <li className="flex flex-row my-2" key={listFormat.key}>
                     <p>
-                      {formats.find((format) => {
+                      {allFormats.find((format) => {
                         return format.id === listFormat.defaultValue;
                       })?.title || "Not Found"}
                     </p>
@@ -362,7 +365,6 @@ function General() {
 
         <div>
           <label htmlFor={fields.furtherFormats.id}>Sonstige Formate</label>
-
           <div className="flex flex-col"></div>
           <ul>
             <li>
@@ -402,13 +404,14 @@ function General() {
         <p>Bitte gib kurze Begriffe an.</p>
 
         <h2>Aktivitätsgebiet</h2>
+
         <div>
           <label htmlFor={fields.areas.id}>
             Wo wird das Projekt / Bildungsangebot durchgeführt?
           </label>
           <div className="grid grid-cols-2 h-96 overflow-scroll">
             <div className="flex flex-col">
-              {areas
+              {allAreas
                 .filter((area) => {
                   return !areaList.some((listArea) => {
                     return listArea.defaultValue === area.id;
@@ -435,7 +438,7 @@ function General() {
                 return (
                   <li className="flex flex-row my-2" key={listArea.key}>
                     <p>
-                      {areas.find((area) => {
+                      {allAreas.find((area) => {
                         return area.id === listArea.defaultValue;
                       })?.name || "Not Found"}
                     </p>
@@ -460,6 +463,119 @@ function General() {
           )}
         </div>
 
+        <h2>Kontaktdaten</h2>
+
+        <div>
+          {/* TODO: Bea fragen wegen required */}
+          <label htmlFor={fields.email.id}>E-Mail-Adresse*</label>
+          <input className="ml-2" {...conform.input(fields.email)} />
+          {fields.email.errors !== undefined && fields.email.errors.length > 0 && (
+            <ul id={fields.email.errorId}>
+              {fields.email.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor={fields.phone.id}>Telefonnummer</label>
+          <input className="ml-2" {...conform.input(fields.phone)} />
+          {fields.phone.errors !== undefined && fields.phone.errors.length > 0 && (
+            <ul id={fields.phone.errorId}>
+              {fields.phone.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* TODO: Bea fragen wegen "Ansprechpartner:in / Name des Projekts*". Fragen siehe oben im schema */}
+        {/* <div>
+          <label htmlFor={fields.contactPerson.id}>
+          Ansprechpartner:in / Name des Projekts*
+          </label>
+          <input className="ml-2" {...conform.input(fields.contactPerson)} />
+          {fields.contactPerson.errors !== undefined && fields.contactPerson.errors.length > 0 && (
+            <ul id={fields.contactPerson.errorId}>
+              {fields.contactPerson.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div> */}
+
+        <div>
+          {/* TODO: Bea fragen wegen required */}
+          <label htmlFor={fields.street.id}>Straße*</label>
+          <input className="ml-2" {...conform.input(fields.street)} />
+          {fields.street.errors !== undefined &&
+            fields.street.errors.length > 0 && (
+              <ul id={fields.street.errorId}>
+                {fields.street.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <div>
+          {/* TODO: Bea fragen wegen required */}
+          <label htmlFor={fields.streetNumber.id}>Hausnummer*</label>
+          <input className="ml-2" {...conform.input(fields.streetNumber)} />
+          {fields.streetNumber.errors !== undefined &&
+            fields.streetNumber.errors.length > 0 && (
+              <ul id={fields.streetNumber.errorId}>
+                {fields.streetNumber.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <div>
+          <label htmlFor={fields.streetNumberAddition.id}>Zusatz</label>
+          <input
+            className="ml-2"
+            {...conform.input(fields.streetNumberAddition)}
+          />
+          {fields.streetNumberAddition.errors !== undefined &&
+            fields.streetNumberAddition.errors.length > 0 && (
+              <ul id={fields.streetNumberAddition.errorId}>
+                {fields.streetNumberAddition.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <div>
+          {/* TODO: Bea fragen wegen required */}
+          <label htmlFor={fields.zipCode.id}>PLZ*</label>
+          <input className="ml-2" {...conform.input(fields.zipCode)} />
+          {fields.zipCode.errors !== undefined &&
+            fields.zipCode.errors.length > 0 && (
+              <ul id={fields.zipCode.errorId}>
+                {fields.zipCode.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <div>
+          {/* TODO: Bea fragen wegen required */}
+          <label htmlFor={fields.city.id}>Stadt*</label>
+          <input className="ml-2" {...conform.input(fields.city)} />
+          {fields.city.errors !== undefined && fields.city.errors.length > 0 && (
+            <ul id={fields.city.errorId}>
+              {fields.city.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <ul id={form.errorId}>
           {form.errors.map((e) => (
             <li key={e}>{e}</li>
@@ -472,6 +588,7 @@ function General() {
           <button type="reset">Änderungen verwerfen</button>
         </div>
         <div>
+          {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts on branch "1094-feature-project-settings-web-and-social" */}
           <button type="submit">Speichern und weiter</button>
         </div>
       </Form>
