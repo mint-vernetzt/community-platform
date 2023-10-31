@@ -25,7 +25,7 @@ const generalSchema = z.object({
     })
     .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
   formats: z.array(z.string().uuid()),
-  // furtherFormats: z.array(z.string()),
+  furtherFormats: z.array(z.string()),
   // areas: z.array(z.string().uuid()),
   // email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
   // phone: phoneSchema
@@ -173,6 +173,7 @@ export async function action({ request, params }: DataFunctionArgs) {
             },
             data: {
               name: data.name,
+              furtherFormats: data.furtherFormats,
               formats: {
                 deleteMany: {},
                 connectOrCreate: data.formats.map((formatId: string) => {
@@ -233,6 +234,7 @@ function General() {
     defaultValue: {
       name: project.name,
       formats: project.formats.map((relation) => relation.format.id),
+      furtherFormats: project.furtherFormats,
     },
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
@@ -240,6 +242,7 @@ function General() {
     },
   });
   const formatList = useFieldList(form.ref, fields.formats);
+  const furtherFormatsList = useFieldList(form.ref, fields.furtherFormats);
 
   return (
     <>
@@ -249,7 +252,9 @@ function General() {
         erfahren?
       </p>
       <Form method="post" {...form.props}>
+        {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden></button>
+
         <h2>Projektname</h2>
         <div>
           <label htmlFor={fields.name.id}>
@@ -317,7 +322,6 @@ function General() {
               })}
             </ul>
           </div>
-
           {fields.formats.errors !== undefined &&
             fields.formats.errors.length > 0 && (
               <ul id={fields.formats.errorId}>
@@ -328,6 +332,47 @@ function General() {
             )}
         </div>
         <p>Mehrfachnennungen sind möglich.</p>
+
+        <div>
+          <label htmlFor={fields.furtherFormats.id}>Sonstige Formate</label>
+
+          <div className="flex flex-col"></div>
+          <ul>
+            <li>
+              <button {...list.insert(fields.furtherFormats.name)}>
+                + Add
+              </button>
+              {/* <input
+                className="my-2"
+                {...list.insert(fields.furtherFormats.name)}
+              /> */}
+            </li>
+            {furtherFormatsList.map((furtherFormat, index) => {
+              console.log(furtherFormat);
+              return (
+                <li className="flex flex-row my-2" key={furtherFormat.key}>
+                  <p></p>
+                  <input {...conform.input(furtherFormat)} />
+                  <button
+                    className="ml-2"
+                    {...list.remove(fields.furtherFormats.name, { index })}
+                  >
+                    - Delete
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {fields.furtherFormats.errors !== undefined &&
+            fields.furtherFormats.errors.length > 0 && (
+              <ul id={fields.furtherFormats.errorId}>
+                {fields.furtherFormats.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+        <p>Bitte gib kurze Begriffe an.</p>
 
         <ul id={form.errorId}>
           {form.errors.map((e) => (
