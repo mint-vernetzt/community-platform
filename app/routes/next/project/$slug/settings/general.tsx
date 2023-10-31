@@ -26,7 +26,9 @@ const generalSchema = z.object({
     .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
   formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
-  // areas: z.array(z.string().uuid()),
+  // TODO: Bea fragen
+  // - Soll bei Aktivitätsgebieten eine Mehrfachauswahl möglich sein?
+  areas: z.array(z.string().uuid()),
   // email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
   // phone: phoneSchema
   //   .optional()
@@ -129,7 +131,14 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  return json({ project, formats });
+  const areas = await prismaClient.area.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return json({ project, formats, areas });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -190,6 +199,22 @@ export async function action({ request, params }: DataFunctionArgs) {
                   };
                 }),
               },
+              areas: {
+                deleteMany: {},
+                connectOrCreate: data.areas.map((areaId: string) => {
+                  return {
+                    where: {
+                      projectId_areaId: {
+                        areaId: areaId,
+                        projectId: project.id,
+                      },
+                    },
+                    create: {
+                      areaId: areaId,
+                    },
+                  };
+                }),
+              },
             },
           });
         } catch (e) {
@@ -225,7 +250,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, formats } = loaderData;
+  const { project, formats, areas } = loaderData;
   const actionData = useActionData<typeof action>();
   const formId = "general-form";
   const [form, fields] = useForm({
@@ -235,6 +260,7 @@ function General() {
       name: project.name,
       formats: project.formats.map((relation) => relation.format.id),
       furtherFormats: project.furtherFormats,
+      areas: project.areas.map((relation) => relation.area.id),
     },
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
@@ -243,6 +269,7 @@ function General() {
   });
   const formatList = useFieldList(form.ref, fields.formats);
   const furtherFormatsList = useFieldList(form.ref, fields.furtherFormats);
+  const areaList = useFieldList(form.ref, fields.areas);
 
   return (
     <>
@@ -277,7 +304,7 @@ function General() {
           <label htmlFor={fields.formats.id}>
             In welchem Format findet das Projekt statt?
           </label>
-          <div className="grid grid-cols-2">
+          <div className="grid grid-cols-2 h-96 overflow-scroll">
             <div className="flex flex-col">
               {formats
                 .filter((format) => {
@@ -373,6 +400,65 @@ function General() {
             )}
         </div>
         <p>Bitte gib kurze Begriffe an.</p>
+
+        <h2>Aktivitätsgebiet</h2>
+        <div>
+          <label htmlFor={fields.areas.id}>
+            Wo wird das Projekt / Bildungsangebot durchgeführt?
+          </label>
+          <div className="grid grid-cols-2 h-96 overflow-scroll">
+            <div className="flex flex-col">
+              {areas
+                .filter((area) => {
+                  return !areaList.some((listArea) => {
+                    return listArea.defaultValue === area.id;
+                  });
+                })
+                .map((filteredArea) => {
+                  return (
+                    <>
+                      <button
+                        key={filteredArea.id}
+                        className="my-2"
+                        {...list.insert(fields.areas.name, {
+                          defaultValue: filteredArea.id,
+                        })}
+                      >
+                        {filteredArea.name}
+                      </button>
+                    </>
+                  );
+                })}
+            </div>
+            <ul>
+              {areaList.map((listArea, index) => {
+                return (
+                  <li className="flex flex-row my-2" key={listArea.key}>
+                    <p>
+                      {areas.find((area) => {
+                        return area.id === listArea.defaultValue;
+                      })?.name || "Not Found"}
+                    </p>
+                    <input hidden {...conform.input(listArea)} />
+                    <button
+                      className="ml-2"
+                      {...list.remove(fields.areas.name, { index })}
+                    >
+                      - Delete
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          {fields.areas.errors !== undefined && fields.areas.errors.length > 0 && (
+            <ul id={fields.areas.errorId}>
+              {fields.areas.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <ul id={form.errorId}>
           {form.errors.map((e) => (
