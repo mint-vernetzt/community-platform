@@ -16,7 +16,6 @@ import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { phoneSchema } from "~/lib/utils/schemas";
 
-// TODO: Validation and transformation
 const generalSchema = z.object({
   name: z
     .string({
@@ -77,7 +76,7 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect(redirectPath, { headers: response.headers });
   }
 
-  // TODO: Get data
+  // TODO: Change schema and get data
   const project = await prismaClient.project.findUnique({
     select: {
       id: true,
