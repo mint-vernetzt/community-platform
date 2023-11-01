@@ -112,7 +112,13 @@ export const loader = async (args: DataFunctionArgs) => {
 };
 
 export const handle = {
-  i18n: ["organisms", "routes/index", "routes/imprint", "meta"],
+  i18n: [
+    "meta",
+    "organisms",
+    "routes/index",
+    "routes/imprint",
+    "routes/explore/organizations",
+  ],
 };
 
 function HeaderLogo() {

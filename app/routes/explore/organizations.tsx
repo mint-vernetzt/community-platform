@@ -24,6 +24,7 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -184,11 +185,13 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
+  const { t } = useTranslation(["routes/explore/organizations"]);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke Organisationen</H1>
-        <p className="">Hier findest du Organisationen und Netzwerke.</p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -203,10 +206,7 @@ export default function Index() {
               );
             })
           ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
+            <p>{t("empty")}</p>
           )}
         </CardContainer>
         {shouldFetch && (
@@ -224,7 +224,7 @@ export default function Index() {
                 variant="outline"
                 loading={fetcher.state === "submitting"}
               >
-                Weitere laden
+                {t("more")}
               </Button>
             </fetcher.Form>
           </div>
