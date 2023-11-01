@@ -11,26 +11,21 @@ export type ToastProps = {
 
 function Toast(props: React.PropsWithChildren<ToastProps>) {
   const { variant = "positive", delay = 2000 } = props;
-  const [hide, setHide] = React.useState(false);
+  const [hide, setHide] = React.useState(true);
 
   React.useEffect(() => {
     let timeout: NodeJS.Timeout;
-    if (!hide) {
-      timeout = setTimeout(() => {
-        if (typeof props.onHide !== "undefined") {
-          props.onHide();
-        }
-        setHide(true);
-      }, delay);
-    }
+    timeout = setTimeout(() => {
+      if (typeof props.onHide !== "undefined") {
+        props.onHide();
+      }
+      setHide(true);
+    }, delay);
+    setHide(false);
     return () => {
       clearTimeout(timeout);
     };
-  }, [hide, delay]);
-
-  React.useEffect(() => {
-    setHide(false);
-  }, [props]);
+  }, []);
 
   const classes = classNames(
     "mv-px-4 mv-py-1.5 mv-rounded mv-font-semibold mv-text-sm mv-text-center",
