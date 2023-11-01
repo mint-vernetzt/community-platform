@@ -118,6 +118,7 @@ export const handle = {
     "routes/index",
     "routes/imprint",
     "routes/explore/organizations",
+    "routes/explore/events",
   ],
 };
 
