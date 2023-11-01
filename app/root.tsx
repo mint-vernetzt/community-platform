@@ -117,8 +117,9 @@ export const handle = {
     "organisms",
     "routes/index",
     "routes/imprint",
-    "routes/explore/organizations",
     "routes/explore/events",
+    "routes/explore/organizations",
+    "routes/explore/projects",
   ],
 };
 
