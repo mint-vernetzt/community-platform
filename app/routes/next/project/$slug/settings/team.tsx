@@ -1,6 +1,12 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Avatar, Button, List, Toast } from "@mint-vernetzt/components";
+import {
+  Avatar,
+  Button,
+  List,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -12,7 +18,6 @@ import {
 import { GravityType } from "imgproxy/dist/types";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H2 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
@@ -158,7 +163,28 @@ export const loader = async (args: DataFunctionArgs) => {
 
 export const action = async (args: DataFunctionArgs) => {
   // get action type
-  const { request } = args;
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
   if (action.startsWith("add_")) {
@@ -184,8 +210,15 @@ export const action = async (args: DataFunctionArgs) => {
       status: 404,
     });
 
-    await prismaClient.teamMemberOfProject.create({
-      data: {
+    await prismaClient.teamMemberOfProject.upsert({
+      where: {
+        profileId_projectId: {
+          projectId: project.id,
+          profileId: profile.id,
+        },
+      },
+      update: {},
+      create: {
         projectId: project.id,
         profileId: profile.id,
       },
@@ -224,10 +257,13 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json({ success: true, action, profile });
+    return json(
+      { success: true, action, profile },
+      { headers: response.headers }
+    );
   }
 
-  return null;
+  return json({ success: false }, { headers: response.headers });
 };
 
 function Team() {
@@ -245,11 +281,17 @@ function Team() {
   });
 
   return (
-    <>
+    <Section>
       <BackButton to={location.pathname}>Team verwalten</BackButton>
-      <p>Füge Teammitglieder zu Deinem Projekt hinzu oder entferne sie.</p>
-      <H2 as="h4">Aktuelle Teammitglieder</H2>
-      <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
+      <p className="mv-my-6 md:mv-mt-0">
+        Füge Teammitglieder zu Deinem Projekt hinzu oder entferne sie.
+      </p>
+      <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+        Aktuelle Teammitglieder
+      </h2>
+      <p className="mv-mb-4">
+        Teammitglieder und Rollen sind hier aufgelistet.
+      </p>
       <Form method="post">
         <List>
           {project.teamMembers.map((teamMember) => {
@@ -281,20 +323,23 @@ function Team() {
               </List.Item>
             );
           })}
+          {/* TODO: resolve type issues */}
+          {typeof actionData !== "undefined" &&
+            actionData !== null &&
+            actionData.success === true &&
+            actionData.action.startsWith("remove_") && (
+              <Toast key={actionData.action}>
+                {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                entfernt.
+              </Toast>
+            )}
         </List>
-        {/* TODO: resolve type issues */}
-        {typeof actionData !== "undefined" &&
-          actionData !== null &&
-          actionData.success === true &&
-          actionData.action.startsWith("remove_") && (
-            <Toast key="delete-toast">
-              {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-              entfernt.
-            </Toast>
-          )}
       </Form>
-      <H2 as="h4">Teammitglied hinzufügen</H2>
+      <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mt-6 mv-mb-4">
+        Teammitglied hinzufügen
+      </h2>
       <Form method="get" {...searchForm.props}>
+        <input type="hidden" name="deep" value="true" />
         <input
           className="mv-border"
           name="search"
@@ -329,19 +374,20 @@ function Team() {
               </List.Item>
             );
           })}
+
+          {/* TODO: resolve type issues */}
+          {typeof actionData !== "undefined" &&
+            actionData !== null &&
+            actionData.success === true &&
+            actionData.action.startsWith("add_") && (
+              <Toast key={actionData.action}>
+                {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                hinzugefügt.
+              </Toast>
+            )}
         </List>
-        {/* TODO: resolve type issues */}
-        {typeof actionData !== "undefined" &&
-          actionData !== null &&
-          actionData.success === true &&
-          actionData.action.startsWith("add_") && (
-            <Toast key="add-toast">
-              {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-              hinzugefügt.
-            </Toast>
-          )}
       </Form>
-    </>
+    </Section>
   );
 }
 
