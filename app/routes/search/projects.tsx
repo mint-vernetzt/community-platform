@@ -16,6 +16,7 @@ import {
   getQueryValueAsArrayOfWords,
   searchProjectsViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -161,6 +162,8 @@ export default function SearchView() {
     setItems(loaderData.projects);
   }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
 
+  const { t } = useTranslation(["routes/search/projects"]);
+
   return (
     <>
       {items.length > 0 ? (
@@ -192,16 +195,14 @@ export default function SearchView() {
                   variant="outline"
                   loading={fetcher.state === "submitting"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Projekte gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </>
   );

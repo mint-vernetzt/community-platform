@@ -120,6 +120,11 @@ export const handle = {
     "routes/explore/events",
     "routes/explore/organizations",
     "routes/explore/projects",
+    "routes/search",
+    "routes/search/events",
+    "routes/search/organizations",
+    "routes/search/profiles",
+    "routes/search/projects",
   ],
 };
 

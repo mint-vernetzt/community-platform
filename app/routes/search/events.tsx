@@ -19,6 +19,7 @@ import {
   searchEventsViaLike,
 } from "./utils.server";
 import { useHydrated } from "remix-utils";
+import { useTranslation } from "react-i18next";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
@@ -162,6 +163,8 @@ export default function SearchView() {
 
   const isHydrated = useHydrated();
 
+  const { t } = useTranslation(["routes/search/events"]);
+
   return (
     <>
       {items.length > 0 ? (
@@ -202,10 +205,7 @@ export default function SearchView() {
                   );
                 })
               ) : (
-                <p>
-                  Für Deine Filterkriterien konnten leider keine Profile
-                  gefunden werden.
-                </p>
+                <p>{t("empty.profiles")}</p>
               )}
             </CardContainer>
           </section>
@@ -219,16 +219,14 @@ export default function SearchView() {
                   variant="outline"
                   loading={fetcher.state === "submitting"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Veranstaltungen gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty.events")}</p>
       )}
     </>
   );

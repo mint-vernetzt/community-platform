@@ -20,6 +20,7 @@ import {
   getQueryValueAsArrayOfWords,
   searchOrganizationsViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -165,6 +166,8 @@ export default function SearchView() {
 
   const query = searchParams.get("query") ?? "";
 
+  const { t } = useTranslation(["routes/search/organizations"]);
+
   return (
     <section
       id="search-results-organizations"
@@ -193,16 +196,14 @@ export default function SearchView() {
                   variant="outline"
                   loading={fetcher.state === "submitting"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Organisationen gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </section>
   );
