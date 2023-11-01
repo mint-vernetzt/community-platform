@@ -144,7 +144,6 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function Index() {
-  const { t } = useTranslation();
   const submit = useSubmit();
   const loaderData = useLoaderData<typeof loader>();
   const [urlSearchParams] = useSearchParams();
@@ -155,6 +154,7 @@ export default function Index() {
       submit(event.currentTarget);
     }
   };
+  const { t } = useTranslation(["routes/index"]);
 
   ///* Verlauf (weiß) */
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
@@ -196,13 +196,9 @@ export default function Index() {
               <div className="md:col-start-1 md:col-span-7 xl:col-start-2 xl:col-span-5 md:flex md:items-center">
                 <div>
                   <H1 className="text-center sm:text-left leading-none">
-                    Willkommen in Deiner MINT-Community {t("title")}
+                    {t("welcome")}
                   </H1>
-                  <p className="mt-8 mb-8 lg:mb-0 text-primary">
-                    Entdecke auf der MINTvernetzt Community-Plattform andere
-                    MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen
-                    und lass Dich für Deine Arbeit inspirieren.
-                  </p>
+                  <p className="mt-8 mb-8 lg:mb-0 text-primary">{t("intro")}</p>
                 </div>
               </div>
 

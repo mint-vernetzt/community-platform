@@ -55,13 +55,13 @@ function Footer(props: { isSettings?: boolean }) {
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
           <div className="lg:mv-order-3 mv-container lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
-              {t("footer.meta.copyright", "© 2021-2023 matrix gGmbH")}
+              {t("footer.meta.copyright")}
             </div>
             <div className="mv-py-4 lg:mv-py-0 lg:mv-w-6/12">
               <ul className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-center mv-gap-4 lg:mv-gap-6">
                 <li>
                   <Link as="a" to="/imprint" isExternal>
-                    {t("footer.meta.imprint", "Impressum")}
+                    {t("footer.meta.imprint")}
                   </Link>
                 </li>
                 <li>
@@ -213,34 +213,34 @@ function Footer(props: { isSettings?: boolean }) {
             <div className="mv-py-4 mv-flex mv-flex-col mv-gap-4 lg:mv-py-0 lg:mv-pt-3 lg:mv-flex-row lg:mv-gap-16">
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("footer.discover.title", "Entdecken")}
+                  {t("footer.discover.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
                     <Link to="/explore/profiles" className="">
-                      {t("footer.discover.profiles", "Profile")}
+                      {t("footer.discover.profiles")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/organizations" className="">
-                      {t("footer.discover.organizations", "Organisationen")}
+                      {t("footer.discover.organizations")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/events" className="">
-                      {t("footer.discover.events", "Veranstaltungen")}
+                      {t("footer.discover.events")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/projects" className="">
-                      {t("footer.discover.projects", "Projekte")}
+                      {t("footer.discover.projects")}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("footer.participate.title", "Mitwirken")}
+                  {t("footer.participate.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -249,14 +249,14 @@ function Footer(props: { isSettings?: boolean }) {
                       to="https://github.com/mint-vernetzt/community-platform"
                       isExternal
                     >
-                      {t("footer.participate.github", "GitHub Repository")}
+                      {t("footer.participate.github")}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("footer.learnMore.title", "Mehr erfahren")}
+                  {t("footer.learnMore.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -266,7 +266,7 @@ function Footer(props: { isSettings?: boolean }) {
                       className=""
                       isExternal
                     >
-                      {t("footer.learnMore.website", "MINTvernetzt-Website")}
+                      {t("footer.learnMore.website")}
                     </Link>
                   </li>
                 </ul>
@@ -308,13 +308,13 @@ function Footer(props: { isSettings?: boolean }) {
               </Link>
             </div>
             <div className="mv-font-bold mv-text-xs lg:mv-hidden mv-pt-4 mv-pb-2">
-              {t("footer.meta.copyright", "© 2021-2023 matrix gGmbH")}
+              {t("footer.meta.copyright")}
             </div>
           </div>
         </div>
 
         <div className="mv-py-4 mv-bg-primary-400 mv-text-white mv-text-center mv-text-xs mv-font-semibold">
-          {t("footer.meta.needHelp", "Benötigst du Hilfe? Melde dich bei")}{" "}
+          {t("footer.meta.needHelp")}{" "}
           <Link as="a" to="mailto:support@mint-vernetzt.de">
             support@mint-vernetzt.de
           </Link>

@@ -54,7 +54,7 @@ function ProfileCard(
         {profile.background && <CardImage src={profile.background} />}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("profileCard.match", "Match")}
+            {props.match}% {t("profileCard.match")}
           </CardStatus>
         )}
       </CardHeader>
@@ -79,13 +79,13 @@ function ProfileCard(
           </div>
         }
         <CardBodySection
-          title={t("profileCard.areasOfActivity", "Aktivitätsgebiete")}
+          title={t("profileCard.areasOfActivity")}
           emptyMessage={emptyMessage}
         >
           {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
         <CardBodySection
-          title={t("profileCard.offer", "Ich biete")}
+          title={t("profileCard.offer")}
           emptyMessage={emptyMessage}
         >
           {profile.offers.length === 0 ? (

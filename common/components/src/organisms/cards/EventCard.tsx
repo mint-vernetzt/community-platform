@@ -121,28 +121,22 @@ function EventCard(
         )}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("eventCard.match", "Match")}
+            {props.match}% {t("eventCard.match")}
           </CardStatus>
         )}
         {event.canceled && event.published && (
-          <CardStatus variant="negative">
-            {t("eventCard.cancelled", "Wurde abgesagt")}
-          </CardStatus>
+          <CardStatus variant="negative">{t("eventCard.cancelled")}</CardStatus>
         )}
         {event.endTime.getTime() < now.getTime() && (
-          <CardStatus variant="neutral">
-            {t("eventCard.passed", "Vergangen")}
-          </CardStatus>
+          <CardStatus variant="neutral">{t("eventCard.passed")}</CardStatus>
         )}
         {!event.published && event.isTeamMember && (
           <CardStatus variant="primary" inverted>
-            {t("eventCard.draft", "Entwurf")}
+            {t("eventCard.draft")}
           </CardStatus>
         )}
         {event.published && event.isTeamMember && (
-          <CardStatus variant="positive">
-            {t("eventCard.published", "Veröffentlicht")}
-          </CardStatus>
+          <CardStatus variant="positive">{t("eventCard.published")}</CardStatus>
         )}
         <CardInfoOverlay>
           {event._count.childEvents === 0 &&
@@ -158,7 +152,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                {t("eventCard.unlimitedSeats", "Unbegrenzte Plätze")}
+                {t("eventCard.unlimitedSeats")}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -283,7 +277,7 @@ function EventCard(
           !event.canceled &&
           event.isParticipant && (
             <span className="mv-text-xs mv-font-bold mv-text-positive">
-              {t("eventCard.registered", "Angemeldet")}
+              {t("eventCard.registered")}
             </span>
           )}
         {!props.publicAccess &&
@@ -293,7 +287,7 @@ function EventCard(
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
             <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
-              {t("eventCard.onWaitingList", "Auf Warteliste")}
+              {t("eventCard.onWaitingList")}
             </span>
           )}
       </CardFooter>

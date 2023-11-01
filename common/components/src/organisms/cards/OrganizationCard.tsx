@@ -50,7 +50,7 @@ function OrganizationCard(
         {organization.background && <CardImage src={organization.background} />}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("organizationCard.match", "Match")}
+            {props.match}% {t("organizationCard.match")}
           </CardStatus>
         )}
       </CardHeader>
@@ -72,13 +72,13 @@ function OrganizationCard(
           </div>
         }
         <CardBodySection
-          title={t("organizationCard.areasOfActivity", "Aktivitätsgebiete")}
+          title={t("organizationCard.areasOfActivity")}
           emptyMessage={emptyMessage}
         >
           {organization.areas.length > 0 ? organization.areas.join("/") : ""}
         </CardBodySection>
         <CardBodySection
-          title={t("organizationCard.focus", "Schwerpunkte")}
+          title={t("organizationCard.focus")}
           emptyMessage={emptyMessage}
         >
           {organization.focuses.length === 0 ? (

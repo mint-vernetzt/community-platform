@@ -10,7 +10,7 @@ export function LocaleSwitch() {
   return (
     <ul className="flex items-center">
       {languages.map((l: string, cnt: number) => (
-        <li className="inline-flex">
+        <li key={cnt} className="inline-flex">
           {cnt > 0 ? <span className="mx-2">|</span> : ""}
           <TextButton
             weight={l === i18n.language ? "normal" : "thin"}

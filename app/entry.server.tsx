@@ -3,12 +3,12 @@ import type { EntryContext } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { PassThrough } from "stream";
-import { resolve } from "node:path";
 import i18n from "~/i18n";
 import Backend from "i18next-fs-backend";
 import i18next from "~/i18next.server";
 import { createInstance } from "i18next";
 import isbot from "isbot";
+import { resolve } from "node:path";
 
 declare global {
   namespace NodeJS {
@@ -68,13 +68,17 @@ export default async function handleRequest(
   let ns = i18next.getRouteNamespaces(remixContext);
 
   await instance
-    .use(initReactI18next) // Tell our instance to use react-i18next
-    .use(Backend) // Setup our backend
+    .use(initReactI18next)
+    .use(Backend)
     .init({
-      ...i18n, // spread the configuration
-      lng, // The locale we detected above
-      ns, // The namespaces the routes about to render wants to use
-      backend: { loadPath: resolve("./public/locales/{{lng}}/{{ns}}.json") },
+      ...i18n,
+      lng,
+      ns,
+      backend: {
+        loadPath: function (lng: string, ns: string) {
+          return resolve(`./public/locales/${lng}/${ns}.json`);
+        },
+      },
     });
 
   return new Promise((resolve, reject) => {
@@ -105,7 +109,6 @@ export default async function handleRequest(
         },
         onError(error: unknown) {
           didError = true;
-
           console.error(error);
         },
       }
