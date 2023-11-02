@@ -79,8 +79,13 @@ function ProjectSettings() {
   const deep = searchParams.get("deep");
 
   const menuClasses = classNames(
-    "mv-w-full md:mv-w-1/3 2xl:mv-w-1/4 mv-max-h-screen md:mv-min-h-fit mv-flex mv-flex-col mv-absolute md:mv-relative mv-top-0 mv-bg-white md:mv-border-l md:mv-border-b md:mv-rounded-bl-xl",
+    "mv-w-full md:mv-w-1/3 2xl:mv-w-1/4 mv-max-h-screen md:mv-max-h-fit mv-flex mv-flex-col mv-absolute md:mv-relative mv-top-0 mv-bg-white md:mv-border-l md:mv-border-b md:mv-rounded-bl-xl md:mv-self-start",
     deep !== null && deep !== "false" && "mv-hidden md:mv-block"
+  );
+
+  const outletClasses = classNames(
+    "mv-overflow-hidden md:mv-w-2/3 2xl:mv-w-3/4 md:mv-border-x md:mv-border-b md:mv-rounded-b-xl md:-mv-mb-2",
+    (deep === null || deep === "false") && "mv-hidden md:mv-block"
   );
 
   return (
@@ -173,7 +178,7 @@ function ProjectSettings() {
             })}
           </ul>
         </div>
-        <div className="mv-overflow-hidden md:mv-w-2/3 2xl:mv-w-3/4 md:mv-border-x md:mv-border-b md:mv-rounded-b-xl md:-mv-mb-2">
+        <div className={outletClasses}>
           <Outlet />
         </div>
       </div>

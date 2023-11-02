@@ -8,7 +8,10 @@ export function ToastPlayground(props: {
   const { text, ...otherProps } = props;
   return (
     <div className="mv-m-2">
-      <Toast {...otherProps}>{text}</Toast>
+      {/* key with date now forces remounting (needed to force empty dependency effects) */}
+      <Toast key={Date.now().toString()} {...otherProps}>
+        {text}
+      </Toast>
     </div>
   );
 }
