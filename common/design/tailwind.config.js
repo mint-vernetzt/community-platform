@@ -53,6 +53,12 @@ module.exports = {
       spacing: {
         ...defaultTheme.spacing,
       },
+      backgroundImage: {
+        "checkbox-checked":
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='10' viewBox='0 0 11 10'%3E%3Cpath fill='%233C4658' fill-rule='nonzero' d='M8.712 1.212a.937.937 0 0 1 1.34 1.312L5.06 8.762a.938.938 0 0 1-1.349.026L.404 5.48A.938.938 0 0 1 1.73 4.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z'/%3E%3C/svg%3E\");",
+        "select-arrow":
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='21' fill='none' viewBox='0 0 20 21'%3E%3Cpath stroke='%23262D38' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' d='m5 7.5 5 5.5 5-5.5'/%3E%3C/svg%3E\");",
+      },
     },
     container: {
       center: true,
