@@ -13,6 +13,8 @@ export {
   type StatusProps,
   Image,
   type ImageProps,
+  Input,
+  type InputProps,
 } from "./src/molecules";
 export type {
   AlertProps,

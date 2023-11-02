@@ -13,3 +13,4 @@ export { default as TextButton, type TextButtonProps } from "./TextButton";
 export { default as Toast, type ToastProps } from "./Toast";
 export { default as Image, type ImageProps } from "./Image";
 export { default as Status, type StatusProps } from "./Status";
+export { default as Input, type InputProps } from "./Input";

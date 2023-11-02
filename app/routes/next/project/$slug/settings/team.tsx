@@ -3,6 +3,7 @@ import { parse } from "@conform-to/zod";
 import {
   Avatar,
   Button,
+  Input,
   List,
   Section,
   Toast,
@@ -342,18 +343,10 @@ function Team() {
         Teammitglied hinzufügen
       </h2>
       <Form method="get" {...searchForm.props}>
-        <input type="hidden" name="deep" value="true" />
-        <input
-          className="mv-border"
-          name="search"
-          defaultValue={searchParams.get("search") || ""}
-        />
+        <Input id="deep" type="hidden" value="true" />
+        <Input id="search" defaultValue={searchParams.get("search") || ""} />
 
         <p id={fields.search.errorId}>{fields.search.error}</p>
-
-        {/* <noscript> */}
-        <button type="submit">Suchen</button>
-        {/* </noscript> */}
       </Form>
       <Form method="post">
         <List>
