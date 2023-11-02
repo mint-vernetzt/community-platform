@@ -1,25 +1,25 @@
 {
   "validation": {
     "email": {
-      "email": "[DE] Bitte gib eine gültige E-Mail-Adresse ein.",
-      "min": "[DE] Bitte gib eine gültige E-Mail-Adresse ein."
+      "email": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "min": "Bitte gib eine gültige E-Mail-Adresse ein."
     },
     "password": {
-      "min": "[DE] Dein Passwort muss mindestens 8 Zeichen lang sein."
+      "min": "Dein Passwort muss mindestens 8 Zeichen lang sein."
     }
   },
   "error": {
-    "invalidCredentials": "[DE] Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben."
+    "invalidCredentials": "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben."
   },
   "content": {
-    "headline": "[DE] Anmelden",
-    "question": "[DE] Noch kein Mitglied?",
-    "action": "[DE] Registrieren"
+    "headline": "Anmelden",
+    "question": "Noch kein Mitglied?",
+    "action": "Registrieren"
   },
   "label": {
-    "email": "[DE] E-Mail",
-    "password": "[DE] Passwort",
-    "submit": "[DE] Login",
-    "reset": "[DE] Passwort vergessen?"
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Login",
+    "reset": "Passwort vergessen?"
   }
 }
