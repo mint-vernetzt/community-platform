@@ -63,19 +63,21 @@ export default async function handleRequest(
     ? "onAllReady"
     : "onShellReady";
 
-  let instance = createInstance();
-  let lng = await i18next.getLocale(request);
-  let ns = i18next.getRouteNamespaces(remixContext);
+  const instance = createInstance();
+  const lng = await i18next.getLocale(request);
+  const ns = i18next.getRouteNamespaces(remixContext);
 
   await instance
     .use(initReactI18next)
     .use(Backend)
     .init({
       ...i18n,
+      // initImmediate: false,
       lng,
       ns,
       backend: {
         loadPath: function (lng: string, ns: string) {
+          console.log("SERVER: " + lng);
           return resolve(`./public/locales/${lng}/${ns}.json`);
         },
       },

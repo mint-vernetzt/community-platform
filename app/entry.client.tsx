@@ -18,6 +18,7 @@ async function hydrate() {
       ns: getInitialNamespaces(),
       backend: {
         loadPath: function (lng: string, ns: string): string {
+          console.log("CLIENT: " + lng);
           return `/locales/${lng}/${ns}.json`;
         },
       },
