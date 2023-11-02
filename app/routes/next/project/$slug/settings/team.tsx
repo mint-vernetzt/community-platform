@@ -224,7 +224,10 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json({ success: true, action, profile });
+    return json(
+      { success: true, action, profile },
+      { headers: response.headers }
+    );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
 
