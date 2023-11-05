@@ -344,7 +344,13 @@ function Team() {
       </h2>
       <Form method="get" {...searchForm.props}>
         <Input id="deep" type="hidden" value="true" />
-        <Input id="search" defaultValue={searchParams.get("search") || ""} />
+        <Input
+          id="search"
+          defaultValue={searchParams.get("search") || ""}
+          hiddenLabel
+        >
+          Suche
+        </Input>
 
         <p id={fields.search.errorId}>{fields.search.error}</p>
       </Form>
