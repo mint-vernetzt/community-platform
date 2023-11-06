@@ -1,11 +1,17 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type DataFunctionArgs,
+  FormData,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
   useLoaderData,
   useLocation,
+  useSubmit,
 } from "@remix-run/react";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
@@ -15,6 +21,7 @@ import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { phoneSchema } from "~/lib/utils/schemas";
+import React from "react";
 
 const generalSchema = z.object({
   // TODO: Bea fragen:
@@ -264,6 +271,8 @@ function General() {
       areas: project.areas.map((relation) => relation.area.id),
     },
     lastSubmission: actionData?.submission,
+    shouldValidate: "onSubmit",
+    shouldRevalidate: "onInput",
     onValidate({ formData }) {
       return parse(formData, { schema: generalSchema });
     },
@@ -307,8 +316,26 @@ function General() {
           <label htmlFor={fields.formats.id}>
             In welchem Format findet das Projekt statt?
           </label>
-          <div className="grid grid-cols-2 h-96 overflow-scroll">
-            <div className="flex flex-col">
+
+          <div className="flex flex-col">
+            <select
+              onChange={(event) => {
+                for (let child of event.currentTarget.children) {
+                  const value = child.getAttribute("value");
+                  if (
+                    child.localName === "button" &&
+                    value !== null &&
+                    value.includes(event.currentTarget.value)
+                  ) {
+                    const button = child as HTMLButtonElement;
+                    button.click();
+                  }
+                }
+              }}
+            >
+              <option selected hidden>
+                Bitte auswählen
+              </option>
               {allFormats
                 .filter((format) => {
                   return !formatList.some((listFormat) => {
@@ -319,39 +346,46 @@ function General() {
                   return (
                     <>
                       <button
-                        key={filteredFormat.id}
-                        className="my-2"
+                        key={`${filteredFormat.id}-add-button`}
+                        hidden
                         {...list.insert(fields.formats.name, {
                           defaultValue: filteredFormat.id,
                         })}
                       >
                         {filteredFormat.title}
                       </button>
+                      <option
+                        key={filteredFormat.id}
+                        value={filteredFormat.id}
+                        className="my-2"
+                      >
+                        {filteredFormat.title}
+                      </option>
                     </>
                   );
                 })}
-            </div>
-            <ul>
-              {formatList.map((listFormat, index) => {
-                return (
-                  <li className="flex flex-row my-2" key={listFormat.key}>
-                    <p>
-                      {allFormats.find((format) => {
-                        return format.id === listFormat.defaultValue;
-                      })?.title || "Not Found"}
-                    </p>
-                    <input hidden {...conform.input(listFormat)} />
-                    <button
-                      className="ml-2"
-                      {...list.remove(fields.formats.name, { index })}
-                    >
-                      - Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            </select>
           </div>
+          <ul>
+            {formatList.map((listFormat, index) => {
+              return (
+                <li className="flex flex-row my-2" key={listFormat.key}>
+                  <p>
+                    {allFormats.find((format) => {
+                      return format.id === listFormat.defaultValue;
+                    })?.title || "Not Found"}
+                  </p>
+                  <input hidden {...conform.input(listFormat)} />
+                  <button
+                    className="ml-2"
+                    {...list.remove(fields.formats.name, { index })}
+                  >
+                    - Delete
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
           {fields.formats.errors !== undefined &&
             fields.formats.errors.length > 0 && (
               <ul id={fields.formats.errorId}>
@@ -409,8 +443,25 @@ function General() {
           <label htmlFor={fields.areas.id}>
             Wo wird das Projekt / Bildungsangebot durchgeführt?
           </label>
-          <div className="grid grid-cols-2 h-96 overflow-scroll">
-            <div className="flex flex-col">
+          <div className="flex flex-col">
+            <select
+              onChange={(event) => {
+                for (let child of event.currentTarget.children) {
+                  const value = child.getAttribute("value");
+                  if (
+                    child.localName === "button" &&
+                    value !== null &&
+                    value.includes(event.currentTarget.value)
+                  ) {
+                    const button = child as HTMLButtonElement;
+                    button.click();
+                  }
+                }
+              }}
+            >
+              <option selected hidden>
+                Bitte auswählen
+              </option>
               {allAreas
                 .filter((area) => {
                   return !areaList.some((listArea) => {
@@ -421,39 +472,46 @@ function General() {
                   return (
                     <>
                       <button
-                        key={filteredArea.id}
-                        className="my-2"
+                        key={`${filteredArea.id}-add-button`}
+                        hidden
                         {...list.insert(fields.areas.name, {
                           defaultValue: filteredArea.id,
                         })}
                       >
                         {filteredArea.name}
                       </button>
+                      <option
+                        key={filteredArea.id}
+                        value={filteredArea.id}
+                        className="my-2"
+                      >
+                        {filteredArea.name}
+                      </option>
                     </>
                   );
                 })}
-            </div>
-            <ul>
-              {areaList.map((listArea, index) => {
-                return (
-                  <li className="flex flex-row my-2" key={listArea.key}>
-                    <p>
-                      {allAreas.find((area) => {
-                        return area.id === listArea.defaultValue;
-                      })?.name || "Not Found"}
-                    </p>
-                    <input hidden {...conform.input(listArea)} />
-                    <button
-                      className="ml-2"
-                      {...list.remove(fields.areas.name, { index })}
-                    >
-                      - Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            </select>
           </div>
+          <ul>
+            {areaList.map((listArea, index) => {
+              return (
+                <li className="flex flex-row my-2" key={listArea.key}>
+                  <p>
+                    {allAreas.find((area) => {
+                      return area.id === listArea.defaultValue;
+                    })?.name || "Not Found"}
+                  </p>
+                  <input hidden {...conform.input(listArea)} />
+                  <button
+                    className="ml-2"
+                    {...list.remove(fields.areas.name, { index })}
+                  >
+                    - Delete
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
           {fields.areas.errors !== undefined && fields.areas.errors.length > 0 && (
             <ul id={fields.areas.errorId}>
               {fields.areas.errors.map((e) => (
