@@ -267,7 +267,10 @@ export const action = async (args: DataFunctionArgs) => {
     );
   }
 
-  return json({ success: false }, { headers: response.headers });
+  return json(
+    { success: false, action, profile: null },
+    { headers: response.headers }
+  );
 };
 
 function Team() {
@@ -327,10 +330,10 @@ function Team() {
               </List.Item>
             );
           })}
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("remove_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}
@@ -376,11 +379,10 @@ function Team() {
               </List.Item>
             );
           })}
-
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("add_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}

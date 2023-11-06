@@ -257,7 +257,10 @@ export const action = async (args: DataFunctionArgs) => {
     );
   }
 
-  return json({ success: false }, { headers: response.headers });
+  return json(
+    { success: false, action, profile: null },
+    { headers: response.headers }
+  );
 };
 
 function Admins() {
@@ -306,10 +309,10 @@ function Admins() {
               </List.Item>
             );
           })}
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("remove_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}
@@ -332,10 +335,6 @@ function Admins() {
         </Input>
 
         <p id={fields.search.errorId}>{fields.search.error}</p>
-
-        {/* <noscript> */}
-        <button type="submit">Suchen</button>
-        {/* </noscript> */}
       </Form>
       <Form method="post">
         <List>
@@ -360,10 +359,10 @@ function Admins() {
             );
           })}
 
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("add_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}
