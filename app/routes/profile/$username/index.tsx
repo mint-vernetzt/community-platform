@@ -75,7 +75,7 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const profile = await getProfileByUsername(username);
+  const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
     throw notFound({ message: "Profile not found" });
   }

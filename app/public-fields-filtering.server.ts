@@ -496,6 +496,8 @@ export async function filterProjectByVisibility<
         key === "youtube" ||
         key === "instagram" ||
         key === "xing" ||
+        key === "mastodon" ||
+        key === "bluesky" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
         key === "city"

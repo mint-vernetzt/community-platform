@@ -13,6 +13,8 @@ export {
   type StatusProps,
   Image,
   type ImageProps,
+  Input,
+  type InputProps,
 } from "./src/molecules";
 export type {
   AlertProps,
@@ -23,7 +25,7 @@ export type {
   ChipProps,
   LinkProps,
 } from "./src/molecules";
-export { Footer, TabBar, TabBarItem, Header } from "./src/organisms";
+export { Footer, TabBar, TabBarItem, Header, List } from "./src/organisms";
 export {
   EventCard,
   OrganizationCard,
