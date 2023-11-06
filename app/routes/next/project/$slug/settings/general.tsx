@@ -15,6 +15,7 @@ import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import React from "react";
 
 const generalSchema = z.object({
   name: z.string({
@@ -271,6 +272,13 @@ function General() {
   const furtherFormatsList = useFieldList(form.ref, fields.furtherFormats);
   const areaList = useFieldList(form.ref, fields.areas);
 
+  const [furtherFormat, setFurtherFormat] = React.useState<string>("");
+  const handleFurtherFormatInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFurtherFormat(event.currentTarget.value);
+  };
+
   return (
     <>
       <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
@@ -391,20 +399,25 @@ function General() {
           <div className="flex flex-col"></div>
           <ul>
             <li>
-              <button {...list.insert(fields.furtherFormats.name)}>
+              <input
+                className="my-2"
+                onChange={handleFurtherFormatInputChange}
+                value={furtherFormat}
+              />
+              <button
+                className="ml-2"
+                {...list.insert(fields.furtherFormats.name, {
+                  defaultValue: furtherFormat,
+                })}
+              >
                 + Add
               </button>
-              {/* <input
-                className="my-2"
-                {...list.insert(fields.furtherFormats.name)}
-              /> */}
             </li>
             {furtherFormatsList.map((furtherFormat, index) => {
-              console.log(furtherFormat);
               return (
                 <li className="flex flex-row my-2" key={furtherFormat.key}>
-                  <p></p>
-                  <input {...conform.input(furtherFormat)} />
+                  <p>{furtherFormat.defaultValue || "Not Found"}</p>
+                  <input hidden {...conform.input(furtherFormat)} />
                   <button
                     className="ml-2"
                     {...list.remove(fields.furtherFormats.name, { index })}
