@@ -157,9 +157,11 @@ function ChangeURL() {
               <Input.Error>{fields.slug.error}</Input.Error>
             )}
         </Input>
-        <Button type="submit" level="negative">
-          URL ändern
-        </Button>
+        <div className="mv-w-full md:mv-max-w-fit">
+          <Button type="submit" level="negative" fullSize>
+            URL ändern
+          </Button>
+        </div>
       </Form>
     </>
   );
