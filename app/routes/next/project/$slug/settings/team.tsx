@@ -3,6 +3,7 @@ import { parse } from "@conform-to/zod";
 import {
   Avatar,
   Button,
+  Input,
   List,
   Section,
   Toast,
@@ -266,7 +267,10 @@ export const action = async (args: DataFunctionArgs) => {
     );
   }
 
-  return json({ success: false }, { headers: response.headers });
+  return json(
+    { success: false, action, profile: null },
+    { headers: response.headers }
+  );
 };
 
 function Team() {
@@ -326,10 +330,10 @@ function Team() {
               </List.Item>
             );
           })}
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("remove_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}
@@ -342,18 +346,16 @@ function Team() {
         Teammitglied hinzufügen
       </h2>
       <Form method="get" {...searchForm.props}>
-        <input type="hidden" name="deep" value="true" />
-        <input
-          className="mv-border"
-          name="search"
+        <Input id="deep" type="hidden" value="true" />
+        <Input
+          id="search"
           defaultValue={searchParams.get("search") || ""}
-        />
+          hiddenLabel
+        >
+          Suche
+        </Input>
 
         <p id={fields.search.errorId}>{fields.search.error}</p>
-
-        {/* <noscript> */}
-        <button type="submit">Suchen</button>
-        {/* </noscript> */}
       </Form>
       <Form method="post">
         <List>
@@ -377,11 +379,10 @@ function Team() {
               </List.Item>
             );
           })}
-
-          {/* TODO: resolve type issues */}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
             actionData.success === true &&
+            actionData.profile !== null &&
             actionData.action.startsWith("add_") && (
               <Toast key={actionData.action}>
                 {actionData.profile.firstName} {actionData.profile.lastName}{" "}

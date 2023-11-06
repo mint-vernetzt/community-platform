@@ -21,6 +21,7 @@ import { z } from "zod";
 import {
   Avatar,
   Button,
+  Input,
   List,
   Section,
   Toast,
@@ -298,8 +299,6 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    console.log({ success: true, action, organization });
-
     return json(
       { success: true, action, organization },
       { headers: response.headers }
@@ -341,7 +340,10 @@ export const action = async (args: DataFunctionArgs) => {
     );
   }
 
-  return json({ success: false }, { headers: response.headers });
+  return json(
+    { success: false, action, organization: null },
+    { headers: response.headers }
+  );
 };
 
 function ResponsibleOrgs() {
@@ -358,6 +360,8 @@ function ResponsibleOrgs() {
     },
     shouldRevalidate: "onInput",
   });
+
+  // TODO add continue button
 
   return (
     <>
@@ -398,10 +402,10 @@ function ResponsibleOrgs() {
                 </List.Item>
               );
             })}
-            {/* TODO: resolve type issues */}
             {typeof actionData !== "undefined" &&
               actionData !== null &&
               actionData.success === true &&
+              actionData.organization !== null &&
               actionData.action.startsWith("remove_") && (
                 <Toast key={actionData.action}>
                   {actionData.organization.name} entfernt.
@@ -440,10 +444,10 @@ function ResponsibleOrgs() {
               );
             })}
 
-            {/* TODO: resolve type issues */}
             {typeof actionData !== "undefined" &&
               actionData !== null &&
               actionData.success === true &&
+              actionData.organization !== null &&
               actionData.action.startsWith("add_own_") && (
                 <Toast key={actionData.action}>
                   {actionData.organization.name} hinzugefügt.
@@ -460,18 +464,16 @@ function ResponsibleOrgs() {
           kannst.
         </p>
         <Form method="get" {...searchForm.props}>
-          <input type="hidden" name="deep" value="true" />
-          <input
-            className="mv-border"
-            name="search"
+          <Input id="deep" type="hidden" value="true" />
+          <Input
+            id="search"
             defaultValue={searchParams.get("search") || ""}
-          />
+            hiddenLabel
+          >
+            Suche
+          </Input>
 
           <p id={fields.search.errorId}>{fields.search.error}</p>
-
-          {/* <noscript> */}
-          <button type="submit">Suchen</button>
-          {/* </noscript> */}
         </Form>
         <Form method="post">
           <List>
@@ -494,11 +496,12 @@ function ResponsibleOrgs() {
               );
             })}
 
-            {/* TODO: resolve type issues */}
             {typeof actionData !== "undefined" &&
               actionData !== null &&
               actionData.success === true &&
-              actionData.action.startsWith("add_") && (
+              actionData.organization !== null &&
+              actionData.action.startsWith("add_") &&
+              !actionData.action.startsWith("add_own_") && (
                 <Toast key={actionData.action}>
                   {actionData.organization.name} hinzugefügt.
                 </Toast>
