@@ -1,50 +1,39 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import {
-  json,
-  redirect,
-  type DataFunctionArgs,
-  FormData,
-} from "@remix-run/node";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
   useActionData,
   useLoaderData,
   useLocation,
-  useSubmit,
 } from "@remix-run/react";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { phoneSchema } from "~/lib/utils/schemas";
-import React from "react";
 
 const generalSchema = z.object({
-  // TODO: Bea fragen:
-  // - Strikt nur 55 Zeichen zulassen oder soll das nur ein Hinweis sein?
-  name: z
-    .string({
-      required_error: "Der Projektname ist eine erforderliche Angabe.",
-    })
-    .max(55, "Es sind nur maximal 55 Zeichen für deinen Projektnamen erlaubt."),
+  name: z.string({
+    required_error: "Der Projektname ist eine erforderliche Angabe.",
+  }),
   formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
-  // TODO: Bea fragen
-  // - Soll bei Aktivitätsgebieten eine Mehrfachauswahl möglich sein?
   areas: z.array(z.string().uuid()),
-  email: z.string().email("Bitte gib eine gültige E-Mail Adresse ein."),
+  email: z
+    .string()
+    .email("Bitte gib eine gültige E-Mail Adresse ein.")
+    .optional(),
   phone: phoneSchema
     .optional()
     .transform((value) => (value === undefined ? null : value)),
-  // TODO: Bea fragen:
-  // - "Ansprechpartner:in / Name des Projekts*"
-  //    -> Was von beiden ist gemeint? Name des Projekts existiert schon im Formular.
-  //    -> Sind das Profile oder ist das einfach eine freie Eingabe
-  // - E-Mail, Straße, Hausnummer, PLZ, Stadt required?
+  contactName: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
   street: z
     .string()
     .optional()
@@ -96,6 +85,7 @@ export const loader = async (args: DataFunctionArgs) => {
       name: true,
       email: true,
       phone: true,
+      contactName: true,
       street: true,
       streetNumber: true,
       streetNumberAddition: true,
@@ -298,7 +288,6 @@ function General() {
           <label htmlFor={fields.name.id}>
             Titel des Projekts oder Bildungsangebotes*
           </label>
-          {/* TODO: Bea fragen: Soll hier ein input mit Counter hin (max 55 Zeichen)? Aktuell nur ein Hinweis designed */}
           <input autoFocus className="ml-2" {...conform.input(fields.name)} />
           {fields.name.errors !== undefined && fields.name.errors.length > 0 && (
             <ul id={fields.name.errorId}>
@@ -524,8 +513,7 @@ function General() {
         <h2>Kontaktdaten</h2>
 
         <div>
-          {/* TODO: Bea fragen wegen required */}
-          <label htmlFor={fields.email.id}>E-Mail-Adresse*</label>
+          <label htmlFor={fields.email.id}>E-Mail-Adresse</label>
           <input className="ml-2" {...conform.input(fields.email)} />
           {fields.email.errors !== undefined && fields.email.errors.length > 0 && (
             <ul id={fields.email.errorId}>
@@ -548,24 +536,23 @@ function General() {
           )}
         </div>
 
-        {/* TODO: Bea fragen wegen "Ansprechpartner:in / Name des Projekts*". Fragen siehe oben im schema */}
-        {/* <div>
-          <label htmlFor={fields.contactPerson.id}>
-          Ansprechpartner:in / Name des Projekts*
-          </label>
-          <input className="ml-2" {...conform.input(fields.contactPerson)} />
-          {fields.contactPerson.errors !== undefined && fields.contactPerson.errors.length > 0 && (
-            <ul id={fields.contactPerson.errorId}>
-              {fields.contactPerson.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          )}
-        </div> */}
+        <h2>Anschrift</h2>
 
         <div>
-          {/* TODO: Bea fragen wegen required */}
-          <label htmlFor={fields.street.id}>Straße*</label>
+          <label htmlFor={fields.contactName.id}>Name</label>
+          <input className="ml-2" {...conform.input(fields.contactName)} />
+          {fields.contactName.errors !== undefined &&
+            fields.contactName.errors.length > 0 && (
+              <ul id={fields.contactName.errorId}>
+                {fields.contactName.errors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            )}
+        </div>
+
+        <div>
+          <label htmlFor={fields.street.id}>Straße</label>
           <input className="ml-2" {...conform.input(fields.street)} />
           {fields.street.errors !== undefined &&
             fields.street.errors.length > 0 && (
@@ -578,8 +565,7 @@ function General() {
         </div>
 
         <div>
-          {/* TODO: Bea fragen wegen required */}
-          <label htmlFor={fields.streetNumber.id}>Hausnummer*</label>
+          <label htmlFor={fields.streetNumber.id}>Hausnummer</label>
           <input className="ml-2" {...conform.input(fields.streetNumber)} />
           {fields.streetNumber.errors !== undefined &&
             fields.streetNumber.errors.length > 0 && (
@@ -608,8 +594,7 @@ function General() {
         </div>
 
         <div>
-          {/* TODO: Bea fragen wegen required */}
-          <label htmlFor={fields.zipCode.id}>PLZ*</label>
+          <label htmlFor={fields.zipCode.id}>PLZ</label>
           <input className="ml-2" {...conform.input(fields.zipCode)} />
           {fields.zipCode.errors !== undefined &&
             fields.zipCode.errors.length > 0 && (
@@ -622,8 +607,7 @@ function General() {
         </div>
 
         <div>
-          {/* TODO: Bea fragen wegen required */}
-          <label htmlFor={fields.city.id}>Stadt*</label>
+          <label htmlFor={fields.city.id}>Stadt</label>
           <input className="ml-2" {...conform.input(fields.city)} />
           {fields.city.errors !== undefined && fields.city.errors.length > 0 && (
             <ul id={fields.city.errorId}>
