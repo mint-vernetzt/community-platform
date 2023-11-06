@@ -82,7 +82,7 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json({ project });
+  return json({ project }, { headers: response.headers });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -138,17 +138,23 @@ export async function action({ request, params }: DataFunctionArgs) {
   });
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
+    return json({ status: "idle", submission } as const, {
+      headers: response.headers,
+    });
   }
   if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+    return json({ status: "error", submission } as const, {
+      status: 400,
+      headers: response.headers,
+    });
   }
 
   return redirectWithAlert(
     `/next/project/${params.slug}/settings/details?deep`,
     {
       message: "Deine Änderungen wurden gespeichert.",
-    }
+    },
+    { headers: response.headers }
   );
 }
 
@@ -266,7 +272,7 @@ function WebSocial() {
             )}
         </div>
         <div>
-          <label htmlFor={fields.bluesky.id}>Blue Sky</label>
+          <label htmlFor={fields.bluesky.id}>Bluesky</label>
           <input className="ml-2" {...conform.input(fields.bluesky)} />
           {fields.bluesky.errors !== undefined &&
             fields.bluesky.errors.length > 0 && (
