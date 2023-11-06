@@ -486,6 +486,7 @@ export async function filterProjectByVisibility<
         key === "email" ||
         key === "phone" ||
         key === "website" ||
+        key === "contactName" ||
         key === "street" ||
         key === "streetNumber" ||
         key === "streetNumberAddition" ||

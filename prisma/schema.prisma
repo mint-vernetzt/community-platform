@@ -667,6 +667,7 @@ model Project {
   email                    String?
   phone                    String?
   website                  String?
+  contactName              String?                            @map("contact_name")
   street                   String?
   streetNumber             String?                            @map("street_number")
   streetNumberAddition     String?                            @map("street_number_addition")
@@ -711,6 +712,7 @@ model ProjectVisibility {
   email                    Boolean @default(true)
   phone                    Boolean @default(true)
   website                  Boolean @default(true)
+  contactName              Boolean @default(true) @map("contact_name")
   street                   Boolean @default(true)
   streetNumber             Boolean @default(true) @map("street_number")
   streetNumberAddition     Boolean @default(true) @map("street_number_addition")
