@@ -68,7 +68,7 @@ const navLinks = [
   { to: "./team", label: "Team" },
   { to: "./admins", label: "Admin-Rolle verwalten" },
   { to: "./attachments", label: "Material verwalten" },
-  { to: "./danger-zone", label: "Danger Zone", variant: "negative" },
+  { to: "./danger-zone", label: "Kritischer Bereich", variant: "negative" },
 ];
 
 function ProjectSettings() {
