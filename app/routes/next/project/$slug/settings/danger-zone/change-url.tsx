@@ -16,9 +16,12 @@ function createSchema(constraint?: {
   return z.object({
     slug: z
       .string()
-      .min(3, "Mindestens 3 Zeichen")
-      .max(50, "Maximal 50 Zeichen")
-      .regex(/^[-a-z0-9-]+$/i, "Nur Buchstaben, Zahlen und Bindestriche")
+      .min(3, "Es werden mind. 3 Zeichen benötigt.")
+      .max(50, "Es sind max. 50 Zeichen erlaubt.")
+      .regex(
+        /^[-a-z0-9-]+$/i,
+        "Nur Buchstaben, Zahlen und Bindestriche erlaubt."
+      )
       .refine(async (slug) => {
         if (
           typeof constraint !== "undefined" &&
@@ -27,7 +30,7 @@ function createSchema(constraint?: {
           return await constraint.isSlugUnique(slug);
         }
         return true;
-      }, "Diese URL ist bereits vergeben"),
+      }, "Diese URL ist bereits vergeben."),
   });
 }
 
@@ -149,8 +152,11 @@ function ChangeURL() {
         <Input id="deep" value="true" type="hidden" />
         <Input id="slug" defaultValue={loaderData.slug}>
           <Input.Label>Projekt-URL</Input.Label>
+          {typeof actionData !== "undefined" &&
+            typeof fields.slug.error !== "undefined" && (
+              <Input.Error>{fields.slug.error}</Input.Error>
+            )}
         </Input>
-        <p id={fields.slug.errorId}>{fields.slug.error}</p>
         <Button type="submit" level="negative">
           URL ändern
         </Button>
