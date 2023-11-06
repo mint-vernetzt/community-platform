@@ -139,7 +139,7 @@ function ProjectSettings() {
           <ul>
             {navLinks.map((navLink) => {
               const absolutePath = navLink.to.replace(".", "");
-              const isActive = location.pathname.endsWith(absolutePath);
+              const isActive = location.pathname.includes(absolutePath);
 
               const itemClasses = classNames(
                 "md:mv-border-b md:last:mv-border-b-0 mv-overflow-hidden",
