@@ -47,7 +47,9 @@ function DangerZone() {
           <Link to="./delete?deep">Projekt löschen</Link>
         </TabBar.Item>
       </TabBar>
-      <Outlet />
+      <div className="mv-mb-4">
+        <Outlet />
+      </div>
     </Section>
   );
 }
