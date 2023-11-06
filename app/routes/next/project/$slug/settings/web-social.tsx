@@ -107,7 +107,9 @@ export async function action({ request, params }: DataFunctionArgs) {
   const submission = await parse(formData, {
     schema: (intent) =>
       webSocialSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") return { ...data };
+        if (intent !== "submit") {
+          return { ...data };
+        }
         try {
           // TODO: Investigate why typescript does not show an type error...
           // const someData = { test: "", ...data };
