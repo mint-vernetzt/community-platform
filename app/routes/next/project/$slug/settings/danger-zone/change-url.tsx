@@ -148,7 +148,7 @@ function ChangeURL() {
       <Form method="post" {...form.props}>
         <Input id="deep" value="true" type="hidden" />
         <Input id="slug" defaultValue={loaderData.slug}>
-          Projekt-URL
+          <Input.Label>Projekt-URL</Input.Label>
         </Input>
         <p id={fields.slug.errorId}>{fields.slug.error}</p>
         <Button type="submit" level="negative">
