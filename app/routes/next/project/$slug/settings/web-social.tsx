@@ -11,7 +11,7 @@ import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { z } from "zod";
 import {
-  blueSkySchema,
+  blueskySchema,
   facebookSchema,
   instagramSchema,
   linkedinSchema,
@@ -33,7 +33,7 @@ const webSocialSchema = z.object({
   xing: xingSchema,
   twitter: twitterSchema,
   mastodon: mastodonSchema,
-  blueSky: blueSkySchema,
+  bluesky: blueskySchema,
   instagram: instagramSchema,
   youtube: youtubeSchema,
 });
@@ -70,7 +70,7 @@ export const loader = async (args: DataFunctionArgs) => {
       xing: true,
       twitter: true,
       mastodon: true,
-      blueSky: true,
+      bluesky: true,
       instagram: true,
       youtube: true,
     },
@@ -166,7 +166,7 @@ function WebSocial() {
       xing: project.xing || undefined,
       twitter: project.twitter || undefined,
       mastodon: project.mastodon || undefined,
-      blueSky: project.blueSky || undefined,
+      bluesky: project.bluesky || undefined,
       instagram: project.instagram || undefined,
       youtube: project.youtube || undefined,
     },
@@ -264,12 +264,12 @@ function WebSocial() {
             )}
         </div>
         <div>
-          <label htmlFor={fields.blueSky.id}>Blue Sky</label>
-          <input className="ml-2" {...conform.input(fields.blueSky)} />
-          {fields.blueSky.errors !== undefined &&
-            fields.blueSky.errors.length > 0 && (
-              <ul id={fields.blueSky.errorId}>
-                {fields.blueSky.errors.map((e) => (
+          <label htmlFor={fields.bluesky.id}>Blue Sky</label>
+          <input className="ml-2" {...conform.input(fields.bluesky)} />
+          {fields.bluesky.errors !== undefined &&
+            fields.bluesky.errors.length > 0 && (
+              <ul id={fields.bluesky.errorId}>
+                {fields.bluesky.errors.map((e) => (
                   <li key={e}>{e}</li>
                 ))}
               </ul>

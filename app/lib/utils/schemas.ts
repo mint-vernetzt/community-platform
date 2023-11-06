@@ -102,7 +102,7 @@ export const mastodonSchema = z
     return addProtocolToUrl(value);
   });
 
-export const blueSkySchema = z
+export const blueskySchema = z
   .string()
   .regex(/(https?:\/\/)?(.*\.)?bsky.app\/.+$|^$/, {
     message:

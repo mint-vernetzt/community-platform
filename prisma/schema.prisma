@@ -668,7 +668,7 @@ model Project {
   instagram                String?
   xing                     String?
   mastodon                 String?
-  blueSky                  String?                            @map("blue_sky")
+  bluesky                  String?
   createdAt                DateTime                           @default(now()) @map("created_at")
   updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
   published                Boolean                            @default(false)
@@ -708,7 +708,7 @@ model ProjectVisibility {
   instagram                Boolean @default(true)
   xing                     Boolean @default(true)
   mastodon                 Boolean @default(true)
-  blueSky                  Boolean @default(true) @map("blue_sky")
+  bluesky                  Boolean @default(true)
   createdAt                Boolean @default(true) @map("created_at")
   updatedAt                Boolean @default(true) @map("updated_at")
   published                Boolean @default(true)
