@@ -90,10 +90,18 @@ export const twitterSchema = z
 
 export const mastodonSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?mastodon.social\/.+$|^$/, {
-    message:
-      "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (mastodon.social/...).",
-  })
+  // .regex(/(https?:\/\/)?(.*\.)?mastodon.social\/.+$|^$/, {
+  //   message:
+  //     "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (mastodon.social/...).",
+  // })
+  .regex(
+    // TODO: Improve regex (url/@username)
+    /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
+    {
+      message:
+        "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite.",
+    }
+  )
   .optional()
   .transform((value) => {
     if (value === undefined) {
