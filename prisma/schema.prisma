@@ -589,6 +589,16 @@ model TargetGroup {
   @@map("target_groups")
 }
 
+model SpecialTargetGroup {
+  id          String                        @id @default(uuid())
+  slug        String                        @unique
+  title       String                        @unique
+  description String?
+  projects    SpecialTargetGroupOfProject[]
+
+  @@map("special_target_groups")
+}
+
 model ExperienceLevel {
   id          String  @id @default(uuid())
   title       String  @unique
@@ -654,7 +664,8 @@ model Project {
   backgroundImageId        String?                            @map("background_image_id")
   headline                 String?
   excerpt                  String?
-  description              String?
+  description              String? // legacy
+  furtherDescription       String?                            @map("further_description")
   email                    String?
   phone                    String?
   website                  String?
@@ -673,10 +684,22 @@ model Project {
   updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
   published                Boolean                            @default(false)
   city                     String?
+  idea                     String?
+  goals                    String?
+  implementation           String?
+  targeting                String?
+  hints                    String?
+  video                    String?
+  videoSubline             String?                            @map("video_subline")
+  participantLimit         String?                            @map("participant_limit")
+  targetGroupAdditions     String?                            @map("target_group_additions")
+  furtherDisciplines       String[]                           @map("further_disciplines")
   awards                   AwardOfProject[]
   disciplines              DisciplineOfProject[]
+  additionalDisciplines    AdditionalDisciplineOfProject[]
   responsibleOrganizations ResponsibleOrganizationOfProject[]
   targetGroups             TargetGroupOfProject[]
+  specialTargetGroups      SpecialTargetGroupOfProject[]
   teamMembers              TeamMemberOfProject[]
   projectVisibility        ProjectVisibility?
   admins                   AdminOfProject[]
@@ -694,7 +717,8 @@ model ProjectVisibility {
   backgroundImageId        Boolean @default(true) @map("background_image_id")
   headline                 Boolean @default(true)
   excerpt                  Boolean @default(true)
-  description              Boolean @default(true)
+  description              Boolean @default(true) // legacy
+  furtherDescription       Boolean @default(true) @map("further_description")
   email                    Boolean @default(true)
   phone                    Boolean @default(true)
   website                  Boolean @default(true)
@@ -713,10 +737,22 @@ model ProjectVisibility {
   updatedAt                Boolean @default(true) @map("updated_at")
   published                Boolean @default(true)
   city                     Boolean @default(true)
+  idea                     Boolean @default(true)
+  goals                    Boolean @default(true)
+  implementation           Boolean @default(true)
+  targeting                Boolean @default(true)
+  hints                    Boolean @default(true)
+  video                    Boolean @default(true)
+  videoSubline             Boolean @default(true)
+  participantLimit         Boolean @default(true) @map("participant_limit")
+  furtherDisciplines       Boolean @default(true) @map("further_disciplines")
+  targetGroupAdditions     Boolean @default(true) @map("target_group_additions")
   awards                   Boolean @default(true)
   disciplines              Boolean @default(true)
+  additionalDisciplines    Boolean @default(true) @map("additional_disciplines")
   responsibleOrganizations Boolean @default(true)
   targetGroups             Boolean @default(true)
+  specialTargetGroups      Boolean @default(true)
   teamMembers              Boolean @default(true)
   admins                   Boolean @default(false)
   project                  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -733,6 +769,15 @@ model Discipline {
   projects    DisciplineOfProject[]
 
   @@map("disciplines")
+}
+
+model AdditionalDiscipline {
+  id       String                          @id @default(uuid())
+  title    String                          @unique
+  slug     String                          @unique
+  projects AdditionalDisciplineOfProject[]
+
+  @@map("additional_disciplines")
 }
 
 model Award {
@@ -759,6 +804,17 @@ model TargetGroupOfProject {
   @@map("target_groups_of_projects")
 }
 
+model SpecialTargetGroupOfProject {
+  specialTargetGroupId String             @map("special_target_group_id")
+  projectId            String             @map("project_id")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  project              Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  specialTargetGroup   SpecialTargetGroup @relation(fields: [specialTargetGroupId], references: [id], onDelete: Cascade)
+
+  @@id([specialTargetGroupId, projectId])
+  @@map("special_target_groups_of_projects")
+}
+
 model DisciplineOfProject {
   disciplineId String     @map("discipline_id")
   projectId    String     @map("project_id")
@@ -768,6 +824,17 @@ model DisciplineOfProject {
 
   @@id([disciplineId, projectId])
   @@map("disciplines_of_projects")
+}
+
+model AdditionalDisciplineOfProject {
+  additionalDisciplineId String               @map("additional_discipline_id")
+  projectId              String               @map("project_id")
+  createdAt              DateTime             @default(now()) @map("created_at")
+  additionalDiscipline   AdditionalDiscipline @relation(fields: [additionalDisciplineId], references: [id], onDelete: Cascade)
+  project                Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([additionalDisciplineId, projectId])
+  @@map("additional_disciplines_of_projects")
 }
 
 model AwardOfProject {

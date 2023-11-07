@@ -402,8 +402,10 @@ export async function filterEventByVisibility<
 type ProjectWithRelations = Project & {
   awards: any;
   disciplines: any;
+  additionalDisciplines: any;
   responsibleOrganizations: any;
   targetGroups: any;
+  specialTargetGroups: any;
   teamMembers: any;
   projectVisibility: any;
   admins: any;
@@ -412,7 +414,7 @@ type ProjectWithRelations = Project & {
 };
 
 export async function filterListOfProjectsByVisibility<
-  T extends EntitySubset<EventWithRelations, T>
+  T extends EntitySubset<ProjectWithRelations, T>
 >(projects: T[]) {
   const filteredProjectList: T[] = await Promise.all(
     projects.map(async (project) => {
@@ -456,6 +458,9 @@ export async function filterProjectByVisibility<
       else if (
         key === "awards" ||
         key === "disciplines" ||
+        key === "additionalDisciplines" ||
+        key === "furtherDisciplines" ||
+        key === "specialTargetGroups" ||
         key === "responsibleOrganizations" ||
         key === "targetGroups" ||
         key === "admins" ||
@@ -478,6 +483,7 @@ export async function filterProjectByVisibility<
         key === "headline" ||
         key === "excerpt" ||
         key === "description" ||
+        key === "furtherDescription" ||
         key === "email" ||
         key === "phone" ||
         key === "website" ||
@@ -492,6 +498,15 @@ export async function filterProjectByVisibility<
         key === "xing" ||
         key === "mastodon" ||
         key === "bluesky" ||
+        key === "idea" ||
+        key === "goals" ||
+        key === "implementation" ||
+        key === "targeting" ||
+        key === "hints" ||
+        key === "video" ||
+        key === "videoSubline" ||
+        key === "participantLimit" ||
+        key === "targetGroupAdditions" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
         key === "city"
