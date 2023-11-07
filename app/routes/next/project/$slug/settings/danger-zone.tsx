@@ -39,15 +39,17 @@ function DangerZone() {
   return (
     <Section>
       <BackButton to={location.pathname}>Kritischer Bereich</BackButton>
-      <TabBar>
-        <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-          <Link to="./change-url?deep">URL ändern</Link>
-        </TabBar.Item>
-        <TabBar.Item active={location.pathname.endsWith("/delete")}>
-          <Link to="./delete?deep">Projekt löschen</Link>
-        </TabBar.Item>
-      </TabBar>
-      <div className="mv-mb-4">
+      <div className="md:mv--mt-6">
+        <TabBar>
+          <TabBar.Item active={location.pathname.endsWith("/change-url")}>
+            <Link to="./change-url?deep">URL ändern</Link>
+          </TabBar.Item>
+          <TabBar.Item active={location.pathname.endsWith("/delete")}>
+            <Link to="./delete?deep">Projekt löschen</Link>
+          </TabBar.Item>
+        </TabBar>
+      </div>
+      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <Outlet />
       </div>
     </Section>

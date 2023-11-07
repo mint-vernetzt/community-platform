@@ -131,27 +131,29 @@ function Delete() {
 
   return (
     <>
-      <p className="mv-mb-4">
+      <p>
         Bitte gib den Namen des Projekts{" "}
         <strong>{loaderData.project.name}</strong> ein, um das Löschen zu
         bestätigen.
       </p>
-      <p className="mv-mb-4">
+      <p>
         Wenn Du danach auf "Projekt löschen” klickst, wird Euer Projekt ohne
         erneute Abfrage gelöscht.
       </p>
       <Form method="post" {...form.props}>
-        <Input id="deep" value="true" type="hidden" />
-        <Input id="name">
-          <Input.Label>Projekt-URL</Input.Label>
-          {typeof fields.name.error !== "undefined" && (
-            <Input.Error>{fields.name.error}</Input.Error>
-          )}
-        </Input>
-        <div className="mv-w-full md:mv-max-w-fit">
-          <Button type="submit" level="negative" fullSize>
-            Project löschen
-          </Button>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <Input id="deep" value="true" type="hidden" />
+          <Input id="name">
+            <Input.Label>Löschen bestätigen</Input.Label>
+            {typeof fields.name.error !== "undefined" && (
+              <Input.Error>{fields.name.error}</Input.Error>
+            )}
+          </Input>
+          <div className="mv-w-full md:mv-max-w-fit">
+            <Button type="submit" level="negative" fullSize>
+              Project löschen
+            </Button>
+          </div>
         </div>
       </Form>
     </>
