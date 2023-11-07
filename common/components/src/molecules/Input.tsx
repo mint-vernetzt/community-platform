@@ -147,7 +147,7 @@ function Input(props: React.PropsWithChildren<InputProps>) {
   );
 
   return (
-    <div className="w-full mv-mb-6">
+    <div className="w-full">
       {label}
       <div className="mv-relative">
         <input
