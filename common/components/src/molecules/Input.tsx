@@ -70,37 +70,18 @@ function InputError(props: React.PropsWithChildren<{}>) {
   );
 }
 
-export type InputProps = {
-  id: string;
-  name?: string;
-  type?: InputType;
-  value?: string;
-  defaultValue?: string;
-  placeholder?: string;
-  hiddenLabel?: boolean;
-};
+export type InputProps = React.HTMLProps<HTMLInputElement>;
 
-function Input(props: React.PropsWithChildren<InputProps>) {
-  const { type = "text" } = props;
+function Input(props: InputProps) {
+  const { type = "text", children, ...inputProps } = props;
 
   if (type === "hidden") {
-    return (
-      <input
-        type={type}
-        className="mv-hidden"
-        id={props.id}
-        name={props.name || props.id}
-        defaultValue={props.defaultValue}
-        placeholder={props.placeholder}
-      />
-    );
+    return <input {...inputProps} className="mv-hidden" />;
   }
 
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child) || typeof child === "string";
-    }
-  );
+  const validChildren = React.Children.toArray(children).filter((child) => {
+    return React.isValidElement(child) || typeof child === "string";
+  });
 
   const error = validChildren.find((child) => {
     return React.isValidElement(child) && child.type === InputError;
@@ -150,14 +131,7 @@ function Input(props: React.PropsWithChildren<InputProps>) {
     <div className="w-full">
       {label}
       <div className="mv-relative">
-        <input
-          type={type}
-          className={inputClasses}
-          id={props.id}
-          name={props.name || props.id}
-          defaultValue={props.defaultValue}
-          placeholder={props.placeholder}
-        />
+        <input className={inputClasses} {...inputProps} />
         {typeof icon !== "undefined" && (
           <div className="mv-absolute mv-right-3 mv-top-1/2 mv--translate-y-1/2">
             {icon}

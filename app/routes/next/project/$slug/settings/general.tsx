@@ -35,7 +35,8 @@ const generalSchema = z.object({
   email: z
     .string()
     .email("Bitte gib eine gültige E-Mail Adresse ein.")
-    .optional(),
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
   phone: phoneSchema
     .optional()
     .transform((value) => (value === undefined ? null : value)),
@@ -340,6 +341,9 @@ function General() {
               <Select.Label>
                 In welchem Format findet das Projekt statt?
               </Select.Label>
+              <Select.HelperText>
+                Mehrfachnennungen sind möglich.
+              </Select.HelperText>
               <option selected hidden>
                 Bitte auswählen
               </option>
@@ -351,9 +355,8 @@ function General() {
                 })
                 .map((filteredFormat) => {
                   return (
-                    <>
+                    <React.Fragment key={`${filteredFormat.id}-fragment`}>
                       <button
-                        key={`${filteredFormat.id}-add-button`}
                         hidden
                         {...list.insert(fields.formats.name, {
                           defaultValue: filteredFormat.id,
@@ -368,7 +371,7 @@ function General() {
                       >
                         {filteredFormat.title}
                       </option>
-                    </>
+                    </React.Fragment>
                   );
                 })}
             </Select>
@@ -390,53 +393,51 @@ function General() {
                 })}
               </Chip.Container>
             )}
-          </div>
-          <p>Mehrfachnennungen sind möglich.</p>
-
-          <div>
-            <label htmlFor={fields.furtherFormats.id}>Sonstige Formate</label>
-            <div className="flex flex-col"></div>
-            <ul>
-              <li>
-                <input
-                  className="my-2"
-                  onChange={handleFurtherFormatInputChange}
-                  value={furtherFormat}
-                />
-                <button
-                  className="ml-2"
-                  {...list.insert(fields.furtherFormats.name, {
-                    defaultValue: furtherFormat,
-                  })}
-                >
-                  + Add
-                </button>
-              </li>
-              {furtherFormatsList.map((furtherFormat, index) => {
-                return (
-                  <li className="flex flex-row my-2" key={furtherFormat.key}>
-                    <p>{furtherFormat.defaultValue || "Not Found"}</p>
-                    <input hidden {...conform.input(furtherFormat)} />
-                    <button
-                      className="ml-2"
-                      {...list.remove(fields.furtherFormats.name, { index })}
+            {typeof fields.furtherFormats !== "undefined" &&
+              typeof fields.furtherFormats.id !== "undefined" && (
+                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                  <Input
+                    id={fields.furtherFormats.id}
+                    value={furtherFormat}
+                    onChange={handleFurtherFormatInputChange}
+                  >
+                    <Input.Label>Sonstige Formate</Input.Label>
+                    <Input.HelperText>
+                      Bitte gib kurze Begriffe an.
+                    </Input.HelperText>
+                  </Input>
+                  <div className="mv--mt-1">
+                    <Button
+                      {...list.insert(fields.furtherFormats.name, {
+                        defaultValue: furtherFormat,
+                      })}
+                      variant="ghost"
+                      disabled={furtherFormat === ""}
                     >
-                      - Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            {fields.furtherFormats.errors !== undefined &&
-              fields.furtherFormats.errors.length > 0 && (
-                <ul id={fields.furtherFormats.errorId}>
-                  {fields.furtherFormats.errors.map((e) => (
-                    <li key={e}>{e}</li>
-                  ))}
-                </ul>
+                      Hinzufügen
+                    </Button>
+                  </div>
+                </div>
               )}
+            {furtherFormatsList.length > 0 && (
+              <Chip.Container>
+                {furtherFormatsList.map((listFormat, index) => {
+                  return (
+                    <Chip key={listFormat.key}>
+                      {listFormat.defaultValue || "Not Found"}
+                      <Chip.Delete>
+                        <button
+                          {...list.remove(fields.furtherFormats.name, {
+                            index,
+                          })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
           </div>
-          <p>Bitte gib kurze Begriffe an.</p>
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -460,6 +461,9 @@ function General() {
               <Select.Label>
                 Wo wird das Projekt / Bildungsangebot durchgeführt?
               </Select.Label>
+              <Select.HelperText>
+                Mehrfachnennungen sind möglich.
+              </Select.HelperText>
 
               {/* This is the default option used as placeholder. */}
               <option selected hidden>
@@ -482,9 +486,8 @@ function General() {
                   // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
                   if (filteredOption.value !== undefined) {
                     return (
-                      <>
+                      <React.Fragment key={`${filteredOption.value}-fragment`}>
                         <button
-                          key={`${filteredOption.value}-add-button`}
                           hidden
                           {...list.insert(fields.areas.name, {
                             defaultValue: filteredOption.value,
@@ -498,15 +501,15 @@ function General() {
                         >
                           {filteredOption.label}
                         </option>
-                      </>
+                      </React.Fragment>
                     );
                   }
                   // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
                   else {
                     return (
-                      <>
-                        <option disabled>{filteredOption.label}</option>
-                      </>
+                      <option key={`${filteredOption.label}-divider`} disabled>
+                        {filteredOption.label}
+                      </option>
                     );
                   }
                 })}
@@ -530,9 +533,8 @@ function General() {
               </Chip.Container>
             )}
           </div>
-          {/* <div className="mv-flex mv-flex-col mv-gap-4"> */}
-          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               Kontaktdaten
             </h2>
             <Input {...conform.input(fields.email)}>
@@ -548,8 +550,8 @@ function General() {
               )}
             </Input>
           </div>
-          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               Anschrift
             </h2>
             <Input {...conform.input(fields.contactName)}>
@@ -609,7 +611,6 @@ function General() {
               </div>
             </div>
           </div>
-          {/* </div> */}
 
           <p className="mv-text-sm mv-mt-4">*Erforderliche Angaben</p>
 
