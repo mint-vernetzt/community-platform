@@ -14,28 +14,19 @@ import {
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const schema = z.object({
-  password: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  confirmPassword: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  accessToken: z
-    .string()
-    .min(
-      1,
-      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
-    ),
-  refreshToken: z
-    .string()
-    .min(
-      1,
-      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
-    ),
-  loginRedirect: z.string().optional(),
-});
+const createSchema = (t: TFunction) => {
+  return z.object({
+    password: z.string().min(8, t("validation.password.min")),
+    confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
+    accessToken: z.string().min(1, t("validation.accessToken.min")),
+    refreshToken: z.string().min(1, t("validation.refreshToken.min")),
+    loginRedirect: z.string().optional(),
+  });
+};
 
 const environmentSchema = z.object({
   authClient: z.unknown(),
@@ -51,58 +42,58 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect("/dashboard", { headers: response.headers });
   }
 
+  const t = await i18next.getFixedT(request, ["routes/reset/set-password"]);
+
   const url = new URL(request.url);
   const accessToken = url.searchParams.get("access_token");
   const refreshToken = url.searchParams.get("refresh_token");
 
   if (accessToken === null || refreshToken === null) {
-    throw badRequest(
-      "Did not provide access or refresh token to reset the password."
-    );
+    throw badRequest(t("error.badRequest"));
   }
 
   return response;
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.password !== values.confirmPassword) {
-    throw new InputError(
-      "Deine Passwörter stimmen nicht überein.",
-      "confirmPassword"
-    ); // -- Field error
-  }
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    if (values.password !== values.confirmPassword) {
+      throw new InputError(t("error.confirmation"), "confirmPassword"); // -- Field error
+    }
 
-  // This automatically logs in the user
-  // Throws error on invalid refreshToken, accessToken combination
-  await setSession(
-    // TODO: fix type issue
-    environment.authClient,
-    values.accessToken,
-    values.refreshToken
-  );
+    // This automatically logs in the user
+    // Throws error on invalid refreshToken, accessToken combination
+    await setSession(
+      // @ts-ignore TODO: fix type issue
+      environment.authClient,
+      values.accessToken,
+      values.refreshToken
+    );
 
-  const { error } = await updatePassword(
-    // TODO: fix type issue
-    environment.authClient,
-    values.password
-  );
-  if (error !== null) {
-    throw error.message;
-  }
-  return values;
-});
+    const { error } = await updatePassword(
+      // @ts-ignore TODO: fix type issue
+      environment.authClient,
+      values.password
+    );
+    if (error !== null) {
+      throw error.message;
+    }
+    return values;
+  });
+};
 
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, ["routes/reset/set-password"]);
   const authClient = createAuthClient(request, response);
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { authClient: authClient },
   });
 
@@ -120,6 +111,9 @@ export default function SetPassword() {
   const loginRedirect = urlSearchParams.get("login_redirect");
   const accessToken = urlSearchParams.get("access_token");
   const refreshToken = urlSearchParams.get("refresh_token");
+
+  const { t } = useTranslation(["routes/reset/set-password"]);
+  const schema = createSchema(t);
 
   return (
     <>
@@ -145,7 +139,7 @@ export default function SetPassword() {
         >
           {({ Field, Button, Errors, register }) => (
             <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12"> </div>
+              <div className="basis-full md:basis-6/12"></div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
                 <Field name="loginRedirect" />
@@ -157,7 +151,7 @@ export default function SetPassword() {
                       <>
                         <InputPassword
                           id="password"
-                          label="Neues Passwort"
+                          label={t("form.label.password")}
                           {...register("password")}
                         />
                         <Errors />
@@ -172,7 +166,7 @@ export default function SetPassword() {
                       <>
                         <InputPassword
                           id="confirmPassword"
-                          label="Passwort wiederholen"
+                          label={t("form.label.confirmPassword")}
                           {...register("confirmPassword")}
                         />
                         <Errors />
@@ -183,7 +177,7 @@ export default function SetPassword() {
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">
-                    Passwort speichern
+                    {t("form.label.submit")}
                   </button>
                 </div>
                 <Errors />

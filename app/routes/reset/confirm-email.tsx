@@ -4,6 +4,8 @@ import { useLoaderData } from "@remix-run/react";
 import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -17,6 +19,8 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
+  const t = await i18next.getFixedT(request, ["routes/reset/confirm-email"]);
+
   const response = new Response();
 
   const url = new URL(request.url);
@@ -24,16 +28,14 @@ export const loader = async (args: LoaderArgs) => {
   // Get search param confirmation_link from url
   const confirmationLink = url.searchParams.get("confirmation_link");
   if (confirmationLink === null) {
-    throw badRequest("Did not provide a confirmation link search parameter");
+    throw badRequest(t("error.missingConfirmationLink"));
   }
 
   // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
   if (
     !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
   ) {
-    throw badRequest(
-      "The provided comfirmation link has not the right structure"
-    );
+    throw badRequest(t("error.invalidConfirmationStructure"));
   }
 
   // Generate URL object from confirmationLink
@@ -42,14 +44,14 @@ export const loader = async (args: LoaderArgs) => {
   // Get search param redirect_to
   const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
   if (redirectTo === null) {
-    throw badRequest("Did not provide a redirect_to search parameter");
+    throw badRequest(t("error.missingRedirect"));
   }
 
   // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
   if (
     !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
   ) {
-    throw badRequest("The redirect_to url has not the right structure");
+    throw badRequest(t("error.invalidRedirectUrlStructure"));
   }
 
   const redirectToUrl = new URL(redirectTo);
@@ -59,33 +61,33 @@ export const loader = async (args: LoaderArgs) => {
   if (loginRedirect !== null) {
     const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
     if (!isValidPath) {
-      throw badRequest("The login_redirect path has not the right structure");
+      throw badRequest(t("error.invalidRedirectPathStructure"));
     }
   }
 
   // Get search param token
   const token = confirmationLinkUrl.searchParams.get("token");
   if (token === null) {
-    throw badRequest("Did not provide a token search parameter");
+    throw badRequest(t("error.missingToken"));
   }
 
   // Check if token is a hex value (only on production environment)
   if (process.env.NODE_ENV === "production") {
     const isHex = /^[0-9A-Fa-f]+$/g.test(token);
     if (!isHex) {
-      throw badRequest("The token parameter is not a hex value");
+      throw badRequest(t("error.tokenNoHex"));
     }
   }
 
   // Get search param type
   const type = confirmationLinkUrl.searchParams.get("type");
   if (type === null) {
-    throw badRequest("Did not provide a type search parameter");
+    throw badRequest(t("error.missingTypeSearch"));
   }
 
   // Check if type === "email_change"
   if (type !== "email_change") {
-    throw badRequest("The type parameter is not of type email_change");
+    throw badRequest(t("error.noEmailChange"));
   }
 
   // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=email_change
@@ -105,6 +107,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["routes/reset/confirm-email"]);
 
   return (
     <>
@@ -119,16 +122,13 @@ export default function Confirm() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row -mx-4">
-          <div className="basis-full md:basis-6/12 px-4"> </div>
+          <div className="basis-full md:basis-6/12 px-4"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-4">E-Mail-Adresse ändern</h1>
+            <h1 className="mb-4">{t("content.headline")}</h1>
             <>
-              <p className="mb-4">
-                Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
-                ändern, folge bitte diesem Link:
-              </p>
+              <p className="mb-4">{t("content.intro")}</p>
               <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Neue Mailadresse bestätigen
+                {t("content.action")}
               </a>
             </>
           </div>

@@ -14,14 +14,19 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { Trans, useTranslation } from "react-i18next";
 
-const schema = z.object({
-  email: z
-    .string()
-    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
-  loginRedirect: z.string().optional(),
-});
+const createSchema = (t: TFunction) => {
+  return z.object({
+    email: z
+      .string()
+      .email(t("validation.email.email"))
+      .min(1, t("validation.email.min")),
+    loginRedirect: z.string().optional(),
+  });
+};
 
 const environmentSchema = z.object({
   authClient: z.unknown(),
@@ -42,61 +47,64 @@ export const loader = async (args: DataFunctionArgs) => {
   return response;
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  // Passing through a possible redirect after login (e.g. to an event)
-  const emailRedirectTo = values.loginRedirect
-    ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
-    : environment.siteUrl;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    // Passing through a possible redirect after login (e.g. to an event)
+    const emailRedirectTo = values.loginRedirect
+      ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
+      : environment.siteUrl;
 
-  // get profile by email to be able to find user
-  const profile = await prismaClient.profile.findFirst({
-    where: { email: values.email },
-    select: { id: true },
-  });
+    // get profile by email to be able to find user
+    const profile = await prismaClient.profile.findFirst({
+      where: { email: values.email },
+      select: { id: true },
+    });
 
-  if (profile !== null) {
-    const adminAuthClient = createAdminAuthClient();
-    const { data, error } = await adminAuthClient.auth.admin.getUserById(
-      profile.id
-    );
-    if (error !== null) {
-      console.error(error);
-    } else if (data.user !== null) {
-      // if user uses email provider send password reset link
-      if (data.user.app_metadata.provider === "email") {
-        const { error } = await sendResetPasswordLink(
-          // TODO: fix type issue
-          environment.authClient,
-          values.email,
-          emailRedirectTo
-        );
-        if (error !== null && error.message !== "User not found") {
-          throw error.message;
+    if (profile !== null) {
+      const adminAuthClient = createAdminAuthClient();
+      const { data, error } = await adminAuthClient.auth.admin.getUserById(
+        profile.id
+      );
+      if (error !== null) {
+        console.error(error);
+      } else if (data.user !== null) {
+        // if user uses email provider send password reset link
+        if (data.user.app_metadata.provider === "email") {
+          const { error } = await sendResetPasswordLink(
+            // @ts-ignore TODO: fix type issue
+            environment.authClient,
+            values.email,
+            emailRedirectTo
+          );
+          if (error !== null && error.message !== "User not found") {
+            throw error.message;
+          }
+        } else {
+          console.log("User uses other provider than email.");
         }
-      } else {
-        console.log("User uses other provider than email.");
       }
     }
-  }
 
-  return values;
-});
+    return values;
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, ["routes/reset/index"]);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
@@ -107,6 +115,9 @@ export default function Index() {
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
+
+  const { t } = useTranslation(["routes/reset/index"]);
+  const schema = createSchema(t);
 
   return (
     <>
@@ -124,26 +135,25 @@ export default function Index() {
                 }`}
                 className="text-primary font-bold"
               >
-                Anmelden
+                {t("login")}
               </Link>
             </div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row -mx-4">
-          <div className="basis-full md:basis-6/12"> </div>
+          <div className="basis-full md:basis-6/12"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-8">Passwort zurücksetzen</h1>
+            <h1 className="mb-8">{t("response.headline")}</h1>
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Eine E-Mail zum Zurücksetzen des Passworts wurde an{" "}
-                  <b>{actionData.data.email}</b> geschickt.
+                  <Trans
+                    ns={["routes/reset/index"]}
+                    i18nKey="response.done"
+                    values={{ email: actionData.data.email }}
+                  ></Trans>
                 </p>
-                <p className="mb-4">
-                  Solltest Du Dich noch nicht unter dieser E-Mail-Adresse
-                  registriert haben, erhältst Du keine E-Mail zum Zurücksetzen
-                  des Passworts.
-                </p>
+                <p className="mb-4">{t("response.notice")}</p>
               </>
             ) : (
               <RemixForm
@@ -156,12 +166,7 @@ export default function Index() {
               >
                 {({ Field, Button, Errors, register }) => (
                   <>
-                    <p className="mb-4">
-                      Du hast Dein Passwort vergessen? Dann gib hier Deine
-                      E-Mail-Adresse ein, die Du bei der Anmeldung verwendet
-                      hast. Wir senden Dir eine Mail, über die Du ein neues
-                      Passwort einstellen kannst.
-                    </p>
+                    <p className="mb-4">{t("form.intro")}</p>
 
                     <Field name="loginRedirect" />
                     <div className="mb-8">
@@ -170,7 +175,7 @@ export default function Index() {
                           <>
                             <Input
                               id="email"
-                              label="E-Mail"
+                              label={t("form.label.email")}
                               required
                               {...register("email")}
                             />
@@ -182,7 +187,7 @@ export default function Index() {
 
                     <div className="mb-8">
                       <button type="submit" className="btn btn-primary">
-                        Passwort zurücksetzen
+                        {t("form.label.submit")}
                       </button>
                     </div>
                     <Errors />
