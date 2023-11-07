@@ -561,7 +561,7 @@ function General() {
               )}
             </Input>
             <div className="lg:mv-flex lg:mv-gap-4">
-              <div className="mv-flex-1">
+              <div className="mv-w-full lg:mv-w-1/3">
                 <Input {...conform.input(fields.street)}>
                   <Input.Label>Straße</Input.Label>
                   {typeof fields.street.error !== "undefined" && (
@@ -569,7 +569,7 @@ function General() {
                   )}
                 </Input>
               </div>
-              <div className="mv-flex-1 mv-flex mv-gap-4">
+              <div className="mv-flex mv-flex mv-w-full lg:mv-w-2/3 mv-gap-4 mv-mt-4 lg:mv-mt-0">
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
                     <Input.Label>Hausnummer</Input.Label>
@@ -601,7 +601,7 @@ function General() {
                   )}
                 </Input>
               </div>
-              <div className="mv-flex-1">
+              <div className="mv-flex-1 mv-mt-4 lg:mv-mt-0">
                 <Input {...conform.input(fields.city)}>
                   <Input.Label>Stadt</Input.Label>
                   {typeof fields.city.error !== "undefined" && (
