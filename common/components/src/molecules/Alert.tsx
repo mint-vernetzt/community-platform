@@ -16,6 +16,10 @@ function Alert(props: AlertProps) {
     setShow(false);
   };
 
+  React.useEffect(() => {
+    setShow(true);
+  }, [props]);
+
   if (!show) {
     return null;
   }

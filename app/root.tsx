@@ -486,7 +486,7 @@ export default function App() {
             {typeof alert !== "undefined" &&
             isNonAppBaseRoute === false &&
             isIndexRoute === false ? (
-              <div className="container">
+              <div key={alert.message} className="w-full md:container md:mb-4">
                 <Alert level={alert.level}>{alert.message}</Alert>
               </div>
             ) : null}
