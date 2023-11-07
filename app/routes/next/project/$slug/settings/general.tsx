@@ -296,7 +296,7 @@ function General() {
           <label htmlFor={fields.name.id}>
             Titel des Projekts oder Bildungsangebotes*
           </label>
-          <input autoFocus className="ml-2" {...conform.input(fields.name)} />
+          <input className="ml-2" {...conform.input(fields.name)} />
           {fields.name.errors !== undefined && fields.name.errors.length > 0 && (
             <ul id={fields.name.errorId}>
               {fields.name.errors.map((e) => (
