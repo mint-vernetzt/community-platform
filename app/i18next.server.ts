@@ -12,7 +12,6 @@ let i18next = new RemixI18Next({
     ...i18n,
     backend: {
       loadPath: function (lng: string, ns: string) {
-        console.log("SERVER 2: " + lng);
         return resolve(`./public/locales/${lng}/${ns}.json`);
       },
     },
