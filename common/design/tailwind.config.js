@@ -18,6 +18,7 @@ const safelist = Object.keys(theme.colors.aliases).reduce(
 
 module.exports = {
   prefix: "mv-",
+  important: true,
   content: [
     "stories/**/*.mdx",
     "stories/**/*.@(js|jsx|ts|tsx)",

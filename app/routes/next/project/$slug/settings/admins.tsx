@@ -326,12 +326,9 @@ function Admins() {
       </h2>
       <Form method="get" {...searchForm.props}>
         <Input id="deep" type="hidden" value="true" />
-        <Input
-          id="search"
-          defaultValue={searchParams.get("search") || ""}
-          hiddenLabel
-        >
-          Suche
+        <Input id="search" defaultValue={searchParams.get("search") || ""}>
+          <Input.Label hidden>Suche</Input.Label>
+          <Input.SearchIcon />
         </Input>
 
         <p id={fields.search.errorId}>{fields.search.error}</p>

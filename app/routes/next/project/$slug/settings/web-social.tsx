@@ -25,6 +25,7 @@ import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
+import { Button, Input, Section } from "@mint-vernetzt/components";
 
 const webSocialSchema = z.object({
   website: websiteSchema,
@@ -182,149 +183,128 @@ function WebSocial() {
     onValidate({ formData }) {
       return parse(formData, { schema: webSocialSchema });
     },
+    shouldRevalidate: "onInput",
   });
 
   return (
-    <>
+    <Section>
       <BackButton to={location.pathname}>
         Website und Soziale Netwerke
       </BackButton>
-      <p>
+      <p className="mv-my-6 md:mv-mt-0">
         Wo kann die Community mehr über Dein Projekt oder Bildungsangebot
         erfahren?
       </p>
       <Form method="post" {...form.props}>
-        <h2>Website</h2>
-        <div>
-          <label htmlFor={fields.website.id}>URL</label>
-          <input
-            autoFocus
-            className="ml-2"
-            {...conform.input(fields.website)}
-          />
-          {fields.website.errors !== undefined &&
-            fields.website.errors.length > 0 && (
-              <ul id={fields.website.errorId}>
-                {fields.website.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <h2>Soziale Netzwerke</h2>
-        <div>
-          <label htmlFor={fields.facebook.id}>facebook</label>
-          <input className="ml-2" {...conform.input(fields.facebook)} />
-          {fields.facebook.errors !== undefined &&
-            fields.facebook.errors.length > 0 && (
-              <ul id={fields.facebook.errorId}>
-                {fields.facebook.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.linkedin.id}>LinkedIn</label>
-          <input className="ml-2" {...conform.input(fields.linkedin)} />
-          {fields.linkedin.errors !== undefined &&
-            fields.linkedin.errors.length > 0 && (
-              <ul id={fields.linkedin.errorId}>
-                {fields.linkedin.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.xing.id}>Xing</label>
-          <input className="ml-2" {...conform.input(fields.xing)} />
-          {fields.xing.errors !== undefined && fields.xing.errors.length > 0 && (
-            <ul id={fields.xing.errorId}>
-              {fields.xing.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
+        <Input id="deep" value="true" type="hidden" />
+        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+          Website
+        </h2>
+        {/* TODO: Fix type issue */}
+        <Input {...conform.input(fields.website)} placeholder="domainname.tld">
+          <Input.Label>URL</Input.Label>
+          {typeof fields.website.error !== "undefined" && (
+            <Input.Error>{fields.website.error}</Input.Error>
           )}
-        </div>
-        <div>
-          <label htmlFor={fields.twitter.id}>X (Twitter)</label>
-          <input className="ml-2" {...conform.input(fields.twitter)} />
-          {fields.twitter.errors !== undefined &&
-            fields.twitter.errors.length > 0 && (
-              <ul id={fields.twitter.errorId}>
-                {fields.twitter.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.mastodon.id}>Mastodon</label>
-          <input className="ml-2" {...conform.input(fields.mastodon)} />
-          {fields.mastodon.errors !== undefined &&
-            fields.mastodon.errors.length > 0 && (
-              <ul id={fields.mastodon.errorId}>
-                {fields.mastodon.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.bluesky.id}>Bluesky</label>
-          <input className="ml-2" {...conform.input(fields.bluesky)} />
-          {fields.bluesky.errors !== undefined &&
-            fields.bluesky.errors.length > 0 && (
-              <ul id={fields.bluesky.errorId}>
-                {fields.bluesky.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.instagram.id}>Instagram</label>
-          <input className="ml-2" {...conform.input(fields.instagram)} />
-          {fields.instagram.errors !== undefined &&
-            fields.instagram.errors.length > 0 && (
-              <ul id={fields.instagram.errorId}>
-                {fields.instagram.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <div>
-          <label htmlFor={fields.youtube.id}>YouTube</label>
-          <input className="ml-2" {...conform.input(fields.youtube)} />
-          {fields.youtube.errors !== undefined &&
-            fields.youtube.errors.length > 0 && (
-              <ul id={fields.youtube.errorId}>
-                {fields.youtube.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
+        </Input>
+        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+          Soziale Netzwerke
+        </h2>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.facebook)}
+          placeholder="facebook.com/<name>"
+        >
+          <Input.Label>Facebook</Input.Label>
+          {typeof fields.facebook.error !== "undefined" && (
+            <Input.Error>{fields.facebook.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.linkedin)}
+          placeholder="linkedin.com/company/<name>" // TODO: Regex does not fit with this placeholder
+        >
+          <Input.Label>LinkedIn</Input.Label>
+          {typeof fields.linkedin.error !== "undefined" && (
+            <Input.Error>{fields.linkedin.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.xing)}
+          placeholder="xing.com/pages/<name>" // TODO: Regex does not fit with this placeholder
+        >
+          <Input.Label>Xing</Input.Label>
+          {typeof fields.xing.error !== "undefined" && (
+            <Input.Error>{fields.xing.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.twitter)}
+          placeholder="twitter.com/<name>"
+        >
+          <Input.Label>X (Twitter)</Input.Label>
+          {typeof fields.twitter.error !== "undefined" && (
+            <Input.Error>{fields.twitter.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.mastodon)}
+          placeholder="domainname.tld/@<name>" // TODO: Regex does not fit with this placeholder
+        >
+          <Input.Label>Mastodon</Input.Label>
+          {typeof fields.mastodon.error !== "undefined" && (
+            <Input.Error>{fields.mastodon.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input {...conform.input(fields.bluesky)} placeholder="bsky.app/<name>">
+          <Input.Label>Bluesky</Input.Label>
+          {typeof fields.bluesky.error !== "undefined" && (
+            <Input.Error>{fields.bluesky.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.instagram)}
+          placeholder="instagram.com/<name>"
+        >
+          <Input.Label>Instagram</Input.Label>
+          {typeof fields.instagram.error !== "undefined" && (
+            <Input.Error>{fields.instagram.error}</Input.Error>
+          )}
+        </Input>
+        {/* TODO: Fix type issue */}
+        <Input
+          {...conform.input(fields.youtube)}
+          placeholder="youtube.com/<name>"
+        >
+          <Input.Label>YouTube</Input.Label>
+          {typeof fields.youtube.error !== "undefined" && (
+            <Input.Error>{fields.youtube.error}</Input.Error>
+          )}
+        </Input>
+        <div className="mv-mt-8 mv-w-full md:mv-max-w-fit">
+          <div className="mv-flex mv-gap-4">
+            <div className="mv-grow">
+              <Button type="reset" variant="outline" fullSize>
+                Änderungen verwerfen
+              </Button>
+            </div>
+            <div className="mv-grow">
+              {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-        <ul id={form.errorId}>
-          {form.errors.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-
-        <p>*Erforderliche Angaben</p>
-
-        <div>
-          <button type="reset">Änderungen verwerfen</button>
-        </div>
-        <div>
-          {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
-          <button type="submit">Speichern und weiter</button>
+              <Button type="submit" fullSize>
+                Speichern und weiter
+              </Button>
+            </div>
+          </div>
         </div>
       </Form>
-    </>
+    </Section>
   );
 }
 

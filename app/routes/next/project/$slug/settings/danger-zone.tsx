@@ -1,9 +1,10 @@
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
-import { useLocation } from "@remix-run/react";
+import { Link, Outlet, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { Section, TabBar } from "@mint-vernetzt/components";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -36,10 +37,20 @@ function DangerZone() {
   const location = useLocation();
 
   return (
-    <>
-      <BackButton to={location.pathname}>Danger Zone</BackButton>
-      <h1>{location.pathname}</h1>
-    </>
+    <Section>
+      <BackButton to={location.pathname}>Kritischer Bereich</BackButton>
+      <TabBar>
+        <TabBar.Item active={location.pathname.endsWith("/change-url")}>
+          <Link to="./change-url?deep">URL ändern</Link>
+        </TabBar.Item>
+        <TabBar.Item active={location.pathname.endsWith("/delete")}>
+          <Link to="./delete?deep">Projekt löschen</Link>
+        </TabBar.Item>
+      </TabBar>
+      <div className="mv-mb-4">
+        <Outlet />
+      </div>
+    </Section>
   );
 }
 
