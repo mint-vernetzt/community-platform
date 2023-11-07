@@ -16,6 +16,7 @@ import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import React from "react";
+import { createAreaOptions } from "./general.server";
 
 const generalSchema = z.object({
   name: z.string({
@@ -133,10 +134,13 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       id: true,
       name: true,
+      stateId: true,
+      type: true,
     },
   });
+  const areaOptions = await createAreaOptions(allAreas);
 
-  return json({ project, allFormats, allAreas });
+  return json({ project, allFormats, areaOptions });
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -248,7 +252,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, allFormats, allAreas } = loaderData;
+  const { project, allFormats, areaOptions } = loaderData;
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
   const formId = "general-form";
@@ -461,36 +465,54 @@ function General() {
                 }
               }}
             >
+              {/* This is the default option used as placeholder. Is there a better way of doing this? */}
               <option selected hidden>
                 Bitte auswählen
               </option>
-              {allAreas
-                .filter((area) => {
-                  return !areaList.some((listArea) => {
-                    return listArea.defaultValue === area.id;
-                  });
+              {areaOptions
+                .filter((option) => {
+                  // All options that have a value should only be shown if they are not inside the current selected area list
+                  if (option.value !== undefined) {
+                    return !areaList.some((listArea) => {
+                      return listArea.defaultValue === option.value;
+                    });
+                  }
+                  // Divider, that have no value should be always shown
+                  else {
+                    return true;
+                  }
                 })
-                .map((filteredArea) => {
-                  return (
-                    <>
-                      <button
-                        key={`${filteredArea.id}-add-button`}
-                        hidden
-                        {...list.insert(fields.areas.name, {
-                          defaultValue: filteredArea.id,
-                        })}
-                      >
-                        {filteredArea.name}
-                      </button>
-                      <option
-                        key={filteredArea.id}
-                        value={filteredArea.id}
-                        className="my-2"
-                      >
-                        {filteredArea.name}
-                      </option>
-                    </>
-                  );
+                .map((filteredOption) => {
+                  // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
+                  if (filteredOption.value !== undefined) {
+                    return (
+                      <>
+                        <button
+                          key={`${filteredOption.value}-add-button`}
+                          hidden
+                          {...list.insert(fields.areas.name, {
+                            defaultValue: filteredOption.value,
+                          })}
+                        >
+                          {filteredOption.label}
+                        </button>
+                        <option
+                          key={filteredOption.value}
+                          value={filteredOption.value}
+                        >
+                          {filteredOption.label}
+                        </option>
+                      </>
+                    );
+                  }
+                  // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
+                  else {
+                    return (
+                      <>
+                        <option disabled>{filteredOption.label}</option>
+                      </>
+                    );
+                  }
                 })}
             </select>
           </div>
@@ -499,9 +521,9 @@ function General() {
               return (
                 <li className="flex flex-row my-2" key={listArea.key}>
                   <p>
-                    {allAreas.find((area) => {
-                      return area.id === listArea.defaultValue;
-                    })?.name || "Not Found"}
+                    {areaOptions.find((area) => {
+                      return area.value === listArea.defaultValue;
+                    })?.label || "Not Found"}
                   </p>
                   <input hidden {...conform.input(listArea)} />
                   <button
