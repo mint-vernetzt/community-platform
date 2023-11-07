@@ -70,13 +70,17 @@ function InputError(props: React.PropsWithChildren<{}>) {
   );
 }
 
-export type InputProps = React.HTMLProps<HTMLInputElement>;
+export type InputProps = React.HTMLProps<HTMLInputElement> & {
+  standalone?: boolean;
+};
 
 function Input(props: InputProps) {
   const { type = "text", children, ...inputProps } = props;
 
+  const name = props.name || props.id;
+
   if (type === "hidden") {
-    return <input {...inputProps} className="mv-hidden" />;
+    return <input {...inputProps} className="mv-hidden" name={name} />;
   }
 
   const validChildren = React.Children.toArray(children).filter((child) => {
@@ -131,7 +135,7 @@ function Input(props: InputProps) {
     <div className="w-full">
       {label}
       <div className="mv-relative">
-        <input className={inputClasses} {...inputProps} />
+        <input className={inputClasses} {...inputProps} name={name} />
         {typeof icon !== "undefined" && (
           <div className="mv-absolute mv-right-3 mv-top-1/2 mv--translate-y-1/2">
             {icon}
@@ -140,6 +144,10 @@ function Input(props: InputProps) {
       </div>
       {helperText}
       {error}
+      {typeof props.standalone !== "undefined" &&
+        props.standalone !== false && (
+          <input type="submit" className="mv-hidden" />
+        )}
     </div>
   );
 }

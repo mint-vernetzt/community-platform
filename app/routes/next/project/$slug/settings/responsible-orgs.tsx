@@ -353,7 +353,7 @@ function ResponsibleOrgs() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  const [searchForm, fields] = useForm({
+  const [searchForm] = useForm({
     shouldValidate: "onSubmit",
     onValidate: (values) => {
       return parse(values.formData, { schema: searchSchema });
@@ -361,152 +361,154 @@ function ResponsibleOrgs() {
     shouldRevalidate: "onInput",
   });
 
-  // TODO add continue button
-
   return (
-    <>
-      <Section>
-        <BackButton to={location.pathname}>
-          Verantwortliche Organisationen
-        </BackButton>
-        <p className="mv-my-6 md:mv-mt-0">
-          Welche Organisationen stecken hinter dem Projekt? Verwalte hier die
-          verantwortlichen Organisationen.
-        </p>
-        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-          Aktuell hinzugefügte Organsiation(en)
-        </h2>
-        <p className="mv-mb-4">
-          Hier siehst Du Organisationen, die aktuelle als verantwortliche
-          Organisation hinterlegt wurden.
-        </p>
-        <Form method="post">
-          <List>
-            {project.responsibleOrganizations.map((relation) => {
-              return (
-                <List.Item key={relation.organization.slug}>
-                  <Avatar {...relation.organization} />
-                  <List.Item.Title>
-                    {relation.organization.name}
-                  </List.Item.Title>
-                  <List.Item.Controls>
-                    <Button
-                      name={conform.INTENT}
-                      variant="outline"
-                      value={`remove_${relation.organization.slug}`}
-                      type="submit"
-                    >
-                      Entfernen
-                    </Button>
-                  </List.Item.Controls>
-                </List.Item>
-              );
-            })}
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.success === true &&
-              actionData.organization !== null &&
-              actionData.action.startsWith("remove_") && (
-                <Toast key={actionData.action}>
-                  {actionData.organization.name} entfernt.
-                </Toast>
-              )}
-          </List>
-        </Form>
-        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mt-6 mv-mb-4">
-          Eigene Organisation(en) hinzufügen
-        </h2>
-        <p className="mv-mb-4">
-          Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du
-          sie mit einen Klick als verantwortliche Organisationen hinzuzufügen
-          kannst.
-        </p>
-        <Form method="post">
-          <List>
-            {ownOrganizations.map((relation) => {
-              return (
-                <List.Item key={relation.organization.slug}>
-                  <Avatar {...relation.organization} />
-                  <List.Item.Title>
-                    {relation.organization.name}
-                  </List.Item.Title>
-                  <List.Item.Controls>
-                    <Button
-                      name={conform.INTENT}
-                      variant="outline"
-                      value={`add_own_${relation.organization.slug}`}
-                      type="submit"
-                    >
-                      Hinzufügen
-                    </Button>
-                  </List.Item.Controls>
-                </List.Item>
-              );
-            })}
+    <Section>
+      <BackButton to={location.pathname}>
+        Verantwortliche Organisationen
+      </BackButton>
+      <p className="mv-my-6 md:mv-mt-0">
+        Welche Organisationen stecken hinter dem Projekt? Verwalte hier die
+        verantwortlichen Organisationen.
+      </p>
+      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Aktuell hinzugefügte Organsiation(en)
+          </h2>
+          <p>
+            Hier siehst Du Organisationen, die aktuelle als verantwortliche
+            Organisation hinterlegt wurden.
+          </p>
+          <Form method="post">
+            <List>
+              {project.responsibleOrganizations.map((relation) => {
+                return (
+                  <List.Item key={relation.organization.slug}>
+                    <Avatar {...relation.organization} />
+                    <List.Item.Title>
+                      {relation.organization.name}
+                    </List.Item.Title>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`remove_${relation.organization.slug}`}
+                        type="submit"
+                      >
+                        Entfernen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.organization !== null &&
+                actionData.action.startsWith("remove_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.organization.name} entfernt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Eigene Organisation(en) hinzufügen
+          </h2>
+          <p>
+            Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du
+            sie mit einen Klick als verantwortliche Organisationen hinzuzufügen
+            kannst.
+          </p>
+          <Form method="post">
+            <List>
+              {ownOrganizations.map((relation) => {
+                return (
+                  <List.Item key={relation.organization.slug}>
+                    <Avatar {...relation.organization} />
+                    <List.Item.Title>
+                      {relation.organization.name}
+                    </List.Item.Title>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`add_own_${relation.organization.slug}`}
+                        type="submit"
+                      >
+                        Hinzufügen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
 
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.success === true &&
-              actionData.organization !== null &&
-              actionData.action.startsWith("add_own_") && (
-                <Toast key={actionData.action}>
-                  {actionData.organization.name} hinzugefügt.
-                </Toast>
-              )}
-          </List>
-        </Form>
-        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mt-6 mv-mb-4">
-          Andere Organsiation(en) hinzufügen
-        </h2>
-        <p className="mv-mb-4">
-          Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du
-          sie mit einen Klick als verantwortliche Organisationen hinzuzufügen
-          kannst.
-        </p>
-        <Form method="get" {...searchForm.props}>
-          <Input id="deep" type="hidden" value="true" />
-          <Input id="search" defaultValue={searchParams.get("search") || ""}>
-            <Input.Label hidden>Suche</Input.Label>
-            <Input.SearchIcon />
-          </Input>
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.organization !== null &&
+                actionData.action.startsWith("add_own_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.organization.name} hinzugefügt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Andere Organisation(en) hinzufügen
+          </h2>
+          <Form method="get" {...searchForm.props}>
+            <Input id="deep" type="hidden" value="true" />
+            <input type="submit" className="mv-hidden" />
+            <Input
+              id="search"
+              defaultValue={searchParams.get("search") || ""}
+              standalone
+            >
+              <Input.Label hidden>Suche</Input.Label>
+              <Input.SearchIcon />
+            </Input>
+          </Form>
+          <Form method="post">
+            <List>
+              {searchResult.map((organization) => {
+                return (
+                  <List.Item key={organization.slug}>
+                    <Avatar {...organization} />
+                    <List.Item.Title>{organization.name}</List.Item.Title>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`add_${organization.slug}`}
+                        type="submit"
+                      >
+                        Hinzufügen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
 
-          <p id={fields.search.errorId}>{fields.search.error}</p>
-        </Form>
-        <Form method="post">
-          <List>
-            {searchResult.map((organization) => {
-              return (
-                <List.Item key={organization.slug}>
-                  <Avatar {...organization} />
-                  <List.Item.Title>{organization.name}</List.Item.Title>
-                  <List.Item.Controls>
-                    <Button
-                      name={conform.INTENT}
-                      variant="outline"
-                      value={`add_${organization.slug}`}
-                      type="submit"
-                    >
-                      Hinzufügen
-                    </Button>
-                  </List.Item.Controls>
-                </List.Item>
-              );
-            })}
-
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.success === true &&
-              actionData.organization !== null &&
-              actionData.action.startsWith("add_") &&
-              !actionData.action.startsWith("add_own_") && (
-                <Toast key={actionData.action}>
-                  {actionData.organization.name} hinzugefügt.
-                </Toast>
-              )}
-          </List>
-        </Form>
-      </Section>
-    </>
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.organization !== null &&
+                actionData.action.startsWith("add_") &&
+                !actionData.action.startsWith("add_own_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.organization.name} hinzugefügt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
+      </div>
+    </Section>
   );
 }
 
