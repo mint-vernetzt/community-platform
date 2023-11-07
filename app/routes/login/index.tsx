@@ -15,7 +15,6 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { useEffect } from "react";
 import i18next from "~/i18next.server";
 
 const createSchema = (t: TFunction) => {
