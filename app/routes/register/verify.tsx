@@ -3,11 +3,13 @@ import { json, redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
 import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
+import i18next from "~/i18next.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
+  const t = await i18next.getFixedT(request, ["routes/register/verify"]);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -43,9 +45,7 @@ export const loader = async (args: LoaderArgs) => {
           typeof sessionUser.user_metadata.lastName !== "string" ||
           typeof sessionUser.user_metadata.termsAccepted !== "boolean"
         ) {
-          throw badRequest(
-            "Did not provide necessary user meta data to create a corresponding profile after sign up."
-          );
+          throw badRequest(t("error.badRequest1"));
         }
         // Profile is now created here and not inside a trigger function
         const initialProfile = {
@@ -63,12 +63,8 @@ export const loader = async (args: LoaderArgs) => {
           headers: response.headers,
         });
       } else {
-        alert(
-          "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
-        );
-        throw badRequest(
-          "Could not create a session after sign up verification."
-        );
+        alert(t("error.profileCreate"));
+        throw badRequest(t("error.badRequest2"));
       }
     }
   }

@@ -5,6 +5,8 @@ import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -19,6 +21,7 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
+  const t = await i18next.getFixedT(request, ["routes/register/confirm"]);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -30,16 +33,14 @@ export const loader = async (args: LoaderArgs) => {
   // Get search param confirmation_link from url
   const confirmationLink = url.searchParams.get("confirmation_link");
   if (confirmationLink === null) {
-    throw badRequest("Did not provide a confirmation link search parameter");
+    throw badRequest(t("error.badRequest1"));
   }
 
   // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
   if (
     !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
   ) {
-    throw badRequest(
-      "The provided comfirmation link has not the right structure"
-    );
+    throw badRequest(t("error.badRequest2"));
   }
 
   // Generate URL object from confirmationLink
@@ -48,14 +49,14 @@ export const loader = async (args: LoaderArgs) => {
   // Get search param redirect_to
   const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
   if (redirectTo === null) {
-    throw badRequest("Did not provide a redirect_to search parameter");
+    throw badRequest(t("error.badRequest3"));
   }
 
   // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
   if (
     !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
   ) {
-    throw badRequest("The redirect_to url has not the right structure");
+    throw badRequest(t("error.badRequest4"));
   }
 
   const redirectToUrl = new URL(redirectTo);
@@ -65,33 +66,33 @@ export const loader = async (args: LoaderArgs) => {
   if (loginRedirect !== null) {
     const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
     if (!isValidPath) {
-      throw badRequest("The login_redirect path has not the right structure");
+      throw badRequest(t("error.badRequest5"));
     }
   }
 
   // Get search param token
   const token = confirmationLinkUrl.searchParams.get("token");
   if (token === null) {
-    throw badRequest("Did not provide a token search parameter");
+    throw badRequest(t("error.badRequest6"));
   }
 
   // Check if token is a hex value (only on production environment)
   if (process.env.NODE_ENV === "production") {
     const isHex = /^[0-9A-Fa-f]+$/g.test(token);
     if (!isHex) {
-      throw badRequest("The token parameter is not a hex value");
+      throw badRequest(t("error.badRequest7"));
     }
   }
 
   // Get search param type
   const type = confirmationLinkUrl.searchParams.get("type");
   if (type === null) {
-    throw badRequest("Did not provide a type search parameter");
+    throw badRequest(t("error.badRequest8"));
   }
 
   // Check if type === "signup"
   if (type !== "signup") {
-    throw badRequest("The type parameter is not of type signup");
+    throw badRequest(t("error.badRequest9"));
   }
 
   // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=signup
@@ -111,6 +112,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["routes/register/confirm"]);
 
   return (
     <>
@@ -127,16 +129,11 @@ export default function Confirm() {
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-4">Registrierungsbestätigung</h1>
+            <h1 className="mb-4">{t("content.headline")}</h1>
             <>
-              <p className="mb-4">
-                Herzlich willkommen in der MINTcommunity! Bitte bestätige
-                innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
-                Deines Profils auf der MINTvernetzt-Plattform über den folgenden
-                Link:
-              </p>
+              <p className="mb-4">{t("content.intro")}</p>
               <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Registrierung bestätigen
+                {t("content.action")}
               </a>
             </>
           </div>

@@ -18,24 +18,25 @@ import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { generateUsername } from "../../utils.server";
+import { TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
 
-const schema = z.object({
-  academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
-  firstName: z.string().min(1, "Bitte gib Deinen Vornamen ein."),
-  lastName: z.string().min(1, "Bitte gib Deinen Nachnamen ein."),
-  email: z
-    .string()
-    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
-  password: z
-    .string()
-    .min(
-      8,
-      "Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
-    ),
-  termsAccepted: z.boolean(),
-  loginRedirect: z.string().optional(),
-});
+const createSchema = (t: TFunction) => {
+  return z.object({
+    // todo: i18n of enums?
+    academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
+    firstName: z.string().min(1, t("validation.firstName.min")),
+    lastName: z.string().min(1, t("validation.lastName.min")),
+    email: z
+      .string()
+      .email(t("validation.email.email"))
+      .min(1, t("validation.email.min")),
+    password: z.string().min(8, t("validation.password.min")),
+    termsAccepted: z.boolean(),
+    loginRedirect: z.string().optional(),
+  });
+};
 
 const environmentSchema = z.object({
   authClient: z.unknown(),
@@ -55,58 +56,61 @@ export const loader = async (args: DataFunctionArgs) => {
   return response;
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  // TODO: move to database trigger
-  const { firstName, lastName, academicTitle, termsAccepted } = values;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    // TODO: move to database trigger
+    const { firstName, lastName, academicTitle, termsAccepted } = values;
 
-  if (!termsAccepted) {
-    throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
-  }
+    if (!termsAccepted) {
+      throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
+    }
 
-  const username = `${generateUsername(firstName, lastName)}`;
+    const username = `${generateUsername(firstName, lastName)}`;
 
-  // Passing through a possible redirect after login (e.g. to an event)
-  const emailRedirectTo = values.loginRedirect
-    ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
-    : environment.siteUrl;
+    // Passing through a possible redirect after login (e.g. to an event)
+    const emailRedirectTo = values.loginRedirect
+      ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
+      : environment.siteUrl;
 
-  const { error } = await signUp(
-    // TODO: fix type issue
-    // @ts-ignore
-    environment.authClient,
-    values.email,
-    values.password,
-    {
-      firstName,
-      lastName,
-      username,
-      academicTitle: academicTitle || null,
-      termsAccepted,
-    },
-    emailRedirectTo
-  );
-  if (error !== null && error.message !== "User already registered") {
-    throw error.message;
-  }
+    const { error } = await signUp(
+      // TODO: fix type issue
+      // @ts-ignore
+      environment.authClient,
+      values.email,
+      values.password,
+      {
+        firstName,
+        lastName,
+        username,
+        academicTitle: academicTitle || null,
+        termsAccepted,
+      },
+      emailRedirectTo
+    );
+    if (error !== null && error.message !== "User already registered") {
+      throw error.message;
+    }
 
-  return values;
-});
+    return values;
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, ["routes/register/index"]);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
@@ -129,6 +133,9 @@ export default function Register() {
     }
   };
 
+  const { t } = useTranslation(["routes/register/index"]);
+  const schema = createSchema(t);
+
   return (
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
@@ -139,39 +146,37 @@ export default function Register() {
               <HeaderLogo />
             </div>
             <div className="ml-auto">
-              Bereits Mitglied?{" "}
+              {t("content.question")}{" "}
               <Link
                 to={`/login${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                 }`}
                 className="text-primary font-bold"
               >
-                Anmelden
+                {t("content.login")}
               </Link>
             </div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row -mx-4">
-          <div className="basis-full md:basis-6/12 px-4"> </div>
+          <div className="basis-full md:basis-6/12 px-4"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-4">Neues Profil anlegen</h1>
+            <h1 className="mb-4">{t("content.create")}</h1>
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  Das Profil für <b>{actionData.data.email}</b> wurde erstellt.
-                  Um die Registrierung abzuschließen, bestätige bitte innerhalb
-                  von 24 Stunden den Registrierungslink in Deinen E-Mails, den
-                  wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte
-                  sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits
-                  vorher mit dieser E-Mail-Adresse registriert und Dein Passwort
-                  vergessen, dann setze hier Dein Passwort zurück:{" "}
+                  <Trans
+                    i18nKey="content.success"
+                    ns="routes/register/index"
+                    values={{ email: actionData.data.email }}
+                  ></Trans>{" "}
                   <Link
                     to={`/reset${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
                     className="text-primary font-bold hover:underline"
                   >
-                    Passwort zurücksetzen
+                    {t("content.reset")}
                   </Link>
                   .
                 </p>
@@ -188,11 +193,7 @@ export default function Register() {
               >
                 {({ Field, Button, Errors, register }) => (
                   <>
-                    <p className="mb-4">
-                      Hier kannst Du Dein persönliches Profil anlegen. Die
-                      Organisationen, Netzwerke oder Unternehmen, in denen Du
-                      tätig bist, können im nächsten Schritt angelegt werden.
-                    </p>
+                    <p className="mb-4">{t("form.intro")}</p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full lg:basis-6/12 px-4 mb-4">
                         <Field name="loginRedirect" />
@@ -200,18 +201,18 @@ export default function Register() {
                           {({ Errors }) => (
                             <>
                               <SelectField
-                                label="Titel"
+                                label={t("form.title.label")}
                                 options={[
                                   {
-                                    label: "Dr.",
+                                    label: t("form.title.options.dr"),
                                     value: "Dr.",
                                   },
                                   {
-                                    label: "Prof.",
+                                    label: t("form.title.options.prof"),
                                     value: "Prof.",
                                   },
                                   {
-                                    label: "Prof. Dr.",
+                                    label: t("form.title.options.profdr"),
                                     value: "Prof. Dr.",
                                   },
                                 ]}
@@ -231,7 +232,7 @@ export default function Register() {
                             <>
                               <Input
                                 id="firstName"
-                                label="Vorname"
+                                label={t("form.firstName")}
                                 required
                                 {...register("firstName")}
                               />
@@ -247,7 +248,7 @@ export default function Register() {
                             <>
                               <Input
                                 id="lastName"
-                                label="Nachname"
+                                label={t("form.lastName")}
                                 required
                                 {...register("lastName")}
                               />
@@ -264,7 +265,7 @@ export default function Register() {
                           <>
                             <Input
                               id="email"
-                              label="E-Mail"
+                              label={t("form.email")}
                               required
                               {...register("email")}
                             />
@@ -280,7 +281,7 @@ export default function Register() {
                           <>
                             <InputPassword
                               id="password"
-                              label="Passwort"
+                              label={t("form.password")}
                               required
                               {...register("password")}
                             />
@@ -328,32 +329,32 @@ export default function Register() {
                             }}
                           </Field>
                           <span className="label-text">
-                            Ich erkläre mich mit der Geltung der{" "}
+                            {t("form.acknowledgements.intro")}{" "}
                             <a
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
-                              Nutzungsbedingungen
+                              {t("form.acknowledgements.termsOfUse")}
                             </a>{" "}
-                            einverstanden. Die{" "}
+                            {t("form.acknowledgements.bridge")}{" "}
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
-                              Datenschutzerklärung
+                              {t("form.acknowledgements.dataProtection")}
                             </a>{" "}
-                            habe ich zur Kenntnis genommen.
+                            {t("form.acknowledgements.outro")}
                           </span>
                         </label>
                       </div>
                     </div>
                     <div className="mb-8">
                       <button type="submit" className="btn btn-primary">
-                        Profil anlegen
+                        {t("form.submit")}
                       </button>
                     </div>
                     <Errors />
