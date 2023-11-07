@@ -25,7 +25,7 @@ import {
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 const schema = z.object({
   email: z
@@ -213,7 +213,7 @@ export default function Index() {
                         variant="outline"
                         fullSize
                       >
-                        Anmelden mit MINT-ID
+                        {t("login.intro")}
                       </Button>
                       <a
                         href="https://mint-id.org/faq"
@@ -221,12 +221,12 @@ export default function Index() {
                         rel="noreferrer "
                         className="block py-2 text-primary font-semibold underline"
                       >
-                        Mehr Informationen
+                        {t("login.moreInformation")}
                       </a>
                       <div className="mt-4 mb-8">
                         <hr className="mx-5" />
                         <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white sm:mv-bg-neutral-50 font-bold">
-                          oder
+                          {t("login.or")}
                         </span>
                       </div>
                     </div>
@@ -249,7 +249,7 @@ export default function Index() {
                             <div className="mb-4">
                               <Input
                                 id="email"
-                                label="E-Mail"
+                                label={t("form.label.email")}
                                 {...register("email")}
                               />
                               <Errors />
@@ -261,7 +261,7 @@ export default function Index() {
                             <div className="mb-4">
                               <InputPassword
                                 id="password"
-                                label="Passwort"
+                                label={t("form.label.password")}
                                 {...register("password")}
                               />
                               <Errors />
@@ -272,7 +272,7 @@ export default function Index() {
                         <Field name="loginRedirect" />
                         <div className="mt-4 mb-2">
                           <Button size="large" fullSize>
-                            Anmelden
+                            {t("form.label.submit")}
                           </Button>
                         </div>
                       </>
@@ -289,10 +289,10 @@ export default function Index() {
                           }`}
                           className="text-primary font-bold underline"
                         >
-                          Passwort vergessen?
+                          {t("login.passwordForgotten")}
                         </Link>
                       </div>
-                      <div className="text-center">Noch kein Mitglied?</div>
+                      <div className="text-center">{t("login.noMember")}</div>
                       <div className="flex justify-center gap-6">
                         <Link
                           to={`/register${
@@ -302,9 +302,8 @@ export default function Index() {
                           }`}
                           className="text-primary font-semibold underline"
                         >
-                          Registrieren mit E-Mail
+                          {t("login.registerByEmail")}
                         </Link>
-
                         <Link
                           to={`/auth/keycloak${
                             loginRedirect
@@ -313,7 +312,7 @@ export default function Index() {
                           }`}
                           className="text-primary font-semibold underline"
                         >
-                          MINT-ID erstellen
+                          {t("login.createMintId")}
                         </Link>
                       </div>
                     </>
@@ -328,12 +327,12 @@ export default function Index() {
                           }`}
                           className="text-primary font-bold underline"
                         >
-                          Passwort vergessen?
+                          {t("login.passwordForgotten")}
                         </Link>
                       </div>
 
                       <div className="text-center">
-                        Noch kein Mitglied?{" "}
+                        {t("login.noMember")}{" "}
                         <Link
                           to={`/register${
                             loginRedirect
@@ -342,7 +341,7 @@ export default function Index() {
                           }`}
                           className="text-primary font-bold underline"
                         >
-                          Registrieren
+                          {t("login.register")}
                         </Link>
                       </div>
                     </>
@@ -351,11 +350,7 @@ export default function Index() {
 
                 <div className="text-center p-4 pb-0 text-primary text-sm">
                   <p>
-                    <span className="font-bold">Erstelle Profilseiten</span> für
-                    Dich, für Deine{" "}
-                    <span className="font-bold">Organisation</span> und lege{" "}
-                    <span className="font-bold">Projekte</span> oder{" "}
-                    <span className="font-bold">Veranstaltungen</span> an.
+                    <Trans i18nKey="opportunities" ns={["routes/index"]} />
                   </p>
                 </div>
               </div>
@@ -392,18 +387,14 @@ export default function Index() {
                 Miteinander Bildung gestalten
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
-                Die bundesweite MINT-Community lebt davon,{" "}
-                <span className="bg-lilac-200">
-                  sich auszutauschen, Wissen zu teilen, von- und miteinander zu
-                  lernen
-                </span>
-                . Auf der Community-Plattform könnt Ihr Euch{" "}
-                <span className="bg-lilac-200">
-                  untereinander und mit Organisationen vernetzen und Inspiration
-                  oder <span className="hyphens-manual">Expert:innen</span>
-                </span>{" "}
-                zu konkreten Themen in Eurer Umgebung{" "}
-                <span className="bg-lilac-200">finden</span>.
+                <Trans
+                  i18nKey="content.education.content"
+                  ns={["routes/index"]}
+                  components={[
+                    <span className="bg-lilac-200" />,
+                    <span className="hyphens-manual" />,
+                  ]}
+                />
               </p>
               <p className="text-center">
                 <Link
@@ -412,7 +403,7 @@ export default function Index() {
                   }`}
                   className="btn btn-primary"
                 >
-                  Jetzt registrieren
+                  {t("content.education.action")}
                 </Link>
               </p>
             </div>
@@ -425,7 +416,7 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
-                Wie unsere Community wächst
+                {t("content.growth.headline")}
               </H3>
               <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
                 <div className="text-center mb-8">
@@ -438,7 +429,11 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">Profile</p>
+                  <p className="font-bold">
+                    {t("content.growth.profiles", {
+                      count: loaderData.profileCount,
+                    })}
+                  </p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
@@ -450,7 +445,11 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">Organisationen</p>
+                  <p className="font-bold">
+                    {t("content.growth.organizations", {
+                      count: loaderData.organizationCount,
+                    })}
+                  </p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
@@ -462,11 +461,15 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">Veranstaltungen</p>
+                  <p className="font-bold">
+                    {t("content.growth.events", {
+                      count: loaderData.eventCount,
+                    })}
+                  </p>
                 </div>
               </div>
               <p className="text-center font-bold">
-                Werde auch Du Teil unserer ständig wachsenden MINT-Community.
+                {t("content.growth.join")}
               </p>
             </div>
           </div>
@@ -494,20 +497,14 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
-                Mehr erfahren
+                {t("content.more.headline")}
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
-                Die MINTvernetzt Community-Plattform ist ein Projekt von
-                MINTvernetzt, das 2021 gestartet ist, um die{" "}
-                <span className="bg-lilac-200">
-                  MINT-Community deutschlandweit nachhaltig zu stärken.
-                </span>{" "}
-                Erfahre mehr über die Projekte von{" "}
-                <span className="bg-lilac-200">
-                  MINTvernetzt, der Service- und Anlaufstelle für
-                  MINT-Akteur:innen
-                </span>{" "}
-                auf der MINTvernetzt-Website.
+                <Trans
+                  i18nKey="content.more.content"
+                  ns={["routes/index"]}
+                  components={[<span className="bg-lilac-200" />]}
+                />
               </p>
               <p className="text-center">
                 <a
@@ -543,7 +540,7 @@ export default function Index() {
                       />
                     </svg>
                   </span>
-                  <span>MINTvernetzt-Website besuchen</span>
+                  <span>{t("content.more.action")}</span>
                 </a>
               </p>
             </div>
