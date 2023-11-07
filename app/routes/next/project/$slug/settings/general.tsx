@@ -17,6 +17,7 @@ import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import React from "react";
 import { createAreaOptions } from "./general.server";
+import { Button, Input, Section } from "@mint-vernetzt/components";
 
 const generalSchema = z.object({
   name: z.string({
@@ -284,392 +285,369 @@ function General() {
   };
 
   return (
-    <>
+    <Section>
       <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
-      <p>
-        Wo kann die Community mehr über Dein Projekt oder Bildungsangebot
-        erfahren?
+      <p className="mv-my-6 md:mv-mt-0">
+        Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot
+        mit.
       </p>
       <Form method="post" {...form.props}>
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-        <button type="submit" hidden></button>
-
-        <h2>Projektname</h2>
-
-        <div>
-          <label htmlFor={fields.name.id}>
-            Titel des Projekts oder Bildungsangebotes*
-          </label>
-          <input className="ml-2" {...conform.input(fields.name)} />
-          {fields.name.errors !== undefined && fields.name.errors.length > 0 && (
-            <ul id={fields.name.errorId}>
-              {fields.name.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <p>Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.</p>
-
-        <h2>Projektformat</h2>
-
-        <div>
-          <label htmlFor={fields.formats.id}>
-            In welchem Format findet das Projekt statt?
-          </label>
-
-          <div className="flex flex-col">
-            <select
-              onChange={(event) => {
-                for (let child of event.currentTarget.children) {
-                  const value = child.getAttribute("value");
-                  if (
-                    child.localName === "button" &&
-                    value !== null &&
-                    value.includes(event.currentTarget.value)
-                  ) {
-                    const button = child as HTMLButtonElement;
-                    button.click();
-                  }
-                }
-              }}
-            >
-              <option selected hidden>
-                Bitte auswählen
-              </option>
-              {allFormats
-                .filter((format) => {
-                  return !formatList.some((listFormat) => {
-                    return listFormat.defaultValue === format.id;
-                  });
-                })
-                .map((filteredFormat) => {
-                  return (
-                    <>
-                      <button
-                        key={`${filteredFormat.id}-add-button`}
-                        hidden
-                        {...list.insert(fields.formats.name, {
-                          defaultValue: filteredFormat.id,
-                        })}
-                      >
-                        {filteredFormat.title}
-                      </button>
-                      <option
-                        key={filteredFormat.id}
-                        value={filteredFormat.id}
-                        className="my-2"
-                      >
-                        {filteredFormat.title}
-                      </option>
-                    </>
-                  );
-                })}
-            </select>
+        <Button type="submit" hidden />
+        <div className="mv-flex mv-flex-col mv-gap-4">
+          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+              Projektname
+            </h2>
+            <Input {...conform.input(fields.name)}>
+              <Input.Label>
+                Titel des Projekts oder Bildungsangebotes*
+              </Input.Label>
+              {typeof fields.name.error !== "undefined" && (
+                <Input.Error>{fields.name.error}</Input.Error>
+              )}
+              <Input.HelperText>
+                Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.
+              </Input.HelperText>
+            </Input>
           </div>
-          <ul>
-            {formatList.map((listFormat, index) => {
-              return (
-                <li className="flex flex-row my-2" key={listFormat.key}>
-                  <p>
-                    {allFormats.find((format) => {
-                      return format.id === listFormat.defaultValue;
-                    })?.title || "Not Found"}
-                  </p>
-                  <input hidden {...conform.input(listFormat)} />
-                  <button
-                    className="ml-2"
-                    {...list.remove(fields.formats.name, { index })}
-                  >
-                    - Delete
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {fields.formats.errors !== undefined &&
-            fields.formats.errors.length > 0 && (
-              <ul id={fields.formats.errorId}>
-                {fields.formats.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <p>Mehrfachnennungen sind möglich.</p>
 
-        <div>
-          <label htmlFor={fields.furtherFormats.id}>Sonstige Formate</label>
-          <div className="flex flex-col"></div>
-          <ul>
-            <li>
-              <input
-                className="my-2"
-                onChange={handleFurtherFormatInputChange}
-                value={furtherFormat}
-              />
-              <button
-                className="ml-2"
-                {...list.insert(fields.furtherFormats.name, {
-                  defaultValue: furtherFormat,
-                })}
+          <h2>Projektformat</h2>
+
+          <div>
+            <label htmlFor={fields.formats.id}>
+              In welchem Format findet das Projekt statt?
+            </label>
+
+            <div className="flex flex-col">
+              <select
+                onChange={(event) => {
+                  for (let child of event.currentTarget.children) {
+                    const value = child.getAttribute("value");
+                    if (
+                      child.localName === "button" &&
+                      value !== null &&
+                      value.includes(event.currentTarget.value)
+                    ) {
+                      const button = child as HTMLButtonElement;
+                      button.click();
+                    }
+                  }
+                }}
               >
-                + Add
-              </button>
-            </li>
-            {furtherFormatsList.map((furtherFormat, index) => {
-              return (
-                <li className="flex flex-row my-2" key={furtherFormat.key}>
-                  <p>{furtherFormat.defaultValue || "Not Found"}</p>
-                  <input hidden {...conform.input(furtherFormat)} />
-                  <button
-                    className="ml-2"
-                    {...list.remove(fields.furtherFormats.name, { index })}
-                  >
-                    - Delete
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {fields.furtherFormats.errors !== undefined &&
-            fields.furtherFormats.errors.length > 0 && (
-              <ul id={fields.furtherFormats.errorId}>
-                {fields.furtherFormats.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-        <p>Bitte gib kurze Begriffe an.</p>
-
-        <h2>Aktivitätsgebiet</h2>
-
-        <div>
-          <label htmlFor={fields.areas.id}>
-            Wo wird das Projekt / Bildungsangebot durchgeführt?
-          </label>
-          <div className="flex flex-col">
-            <select
-              onChange={(event) => {
-                for (let child of event.currentTarget.children) {
-                  const value = child.getAttribute("value");
-                  if (
-                    child.localName === "button" &&
-                    value !== null &&
-                    value.includes(event.currentTarget.value)
-                  ) {
-                    const button = child as HTMLButtonElement;
-                    button.click();
-                  }
-                }
-              }}
-            >
-              {/* This is the default option used as placeholder. */}
-              <option selected disabled>
-                Bitte auswählen
-              </option>
-              {areaOptions
-                .filter((option) => {
-                  // All options that have a value should only be shown if they are not inside the current selected area list
-                  if (option.value !== undefined) {
-                    return !areaList.some((listArea) => {
-                      return listArea.defaultValue === option.value;
+                <option selected hidden>
+                  Bitte auswählen
+                </option>
+                {allFormats
+                  .filter((format) => {
+                    return !formatList.some((listFormat) => {
+                      return listFormat.defaultValue === format.id;
                     });
-                  }
-                  // Divider, that have no value should be always shown
-                  else {
-                    return true;
-                  }
-                })
-                .map((filteredOption) => {
-                  // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
-                  if (filteredOption.value !== undefined) {
+                  })
+                  .map((filteredFormat) => {
                     return (
                       <>
                         <button
-                          key={`${filteredOption.value}-add-button`}
+                          key={`${filteredFormat.id}-add-button`}
                           hidden
-                          {...list.insert(fields.areas.name, {
-                            defaultValue: filteredOption.value,
+                          {...list.insert(fields.formats.name, {
+                            defaultValue: filteredFormat.id,
                           })}
                         >
-                          {filteredOption.label}
+                          {filteredFormat.title}
                         </button>
                         <option
-                          key={filteredOption.value}
-                          value={filteredOption.value}
+                          key={filteredFormat.id}
+                          value={filteredFormat.id}
+                          className="my-2"
                         >
-                          {filteredOption.label}
+                          {filteredFormat.title}
                         </option>
                       </>
                     );
-                  }
-                  // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
-                  else {
-                    return (
-                      <>
-                        <option disabled>{filteredOption.label}</option>
-                      </>
-                    );
-                  }
-                })}
-            </select>
+                  })}
+              </select>
+            </div>
+            <ul>
+              {formatList.map((listFormat, index) => {
+                return (
+                  <li className="flex flex-row my-2" key={listFormat.key}>
+                    <p>
+                      {allFormats.find((format) => {
+                        return format.id === listFormat.defaultValue;
+                      })?.title || "Not Found"}
+                    </p>
+                    <input hidden {...conform.input(listFormat)} />
+                    <button
+                      className="ml-2"
+                      {...list.remove(fields.formats.name, { index })}
+                    >
+                      - Delete
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            {fields.formats.errors !== undefined &&
+              fields.formats.errors.length > 0 && (
+                <ul id={fields.formats.errorId}>
+                  {fields.formats.errors.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              )}
           </div>
-          <ul>
-            {areaList.map((listArea, index) => {
-              return (
-                <li className="flex flex-row my-2" key={listArea.key}>
-                  <p>
-                    {areaOptions.find((area) => {
-                      return area.value === listArea.defaultValue;
-                    })?.label || "Not Found"}
-                  </p>
-                  <input hidden {...conform.input(listArea)} />
-                  <button
-                    className="ml-2"
-                    {...list.remove(fields.areas.name, { index })}
-                  >
-                    - Delete
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {fields.areas.errors !== undefined && fields.areas.errors.length > 0 && (
-            <ul id={fields.areas.errorId}>
-              {fields.areas.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
+          <p>Mehrfachnennungen sind möglich.</p>
+
+          <div>
+            <label htmlFor={fields.furtherFormats.id}>Sonstige Formate</label>
+            <div className="flex flex-col"></div>
+            <ul>
+              <li>
+                <input
+                  className="my-2"
+                  onChange={handleFurtherFormatInputChange}
+                  value={furtherFormat}
+                />
+                <button
+                  className="ml-2"
+                  {...list.insert(fields.furtherFormats.name, {
+                    defaultValue: furtherFormat,
+                  })}
+                >
+                  + Add
+                </button>
+              </li>
+              {furtherFormatsList.map((furtherFormat, index) => {
+                return (
+                  <li className="flex flex-row my-2" key={furtherFormat.key}>
+                    <p>{furtherFormat.defaultValue || "Not Found"}</p>
+                    <input hidden {...conform.input(furtherFormat)} />
+                    <button
+                      className="ml-2"
+                      {...list.remove(fields.furtherFormats.name, { index })}
+                    >
+                      - Delete
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
-          )}
-        </div>
+            {fields.furtherFormats.errors !== undefined &&
+              fields.furtherFormats.errors.length > 0 && (
+                <ul id={fields.furtherFormats.errorId}>
+                  {fields.furtherFormats.errors.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              )}
+          </div>
+          <p>Bitte gib kurze Begriffe an.</p>
 
-        <h2>Kontaktdaten</h2>
+          <h2>Aktivitätsgebiet</h2>
 
-        <div>
-          <label htmlFor={fields.email.id}>E-Mail-Adresse</label>
-          <input className="ml-2" {...conform.input(fields.email)} />
-          {fields.email.errors !== undefined && fields.email.errors.length > 0 && (
-            <ul id={fields.email.errorId}>
-              {fields.email.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
+          <div>
+            <label htmlFor={fields.areas.id}>
+              Wo wird das Projekt / Bildungsangebot durchgeführt?
+            </label>
+            <div className="flex flex-col">
+              <select
+                onChange={(event) => {
+                  for (let child of event.currentTarget.children) {
+                    const value = child.getAttribute("value");
+                    if (
+                      child.localName === "button" &&
+                      value !== null &&
+                      value.includes(event.currentTarget.value)
+                    ) {
+                      const button = child as HTMLButtonElement;
+                      button.click();
+                    }
+                  }
+                }}
+              >
+                {/* This is the default option used as placeholder. */}
+                <option selected disabled>
+                  Bitte auswählen
+                </option>
+                {areaOptions
+                  .filter((option) => {
+                    // All options that have a value should only be shown if they are not inside the current selected area list
+                    if (option.value !== undefined) {
+                      return !areaList.some((listArea) => {
+                        return listArea.defaultValue === option.value;
+                      });
+                    }
+                    // Divider, that have no value should be always shown
+                    else {
+                      return true;
+                    }
+                  })
+                  .map((filteredOption) => {
+                    // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
+                    if (filteredOption.value !== undefined) {
+                      return (
+                        <>
+                          <button
+                            key={`${filteredOption.value}-add-button`}
+                            hidden
+                            {...list.insert(fields.areas.name, {
+                              defaultValue: filteredOption.value,
+                            })}
+                          >
+                            {filteredOption.label}
+                          </button>
+                          <option
+                            key={filteredOption.value}
+                            value={filteredOption.value}
+                          >
+                            {filteredOption.label}
+                          </option>
+                        </>
+                      );
+                    }
+                    // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
+                    else {
+                      return (
+                        <>
+                          <option disabled>{filteredOption.label}</option>
+                        </>
+                      );
+                    }
+                  })}
+              </select>
+            </div>
+            <ul>
+              {areaList.map((listArea, index) => {
+                return (
+                  <li className="flex flex-row my-2" key={listArea.key}>
+                    <p>
+                      {areaOptions.find((area) => {
+                        return area.value === listArea.defaultValue;
+                      })?.label || "Not Found"}
+                    </p>
+                    <input hidden {...conform.input(listArea)} />
+                    <button
+                      className="ml-2"
+                      {...list.remove(fields.areas.name, { index })}
+                    >
+                      - Delete
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
-          )}
-        </div>
+            {fields.areas.errors !== undefined &&
+              fields.areas.errors.length > 0 && (
+                <ul id={fields.areas.errorId}>
+                  {fields.areas.errors.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              )}
+          </div>
+          <div className="mv-flex mv-flex-col mv-gap-4">
+            <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+                Kontaktdaten
+              </h2>
+              <Input {...conform.input(fields.email)}>
+                <Input.Label>E-Mail-Adresse</Input.Label>
+                {typeof fields.email.error !== "undefined" && (
+                  <Input.Error>{fields.email.error}</Input.Error>
+                )}
+              </Input>
+              <Input {...conform.input(fields.phone)}>
+                <Input.Label>Telefonnummer</Input.Label>
+                {typeof fields.phone.error !== "undefined" && (
+                  <Input.Error>{fields.phone.error}</Input.Error>
+                )}
+              </Input>
+            </div>
+            <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+                Anschrift
+              </h2>
+              <Input {...conform.input(fields.contactName)}>
+                <Input.Label>Name</Input.Label>
+                {typeof fields.contactName.error !== "undefined" && (
+                  <Input.Error>{fields.contactName.error}</Input.Error>
+                )}
+              </Input>
+              <div className="lg:mv-flex lg:mv-gap-4">
+                <div className="mv-flex-1">
+                  <Input {...conform.input(fields.street)}>
+                    <Input.Label>Straße</Input.Label>
+                    {typeof fields.street.error !== "undefined" && (
+                      <Input.Error>{fields.street.error}</Input.Error>
+                    )}
+                  </Input>
+                </div>
+                <div className="mv-flex-1 mv-flex mv-gap-4">
+                  <div className="mv-flex-1">
+                    <Input {...conform.input(fields.streetNumber)}>
+                      <Input.Label>Hausnummer</Input.Label>
+                      {typeof fields.streetNumber.error !== "undefined" && (
+                        <Input.Error>{fields.streetNumber.error}</Input.Error>
+                      )}
+                    </Input>
+                  </div>
+                  <div className="mv-flex-1">
+                    <Input {...conform.input(fields.streetNumberAddition)}>
+                      <Input.Label>Zusatz</Input.Label>
+                      {typeof fields.streetNumberAddition.error !==
+                        "undefined" && (
+                        <Input.Error>
+                          {fields.streetNumberAddition.error}
+                        </Input.Error>
+                      )}
+                    </Input>
+                  </div>
+                </div>
+              </div>
 
-        <div>
-          <label htmlFor={fields.phone.id}>Telefonnummer</label>
-          <input className="ml-2" {...conform.input(fields.phone)} />
-          {fields.phone.errors !== undefined && fields.phone.errors.length > 0 && (
-            <ul id={fields.phone.errorId}>
-              {fields.phone.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          )}
-        </div>
+              <div className="lg:mv-flex lg:mv-gap-4">
+                <div className="mv-flex-1">
+                  <Input {...conform.input(fields.zipCode)}>
+                    <Input.Label>PLZ</Input.Label>
+                    {typeof fields.zipCode.error !== "undefined" && (
+                      <Input.Error>{fields.zipCode.error}</Input.Error>
+                    )}
+                  </Input>
+                </div>
+                <div className="mv-flex-1">
+                  <Input {...conform.input(fields.city)}>
+                    <Input.Label>Stadt</Input.Label>
+                    {typeof fields.city.error !== "undefined" && (
+                      <Input.Error>{fields.city.error}</Input.Error>
+                    )}
+                  </Input>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <h2>Anschrift</h2>
+          <p className="mv-text-sm mv-mt-4">*Erforderliche Angaben</p>
 
-        <div>
-          <label htmlFor={fields.contactName.id}>Name</label>
-          <input className="ml-2" {...conform.input(fields.contactName)} />
-          {fields.contactName.errors !== undefined &&
-            fields.contactName.errors.length > 0 && (
-              <ul id={fields.contactName.errorId}>
-                {fields.contactName.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
+          <div className="mv-mt-8 mv-w-full md:mv-max-w-fit">
+            <div className="mv-flex mv-gap-4">
+              <div className="mv-grow">
+                <Button type="reset" variant="outline" fullSize>
+                  Änderungen verwerfen
+                </Button>
+              </div>
+              <div className="mv-grow">
+                {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-        <div>
-          <label htmlFor={fields.street.id}>Straße</label>
-          <input className="ml-2" {...conform.input(fields.street)} />
-          {fields.street.errors !== undefined &&
-            fields.street.errors.length > 0 && (
-              <ul id={fields.street.errorId}>
-                {fields.street.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-
-        <div>
-          <label htmlFor={fields.streetNumber.id}>Hausnummer</label>
-          <input className="ml-2" {...conform.input(fields.streetNumber)} />
-          {fields.streetNumber.errors !== undefined &&
-            fields.streetNumber.errors.length > 0 && (
-              <ul id={fields.streetNumber.errorId}>
-                {fields.streetNumber.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-
-        <div>
-          <label htmlFor={fields.streetNumberAddition.id}>Zusatz</label>
-          <input
-            className="ml-2"
-            {...conform.input(fields.streetNumberAddition)}
-          />
-          {fields.streetNumberAddition.errors !== undefined &&
-            fields.streetNumberAddition.errors.length > 0 && (
-              <ul id={fields.streetNumberAddition.errorId}>
-                {fields.streetNumberAddition.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-
-        <div>
-          <label htmlFor={fields.zipCode.id}>PLZ</label>
-          <input className="ml-2" {...conform.input(fields.zipCode)} />
-          {fields.zipCode.errors !== undefined &&
-            fields.zipCode.errors.length > 0 && (
-              <ul id={fields.zipCode.errorId}>
-                {fields.zipCode.errors.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-        </div>
-
-        <div>
-          <label htmlFor={fields.city.id}>Stadt</label>
-          <input className="ml-2" {...conform.input(fields.city)} />
-          {fields.city.errors !== undefined && fields.city.errors.length > 0 && (
-            <ul id={fields.city.errorId}>
-              {fields.city.errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <ul id={form.errorId}>
-          {form.errors.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-
-        <p>*Erforderliche Angaben</p>
-
-        <div>
-          <button type="reset">Änderungen verwerfen</button>
-        </div>
-        <div>
-          {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts on branch "1094-feature-project-settings-web-and-social" */}
-          <button type="submit">Speichern und weiter</button>
+                <Button type="submit" fullSize>
+                  Speichern und weiter
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </Form>
-    </>
+    </Section>
   );
 }
 
