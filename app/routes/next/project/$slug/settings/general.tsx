@@ -17,7 +17,13 @@ import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import React from "react";
 import { createAreaOptions } from "./general.server";
-import { Button, Input, Section } from "@mint-vernetzt/components";
+import {
+  Button,
+  Chip,
+  Input,
+  Section,
+  Select,
+} from "@mint-vernetzt/components";
 
 const generalSchema = z.object({
   name: z.string({
@@ -294,7 +300,7 @@ function General() {
       <Form method="post" {...form.props}>
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
-        <div className="mv-flex mv-flex-col mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
           <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
               Projektname
@@ -312,90 +318,78 @@ function General() {
             </Input>
           </div>
 
-          <h2>Projektformat</h2>
-
-          <div>
-            <label htmlFor={fields.formats.id}>
-              In welchem Format findet das Projekt statt?
-            </label>
-
-            <div className="flex flex-col">
-              <select
-                onChange={(event) => {
-                  for (let child of event.currentTarget.children) {
-                    const value = child.getAttribute("value");
-                    if (
-                      child.localName === "button" &&
-                      value !== null &&
-                      value.includes(event.currentTarget.value)
-                    ) {
-                      const button = child as HTMLButtonElement;
-                      button.click();
-                    }
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Projektformat
+            </h2>
+            <Select
+              onChange={(event) => {
+                for (let child of event.currentTarget.children) {
+                  const value = child.getAttribute("value");
+                  if (
+                    child.localName === "button" &&
+                    value !== null &&
+                    value.includes(event.currentTarget.value)
+                  ) {
+                    const button = child as HTMLButtonElement;
+                    button.click();
                   }
-                }}
-              >
-                <option selected hidden>
-                  Bitte auswählen
-                </option>
-                {allFormats
-                  .filter((format) => {
-                    return !formatList.some((listFormat) => {
-                      return listFormat.defaultValue === format.id;
-                    });
-                  })
-                  .map((filteredFormat) => {
-                    return (
-                      <>
-                        <button
-                          key={`${filteredFormat.id}-add-button`}
-                          hidden
-                          {...list.insert(fields.formats.name, {
-                            defaultValue: filteredFormat.id,
-                          })}
-                        >
-                          {filteredFormat.title}
-                        </button>
-                        <option
-                          key={filteredFormat.id}
-                          value={filteredFormat.id}
-                          className="my-2"
-                        >
-                          {filteredFormat.title}
-                        </option>
-                      </>
-                    );
-                  })}
-              </select>
-            </div>
-            <ul>
-              {formatList.map((listFormat, index) => {
-                return (
-                  <li className="flex flex-row my-2" key={listFormat.key}>
-                    <p>
+                }
+              }}
+            >
+              <Select.Label>
+                In welchem Format findet das Projekt statt?
+              </Select.Label>
+              <option selected hidden>
+                Bitte auswählen
+              </option>
+              {allFormats
+                .filter((format) => {
+                  return !formatList.some((listFormat) => {
+                    return listFormat.defaultValue === format.id;
+                  });
+                })
+                .map((filteredFormat) => {
+                  return (
+                    <>
+                      <button
+                        key={`${filteredFormat.id}-add-button`}
+                        hidden
+                        {...list.insert(fields.formats.name, {
+                          defaultValue: filteredFormat.id,
+                        })}
+                      >
+                        {filteredFormat.title}
+                      </button>
+                      <option
+                        key={filteredFormat.id}
+                        value={filteredFormat.id}
+                        className="my-2"
+                      >
+                        {filteredFormat.title}
+                      </option>
+                    </>
+                  );
+                })}
+            </Select>
+            {formatList.length > 0 && (
+              <Chip.Container>
+                {formatList.map((listFormat, index) => {
+                  return (
+                    <Chip key={listFormat.key}>
                       {allFormats.find((format) => {
                         return format.id === listFormat.defaultValue;
                       })?.title || "Not Found"}
-                    </p>
-                    <input hidden {...conform.input(listFormat)} />
-                    <button
-                      className="ml-2"
-                      {...list.remove(fields.formats.name, { index })}
-                    >
-                      - Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            {fields.formats.errors !== undefined &&
-              fields.formats.errors.length > 0 && (
-                <ul id={fields.formats.errorId}>
-                  {fields.formats.errors.map((e) => (
-                    <li key={e}>{e}</li>
-                  ))}
-                </ul>
-              )}
+                      <Chip.Delete>
+                        <button
+                          {...list.remove(fields.formats.name, { index })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
           </div>
           <p>Mehrfachnennungen sind möglich.</p>
 
@@ -444,188 +438,178 @@ function General() {
           </div>
           <p>Bitte gib kurze Begriffe an.</p>
 
-          <h2>Aktivitätsgebiet</h2>
-
-          <div>
-            <label htmlFor={fields.areas.id}>
-              Wo wird das Projekt / Bildungsangebot durchgeführt?
-            </label>
-            <div className="flex flex-col">
-              <select
-                onChange={(event) => {
-                  for (let child of event.currentTarget.children) {
-                    const value = child.getAttribute("value");
-                    if (
-                      child.localName === "button" &&
-                      value !== null &&
-                      value.includes(event.currentTarget.value)
-                    ) {
-                      const button = child as HTMLButtonElement;
-                      button.click();
-                    }
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Aktivitätsgebiet
+            </h2>
+            <Select
+              onChange={(event) => {
+                for (let child of event.currentTarget.children) {
+                  const value = child.getAttribute("value");
+                  if (
+                    child.localName === "button" &&
+                    value !== null &&
+                    value.includes(event.currentTarget.value)
+                  ) {
+                    const button = child as HTMLButtonElement;
+                    button.click();
                   }
-                }}
-              >
-                {/* This is the default option used as placeholder. */}
-                <option selected disabled>
-                  Bitte auswählen
-                </option>
-                {areaOptions
-                  .filter((option) => {
-                    // All options that have a value should only be shown if they are not inside the current selected area list
-                    if (option.value !== undefined) {
-                      return !areaList.some((listArea) => {
-                        return listArea.defaultValue === option.value;
-                      });
-                    }
-                    // Divider, that have no value should be always shown
-                    else {
-                      return true;
-                    }
-                  })
-                  .map((filteredOption) => {
-                    // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
-                    if (filteredOption.value !== undefined) {
-                      return (
-                        <>
-                          <button
-                            key={`${filteredOption.value}-add-button`}
-                            hidden
-                            {...list.insert(fields.areas.name, {
-                              defaultValue: filteredOption.value,
-                            })}
-                          >
-                            {filteredOption.label}
-                          </button>
-                          <option
-                            key={filteredOption.value}
-                            value={filteredOption.value}
-                          >
-                            {filteredOption.label}
-                          </option>
-                        </>
-                      );
-                    }
-                    // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
-                    else {
-                      return (
-                        <>
-                          <option disabled>{filteredOption.label}</option>
-                        </>
-                      );
-                    }
-                  })}
-              </select>
-            </div>
-            <ul>
-              {areaList.map((listArea, index) => {
-                return (
-                  <li className="flex flex-row my-2" key={listArea.key}>
-                    <p>
+                }
+              }}
+            >
+              <Select.Label>
+                Wo wird das Projekt / Bildungsangebot durchgeführt?
+              </Select.Label>
+
+              {/* This is the default option used as placeholder. */}
+              <option selected hidden>
+                Bitte auswählen
+              </option>
+              {areaOptions
+                .filter((option) => {
+                  // All options that have a value should only be shown if they are not inside the current selected area list
+                  if (option.value !== undefined) {
+                    return !areaList.some((listArea) => {
+                      return listArea.defaultValue === option.value;
+                    });
+                  }
+                  // Divider, that have no value should be always shown
+                  else {
+                    return true;
+                  }
+                })
+                .map((filteredOption) => {
+                  // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
+                  if (filteredOption.value !== undefined) {
+                    return (
+                      <>
+                        <button
+                          key={`${filteredOption.value}-add-button`}
+                          hidden
+                          {...list.insert(fields.areas.name, {
+                            defaultValue: filteredOption.value,
+                          })}
+                        >
+                          {filteredOption.label}
+                        </button>
+                        <option
+                          key={filteredOption.value}
+                          value={filteredOption.value}
+                        >
+                          {filteredOption.label}
+                        </option>
+                      </>
+                    );
+                  }
+                  // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
+                  else {
+                    return (
+                      <>
+                        <option disabled>{filteredOption.label}</option>
+                      </>
+                    );
+                  }
+                })}
+            </Select>
+            {areaList.length > 0 && (
+              <Chip.Container>
+                {areaList.map((listArea, index) => {
+                  return (
+                    <Chip key={listArea.key}>
                       {areaOptions.find((area) => {
                         return area.value === listArea.defaultValue;
                       })?.label || "Not Found"}
-                    </p>
-                    <input hidden {...conform.input(listArea)} />
-                    <button
-                      className="ml-2"
-                      {...list.remove(fields.areas.name, { index })}
-                    >
-                      - Delete
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            {fields.areas.errors !== undefined &&
-              fields.areas.errors.length > 0 && (
-                <ul id={fields.areas.errorId}>
-                  {fields.areas.errors.map((e) => (
-                    <li key={e}>{e}</li>
-                  ))}
-                </ul>
+                      <Chip.Delete>
+                        <button
+                          {...list.remove(fields.areas.name, { index })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
+          </div>
+          {/* <div className="mv-flex mv-flex-col mv-gap-4"> */}
+          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+              Kontaktdaten
+            </h2>
+            <Input {...conform.input(fields.email)}>
+              <Input.Label>E-Mail-Adresse</Input.Label>
+              {typeof fields.email.error !== "undefined" && (
+                <Input.Error>{fields.email.error}</Input.Error>
               )}
+            </Input>
+            <Input {...conform.input(fields.phone)}>
+              <Input.Label>Telefonnummer</Input.Label>
+              {typeof fields.phone.error !== "undefined" && (
+                <Input.Error>{fields.phone.error}</Input.Error>
+              )}
+            </Input>
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4">
-            <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-                Kontaktdaten
-              </h2>
-              <Input {...conform.input(fields.email)}>
-                <Input.Label>E-Mail-Adresse</Input.Label>
-                {typeof fields.email.error !== "undefined" && (
-                  <Input.Error>{fields.email.error}</Input.Error>
-                )}
-              </Input>
-              <Input {...conform.input(fields.phone)}>
-                <Input.Label>Telefonnummer</Input.Label>
-                {typeof fields.phone.error !== "undefined" && (
-                  <Input.Error>{fields.phone.error}</Input.Error>
-                )}
-              </Input>
-            </div>
-            <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-                Anschrift
-              </h2>
-              <Input {...conform.input(fields.contactName)}>
-                <Input.Label>Name</Input.Label>
-                {typeof fields.contactName.error !== "undefined" && (
-                  <Input.Error>{fields.contactName.error}</Input.Error>
-                )}
-              </Input>
-              <div className="lg:mv-flex lg:mv-gap-4">
+          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+              Anschrift
+            </h2>
+            <Input {...conform.input(fields.contactName)}>
+              <Input.Label>Name</Input.Label>
+              {typeof fields.contactName.error !== "undefined" && (
+                <Input.Error>{fields.contactName.error}</Input.Error>
+              )}
+            </Input>
+            <div className="lg:mv-flex lg:mv-gap-4">
+              <div className="mv-flex-1">
+                <Input {...conform.input(fields.street)}>
+                  <Input.Label>Straße</Input.Label>
+                  {typeof fields.street.error !== "undefined" && (
+                    <Input.Error>{fields.street.error}</Input.Error>
+                  )}
+                </Input>
+              </div>
+              <div className="mv-flex-1 mv-flex mv-gap-4">
                 <div className="mv-flex-1">
-                  <Input {...conform.input(fields.street)}>
-                    <Input.Label>Straße</Input.Label>
-                    {typeof fields.street.error !== "undefined" && (
-                      <Input.Error>{fields.street.error}</Input.Error>
+                  <Input {...conform.input(fields.streetNumber)}>
+                    <Input.Label>Hausnummer</Input.Label>
+                    {typeof fields.streetNumber.error !== "undefined" && (
+                      <Input.Error>{fields.streetNumber.error}</Input.Error>
                     )}
                   </Input>
                 </div>
-                <div className="mv-flex-1 mv-flex mv-gap-4">
-                  <div className="mv-flex-1">
-                    <Input {...conform.input(fields.streetNumber)}>
-                      <Input.Label>Hausnummer</Input.Label>
-                      {typeof fields.streetNumber.error !== "undefined" && (
-                        <Input.Error>{fields.streetNumber.error}</Input.Error>
-                      )}
-                    </Input>
-                  </div>
-                  <div className="mv-flex-1">
-                    <Input {...conform.input(fields.streetNumberAddition)}>
-                      <Input.Label>Zusatz</Input.Label>
-                      {typeof fields.streetNumberAddition.error !==
-                        "undefined" && (
-                        <Input.Error>
-                          {fields.streetNumberAddition.error}
-                        </Input.Error>
-                      )}
-                    </Input>
-                  </div>
+                <div className="mv-flex-1">
+                  <Input {...conform.input(fields.streetNumberAddition)}>
+                    <Input.Label>Zusatz</Input.Label>
+                    {typeof fields.streetNumberAddition.error !==
+                      "undefined" && (
+                      <Input.Error>
+                        {fields.streetNumberAddition.error}
+                      </Input.Error>
+                    )}
+                  </Input>
                 </div>
               </div>
+            </div>
 
-              <div className="lg:mv-flex lg:mv-gap-4">
-                <div className="mv-flex-1">
-                  <Input {...conform.input(fields.zipCode)}>
-                    <Input.Label>PLZ</Input.Label>
-                    {typeof fields.zipCode.error !== "undefined" && (
-                      <Input.Error>{fields.zipCode.error}</Input.Error>
-                    )}
-                  </Input>
-                </div>
-                <div className="mv-flex-1">
-                  <Input {...conform.input(fields.city)}>
-                    <Input.Label>Stadt</Input.Label>
-                    {typeof fields.city.error !== "undefined" && (
-                      <Input.Error>{fields.city.error}</Input.Error>
-                    )}
-                  </Input>
-                </div>
+            <div className="lg:mv-flex lg:mv-gap-4">
+              <div className="mv-flex-1">
+                <Input {...conform.input(fields.zipCode)}>
+                  <Input.Label>PLZ</Input.Label>
+                  {typeof fields.zipCode.error !== "undefined" && (
+                    <Input.Error>{fields.zipCode.error}</Input.Error>
+                  )}
+                </Input>
+              </div>
+              <div className="mv-flex-1">
+                <Input {...conform.input(fields.city)}>
+                  <Input.Label>Stadt</Input.Label>
+                  {typeof fields.city.error !== "undefined" && (
+                    <Input.Error>{fields.city.error}</Input.Error>
+                  )}
+                </Input>
               </div>
             </div>
           </div>
+          {/* </div> */}
 
           <p className="mv-text-sm mv-mt-4">*Erforderliche Angaben</p>
 
