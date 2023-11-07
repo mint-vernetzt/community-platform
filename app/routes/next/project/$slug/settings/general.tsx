@@ -465,8 +465,8 @@ function General() {
                 }
               }}
             >
-              {/* This is the default option used as placeholder. Is there a better way of doing this? */}
-              <option selected hidden>
+              {/* This is the default option used as placeholder. */}
+              <option selected disabled>
                 Bitte auswählen
               </option>
               {areaOptions
