@@ -46,6 +46,7 @@ import {
   updateProfileById,
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
+import { Trans, useTranslation } from "react-i18next";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -159,7 +160,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     if (errors === null) {
       try {
         const { privateFields, ...profileData } = data;
-        // TODO: fix type issue
+        // @ts-ignore TODO: fix type issue
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
       } catch (error) {
@@ -194,6 +195,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
+  const { t } = useTranslation(["routes/profile/settings/general"]);
   const {
     profile: dbProfile,
     areas,
@@ -290,33 +292,28 @@ export default function Index() {
           }}
         >
           <fieldset disabled={transition.state === "submitting"}>
-            <h1 className="mb-8">Persönliche Daten</h1>
+            <h1 className="mb-8">{t("headline")}</h1>
 
-            <h4 className="mb-4 font-semibold">Allgemein</h4>
+            <h4 className="mb-4 font-semibold">{t("general.headline")}</h4>
 
-            <p className="mb-8">
-              Welche Informationen möchtest Du über Dich mit der Community
-              teilen? Über das Augen-Symbol kannst Du auswählen, ob die
-              Informationen für alle öffentlich sichtbar sind oder ob Du sie nur
-              mit registrierten Nutzer:innen teilst.
-            </p>
+            <p className="mb-8">{t("general.intro")}</p>
 
             <div className="flex flex-col md:flex-row -mx-4">
               <div className="basis-full md:basis-6/12 px-4 mb-4">
                 <SelectField
                   {...register("academicTitle")}
-                  label="Titel"
+                  label={t("general.form.title.label")}
                   options={[
                     {
-                      label: "Dr.",
+                      label: t("general.form.title.options.dr"),
                       value: "Dr.",
                     },
                     {
-                      label: "Prof.",
+                      label: t("general.form.title.options.prof"),
                       value: "Prof.",
                     },
                     {
-                      label: "Prof. Dr.",
+                      label: t("general.form.title.options.profdr"),
                       value: "Prof. Dr.",
                     },
                   ]}
@@ -329,7 +326,7 @@ export default function Index() {
                 <InputText
                   {...register("position")}
                   id="position"
-                  label="Position"
+                  label={t("general.form.position.label")}
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.position}
                   errorMessage={errors?.position?.message}
@@ -342,7 +339,7 @@ export default function Index() {
                 <InputText
                   {...register("firstName")}
                   id="firstName"
-                  label="Vorname"
+                  label={t("general.form.firstName.label")}
                   required
                   withPublicPrivateToggle={false}
                   isPublic={profileVisibilities.firstName}
@@ -353,7 +350,7 @@ export default function Index() {
                 <InputText
                   {...register("lastName")}
                   id="lastName"
-                  label="Nachname"
+                  label={t("general.form.lastName.label")}
                   required
                   withPublicPrivateToggle={false}
                   isPublic={profileVisibilities.lastName}
@@ -368,7 +365,7 @@ export default function Index() {
                   {...register("email")}
                   type="text"
                   id="email"
-                  label="E-Mail"
+                  label={t("general.form.email.label")}
                   readOnly
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
@@ -379,7 +376,7 @@ export default function Index() {
                 <InputText
                   {...register("phone")}
                   id="phone"
-                  label="Telefon"
+                  label={t("general.form.phone.label")}
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.phone}
                   errorMessage={errors?.phone?.message}
@@ -390,23 +387,18 @@ export default function Index() {
             <hr className="border-neutral-400 my-10 lg:my-16" />
 
             <div className="flex flex-row items-center mb-4">
-              <h4 className="font-semibold">Über mich</h4>
+              <h4 className="font-semibold">{t("aboutMe.headline")}</h4>
             </div>
 
-            <p className="mb-8">
-              Erzähl der Community etwas über Dich: Wer bist Du und was machst
-              Du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist
-              Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche
-              Themen interessieren Dich im MINT-Kontext besonders?
-            </p>
+            <p className="mb-8">{t("aboutMe.intro")}</p>
 
             <div className="mb-4">
               <TextAreaWithCounter
                 {...register("bio")}
                 id="bio"
-                label="Kurzbeschreibung"
+                label={t("aboutMe.form.description.label")}
                 defaultValue={profile.bio || ""}
-                placeholder="Beschreibe Dich und Dein Tätigkeitsfeld näher."
+                placeholder={t("aboutMe.form.description.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
@@ -418,8 +410,8 @@ export default function Index() {
             <div className="mb-4">
               <SelectAdd
                 name="areas"
-                label={"Aktivitätsgebiete"}
-                placeholder="Füge Regionen hinzu, in denen Du aktiv bist."
+                label={t("aboutMe.form.activityAreas.label")}
+                placeholder={t("aboutMe.form.activityAreas.placeholder")}
                 entries={selectedAreas.map((area) => ({
                   label: area.name,
                   value: area.id,
@@ -433,8 +425,8 @@ export default function Index() {
             <div className="mb-4">
               <InputAdd
                 name="skills"
-                label="Kompetenzen"
-                placeholder="Füge Deine Kompetenzen hinzu."
+                label={t("aboutMe.form.skills.label")}
+                placeholder={t("aboutMe.form.skills.placeholder")}
                 entries={profile.skills ?? []}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.skills}
@@ -444,8 +436,8 @@ export default function Index() {
             <div className="mb-4">
               <InputAdd
                 name="interests"
-                label="Interessen"
-                placeholder="Füge Deine Interessen hinzu."
+                label={t("aboutMe.form.interests.label")}
+                placeholder={t("aboutMe.form.interests.placeholder")}
                 entries={profile.interests ?? []}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.interests}
@@ -453,17 +445,14 @@ export default function Index() {
             </div>
 
             <hr className="border-neutral-400 my-10 lg:my-16" />
-            <h4 className="mb-4 font-semibold">Ich biete</h4>
+            <h4 className="mb-4 font-semibold">{t("offer.headline")}</h4>
 
-            <p className="mb-8">
-              Was bringst Du mit, wovon die Community profitieren kann? Wie
-              kannst Du andere Mitglieder unterstützen?
-            </p>
+            <p className="mb-8">{t("offer.intro")}</p>
 
             <div className="mb-4">
               <SelectAdd
                 name="offers"
-                label="Angebot"
+                label={t("offer.form.quote.label")}
                 entries={selectedOffers.map((area) => ({
                   label: area.title,
                   value: area.id,
@@ -471,7 +460,7 @@ export default function Index() {
                 options={offerOptions.filter(
                   (o) => !profile.offers.includes(o.value)
                 )}
-                placeholder="Füge Deine Angebote hinzu."
+                placeholder={t("offer.form.quote.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.offers}
               />
@@ -479,16 +468,14 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 lg:my-16" />
 
-            <h4 className="mb-4 font-semibold">Ich suche</h4>
+            <h4 className="mb-4 font-semibold">{t("lookingFor.headline")}</h4>
 
-            <p className="mb-8">
-              Wonach suchst Du? Wie können Dich andere Mitglieder unterstützen?
-            </p>
+            <p className="mb-8">{t("lookingFor.intro")}</p>
 
             <div className="mb-4">
               <SelectAdd
                 name="seekings"
-                label="Suche"
+                label={t("lookingFor.form.seeking.label")}
                 entries={selectedSeekings.map((area) => ({
                   label: area.title,
                   value: area.id,
@@ -496,7 +483,7 @@ export default function Index() {
                 options={offerOptions.filter(
                   (o) => !profile.seekings.includes(o.value)
                 )}
-                placeholder="Füge hinzu wonach Du suchst."
+                placeholder={t("lookingFor.form.seeking.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.seekings}
               />
@@ -504,20 +491,22 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 lg:my-16" />
 
-            <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+            <h2 className="mb-8">{t("websiteSocialMedia.headline")}</h2>
 
-            <h4 className="mb-4 font-semibold">Website</h4>
+            <h4 className="mb-4 font-semibold">
+              {t("websiteSocialMedia.website.headline")}
+            </h4>
 
-            <p className="mb-8">
-              Wo kann die Community mehr über Dich und Dein Angebot erfahren?
-            </p>
+            <p className="mb-8">{t("websiteSocialMedia.website.intro")}</p>
 
             <div className="basis-full mb-4">
               <InputText
                 {...register("website")}
                 id="website"
-                label="Website"
-                placeholder="domainname.tld"
+                label={t("websiteSocialMedia.website.form.website.label")}
+                placeholder={t(
+                  "websiteSocialMedia.website.form.website.placeholder"
+                )}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.website}
                 errorMessage={errors?.website?.message}
@@ -527,11 +516,11 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 lg:my-16" />
 
-            <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+            <h4 className="mb-4 font-semibold">
+              {t("websiteSocialMedia.socialMedia.headline")}
+            </h4>
 
-            <p className="mb-8">
-              Wo kann die Community in Kontakt mit Dir treten?
-            </p>
+            <p className="mb-8">{t("websiteSocialMedia.socialMedia.intro")}</p>
 
             {socialMediaServices.map((service) => (
               <div className="w-full mb-4" key={service.id}>
@@ -551,28 +540,19 @@ export default function Index() {
             <hr className="border-neutral-400 my-10 lg:my-16" />
 
             <div className="flex flex-row items-center mb-4">
-              <h4 className="font-semibold">
-                Organisation oder Netzwerk hinzufügen
-              </h4>
+              <h4 className="font-semibold">{t("network.headline")}</h4>
               <Link
                 to="/organization/create"
                 className="btn btn-outline-primary ml-auto btn-small"
               >
-                Organisation anlegen
+                {t("network.action")}
               </Link>
             </div>
             <p className="mb-8">
-              Die Organisation oder das Netzwerk, in dem Du tätig bist, hat noch
-              kein Profil? Füge es direkt hinzu, damit auch andere Mitglieder
-              über darüber erfahren können.
-              <br />
-              <br />
-              Falls die Organisation bereits existiert, melde dich bei der
-              Person, die diese angelegt hat.
-              <br />
-              <br />
-              Zukünfig wirst du dich selbstständig zu Organisationen hinzufügen
-              können.
+              <Trans
+                i18nKey="network.intro"
+                ns={["routes/profile/settings/general"]}
+              />
             </p>
 
             <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
@@ -585,7 +565,7 @@ export default function Index() {
                         : "hidden"
                     }`}
                   >
-                    Dein Profil wurde aktualisiert.
+                    {t("footer.profileUpdated")}
                   </div>
 
                   {isFormChanged ? (
@@ -594,7 +574,7 @@ export default function Index() {
                       reloadDocument
                       className={`btn btn-link`}
                     >
-                      Änderungen verwerfen
+                      {t("footer.ignoreChanges")}
                     </Link>
                   ) : null}
                   <div></div>
@@ -605,7 +585,7 @@ export default function Index() {
                     className="btn btn-primary ml-4"
                     disabled={isSubmitting || !isFormChanged}
                   >
-                    Speichern
+                    {t("footer.save")}
                   </button>
                 </div>
               </div>
