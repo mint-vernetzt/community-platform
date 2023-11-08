@@ -1,16 +1,18 @@
-import { Chip, Video } from "@mint-vernetzt/components";
+import { Avatar, Chip, List, Video } from "@mint-vernetzt/components";
 import { json, type DataFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
+import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  createAuthClient(request, response);
+  const authClient = createAuthClient(request, response);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -81,6 +83,39 @@ export const loader = async (args: DataFunctionArgs) => {
       hints: true,
       video: true,
       videoSubline: true,
+      teamMembers: {
+        select: {
+          profile: {
+            select: {
+              username: true,
+              firstName: true,
+              lastName: true,
+              position: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      title: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
@@ -88,7 +123,32 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  console.log(project);
+  project.teamMembers = project.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL) {
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fit", width: 144, height: 144 },
+        });
+      }
+    }
+    return { ...relation, profile: { ...relation.profile, avatar } };
+  });
+  project.responsibleOrganizations = project.responsibleOrganizations.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 144, height: 144 },
+          });
+        }
+      }
+      return { ...relation, organization: { ...relation.organization, logo } };
+    }
+  );
 
   return json({ project }, { headers: response.headers });
 };
@@ -333,6 +393,80 @@ function About() {
                 <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
               )}
             </Video>
+          )}
+          {loaderData.project.teamMembers.length > 0 && (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+                Team
+              </h2>
+              <List maxColumns={2}>
+                {loaderData.project.teamMembers.map((relation) => {
+                  return (
+                    <List.Item
+                      key={relation.profile.username}
+                      noBorder
+                      interactive
+                    >
+                      <Link to={`/profile/${relation.profile.username}`}>
+                        <List.Item.Info>
+                          <List.Item.Title>
+                            {relation.profile.firstName}{" "}
+                            {relation.profile.lastName}
+                          </List.Item.Title>
+                          <List.Item.Subtitle>
+                            {relation.profile.position}
+                          </List.Item.Subtitle>
+                        </List.Item.Info>
+
+                        <Avatar
+                          firstName={relation.profile.firstName}
+                          lastName={relation.profile.lastName}
+                          avatar={relation.profile.avatar}
+                        />
+                      </Link>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </div>
+          )}
+          {loaderData.project.responsibleOrganizations.length > 0 && (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+                Verantwortliche Organisation(en)
+              </h2>
+              <List maxColumns={2}>
+                {loaderData.project.responsibleOrganizations.map((relation) => {
+                  return (
+                    <List.Item
+                      key={relation.organization.slug}
+                      noBorder
+                      interactive
+                    >
+                      <Link to={`/organization/${relation.organization.slug}`}>
+                        <List.Item.Info>
+                          <List.Item.Title>
+                            {relation.organization.name}
+                          </List.Item.Title>
+                          <List.Item.Subtitle>
+                            {relation.organization.types
+                              .map((relation) => {
+                                return relation.organizationType.title;
+                              })
+                              .join(", ")}
+                          </List.Item.Subtitle>
+                        </List.Item.Info>
+
+                        <Avatar
+                          name={relation.organization.name}
+                          logo={relation.organization.logo}
+                        />
+                      </Link>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </div>
           )}
         </>
       )}

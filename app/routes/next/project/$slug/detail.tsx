@@ -284,7 +284,7 @@ function ProjectDetail() {
       )}
       <section className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden">
         <div className="md:mv-flex xl:mv-justify-center">
-          <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-1/2">
+          <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about">Über das Projekt</Link>
