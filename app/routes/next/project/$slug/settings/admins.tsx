@@ -283,91 +283,101 @@ function Admins() {
       <p className="mv-my-6 md:mv-mt-0">
         Füge Administratorin:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
-      <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-        Aktuelle Administrator:in(en)
-      </h2>
-      <Form method="post">
-        <List>
-          {project.admins.map((admins) => {
-            return (
-              <List.Item key={admins.profile.username}>
-                <Avatar {...admins.profile} />
-                <List.Item.Title>
-                  {admins.profile.firstName} {admins.profile.lastName}
-                </List.Item.Title>
-                <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
-                <List.Item.Controls>
-                  <Button
-                    name={conform.INTENT}
-                    variant="outline"
-                    value={`remove_${admins.profile.username}`}
-                    type="submit"
-                  >
-                    Entfernen
-                  </Button>
-                </List.Item.Controls>
-              </List.Item>
-            );
-          })}
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.success === true &&
-            actionData.profile !== null &&
-            actionData.action.startsWith("remove_") && (
-              <Toast key={actionData.action}>
-                {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                entfernt.
-              </Toast>
-            )}
-        </List>
-      </Form>
-      <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mt-6 mv-mb-4">
-        Administrato:in hinzufügen
-      </h2>
-      <Form method="get" {...searchForm.props}>
-        <Input id="deep" type="hidden" value="true" />
-        <Input id="search" defaultValue={searchParams.get("search") || ""}>
-          <Input.Label hidden>Suche</Input.Label>
-          <Input.SearchIcon />
-        </Input>
+      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Aktuelle Administrator(en):in(nen)
+          </h2>
+          <Form method="post">
+            <List>
+              {project.admins.map((admins) => {
+                return (
+                  <List.Item key={admins.profile.username}>
+                    <Avatar {...admins.profile} />
+                    <List.Item.Title>
+                      {admins.profile.firstName} {admins.profile.lastName}
+                    </List.Item.Title>
+                    <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`remove_${admins.profile.username}`}
+                        type="submit"
+                      >
+                        Entfernen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.profile !== null &&
+                actionData.action.startsWith("remove_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                    entfernt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Administrator:in hinzufügen
+          </h2>
+          <Form method="get" {...searchForm.props}>
+            <Input id="deep" type="hidden" defaultValue="true" />
+            <Input
+              id="search"
+              defaultValue={searchParams.get("search") || ""}
+              standalone
+            >
+              <Input.Label hidden>Suche</Input.Label>
+              <Input.SearchIcon />
+            </Input>
 
-        <p id={fields.search.errorId}>{fields.search.error}</p>
-      </Form>
-      <Form method="post">
-        <List>
-          {searchResult.map((profile) => {
-            return (
-              <List.Item key={profile.username}>
-                <Avatar {...profile} />
-                <List.Item.Title>
-                  {profile.firstName} {profile.lastName}
-                </List.Item.Title>
-                <List.Item.Controls>
-                  <Button
-                    name={conform.INTENT}
-                    variant="outline"
-                    value={`add_${profile.username}`}
-                    type="submit"
-                  >
-                    Hinzufügen
-                  </Button>
-                </List.Item.Controls>
-              </List.Item>
-            );
-          })}
+            <p id={fields.search.errorId}>{fields.search.error}</p>
+          </Form>
+          <Form method="post">
+            <List>
+              {searchResult.map((profile) => {
+                return (
+                  <List.Item key={profile.username}>
+                    <Avatar {...profile} />
+                    <List.Item.Title>
+                      {profile.firstName} {profile.lastName}
+                    </List.Item.Title>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`add_${profile.username}`}
+                        type="submit"
+                      >
+                        Hinzufügen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
 
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.success === true &&
-            actionData.profile !== null &&
-            actionData.action.startsWith("add_") && (
-              <Toast key={actionData.action}>
-                {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                hinzugefügt.
-              </Toast>
-            )}
-        </List>
-      </Form>
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.profile !== null &&
+                actionData.action.startsWith("add_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                    hinzugefügt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
+      </div>
     </Section>
   );
 }

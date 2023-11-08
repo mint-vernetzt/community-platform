@@ -8,6 +8,13 @@ export const fileUploadSchema = z.object({
   redirect: z.string(),
 });
 
+export const phoneSchema = z
+  .string()
+  .regex(
+    /^$|^(\+?[0-9\s-()]{3,}\/?[0-9\s-()]{4,})$/,
+    "Bitte gib eine gültige Telefonnummer ein (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
+  );
+
 function addProtocolToUrl(url: string) {
   let validUrl = url.trim();
   if (validUrl !== "" && validUrl.search(/^https?:\/\//) === -1) {

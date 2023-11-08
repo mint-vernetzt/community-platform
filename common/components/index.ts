@@ -15,6 +15,8 @@ export {
   type ImageProps,
   Input,
   type InputProps,
+  Select,
+  type SelectProps,
 } from "./src/molecules";
 export type {
   AlertProps,

@@ -1,6 +1,7 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { deriveProjectMode } from "~/routes/next/utils.server";
+import crypto from "crypto";
 
 export async function getRedirectPathOnProtectedProjectRoute(args: {
   request: Request;
@@ -35,4 +36,10 @@ export async function getRedirectPathOnProtectedProjectRoute(args: {
   }
 
   return null;
+}
+
+export function getSubmissionHash(submission: object) {
+  const json = JSON.stringify(submission);
+  const hash = crypto.createHash("sha256").update(json).digest("hex");
+  return hash;
 }

@@ -548,6 +548,7 @@ model Area {
   events               AreaOfEvent[]
   AreasOnOrganizations AreasOnOrganizations[]
   AreasOnProfiles      AreasOnProfiles[]
+  AreasOnProjects      AreasOnProjects[]
 
   @@map("areas")
 }
@@ -597,6 +598,14 @@ model SpecialTargetGroup {
   projects    SpecialTargetGroupOfProject[]
 
   @@map("special_target_groups")
+}
+
+model Format {
+  id       String            @id @default(uuid())
+  title    String            @unique
+  projects FormatOfProject[]
+
+  @@map("formats")
 }
 
 model ExperienceLevel {
@@ -669,8 +678,10 @@ model Project {
   email                    String?
   phone                    String?
   website                  String?
+  contactName              String?                            @map("contact_name")
   street                   String?
   streetNumber             String?                            @map("street_number")
+  streetNumberAddition     String?                            @map("street_number_addition")
   zipCode                  String?                            @map("zip_code")
   facebook                 String?
   linkedin                 String?
@@ -694,15 +705,18 @@ model Project {
   participantLimit         String?                            @map("participant_limit")
   targetGroupAdditions     String?                            @map("target_group_additions")
   furtherDisciplines       String[]                           @map("further_disciplines")
+  furtherFormats           String[]                           @map("further_formats")
   awards                   AwardOfProject[]
   disciplines              DisciplineOfProject[]
   additionalDisciplines    AdditionalDisciplineOfProject[]
   responsibleOrganizations ResponsibleOrganizationOfProject[]
   targetGroups             TargetGroupOfProject[]
   specialTargetGroups      SpecialTargetGroupOfProject[]
+  formats                  FormatOfProject[]
   teamMembers              TeamMemberOfProject[]
   projectVisibility        ProjectVisibility?
   admins                   AdminOfProject[]
+  areas                    AreasOnProjects[]
 
   @@map("projects")
 }
@@ -722,8 +736,10 @@ model ProjectVisibility {
   email                    Boolean @default(true)
   phone                    Boolean @default(true)
   website                  Boolean @default(true)
+  contactName              Boolean @default(true) @map("contact_name")
   street                   Boolean @default(true)
   streetNumber             Boolean @default(true) @map("street_number")
+  streetNumberAddition     Boolean @default(true) @map("street_number_addition")
   zipCode                  Boolean @default(true) @map("zip_code")
   facebook                 Boolean @default(true)
   linkedin                 Boolean @default(true)
@@ -747,13 +763,16 @@ model ProjectVisibility {
   participantLimit         Boolean @default(true) @map("participant_limit")
   furtherDisciplines       Boolean @default(true) @map("further_disciplines")
   targetGroupAdditions     Boolean @default(true) @map("target_group_additions")
+  furtherFormats           Boolean @default(true)
   awards                   Boolean @default(true)
   disciplines              Boolean @default(true)
   additionalDisciplines    Boolean @default(true) @map("additional_disciplines")
   responsibleOrganizations Boolean @default(true)
   targetGroups             Boolean @default(true)
   specialTargetGroups      Boolean @default(true)
+  formats                  Boolean @default(true)
   teamMembers              Boolean @default(true)
+  areas                    Boolean @default(true)
   admins                   Boolean @default(false)
   project                  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                String  @unique
@@ -815,6 +834,17 @@ model SpecialTargetGroupOfProject {
   @@map("special_target_groups_of_projects")
 }
 
+model FormatOfProject {
+  formatId  String   @map("format_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  format    Format   @relation(fields: [formatId], references: [id], onDelete: Cascade)
+
+  @@id([formatId, projectId])
+  @@map("formats_of_projects")
+}
+
 model DisciplineOfProject {
   disciplineId String     @map("discipline_id")
   projectId    String     @map("project_id")
@@ -846,6 +876,16 @@ model AwardOfProject {
 
   @@id([awardId, projectId])
   @@map("awards_of_projects")
+}
+
+model AreasOnProjects {
+  projectId String  @map("project_id")
+  areaId    String  @map("area_id")
+  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, areaId])
+  @@map("areas_on_projects")
 }
 
 model ResponsibleOrganizationOfProject {
