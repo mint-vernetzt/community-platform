@@ -115,6 +115,7 @@ export const handle = {
   i18n: [
     "meta",
     "organisms",
+    "route/dashboard",
     "routes/imprint",
     "routes/index",
     "routes/login",
