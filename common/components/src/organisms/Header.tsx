@@ -88,7 +88,7 @@ function Body(props: BodyProps) {
   });
 
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 md:mv-mb-8 mv-px-4 md:mv-px-52 mv-text-center">
+    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 md:mv-mb-8 mv-px-4 md:mv-px-8 mv-text-center">
       {controls !== undefined && (
         <div className="mv-my-0 md:mv-my-2">{controls}</div>
       )}
