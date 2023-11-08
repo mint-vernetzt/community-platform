@@ -462,7 +462,7 @@ function ResponsibleOrgs() {
             Andere Organisation(en) hinzufügen
           </h2>
           <Form method="get" {...searchForm.props}>
-            <Input id="deep" type="hidden" value="true" />
+            <Input id="deep" type="hidden" defaultValue="true" />
             <input type="submit" className="mv-hidden" />
             <Input
               id="search"

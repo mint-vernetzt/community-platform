@@ -142,17 +142,19 @@ function Delete() {
       </p>
       <Form method="post" {...form.props}>
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-          <Input id="deep" value="true" type="hidden" />
+          <Input id="deep" defaultValue="true" type="hidden" />
           <Input id="name">
             <Input.Label>Löschen bestätigen</Input.Label>
             {typeof fields.name.error !== "undefined" && (
               <Input.Error>{fields.name.error}</Input.Error>
             )}
           </Input>
-          <div className="mv-w-full md:mv-max-w-fit">
-            <Button type="submit" level="negative" fullSize>
-              Project löschen
-            </Button>
+          <div className="mv-flex mv-w-full mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+              <Button type="submit" level="negative" fullSize>
+                Project löschen
+              </Button>
+            </div>
           </div>
         </div>
       </Form>

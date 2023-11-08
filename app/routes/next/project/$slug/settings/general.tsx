@@ -14,15 +14,20 @@ import { invariantResponse } from "~/lib/utils/response";
 import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 import React from "react";
 import { createAreaOptions } from "./general.server";
 import {
   Button,
   Chip,
+  Controls,
   Input,
   Section,
   Select,
+  Toast,
 } from "@mint-vernetzt/components";
 
 const generalSchema = z.object({
@@ -242,19 +247,23 @@ export async function action({ request, params }: DataFunctionArgs) {
     async: true,
   });
 
+  const hash = getSubmissionHash(submission);
+
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const);
+    return json({ status: "idle", submission, hash } as const, {
+      headers: response.headers,
+    });
   }
   if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+    return json({ status: "error", submission, hash } as const, {
+      headers: response.headers,
+      status: 400,
+    });
   }
 
-  return redirectWithAlert(
-    `/next/project/${params.slug}/settings/web-social?deep`,
-    {
-      message: "Deine Änderungen wurden gespeichert.",
-    }
-  );
+  return json({ status: "success", submission, hash } as const, {
+    headers: response.headers,
+  });
 }
 
 function General() {
@@ -482,12 +491,13 @@ function General() {
                     return true;
                   }
                 })
-                .map((filteredOption) => {
+                .map((filteredOption, index) => {
                   // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
                   if (filteredOption.value !== undefined) {
                     return (
                       <React.Fragment key={`${filteredOption.value}-fragment`}>
                         <button
+                          key={`${filteredOption.value}-button`}
                           hidden
                           {...list.insert(fields.areas.name, {
                             defaultValue: filteredOption.value,
@@ -507,7 +517,10 @@ function General() {
                   // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
                   else {
                     return (
-                      <option key={`${filteredOption.label}-divider`} disabled>
+                      <option
+                        key={`${filteredOption.label}-${index}-divider`}
+                        disabled
+                      >
                         {filteredOption.label}
                       </option>
                     );
@@ -613,23 +626,24 @@ function General() {
           </div>
 
           <p className="mv-text-sm mv-mt-4">*Erforderliche Angaben</p>
-
-          <div className="mv-mt-8 mv-w-full md:mv-max-w-fit">
-            <div className="mv-flex mv-gap-4">
-              <div className="mv-grow">
+          <div className="mv-flex mv-w-full mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+              <Controls>
                 <Button type="reset" variant="outline" fullSize>
                   Änderungen verwerfen
                 </Button>
-              </div>
-              <div className="mv-grow">
-                {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
-
                 <Button type="submit" fullSize>
-                  Speichern und weiter
+                  Speichern
                 </Button>
-              </div>
+              </Controls>
             </div>
           </div>
+
+          {typeof actionData !== "undefined" &&
+            actionData !== null &&
+            actionData.status === "success" && (
+              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
+            )}
         </div>
       </Form>
     </Section>

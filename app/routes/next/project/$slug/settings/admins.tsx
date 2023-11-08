@@ -329,7 +329,7 @@ function Admins() {
             Administrator:in hinzufügen
           </h2>
           <Form method="get" {...searchForm.props}>
-            <Input id="deep" type="hidden" value="true" />
+            <Input id="deep" type="hidden" defaultValue="true" />
             <Input
               id="search"
               defaultValue={searchParams.get("search") || ""}

@@ -75,7 +75,7 @@ export type InputProps = React.HTMLProps<HTMLInputElement> & {
 };
 
 function Input(props: InputProps) {
-  const { type = "text", children, ...inputProps } = props;
+  const { type = "text", children, standalone, ...inputProps } = props;
 
   const name = props.name || props.id;
 
@@ -144,10 +144,9 @@ function Input(props: InputProps) {
       </div>
       {helperText}
       {error}
-      {typeof props.standalone !== "undefined" &&
-        props.standalone !== false && (
-          <input type="submit" className="mv-hidden" />
-        )}
+      {typeof standalone !== "undefined" && standalone !== false && (
+        <input type="submit" className="mv-hidden" />
+      )}
     </div>
   );
 }
