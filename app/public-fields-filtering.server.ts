@@ -404,6 +404,8 @@ type ProjectWithRelations = Project & {
   disciplines: any;
   responsibleOrganizations: any;
   targetGroups: any;
+  formats: any;
+  areas: any;
   teamMembers: any;
   projectVisibility: any;
   admins: any;
@@ -458,6 +460,9 @@ export async function filterProjectByVisibility<
         key === "disciplines" ||
         key === "responsibleOrganizations" ||
         key === "targetGroups" ||
+        key === "formats" ||
+        key === "areas" ||
+        key === "furtherFormats" ||
         key === "admins" ||
         key === "teamMembers"
       ) {
@@ -481,8 +486,10 @@ export async function filterProjectByVisibility<
         key === "email" ||
         key === "phone" ||
         key === "website" ||
+        key === "contactName" ||
         key === "street" ||
         key === "streetNumber" ||
+        key === "streetNumberAddition" ||
         key === "zipCode" ||
         key === "facebook" ||
         key === "linkedin" ||

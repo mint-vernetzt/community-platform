@@ -138,29 +138,37 @@ function ChangeURL() {
 
   return (
     <>
-      <p className="mv-mb-4">
-        Aktuell ist Dein Projekt über folgende URL "{loaderData.baseURL}
-        /project/
-        <strong>{loaderData.slug}</strong>" zu erreichen.
+      <p>
+        Aktuell ist Dein Projekt über folgende URL "
+        <span className="mv-break-all">
+          {loaderData.baseURL}
+          /project/
+          <strong>{loaderData.slug}</strong>
+        </span>
+        " zu erreichen.
       </p>
-      <p className="mv-mb-4">
+      <p>
         Wenn Du die URL Deines Projekts änderst, dann ist Dein Projekt über den
         bisherigen Link, solltest Du ihn bereits geteilt haben, nicht mehr
         erreichbar.
       </p>
       <Form method="post" {...form.props}>
-        <Input id="deep" value="true" type="hidden" />
-        <Input id="slug" defaultValue={loaderData.slug}>
-          <Input.Label>Projekt-URL</Input.Label>
-          {typeof actionData !== "undefined" &&
-            typeof fields.slug.error !== "undefined" && (
-              <Input.Error>{fields.slug.error}</Input.Error>
-            )}
-        </Input>
-        <div className="mv-w-full md:mv-max-w-fit">
-          <Button type="submit" level="negative" fullSize>
-            URL ändern
-          </Button>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input id="slug" defaultValue={loaderData.slug}>
+            <Input.Label>Projekt-URL</Input.Label>
+            {typeof actionData !== "undefined" &&
+              typeof fields.slug.error !== "undefined" && (
+                <Input.Error>{fields.slug.error}</Input.Error>
+              )}
+          </Input>
+          <div className="mv-flex mv-w-full mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+              <Button type="submit" level="negative" fullSize>
+                URL ändern
+              </Button>
+            </div>
+          </div>
         </div>
       </Form>
     </>

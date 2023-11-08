@@ -54,6 +54,10 @@ module.exports = {
       spacing: {
         ...defaultTheme.spacing,
       },
+      backgroundImage: {
+        "select-arrow":
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='21' fill='none' viewBox='0 0 20 21'%3E%3Cpath stroke='%23262D38' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' d='m5 7.5 5 5.5 5-5.5'/%3E%3C/svg%3E\")",
+      },
     },
     container: {
       center: true,

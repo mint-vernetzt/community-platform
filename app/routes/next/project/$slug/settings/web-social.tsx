@@ -8,7 +8,10 @@ import {
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 import { z } from "zod";
 import {
   blueskySchema,
@@ -25,7 +28,13 @@ import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
-import { Button, Input, Section } from "@mint-vernetzt/components";
+import {
+  Button,
+  Controls,
+  Input,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
 
 const webSocialSchema = z.object({
   website: websiteSchema,
@@ -138,23 +147,26 @@ export async function action({ request, params }: DataFunctionArgs) {
     async: true,
   });
 
+  const hash = getSubmissionHash(submission);
+
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission } as const, {
+    return json({ status: "idle", submission, hash } as const, {
       headers: response.headers,
     });
   }
   if (!submission.value) {
-    return json({ status: "error", submission } as const, {
+    return json({ status: "error", submission, hash } as const, {
       status: 400,
       headers: response.headers,
     });
   }
 
-  return redirectWithAlert(
-    `/next/project/${params.slug}/settings/details?deep`,
+  return json(
     {
-      message: "Deine Änderungen wurden gespeichert.",
-    },
+      status: "success",
+      submission,
+      hash,
+    } as const,
     { headers: response.headers }
   );
 }
@@ -196,112 +208,118 @@ function WebSocial() {
         erfahren?
       </p>
       <Form method="post" {...form.props}>
-        <Input id="deep" value="true" type="hidden" />
-        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-          Website
-        </h2>
-        {/* TODO: Fix type issue */}
-        <Input {...conform.input(fields.website)} placeholder="domainname.tld">
-          <Input.Label>URL</Input.Label>
-          {typeof fields.website.error !== "undefined" && (
-            <Input.Error>{fields.website.error}</Input.Error>
-          )}
-        </Input>
-        <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-          Soziale Netzwerke
-        </h2>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.facebook)}
-          placeholder="facebook.com/<name>"
-        >
-          <Input.Label>Facebook</Input.Label>
-          {typeof fields.facebook.error !== "undefined" && (
-            <Input.Error>{fields.facebook.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.linkedin)}
-          placeholder="linkedin.com/company/<name>" // TODO: Regex does not fit with this placeholder
-        >
-          <Input.Label>LinkedIn</Input.Label>
-          {typeof fields.linkedin.error !== "undefined" && (
-            <Input.Error>{fields.linkedin.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.xing)}
-          placeholder="xing.com/pages/<name>" // TODO: Regex does not fit with this placeholder
-        >
-          <Input.Label>Xing</Input.Label>
-          {typeof fields.xing.error !== "undefined" && (
-            <Input.Error>{fields.xing.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.twitter)}
-          placeholder="twitter.com/<name>"
-        >
-          <Input.Label>X (Twitter)</Input.Label>
-          {typeof fields.twitter.error !== "undefined" && (
-            <Input.Error>{fields.twitter.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.mastodon)}
-          placeholder="domainname.tld/@<name>" // TODO: Regex does not fit with this placeholder
-        >
-          <Input.Label>Mastodon</Input.Label>
-          {typeof fields.mastodon.error !== "undefined" && (
-            <Input.Error>{fields.mastodon.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input {...conform.input(fields.bluesky)} placeholder="bsky.app/<name>">
-          <Input.Label>Bluesky</Input.Label>
-          {typeof fields.bluesky.error !== "undefined" && (
-            <Input.Error>{fields.bluesky.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.instagram)}
-          placeholder="instagram.com/<name>"
-        >
-          <Input.Label>Instagram</Input.Label>
-          {typeof fields.instagram.error !== "undefined" && (
-            <Input.Error>{fields.instagram.error}</Input.Error>
-          )}
-        </Input>
-        {/* TODO: Fix type issue */}
-        <Input
-          {...conform.input(fields.youtube)}
-          placeholder="youtube.com/<name>"
-        >
-          <Input.Label>YouTube</Input.Label>
-          {typeof fields.youtube.error !== "undefined" && (
-            <Input.Error>{fields.youtube.error}</Input.Error>
-          )}
-        </Input>
-        <div className="mv-mt-8 mv-w-full md:mv-max-w-fit">
-          <div className="mv-flex mv-gap-4">
-            <div className="mv-grow">
-              <Button type="reset" variant="outline" fullSize>
-                Änderungen verwerfen
-              </Button>
-            </div>
-            <div className="mv-grow">
-              {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
+        <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <Input id="deep" defaultValue="true" type="hidden" />
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Website
+            </h2>
+            <Input
+              {...conform.input(fields.website)}
+              placeholder="domainname.tld"
+            >
+              <Input.Label>URL</Input.Label>
+              {typeof fields.website.error !== "undefined" && (
+                <Input.Error>{fields.website.error}</Input.Error>
+              )}
+            </Input>
+          </div>
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Soziale Netzwerke
+            </h2>
+            <Input
+              {...conform.input(fields.facebook)}
+              placeholder="facebook.com/<name>"
+            >
+              <Input.Label>Facebook</Input.Label>
+              {typeof fields.facebook.error !== "undefined" && (
+                <Input.Error>{fields.facebook.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.linkedin)}
+              placeholder="linkedin.com/company/<name>" // TODO: Regex does not fit with this placeholder
+            >
+              <Input.Label>LinkedIn</Input.Label>
+              {typeof fields.linkedin.error !== "undefined" && (
+                <Input.Error>{fields.linkedin.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.xing)}
+              placeholder="xing.com/pages/<name>" // TODO: Regex does not fit with this placeholder
+            >
+              <Input.Label>Xing</Input.Label>
+              {typeof fields.xing.error !== "undefined" && (
+                <Input.Error>{fields.xing.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.twitter)}
+              placeholder="twitter.com/<name>"
+            >
+              <Input.Label>X (Twitter)</Input.Label>
+              {typeof fields.twitter.error !== "undefined" && (
+                <Input.Error>{fields.twitter.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.mastodon)}
+              placeholder="domainname.tld/@<name>" // TODO: Regex does not fit with this placeholder
+            >
+              <Input.Label>Mastodon</Input.Label>
+              {typeof fields.mastodon.error !== "undefined" && (
+                <Input.Error>{fields.mastodon.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.bluesky)}
+              placeholder="bsky.app/<name>"
+            >
+              <Input.Label>Bluesky</Input.Label>
+              {typeof fields.bluesky.error !== "undefined" && (
+                <Input.Error>{fields.bluesky.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.instagram)}
+              placeholder="instagram.com/<name>"
+            >
+              <Input.Label>Instagram</Input.Label>
+              {typeof fields.instagram.error !== "undefined" && (
+                <Input.Error>{fields.instagram.error}</Input.Error>
+              )}
+            </Input>
+            <Input
+              {...conform.input(fields.youtube)}
+              placeholder="youtube.com/<name>"
+            >
+              <Input.Label>YouTube</Input.Label>
+              {typeof fields.youtube.error !== "undefined" && (
+                <Input.Error>{fields.youtube.error}</Input.Error>
+              )}
+            </Input>
+          </div>
+          <div className="mv-flex mv-w-full mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+              <Controls>
+                <Button type="reset" variant="outline" fullSize>
+                  Änderungen verwerfen
+                </Button>
+                {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-              <Button type="submit" fullSize>
-                Speichern und weiter
-              </Button>
+                <Button type="submit" fullSize>
+                  Speichern
+                </Button>
+              </Controls>
             </div>
           </div>
+          {typeof actionData !== "undefined" &&
+            actionData !== null &&
+            actionData.status === "success" && (
+              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
+            )}
         </div>
       </Form>
     </Section>
