@@ -1,4 +1,5 @@
 import type {
+  AdditionalDiscipline,
   Discipline,
   EventType,
   ExperienceLevel,
@@ -6,6 +7,7 @@ import type {
   Format,
   Offer,
   OrganizationType,
+  SpecialTargetGroup,
   Tag,
   TargetGroup,
 } from "@prisma/client";
@@ -17,8 +19,10 @@ export type GenericEntry =
   | Focus
   | Tag
   | TargetGroup
+  | SpecialTargetGroup
   | EventType
   | Discipline
+  | AdditionalDiscipline
   | Format
   | ExperienceLevel;
 
@@ -28,9 +32,11 @@ export type TableName =
   | "focus"
   | "tag"
   | "targetGroup"
+  | "specialTargetGroup"
   | "eventType"
   | "experienceLevel"
   | "discipline"
+  | "additionalDiscipline"
   | "format"
   | "stage";
 
