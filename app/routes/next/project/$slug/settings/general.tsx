@@ -1,25 +1,5 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
-import { z } from "zod";
-import { redirectWithAlert } from "~/alert.server";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { phoneSchema } from "~/lib/utils/schemas";
-import { prismaClient } from "~/prisma.server";
-import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
-import React from "react";
-import { createAreaOptions } from "./general.server";
 import {
   Button,
   Chip,
@@ -29,6 +9,25 @@ import {
   Select,
   Toast,
 } from "@mint-vernetzt/components";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
+import React from "react";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { phoneSchema } from "~/lib/utils/schemas";
+import { prismaClient } from "~/prisma.server";
+import { BackButton } from "./__components";
+import { createAreaOptions } from "./general.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const generalSchema = z.object({
   name: z.string({
@@ -299,6 +298,19 @@ function General() {
   ) => {
     setFurtherFormat(event.currentTarget.value);
   };
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    for (let child of event.currentTarget.children) {
+      const value = child.getAttribute("value");
+      if (
+        child.localName === "button" &&
+        value !== null &&
+        value.includes(event.currentTarget.value)
+      ) {
+        const button = child as HTMLButtonElement;
+        button.click();
+      }
+    }
+  };
 
   return (
     <Section>
@@ -332,21 +344,7 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               Projektformat
             </h2>
-            <Select
-              onChange={(event) => {
-                for (let child of event.currentTarget.children) {
-                  const value = child.getAttribute("value");
-                  if (
-                    child.localName === "button" &&
-                    value !== null &&
-                    value.includes(event.currentTarget.value)
-                  ) {
-                    const button = child as HTMLButtonElement;
-                    button.click();
-                  }
-                }
-              }}
-            >
+            <Select onChange={handleSelectChange}>
               <Select.Label>
                 In welchem Format findet das Projekt statt?
               </Select.Label>
@@ -452,21 +450,7 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               Aktivitätsgebiet
             </h2>
-            <Select
-              onChange={(event) => {
-                for (let child of event.currentTarget.children) {
-                  const value = child.getAttribute("value");
-                  if (
-                    child.localName === "button" &&
-                    value !== null &&
-                    value.includes(event.currentTarget.value)
-                  ) {
-                    const button = child as HTMLButtonElement;
-                    button.click();
-                  }
-                }
-              }}
-            >
+            <Select onChange={handleSelectChange}>
               <Select.Label>
                 Wo wird das Projekt / Bildungsangebot durchgeführt?
               </Select.Label>
