@@ -5,8 +5,8 @@ export interface CounterProps {
 
 export function Counter({ currentCount, maxCount }: CounterProps) {
   return (
-    <div className="text-xs">
-      Zeichenanzahl: {currentCount} / {maxCount}
+    <div className="mv-text-sm mv-text-gray-700">
+      {currentCount}/{maxCount}
     </div>
   );
 }

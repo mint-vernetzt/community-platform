@@ -32,62 +32,64 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
 
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
-      <div id={`${toolbar}`}>
-        <div className="ql-formats">
-          <select className="ql-header">
-            <option value="2">Überschrift 1</option>
-            <option value="3">Überschrift 2</option>
-            <option value="4">Überschrift 3</option>
-            <option value="" selected>
-              Text
-            </option>
-          </select>
+      <div className="mv-rounded-lg mv-border mv-border-gray-300 mv-overflow-hidden">
+        <div className="mv-border-0" id={`${toolbar}`}>
+          <div className="ql-formats">
+            <select className="ql-header">
+              <option value="2">Überschrift 1</option>
+              <option value="3">Überschrift 2</option>
+              <option value="4">Überschrift 3</option>
+              <option value="" selected>
+                Text
+              </option>
+            </select>
+          </div>
+          <div className="ql-formats">
+            <button className="ql-bold">fett</button>
+            <button className="ql-italic">kursiv</button>
+            <button className="ql-underline">unterstrichen</button>
+          </div>
+          <div className="ql-formats">
+            <button type="button" className="ql-list" value="ordered">
+              nummerierte Liste
+            </button>
+            <button type="button" className="ql-list" value="bullet">
+              unnummerierte Liste
+            </button>
+          </div>
+          <div className="ql-formats">
+            <button type="button" className="ql-link">
+              Link
+            </button>
+          </div>
+          <div className="ql-formats">
+            <button className="ql-clean">Format entfernen</button>
+          </div>
         </div>
-        <div className="ql-formats">
-          <button className="ql-bold">fett</button>
-          <button className="ql-italic">kursiv</button>
-          <button className="ql-underline">unterstrichen</button>
-        </div>
-        <div className="ql-formats">
-          <button type="button" className="ql-list" value="ordered">
-            nummerierte Liste
-          </button>
-          <button type="button" className="ql-list" value="bullet">
-            unnummerierte Liste
-          </button>
-        </div>
-        <div className="ql-formats">
-          <button type="button" className="ql-link">
-            Link
-          </button>
-        </div>
-        <div className="ql-formats">
-          <button className="ql-clean">Format entfernen</button>
-        </div>
+        <ReactQuill
+          ref={quillRef}
+          theme="snow"
+          defaultValue={defaultValue}
+          onChange={(content) => {
+            setTextareaContentById(id, content);
+          }}
+          modules={{ toolbar: `#${toolbar}` }}
+          onKeyDown={() => {
+            if (
+              maxLength !== undefined &&
+              quillRef.current &&
+              quillRef.current.getEditor().getText().length > maxLength
+            ) {
+              quillRef.current
+                .getEditor()
+                .deleteText(
+                  maxLength - 1,
+                  quillRef.current.getEditor().getText().length
+                );
+            }
+          }}
+        />
       </div>
-      <ReactQuill
-        ref={quillRef}
-        theme="snow"
-        defaultValue={defaultValue}
-        onChange={(content) => {
-          setTextareaContentById(id, content);
-        }}
-        modules={{ toolbar: `#${toolbar}` }}
-        onKeyDown={() => {
-          if (
-            maxLength !== undefined &&
-            quillRef.current &&
-            quillRef.current.getEditor().getText().length > maxLength
-          ) {
-            quillRef.current
-              .getEditor()
-              .deleteText(
-                maxLength - 1,
-                quillRef.current.getEditor().getText().length
-              );
-          }
-        }}
-      />
     </React.Suspense>
   );
 }
