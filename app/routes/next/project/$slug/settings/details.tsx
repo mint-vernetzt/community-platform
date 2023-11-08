@@ -14,7 +14,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { youtubeSchema } from "~/lib/utils/schemas";
+import { youtubeEmbedSchema } from "~/lib/utils/schemas";
 
 // TODO:
 
@@ -68,7 +68,7 @@ const detailsSchema = z.object({
     .string()
     .optional()
     .transform((value) => (value === undefined ? null : value)),
-  video: youtubeSchema,
+  video: youtubeEmbedSchema,
   videoSubline: z
     .string()
     .optional()

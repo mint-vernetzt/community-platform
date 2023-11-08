@@ -1,4 +1,4 @@
-import { Chip } from "@mint-vernetzt/components";
+import { Chip, Video } from "@mint-vernetzt/components";
 import { json, type DataFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
@@ -79,6 +79,8 @@ export const loader = async (args: DataFunctionArgs) => {
       implementation: true,
       targeting: true,
       hints: true,
+      video: true,
+      videoSubline: true,
     },
   });
 
@@ -325,6 +327,13 @@ function About() {
                 />
               </div>
             )}
+          {loaderData.project.video !== null && (
+            <Video src={loaderData.project.video}>
+              {loaderData.project.videoSubline !== null && (
+                <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
+              )}
+            </Video>
+          )}
         </>
       )}
     </>

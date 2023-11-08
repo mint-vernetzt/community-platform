@@ -158,3 +158,20 @@ export const youtubeSchema = z
     }
     return addProtocolToUrl(value);
   });
+
+export const youtubeEmbedSchema = z
+  .string()
+  .regex(
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/))([a-zA-Z0-9_-]{6,11})/,
+    {
+      message:
+        "Deine Eingabe entspricht nicht dem Format einer Youtube Embed URL (youtube.com/embed/... oder youtube-nocookie.com/embed).",
+    }
+  )
+  .optional()
+  .transform((value) => {
+    if (value === undefined) {
+      return null;
+    }
+    return addProtocolToUrl(value);
+  });
