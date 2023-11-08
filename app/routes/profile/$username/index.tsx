@@ -40,6 +40,8 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { getPublicURL } from "~/storage.server";
 import { getProfileByUsername } from "./index.server";
 import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 export function links() {
   return [
@@ -75,9 +77,10 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
+  const t = await i18next.getFixedT(request, ["routes/profile/index"]);
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw notFound(t("error.profileNotFound"));
   }
 
   const abilities = await getFeatureAbilities(authClient, [
@@ -263,12 +266,14 @@ const ExternalServices: ExternalService[] = [
   "instagram",
   "xing",
 ];
+
 function hasWebsiteOrSocialService(
   data: Pick<Profile, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
+
 // TODO: fix any type
 function canViewEvents(events: {
   teamMemberOfEvents: any[];
@@ -284,6 +289,7 @@ function canViewEvents(events: {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["routes/profile/index"]);
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -303,7 +309,7 @@ export default function Index() {
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+          <img src={background} alt={t("images.currentBackground")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
         )}
@@ -335,7 +341,7 @@ export default function Index() {
                 htmlFor="modal-background-upload"
                 className="btn btn-primary modal-button"
               >
-                Bild ändern
+                {t("profile.changeImage")}
               </label>
 
               <Modal id="modal-background-upload">
@@ -381,7 +387,7 @@ export default function Index() {
                       >
                         <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                       </svg>
-                      <span className="ml-2">Bild ändern</span>
+                      <span className="ml-2">{t("profile.changeImage")}</span>
                     </label>
 
                     <Modal id="modal-avatar">
@@ -495,14 +501,15 @@ export default function Index() {
                   <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                   <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem{" "}
-                    {utcToZonedTime(
-                      loaderData.data.createdAt,
-                      "Europe/Berlin"
-                    ).toLocaleDateString("de-De", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
+                    {t("profile.existsSince", {
+                      timestamp: utcToZonedTime(
+                        loaderData.data.createdAt,
+                        "Europe/Berlin"
+                      ).toLocaleDateString("de-De", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }),
                     })}
                   </p>
                 </>
@@ -514,8 +521,11 @@ export default function Index() {
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
-                  Hi, ich bin{" "}
-                  {getFullName(loaderData.data, { withAcademicTitle: false })}
+                  {t("profile.introduction", {
+                    name: getFullName(loaderData.data, {
+                      withAcademicTitle: false,
+                    }),
+                  })}
                 </h1>
               </div>
               {loaderData.mode === "owner" ? (
@@ -524,7 +534,7 @@ export default function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/profile/${loaderData.data.username}/settings`}
                   >
-                    Profil bearbeiten
+                    {t("profile.editProfile")}
                   </Link>
                 </div>
               ) : null}
@@ -538,7 +548,7 @@ export default function Index() {
             {loaderData.data.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
-                  Aktivitätsgebiete
+                  {t("profile.activityAreas")}
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.data.areas
@@ -550,7 +560,7 @@ export default function Index() {
             {loaderData.data.skills.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Kompetenzen
+                  {t("profile.competences")}
                 </div>
 
                 <div className="flex-auto">
@@ -562,7 +572,7 @@ export default function Index() {
             {loaderData.data.interests.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Interessen
+                  {t("profile.interests")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.interests.join(" / ")}
@@ -572,7 +582,7 @@ export default function Index() {
             {loaderData.data.offers.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
-                  Ich biete
+                  {t("profile.offer")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.offers.map((relation) => (
@@ -589,7 +599,7 @@ export default function Index() {
             {loaderData.data.seekings.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
-                  Ich suche
+                  {t("profile.lookingFor")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.seekings.map((relation) => (
@@ -612,7 +622,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Organisationen</h3>
+                    <h3 className="mb-0 font-bold">
+                      {t("section.organizations.title")}
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
                     <div className="flex-initial pl-4">
@@ -620,7 +632,7 @@ export default function Index() {
                         to="/organization/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Organisation anlegen
+                        {t("section.organizations.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -649,7 +661,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Projekte</h3>
+                    <h3 className="mb-0 font-bold">
+                      {t("section.projects.title")}
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" &&
                   loaderData.abilities.projects.hasAccess ? (
@@ -658,7 +672,7 @@ export default function Index() {
                         to="/project/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Projekt anlegen
+                        {t("section.projects.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -775,7 +789,7 @@ export default function Index() {
                 >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      Bevorstehende Veranstaltungen
+                      {t("section.comingEvents.title")}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" &&
@@ -785,7 +799,7 @@ export default function Index() {
                         to="/event/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Veranstaltung anlegen
+                        {t("section.comingEvents.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -825,7 +839,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1009,7 +1023,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1172,7 +1186,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1304,14 +1318,14 @@ export default function Index() {
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      Vergangene Veranstaltungen
+                      {t("section.pastEvents.title")}
                     </h3>
                   </div>
                 </div>
                 {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
-                      Organisation/Team
+                      {t("section.pastEvents.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.teamMemberOfEvents.map(
@@ -1340,7 +1354,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1395,25 +1409,25 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      Veröffentlicht
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      Entwurf
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(loaderData.mode !== "owner" &&
@@ -1429,7 +1443,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1444,7 +1458,7 @@ export default function Index() {
                 {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
-                      Speaker:in
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.contributedEvents.map(
@@ -1473,7 +1487,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1524,12 +1538,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1544,7 +1558,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1587,7 +1601,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1638,12 +1652,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {!event.isParticipant &&
@@ -1656,7 +1670,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}

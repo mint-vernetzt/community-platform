@@ -1,0 +1,47 @@
+{
+  "error": {
+    "profileNotFound": "Profile not found"
+  },
+  "profile": {
+    "changeImage": "Bild ändern",
+    "existsSince": "Profil besteht seit dem {{timestamp}}",
+    "introduction": "Hi, ich bin {{name}}",
+    "editProfile": "Profil bearbeiten",
+    "activityAreas": "Aktivitätsgebiete",
+    "competences": "Kompetenzen",
+    "interests": "Interessen",
+    "offer": "Ich biete",
+    "lookingFor": "Ich suche"
+  },
+  "images": {
+    "currentBackground": "Aktuelles Hintergrundbild",
+    "blurredBackground": "Rahmen des Hintergrundbildes"
+  },
+  "section": {
+    "organizations": {
+      "title": "Organisationen",
+      "create": "Organisation anlegen"
+    },
+    "projects": {
+      "title": "Projekte",
+      "create": "Projekt anlegen"
+    },
+    "comingEvents": {
+      "title": "Bevorstehende Veranstaltungen",
+      "create": "Veranstaltung anlegen"
+    },
+    "pastEvents": {
+      "title": "Bevorstehende Veranstaltungen",
+      "team": "Organisation/Team"
+    },
+    "event": {
+      "published": "Veröffentlicht",
+      "draft": "Entwurf",
+      "cancelled": "Wurde abgesagt",
+      "participated": "Teilgenommen",
+      "more": "Mehr erfahren",
+      "speaker": "Speaker:in",
+      "wasCancelled": "Wurde abgesagt"
+    }
+  }
+}
