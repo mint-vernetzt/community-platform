@@ -124,6 +124,7 @@ export const handle = {
     "routes/explore/profiles",
     "routes/explore/projects",
     "routes/profile/index",
+    "routes/profile/settings",
     "routes/register/index",
     "routes/reset/index",
     "routes/reset/confirm-email",
