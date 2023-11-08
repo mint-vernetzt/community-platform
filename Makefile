@@ -7,7 +7,7 @@ endif
 help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-project: prisma-migrate german-states-and-districts-dataset import-datasets apply-create-profile-trigger create-buckets apply-bucket-rls ## Run prisma-migrate -> german-states-and-districts-dataset -> import-datasets -> apply-create-profile-trigger -> create-buckets -> apply-bucket-rls
+project: prisma-migrate german-states-and-districts-dataset import-datasets create-buckets apply-bucket-rls ## Run prisma-migrate -> german-states-and-districts-dataset -> import-datasets -> apply-create-profile-trigger -> create-buckets -> apply-bucket-rls
 
 prisma-migrate: ## Migrate the prisma database
 	npm run prisma:migrate
