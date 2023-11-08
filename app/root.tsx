@@ -121,6 +121,7 @@ export const handle = {
     "routes/login",
     "routes/explore/events",
     "routes/explore/organizations",
+    "routes/explore/profiles",
     "routes/explore/projects",
     "routes/register/index",
     "routes/reset/index",

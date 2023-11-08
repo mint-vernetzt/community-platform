@@ -29,6 +29,7 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -211,13 +212,13 @@ export default function Index() {
     submit(event.currentTarget);
   }
 
+  const { t } = useTranslation(["routes/explore/profiles"]);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke die Community</H1>
-        <p className="">
-          Hier findest du die Profile von Akteur:innen der MINT-Community.
-        </p>
+        <H1 like="h0">{t("headline")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
 
       {loaderData.isLoggedIn ? (
@@ -233,7 +234,7 @@ export default function Index() {
             <div className="flex flex-wrap -mx-4">
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
-                  Aktivitätsgebiet
+                  {t("search.activityAreas")}
                 </label>
                 <select
                   id="areaId"
@@ -272,7 +273,9 @@ export default function Index() {
                 </select>
               </div>
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                <label className="block font-semibold mb-2">Ich suche</label>
+                <label className="block font-semibold mb-2">
+                  {t("search.lookingFor")}
+                </label>
                 <select
                   id="offerId"
                   name="offerId"
@@ -289,7 +292,7 @@ export default function Index() {
               </div>
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
-                  Ich möchte unterstützen mit
+                  {t("search.support")}
                 </label>
                 <select
                   id="seekingId"
@@ -385,17 +388,14 @@ export default function Index() {
                     variant="outline"
                     loading={fetcher.state === "submitting"}
                   >
-                    Weitere laden
+                    {t("more")}
                   </Button>
                 </fetcher.Form>
               </div>
             )}
           </>
         ) : (
-          <p className="text-center text-primary">
-            Für Deine Filterkriterien konnten leider keine Profile gefunden
-            werden.
-          </p>
+          <p className="text-center text-primary">{t("empty")}</p>
         )}
       </section>
     </>
