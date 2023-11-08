@@ -469,7 +469,9 @@ function ResponsibleOrgs() {
               defaultValue={searchParams.get("search") || ""}
               standalone
             >
-              <Input.Label hidden>Suche</Input.Label>
+              <Input.Label htmlFor="search" hidden>
+                Suche
+              </Input.Label>
               <Input.SearchIcon />
             </Input>
           </Form>

@@ -328,7 +328,7 @@ function General() {
               Projektname
             </h2>
             <Input {...conform.input(fields.name)}>
-              <Input.Label>
+              <Input.Label htmlFor={fields.name.id}>
                 Titel des Projekts oder Bildungsangebotes*
               </Input.Label>
               {typeof fields.name.error !== "undefined" && (
@@ -345,7 +345,7 @@ function General() {
               Projektformat
             </h2>
             <Select onChange={handleSelectChange}>
-              <Select.Label>
+              <Select.Label htmlFor={fields.formats.id}>
                 In welchem Format findet das Projekt statt?
               </Select.Label>
               <Select.HelperText>
@@ -408,7 +408,9 @@ function General() {
                     value={furtherFormat}
                     onChange={handleFurtherFormatInputChange}
                   >
-                    <Input.Label>Sonstige Formate</Input.Label>
+                    <Input.Label htmlFor={fields.furtherFormats.id}>
+                      Sonstige Formate
+                    </Input.Label>
                     <Input.HelperText>
                       Bitte gib kurze Begriffe an.
                     </Input.HelperText>
@@ -451,7 +453,7 @@ function General() {
               Aktivitätsgebiet
             </h2>
             <Select onChange={handleSelectChange}>
-              <Select.Label>
+              <Select.Label htmlFor={fields.areas.id}>
                 Wo wird das Projekt / Bildungsangebot durchgeführt?
               </Select.Label>
               <Select.HelperText>
@@ -535,13 +537,15 @@ function General() {
               Kontaktdaten
             </h2>
             <Input {...conform.input(fields.email)}>
-              <Input.Label>E-Mail-Adresse</Input.Label>
+              <Input.Label htmlFor={fields.email.id}>
+                E-Mail-Adresse
+              </Input.Label>
               {typeof fields.email.error !== "undefined" && (
                 <Input.Error>{fields.email.error}</Input.Error>
               )}
             </Input>
             <Input {...conform.input(fields.phone)}>
-              <Input.Label>Telefonnummer</Input.Label>
+              <Input.Label htmlFor={fields.phone.id}>Telefonnummer</Input.Label>
               {typeof fields.phone.error !== "undefined" && (
                 <Input.Error>{fields.phone.error}</Input.Error>
               )}
@@ -552,7 +556,7 @@ function General() {
               Anschrift
             </h2>
             <Input {...conform.input(fields.contactName)}>
-              <Input.Label>Name</Input.Label>
+              <Input.Label htmlFor={fields.contactName.id}>Name</Input.Label>
               {typeof fields.contactName.error !== "undefined" && (
                 <Input.Error>{fields.contactName.error}</Input.Error>
               )}
@@ -560,7 +564,7 @@ function General() {
             <div className="lg:mv-flex lg:mv-gap-4">
               <div className="mv-w-full lg:mv-w-1/3">
                 <Input {...conform.input(fields.street)}>
-                  <Input.Label>Straße</Input.Label>
+                  <Input.Label htmlFor={fields.street.id}>Straße</Input.Label>
                   {typeof fields.street.error !== "undefined" && (
                     <Input.Error>{fields.street.error}</Input.Error>
                   )}
@@ -569,7 +573,9 @@ function General() {
               <div className="mv-flex mv-flex mv-w-full lg:mv-w-2/3 mv-gap-4 mv-mt-4 lg:mv-mt-0">
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
-                    <Input.Label>Hausnummer</Input.Label>
+                    <Input.Label htmlFor={fields.streetNumber.id}>
+                      Hausnummer
+                    </Input.Label>
                     {typeof fields.streetNumber.error !== "undefined" && (
                       <Input.Error>{fields.streetNumber.error}</Input.Error>
                     )}
@@ -577,7 +583,9 @@ function General() {
                 </div>
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumberAddition)}>
-                    <Input.Label>Zusatz</Input.Label>
+                    <Input.Label htmlFor={fields.streetNumberAddition.id}>
+                      Zusatz
+                    </Input.Label>
                     {typeof fields.streetNumberAddition.error !==
                       "undefined" && (
                       <Input.Error>
@@ -592,7 +600,7 @@ function General() {
             <div className="lg:mv-flex lg:mv-gap-4">
               <div className="mv-flex-1">
                 <Input {...conform.input(fields.zipCode)}>
-                  <Input.Label>PLZ</Input.Label>
+                  <Input.Label htmlFor={fields.zipCode.id}>PLZ</Input.Label>
                   {typeof fields.zipCode.error !== "undefined" && (
                     <Input.Error>{fields.zipCode.error}</Input.Error>
                   )}
@@ -600,7 +608,7 @@ function General() {
               </div>
               <div className="mv-flex-1 mv-mt-4 lg:mv-mt-0">
                 <Input {...conform.input(fields.city)}>
-                  <Input.Label>Stadt</Input.Label>
+                  <Input.Label htmlFor={fields.city.id}>Stadt</Input.Label>
                   {typeof fields.city.error !== "undefined" && (
                     <Input.Error>{fields.city.error}</Input.Error>
                   )}
