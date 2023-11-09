@@ -125,6 +125,7 @@ export const handle = {
     "routes/explore/projects",
     "routes/profile/index",
     "routes/profile/settings",
+    "routes/profile/settings/delete",
     "routes/profile/settings/general",
     "routes/profile/settings/notifications",
     "routes/profile/settings/security",

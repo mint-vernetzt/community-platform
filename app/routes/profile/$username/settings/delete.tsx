@@ -19,12 +19,20 @@ import {
   getProfileByUsername,
   getProfileWithAdministrations,
 } from "./delete.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const schema = z.object({
-  confirmedToken: z
-    .string()
-    .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
-});
+const createSchema = (t: TFunction) => {
+  return z.object({
+    confirmedToken: z
+      .string()
+      .regex(
+        new RegExp(`/${t("validation.confirmed.regex")}/`),
+        t("validation.confirmed.message")
+      ),
+  });
+};
 
 const environmentSchema = z.object({
   userId: z.string(),
@@ -32,93 +40,118 @@ const environmentSchema = z.object({
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
-
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/delete",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw notFound({ message: t("error.profileNotFound") });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   return json({}, { headers: response.headers });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const profile = await getProfileWithAdministrations(environment.userId);
-  if (profile === null) {
-    throw "Das Profil konnte nicht gefunden werden";
-  }
-  let lastAdminOrganizations: string[] = [];
-  profile.administeredOrganizations.map((relation) => {
-    if (relation.organization._count.admins === 1) {
-      lastAdminOrganizations.push(relation.organization.name);
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    const profile = await getProfileWithAdministrations(environment.userId);
+    if (profile === null) {
+      throw t("error.notFound");
     }
-    return null;
-  });
-  let lastAdminEvents: string[] = [];
-  profile.administeredEvents.map((relation) => {
-    if (relation.event._count.admins === 1) {
-      lastAdminEvents.push(relation.event.name);
-    }
-    return null;
-  });
-  let lastAdminProjects: string[] = [];
-  profile.administeredProjects.map((relation) => {
-    if (relation.project._count.admins === 1) {
-      lastAdminProjects.push(relation.project.name);
-    }
-    return null;
-  });
+    let lastAdminOrganizations: string[] = [];
+    profile.administeredOrganizations.map((relation) => {
+      if (relation.organization._count.admins === 1) {
+        lastAdminOrganizations.push(relation.organization.name);
+      }
+      return null;
+    });
+    let lastAdminEvents: string[] = [];
+    profile.administeredEvents.map((relation) => {
+      if (relation.event._count.admins === 1) {
+        lastAdminEvents.push(relation.event.name);
+      }
+      return null;
+    });
+    let lastAdminProjects: string[] = [];
+    profile.administeredProjects.map((relation) => {
+      if (relation.project._count.admins === 1) {
+        lastAdminProjects.push(relation.project.name);
+      }
+      return null;
+    });
 
-  if (
-    lastAdminOrganizations.length > 0 ||
-    lastAdminEvents.length > 0 ||
-    lastAdminProjects.length > 0
-  ) {
-    throw `Das Profil ist letzter Administrator in${
-      lastAdminOrganizations.length > 0
-        ? ` den Organisationen: ${lastAdminOrganizations.join(", ")},`
-        : ""
-    }${
-      lastAdminEvents.length > 0
-        ? ` den Veranstaltungen: ${lastAdminEvents.join(", ")},`
-        : ""
-    }${
+    if (
+      lastAdminOrganizations.length > 0 ||
+      lastAdminEvents.length > 0 ||
       lastAdminProjects.length > 0
-        ? ` den Projekten: ${lastAdminProjects.join(", ")},`
-        : ""
-    } weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte.`;
-  }
+    ) {
+      const errors: string[] = [];
+      if (lastAdminOrganizations.length > 0) {
+        errors.push(
+          t("error.lastAdmin.organizations", {
+            organizations: lastAdminOrganizations.join(", "),
+          })
+        );
+      }
+      if (lastAdminEvents.length > 0) {
+        errors.push(
+          t("error.lastAdmin.events", { events: lastAdminEvents.join(", ") })
+        );
+      }
+      if (lastAdminProjects.length > 0) {
+        errors.push(
+          t("error.lastAdmin.projects", {
+            events: lastAdminProjects.join(", "),
+          })
+        );
+      }
 
-  const adminAuthClient = createAdminAuthClient();
+      throw `${t("error.lastAdmin.intro")} ${errors.join(", ")} ${t(
+        "error.lastAdmin.outro"
+      )}`;
+    }
 
-  const { error } = await deleteUserByUid(adminAuthClient, environment.userId);
-  if (error !== null) {
-    console.error(error.message);
-    throw "Das Profil konnte nicht gelöscht werden.";
-  }
-  return values;
-});
+    const adminAuthClient = createAdminAuthClient();
+
+    const { error } = await deleteUserByUid(
+      adminAuthClient,
+      environment.userId
+    );
+    if (error !== null) {
+      console.error(error.message);
+      throw t("error.serverError");
+    }
+    return values;
+  });
+};
 
 export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/delete",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { userId: sessionUser.id },
   });
   if (result.success) {
@@ -138,17 +171,16 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 };
 
 export default function Index() {
+  const { t } = useTranslation(["routes/profile/settings/delete"]);
+  const schema = createSchema(t);
+
   return (
     <>
-      <h1 className="mb-8">Profil löschen</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
-      <h4 className="mb-4 font-semibold">Schade, dass Du gehst.</h4>
+      <h4 className="mb-4 font-semibold">{t("content.subline")}</h4>
 
-      <p className="mb-8">
-        Bitte gib "wirklich löschen" ein, um das Löschen zu bestätigen. Wenn Du
-        danach auf “Profil endgültig löschen” klickst, wird Dein Profil ohne
-        erneute Abfrage gelöscht.
-      </p>
+      <p className="mb-8">{t("content.headline")}</p>
 
       <RemixForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
@@ -158,8 +190,8 @@ export default function Index() {
                 <>
                   <Input
                     id="confirmedToken"
-                    label="Löschung bestätigen"
-                    placeholder="wirklich löschen"
+                    label={t("form.confirmed.label")}
+                    placeholder={t("form.confirmed.placeholder")}
                     {...register("confirmedToken")}
                   />
                   <Errors />
@@ -170,7 +202,7 @@ export default function Index() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Profil endgültig löschen
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>
