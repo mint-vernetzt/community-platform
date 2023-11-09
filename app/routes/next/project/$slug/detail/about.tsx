@@ -7,6 +7,20 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  Envelope,
+  Facebook,
+  Globe,
+  House,
+  Instagram,
+  Linkedin,
+  Mastodon,
+  Phone,
+  TikTok,
+  Twitter,
+  Xing,
+  YouTube,
+} from "./__components";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -26,6 +40,24 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       name: true,
       excerpt: true,
+      logo: true,
+      email: true,
+      phone: true,
+      website: true,
+      contactName: true,
+      street: true,
+      streetNumber: true,
+      streetNumberAddition: true,
+      zipCode: true,
+      city: true,
+      facebook: true,
+      linkedin: true,
+      twitter: true,
+      youtube: true,
+      instagram: true,
+      xing: true,
+      mastodon: true,
+      tiktok: true,
       formats: {
         select: {
           format: {
@@ -123,6 +155,16 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
+  if (project.logo !== null) {
+    const publicURL = getPublicURL(authClient, project.logo);
+    if (publicURL) {
+      const logo = getImageURL(publicURL, {
+        resize: { type: "fit", width: 272, height: 272 },
+      });
+      project.logo = logo;
+    }
+  }
+
   project.teamMembers = project.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
     if (avatar !== null) {
@@ -150,12 +192,42 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
+  console.log({ project });
+
   return json({ project }, { headers: response.headers });
 };
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();
 
+  const street = `${
+    loaderData.project.street !== null ? loaderData.project.street : ""
+  } ${
+    loaderData.project.streetNumber !== null
+      ? loaderData.project.streetNumber
+      : ""
+  } ${
+    loaderData.project.streetNumberAddition !== null
+      ? loaderData.project.streetNumberAddition
+      : ""
+  }`.trimEnd();
+  const city = `${
+    loaderData.project.zipCode !== null ? loaderData.project.zipCode : ""
+  } ${
+    loaderData.project.city !== null ? loaderData.project.city : ""
+  }`.trimEnd();
+
+  console.log(
+    "has Social",
+    loaderData.project.facebook !== null ||
+      loaderData.project.linkedin !== null ||
+      loaderData.project.twitter !== null ||
+      loaderData.project.youtube !== null ||
+      loaderData.project.instagram !== null ||
+      loaderData.project.xing !== null ||
+      loaderData.project.mastodon !== null ||
+      loaderData.project.tiktok !== null
+  );
   return (
     <>
       <h1 className="mv-text-primary md:mv-font-bold lg:mv-font-black mv-text-5xl lg:mv-text-7xl mb-0">
@@ -387,89 +459,228 @@ function About() {
                 />
               </div>
             )}
-          {loaderData.project.video !== null && (
-            <Video src={loaderData.project.video}>
-              {loaderData.project.videoSubline !== null && (
-                <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
-              )}
-            </Video>
-          )}
-          {loaderData.project.teamMembers.length > 0 && (
-            <div className="mv-flex mv-flex-col mv-gap-2">
-              <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-                Team
-              </h2>
-              <List maxColumns={2}>
-                {loaderData.project.teamMembers.map((relation) => {
-                  return (
-                    <List.Item
-                      key={relation.profile.username}
-                      noBorder
-                      interactive
-                    >
-                      <Link to={`/profile/${relation.profile.username}`}>
-                        <List.Item.Info>
-                          <List.Item.Title>
-                            {relation.profile.firstName}{" "}
-                            {relation.profile.lastName}
-                          </List.Item.Title>
-                          <List.Item.Subtitle>
-                            {relation.profile.position}
-                          </List.Item.Subtitle>
-                        </List.Item.Info>
-
-                        <Avatar
-                          firstName={relation.profile.firstName}
-                          lastName={relation.profile.lastName}
-                          avatar={relation.profile.avatar}
-                        />
-                      </Link>
-                    </List.Item>
-                  );
-                })}
-              </List>
-            </div>
-          )}
-          {loaderData.project.responsibleOrganizations.length > 0 && (
-            <div className="mv-flex mv-flex-col mv-gap-2">
-              <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-                Verantwortliche Organisation(en)
-              </h2>
-              <List maxColumns={2}>
-                {loaderData.project.responsibleOrganizations.map((relation) => {
-                  return (
-                    <List.Item
-                      key={relation.organization.slug}
-                      noBorder
-                      interactive
-                    >
-                      <Link to={`/organization/${relation.organization.slug}`}>
-                        <List.Item.Info>
-                          <List.Item.Title>
-                            {relation.organization.name}
-                          </List.Item.Title>
-                          <List.Item.Subtitle>
-                            {relation.organization.types
-                              .map((relation) => {
-                                return relation.organizationType.title;
-                              })
-                              .join(", ")}
-                          </List.Item.Subtitle>
-                        </List.Item.Info>
-
-                        <Avatar
-                          name={relation.organization.name}
-                          logo={relation.organization.logo}
-                        />
-                      </Link>
-                    </List.Item>
-                  );
-                })}
-              </List>
-            </div>
-          )}
         </>
       )}
+      {loaderData.project.video !== null && (
+        <Video src={loaderData.project.video}>
+          {loaderData.project.videoSubline !== null && (
+            <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
+          )}
+        </Video>
+      )}
+      {loaderData.project.teamMembers.length > 0 && (
+        <div className="mv-flex mv-flex-col mv-gap-2">
+          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+            Team
+          </h2>
+          <List maxColumns={2}>
+            {loaderData.project.teamMembers.map((relation) => {
+              return (
+                <List.Item key={relation.profile.username} noBorder interactive>
+                  <Link to={`/profile/${relation.profile.username}`}>
+                    <List.Item.Info>
+                      <List.Item.Title>
+                        {relation.profile.firstName} {relation.profile.lastName}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {relation.profile.position}
+                      </List.Item.Subtitle>
+                    </List.Item.Info>
+
+                    <Avatar
+                      firstName={relation.profile.firstName}
+                      lastName={relation.profile.lastName}
+                      avatar={relation.profile.avatar}
+                    />
+                  </Link>
+                </List.Item>
+              );
+            })}
+          </List>
+        </div>
+      )}
+      {loaderData.project.responsibleOrganizations.length > 0 && (
+        <div className="mv-flex mv-flex-col mv-gap-2">
+          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+            Verantwortliche Organisation(en)
+          </h2>
+          <List maxColumns={2}>
+            {loaderData.project.responsibleOrganizations.map((relation) => {
+              return (
+                <List.Item
+                  key={relation.organization.slug}
+                  noBorder
+                  interactive
+                >
+                  <Link to={`/organization/${relation.organization.slug}`}>
+                    <List.Item.Info>
+                      <List.Item.Title>
+                        {relation.organization.name}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {relation.organization.types
+                          .map((relation) => {
+                            return relation.organizationType.title;
+                          })
+                          .join(", ")}
+                      </List.Item.Subtitle>
+                    </List.Item.Info>
+
+                    <Avatar
+                      name={relation.organization.name}
+                      logo={relation.organization.logo}
+                    />
+                  </Link>
+                </List.Item>
+              );
+            })}
+          </List>
+        </div>
+      )}
+      <div className="mv-bg-primary-50 mv-p-4 md:mv-p-8 mv-rounded-xl">
+        <div>
+          <div className="mv-w-64 mv-h-64">
+            <Avatar
+              size="full"
+              logo={loaderData.project.logo}
+              name={loaderData.project.name}
+            />
+          </div>
+          <h4 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            {loaderData.project.name}
+          </h4>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-2">
+          {loaderData.project.email !== null && (
+            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+              <Envelope />
+              <a href={`mailto:${loaderData.project.email}`}>
+                {loaderData.project.email}
+              </a>
+            </div>
+          )}
+          {loaderData.project.phone !== null && (
+            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+              <Phone />
+              <a href={`tel:${loaderData.project.phone}`}>
+                {loaderData.project.phone}
+              </a>
+            </div>
+          )}
+          {loaderData.project.website !== null && (
+            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+              <Globe />
+              <a
+                href={loaderData.project.website}
+                target="__blank"
+                rel="noopener noreferrer"
+              >
+                {loaderData.project.website}
+              </a>
+            </div>
+          )}
+          {(loaderData.project.contactName !== null ||
+            loaderData.project.street !== null ||
+            loaderData.project.streetNumber !== null ||
+            loaderData.project.zipCode !== null ||
+            loaderData.project.city !== null) && (
+            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+              <House />
+              <address className="mv-flex mv-flex-col mv-not-italic">
+                {loaderData.project.contactName !== null && (
+                  <span>{loaderData.project.contactName}</span>
+                )}
+                {street !== "" && <span>{street}</span>}
+                {city !== "" && <span>{city}</span>}
+              </address>
+            </div>
+          )}
+          {(loaderData.project.facebook !== null ||
+            loaderData.project.linkedin !== null ||
+            loaderData.project.twitter !== null ||
+            loaderData.project.youtube !== null ||
+            loaderData.project.instagram !== null ||
+            loaderData.project.xing !== null ||
+            loaderData.project.mastodon !== null ||
+            loaderData.project.tiktok !== null) && (
+            <div>
+              {loaderData.project.facebook !== null && (
+                <a
+                  href={loaderData.project.facebook}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                  className="mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                >
+                  <Facebook />
+                </a>
+              )}
+              {loaderData.project.linkedin !== null && (
+                <a
+                  href={loaderData.project.linkedin}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <Linkedin />
+                </a>
+              )}
+              {loaderData.project.twitter !== null && (
+                <a
+                  href={loaderData.project.twitter}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <Twitter />
+                </a>
+              )}
+              {loaderData.project.youtube !== null && (
+                <a
+                  href={loaderData.project.youtube}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <YouTube />
+                </a>
+              )}
+              {loaderData.project.instagram !== null && (
+                <a
+                  href={loaderData.project.instagram}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <Instagram />
+                </a>
+              )}
+              {loaderData.project.xing !== null && (
+                <a
+                  href={loaderData.project.xing}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <Xing />
+                </a>
+              )}
+              {loaderData.project.mastodon !== null && (
+                <a
+                  href={loaderData.project.mastodon}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <Mastodon />
+                </a>
+              )}
+              {loaderData.project.tiktok !== null && (
+                <a
+                  href={loaderData.project.tiktok}
+                  target="__blank"
+                  rel="noopener noreferrer"
+                >
+                  <TikTok />
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 }

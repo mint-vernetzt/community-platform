@@ -289,12 +289,12 @@ function ProjectDetail() {
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about">Über das Projekt</Link>
               </TabBar.Item>
-              <TabBar.Item active={pathname.endsWith("/requirements")}>
+              {/* <TabBar.Item active={pathname.endsWith("/requirements")}>
                 <Link to="./requirements">Rahmenbedingungen</Link>
               </TabBar.Item>
               <TabBar.Item active={pathname.endsWith("/attachments")}>
                 <Link to="./attachments">Zugänglichkeit</Link>
-              </TabBar.Item>
+              </TabBar.Item> */}
             </TabBar>
             <Outlet />
           </div>
