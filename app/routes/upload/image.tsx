@@ -15,38 +15,54 @@ import {
 } from "./uploadHandler.server";
 import { uploadKeys, type Subject } from "./utils.server";
 import { deriveProfileMode } from "../profile/$username/utils.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
 
-export const loader = ({ request }: DataFunctionArgs) => {
+export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, ["routes/upload/image"]);
   createAuthClient(request, response);
 
   if (request.method !== "POST") {
     throw badRequest({
-      message: `I'm a teapot. This endpoint is only for method POST uploads`,
+      message: t("error.teapot"),
     });
   }
 
   return response;
 };
 
-async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
+async function handleAuth(
+  subject: Subject,
+  slug: string,
+  sessionUser: User,
+  t: TFunction
+) {
   if (subject === "user") {
     const username = slug;
     const mode = await deriveProfileMode(sessionUser, username);
-    invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+    invariantResponse(mode === "owner", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "organization") {
     const mode = await deriveOrganizationMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "event") {
     const mode = await deriveEventMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "project") {
     const mode = await deriveProjectMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
 }
 
@@ -54,6 +70,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, ["routes/upload/image"]);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
@@ -63,7 +80,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
-  await handleAuth(subject, slug, sessionUser);
+  await handleAuth(subject, slug, sessionUser, t);
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
@@ -71,7 +88,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
-    throw serverError({ message: "Something went wrong on upload." });
+    throw serverError({ message: t("error.serverError") });
   }
   const uploadHandlerResponse: {
     buffer: Buffer;

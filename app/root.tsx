@@ -141,6 +141,8 @@ export const handle = {
     "routes/search/organizations",
     "routes/search/profiles",
     "routes/search/projects",
+    "routes/upload/delete",
+    "routes/upload/image",
   ],
 };
 
