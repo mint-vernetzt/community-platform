@@ -1,5 +1,4 @@
 import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
 import {
   Avatar,
   Button,
@@ -8,6 +7,7 @@ import {
   Section,
   Toast,
 } from "@mint-vernetzt/components";
+import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -18,7 +18,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -26,11 +25,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { type Prisma, type Profile } from "@prisma/client";
-
-const searchSchema = z.object({
-  search: z.string().min(3).optional(),
-});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -116,7 +110,11 @@ export const loader = async (args: DataFunctionArgs) => {
     username: string;
     avatar: string | null;
   }[] = [];
-  if (query.length > 0) {
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
     const whereQueries: {
       OR: {
         [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
@@ -287,17 +285,10 @@ function Team() {
   const submit = useSubmit();
 
   const [searchForm, fields] = useForm({
-    // TODO:
-    // Validation triggers, but still the search results are shown because of method="get"
-    // Should we leave out the validation (search also works fast with one character as input)
-    shouldValidate: "onInput",
     defaultValue: {
       search: searchParams.get("search") || "",
+      deep: "true",
     },
-    onValidate: (values) => {
-      return parse(values.formData, { schema: searchSchema });
-    },
-    shouldRevalidate: "onInput",
   });
 
   return (
@@ -368,12 +359,11 @@ function Team() {
             }}
             {...searchForm.props}
           >
-            <Input id="deep" type="hidden" defaultValue="true" />
+            <Input {...conform.input(fields.deep)} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor="search" hidden>
-                Suche
-              </Input.Label>
+              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
               )}

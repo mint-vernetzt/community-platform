@@ -1,5 +1,13 @@
 import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import {
+  Avatar,
+  Button,
+  Input,
+  List,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
+import { type Organization, type Prisma } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -18,20 +26,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { z } from "zod";
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
-import { type Organization, type Prisma } from "@prisma/client";
-
-const searchSchema = z.object({
-  search: z.string().min(3).optional(),
-});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -176,7 +170,12 @@ export const loader = async (args: DataFunctionArgs) => {
 
   // get organizations that match search query
   let searchResult: { name: string; slug: string; logo: string | null }[] = [];
-  if (query.length > 0) {
+
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
     const whereQueries: {
       OR: {
         [K in Organization as string]: {
@@ -364,17 +363,10 @@ function ResponsibleOrgs() {
   const submit = useSubmit();
 
   const [searchForm, fields] = useForm({
-    // TODO:
-    // Validation triggers, but still the search results are shown because of method="get"
-    // Should we leave out the validation (search also works fast with one character as input)
-    shouldValidate: "onInput",
     defaultValue: {
       search: searchParams.get("search") || "",
+      deep: "true",
     },
-    onValidate: (values) => {
-      return parse(values.formData, { schema: searchSchema });
-    },
-    shouldRevalidate: "onInput",
   });
 
   return (
@@ -484,14 +476,11 @@ function ResponsibleOrgs() {
             }}
             {...searchForm.props}
           >
-            <Input id="deep" type="hidden" defaultValue="true" />
-            {/* TODO: Why is this input here and not on teams/admins? */}
-            <input type="submit" className="mv-hidden" />
+            <Input {...conform.input(fields.deep)} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor="search" hidden>
-                Suche
-              </Input.Label>
+              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
               )}
