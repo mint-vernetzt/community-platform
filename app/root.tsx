@@ -123,6 +123,7 @@ export const handle = {
     "routes/explore/organizations",
     "routes/explore/profiles",
     "routes/explore/projects",
+    "routes/goodbye",
     "routes/profile/index",
     "routes/profile/settings",
     "routes/profile/settings/delete",
