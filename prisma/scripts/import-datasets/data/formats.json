@@ -1,7 +1,11 @@
 [
   {
     "id": "c21131ca-e0a6-434a-90c1-8c4b0e814be7",
-    "title": "Workshops und Kurse"
+    "title": "Workshop / Kurs"
+  },
+  {
+    "id": "07ddbd7d-8961-4331-acd6-36bdd2107ef8",
+    "title": "Schüler:innen-Labor"
   },
   {
     "id": "6df506f8-bf1b-42c9-9477-fc70bb1cda5c",
@@ -13,11 +17,7 @@
   },
   {
     "id": "72cd7e73-78ec-4c55-9982-1fa83be7d50a",
-    "title": "Wettbewerbe"
-  },
-  {
-    "id": "3a1393fc-c145-42ff-8455-c8625865b379",
-    "title": "Online-Lernplattform"
+    "title": "Wettbewerb"
   },
   {
     "id": "09db4d73-3836-4064-850a-9b6500844243",
@@ -25,7 +25,23 @@
   },
   {
     "id": "1226a83d-0d02-4def-be8d-202c3c36860a",
-    "title": "Veranstaltungen"
+    "title": "Veranstaltung"
+  },
+  {
+    "id": "6289f549-a3b8-475f-bd9a-0b23de1178f9",
+    "title": "Leihsystem"
+  },
+  {
+    "id": "3a1393fc-c145-42ff-8455-c8625865b379",
+    "title": "Online-Format"
+  },
+  {
+    "id": "f07bdddc-c584-4cb3-ba22-b5e31ef2f179",
+    "title": "Mobile MINT-Angebote"
+  },
+  {
+    "id": "9c70301d-5c02-4841-b8c6-e235adcd5c86",
+    "title": "Produkte / Apps"
   },
   {
     "id": "90ae623e-0a6b-49d4-89dd-926a979c05cf",
@@ -49,6 +65,6 @@
   },
   {
     "id": "325c222b-2a08-4212-ac4f-8ab399b6ab40",
-    "title": "Finanzierungsmodelle"
+    "title": "Finanzierungsmodell"
   }
 ]

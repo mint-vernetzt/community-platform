@@ -1,9 +1,15 @@
 [
   {
-    "referenceId": 3638,
-    "title": "Astronomie",
-    "slug": "astronomy",
-    "id": "30562f9e-02f4-45f2-901f-b356826806ca"
+    "referenceId": 716,
+    "title": "Mathe",
+    "slug": "math",
+    "id": "a5026d2c-17ab-4461-b6d1-7f4d519435f6"
+  },
+  {
+    "referenceId": 712,
+    "title": "Informatik",
+    "slug": "computer_science",
+    "id": "d81f9069-29df-4e7e-b52c-d42a882e32ac"
   },
   {
     "referenceId": 3631,
@@ -18,22 +24,16 @@
     "id": "409c99eb-f269-471c-9b47-4efa0faf9d1d"
   },
   {
-    "referenceId": 712,
-    "title": "Informatik",
-    "slug": "computer_science",
-    "id": "d81f9069-29df-4e7e-b52c-d42a882e32ac"
-  },
-  {
-    "referenceId": 716,
-    "title": "Mathe",
-    "slug": "math",
-    "id": "a5026d2c-17ab-4461-b6d1-7f4d519435f6"
-  },
-  {
     "referenceId": 3636,
     "title": "Physik",
     "slug": "physics",
     "id": "ef737513-01cb-44d4-a811-328adcb2e770"
+  },
+  {
+    "referenceId": 3638,
+    "title": "Astronomie",
+    "slug": "astronomy",
+    "id": "30562f9e-02f4-45f2-901f-b356826806ca"
   },
   {
     "referenceId": 724,
