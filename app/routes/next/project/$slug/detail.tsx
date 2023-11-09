@@ -14,7 +14,13 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { TabBar, TextButton } from "@mint-vernetzt/components";
 import { json, type DataFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useLoaderData,
+  useMatches,
+} from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValue } from "~/lib/utils/routes";
@@ -23,6 +29,7 @@ import { deriveProjectMode } from "../../utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getImageURL } from "~/images.server";
 import { H1 } from "~/components/Heading/Heading";
+import { conform } from "@conform-to/react";
 
 export function links() {
   return [
@@ -120,6 +127,57 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+  const slug = getParamValue(params, "slug");
+  invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {
+    status: 404,
+  });
+  const mode = await deriveProjectMode(sessionUser, slug);
+  invariantResponse(mode === "admin", "Only admins can publish a project", {
+    status: 403,
+  });
+
+  const formData = await request.formData();
+  const action = formData.get(conform.INTENT);
+  invariantResponse(action !== null, "Did not provide an conform.INTENT", {
+    status: 400,
+  });
+  invariantResponse(
+    typeof action === "string",
+    "The intent value you provided is not a string",
+    {
+      status: 400,
+    }
+  );
+  if (action === "publish") {
+    await prismaClient.project.update({
+      where: {
+        slug: slug,
+      },
+      data: {
+        published: true,
+      },
+    });
+    return json({ success: true }, { headers: response.headers });
+  } else if (action === "unpublish") {
+    await prismaClient.project.update({
+      where: {
+        slug: slug,
+      },
+      data: {
+        published: false,
+      },
+    });
+    return json({ success: true }, { headers: response.headers });
+  }
+  return json({ success: false }, { headers: response.headers });
+};
+
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
   const { project, mode } = loaderData;
@@ -213,21 +271,27 @@ function ProjectDetail() {
               <p className="mv-text-base md:mv-text-2xl">{project.excerpt}</p>
             )}
           </Header.Body>
-          <Header.Footer>
-            {mode === "admin" && (
+          {mode === "admin" && (
+            <Header.Footer>
               <Controls>
                 {/* TODO: Use absolute path */}
                 <Button as="a" href="./../settings">
                   Projekt bearbeiten
                 </Button>
-                {/* TODO: Add conform, zod, Form and Action for publish */}
-                <Button variant="outline">
+                <Button
+                  name={conform.INTENT}
+                  variant="outline"
+                  value={`${project.published ? "unpublish" : "publish"}`}
+                  type="submit"
+                  form="publish-form"
+                >
                   {project.published ? "Verstecken" : "Veröffentlichen"}
                 </Button>
               </Controls>
-            )}
-          </Header.Footer>
+            </Header.Footer>
+          )}
         </Header>
+        {mode === "admin" && <Form method="post" id="publish-form" />}
       </section>
       {mode === "admin" && (
         <>
