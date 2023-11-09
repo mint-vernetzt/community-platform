@@ -192,8 +192,6 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  console.log({ project });
-
   return json({ project }, { headers: response.headers });
 };
 
@@ -217,17 +215,6 @@ function About() {
     loaderData.project.city !== null ? loaderData.project.city : ""
   }`.trimEnd();
 
-  console.log(
-    "has Social",
-    loaderData.project.facebook !== null ||
-      loaderData.project.linkedin !== null ||
-      loaderData.project.twitter !== null ||
-      loaderData.project.youtube !== null ||
-      loaderData.project.instagram !== null ||
-      loaderData.project.xing !== null ||
-      loaderData.project.mastodon !== null ||
-      loaderData.project.tiktok !== null
-  );
   return (
     <>
       <h1 className="mv-text-primary md:mv-font-bold lg:mv-font-black mv-text-5xl lg:mv-text-7xl mb-0">
@@ -537,8 +524,8 @@ function About() {
           </List>
         </div>
       )}
-      <div className="mv-bg-primary-50 mv-p-4 md:mv-p-8 mv-rounded-xl">
-        <div>
+      <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-8 md:mv-gap-4 mv-items-center mv-bg-primary-50 mv-p-4 md:mv-p-8 mv-rounded-xl">
+        <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
           <div className="mv-w-64 mv-h-64">
             <Avatar
               size="full"
@@ -546,11 +533,11 @@ function About() {
               name={loaderData.project.name}
             />
           </div>
-          <h4 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+          <h4 className="mv-text-neutral-700 mv-text-lg mv-text-center mv-font-bold mv-mb-0">
             {loaderData.project.name}
           </h4>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-2">
+        <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
           {loaderData.project.email !== null && (
             <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
               <Envelope />
@@ -603,13 +590,13 @@ function About() {
             loaderData.project.xing !== null ||
             loaderData.project.mastodon !== null ||
             loaderData.project.tiktok !== null) && (
-            <div>
+            <div className="mv-flex mv-flex-row mv-no-wrap mv-gap-2">
               {loaderData.project.facebook !== null && (
                 <a
                   href={loaderData.project.facebook}
                   target="__blank"
                   rel="noopener noreferrer"
-                  className="mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Facebook />
                 </a>
@@ -619,6 +606,7 @@ function About() {
                   href={loaderData.project.linkedin}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Linkedin />
                 </a>
@@ -628,6 +616,7 @@ function About() {
                   href={loaderData.project.twitter}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Twitter />
                 </a>
@@ -637,6 +626,7 @@ function About() {
                   href={loaderData.project.youtube}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <YouTube />
                 </a>
@@ -646,6 +636,7 @@ function About() {
                   href={loaderData.project.instagram}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Instagram />
                 </a>
@@ -655,6 +646,7 @@ function About() {
                   href={loaderData.project.xing}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Xing />
                 </a>
@@ -664,6 +656,7 @@ function About() {
                   href={loaderData.project.mastodon}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Mastodon />
                 </a>
@@ -673,6 +666,7 @@ function About() {
                   href={loaderData.project.tiktok}
                   target="__blank"
                   rel="noopener noreferrer"
+                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <TikTok />
                 </a>
