@@ -281,12 +281,14 @@ function Admins() {
     <Section>
       <BackButton to={location.pathname}>Admin-Rollen verwalten</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
-        Füge Administratorin:innen zu Deinem Projekt hinzu oder entferne sie.
+        Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuelle Administrator(en):in(nen)
+            {project.admins.length <= 1
+              ? "Administrator:in"
+              : "Administrator:innen"}
           </h2>
           <Form method="post">
             <List>
