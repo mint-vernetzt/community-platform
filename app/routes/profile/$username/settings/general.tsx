@@ -47,6 +47,7 @@ import {
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
 import { Trans, useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
 
 const profileSchema = object({
   academicTitle: nullOrString(string()),
@@ -90,18 +91,23 @@ function makeFormProfileFromDbProfile(
 export const loader = async ({ request, params }: LoaderArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/general",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
-    throw notFound({ message: "profile not found." });
+    throw notFound({ message: t("error.profileNotFound") });
   }
   const profileVisibilities = await getProfileVisibilitiesById(dbProfile.id);
   if (profileVisibilities === null) {
-    throw notFound({ message: "profile visbilities not found." });
+    throw notFound({ message: t("error.noVisibilities") });
   }
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
@@ -122,6 +128,10 @@ export const links: LinksFunction = () => [
 export const action = async ({ request, params }: ActionArgs) => {
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/general",
+  ]);
+
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -129,7 +139,7 @@ export const action = async ({ request, params }: ActionArgs) => {
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw notFound({ message: t("error.profileNotFound") });
   }
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
@@ -150,7 +160,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: "Validation failed" });
+    throw badRequest({ message: t("error.validationFailed") });
   }
 
   let updated = false;
@@ -165,7 +175,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: "Something went wrong on update." });
+        throw serverError({ message: t("error.serverError") });
       }
     }
   } else {

@@ -15,6 +15,8 @@ import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
 import { z } from "zod";
 import { Button } from "@mint-vernetzt/components";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   updates: z
@@ -31,6 +33,9 @@ const schema = z.object({
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/notifications",
+  ]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await prismaClient.profile.findFirst({
@@ -40,11 +45,13 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
   if (profile === null) {
-    throw notFound("Profile not found");
+    throw notFound(t("error.profileNotFound"));
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const notificationSettings = profile.notificationSettings ?? {
     updates: false,
@@ -56,12 +63,16 @@ export const loader = async (args: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
+  const t = await i18next.getFixedT(request, [
+    "routes/profile/settings/notifications",
+  ]);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const username = getParamValueOrThrow(params, "username");
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const formData = await request.formData();
   const submission = parse(formData, { schema });
@@ -114,15 +125,17 @@ function Notifications() {
     lastSubmission: actionData,
   });
 
+  const { t } = useTranslation(["routes/profile/settings/notifications"]);
+
   return (
     <>
-      <h1 className="mv-mb-8">Benachrichtigungen</h1>
+      <h1 className="mv-mb-8">{t("content.headline")}</h1>
       {loaderData.profile.notificationSettings !== null ? (
         <ul>
           <Form method="post" {...form.props}>
             <div className="mv-flex mv-justify-between">
               <label className="mv-font-semibold" htmlFor={fields.updates.name}>
-                Ich möchte zu Plattform-Updates informiert werden.
+                {t("form.updates.label")}
               </label>
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
@@ -133,13 +146,13 @@ function Notifications() {
             )}
             <noscript>
               <div className="mv-mt-2">
-                <Button variant="outline">Speichern</Button>
+                <Button variant="outline">{t("form.submit.label")}</Button>
               </div>
             </noscript>
           </Form>
         </ul>
       ) : (
-        "Keine Einstellungen gefunden."
+        <>{t("content.empty")}</>
       )}
     </>
   );

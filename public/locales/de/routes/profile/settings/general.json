@@ -1,4 +1,11 @@
 {
+  "error": {
+    "profileNotFound": "Profile not found.",
+    "validationFailed": "Validation failed",
+    "serverError": "Something went wrong on update.",
+    "notPrivileged": "Not privileged",
+    "noVisibilities": "profile visbilities not found."
+  },
   "headline": "Persönliche Daten",
   "general": {
     "headline": "Allgemein",
