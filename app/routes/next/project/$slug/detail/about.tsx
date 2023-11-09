@@ -20,6 +20,7 @@ import {
   Twitter,
   Xing,
   YouTube,
+  Avatar as AvatarIcon,
 } from "./__components";
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -159,7 +160,7 @@ export const loader = async (args: DataFunctionArgs) => {
     const publicURL = getPublicURL(authClient, project.logo);
     if (publicURL) {
       const logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 272, height: 272 },
+        resize: { type: "fill", width: 256, height: 256 },
       });
       project.logo = logo;
     }
@@ -171,7 +172,7 @@ export const loader = async (args: DataFunctionArgs) => {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fit", width: 144, height: 144 },
+          resize: { type: "fill", width: 144, height: 144 },
         });
       }
     }
@@ -184,7 +185,7 @@ export const loader = async (args: DataFunctionArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 144, height: 144 },
+            resize: { type: "fill", width: 144, height: 144 },
           });
         }
       }
@@ -526,9 +527,8 @@ function About() {
       )}
       <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-8 md:mv-gap-4 mv-items-center mv-bg-primary-50 mv-p-4 md:mv-p-8 mv-rounded-xl">
         <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
-          <div className="mv-w-64 mv-h-64">
-            <Avatar
-              size="full"
+          <div className="mv-w-64 mv-aspect-[1]">
+            <AvatarIcon
               logo={loaderData.project.logo}
               name={loaderData.project.name}
             />
