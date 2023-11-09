@@ -70,14 +70,43 @@ function InputError(props: React.PropsWithChildren<{}>) {
   );
 }
 
+function InputCounter(props: { currentCount: number; maxCount: number }) {
+  return (
+    <div className="mv-text-sm mv-text-gray-700 mv-mt-2">
+      {props.currentCount}/{props.maxCount}
+    </div>
+  );
+}
+
 export type InputProps = React.HTMLProps<HTMLInputElement> & {
   standalone?: boolean;
 };
 
 function Input(props: InputProps) {
   const { type = "text", children, standalone, ...inputProps } = props;
-
   const name = props.name || props.id;
+
+  const defaultValueLength = props.defaultValue
+    ? props.defaultValue.toString().length
+    : 0;
+  const [characterCount, updateCharacterCount] =
+    React.useState(defaultValueLength);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    if (props.onChange !== undefined) {
+      props.onChange(event);
+    }
+    if (
+      props.maxLength !== undefined &&
+      event.currentTarget.value.length > props.maxLength
+    ) {
+      event.currentTarget.value = event.currentTarget.value.substring(
+        0,
+        props.maxLength
+      );
+    }
+    updateCharacterCount(event.currentTarget.value.length);
+  };
 
   if (type === "hidden") {
     return <input {...inputProps} className="mv-hidden" name={name} />;
@@ -131,18 +160,41 @@ function Input(props: InputProps) {
     typeof error !== "undefined" && "mv-border-negative-600"
   );
 
+  const inputCounterContainerClasses = classNames(
+    "mv-flex mv-w-full",
+    helperText !== undefined ? "mv-justify-between" : "mv-justify-end"
+  );
+
   return (
     <div className="w-full">
       {label}
       <div className="mv-relative">
-        <input className={inputClasses} {...inputProps} name={name} />
+        <input
+          className={inputClasses}
+          {...inputProps}
+          name={name}
+          onChange={
+            props.maxLength !== undefined ? handleInputChange : props.onChange
+          }
+        />
         {typeof icon !== "undefined" && (
           <div className="mv-absolute mv-right-3 mv-top-1/2 mv--translate-y-1/2">
             {icon}
           </div>
         )}
       </div>
-      {helperText}
+      {props.maxLength !== undefined ? (
+        <div className={inputCounterContainerClasses}>
+          {helperText}
+          <InputCounter
+            currentCount={characterCount}
+            maxCount={props.maxLength}
+          />
+        </div>
+      ) : (
+        helperText
+      )}
+
       {error}
       {typeof standalone !== "undefined" && standalone !== false && (
         <input type="submit" className="mv-hidden" />

@@ -1,18 +1,22 @@
-import { redirect, type DataFunctionArgs, json } from "@remix-run/node";
+import { conform, useForm } from "@conform-to/react";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import {
+  Button,
+  Controls,
+  Input,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
   useActionData,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
-import { z } from "zod";
 import {
   blueskySchema,
   facebookSchema,
@@ -24,17 +28,12 @@ import {
   xingSchema,
   youtubeSchema,
 } from "~/lib/utils/schemas";
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
+import { BackButton } from "./__components";
 import {
-  Button,
-  Controls,
-  Input,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const webSocialSchema = z.object({
   website: websiteSchema,
@@ -218,7 +217,7 @@ function WebSocial() {
               {...conform.input(fields.website)}
               placeholder="domainname.tld"
             >
-              <Input.Label>URL</Input.Label>
+              <Input.Label htmlFor={fields.website.id}>URL</Input.Label>
               {typeof fields.website.error !== "undefined" && (
                 <Input.Error>{fields.website.error}</Input.Error>
               )}
@@ -232,7 +231,7 @@ function WebSocial() {
               {...conform.input(fields.facebook)}
               placeholder="facebook.com/<name>"
             >
-              <Input.Label>Facebook</Input.Label>
+              <Input.Label htmlFor={fields.facebook.id}>Facebook</Input.Label>
               {typeof fields.facebook.error !== "undefined" && (
                 <Input.Error>{fields.facebook.error}</Input.Error>
               )}
@@ -241,7 +240,7 @@ function WebSocial() {
               {...conform.input(fields.linkedin)}
               placeholder="linkedin.com/company/<name>" // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label>LinkedIn</Input.Label>
+              <Input.Label htmlFor={fields.linkedin.id}>LinkedIn</Input.Label>
               {typeof fields.linkedin.error !== "undefined" && (
                 <Input.Error>{fields.linkedin.error}</Input.Error>
               )}
@@ -250,7 +249,7 @@ function WebSocial() {
               {...conform.input(fields.xing)}
               placeholder="xing.com/pages/<name>" // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label>Xing</Input.Label>
+              <Input.Label htmlFor={fields.xing.id}>Xing</Input.Label>
               {typeof fields.xing.error !== "undefined" && (
                 <Input.Error>{fields.xing.error}</Input.Error>
               )}
@@ -259,7 +258,7 @@ function WebSocial() {
               {...conform.input(fields.twitter)}
               placeholder="twitter.com/<name>"
             >
-              <Input.Label>X (Twitter)</Input.Label>
+              <Input.Label htmlFor={fields.twitter.id}>X (Twitter)</Input.Label>
               {typeof fields.twitter.error !== "undefined" && (
                 <Input.Error>{fields.twitter.error}</Input.Error>
               )}
@@ -268,7 +267,7 @@ function WebSocial() {
               {...conform.input(fields.mastodon)}
               placeholder="domainname.tld/@<name>" // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label>Mastodon</Input.Label>
+              <Input.Label htmlFor={fields.mastodon.id}>Mastodon</Input.Label>
               {typeof fields.mastodon.error !== "undefined" && (
                 <Input.Error>{fields.mastodon.error}</Input.Error>
               )}
@@ -277,7 +276,7 @@ function WebSocial() {
               {...conform.input(fields.bluesky)}
               placeholder="bsky.app/<name>"
             >
-              <Input.Label>Bluesky</Input.Label>
+              <Input.Label htmlFor={fields.bluesky.id}>Bluesky</Input.Label>
               {typeof fields.bluesky.error !== "undefined" && (
                 <Input.Error>{fields.bluesky.error}</Input.Error>
               )}
@@ -286,7 +285,7 @@ function WebSocial() {
               {...conform.input(fields.instagram)}
               placeholder="instagram.com/<name>"
             >
-              <Input.Label>Instagram</Input.Label>
+              <Input.Label htmlFor={fields.instagram.id}>Instagram</Input.Label>
               {typeof fields.instagram.error !== "undefined" && (
                 <Input.Error>{fields.instagram.error}</Input.Error>
               )}
@@ -295,7 +294,7 @@ function WebSocial() {
               {...conform.input(fields.youtube)}
               placeholder="youtube.com/<name>"
             >
-              <Input.Label>YouTube</Input.Label>
+              <Input.Label htmlFor={fields.youtube.id}>YouTube</Input.Label>
               {typeof fields.youtube.error !== "undefined" && (
                 <Input.Error>{fields.youtube.error}</Input.Error>
               )}

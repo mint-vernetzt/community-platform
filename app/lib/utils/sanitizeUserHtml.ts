@@ -18,12 +18,15 @@ const allowedAttributes = {
   a: ["href", "rel", "target"],
 };
 export function sanitizeUserHtml(
-  html: string,
+  html: string | null,
   options?: {
     allowedTags?: string[];
     allowedAttributes?: { [key: string]: string[] };
   }
 ) {
+  if (html === null) {
+    return null;
+  }
   return sanitizeHtml(
     html,
     options ?? {
@@ -38,5 +41,3 @@ const REMOVE_HTML_TAGS_REPLACEMENT = "";
 export function removeHtmlTags(html: string) {
   return html.replace(REMOVE_HTML_TAGS_REGEX, REMOVE_HTML_TAGS_REPLACEMENT);
 }
-
-function test_removeHtmlTags() {}
