@@ -344,8 +344,8 @@ function General() {
               <Input.Label>
                 Subline Deines Projekts oder Bildungsangebotes
               </Input.Label>
-              {typeof fields.name.error !== "undefined" && (
-                <Input.Error>{fields.name.error}</Input.Error>
+              {typeof fields.subline.error !== "undefined" && (
+                <Input.Error>{fields.subline.error}</Input.Error>
               )}
               <Input.HelperText>
                 Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut
