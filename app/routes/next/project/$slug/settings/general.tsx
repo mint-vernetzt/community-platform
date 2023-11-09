@@ -48,6 +48,10 @@ const generalSchema = z.object({
     .string()
     .optional()
     .transform((value) => (value === undefined ? null : value)),
+  subline: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? null : value)),
   street: z
     .string()
     .optional()
@@ -97,6 +101,7 @@ export const loader = async (args: DataFunctionArgs) => {
   const project = await prismaClient.project.findUnique({
     select: {
       name: true,
+      subline: true,
       email: true,
       phone: true,
       contactName: true,
@@ -190,6 +195,9 @@ export async function action({ request, params }: DataFunctionArgs) {
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
         const { formats, areas, ...rest } = data;
+
+        console.log({ formats });
+
         try {
           await prismaClient.project.update({
             where: {
@@ -325,7 +333,7 @@ function General() {
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
           <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-              Projektname
+              Projekttitel
             </h2>
             <Input {...conform.input(fields.name)}>
               <Input.Label htmlFor={fields.name.id}>
@@ -336,6 +344,24 @@ function General() {
               )}
               <Input.HelperText>
                 Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.
+              </Input.HelperText>
+            </Input>
+          </div>
+
+          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+              Projektuntertitel
+            </h2>
+            <Input {...conform.input(fields.subline)}>
+              <Input.Label>
+                Subline Deines Projekts oder Bildungsangebotes
+              </Input.Label>
+              {typeof fields.subline.error !== "undefined" && (
+                <Input.Error>{fields.subline.error}</Input.Error>
+              )}
+              <Input.HelperText>
+                Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut
+                dargestellt.
               </Input.HelperText>
             </Input>
           </div>
@@ -387,6 +413,7 @@ function General() {
                 {formatList.map((listFormat, index) => {
                   return (
                     <Chip key={listFormat.key}>
+                      <Input type="hidden" {...conform.input(listFormat)} />
                       {allFormats.find((format) => {
                         return format.id === listFormat.defaultValue;
                       })?.title || "Not Found"}
@@ -433,6 +460,7 @@ function General() {
                 {furtherFormatsList.map((listFormat, index) => {
                   return (
                     <Chip key={listFormat.key}>
+                      <Input type="hidden" {...conform.input(listFormat)} />
                       {listFormat.defaultValue || "Not Found"}
                       <Chip.Delete>
                         <button
@@ -518,6 +546,7 @@ function General() {
                 {areaList.map((listArea, index) => {
                   return (
                     <Chip key={listArea.key}>
+                      <Input type="hidden" {...conform.input(listArea)} />
                       {areaOptions.find((area) => {
                         return area.value === listArea.defaultValue;
                       })?.label || "Not Found"}

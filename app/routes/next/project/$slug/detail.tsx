@@ -1,3 +1,4 @@
+import { conform } from "@conform-to/react";
 import {
   Avatar,
   Button,
@@ -6,13 +7,9 @@ import {
   Header,
   Image,
   Status,
+  TabBar,
+  TextButton,
 } from "@mint-vernetzt/components";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import React from "react";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import Modal from "~/components/Modal/Modal";
-import { TabBar, TextButton } from "@mint-vernetzt/components";
 import { json, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -21,15 +18,18 @@ import {
   useLoaderData,
   useMatches,
 } from "@remix-run/react";
+import rcSliderStyles from "rc-slider/assets/index.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { prismaClient } from "~/prisma.server";
-import { getParamValue } from "~/lib/utils/routes";
-import { invariantResponse } from "~/lib/utils/response";
-import { deriveProjectMode } from "../../utils.server";
-import { getPublicURL } from "~/storage.server";
-import { getImageURL } from "~/images.server";
 import { H1 } from "~/components/Heading/Heading";
-import { conform } from "@conform-to/react";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import Modal from "~/components/Modal/Modal";
+import { getImageURL } from "~/images.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValue } from "~/lib/utils/routes";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import { deriveProjectMode } from "../../utils.server";
 
 export function links() {
   return [
@@ -67,7 +67,7 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       slug: true,
       name: true,
-      excerpt: true,
+      subline: true,
       logo: true,
       published: true,
       background: true,
@@ -267,8 +267,8 @@ function ProjectDetail() {
             <H1 like="h3" className="mv-mb-0">
               {project.name}
             </H1>
-            {project.excerpt !== null && (
-              <p className="mv-text-base md:mv-text-2xl">{project.excerpt}</p>
+            {project.subline !== null && (
+              <p className="mv-text-base md:mv-text-2xl">{project.subline}</p>
             )}
           </Header.Body>
           {mode === "admin" && (
@@ -346,20 +346,24 @@ function ProjectDetail() {
           </Modal>
         </>
       )}
-
-      <TabBar>
-        <TabBar.Item active={pathname.endsWith("/about")}>
-          <Link to="./about">about</Link>
-        </TabBar.Item>
-        <TabBar.Item active={pathname.endsWith("/requirements")}>
-          <Link to="./requirements">requirements</Link>
-        </TabBar.Item>
-        <TabBar.Item active={pathname.endsWith("/attachments")}>
-          <Link to="./attachments">attachments</Link>
-        </TabBar.Item>
-      </TabBar>
-      <Link to="./../settings">⚙️</Link>
-      <Outlet />
+      <section className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden">
+        <div className="md:mv-flex xl:mv-justify-center">
+          <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
+            <TabBar>
+              <TabBar.Item active={pathname.endsWith("/about")}>
+                <Link to="./about">Über das Projekt</Link>
+              </TabBar.Item>
+              {/* <TabBar.Item active={pathname.endsWith("/requirements")}>
+                <Link to="./requirements">Rahmenbedingungen</Link>
+              </TabBar.Item>
+              <TabBar.Item active={pathname.endsWith("/attachments")}>
+                <Link to="./attachments">Zugänglichkeit</Link>
+              </TabBar.Item> */}
+            </TabBar>
+            <Outlet />
+          </div>
+        </div>
+      </section>
     </>
   );
 }

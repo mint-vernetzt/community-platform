@@ -666,6 +666,7 @@ model Document {
 model Project {
   id                       String                             @id @default(uuid())
   name                     String
+  subline                  String?
   slug                     String                             @unique
   logo                     String?
   background               String? // legacy
@@ -690,7 +691,7 @@ model Project {
   instagram                String?
   xing                     String?
   mastodon                 String?
-  bluesky                  String?
+  tiktok                   String?
   createdAt                DateTime                           @default(now()) @map("created_at")
   updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
   published                Boolean                            @default(false)

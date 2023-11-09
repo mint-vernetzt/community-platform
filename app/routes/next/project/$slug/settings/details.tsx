@@ -11,10 +11,10 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import {
-  type LinksFunction,
   json,
   redirect,
   type DataFunctionArgs,
+  type LinksFunction,
 } from "@remix-run/node";
 import {
   Form,
@@ -29,13 +29,11 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
-import { youtubeSchema } from "~/lib/utils/schemas";
+import { youtubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { getSubmissionHash } from "./utils.server";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -114,7 +112,7 @@ const detailsSchema = z.object({
     )
     .optional()
     .transform((value) => (value === undefined ? null : value)),
-  video: youtubeSchema,
+  video: youtubeEmbedSchema,
   videoSubline: z
     .string()
     .max(
