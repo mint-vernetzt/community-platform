@@ -14,7 +14,7 @@ import {
 } from "./utils.server";
 import { z } from "zod";
 import {
-  blueskySchema,
+  tiktokSchema,
   facebookSchema,
   instagramSchema,
   linkedinSchema,
@@ -43,7 +43,7 @@ const webSocialSchema = z.object({
   xing: xingSchema,
   twitter: twitterSchema,
   mastodon: mastodonSchema,
-  bluesky: blueskySchema,
+  tiktok: tiktokSchema,
   instagram: instagramSchema,
   youtube: youtubeSchema,
 });
@@ -80,7 +80,7 @@ export const loader = async (args: DataFunctionArgs) => {
       xing: true,
       twitter: true,
       mastodon: true,
-      bluesky: true,
+      tiktok: true,
       instagram: true,
       youtube: true,
     },
@@ -187,7 +187,7 @@ function WebSocial() {
       xing: project.xing || undefined,
       twitter: project.twitter || undefined,
       mastodon: project.mastodon || undefined,
-      bluesky: project.bluesky || undefined,
+      tiktok: project.tiktok || undefined,
       instagram: project.instagram || undefined,
       youtube: project.youtube || undefined,
     },
@@ -274,12 +274,12 @@ function WebSocial() {
               )}
             </Input>
             <Input
-              {...conform.input(fields.bluesky)}
-              placeholder="bsky.app/<name>"
+              {...conform.input(fields.tiktok)}
+              placeholder="tiktok.com/@<name>"
             >
-              <Input.Label>Bluesky</Input.Label>
-              {typeof fields.bluesky.error !== "undefined" && (
-                <Input.Error>{fields.bluesky.error}</Input.Error>
+              <Input.Label>tiktok</Input.Label>
+              {typeof fields.tiktok.error !== "undefined" && (
+                <Input.Error>{fields.tiktok.error}</Input.Error>
               )}
             </Input>
             <Input
