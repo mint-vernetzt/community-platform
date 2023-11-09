@@ -56,7 +56,7 @@ const createMutation = (t: TFunction) => {
     environmentSchema
   )(async (values, environment) => {
     const { error } = await signIn(
-      // TODO: fix type issue
+      // @ts-ignore TODO: fix type issue
       environment.authClient,
       values.email,
       values.password

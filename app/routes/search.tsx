@@ -120,7 +120,7 @@ function SearchView() {
         action="/search/profiles"
         onSubmit={(event) => {
           event.preventDefault();
-          // TODO: fix type issue
+          // @ts-ignore TODO: fix type issue
           const query = event.target["search-query"].value;
           if (query.length >= 2) {
             window.location.href = `/search?query=${query}`;
