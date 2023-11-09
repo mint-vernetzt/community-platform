@@ -15,6 +15,7 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { z } from "zod";
@@ -25,6 +26,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { type Prisma, type Profile } from "@prisma/client";
 
 const searchSchema = z.object({
   search: z.string().min(3).optional(),
@@ -108,14 +110,18 @@ export const loader = async (args: DataFunctionArgs) => {
     avatar: string | null;
   }[] = [];
   if (query.length > 0) {
-    const whereQueries = [];
+    const whereQueries: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    }[] = [];
     for (const word of query) {
       whereQueries.push({
         OR: [
-          { firstName: { contains: word } },
-          { lastName: { contains: word } },
-          { username: { contains: word } },
-          { email: { contains: word } },
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+          { username: { contains: word, mode: "insensitive" } },
+          { email: { contains: word, mode: "insensitive" } },
         ],
       });
     }
@@ -268,9 +274,16 @@ function Admins() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const submit = useSubmit();
 
   const [searchForm, fields] = useForm({
-    shouldValidate: "onSubmit",
+    // TODO:
+    // Validation triggers, but still the search results are shown because of method="get"
+    // Should we leave out the validation (search also works fast with one character as input)
+    shouldValidate: "onInput",
+    defaultValue: {
+      search: searchParams.get("search") || "",
+    },
     onValidate: (values) => {
       return parse(values.formData, { schema: searchSchema });
     },
@@ -328,20 +341,23 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Administrator:in hinzufügen
           </h2>
-          <Form method="get" {...searchForm.props}>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
             <Input id="deep" type="hidden" defaultValue="true" />
-            <Input
-              id="search"
-              defaultValue={searchParams.get("search") || ""}
-              standalone
-            >
-              <Input.Label htmlFor="search" hidden>
+            <Input {...conform.input(fields.search)} standalone>
+              <Input.Label htmlFor={fields.search.id} hidden>
                 Suche
               </Input.Label>
               <Input.SearchIcon />
+              {typeof fields.search.error !== "undefined" && (
+                <Input.Error>{fields.search.error}</Input.Error>
+              )}
             </Input>
-
-            <p id={fields.search.errorId}>{fields.search.error}</p>
           </Form>
           <Form method="post">
             <List>

@@ -7,6 +7,7 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
@@ -26,6 +27,7 @@ import {
   Section,
   Toast,
 } from "@mint-vernetzt/components";
+import { type Organization, type Prisma } from "@prisma/client";
 
 const searchSchema = z.object({
   search: z.string().min(3).optional(),
@@ -175,10 +177,17 @@ export const loader = async (args: DataFunctionArgs) => {
   // get organizations that match search query
   let searchResult: { name: string; slug: string; logo: string | null }[] = [];
   if (query.length > 0) {
-    const whereQueries = [];
+    const whereQueries: {
+      OR: {
+        [K in Organization as string]: {
+          contains: string;
+          mode: Prisma.QueryMode;
+        };
+      }[];
+    }[] = [];
     for (const word of query) {
       whereQueries.push({
-        OR: [{ name: { contains: word } }],
+        OR: [{ name: { contains: word, mode: "insensitive" } }],
       });
     }
 
@@ -352,9 +361,16 @@ function ResponsibleOrgs() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const submit = useSubmit();
 
-  const [searchForm] = useForm({
-    shouldValidate: "onSubmit",
+  const [searchForm, fields] = useForm({
+    // TODO:
+    // Validation triggers, but still the search results are shown because of method="get"
+    // Should we leave out the validation (search also works fast with one character as input)
+    shouldValidate: "onInput",
+    defaultValue: {
+      search: searchParams.get("search") || "",
+    },
     onValidate: (values) => {
       return parse(values.formData, { schema: searchSchema });
     },
@@ -461,18 +477,24 @@ function ResponsibleOrgs() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Andere Organisation(en) hinzufügen
           </h2>
-          <Form method="get" {...searchForm.props}>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
             <Input id="deep" type="hidden" defaultValue="true" />
+            {/* TODO: Why is this input here and not on teams/admins? */}
             <input type="submit" className="mv-hidden" />
-            <Input
-              id="search"
-              defaultValue={searchParams.get("search") || ""}
-              standalone
-            >
+            <Input {...conform.input(fields.search)} standalone>
               <Input.Label htmlFor="search" hidden>
                 Suche
               </Input.Label>
               <Input.SearchIcon />
+              {typeof fields.search.error !== "undefined" && (
+                <Input.Error>{fields.search.error}</Input.Error>
+              )}
             </Input>
           </Form>
           <Form method="post">
