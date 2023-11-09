@@ -20,6 +20,9 @@
     "createProject": "Projekt anlegen",
     "logout": "Logout",
     "login": "Anmelden",
-    "register": "Registrieren"
+    "register": "Registrieren",
+    "search": {
+      "placeholder": "Suche (mind. 3 Buchstaben)"
+    }
   }
 }
