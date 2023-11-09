@@ -144,7 +144,9 @@ function Delete() {
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <Input id="deep" defaultValue="true" type="hidden" />
           <Input id="name">
-            <Input.Label>Löschen bestätigen</Input.Label>
+            <Input.Label htmlFor={fields.name.id}>
+              Löschen bestätigen
+            </Input.Label>
             {typeof fields.name.error !== "undefined" && (
               <Input.Error>{fields.name.error}</Input.Error>
             )}

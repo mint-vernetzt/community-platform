@@ -1,6 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
 import {
+  Alert,
   Avatar,
   Button,
   Input,
@@ -8,6 +8,7 @@ import {
   Section,
   Toast,
 } from "@mint-vernetzt/components";
+import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -15,9 +16,9 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -25,10 +26,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-
-const searchSchema = z.object({
-  search: z.string().min(3).optional(),
-});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -107,15 +104,23 @@ export const loader = async (args: DataFunctionArgs) => {
     username: string;
     avatar: string | null;
   }[] = [];
-  if (query.length > 0) {
-    const whereQueries = [];
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
+    const whereQueries: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    }[] = [];
     for (const word of query) {
       whereQueries.push({
         OR: [
-          { firstName: { contains: word } },
-          { lastName: { contains: word } },
-          { username: { contains: word } },
-          { email: { contains: word } },
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+          { username: { contains: word, mode: "insensitive" } },
+          { email: { contains: word, mode: "insensitive" } },
         ],
       });
     }
@@ -242,6 +247,19 @@ export const action = async (args: DataFunctionArgs) => {
       status: 404,
     });
 
+    const adminCount = await prismaClient.adminOfProject.count({
+      where: {
+        projectId: project.id,
+      },
+    });
+
+    if (adminCount <= 1) {
+      return json(
+        { success: false, action, profile: null },
+        { headers: response.headers }
+      );
+    }
+
     await prismaClient.adminOfProject.delete({
       where: {
         profileId_projectId: {
@@ -268,25 +286,37 @@ function Admins() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const submit = useSubmit();
 
-  const [searchForm, fields] = useForm({
-    shouldValidate: "onSubmit",
-    onValidate: (values) => {
-      return parse(values.formData, { schema: searchSchema });
+  const [searchForm, searchFields] = useForm({
+    defaultValue: {
+      search: searchParams.get("search") || "",
+      deep: "true",
     },
-    shouldRevalidate: "onInput",
   });
 
   return (
     <Section>
       <BackButton to={location.pathname}>Admin-Rollen verwalten</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
-        Füge Administratorin:innen zu Deinem Projekt hinzu oder entferne sie.
+        Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
+      {typeof actionData !== "undefined" &&
+        actionData !== null &&
+        actionData.success === false && (
+          <Alert level="negative" key={actionData.action}>
+            {actionData.action.startsWith("remove_") &&
+              "Beim Entfernen ist etwas schief gelaufen"}
+            {actionData.action.startsWith("add_") &&
+              "Beim Hinzufügen ist etwas schief gelaufen"}
+          </Alert>
+        )}
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuelle Administrator(en):in(nen)
+            {project.admins.length <= 1
+              ? "Administrator:in"
+              : "Administrator:innen"}
           </h2>
           <Form method="post">
             <List>
@@ -298,16 +328,18 @@ function Admins() {
                       {admins.profile.firstName} {admins.profile.lastName}
                     </List.Item.Title>
                     <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`remove_${admins.profile.username}`}
-                        type="submit"
-                      >
-                        Entfernen
-                      </Button>
-                    </List.Item.Controls>
+                    {project.admins.length > 1 && (
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${admins.profile.username}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    )}
                   </List.Item>
                 );
               })}
@@ -328,18 +360,22 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Administrator:in hinzufügen
           </h2>
-          <Form method="get" {...searchForm.props}>
-            <Input id="deep" type="hidden" defaultValue="true" />
-            <Input
-              id="search"
-              defaultValue={searchParams.get("search") || ""}
-              standalone
-            >
-              <Input.Label hidden>Suche</Input.Label>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
+            <Input {...conform.input(searchFields.deep)} type="hidden" />
+            <Input {...conform.input(searchFields.search)} standalone>
+              <Input.Label htmlFor={searchFields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              {typeof searchFields.search.error !== "undefined" && (
+                <Input.Error>{searchFields.search.error}</Input.Error>
+              )}
             </Input>
-
-            <p id={fields.search.errorId}>{fields.search.error}</p>
           </Form>
           <Form method="post">
             <List>

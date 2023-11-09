@@ -54,7 +54,7 @@ const TextArea = React.forwardRef(
                   return (
                     <RTE
                       id={id}
-                      defaultValue={`${rest.defaultValue}`}
+                      defaultValue={`${rest.defaultValue || ""}`}
                       maxLength={rest.maxLength}
                     />
                   );
@@ -64,7 +64,6 @@ const TextArea = React.forwardRef(
             <textarea
               {...rest}
               id={id}
-              name={id}
               className={`textarea textarea-bordered h-24 w-full ${
                 props.className
               }${rte === true ? " hidden" : ""}`}

@@ -1,5 +1,4 @@
 import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
 import {
   Avatar,
   Button,
@@ -8,6 +7,7 @@ import {
   Section,
   Toast,
 } from "@mint-vernetzt/components";
+import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -15,9 +15,9 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -25,10 +25,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-
-const searchSchema = z.object({
-  search: z.string().min(3).optional(),
-});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -114,15 +110,23 @@ export const loader = async (args: DataFunctionArgs) => {
     username: string;
     avatar: string | null;
   }[] = [];
-  if (query.length > 0) {
-    const whereQueries = [];
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
+    const whereQueries: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    }[] = [];
     for (const word of query) {
       whereQueries.push({
         OR: [
-          { firstName: { contains: word } },
-          { lastName: { contains: word } },
-          { username: { contains: word } },
-          { email: { contains: word } },
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+          { username: { contains: word, mode: "insensitive" } },
+          { email: { contains: word, mode: "insensitive" } },
         ],
       });
     }
@@ -278,13 +282,13 @@ function Team() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const submit = useSubmit();
 
   const [searchForm, fields] = useForm({
-    shouldValidate: "onSubmit",
-    onValidate: (values) => {
-      return parse(values.formData, { schema: searchSchema });
+    defaultValue: {
+      search: searchParams.get("search") || "",
+      deep: "true",
     },
-    shouldRevalidate: "onInput",
   });
 
   return (
@@ -348,15 +352,21 @@ function Team() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Teammitglied hinzufügen
           </h2>
-          <Form method="get" {...searchForm.props}>
-            <Input id="deep" type="hidden" defaultValue="true" />
-            <Input
-              id="search"
-              defaultValue={searchParams.get("search") || ""}
-              standalone
-            >
-              <Input.Label hidden>Suche</Input.Label>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
+            <Input {...conform.input(fields.deep)} type="hidden" />
+            <Input {...conform.input(fields.search)} standalone>
+              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              {typeof fields.search.error !== "undefined" && (
+                <Input.Error>{fields.search.error}</Input.Error>
+              )}
             </Input>
           </Form>
           <Form method="post">

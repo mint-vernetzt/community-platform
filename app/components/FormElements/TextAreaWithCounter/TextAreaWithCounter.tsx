@@ -3,9 +3,11 @@ import React from "react";
 import Counter from "../../Counter/Counter";
 import type { TextAreaProps } from "../TextArea/TextArea";
 import TextArea from "../TextArea/TextArea";
+import classNames from "classnames";
 
 export interface TextAreaWithCounterProps {
   maxCharacters?: number;
+  helperText?: string;
 }
 
 const TextAreaWithCounter = React.forwardRef(
@@ -18,6 +20,7 @@ const TextAreaWithCounter = React.forwardRef(
     const {
       maxCharacters,
       defaultValue = "",
+      helperText,
       onChange: defaultOnChange,
       ...rest
     } = props;
@@ -49,18 +52,37 @@ const TextAreaWithCounter = React.forwardRef(
       updateCharacterCount(contentLength);
     };
 
+    const counterContainerClasses = classNames(
+      "mv-flex mv-w-full mv-mt-2",
+      helperText === undefined && maxCharacters !== undefined
+        ? "mv-justify-end"
+        : "mv-justify-between"
+    );
+
     return (
       <>
-        <TextArea
-          {...rest}
-          defaultValue={defaultValue}
-          ref={ref}
-          onChange={handleTextAreaChange}
-          maxLength={maxCharacters}
-        />
-        {maxCharacters !== undefined && (
-          <Counter currentCount={characterCount} maxCount={maxCharacters} />
-        )}
+        <div className="mv-flex mv-flex-col">
+          <TextArea
+            {...rest}
+            defaultValue={defaultValue}
+            ref={ref}
+            onChange={handleTextAreaChange}
+            maxLength={maxCharacters}
+          />
+          {(maxCharacters !== undefined || helperText !== undefined) && (
+            <div className={counterContainerClasses}>
+              {helperText !== undefined && (
+                <div className="mv-text-sm mv-text-gray-700">{helperText}</div>
+              )}
+              {maxCharacters !== undefined && (
+                <Counter
+                  currentCount={characterCount}
+                  maxCount={maxCharacters}
+                />
+              )}
+            </div>
+          )}
+        </div>
       </>
     );
   }

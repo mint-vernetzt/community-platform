@@ -1,5 +1,13 @@
 import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import {
+  Avatar,
+  Button,
+  Input,
+  List,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
+import { type Organization, type Prisma } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -7,6 +15,7 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
 import { GravityType } from "imgproxy/dist/types";
@@ -17,19 +26,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { z } from "zod";
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
-
-const searchSchema = z.object({
-  search: z.string().min(3).optional(),
-});
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -174,11 +170,23 @@ export const loader = async (args: DataFunctionArgs) => {
 
   // get organizations that match search query
   let searchResult: { name: string; slug: string; logo: string | null }[] = [];
-  if (query.length > 0) {
-    const whereQueries = [];
+
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
+    const whereQueries: {
+      OR: {
+        [K in Organization as string]: {
+          contains: string;
+          mode: Prisma.QueryMode;
+        };
+      }[];
+    }[] = [];
     for (const word of query) {
       whereQueries.push({
-        OR: [{ name: { contains: word } }],
+        OR: [{ name: { contains: word, mode: "insensitive" } }],
       });
     }
 
@@ -352,13 +360,13 @@ function ResponsibleOrgs() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const submit = useSubmit();
 
-  const [searchForm] = useForm({
-    shouldValidate: "onSubmit",
-    onValidate: (values) => {
-      return parse(values.formData, { schema: searchSchema });
+  const [searchForm, fields] = useForm({
+    defaultValue: {
+      search: searchParams.get("search") || "",
+      deep: "true",
     },
-    shouldRevalidate: "onInput",
   });
 
   return (
@@ -461,16 +469,21 @@ function ResponsibleOrgs() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Andere Organisation(en) hinzufügen
           </h2>
-          <Form method="get" {...searchForm.props}>
-            <Input id="deep" type="hidden" defaultValue="true" />
-            <input type="submit" className="mv-hidden" />
-            <Input
-              id="search"
-              defaultValue={searchParams.get("search") || ""}
-              standalone
-            >
-              <Input.Label hidden>Suche</Input.Label>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
+            <Input {...conform.input(fields.deep)} type="hidden" />
+            <Input {...conform.input(fields.search)} standalone>
+              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              {typeof fields.search.error !== "undefined" && (
+                <Input.Error>{fields.search.error}</Input.Error>
+              )}
             </Input>
           </Form>
           <Form method="post">
