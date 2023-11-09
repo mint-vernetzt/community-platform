@@ -1,5 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import {
+  Alert,
   Avatar,
   Button,
   Input,
@@ -246,6 +247,19 @@ export const action = async (args: DataFunctionArgs) => {
       status: 404,
     });
 
+    const adminCount = await prismaClient.adminOfProject.count({
+      where: {
+        projectId: project.id,
+      },
+    });
+
+    if (adminCount <= 1) {
+      return json(
+        { success: false, action, profile: null },
+        { headers: response.headers }
+      );
+    }
+
     await prismaClient.adminOfProject.delete({
       where: {
         profileId_projectId: {
@@ -274,9 +288,10 @@ function Admins() {
   const location = useLocation();
   const submit = useSubmit();
 
-  const [searchForm, fields] = useForm({
+  const [searchForm, searchFields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
+      deep: "true",
     },
   });
 
@@ -286,6 +301,16 @@ function Admins() {
       <p className="mv-my-6 md:mv-mt-0">
         Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
+      {typeof actionData !== "undefined" &&
+        actionData !== null &&
+        actionData.success === false && (
+          <Alert level="negative" key={actionData.action}>
+            {actionData.action.startsWith("remove_") &&
+              "Beim Entfernen ist etwas schief gelaufen"}
+            {actionData.action.startsWith("add_") &&
+              "Beim Hinzufügen ist etwas schief gelaufen"}
+          </Alert>
+        )}
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -303,16 +328,18 @@ function Admins() {
                       {admins.profile.firstName} {admins.profile.lastName}
                     </List.Item.Title>
                     <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`remove_${admins.profile.username}`}
-                        type="submit"
-                      >
-                        Entfernen
-                      </Button>
-                    </List.Item.Controls>
+                    {project.admins.length > 1 && (
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${admins.profile.username}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    )}
                   </List.Item>
                 );
               })}
@@ -340,13 +367,13 @@ function Admins() {
             }}
             {...searchForm.props}
           >
-            <Input {...conform.input(fields.deep)} type="hidden" />
-            <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
+            <Input {...conform.input(searchFields.deep)} type="hidden" />
+            <Input {...conform.input(searchFields.search)} standalone>
+              <Input.Label htmlFor={searchFields.search.id}>Suche</Input.Label>
               <Input.SearchIcon />
               <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
-              {typeof fields.search.error !== "undefined" && (
-                <Input.Error>{fields.search.error}</Input.Error>
+              {typeof searchFields.search.error !== "undefined" && (
+                <Input.Error>{searchFields.search.error}</Input.Error>
               )}
             </Input>
           </Form>
