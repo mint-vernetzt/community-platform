@@ -165,10 +165,17 @@ function Admins() {
           {addAdminFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Administrator:innen</h4>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {loaderData.admins.length <= 1
+          ? "Administrator:in"
+          : "Administrator:innen"}
+      </h4>
       <p className="mb-8">
-        Hier siehst du alle Administrator:innen der Organisation auf einen
-        Blick.{" "}
+        Hier siehst du die{" "}
+        {loaderData.admins.length <= 1
+          ? "Administrator:in"
+          : "Administrator:innen"}{" "}
+        der Organisation auf einen Blick.{" "}
       </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
