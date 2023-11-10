@@ -42,6 +42,8 @@ import {
   prepareOrganizationEvents,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 export function links() {
   return [
@@ -60,6 +62,7 @@ export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, ["routes/organization/index"]);
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
@@ -79,7 +82,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
-    throw notFound({ message: "Not found" });
+    throw notFound({ message: t("error.notFound") });
   }
 
   let enhancedOrganization = {
@@ -317,6 +320,7 @@ const ExternalServices: ExternalService[] = [
   "instagram",
   "xing",
 ];
+
 function hasWebsiteOrSocialService(
   organization: Pick<Organization, ExternalService>,
   externalServices: ExternalService[]
@@ -330,6 +334,7 @@ export default function Index() {
     ? getInitialsOfName(loaderData.organization.name)
     : "";
   const organizationName = loaderData.organization.name ?? "";
+  const { t } = useTranslation(["routes/organization/index"]);
 
   const logo = loaderData.images.logo;
   const Avatar = React.useCallback(
@@ -360,7 +365,7 @@ export default function Index() {
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+          <img src={background} alt={t("image.background.alt")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
         )}
@@ -392,12 +397,12 @@ export default function Index() {
                 htmlFor="modal-background-upload"
                 className="btn btn-primary modal-button"
               >
-                Bild ändern
+                {t("image.background.change")}
               </label>
 
               <Modal id="modal-background-upload">
                 <ImageCropper
-                  headline="Hintergrundbild"
+                  headline={t("image.headline")}
                   subject="organization"
                   id="modal-background-upload"
                   uploadKey="background"
@@ -439,7 +444,9 @@ export default function Index() {
                         >
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
-                        <span className="ml-2 mr-4">Logo ändern</span>
+                        <span className="ml-2 mr-4">
+                          {t("image.logo.change")}
+                        </span>
                       </label>
                       <Modal id="modal-avatar">
                         <ImageCropper
@@ -447,7 +454,7 @@ export default function Index() {
                           subject="organization"
                           slug={loaderData.organization.slug}
                           uploadKey="logo"
-                          headline="Logo"
+                          headline={t("image.logo.headline")}
                           image={logo}
                           aspect={1 / 1}
                           minCropWidth={100}
@@ -479,7 +486,9 @@ export default function Index() {
                   loaderData.organization,
                   ExternalServices
                 ) ? (
-                  <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
+                  <h5 className="font-semibold mb-6 mt-8">
+                    {t("content.contact")}
+                  </h5>
                 ) : null}
                 {hasContactInformations(loaderData.organization) ? (
                   <>
@@ -566,7 +575,9 @@ export default function Index() {
                 (typeof loaderData.organization.city === "string" &&
                   loaderData.organization.city !== "") ? (
                   <>
-                    <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
+                    <h5 className="font-semibold mb-6 mt-8">
+                      {t("content.address")}
+                    </h5>
                     <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
                       <span className="icon w-6 mr-4">
                         <svg
@@ -636,7 +647,7 @@ export default function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/organization/${loaderData.organization.slug}/settings`}
                   >
-                    Organisation bearbeiten
+                    {t("content.edit")}
                   </Link>
                 </div>
               </div>
@@ -651,7 +662,7 @@ export default function Index() {
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Aktivitätsgebiete
+                  {t("content.activityAreas")}
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.organization.areas
@@ -663,7 +674,7 @@ export default function Index() {
             {loaderData.organization.focuses.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  MINT-Schwerpunkte
+                  {t("content.focuses")}
                 </div>
 
                 <div className="flex-auto">
@@ -676,7 +687,7 @@ export default function Index() {
             {loaderData.organization.supportedBy.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Unterstützt und gefördert von
+                  {t("content.supportedBy")}
                 </div>
 
                 <div className="flex-auto">
@@ -686,7 +697,9 @@ export default function Index() {
             ) : null}
             {loaderData.organization.memberOf.length > 0 ? (
               <>
-                <h3 className="mb-6 mt-14 font-bold">Teil des Netzwerks</h3>
+                <h3 className="mb-6 mt-14 font-bold">
+                  {t("content.networks")}
+                </h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.organization.memberOf.map((relation) => (
                     <OrganizationCard
@@ -703,9 +716,7 @@ export default function Index() {
             ) : null}
             {loaderData.organization.networkMembers.length > 0 ? (
               <>
-                <h3 className="mb-6 mt-14 font-bold">
-                  Mitgliedsorganisationen
-                </h3>
+                <h3 className="mb-6 mt-14 font-bold">{t("content.members")}</h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.organization.networkMembers.map((relation) => (
                     <OrganizationCard
@@ -723,7 +734,7 @@ export default function Index() {
             {loaderData.organization.teamMembers.length > 0 ? (
               <>
                 <h3 id="team-members" className="mb-6 mt-14 font-bold">
-                  Das Team
+                  {t("content.team")}
                 </h3>
                 <div className="flex flex-wrap -mx-3 lg:items-stretch">
                   {loaderData.organization.teamMembers.map((relation) => (
@@ -747,7 +758,7 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Projekte</h3>
+                    <h3 className="mb-0 font-bold">{t("content.projects")}</h3>
                   </div>
                 </div>
 
@@ -840,7 +851,7 @@ export default function Index() {
                             ) : null}
                             <div className="hidden md:flex items-center flex-initial">
                               <button className="btn btn-primary">
-                                Zum Projekt
+                                {t("content.toProject")}
                               </button>
                             </div>
                           </div>
@@ -889,7 +900,7 @@ export default function Index() {
                                         relation.event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("content.background")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -924,7 +935,7 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime)}
                                     {relation.event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? t("content.unlimitedPlaces")
                                       : ` | ${
                                           relation.event.participantLimit -
                                           relation.event._count.participants
@@ -939,7 +950,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {relation.event._count.waitingList}{" "}
-                                          auf der Warteliste
+                                          {t("content.waitingList")}
                                         </span>
                                       </>
                                     ) : (
@@ -964,13 +975,13 @@ export default function Index() {
                               </Link>
                               {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("content.cancelled")}
                                 </div>
                               ) : null}
                               {relation.event.isParticipant &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("content.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -985,7 +996,7 @@ export default function Index() {
                               {relation.event.isOnWaitingList &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("content.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1010,7 +1021,7 @@ export default function Index() {
                                     to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("content.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1024,7 +1035,7 @@ export default function Index() {
                 {loaderData.pastEvents.responsibleForEvents.length > 0 ? (
                   <>
                     <h6 id="organized-past-events" className="mb-4 font-bold">
-                      Vergangene Veranstaltungen
+                      {t("content.pastEvents")}
                     </h6>
                     <div className="mb-16">
                       {loaderData.pastEvents.responsibleForEvents.map(
@@ -1053,7 +1064,7 @@ export default function Index() {
                                         relation.event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("content.background")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1106,13 +1117,13 @@ export default function Index() {
                               </Link>
                               {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("content.wasCancelled")}
                                 </div>
                               ) : null}
                               {relation.event.isParticipant &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("content.participated")}</p>
                                 </div>
                               ) : null}
 
@@ -1128,7 +1139,7 @@ export default function Index() {
                                     to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("content.more")}
                                   </Link>
                                 </div>
                               ) : null}

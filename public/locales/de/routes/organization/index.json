@@ -1,0 +1,39 @@
+{
+  "error": {
+    "notFound": "Not found"
+  },
+  "image": {
+    "background": {
+      "alt": "Aktuelles Hintergrundbild",
+      "change": "Bild ändern",
+      "headline": "Hintergrundbild"
+    },
+    "logo": {
+      "change": "Logo ändern",
+      "headline": "Logo"
+    }
+  },
+  "content": {
+    "contact": "Kontakt",
+    "address": "Anschrift",
+    "edit": "Organisation bearbeiten",
+    "activityAreas": "Aktivitätsgebiete",
+    "focuses": "MINT-Schwerpunkte",
+    "supportedBy": "Unterstützt und gefördert von",
+    "networks": "Teil des Netzwerks",
+    "members": "Mitgliedsorganisationen",
+    "team": "Das Team",
+    "projects": "Projekte",
+    "toProject": "Zum Projekt",
+    "background": "Rahmen des Hintergrundbildes",
+    "unlimitedPlaces": " | Unbegrenzte Plätze",
+    "waitingList": "auf der Warteliste",
+    "cancelled": "Abgesagt",
+    "registered": "Angemeldet",
+    "awaiting": "Wartend",
+    "more": "Mehr erfahren",
+    "pastEvents": "Vergangene Veranstaltungen",
+    "wasCancelled": "Wurde abgesagt",
+    "participated": "Teilgenommen"
+  }
+}
