@@ -66,6 +66,12 @@
     "id": "ed493ec8-630c-4ced-95e2-629548ebafc1"
   },
   {
+    "referenceId": 17,
+    "title": "Dozierende Hochschule",
+    "slug": "lecturer",
+    "id": "1b9630f6-4472-4734-9b76-3ec66cf59fb0"
+  },
+  {
     "referenceId": 12,
     "title": "Erzieher:innen (Schule)",
     "slug": "educators_school",
