@@ -30,7 +30,6 @@ import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../../utils.server";
-import { RemixLinkProps } from "@remix-run/react/dist/components";
 
 export function links() {
   return [
