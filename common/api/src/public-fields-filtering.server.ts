@@ -1,6 +1,6 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import { notFound } from "remix-utils";
-import type { EntitySubset } from "./types";
+import { type EntitySubset } from "./types";
 import { prismaClient } from "./prisma";
 
 type ProfileWithRelations = Profile & {
@@ -14,6 +14,10 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  administeredEvents: any;
+  administeredOrganizations: any;
+  administeredProjects: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -52,10 +56,6 @@ export async function filterProfileByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in profileVisibility) {
-    if (!profile.hasOwnProperty(key)) {
-      continue;
-    }
-
     if (key !== "id" && key !== "profileId") {
       // Fields in Profile with type String
       if (
@@ -79,6 +79,9 @@ export async function filterProfileByVisibility<
         key === "contributedEvents" ||
         key === "teamMemberOfEvents" ||
         key === "teamMemberOfProjects" ||
+        key === "administeredEvents" ||
+        key === "administeredOrganizations" ||
+        key === "administeredProjects" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -105,7 +108,7 @@ export async function filterProfileByVisibility<
         filteredFields[key] =
           profileVisibility[key] === true ? profile[key] : 0;
       }
-      // All other fields in Profile that are optional (String?)
+      // All other fields in Profile that are optional (String? or Relation?)
       else if (
         key === "phone" ||
         key === "website" ||
@@ -119,6 +122,8 @@ export async function filterProfileByVisibility<
         key === "academicTitle" ||
         key === "position" ||
         key === "instagram" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -146,9 +151,9 @@ type OrganizationWithRelations = Organization & {
   responsibleForEvents: any;
   responsibleForProject: any;
   organizationVisibility: any;
-  _count: any;
+  admins: any;
+  backgroundImage: any;
 };
-
 export async function filterListOfOrganizationsByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T>
 >(organizations: T[]) {
@@ -187,10 +192,6 @@ export async function filterOrganizationByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in organizationVisibility) {
-    if (!organization.hasOwnProperty(key)) {
-      continue;
-    }
-
     if (key !== "id" && key !== "organizationId") {
       // Fields in Organization with type String
       if (key === "name" || key === "slug") {
@@ -207,6 +208,7 @@ export async function filterOrganizationByVisibility<
         key === "teamMembers" ||
         key === "types" ||
         key === "responsibleForEvents" ||
+        key === "admins" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
@@ -224,7 +226,7 @@ export async function filterOrganizationByVisibility<
         filteredFields[key] =
           organizationVisibility[key] === true ? organization[key] : 0;
       }
-      // All other fields in Organization that are optional (String?)
+      // All other fields in Organization that are optional (String? or Relation?)
       else if (
         key === "email" ||
         key === "phone" ||
@@ -244,6 +246,8 @@ export async function filterOrganizationByVisibility<
         key === "streetNumber" ||
         key === "zipCode" ||
         key === "instagram" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -277,6 +281,8 @@ type EventWithRelations = Event & {
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
+  admins: any;
+  backgroundImage: any;
   _count: any;
 };
 
@@ -317,10 +323,6 @@ export async function filterEventByVisibility<
 
   const filteredFields: { [key: string]: any } = {};
   for (const key in eventVisibility) {
-    if (!event.hasOwnProperty(key)) {
-      continue;
-    }
-
     if (key !== "id" && key !== "eventId") {
       // Fields in Event with type String
       if (key === "name" || key === "slug") {
@@ -339,6 +341,7 @@ export async function filterEventByVisibility<
         key === "tags" ||
         key === "targetGroups" ||
         key === "teamMembers" ||
+        key === "admins" ||
         key === "waitingList"
       ) {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
@@ -379,6 +382,8 @@ export async function filterEventByVisibility<
         key === "parentEvent" ||
         key === "parentEventId" ||
         key === "stage" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "stageId"
       ) {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : null;
@@ -397,15 +402,22 @@ export async function filterEventByVisibility<
 type ProjectWithRelations = Project & {
   awards: any;
   disciplines: any;
+  additionalDisciplines: any;
   responsibleOrganizations: any;
   targetGroups: any;
+  specialTargetGroups: any;
+  formats: any;
+  financings: any;
+  areas: any;
   teamMembers: any;
   projectVisibility: any;
+  admins: any;
+  backgroundImage: any;
   _count: any;
 };
 
 export async function filterListOfProjectsByVisibility<
-  T extends EntitySubset<EventWithRelations, T>
+  T extends EntitySubset<ProjectWithRelations, T>
 >(projects: T[]) {
   const filteredProjectList: T[] = await Promise.all(
     projects.map(async (project) => {
@@ -439,10 +451,6 @@ export async function filterProjectByVisibility<
   }
   const filteredFields: { [key: string]: any } = {};
   for (const key in projectVisibility) {
-    if (!project.hasOwnProperty(key)) {
-      continue;
-    }
-
     if (key !== "id" && key !== "projectId") {
       // Fields in Project with type String
       if (key === "name" || key === "slug") {
@@ -453,8 +461,16 @@ export async function filterProjectByVisibility<
       else if (
         key === "awards" ||
         key === "disciplines" ||
+        key === "additionalDisciplines" ||
+        key === "furtherDisciplines" ||
+        key === "specialTargetGroups" ||
         key === "responsibleOrganizations" ||
         key === "targetGroups" ||
+        key === "formats" ||
+        key === "financings" ||
+        key === "areas" ||
+        key === "furtherFormats" ||
+        key === "admins" ||
         key === "teamMembers"
       ) {
         filteredFields[key] =
@@ -467,18 +483,21 @@ export async function filterProjectByVisibility<
             ? project[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
-      // All other fields in Project that are optional (String?)
+      // All other fields in Project that are optional (String?, Relation?, etc...)
       else if (
         key === "logo" ||
         key === "background" ||
         key === "headline" ||
         key === "excerpt" ||
         key === "description" ||
+        key === "furtherDescription" ||
         key === "email" ||
         key === "phone" ||
         key === "website" ||
+        key === "contactName" ||
         key === "street" ||
         key === "streetNumber" ||
+        key === "streetNumberAddition" ||
         key === "zipCode" ||
         key === "facebook" ||
         key === "linkedin" ||
@@ -486,6 +505,27 @@ export async function filterProjectByVisibility<
         key === "youtube" ||
         key === "instagram" ||
         key === "xing" ||
+        key === "mastodon" ||
+        key === "tiktok" ||
+        key === "idea" ||
+        key === "goals" ||
+        key === "implementation" ||
+        key === "targeting" ||
+        key === "hints" ||
+        key === "video" ||
+        key === "videoSubline" ||
+        key === "jobFillings" ||
+        key === "yearlyBudget" ||
+        key === "furtherFinancings" ||
+        key === "technicalRequirements" ||
+        key === "furtherTechnicalRequirements" ||
+        key === "roomSituation" ||
+        key === "furtherRoomSituation" ||
+        key === "timeframe" ||
+        key === "participantLimit" ||
+        key === "targetGroupAdditions" ||
+        key === "backgroundImage" ||
+        key === "backgroundImageId" ||
         key === "city"
       ) {
         filteredFields[key] =
