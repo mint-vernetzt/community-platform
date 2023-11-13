@@ -407,6 +407,7 @@ type ProjectWithRelations = Project & {
   targetGroups: any;
   specialTargetGroups: any;
   formats: any;
+  financings: any;
   areas: any;
   teamMembers: any;
   projectVisibility: any;
@@ -466,6 +467,7 @@ export async function filterProjectByVisibility<
         key === "responsibleOrganizations" ||
         key === "targetGroups" ||
         key === "formats" ||
+        key === "financings" ||
         key === "areas" ||
         key === "furtherFormats" ||
         key === "admins" ||
@@ -504,7 +506,7 @@ export async function filterProjectByVisibility<
         key === "instagram" ||
         key === "xing" ||
         key === "mastodon" ||
-        key === "bluesky" ||
+        key === "tiktok" ||
         key === "idea" ||
         key === "goals" ||
         key === "implementation" ||
@@ -512,6 +514,14 @@ export async function filterProjectByVisibility<
         key === "hints" ||
         key === "video" ||
         key === "videoSubline" ||
+        key === "jobFillings" ||
+        key === "yearlyBudget" ||
+        key === "furtherFinancings" ||
+        key === "technicalRequirements" ||
+        key === "furtherTechnicalRequirements" ||
+        key === "roomSituation" ||
+        key === "furtherRoomSituation" ||
+        key === "timeframe" ||
         key === "participantLimit" ||
         key === "targetGroupAdditions" ||
         key === "backgroundImage" ||
