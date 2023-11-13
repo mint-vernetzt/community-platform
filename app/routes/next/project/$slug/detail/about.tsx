@@ -199,6 +199,9 @@ export const loader = async (args: DataFunctionArgs) => {
 function About() {
   const loaderData = useLoaderData<typeof loader>();
 
+  // TODO:
+
+  // Question: Why dont we do this on the server? Is this executed when js is disabled? (Keyword Accessibility)
   const street = `${
     loaderData.project.street !== null ? loaderData.project.street : ""
   } ${
