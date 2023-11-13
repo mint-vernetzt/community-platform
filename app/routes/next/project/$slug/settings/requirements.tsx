@@ -44,7 +44,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   jobFillings: z
     .string()
     .max(
@@ -52,7 +52,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   yearlyBudget: z
     .string()
     .max(
@@ -60,7 +60,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   financings: z.array(z.string().uuid()),
   furtherFinancings: z
     .string()
@@ -69,7 +69,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   technicalRequirements: z
     .string()
     .max(
@@ -77,7 +77,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   furtherTechnicalRequirements: z
     .string()
     .max(
@@ -85,7 +85,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   roomSituation: z
     .string()
     .max(
@@ -93,7 +93,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   furtherRoomSituation: z
     .string()
     .max(
@@ -101,7 +101,7 @@ const requirementsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
 export const links: LinksFunction = () => [

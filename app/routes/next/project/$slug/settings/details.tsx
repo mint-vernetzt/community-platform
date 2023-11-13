@@ -45,7 +45,7 @@ const detailsSchema = z.object({
       message: "Die Anzahl der Teilnehmer:innen muss eine Zahl sein.",
     })
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targetGroups: z.array(z.string().uuid()),
   specialTargetGroups: z.array(z.string().uuid()),
   targetGroupAdditions: z
@@ -55,7 +55,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   excerpt: z
     .string()
     .max(
@@ -63,7 +63,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 100."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   idea: z
     .string()
     .max(
@@ -71,7 +71,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   goals: z
     .string()
     .max(
@@ -79,7 +79,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   implementation: z
     .string()
     .max(
@@ -87,7 +87,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   furtherDescription: z
     .string()
     .max(
@@ -95,7 +95,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targeting: z
     .string()
     .max(
@@ -103,7 +103,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   hints: z
     .string()
     .max(
@@ -111,7 +111,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   video: youtubeEmbedSchema,
   videoSubline: z
     .string()
@@ -120,7 +120,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
 export const links: LinksFunction = () => [
