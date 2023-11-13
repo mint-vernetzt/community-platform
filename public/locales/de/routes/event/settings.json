@@ -1,0 +1,15 @@
+{
+  "content": {
+    "headline": "Veranstaltung bearbeiten",
+    "general": "Allgemein",
+    "linkedEvents": "Verknüpfte Veranstaltungen",
+    "administrators": "Administrator:innen",
+    "team": "Team",
+    "speakers": "Vortragende",
+    "participants": "Teilnehmende",
+    "waitingList": "Warteliste",
+    "organizations": "Verantwortliche Organisationen",
+    "documents": "Dokumente verwalten",
+    "delete": "Veranstaltung löschen"
+  }
+}
