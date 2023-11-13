@@ -49,6 +49,8 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { Trans, useTranslation } from "react-i18next";
 
 export function links() {
   return [
@@ -69,6 +71,7 @@ export const loader = async (args: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const abilities = await getFeatureAbilities(authClient, "events");
+  const t = await i18next.getFixedT(request, ["routes/event/index"]);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -84,14 +87,14 @@ export const loader = async (args: LoaderArgs) => {
         });
       }
     } else {
-      throw notFound({ message: `Profile not found` });
+      throw notFound({ message: t("error.notFound") });
     }
   }
 
   const rawEvent = await getEvent(slug);
 
   if (rawEvent === null) {
-    throw notFound({ message: `Event not found` });
+    throw notFound({ message: t("error.notFound") });
   }
 
   const mode = await deriveEventMode(sessionUser, slug);
@@ -114,7 +117,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
-    throw forbidden({ message: "Event not published" });
+    throw forbidden({ message: t("error.notPublished") });
   }
 
   let speakers: Awaited<
@@ -452,6 +455,8 @@ function Index() {
     "Europe/Berlin"
   );
 
+  const { t } = useTranslation(["routes/event/index"]);
+
   const beforeParticipationPeriod = now < participationFrom;
 
   const afterParticipationPeriod = now > participationUntil;
@@ -469,13 +474,13 @@ function Index() {
         {background ? (
           <img
             src={background}
-            alt={`Aktuelles Hintergrundbild`}
+            alt={t("content.backgroundImage")}
             className="w-full h-full"
           />
         ) : (
           <img
             src={"/images/default-event-background.jpg"}
-            alt={`Aktuelles Hintergrundbild`}
+            alt={t("content.backgroundImage")}
             className="w-full h-full"
           />
         )}
@@ -534,7 +539,7 @@ function Index() {
                   d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
                 />
               </svg>
-              <span className="ml-2">Zurück</span>
+              <span className="ml-2">{t("content.back")}</span>
             </button>
           ) : (
             <div className="w-6 h-6"></div>
@@ -551,7 +556,7 @@ function Index() {
                     loaderData.event.blurredBackground ||
                     "/images/default-event-background-blurred.jpg"
                   }
-                  alt="Rahmen des Hintergrundbildes"
+                  alt={t("content.borderOfImage")}
                   className="w-full h-full object-cover"
                 />
                 <img
@@ -585,12 +590,12 @@ function Index() {
                     htmlFor="modal-background-upload"
                     className="btn btn-primary modal-button"
                   >
-                    Bild ändern
+                    {t("content.change")}
                   </label>
 
                   <Modal id="modal-background-upload">
                     <ImageCropper
-                      headline="Hintergrundbild"
+                      headline={t("content.headline")}
                       subject="event"
                       id="modal-background-upload"
                       uploadKey="background"
@@ -614,17 +619,17 @@ function Index() {
             <>
               {loaderData.event.canceled ? (
                 <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-                  Abgesagt
+                  {t("content.event.cancelled")}
                 </div>
               ) : (
                 <>
                   {loaderData.event.published ? (
                     <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
-                      Veröffentlicht
+                      {t("content.event.published")}
                     </div>
                   ) : (
                     <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
-                      Entwurf
+                      {t("content.event.draft")}
                     </div>
                   )}
                 </>
@@ -634,7 +639,7 @@ function Index() {
 
           {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="md:absolute md:top-0 md:inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-              Abgesagt
+              {t("event.cancelled")}
             </div>
           ) : null}
           {loaderData.mode !== "admin" ? (
@@ -643,10 +648,10 @@ function Index() {
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast
-                      ? "Veranstaltung hat bereits stattgefunden."
+                      ? t("content.event.alreadyTakenPlace")
                       : beforeParticipationPeriod
-                      ? "Anmeldefrist hat noch nicht begonnen."
-                      : "Anmeldefrist ist bereits abgelaufen."}
+                      ? t("content.event.registrationNotStarted")
+                      : t("content.event.registrationExpired")}
                   </p>
                 </div>
               ) : (
@@ -658,15 +663,20 @@ function Index() {
                         <div className="w-full hidden lg:flex lg:flex-1/4 px-4"></div>
                         <div className="w-full md:flex-auto px-4">
                           <p className="font-bold xl:text-center md:pl-4 lg:pl-0 pb-4 md:pb-0">
-                            Diese Veranstaltung findet im Rahmen von "
-                            <Link
-                              className="underline hover:no-underline"
-                              to={`/event/${loaderData.event.parentEvent.slug}`}
-                              reloadDocument
-                            >
-                              {loaderData.event.parentEvent.name}
-                            </Link>
-                            " statt.
+                            <Trans
+                              i18nKey="content.event.context"
+                              ns={["routes/event/index"]}
+                              values={{
+                                name: loaderData.event.parentEvent.name,
+                              }}
+                              components={[
+                                <Link
+                                  className="underline hover:no-underline"
+                                  to={`/event/${loaderData.event.parentEvent.slug}`}
+                                  reloadDocument
+                                />,
+                              ]}
+                            />
                           </p>
                         </div>
                         <div className="w-full lg:flex-1/4 px-4 text-right">
@@ -678,7 +688,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  Anmelden um teilzunehmen
+                                  {t("content.loginToRegister")}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -697,14 +707,16 @@ function Index() {
                         <div className="w-full hidden lg:flex lg:flex-1/4 px-4"></div>
                         <div className="w-full md:flex-auto px-4">
                           <p className="font-bold xl:text-center md:pl-4 lg:pl-0 pb-4 md:pb-0">
-                            Wähle{" "}
-                            <a
-                              href="#child-events"
-                              className="underline hover:no-underline"
-                            >
-                              zugehörige Veranstaltungen
-                            </a>{" "}
-                            aus, an denen Du teilnehmen möchtest.
+                            <Trans
+                              i18nKey="content.event.select"
+                              ns={["routes/event/index"]}
+                              components={[
+                                <a
+                                  href="#child-events"
+                                  className="underline hover:no-underline"
+                                />,
+                              ]}
+                            />
                           </p>
                         </div>
                         <div className="w-full lg:flex-1/4 px-4 text-right">
@@ -716,7 +728,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  Anmelden um teilzunehmen
+                                  {t("content.event.loginToRegister")}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -737,7 +749,7 @@ function Index() {
                             className="btn btn-primary"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                           >
-                            Anmelden um teilzunehmen
+                            {t("content.event.loginToRegister")}
                           </Link>
                         ) : null}
                         {loaderData.mode !== "anon" &&
@@ -761,13 +773,13 @@ function Index() {
                   className="btn btn-outline btn-primary ml-4 mb-2 md:mb-0"
                   to={`/event/${loaderData.event.slug}/settings`}
                 >
-                  Veranstaltung bearbeiten
+                  {t("content.event.edit")}
                 </Link>
                 <Link
                   className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
-                  Zugehörige Veranstaltungen anlegen
+                  {t("content.event.createRelated")}
                 </Link>
               </p>
             </div>
@@ -796,7 +808,9 @@ function Index() {
             <div className="grid grid-cols-1 md:grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 md:gap-y-6">
               {loaderData.event.types.length > 0 ? (
                 <>
-                  <div className="text-xs leading-6">Veranstaltungsart</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.type")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     {loaderData.event.types
                       .map((item) => item.eventType.title)
@@ -807,7 +821,9 @@ function Index() {
 
               {loaderData.event.venueName !== null ? (
                 <>
-                  <div className="text-xs leading-6">Veranstaltungsort</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.location")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     <p>
                       {loaderData.event.venueName},{" "}
@@ -823,7 +839,9 @@ function Index() {
               {loaderData.event.conferenceLink !== null &&
               loaderData.event.conferenceLink !== "" ? (
                 <>
-                  <div className="text-xs leading-6">Konferenzlink</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.conferenceLink")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     <a
                       href={loaderData.event.conferenceLink}
@@ -838,22 +856,28 @@ function Index() {
               {loaderData.event.conferenceCode !== null &&
               loaderData.event.conferenceCode !== "" ? (
                 <>
-                  <div className="text-xs leading-6">Konferenz-Code</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.conferenceCode")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     {loaderData.event.conferenceCode}
                   </div>
                 </>
               ) : null}
 
-              <div className="text-xs leading-6">Start</div>
+              <div className="text-xs leading-6">
+                {t("content.event.start")}
+              </div>
               <div className="pb-3 md:pb-0">{formatDateTime(startTime)}</div>
 
-              <div className="text-xs leading-6">Ende</div>
+              <div className="text-xs leading-6">{t("content.event.end")}</div>
               <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
 
               {participationFrom > now ? (
                 <>
-                  <div className="text-xs leading-6">Registrierungsbeginn</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.registrationStart")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     {formatDateTime(participationFrom)}
                   </div>
@@ -861,17 +885,21 @@ function Index() {
               ) : null}
               {participationUntil > now ? (
                 <>
-                  <div className="text-xs leading-6">Registrierungsende</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.registrationEnd")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     {formatDateTime(participationUntil)}
                   </div>
                 </>
               ) : null}
 
-              <div className="text-xs leading-6">Verfügbare Plätze</div>
+              <div className="text-xs leading-6">
+                {t("content.event.numberOfPlaces")}
+              </div>
               <div className="pb-3 md:pb-0">
                 {loaderData.event.participantLimit === null ? (
-                  "ohne Beschränkung"
+                  t("content.event.withoutRestriction")
                 ) : (
                   <>
                     {loaderData.event.participantLimit -
@@ -889,14 +917,16 @@ function Index() {
               loaderData.isSpeaker === true ||
               loaderData.isTeamMember === true ? (
                 <>
-                  <div className="text-xs leading-6 mt-1">Kalender-Eintrag</div>
+                  <div className="text-xs leading-6 mt-1">
+                    {t("content.event.calenderItem")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     <Link
                       className="btn btn-outline btn-primary btn-small"
                       to="ics-download"
                       reloadDocument
                     >
-                      Download
+                      {t("content.event.download")}
                     </Link>
                   </div>
                 </>
@@ -905,7 +935,9 @@ function Index() {
               {loaderData.mode !== "anon" &&
               loaderData.event.documents.length > 0 ? (
                 <>
-                  <div className="text-xs leading-6">Downloads</div>
+                  <div className="text-xs leading-6">
+                    {t("content.event.downloads")}
+                  </div>
                   <div className="pb-3 md:pb-0">
                     {loaderData.event.documents.map((item) => {
                       return (
@@ -931,7 +963,7 @@ function Index() {
                         to={`/event/${loaderData.event.slug}/documents-download`}
                         reloadDocument
                       >
-                        Alle Herunterladen
+                        {t("content.event.downloadAll")}
                       </Link>
                     ) : null}
                   </div>
@@ -940,7 +972,9 @@ function Index() {
 
               {loaderData.event.focuses.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">Schwerpunkte</div>
+                  <div className="text-xs leading-5 pt-[7px]">
+                    {t("content.event.focusAreas")}
+                  </div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.focuses.map((item, index) => {
                       return (
@@ -955,7 +989,9 @@ function Index() {
 
               {loaderData.event.targetGroups.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
+                  <div className="text-xs leading-5 pt-[7px]">
+                    {t("content.event.targetGroups")}
+                  </div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.targetGroups.map((item, index) => {
                       return (
@@ -971,7 +1007,7 @@ function Index() {
               {loaderData.event.experienceLevel ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    Erfahrunsglevel
+                    {t("content.event.experienceLevel")}
                   </div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
                     <div className="badge">
@@ -983,7 +1019,9 @@ function Index() {
 
               {loaderData.event.tags.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">Tags</div>
+                  <div className="text-xs leading-5 pt-[7px]">
+                    {t("content.event.tags")}
+                  </div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.tags.map((item, index) => {
                       return (
@@ -998,7 +1036,9 @@ function Index() {
 
               {loaderData.event.areas.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">Gebiete</div>
+                  <div className="text-xs leading-5 pt-[7px]">
+                    {t("content.event.areas")}
+                  </div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
                     {loaderData.event.areas.map((item, index) => {
                       return (
@@ -1015,7 +1055,9 @@ function Index() {
             {loaderData.event.speakers !== null &&
             loaderData.event.speakers.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">Speaker:innen</h3>
+                <h3 className="mt-16 mb-8 font-bold">
+                  {t("content.event.speakers")}
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-16">
                   {loaderData.event.speakers.map((speaker) => {
                     const { profile } = speaker;
@@ -1059,11 +1101,12 @@ function Index() {
             {loaderData.event.childEvents.length > 0 ? (
               <>
                 <h3 id="child-events" className="mt-16 font-bold">
-                  Zugehörige Veranstaltungen
+                  {t("content.event.relatedEvents")}
                 </h3>
                 <p className="mb-8">
-                  Diese Veranstaltungen finden im Rahmen von "
-                  {loaderData.event.name}" statt.
+                  {t("content.event.eventContext", {
+                    name: loaderData.event.name,
+                  })}
                 </p>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event) => {
@@ -1092,7 +1135,7 @@ function Index() {
                                   event.blurredChildBackground ||
                                   "/images/default-event-background-blurred.jpg"
                                 }
-                                alt="Rahmen des Hintergrundbildes"
+                                alt={t("content.borderOfImage")}
                                 className="w-full h-full object-cover"
                               />
                               <img
@@ -1127,11 +1170,13 @@ function Index() {
                                 : ""}
                               {getDuration(eventStartTime, eventEndTime)}
                               {event.participantLimit === null
-                                ? " | Unbegrenzte Plätze"
-                                : ` | ${
-                                    event.participantLimit -
-                                    event._count.participants
-                                  } / ${event.participantLimit} Plätzen frei`}
+                                ? t("content.event.unlimitedSeats")
+                                : t("content.event.seatsFree", {
+                                    count:
+                                      event.participantLimit -
+                                      event._count.participants,
+                                    total: event.participantLimit,
+                                  })}
                               {event.participantLimit !== null &&
                               event._count.participants >=
                                 event.participantLimit ? (
@@ -1139,8 +1184,9 @@ function Index() {
                                   {" "}
                                   |{" "}
                                   <span>
-                                    {event._count.waitingList} auf der
-                                    Warteliste
+                                    {t("content.event.waitingList", {
+                                      count: event._count.waitingList,
+                                    })}
                                   </span>
                                 </>
                               ) : (
@@ -1168,25 +1214,25 @@ function Index() {
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                Veröffentlicht
+                                {t("content.event.published")}
                               </div>
                             ) : (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                Entwurf
+                                {t("content.event.draft")}
                               </div>
                             )}
                           </>
                         ) : null}
                         {event.canceled ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                            Abgesagt
+                            {t("content.event.cancelled")}
                           </div>
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                            <p>Angemeldet</p>
+                            <p>{t("content.event.registered")}</p>
                           </div>
                         ) : null}
                         {canUserParticipate(event) &&
@@ -1202,7 +1248,7 @@ function Index() {
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                            <p>Wartend</p>
+                            <p>{t("content.event.waiting")}</p>
                           </div>
                         ) : null}
                         {canUserBeAddedToWaitingList(event) &&
@@ -1227,7 +1273,7 @@ function Index() {
                               to={`/event/${event.slug}`}
                               className="btn btn-primary"
                             >
-                              Mehr erfahren
+                              {t("content.event.more")}
                             </Link>
                           </div>
                         ) : null}
@@ -1238,7 +1284,7 @@ function Index() {
                               className="btn btn-primary"
                               to={`/login?login_redirect=/event/${event.slug}`}
                             >
-                              Anmelden
+                              {t("content.event.register")}
                             </Link>
                           </div>
                         ) : null}
@@ -1251,7 +1297,9 @@ function Index() {
 
             {loaderData.event.teamMembers.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">Team</h3>
+                <h3 className="mt-16 mb-8 font-bold">
+                  {t("content.event.team")}
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member) => {
                     return (
@@ -1297,7 +1345,7 @@ function Index() {
                   id="responsible-organizations"
                   className="mt-16 mb-8 font-bold"
                 >
-                  Veranstaltet von
+                  {t("content.event.organizedBy")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
