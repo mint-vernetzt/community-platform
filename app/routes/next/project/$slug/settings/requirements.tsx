@@ -53,6 +53,14 @@ const requirementsSchema = z.object({
     )
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
+  furtherJobFillings: z
+    .string()
+    .max(
+      200,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
+    )
+    .optional()
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   yearlyBudget: z
     .string()
     .max(
@@ -140,6 +148,7 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       timeframe: true,
       jobFillings: true,
+      furtherJobFillings: true,
       yearlyBudget: true,
       furtherFinancings: true,
       technicalRequirements: true,
@@ -214,6 +223,7 @@ export async function action({ request, params }: DataFunctionArgs) {
           financings,
           timeframe,
           jobFillings,
+          furtherJobFillings,
           furtherFinancings,
           technicalRequirements,
           furtherTechnicalRequirements,
@@ -231,6 +241,7 @@ export async function action({ request, params }: DataFunctionArgs) {
               ...rest,
               timeframe: sanitizeUserHtml(timeframe),
               jobFillings: sanitizeUserHtml(jobFillings),
+              furtherJobFillings: sanitizeUserHtml(furtherJobFillings),
               furtherFinancings: sanitizeUserHtml(furtherFinancings),
               technicalRequirements: sanitizeUserHtml(technicalRequirements),
               furtherTechnicalRequirements: sanitizeUserHtml(
@@ -360,11 +371,21 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.jobFillings)}
                 id={fields.jobFillings.id || ""}
-                label="Stellen und Stundenkontingent"
+                label="Stellen und / oder Stundenkontingent"
                 helperText="Wie viele Menschen sind an der Verwirklichung des Projektes
               oder Bildungsangebotes beteiligt?"
                 errorMessage={fields.jobFillings.error}
                 maxCharacters={500}
+                rte
+              />
+
+              <TextAreaWithCounter
+                {...conform.textarea(fields.furtherJobFillings)}
+                id={fields.furtherJobFillings.id || ""}
+                label="Weitere Infos"
+                helperText="Gibt es noch weitere Punkte, die Du anderen Akteur:innen dazu mitteilen möchtest?"
+                errorMessage={fields.furtherJobFillings.error}
+                maxCharacters={200}
                 rte
               />
             </div>
@@ -381,6 +402,10 @@ function Requirements() {
                 {typeof fields.yearlyBudget.error !== "undefined" && (
                   <Input.Error>{fields.yearlyBudget.error}</Input.Error>
                 )}
+                <Input.HelperText>
+                  Nutze dieses Freitextfeld um andere Akteur:innen über Eure
+                  finanziellen Ressourcen zu informieren.
+                </Input.HelperText>
               </Input>
 
               <Select onChange={handleSelectChange}>
@@ -388,7 +413,7 @@ function Requirements() {
                   Art der Finanzierung
                 </Select.Label>
                 <Select.HelperText>
-                  Mehrfachnennungen sind möglich.
+                  Wöhle die Art der Finanzierung aus.
                 </Select.HelperText>
                 <option selected hidden>
                   Bitte auswählen
@@ -447,7 +472,7 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherFinancings)}
                 id={fields.furtherFinancings.id || ""}
-                label="Sonstige"
+                label="Weitere Infos"
                 helperText="Nutze dieses Feld, wenn du keine passende Finanzierungsart
               vorgefunden hast."
                 errorMessage={fields.furtherFinancings.error}
@@ -489,8 +514,8 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.roomSituation)}
                 id={fields.roomSituation.id || ""}
-                label="Welche räumliche Situation ist nötig?"
-                helperText="Gibt es eigene Räume / Kooperationen zur Raumnutzung?"
+                label="Arbeitsorte"
+                helperText="Welche räumliche Situation ist nötig?"
                 errorMessage={fields.roomSituation.error}
                 maxCharacters={200}
                 rte
@@ -499,7 +524,7 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherRoomSituation)}
                 id={fields.furtherRoomSituation.id || ""}
-                label="Sonstige Erläuterungen"
+                label="Weitere Informationen"
                 errorMessage={fields.furtherRoomSituation.error}
                 maxCharacters={200}
                 rte
