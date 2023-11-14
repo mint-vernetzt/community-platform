@@ -515,6 +515,7 @@ export async function filterProjectByVisibility<
         key === "video" ||
         key === "videoSubline" ||
         key === "jobFillings" ||
+        key === "furtherJobFillings" ||
         key === "yearlyBudget" ||
         key === "furtherFinancings" ||
         key === "technicalRequirements" ||

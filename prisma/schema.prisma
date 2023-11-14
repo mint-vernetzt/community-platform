@@ -712,6 +712,7 @@ model Project {
   video                        String?
   videoSubline                 String?                            @map("video_subline")
   jobFillings                  String?                            @map("job_fillings")
+  furtherJobFillings           String?                            @map("further_job_fillings")
   yearlyBudget                 String?                            @map("yearly_budget")
   participantLimit             String?                            @map("participant_limit")
   targetGroupAdditions         String?                            @map("target_group_additions")
@@ -781,6 +782,7 @@ model ProjectVisibility {
   participantLimit             Boolean @default(true) @map("participant_limit")
   timeframe                    Boolean @default(true)
   jobFillings                  Boolean @default(true) @map("job_fillings")
+  furtherJobFillings           Boolean @default(true) @map("further_job_fillings")
   yearlyBudget                 Boolean @default(true) @map("yearly_budget")
   financings                   Boolean @default(true)
   furtherFinancings            Boolean @default(true) @map("further_financings")
