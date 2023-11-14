@@ -896,7 +896,7 @@ function Details() {
 
             <Input {...conform.input(fields.targetGroupAdditions)}>
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
-                Ergänzungen
+                Weitere
               </Input.Label>
               {typeof fields.targetGroupAdditions.error !== "undefined" && (
                 <Input.Error>{fields.targetGroupAdditions.error}</Input.Error>
