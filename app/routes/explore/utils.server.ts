@@ -341,6 +341,19 @@ export async function getEvents(
           }
         : { lte: new Date() },
       published: true,
+      OR: [
+        {
+          parentEventId: null,
+          childEvents: {
+            none: {},
+          },
+        },
+        {
+          childEvents: {
+            some: {},
+          },
+        },
+      ],
     },
     skip,
     take,

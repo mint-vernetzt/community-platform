@@ -23,7 +23,23 @@ export const loader = async (args: LoaderArgs) => {
 
   const inFuture = true;
   const futureEventsCount = await prismaClient.event.count({
-    where: { endTime: { gte: new Date() }, published: true },
+    where: {
+      endTime: { gte: new Date() },
+      published: true,
+      OR: [
+        {
+          parentEventId: null,
+          childEvents: {
+            none: {},
+          },
+        },
+        {
+          childEvents: {
+            some: {},
+          },
+        },
+      ],
+    },
   });
 
   let events: Awaited<ReturnType<typeof prepareEvents>> = [];
