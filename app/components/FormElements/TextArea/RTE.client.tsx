@@ -36,9 +36,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
         <div className="mv-border-0" id={`${toolbar}`}>
           <div className="ql-formats">
             <select className="ql-header">
-              <option value="2">Überschrift 1</option>
-              <option value="3">Überschrift 2</option>
-              <option value="4">Überschrift 3</option>
+              <option value="4">Überschrift 1</option>
               <option value="" selected>
                 Text
               </option>
