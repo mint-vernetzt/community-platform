@@ -23,7 +23,23 @@ export const loader = async (args: LoaderArgs) => {
 
   const inFuture = true;
   const futureEventsCount = await prismaClient.event.count({
-    where: { endTime: { gte: new Date() }, published: true },
+    where: {
+      endTime: { gte: new Date() },
+      published: true,
+      OR: [
+        {
+          parentEventId: null,
+          childEvents: {
+            none: {},
+          },
+        },
+        {
+          childEvents: {
+            some: {},
+          },
+        },
+      ],
+    },
   });
 
   let events: Awaited<ReturnType<typeof prepareEvents>> = [];
@@ -146,7 +162,7 @@ function Events() {
         </CardContainer>
       </section>
       {shouldFetchEvents && (
-        <div className="mv-w-full mv-flex mv-justify-center">
+        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
           <fetcher.Form method="get">
             <input key="page" type="hidden" name="page" value={page + 1} />
             <Button

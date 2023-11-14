@@ -294,7 +294,7 @@ export function getPaginationValues(
   request: Request,
   options?: { itemsPerPage?: number; param?: string }
 ) {
-  const { itemsPerPage = 8, param = "page" } = options || {};
+  const { itemsPerPage = 12, param = "page" } = options || {};
 
   const url = new URL(request.url);
   const pageParam = url.searchParams.get(param) || "1";
@@ -341,6 +341,19 @@ export async function getEvents(
           }
         : { lte: new Date() },
       published: true,
+      OR: [
+        {
+          parentEventId: null,
+          childEvents: {
+            none: {},
+          },
+        },
+        {
+          childEvents: {
+            some: {},
+          },
+        },
+      ],
     },
     skip,
     take,
