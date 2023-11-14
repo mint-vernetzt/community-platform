@@ -3,6 +3,7 @@ import EventCard from "./EventCard";
 import OrganizationCard from "./OrganizationCard";
 import ProfileCard from "./ProfileCard";
 import ProjectCard from "./ProjectCard";
+import MaterialCard from "./MaterialCard";
 
 export function Profile() {
   return (
@@ -896,6 +897,26 @@ export function ProjectStory() {
   );
 }
 ProjectStory.storyName = "project";
+
+export function MaterialStory() {
+  return (
+    <div className="mv-max-w-full">
+      <MaterialCard
+        materialItem={{
+          slug: "",
+          name: "Error Music - don't delete!",
+          file: "./error-music-background.jpeg",
+          filetype: "jpg",
+          filesize: "1MB",
+          excerpt:
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor",
+          credit: "Vorname Nachname",
+        }}
+      />
+    </div>
+  );
+}
+MaterialStory.storyName = "material list view";
 
 export default {
   title: "Organism/Cards",
