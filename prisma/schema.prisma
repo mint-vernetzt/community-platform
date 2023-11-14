@@ -943,6 +943,8 @@ model Image {
   url          String
   credits      String?
   alt          String?
+  name         String?
+  sizeInMB     Float            @map("size_in_mb")
   Profile      Profile[]
   Organization Organization[]
   Event        Event[]
