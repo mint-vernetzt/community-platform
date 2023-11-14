@@ -702,7 +702,7 @@ function Details() {
                   spielen eine Rolle?
                 </Input.Label>
                 <Input.HelperText>
-                  Bitte gib kurze Begriffe an.
+                  Bitte füge die Begriffe jeweils einzeln hinzu.
                 </Input.HelperText>
               </Input>
               <div className="mv--mt-1">
