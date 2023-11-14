@@ -128,9 +128,7 @@ function Requirements() {
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Weitere Infos
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
-                {project.furtherFinancings}
-              </p>
+              <RichText html={project.furtherFinancings} />
             </>
           )}
         </>
@@ -146,9 +144,7 @@ function Requirements() {
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Software / Hardware / Bausätze / Maschinen
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
-                {project.technicalRequirements}
-              </p>
+              <RichText html={project.technicalRequirements} />
             </>
           )}
           {project.furtherTechnicalRequirements !== null && (
@@ -156,9 +152,7 @@ function Requirements() {
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Sonstiges
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
-                {project.furtherTechnicalRequirements}
-              </p>
+              <RichText html={project.furtherTechnicalRequirements} />
             </>
           )}
         </>
@@ -174,9 +168,7 @@ function Requirements() {
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Arbeitsorte
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
-                {project.roomSituation}
-              </p>
+              <RichText html={project.roomSituation} />
             </>
           )}
           {project.furtherRoomSituation !== null && (
@@ -184,9 +176,7 @@ function Requirements() {
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Weitere Informationen
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
-                {project.furtherRoomSituation}
-              </p>
+              <RichText html={project.furtherRoomSituation} />
             </>
           )}
         </>
