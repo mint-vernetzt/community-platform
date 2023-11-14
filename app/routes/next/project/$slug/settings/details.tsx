@@ -310,7 +310,6 @@ export async function action({ request, params }: DataFunctionArgs) {
           additionalDisciplines,
           targetGroups,
           specialTargetGroups,
-          excerpt,
           idea,
           goals,
           implementation,
@@ -327,7 +326,6 @@ export async function action({ request, params }: DataFunctionArgs) {
             },
             data: {
               ...rest,
-              excerpt: sanitizeUserHtml(excerpt),
               idea: sanitizeUserHtml(idea),
               goals: sanitizeUserHtml(goals),
               implementation: sanitizeUserHtml(implementation),
@@ -913,14 +911,14 @@ function Details() {
               Teaser angezeigt.
             </p>
 
-            <TextAreaWithCounter
-              {...conform.textarea(fields.excerpt)}
-              id={fields.excerpt.id || ""}
-              label="Kurzbeschreibung"
-              errorMessage={fields.excerpt.error}
-              maxCharacters={100}
-              rte
-            />
+            <Input {...conform.input(fields.excerpt)}>
+              <Input.Label htmlFor={fields.excerpt.id}>
+                Kurzbeschreibung
+              </Input.Label>
+              {typeof fields.excerpt.error !== "undefined" && (
+                <Input.Error>{fields.excerpt.error}</Input.Error>
+              )}
+            </Input>
           </div>
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
@@ -1049,11 +1047,6 @@ function Details() {
           {fields.additionalDisciplines.error !== undefined && (
             <Alert level="negative">
               Zusätzliche Disziplinen: {fields.additionalDisciplines.error}
-            </Alert>
-          )}
-          {fields.excerpt.error !== undefined && (
-            <Alert level="negative">
-              Kurzbeschreibung: {fields.excerpt.error}
             </Alert>
           )}
           {fields.idea.error !== undefined && (
