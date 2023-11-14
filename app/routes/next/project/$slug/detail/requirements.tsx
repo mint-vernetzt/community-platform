@@ -24,6 +24,7 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       timeframe: true,
       jobFillings: true,
+      furtherJobFillings: true,
       yearlyBudget: true,
       technicalRequirements: true,
       furtherTechnicalRequirements: true,
@@ -61,21 +62,32 @@ function Requirements() {
             Zeitlicher Rahmen
           </h2>
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Projektstart bzw. Projektlaufzeit
+            Projektstart bzw. Projekt-Zeitraum
           </h3>
           <RichText html={project.timeframe} />
         </>
       )}
-      {project.jobFillings !== null && (
+      {(project.jobFillings !== null || project.furtherJobFillings) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             Personelle Situation
           </h2>
-          {/* TODO: Ask Bea about this heading */}
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Stellen und Stundenkontingent
-          </h3>
-          <RichText html={project.jobFillings} />
+          {project.jobFillings !== null && (
+            <>
+              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+                Stellen und / oder Stundenkontingent
+              </h3>
+              <RichText html={project.jobFillings} />
+            </>
+          )}
+          {project.furtherJobFillings !== null && (
+            <>
+              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+                Weitere Infos
+              </h3>
+              <RichText html={project.furtherJobFillings} />
+            </>
+          )}
         </>
       )}
       {(project.yearlyBudget !== null ||
@@ -95,8 +107,7 @@ function Requirements() {
               </p>
             </>
           )}
-          {/* TODO: Financings */}
-          {/* {project.financings.length > 0 && (
+          {project.financings.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Art der Finanzierung
@@ -111,12 +122,11 @@ function Requirements() {
                 })}
               </Chip.Container>
             </div>
-          )} */}
+          )}
           {project.furtherFinancings !== null && (
             <>
-              {/* TODO: Ask Bea about this heading */}
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Sonstige
+                Weitere Infos
               </h3>
               <p className="mv-font-normal mv-text-neutral-800">
                 {project.furtherFinancings}
@@ -133,9 +143,8 @@ function Requirements() {
           </h2>
           {project.technicalRequirements !== null && (
             <>
-              {/* TODO: Ask Bea about this heading */}
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Eingesetzte Technik
+                Software / Hardware / Bausätze / Maschinen
               </h3>
               <p className="mv-font-normal mv-text-neutral-800">
                 {project.technicalRequirements}
@@ -144,9 +153,8 @@ function Requirements() {
           )}
           {project.furtherTechnicalRequirements !== null && (
             <>
-              {/* TODO: Ask Bea about this heading */}
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Sonstige Erläuterungen
+                Sonstiges
               </h3>
               <p className="mv-font-normal mv-text-neutral-800">
                 {project.furtherTechnicalRequirements}
@@ -163,7 +171,6 @@ function Requirements() {
           </h2>
           {project.roomSituation !== null && (
             <>
-              {/* TODO: Ask Bea about this heading */}
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Arbeitsorte
               </h3>
@@ -174,7 +181,6 @@ function Requirements() {
           )}
           {project.furtherRoomSituation !== null && (
             <>
-              {/* TODO: Ask Bea about this heading */}
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
                 Weitere Informationen
               </h3>
