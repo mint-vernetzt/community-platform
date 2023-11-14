@@ -559,13 +559,20 @@ function Requirements() {
             )}
             {fields.jobFillings.error !== undefined && (
               <Alert level="negative">
-                Personelle Situation - Stellen und Stundenkontingent:{" "}
+                Personelle Situation - Stellen und / oder Stundenkontingent:{" "}
                 {fields.jobFillings.error}
+              </Alert>
+            )}
+            {fields.furtherJobFillings.error !== undefined && (
+              <Alert level="negative">
+                Personelle Situation - Weitere Infos:{" "}
+                {fields.furtherJobFillings.error}
               </Alert>
             )}
             {fields.furtherFinancings.error !== undefined && (
               <Alert level="negative">
-                Finanzieller Rahmen - Sonstige: {fields.furtherFinancings.error}
+                Finanzieller Rahmen - Weitere Infos:{" "}
+                {fields.furtherFinancings.error}
               </Alert>
             )}
             {fields.technicalRequirements.error !== undefined && (
@@ -582,12 +589,12 @@ function Requirements() {
             )}
             {fields.roomSituation.error !== undefined && (
               <Alert level="negative">
-                Räumliche Situation: {fields.roomSituation.error}
+                Räumliche Situation - Arbeitsorte: {fields.roomSituation.error}
               </Alert>
             )}
             {fields.furtherRoomSituation.error !== undefined && (
               <Alert level="negative">
-                Räumliche Situation - Sonstige Erläuterungen:{" "}
+                Räumliche Situation - Weitere Informationen:{" "}
                 {fields.furtherRoomSituation.error}
               </Alert>
             )}
