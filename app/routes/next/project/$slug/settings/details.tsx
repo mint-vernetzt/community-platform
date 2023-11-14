@@ -164,6 +164,7 @@ export const loader = async (args: DataFunctionArgs) => {
       excerpt: true,
       participantLimit: true,
       furtherDisciplines: true,
+      targetGroupAdditions: true,
       disciplines: {
         select: {
           discipline: {
