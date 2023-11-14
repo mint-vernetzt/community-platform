@@ -294,7 +294,7 @@ export function getPaginationValues(
   request: Request,
   options?: { itemsPerPage?: number; param?: string }
 ) {
-  const { itemsPerPage = 8, param = "page" } = options || {};
+  const { itemsPerPage = 15, param = "page" } = options || {};
 
   const url = new URL(request.url);
   const pageParam = url.searchParams.get(param) || "1";
