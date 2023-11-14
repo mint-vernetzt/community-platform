@@ -1,9 +1,10 @@
-import { redirect, type DataFunctionArgs } from "@remix-run/node";
+import { redirect, type DataFunctionArgs, json } from "@remix-run/node";
 import { useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -29,7 +30,43 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect(redirectPath, { headers: response.headers });
   }
 
-  return null;
+  const project = await prismaClient.project.findFirst({
+    where: {
+      slug: params.slug,
+    },
+    select: {
+      documents: {
+        select: {
+          document: {
+            select: {
+              id: true,
+              title: true,
+              filename: true,
+              sizeInMB: true,
+            },
+          },
+        },
+      },
+      images: {
+        select: {
+          image: {
+            select: {
+              id: true,
+              name: true,
+              alt: true,
+              path: true,
+              credits: true,
+              sizeInMB: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  console.log({ project });
+
+  return json(project, { headers: response.headers });
 };
 
 function Attachments() {
