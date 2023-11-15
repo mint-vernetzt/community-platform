@@ -9,6 +9,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
 import { createDocumentOnEvent } from "./utils.server";
+import i18next from "~/i18next.server";
 
 const schema = z.object({
   uploadKey: z.string(),
@@ -19,12 +20,17 @@ export const uploadDocumentSchema = schema;
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/documents/upload-document",
+  ]);
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const parsedData = await parseMultipart(request);
@@ -45,7 +51,7 @@ export const action = async (args: DataFunctionArgs) => {
   try {
     await createDocumentOnEvent(slug, document);
   } catch (error) {
-    throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
+    throw t("error.server");
   }
 
   return json({ headers: response.headers });

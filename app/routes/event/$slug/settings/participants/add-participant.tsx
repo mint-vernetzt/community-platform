@@ -11,6 +11,9 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
 import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   profileId: z.string(),
@@ -22,36 +25,35 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const profile = await getProfileById(values.profileId);
-  if (profile === null) {
-    throw new InputError(
-      "Es existiert noch kein Profil unter diesem Namen.",
-      "profileId"
-    );
-  }
-  const alreadyParticipant = profile.participatedEvents.some((entry) => {
-    return entry.event.slug === environment.eventSlug;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const profile = await getProfileById(values.profileId);
+    if (profile === null) {
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
+    }
+    const alreadyParticipant = profile.participatedEvents.some((entry) => {
+      return entry.event.slug === environment.eventSlug;
+    });
+    if (alreadyParticipant) {
+      throw new InputError(t("error.inputError.alreadyIn"), "profileId");
+    }
+    return {
+      ...values,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    };
   });
-  if (alreadyParticipant) {
-    throw new InputError(
-      "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil.",
-      "profileId"
-    );
-  }
-  return {
-    ...values,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-  };
-});
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/participants/add-participant",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -59,7 +61,7 @@ export const action = async (args: DataFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: {
       eventSlug: slug,
     },
@@ -67,10 +69,12 @@ export const action = async (args: DataFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, "Event not found", { status: 404 });
+    invariantResponse(event, t("error.notFound"), { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      invariantResponse(mode === "admin", t("error.notPrivileged"), {
+        status: 403,
+      });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
       await connectParticipantToEvent(event.id, result.data.profileId);
     } else {
@@ -79,7 +83,10 @@ export const action = async (args: DataFunctionArgs) => {
     return json(
       {
         success: true,
-        message: `Das Profil mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde als Teilnehmer:in hinzugefügt.`,
+        message: t("feedback", {
+          firstName: result.data.firstName,
+          lastName: result.data.lastName,
+        }),
       },
       { headers: response.headers }
     );
@@ -94,6 +101,9 @@ type AddParticipantButtonProps = {
 
 export function AddParticipantButton(props: AddParticipantButtonProps) {
   const fetcher = useFetcher<typeof action>();
+  const { t } = useTranslation([
+    "routes/event/settings/participants/add-participant",
+  ]);
   return (
     <Form
       action={props.action}
@@ -110,7 +120,7 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              Teilnehmen
+              {t("action")}
             </button>
             <Errors />
           </>

@@ -46,8 +46,8 @@ import {
   getTypes,
 } from "~/utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
-import { cancelSchema, type action as cancelAction } from "./events/cancel";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as cancelAction, cancelSchema } from "./events/cancel";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
   transformEventToForm,
   transformFormToEvent,
@@ -59,98 +59,104 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const schema = object({
-  name: string().required("Bitte gib den Namen der Veranstaltung an"),
-  startDate: string()
-    .transform((value) => {
-      value = value.trim();
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return undefined;
-    })
-    .required("Bitte gib den Beginn der Veranstaltung an"),
-  startTime: string()
-    .transform((value: string) => {
-      value = value.trim();
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return undefined;
-    })
-    .required("Bitte gib den Beginn der Veranstaltung an"),
-  endDate: greaterThanDate(
-    "endDate",
-    "startDate",
-    "Bitte gib das Ende der Veranstaltung an",
-    "Das Enddatum darf nicht vor dem Startdatum liegen"
-  ),
-  endTime: greaterThanTimeOnSameDate(
-    "endTime",
-    "startTime",
-    "startDate",
-    "endDate",
-    "Bitte gib das Ende der Veranstaltung an",
-    "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
-  ),
-  participationUntilDate: greaterThanDate(
-    "participationUntilDate",
-    "participationFromDate",
-    "Bitte gib das Ende für die Registrierung an",
-    "Das Registrierungsende darf nicht vor dem Registrierungsstart liegen"
-  ),
-  participationUntilTime: greaterThanTimeOnSameDate(
-    "participationUntilTime",
-    "participationFromTime",
-    "participationUntilDate",
-    "participationFromDate",
-    "Bitte gib das Ende für die Registrierung an",
-    "Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen"
-  ),
-  participationFromDate: greaterThanDate(
-    "startDate",
-    "participationFromDate",
-    "Bitte gib den Beginn für die Registrierung an",
-    "Das Startdatum darf nicht vor dem Registrierungsstart liegen"
-  ),
-  participationFromTime: greaterThanTimeOnSameDate(
-    "startTime",
-    "participationFromTime",
-    "startDate",
-    "participationFromDate",
-    "Bitte gib den Beginn für die Registrierung an",
-    "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen"
-  ),
-  subline: nullOrString(multiline()),
-  description: nullOrString(multiline()),
-  focuses: array(string().required()).required(),
-  targetGroups: array(string().required()).required(),
-  experienceLevel: nullOrString(string()),
-  stage: nullOrString(string()),
-  types: array(string().required()).required(),
-  tags: array(string().required()).required(),
-  conferenceLink: nullOrString(website()),
-  conferenceCode: nullOrString(string()),
-  areas: array(string().required()).required(),
-  venueName: nullOrString(string()),
-  venueStreet: nullOrString(string()),
-  venueStreetNumber: nullOrString(string()),
-  venueCity: nullOrString(string()),
-  venueZipCode: nullOrString(string()),
-  submit: string().required(),
-  privateFields: array(string().required()).required(),
-});
+const createSchema = (t: TFunction) => {
+  return object({
+    name: string().required(t("validation.required")),
+    startDate: string()
+      .transform((value) => {
+        value = value.trim();
+        try {
+          const date = new Date(value);
+          return format(date, "yyyy-MM-dd");
+        } catch (error) {
+          console.log(error);
+        }
+        return undefined;
+      })
+      .required(t("startDate.required")),
+    startTime: string()
+      .transform((value: string) => {
+        value = value.trim();
+        if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+          return value;
+        }
+        return undefined;
+      })
+      .required(t("startTime.required")),
+    endDate: greaterThanDate(
+      "endDate",
+      "startDate",
+      t("validation.endDate.required"),
+      t("validation.endDate.greaterThan")
+    ),
+    endTime: greaterThanTimeOnSameDate(
+      "endTime",
+      "startTime",
+      "startDate",
+      "endDate",
+      t("validation.endTime.required"),
+      t("validation.endTime.greaterThan")
+    ),
+    participationUntilDate: greaterThanDate(
+      "participationUntilDate",
+      "participationFromDate",
+      t("validation.participationUntilDate.required"),
+      t("validation.participationUntilDate.greaterThan")
+    ),
+    participationUntilTime: greaterThanTimeOnSameDate(
+      "participationUntilTime",
+      "participationFromTime",
+      "participationUntilDate",
+      "participationFromDate",
+      t("validation.participationUntilTime.required"),
+      t("validation.participationUntilTime.greaterThan")
+    ),
+    participationFromDate: greaterThanDate(
+      "startDate",
+      "participationFromDate",
+      t("validation.participationFromDate.required"),
+      t("validation.participationFromDate.greaterThan")
+    ),
+    participationFromTime: greaterThanTimeOnSameDate(
+      "startTime",
+      "participationFromTime",
+      "startDate",
+      "participationFromDate",
+      t("validation.participationFromTime.required"),
+      t("validation.participationFromTime.greaterThan")
+    ),
+    subline: nullOrString(multiline()),
+    description: nullOrString(multiline()),
+    focuses: array(string().required()).required(),
+    targetGroups: array(string().required()).required(),
+    experienceLevel: nullOrString(string()),
+    stage: nullOrString(string()),
+    types: array(string().required()).required(),
+    tags: array(string().required()).required(),
+    conferenceLink: nullOrString(website()),
+    conferenceCode: nullOrString(string()),
+    areas: array(string().required()).required(),
+    venueName: nullOrString(string()),
+    venueStreet: nullOrString(string()),
+    venueStreetNumber: nullOrString(string()),
+    venueCity: nullOrString(string()),
+    venueZipCode: nullOrString(string()),
+    submit: string().required(),
+    privateFields: array(string().required()).required(),
+  });
+};
 
-type SchemaType = typeof schema;
-type FormType = InferType<typeof schema>;
+type SchemaType = ReturnType<typeof createSchema>;
+type FormType = InferType<SchemaType>;
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, ["routes/event/settings/general"]);
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -158,10 +164,12 @@ export const loader = async (args: LoaderArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const focuses = await getFocuses();
   const types = await getTypes();
@@ -197,6 +205,7 @@ export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, ["routes/event/settings/general"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -204,13 +213,15 @@ export const action = async (args: ActionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,
-    schema
+    createSchema(t)
   );
 
   let updated = false;
@@ -279,6 +290,7 @@ function General() {
 
   const publishFetcher = useFetcher<typeof publishAction>();
   const cancelFetcher = useFetcher<typeof cancelAction>();
+  const { t } = useTranslation(["routes/event/settings/general"]);
 
   const transition = useTransition();
   const actionData = useActionData<typeof action>();
@@ -445,16 +457,10 @@ function General() {
 
   return (
     <>
-      <h1 className="mb-8">Deine Veranstaltung</h1>
-      <h4 className="mb-4 font-semibold">Start und Registrierung</h4>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <h4 className="mb-4 font-semibold">{t("content.start.headline")}</h4>
 
-      <p className="mb-4">
-        Wann startet deine Veranstaltung, wie lange dauert sie und wie viele
-        Personen können teilnehmen? Hier kannst du Einstellungen rund um das
-        Thema Start und Registrierung vornehmen. Außerdem kannst du die
-        Veranstaltung veröffentlichen oder verstecken und gegebenenfalls
-        absagen.
-      </p>
+      <p className="mb-4">{t("content.start.intro")}</p>
       <div className="flex mb-4">
         <RemixForm
           schema={cancelSchema}
@@ -472,7 +478,7 @@ function General() {
                 <Field name="cancel"></Field>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {event.canceled ? "Absage rückgängig machen" : "Absagen"}
+                    {event.canceled ? t("content.revert") : t("content.cancel")}
                   </Button>
                 </div>
               </>
@@ -494,7 +500,7 @@ function General() {
               <InputText
                 {...register("startDate")}
                 id="startDate"
-                label="Startet am"
+                label={t("form.startDate.label")}
                 defaultValue={event.startDate}
                 errorMessage={errors?.startDate?.message}
                 type="date"
@@ -507,7 +513,7 @@ function General() {
               <InputText
                 {...register("startTime")}
                 id="startTime"
-                label="Startet um"
+                label={t("form.startTime.label")}
                 defaultValue={event.startTime}
                 errorMessage={errors?.startTime?.message}
                 type="time"
@@ -524,7 +530,7 @@ function General() {
               <InputText
                 {...register("endDate")}
                 id="endDate"
-                label="Endet am"
+                label={t("form.endDate.label")}
                 defaultValue={event.endDate}
                 errorMessage={errors?.endDate?.message}
                 type="date"
@@ -537,7 +543,7 @@ function General() {
               <InputText
                 {...register("endTime")}
                 id="endTime"
-                label="Endet um"
+                label={t("form.endTime.label")}
                 defaultValue={event.endTime}
                 errorMessage={errors?.endTime?.message}
                 type="time"
@@ -555,7 +561,7 @@ function General() {
               <InputText
                 {...register("participationFromDate")}
                 id="participationFromDate"
-                label="Registrierung startet am"
+                label={t("form.participationFromDate.label")}
                 defaultValue={event.participationFromDate}
                 errorMessage={errors?.participationFromDate?.message}
                 type="date"
@@ -568,7 +574,7 @@ function General() {
               <InputText
                 {...register("participationFromTime")}
                 id="participationFromTime"
-                label="Registrierung startet um"
+                label={t("form.participationFromTime.label")}
                 defaultValue={event.participationFromTime}
                 errorMessage={errors?.participationFromTime?.message}
                 type="time"
@@ -585,7 +591,7 @@ function General() {
               <InputText
                 {...register("participationUntilDate")}
                 id="participationUntilDate"
-                label="Registrierung endet am"
+                label={t("form.participationUntilDate.label")}
                 defaultValue={event.participationUntilDate}
                 errorMessage={errors?.participationUntilDate?.message}
                 type="date"
@@ -598,7 +604,7 @@ function General() {
               <InputText
                 {...register("participationUntilTime")}
                 id="participationUntilTime"
-                label="Registrierung endet um"
+                label={t("form.participationUntilTime.label")}
                 defaultValue={event.participationUntilTime}
                 errorMessage={errors?.participationUntilTime?.message}
                 type="time"
@@ -610,13 +616,13 @@ function General() {
               ) : null}
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Veranstaltungsort</h4>
+          <h4 className="mb-4 font-semibold">{t("content.location")}</h4>
           <div className="mb-4">
             <SelectField
               {...register("stage")}
               name="stage"
-              label={"Veranstaltungstyp"}
-              placeholder="Wähle den Veranstaltungstyp aus."
+              label={t("form.stage.label")}
+              placeholder={t("form.stage.placeholder")}
               options={stageOptions}
               defaultValue={event.stage || ""}
               withPublicPrivateToggle={false}
@@ -628,7 +634,7 @@ function General() {
             <InputText
               {...register("venueName")}
               id="venueName"
-              label="Name des Veranstaltungsorts"
+              label={t("form.venueName.label")}
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
               withPublicPrivateToggle={false}
@@ -643,7 +649,7 @@ function General() {
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
-                label="Straßenname"
+                label={t("form.venueStreet.label")}
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
                 withPublicPrivateToggle={false}
@@ -657,7 +663,7 @@ function General() {
               <InputText
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
-                label="Hausnummer"
+                label={t("form.venueStreetNumber.label")}
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
                 withPublicPrivateToggle={false}
@@ -673,7 +679,7 @@ function General() {
               <InputText
                 {...register("venueZipCode")}
                 id="venueZipCode"
-                label="PLZ"
+                label={t("form.venueZipCode.label")}
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
                 withPublicPrivateToggle={false}
@@ -687,7 +693,7 @@ function General() {
               <InputText
                 {...register("venueCity")}
                 id="venueCity"
-                label="Stadt"
+                label={t("form.venueCity.label")}
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
                 withPublicPrivateToggle={false}
@@ -702,7 +708,7 @@ function General() {
             <InputText
               {...register("conferenceLink")}
               id="conferenceLink"
-              label="Konferenzlink"
+              label={t("form.conferenceLink.label")}
               defaultValue={event.conferenceLink || ""}
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
@@ -718,7 +724,7 @@ function General() {
             <InputText
               {...register("conferenceCode")}
               id="conferenceCode"
-              label="Zugangscode zur Konferenz"
+              label={t("form.conferenceCode.label")}
               defaultValue={event.conferenceCode || ""}
               errorMessage={errors?.conferenceCode?.message}
               withClearButton
@@ -730,19 +736,15 @@ function General() {
             ) : null}
           </div>
 
-          <h4 className="mb-4 font-semibold">Allgemein</h4>
-          <p className="mb-8">
-            Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende
-            erwarten und wen möchtest du damit abholen? Nehme hier allgemeine
-            Einstellungen vor, wie beispielsweise der Name, die Beschreibung
-            oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst du
-            außerdem Schlagworte und die Veranstaltungstypen festlegen.
-          </p>
+          <h4 className="mb-4 font-semibold">
+            {t("content.generic.headline")}
+          </h4>
+          <p className="mb-8">{t("content.generic.intro")}</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
-              label="Name"
+              label={t("form.name.label")}
               defaultValue={event.name}
               errorMessage={errors?.name?.message}
               withPublicPrivateToggle={false}
@@ -756,7 +758,7 @@ function General() {
               {...register("subline")}
               id="subline"
               defaultValue={event.subline || ""}
-              label="Subline"
+              label={t("form.subline.label")}
               errorMessage={errors?.subline?.message}
               maxCharacters={100}
               withPublicPrivateToggle={false}
@@ -771,7 +773,7 @@ function General() {
               {...register("description")}
               id="description"
               defaultValue={event.description || ""}
-              label="Beschreibung"
+              label={t("form.description.label")}
               errorMessage={errors?.description?.message}
               maxCharacters={2000}
               withPublicPrivateToggle={false}
@@ -785,8 +787,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="types"
-              label={"Veranstaltungstypen"}
-              placeholder="Füge die veranstaltungstypen hinzu."
+              label={t("form.types.label")}
+              placeholder={t("form.types.placeholder")}
               entries={selectedTypes.map((type) => ({
                 label: type.title,
                 value: type.id,
@@ -799,8 +801,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="tags"
-              label={"Schlagworte"}
-              placeholder="Füge die Schlagworte hinzu."
+              label={t("form.tags.label")}
+              placeholder={t("form.tags.placeholder")}
               entries={selectedTags.map((tag) => ({
                 label: tag.title,
                 value: tag.id,
@@ -814,8 +816,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="targetGroups"
-              label={"Zielgruppen"}
-              placeholder="Füge die Zielgruppen hinzu."
+              label={t("form.targetGroups.label")}
+              placeholder={t("form.targetGroups.placeholder")}
               entries={selectedTargetGroups.map((targetGroup) => ({
                 label: targetGroup.title,
                 value: targetGroup.id,
@@ -829,8 +831,8 @@ function General() {
             <SelectField
               {...register("experienceLevel")}
               name="experienceLevel"
-              label={"Erfahrungsstufe"}
-              placeholder="Wähle die Erfahrungsstufe aus."
+              label={t("form.experienceLevel.label")}
+              placeholder={t("form.experienceLevel.placeholder")}
               options={experienceLevelOptions}
               defaultValue={event.experienceLevel || ""}
               withPublicPrivateToggle={false}
@@ -840,8 +842,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="focuses"
-              label={"MINT-Schwerpunkte"}
-              placeholder="Füge die MINT-Schwerpunkte hinzu."
+              label={t("form.focuses.label")}
+              placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
                 label: focus.title,
                 value: focus.id,
@@ -854,8 +856,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="areas"
-              label={"Aktivitätsgebiete"}
-              placeholder="Füge die Aktivitätsgebiete hinzu."
+              label={t("form.areas.label")}
+              placeholder={t("form.areas.placeholder")}
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -877,7 +879,7 @@ function General() {
                   : "hidden"
               }`}
             >
-              Informationen wurden aktualisiert.
+              {t("content.feedback")}
             </div>
 
             {isFormChanged ? (
@@ -886,7 +888,7 @@ function General() {
                 reloadDocument
                 className={`btn btn-link`}
               >
-                Änderungen verwerfen
+                {t("form.reset.label")}
               </Link>
             ) : null}
             <div></div>
@@ -898,7 +900,7 @@ function General() {
               className="btn btn-primary ml-4"
               disabled={isSubmitting || !isFormChanged}
             >
-              Speichern
+              {t("form.submit.label")}
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
@@ -917,7 +919,9 @@ function General() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {event.published ? "Verstecken" : "Veröffentlichen"}
+                      {event.published
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

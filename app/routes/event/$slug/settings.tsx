@@ -80,7 +80,7 @@ function Settings() {
                 to="waiting-list"
                 className={({ isActive }) => getClassName(isActive)}
               >
-                {t("content.participants")}
+                {t("content.waitingList")}
               </NavLink>
               <NavLink
                 to="organizations"

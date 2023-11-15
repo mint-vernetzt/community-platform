@@ -98,7 +98,7 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/admins"]);
+  const { t } = useTranslation(["routes/event/settings/admins"]);
 
   return (
     <>

@@ -13,6 +13,8 @@ import {
   disconnectFromWaitingListOfEvent,
   getEventBySlug,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   profileId: z.string(),
@@ -27,6 +29,9 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/waiting-list/remove-from-waiting-list",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -35,10 +40,12 @@ export const action = async (args: DataFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, "Event not found", { status: 404 });
+    invariantResponse(event, t("error.notFound"), { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      invariantResponse(mode === "admin", t("error.notPrivileged"), {
+        status: 403,
+      });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
     }
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
@@ -55,6 +62,9 @@ export function RemoveFromWaitingListButton(
   props: RemoveFromWaitingListButtonProps
 ) {
   const fetcher = useFetcher<typeof action>();
+  const { t } = useTranslation([
+    "routes/event/settings/waiting-list/remove-from-waiting-list",
+  ]);
   return (
     <Form
       action={props.action}
@@ -71,7 +81,7 @@ export function RemoveFromWaitingListButton(
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              Von der Warteliste entfernen
+              {t("action")}
             </button>
             <Errors />
           </>

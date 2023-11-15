@@ -10,6 +10,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getOrganizationById } from "../utils.server";
 import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -21,43 +23,46 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const organization = await getOrganizationById(values.organizationId);
-  if (organization === null) {
-    throw new InputError(
-      "Es existiert noch keine Organisation mit diesem Namen.",
-      "organizationId"
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const organization = await getOrganizationById(values.organizationId);
+    if (organization === null) {
+      throw new InputError(t("error.notFound"), "organizationId");
+    }
+    const alreadyResponsible = organization.responsibleForEvents.some(
+      (entry) => {
+        return entry.event.slug === environment.eventSlug;
+      }
     );
-  }
-  const alreadyResponsible = organization.responsibleForEvents.some((entry) => {
-    return entry.event.slug === environment.eventSlug;
+    if (alreadyResponsible) {
+      throw new InputError(t("error.inputError"), "organizationId");
+    }
+    return { ...values, name: organization.name };
   });
-  if (alreadyResponsible) {
-    throw new InputError(
-      "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich.",
-      "organizationId"
-    );
-  }
-  return { ...values, name: organization.name };
-});
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/organizations/add-organization",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { eventSlug: slug },
   });
 
@@ -67,7 +72,7 @@ export const action = async (args: DataFunctionArgs) => {
     await connectOrganizationToEvent(event.id, result.data.organizationId);
     return json(
       {
-        message: `Die Organisation "${result.data.name}" ist jetzt verantwortlich für Eure Veranstaltung.`,
+        message: t("feedback", { title: result.data.name }),
       },
       { headers: response.headers }
     );

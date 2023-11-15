@@ -12,6 +12,8 @@ import {
   getEventBySlug,
   updateParentEventRelationOrThrow,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
 
 const schema = z.object({
   parentEventId: z.string().optional(),
@@ -23,49 +25,53 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const event = await getEventBySlug(environment.slug);
-  if (event === null) {
-    throw "Die aktuelle Veranstaltung konnte nicht gefunden werden.";
-  }
-  let parentEventName;
-  if (values.parentEventId !== undefined) {
-    const parentEvent = await getEventBySlug(values.parentEventId);
-    if (parentEvent === null) {
-      throw "Die Rahmenveranstaltung konnte nicht gefunden werden.";
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const event = await getEventBySlug(environment.slug);
+    if (event === null) {
+      throw t("error.notFound.current");
     }
-    const parentStartTime = new Date(parentEvent.startTime).getTime();
-    const parentEndTime = new Date(parentEvent.endTime).getTime();
-    const eventStartTime = new Date(event.startTime).getTime();
-    const eventEndTime = new Date(event.endTime).getTime();
-    if (parentStartTime > eventStartTime || parentEndTime < eventEndTime) {
-      throw new InputError(
-        "Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung.",
-        "parentEventId"
-      );
+    let parentEventName;
+    if (values.parentEventId !== undefined) {
+      const parentEvent = await getEventBySlug(values.parentEventId);
+      if (parentEvent === null) {
+        throw t("error.notFound.parent");
+      }
+      const parentStartTime = new Date(parentEvent.startTime).getTime();
+      const parentEndTime = new Date(parentEvent.endTime).getTime();
+      const eventStartTime = new Date(event.startTime).getTime();
+      const eventEndTime = new Date(event.endTime).getTime();
+      if (parentStartTime > eventStartTime || parentEndTime < eventEndTime) {
+        throw new InputError(t("error.notInTime"), "parentEventId");
+      }
+      parentEventName = parentEvent.name;
     }
-    parentEventName = parentEvent.name;
-  }
-  return { ...values, parentEventName: parentEventName };
-});
+    return { ...values, parentEventName: parentEventName };
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/event/settings/events/set-parent",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { slug: slug },
   });
 
@@ -84,7 +90,7 @@ export const action = async (args: DataFunctionArgs) => {
     } else {
       return json(
         {
-          message: `Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung.`,
+          message: t("feedback"),
         },
         { headers: response.headers }
       );
