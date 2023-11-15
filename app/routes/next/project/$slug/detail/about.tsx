@@ -330,7 +330,7 @@ function About() {
       {loaderData.project.targetGroupAdditions !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Weitere Ergänzungen
+            Weitere
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.targetGroupAdditions}
