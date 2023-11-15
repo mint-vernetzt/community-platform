@@ -651,6 +651,7 @@ model Document {
   id          String              @id @default(uuid())
   path        String
   mimeType    String              @map("mime_type")
+  credits     String?
   title       String?
   description String?
   createdAt   DateTime            @default(now()) @map("created_at")
@@ -940,11 +941,15 @@ model ImageOfProject {
 model Image {
   id           String           @id @default(uuid())
   path         String
-  url          String
+  mimeType     String           @map("mime_type")
   credits      String?
-  alt          String?
-  name         String?
+  title        String?
   sizeInMB     Float            @map("size_in_mb")
+  filename     String
+  description  String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at")
+  extension    String
   Profile      Profile[]
   Organization Organization[]
   Event        Event[]
