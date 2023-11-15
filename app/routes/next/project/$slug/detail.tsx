@@ -350,13 +350,14 @@ function ProjectDetail() {
         <div className="md:mv-flex xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
             <TabBar>
+              {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below */}
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about">Über das Projekt</Link>
               </TabBar.Item>
-              {/* <TabBar.Item active={pathname.endsWith("/requirements")}>
+              <TabBar.Item active={pathname.endsWith("/requirements")}>
                 <Link to="./requirements">Rahmenbedingungen</Link>
               </TabBar.Item>
-              <TabBar.Item active={pathname.endsWith("/attachments")}>
+              {/* <TabBar.Item active={pathname.endsWith("/attachments")}>
                 <Link to="./attachments">Zugänglichkeit</Link>
               </TabBar.Item> */}
             </TabBar>

@@ -45,7 +45,7 @@ const detailsSchema = z.object({
       message: "Die Anzahl der Teilnehmer:innen muss eine Zahl sein.",
     })
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targetGroups: z.array(z.string().uuid()),
   specialTargetGroups: z.array(z.string().uuid()),
   targetGroupAdditions: z
@@ -55,7 +55,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   excerpt: z
     .string()
     .max(
@@ -63,7 +63,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 100."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   idea: z
     .string()
     .max(
@@ -71,7 +71,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   goals: z
     .string()
     .max(
@@ -79,7 +79,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   implementation: z
     .string()
     .max(
@@ -87,7 +87,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   furtherDescription: z
     .string()
     .max(
@@ -95,7 +95,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targeting: z
     .string()
     .max(
@@ -103,7 +103,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   hints: z
     .string()
     .max(
@@ -111,7 +111,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   video: youtubeEmbedSchema,
   videoSubline: z
     .string()
@@ -120,7 +120,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
 export const links: LinksFunction = () => [
@@ -311,7 +311,6 @@ export async function action({ request, params }: DataFunctionArgs) {
           additionalDisciplines,
           targetGroups,
           specialTargetGroups,
-          excerpt,
           idea,
           goals,
           implementation,
@@ -328,7 +327,6 @@ export async function action({ request, params }: DataFunctionArgs) {
             },
             data: {
               ...rest,
-              excerpt: sanitizeUserHtml(excerpt),
               idea: sanitizeUserHtml(idea),
               goals: sanitizeUserHtml(goals),
               implementation: sanitizeUserHtml(implementation),
@@ -914,14 +912,14 @@ function Details() {
               Teaser angezeigt.
             </p>
 
-            <TextAreaWithCounter
-              {...conform.textarea(fields.excerpt)}
-              id={fields.excerpt.id || ""}
-              label="Kurzbeschreibung"
-              errorMessage={fields.excerpt.error}
-              maxCharacters={100}
-              rte
-            />
+            <Input {...conform.input(fields.excerpt)}>
+              <Input.Label htmlFor={fields.excerpt.id}>
+                Kurzbeschreibung
+              </Input.Label>
+              {typeof fields.excerpt.error !== "undefined" && (
+                <Input.Error>{fields.excerpt.error}</Input.Error>
+              )}
+            </Input>
           </div>
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
@@ -1050,11 +1048,6 @@ function Details() {
           {fields.additionalDisciplines.error !== undefined && (
             <Alert level="negative">
               Zusätzliche Disziplinen: {fields.additionalDisciplines.error}
-            </Alert>
-          )}
-          {fields.excerpt.error !== undefined && (
-            <Alert level="negative">
-              Kurzbeschreibung: {fields.excerpt.error}
             </Alert>
           )}
           {fields.idea.error !== undefined && (

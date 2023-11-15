@@ -36,9 +36,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
         <div className="mv-border-0" id={`${toolbar}`}>
           <div className="ql-formats">
             <select className="ql-header">
-              <option value="2">Überschrift 1</option>
-              <option value="3">Überschrift 2</option>
-              <option value="4">Überschrift 3</option>
+              <option value="4">Überschrift 1</option>
               <option value="" selected>
                 Text
               </option>
@@ -71,7 +69,16 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
           theme="snow"
           defaultValue={defaultValue}
           onChange={(content) => {
-            setTextareaContentById(id, content);
+            // Remove all html tags when input is empty (actually its not empty, instead they put a \n inside...)
+            if (
+              quillRef.current &&
+              (quillRef.current.getEditingArea() as HTMLDivElement)
+                .innerText === "\n"
+            ) {
+              setTextareaContentById(id, "");
+            } else {
+              setTextareaContentById(id, content);
+            }
           }}
           modules={{ toolbar: `#${toolbar}` }}
           onKeyDown={() => {

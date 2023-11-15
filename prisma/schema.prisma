@@ -608,6 +608,14 @@ model Format {
   @@map("formats")
 }
 
+model Financing {
+  id       String               @id @default(uuid())
+  title    String               @unique
+  projects FinancingOfProject[]
+
+  @@map("financings")
+}
+
 model ExperienceLevel {
   id          String  @id @default(uuid())
   title       String  @unique
@@ -664,119 +672,139 @@ model Document {
 }
 
 model Project {
-  id                       String                             @id @default(uuid())
-  name                     String
-  subline                  String?
-  slug                     String                             @unique
-  logo                     String?
-  background               String? // legacy
-  backgroundImage          Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId        String?                            @map("background_image_id")
-  headline                 String?
-  excerpt                  String?
-  description              String? // legacy
-  furtherDescription       String?                            @map("further_description")
-  email                    String?
-  phone                    String?
-  website                  String?
-  contactName              String?                            @map("contact_name")
-  street                   String?
-  streetNumber             String?                            @map("street_number")
-  streetNumberAddition     String?                            @map("street_number_addition")
-  zipCode                  String?                            @map("zip_code")
-  facebook                 String?
-  linkedin                 String?
-  twitter                  String?
-  youtube                  String?
-  instagram                String?
-  xing                     String?
-  mastodon                 String?
-  tiktok                   String?
-  createdAt                DateTime                           @default(now()) @map("created_at")
-  updatedAt                DateTime                           @default(now()) @updatedAt @map("updated_at")
-  published                Boolean                            @default(false)
-  city                     String?
-  idea                     String?
-  goals                    String?
-  implementation           String?
-  targeting                String?
-  hints                    String?
-  video                    String?
-  videoSubline             String?                            @map("video_subline")
-  participantLimit         String?                            @map("participant_limit")
-  targetGroupAdditions     String?                            @map("target_group_additions")
-  furtherDisciplines       String[]                           @map("further_disciplines")
-  furtherFormats           String[]                           @map("further_formats")
-  awards                   AwardOfProject[]
-  disciplines              DisciplineOfProject[]
-  additionalDisciplines    AdditionalDisciplineOfProject[]
-  responsibleOrganizations ResponsibleOrganizationOfProject[]
-  targetGroups             TargetGroupOfProject[]
-  specialTargetGroups      SpecialTargetGroupOfProject[]
-  formats                  FormatOfProject[]
-  teamMembers              TeamMemberOfProject[]
-  projectVisibility        ProjectVisibility?
-  admins                   AdminOfProject[]
-  areas                    AreasOnProjects[]
+  id                           String                             @id @default(uuid())
+  name                         String
+  subline                      String?
+  slug                         String                             @unique
+  logo                         String?
+  background                   String? // legacy
+  backgroundImage              Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId            String?                            @map("background_image_id")
+  headline                     String?
+  excerpt                      String?
+  description                  String? // legacy
+  furtherDescription           String?                            @map("further_description")
+  email                        String?
+  phone                        String?
+  website                      String?
+  contactName                  String?                            @map("contact_name")
+  street                       String?
+  streetNumber                 String?                            @map("street_number")
+  streetNumberAddition         String?                            @map("street_number_addition")
+  zipCode                      String?                            @map("zip_code")
+  facebook                     String?
+  linkedin                     String?
+  twitter                      String?
+  youtube                      String?
+  instagram                    String?
+  xing                         String?
+  mastodon                     String?
+  tiktok                       String?
+  createdAt                    DateTime                           @default(now()) @map("created_at")
+  updatedAt                    DateTime                           @default(now()) @updatedAt @map("updated_at")
+  published                    Boolean                            @default(false)
+  city                         String?
+  idea                         String?
+  goals                        String?
+  implementation               String?
+  targeting                    String?
+  hints                        String?
+  video                        String?
+  videoSubline                 String?                            @map("video_subline")
+  jobFillings                  String?                            @map("job_fillings")
+  furtherJobFillings           String?                            @map("further_job_fillings")
+  yearlyBudget                 String?                            @map("yearly_budget")
+  participantLimit             String?                            @map("participant_limit")
+  targetGroupAdditions         String?                            @map("target_group_additions")
+  furtherFinancings            String?                            @map("further_financings")
+  technicalRequirements        String?                            @map("technical_requirements")
+  furtherTechnicalRequirements String?                            @map("further_technical_requirements")
+  roomSituation                String?                            @map("room_situation")
+  furtherRoomSituation         String?                            @map("further_room_situation")
+  timeframe                    String?
+  furtherDisciplines           String[]                           @map("further_disciplines")
+  furtherFormats               String[]                           @map("further_formats")
+  awards                       AwardOfProject[]
+  disciplines                  DisciplineOfProject[]
+  additionalDisciplines        AdditionalDisciplineOfProject[]
+  responsibleOrganizations     ResponsibleOrganizationOfProject[]
+  targetGroups                 TargetGroupOfProject[]
+  specialTargetGroups          SpecialTargetGroupOfProject[]
+  formats                      FormatOfProject[]
+  financings                   FinancingOfProject[]
+  teamMembers                  TeamMemberOfProject[]
+  projectVisibility            ProjectVisibility?
+  admins                       AdminOfProject[]
+  areas                        AreasOnProjects[]
 
   @@map("projects")
 }
 
 model ProjectVisibility {
-  id                       String  @id @default(uuid())
-  name                     Boolean @default(true)
-  slug                     Boolean @default(true)
-  logo                     Boolean @default(true)
-  background               Boolean @default(true) // legacy
-  backgroundImage          Boolean @default(true) @map("background_image")
-  backgroundImageId        Boolean @default(true) @map("background_image_id")
-  headline                 Boolean @default(true)
-  excerpt                  Boolean @default(true)
-  description              Boolean @default(true) // legacy
-  furtherDescription       Boolean @default(true) @map("further_description")
-  email                    Boolean @default(true)
-  phone                    Boolean @default(true)
-  website                  Boolean @default(true)
-  contactName              Boolean @default(true) @map("contact_name")
-  street                   Boolean @default(true)
-  streetNumber             Boolean @default(true) @map("street_number")
-  streetNumberAddition     Boolean @default(true) @map("street_number_addition")
-  zipCode                  Boolean @default(true) @map("zip_code")
-  facebook                 Boolean @default(true)
-  linkedin                 Boolean @default(true)
-  twitter                  Boolean @default(true)
-  youtube                  Boolean @default(true)
-  instagram                Boolean @default(true)
-  xing                     Boolean @default(true)
-  mastodon                 Boolean @default(true)
-  bluesky                  Boolean @default(true)
-  createdAt                Boolean @default(true) @map("created_at")
-  updatedAt                Boolean @default(true) @map("updated_at")
-  published                Boolean @default(true)
-  city                     Boolean @default(true)
-  idea                     Boolean @default(true)
-  goals                    Boolean @default(true)
-  implementation           Boolean @default(true)
-  targeting                Boolean @default(true)
-  hints                    Boolean @default(true)
-  video                    Boolean @default(true)
-  videoSubline             Boolean @default(true)
-  participantLimit         Boolean @default(true) @map("participant_limit")
-  furtherDisciplines       Boolean @default(true) @map("further_disciplines")
-  targetGroupAdditions     Boolean @default(true) @map("target_group_additions")
-  furtherFormats           Boolean @default(true)
-  awards                   Boolean @default(true)
-  disciplines              Boolean @default(true)
-  additionalDisciplines    Boolean @default(true) @map("additional_disciplines")
-  responsibleOrganizations Boolean @default(true)
-  targetGroups             Boolean @default(true)
-  specialTargetGroups      Boolean @default(true)
-  formats                  Boolean @default(true)
-  teamMembers              Boolean @default(true)
-  areas                    Boolean @default(true)
-  admins                   Boolean @default(false)
-  project                  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId                String  @unique
+  id                           String  @id @default(uuid())
+  name                         Boolean @default(true)
+  slug                         Boolean @default(true)
+  logo                         Boolean @default(true)
+  background                   Boolean @default(true) // legacy
+  backgroundImage              Boolean @default(true) @map("background_image")
+  backgroundImageId            Boolean @default(true) @map("background_image_id")
+  headline                     Boolean @default(true)
+  excerpt                      Boolean @default(true)
+  description                  Boolean @default(true) // legacy
+  furtherDescription           Boolean @default(true) @map("further_description")
+  email                        Boolean @default(true)
+  phone                        Boolean @default(true)
+  website                      Boolean @default(true)
+  contactName                  Boolean @default(true) @map("contact_name")
+  street                       Boolean @default(true)
+  streetNumber                 Boolean @default(true) @map("street_number")
+  streetNumberAddition         Boolean @default(true) @map("street_number_addition")
+  zipCode                      Boolean @default(true) @map("zip_code")
+  facebook                     Boolean @default(true)
+  linkedin                     Boolean @default(true)
+  twitter                      Boolean @default(true)
+  youtube                      Boolean @default(true)
+  instagram                    Boolean @default(true)
+  xing                         Boolean @default(true)
+  mastodon                     Boolean @default(true)
+  tiktok                       Boolean @default(true)
+  createdAt                    Boolean @default(true) @map("created_at")
+  updatedAt                    Boolean @default(true) @map("updated_at")
+  published                    Boolean @default(true)
+  city                         Boolean @default(true)
+  idea                         Boolean @default(true)
+  goals                        Boolean @default(true)
+  implementation               Boolean @default(true)
+  targeting                    Boolean @default(true)
+  hints                        Boolean @default(true)
+  video                        Boolean @default(true)
+  videoSubline                 Boolean @default(true)
+  participantLimit             Boolean @default(true) @map("participant_limit")
+  timeframe                    Boolean @default(true)
+  jobFillings                  Boolean @default(true) @map("job_fillings")
+  furtherJobFillings           Boolean @default(true) @map("further_job_fillings")
+  yearlyBudget                 Boolean @default(true) @map("yearly_budget")
+  financings                   Boolean @default(true)
+  furtherFinancings            Boolean @default(true) @map("further_financings")
+  technicalRequirements        Boolean @default(true) @map("technical_requirements")
+  furtherTechnicalRequirements Boolean @default(true) @map("further_technical_requirements")
+  roomSituation                Boolean @default(true) @map("room_situation")
+  furtherRoomSituation         Boolean @default(true) @map("further_room_situation")
+  furtherDisciplines           Boolean @default(true) @map("further_disciplines")
+  targetGroupAdditions         Boolean @default(true) @map("target_group_additions")
+  furtherFormats               Boolean @default(true)
+  awards                       Boolean @default(true)
+  disciplines                  Boolean @default(true)
+  additionalDisciplines        Boolean @default(true) @map("additional_disciplines")
+  responsibleOrganizations     Boolean @default(true)
+  targetGroups                 Boolean @default(true)
+  specialTargetGroups          Boolean @default(true)
+  formats                      Boolean @default(true)
+  teamMembers                  Boolean @default(true)
+  areas                        Boolean @default(true)
+  admins                       Boolean @default(false)
+  project                      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId                    String  @unique
 
   @@map("project_visibilities")
 }
@@ -844,6 +872,17 @@ model FormatOfProject {
 
   @@id([formatId, projectId])
   @@map("formats_of_projects")
+}
+
+model FinancingOfProject {
+  financingId String    @map("financing_id")
+  projectId   String    @map("project_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  financing   Financing @relation(fields: [financingId], references: [id], onDelete: Cascade)
+
+  @@id([financingId, projectId])
+  @@map("financings_of_projects")
 }
 
 model DisciplineOfProject {
