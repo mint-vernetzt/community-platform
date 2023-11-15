@@ -29,7 +29,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveProjectMode } from "../../utils.server";
+import { deriveProjectMode } from "../utils.server";
 
 export function links() {
   return [
