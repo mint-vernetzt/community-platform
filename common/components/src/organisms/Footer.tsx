@@ -2,10 +2,7 @@ import { Link } from "@mint-vernetzt/components";
 import classNames from "classnames";
 
 function Footer(props: { isSettings?: boolean }) {
-  const classes = classNames(
-    "shadow-md",
-    props.isSettings && "hidden md:block"
-  );
+  const classes = classNames("shadow-md", props.isSettings && "hidden");
 
   return (
     <div className={classes}>

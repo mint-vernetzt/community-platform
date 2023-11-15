@@ -13,6 +13,7 @@ import {
 import {
   Form,
   Link,
+  Outlet,
   useActionData,
   useLoaderData,
   useLocation,
@@ -357,6 +358,7 @@ function Attachments() {
 
   return (
     <Section>
+      <Outlet />
       <BackButton to={location.pathname}>Material verwalten</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
         Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu
@@ -477,6 +479,11 @@ function Attachments() {
                           download
                         >
                           Herunterladen
+                        </Link>
+                        <Link
+                          to={`./edit?type=document&id=${relation.document.id}&deep`}
+                        >
+                          Bearbeiten
                         </Link>
                       </li>
                     );
@@ -610,6 +617,11 @@ function Attachments() {
                           target="_blank"
                         >
                           Herunterladen
+                        </Link>
+                        <Link
+                          to={`./edit?type=image&id=${relation.image.id}&deep`}
+                        >
+                          Bearbeiten
                         </Link>
                       </Form>
                     </li>
