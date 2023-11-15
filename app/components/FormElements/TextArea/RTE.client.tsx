@@ -30,6 +30,18 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
   const quillRef = React.useRef<ReactQuill>(null);
   const toolbar = `toolbar_${id}`;
 
+  React.useEffect(() => {
+    if (quillRef.current) {
+      const additionalClassNames = [
+        "mv-border-l-0",
+        "mv-border-r-0",
+        "mv-border-b-0",
+        "mv-border-t",
+      ];
+      quillRef.current.getEditingArea().classList.add(...additionalClassNames);
+    }
+  }, [quillRef]);
+
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
       <div className="mv-rounded-lg mv-border mv-border-gray-300 mv-overflow-hidden">
@@ -95,6 +107,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
                 );
             }
           }}
+          className="mv-pb-10"
         />
       </div>
     </React.Suspense>

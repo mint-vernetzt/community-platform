@@ -246,13 +246,16 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json({
-    project,
-    allDisciplines,
-    allAdditionalDisciplines,
-    allTargetGroups,
-    allSpecialTargetGroups,
-  });
+  return json(
+    {
+      project,
+      allDisciplines,
+      allAdditionalDisciplines,
+      allTargetGroups,
+      allSpecialTargetGroups,
+    },
+    { headers: response.headers }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
