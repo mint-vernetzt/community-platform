@@ -3,6 +3,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { prismaClient } from "~/prisma.server";
+import JSZip from "jszip";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -27,25 +28,33 @@ export const loader = async (args: DataFunctionArgs) => {
   }
 
   const url = new URL(request.url);
-  const type = url.searchParams.get("type") as null | "document" | "image";
+  const type = url.searchParams.get("type") as
+    | null
+    | "document"
+    | "image"
+    | "documents"
+    | "images";
   const fileId = url.searchParams.get("id");
 
   invariantResponse(
     type !== null &&
-      fileId !== null &&
-      (type === "document" || type === "image"),
+      (type === "document" ||
+        type === "documents" ||
+        type === "image" ||
+        type === "images"),
     "Wrong or missing parameters",
     {
       status: 400,
     }
   );
 
-  if (type === "document") {
+  if (type === "document" || type === "documents") {
     const project = await prismaClient.project.findFirst({
       where: {
         slug: params.slug,
       },
       select: {
+        slug: true,
         documents: {
           select: {
             document: {
@@ -62,37 +71,61 @@ export const loader = async (args: DataFunctionArgs) => {
     });
     invariantResponse(project !== null, "Project not found", { status: 404 });
 
-    const relation = project.documents.find((relation) => {
-      return relation.document.id === fileId;
-    });
+    if (type === "document") {
+      const relation = project.documents.find((relation) => {
+        return relation.document.id === fileId;
+      });
 
-    invariantResponse(typeof relation !== "undefined", "Document not found", {
-      status: 404,
-    });
+      invariantResponse(typeof relation !== "undefined", "Document not found", {
+        status: 404,
+      });
 
-    const result = await authClient.storage
-      .from("documents")
-      .download(relation.document.path);
+      const result = await authClient.storage
+        .from("documents")
+        .download(relation.document.path);
 
-    invariantResponse(
-      result.error === null,
-      "Downloading from storage failed",
-      {
-        status: 400,
+      invariantResponse(
+        result.error === null,
+        "Downloading from storage failed",
+        {
+          status: 400,
+        }
+      );
+
+      const arrayBuffer = await result.data.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      return new Response(buffer, {
+        status: 200,
+        headers: {
+          ...response.headers,
+          "Content-Type": relation.document.mimeType,
+          "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
+        },
+      });
+    } else {
+      const filename = `${project.slug}_documents.zip`;
+
+      const zip = new JSZip();
+      for (const relation of project.documents) {
+        const result = await authClient.storage
+          .from("documents")
+          .download(relation.document.path);
+        if (result.error === null) {
+          const arrayBuffer = await result.data.arrayBuffer();
+          zip.file(relation.document.filename, arrayBuffer);
+        }
       }
-    );
-
-    const arrayBuffer = await result.data.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    return new Response(buffer, {
-      status: 200,
-      headers: {
-        ...response.headers,
-        "Content-Type": relation.document.mimeType,
-        "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
-      },
-    });
+      const content = await zip.generateAsync({ type: "nodebuffer" });
+      return new Response(content, {
+        status: 200,
+        headers: {
+          ...response.headers,
+          "Content-Type": "application/zip",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        },
+      });
+    }
   }
 
   if (type === "image") {

@@ -444,40 +444,48 @@ function Attachments() {
               Aktuell hochgeladene Dokumente
             </h2>
             {loaderData !== null && loaderData.documents.length > 0 ? (
-              <ul>
-                {loaderData.documents.map((relation) => {
-                  return (
-                    <li key={relation.document.id} className="mv-flex mv-gap-2">
-                      {relation.document.filename}
-                      <Form method="post" encType="multipart/form-data">
-                        <input
-                          hidden
-                          name={conform.INTENT}
-                          defaultValue="delete_document"
-                        />
-                        <input
-                          hidden
-                          name="id"
-                          defaultValue={relation.document.id}
-                        />
-                        <input
-                          hidden
-                          name="filename"
-                          defaultValue={relation.document.filename}
-                        />
-                        <Button type="submit">Löschen</Button>
-                      </Form>
-                      <Link
-                        to={`./download?type=document&id=${relation.document.id}`}
-                        target="_blank"
-                        download
+              <>
+                <ul>
+                  {loaderData.documents.map((relation) => {
+                    return (
+                      <li
+                        key={relation.document.id}
+                        className="mv-flex mv-gap-2"
                       >
-                        Herunterladen
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+                        {relation.document.filename}
+                        <Form method="post" encType="multipart/form-data">
+                          <input
+                            hidden
+                            name={conform.INTENT}
+                            defaultValue="delete_document"
+                          />
+                          <input
+                            hidden
+                            name="id"
+                            defaultValue={relation.document.id}
+                          />
+                          <input
+                            hidden
+                            name="filename"
+                            defaultValue={relation.document.filename}
+                          />
+                          <Button type="submit">Löschen</Button>
+                        </Form>
+                        <Link
+                          to={`./download?type=document&id=${relation.document.id}`}
+                          target="_blank"
+                          download
+                        >
+                          Herunterladen
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Link to={`./download?type=documents`} target="_blank">
+                  Alle herunterladen
+                </Link>
+              </>
             ) : (
               <p>Keine Dokumente vorhanden.</p>
             )}
@@ -574,39 +582,41 @@ function Attachments() {
             Aktuell hochgeladenes Bildmaterial
           </h2>
           {loaderData !== null && loaderData.images.length > 0 ? (
-            <ul>
-              {loaderData.images.map((relation) => {
-                return (
-                  <li key={relation.image.id} className="mv-flex mv-gap-2">
-                    {relation.image.filename}{" "}
-                    <Form method="post" encType="multipart/form-data">
-                      <input
-                        hidden
-                        name={conform.INTENT}
-                        defaultValue="delete_image"
-                      />
-                      <input
-                        hidden
-                        name="id"
-                        defaultValue={relation.image.id}
-                      />
-                      <input
-                        hidden
-                        name="filename"
-                        defaultValue={relation.image.filename}
-                      />
-                      <Button type="submit">Löschen</Button>
-                      <Link
-                        to={`./download?type=image&id=${relation.image.id}`}
-                        target="_blank"
-                      >
-                        Herunterladen
-                      </Link>
-                    </Form>
-                  </li>
-                );
-              })}
-            </ul>
+            <>
+              <ul>
+                {loaderData.images.map((relation) => {
+                  return (
+                    <li key={relation.image.id} className="mv-flex mv-gap-2">
+                      {relation.image.filename}{" "}
+                      <Form method="post" encType="multipart/form-data">
+                        <input
+                          hidden
+                          name={conform.INTENT}
+                          defaultValue="delete_image"
+                        />
+                        <input
+                          hidden
+                          name="id"
+                          defaultValue={relation.image.id}
+                        />
+                        <input
+                          hidden
+                          name="filename"
+                          defaultValue={relation.image.filename}
+                        />
+                        <Button type="submit">Löschen</Button>
+                        <Link
+                          to={`./download?type=image&id=${relation.image.id}`}
+                          target="_blank"
+                        >
+                          Herunterladen
+                        </Link>
+                      </Form>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
           ) : (
             <p>Keine Bilder vorhanden.</p>
           )}
