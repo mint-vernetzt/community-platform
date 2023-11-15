@@ -21,26 +21,61 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
-import { createHashFromString } from "~/utils.server";
 import { BackButton } from "./__components";
+import { getExtension, storeDocument, storeImage } from "./attachments.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
 
 const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
-const uploadSchema = z.object({
-  filename: z.string().optional(),
+
+// TODO: DRY
+const documentUploadSchema = z.object({
+  filename: z
+    .string()
+    .transform((filename) => {
+      const extension = getExtension(filename);
+      return `${filename
+        .replace(`.${extension}`, "")
+        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+    })
+    .optional(),
   document: z
     .any()
     .refine((file) => {
       return file.size <= MAX_UPLOAD_SIZE;
     }, "Die Datei darf nicht größer als 5MB sein.")
     .refine((file) => {
-      return file.type === "application/pdf" || file.type.startsWith("image/");
-    }, "Die Datei muss ein PDF oder ein Bild sein.")
+      return file.type === "application/pdf" || file.type === "image/jpeg";
+    }, "Die Datei muss ein PDF oder ein JPEG sein.")
     .optional(),
+});
+
+const imageUploadSchema = z.object({
+  filename: z
+    .string()
+    .transform((filename) => {
+      const extension = getExtension(filename);
+      return `${filename
+        .replace(`.${extension}`, "")
+        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+    })
+    .optional(),
+  image: z
+    .any()
+    .refine((file) => {
+      return file.size <= MAX_UPLOAD_SIZE;
+    }, "Die Datei darf nicht größer als 5MB sein.")
+    .refine((file) => {
+      return file.type === "image/png" || file.type === "image/jpeg";
+    }, "Die Datei muss ein PNG oder ein JPEG sein.")
+    .optional(),
+});
+
+const actionSchema = z.object({
+  id: z.string().uuid(),
+  filename: z.string(),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -89,8 +124,9 @@ export const loader = async (args: DataFunctionArgs) => {
           image: {
             select: {
               id: true,
-              name: true,
-              alt: true,
+              title: true,
+              filename: true,
+              description: true,
               path: true,
               credits: true,
               sizeInMB: true,
@@ -139,102 +175,134 @@ export const action = async (args: DataFunctionArgs) => {
 
   const intent = formData.get(conform.INTENT) as string;
 
-  invariantResponse(intent === "upload_document", "No valid action", {
-    status: 400,
-  });
-
-  const submission = parse(formData, {
-    schema: uploadSchema,
-  });
-
-  const submissionHash = getSubmissionHash(submission);
-
-  if (typeof submission.value === "undefined" || submission.value === null) {
-    return json(
-      { status: "error", submission, hash: submissionHash } as const,
-      {
-        status: 400,
-      }
-    );
-  }
-
-  const filename = submission.value.filename as string;
-  const document = submission.value.document as NodeOnDiskFile;
-
-  const mimeType = document.type;
-  const extension = filename.substring(
-    filename.lastIndexOf(".") + 1,
-    filename.length
+  invariantResponse(
+    intent === "upload_document" ||
+      intent === "upload_image" ||
+      intent === "delete_document" ||
+      intent === "delete_image",
+    "No valid action",
+    {
+      status: 400,
+    }
   );
-  const sizeInMB = Math.round((document.size / 1024 / 1024) * 100) / 100;
-  const buffer = await document.arrayBuffer();
-  const contentHash = await createHashFromString(buffer.toString());
 
-  const path = `${contentHash.substring(0, 2)}/${contentHash.substring(
-    2
-  )}/${filename}`;
+  let submission;
 
-  const result = await authClient.storage
-    .from("documents")
-    .upload(path, buffer);
+  if (intent === "upload_document") {
+    submission = parse(formData, {
+      schema: documentUploadSchema,
+    });
 
-  if (result.error !== null) {
-    return json(
-      { status: "error", submission, hash: submissionHash } as const,
-      {
-        status: 400,
-      }
+    invariantResponse(
+      typeof submission.value !== "undefined" && submission.value !== null,
+      "No valid submission",
+      { status: 400 }
     );
-  }
 
-  // validate persisency in storage
-  const publicURL = getPublicURL(authClient, "documents", path);
-
-  if (publicURL === null) {
-    return json(
-      { status: "error", submission, hash: submissionHash } as const,
-      {
-        status: 400,
-      }
-    );
-  }
-
-  await prismaClient.project.update({
-    where: {
+    const filename = submission.value.filename as string;
+    const document = submission.value.document as NodeOnDiskFile;
+    const error = await storeDocument(authClient, {
       slug: params.slug,
-    },
-    data: {
-      documents: {
-        create: {
-          document: {
-            create: {
-              filename,
-              path,
-              extension,
-              sizeInMB,
-              mimeType,
-            },
-          },
-        },
-      },
-      updatedAt: new Date(),
-    },
-  });
+      filename,
+      document,
+    });
 
-  return json({ status: "success", submission, hash: submissionHash } as const);
+    invariantResponse(error === null, "Error on storing document", {
+      status: 400,
+    });
+  } else if (intent === "upload_image") {
+    submission = parse(formData, {
+      schema: imageUploadSchema,
+    });
+    invariantResponse(
+      typeof submission.value !== "undefined" && submission.value !== null,
+      "No valid submission",
+      { status: 400 }
+    );
+
+    const filename = submission.value.filename as string;
+    const image = submission.value.image as NodeOnDiskFile;
+
+    const error = await storeImage(authClient, {
+      slug: params.slug,
+      filename,
+      image,
+    });
+
+    console.log("error", error);
+
+    invariantResponse(error === null, "Error on storing document", {
+      status: 400,
+    });
+  } else if (intent === "delete_document") {
+    submission = parse(formData, {
+      schema: actionSchema,
+    });
+
+    invariantResponse(
+      typeof submission.value !== "undefined" && submission.value !== null,
+      "No valid submission",
+      { status: 400 }
+    );
+
+    const id = submission.value.id as string;
+    await prismaClient.document.delete({
+      where: {
+        id,
+      },
+    });
+  } else if (intent === "delete_image") {
+    submission = parse(formData, {
+      schema: actionSchema,
+    });
+
+    invariantResponse(
+      typeof submission.value !== "undefined" && submission.value !== null,
+      "No valid submission",
+      { status: 400 }
+    );
+
+    const id = submission.value.id as string;
+    await prismaClient.image.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  const submissionHash =
+    typeof submission !== "undefined" ? getSubmissionHash(submission) : null;
+
+  return json({
+    status: "success",
+    submission,
+    hash: submissionHash,
+  } as const);
 };
 
 function Attachments() {
   const location = useLocation();
 
   const [documentName, setDocumentName] = React.useState<string | null>(null);
+  const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const [form, fields] = useForm({
+  const [documentUploadForm, documentUploadfields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
-      const result = parse(values.formData, { schema: uploadSchema });
+      const result = parse(values.formData, { schema: documentUploadSchema });
+      return result;
+    },
+    lastSubmission:
+      typeof actionData !== "undefined" ? actionData.submission : undefined,
+    shouldRevalidate: "onInput",
+  });
+
+  const [imageUploadForm, imageUploadFields] = useForm({
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      const result = parse(values.formData, { schema: imageUploadSchema });
       return result;
     },
     lastSubmission:
@@ -254,16 +322,33 @@ function Attachments() {
       setDocumentName(null);
     }
   };
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files !== null) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageName(file.name);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageName(null);
+    }
+  };
 
-  // necessary to reset document name after successful upload
+  // necessary to reset document and image name after successful upload
   React.useEffect(() => {
     if (
       typeof actionData !== "undefined" &&
       actionData !== null &&
       actionData.status === "success" &&
-      actionData.submission.intent === "upload_document"
+      typeof actionData.submission !== "undefined"
     ) {
-      setDocumentName(null);
+      if (actionData.submission.intent === "upload_document") {
+        setDocumentName(null);
+      }
+      if (actionData.submission.intent === "upload_image") {
+        setImageName(null);
+      }
     }
   }, [actionData]);
 
@@ -283,23 +368,28 @@ function Attachments() {
           </h2>
           <p>Mögliche Dateiformate: PDF, jpg. Maximal 5MB.</p>
           {/* TODO: no-JS version */}
-          <Form method="post" encType="multipart/form-data" {...form.props}>
+          <Form
+            method="post"
+            encType="multipart/form-data"
+            {...documentUploadForm.props}
+          >
             <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...fields.filename}
+                {...documentUploadfields.filename}
                 defaultValue={documentName !== null ? documentName : ""}
               />
+              {/* TODO: component! */}
               <label
-                htmlFor={fields.document.id}
+                htmlFor={documentUploadfields.document.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
                 Datei auswählen
                 <input
-                  id={fields.document.id}
-                  name={fields.document.name}
+                  id={documentUploadfields.document.id}
+                  name={documentUploadfields.document.name}
                   type="file"
-                  accept="application/pdf,image/*"
+                  accept="application/pdf,image/jpeg"
                   onChange={handleDocumentChange}
                   hidden
                 />
@@ -309,8 +399,8 @@ function Attachments() {
                 // TODO: check type issue
                 disabled={
                   typeof window !== "undefined"
-                    ? typeof fields.document.error !== "undefined" ||
-                      documentName === null
+                    ? typeof documentUploadfields.document.error !==
+                        "undefined" || documentName === null
                     : true
                 }
                 type="hidden"
@@ -321,19 +411,22 @@ function Attachments() {
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof fields.document.error === "undefined" && (
+              {typeof documentUploadfields.document.error === "undefined" && (
                 <p>
                   {documentName === null
                     ? "Du hast keine Datei ausgewählt."
                     : `${documentName} ausgewählt.`}
                 </p>
               )}
-              {typeof fields.document.error !== "undefined" && (
-                <p className="mv-text-negative-600">{fields.document.error}</p>
+              {typeof documentUploadfields.document.error !== "undefined" && (
+                <p className="mv-text-negative-600">
+                  {documentUploadfields.document.error}
+                </p>
               )}
               {typeof actionData !== "undefined" &&
                 actionData !== null &&
                 actionData.status === "success" &&
+                typeof actionData.submission !== "undefined" &&
                 actionData.submission.intent === "upload_document" &&
                 typeof actionData.submission.value !== "undefined" &&
                 actionData.submission.value !== null && (
@@ -343,6 +436,177 @@ function Attachments() {
                 )}
             </div>
           </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <>
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Aktuell hochgeladene Dokumente
+            </h2>
+            {loaderData !== null && loaderData.documents.length > 0 ? (
+              <ul>
+                {loaderData.documents.map((relation) => {
+                  return (
+                    <li key={relation.document.id} className="mv-flex mv-gap-2">
+                      {relation.document.filename}
+                      <Form method="post" encType="multipart/form-data">
+                        <input
+                          hidden
+                          name={conform.INTENT}
+                          defaultValue="delete_document"
+                        />
+                        <input
+                          hidden
+                          name="id"
+                          defaultValue={relation.document.id}
+                        />
+                        <input
+                          hidden
+                          name="filename"
+                          defaultValue={relation.document.filename}
+                        />
+                        <Button type="submit">Löschen</Button>
+                      </Form>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p>Keine Dokumente vorhanden.</p>
+            )}
+            {typeof actionData !== "undefined" &&
+              actionData !== null &&
+              actionData.status === "success" &&
+              typeof actionData.submission !== "undefined" &&
+              actionData.submission.intent === "delete_document" &&
+              typeof actionData.submission.value !== "undefined" &&
+              actionData.submission.value !== null && (
+                <Toast key={actionData.hash}>
+                  {actionData.submission.value.filename} gelöscht.
+                </Toast>
+              )}
+          </>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Bildmaterial hochladen
+          </h2>
+          <p>Mögliche Dateiformate: jpg, png. Maximal 5MB.</p>
+          {/* TODO: no-JS version */}
+          <Form
+            method="post"
+            encType="multipart/form-data"
+            {...imageUploadForm.props}
+          >
+            <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
+              <input
+                hidden
+                {...imageUploadFields.filename}
+                defaultValue={imageName !== null ? imageName : ""}
+              />
+              {/* TODO: component! */}
+              <label
+                htmlFor={imageUploadFields.image.id}
+                className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
+              >
+                Datei auswählen
+                <input
+                  id={imageUploadFields.image.id}
+                  name={imageUploadFields.image.name}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={handleImageChange}
+                  hidden
+                />
+              </label>
+
+              <Button
+                // TODO: check type issue
+                disabled={
+                  typeof window !== "undefined"
+                    ? typeof imageUploadFields.image.error !== "undefined" ||
+                      imageName === null
+                    : true
+                }
+                type="hidden"
+                name={conform.INTENT}
+                value="upload_image"
+              >
+                Datei hochladen
+              </Button>
+            </div>
+            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
+              {typeof imageUploadFields.image.error === "undefined" && (
+                <p>
+                  {imageName === null
+                    ? "Du hast keine Datei ausgewählt."
+                    : `${imageName} ausgewählt.`}
+                </p>
+              )}
+              {typeof imageUploadFields.image.error !== "undefined" && (
+                <p className="mv-text-negative-600">
+                  {imageUploadFields.image.error}
+                </p>
+              )}
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.status === "success" &&
+                typeof actionData.submission !== "undefined" &&
+                actionData.submission.intent === "upload_image" &&
+                typeof actionData.submission.value !== "undefined" &&
+                actionData.submission.value !== null && (
+                  <Toast key={actionData.hash}>
+                    {actionData.submission.value.filename} hinzugefügt.
+                  </Toast>
+                )}
+            </div>
+          </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Aktuell hochgeladenes Bildmaterial
+          </h2>
+          {loaderData !== null && loaderData.images.length > 0 ? (
+            <ul>
+              {loaderData.images.map((relation) => {
+                return (
+                  <li key={relation.image.id} className="mv-flex mv-gap-2">
+                    {relation.image.filename}{" "}
+                    <Form method="post" encType="multipart/form-data">
+                      <input
+                        hidden
+                        name={conform.INTENT}
+                        defaultValue="delete_image"
+                      />
+                      <input
+                        hidden
+                        name="id"
+                        defaultValue={relation.image.id}
+                      />
+                      <input
+                        hidden
+                        name="filename"
+                        defaultValue={relation.image.filename}
+                      />
+                      <Button type="submit">Löschen</Button>
+                    </Form>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p>Keine Bilder vorhanden.</p>
+          )}
+          {typeof actionData !== "undefined" &&
+            actionData !== null &&
+            actionData.status === "success" &&
+            typeof actionData.submission !== "undefined" &&
+            actionData.submission.intent === "delete_image" &&
+            typeof actionData.submission.value !== "undefined" &&
+            actionData.submission.value !== null && (
+              <Toast key={actionData.hash}>
+                {actionData.submission.value.filename} gelöscht.
+              </Toast>
+            )}
         </div>
       </div>
     </Section>
