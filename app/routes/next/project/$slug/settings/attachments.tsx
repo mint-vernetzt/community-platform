@@ -12,6 +12,7 @@ import {
 } from "@remix-run/node";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -113,7 +114,9 @@ export const loader = async (args: DataFunctionArgs) => {
             select: {
               id: true,
               title: true,
+              path: true,
               filename: true,
+              mimeType: true,
               sizeInMB: true,
             },
           },
@@ -136,6 +139,8 @@ export const loader = async (args: DataFunctionArgs) => {
       },
     },
   });
+
+  invariantResponse(project !== null, "Project not found", { status: 404 });
 
   return json(project, { headers: response.headers });
 };
@@ -228,8 +233,6 @@ export const action = async (args: DataFunctionArgs) => {
       filename,
       image,
     });
-
-    console.log("error", error);
 
     invariantResponse(error === null, "Error on storing document", {
       status: 400,
@@ -352,8 +355,6 @@ function Attachments() {
     }
   }, [actionData]);
 
-  console.log("loaderData", loaderData);
-
   return (
     <Section>
       <BackButton to={location.pathname}>Material verwalten</BackButton>
@@ -466,6 +467,13 @@ function Attachments() {
                         />
                         <Button type="submit">Löschen</Button>
                       </Form>
+                      <Link
+                        to={`./download?type=document&id=${relation.document.id}`}
+                        target="_blank"
+                        download
+                      >
+                        Herunterladen
+                      </Link>
                     </li>
                   );
                 })}
@@ -588,6 +596,12 @@ function Attachments() {
                         defaultValue={relation.image.filename}
                       />
                       <Button type="submit">Löschen</Button>
+                      <Link
+                        to={`./download?type=image&id=${relation.image.id}`}
+                        target="_blank"
+                      >
+                        Herunterladen
+                      </Link>
                     </Form>
                   </li>
                 );
