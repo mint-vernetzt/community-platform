@@ -616,6 +616,9 @@ function Attachments() {
                   );
                 })}
               </ul>
+              <Link to={`./download?type=images`} target="_blank">
+                Alle herunterladen
+              </Link>
             </>
           ) : (
             <p>Keine Bilder vorhanden.</p>
