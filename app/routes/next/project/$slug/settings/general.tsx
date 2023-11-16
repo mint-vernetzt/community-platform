@@ -434,34 +434,31 @@ function General() {
                 })}
               </Chip.Container>
             )}
-            {typeof fields.furtherFormats !== "undefined" &&
-              typeof fields.furtherFormats.id !== "undefined" && (
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
-                  <Input
-                    id={fields.furtherFormats.id}
-                    value={furtherFormat}
-                    onChange={handleFurtherFormatInputChange}
-                  >
-                    <Input.Label htmlFor={fields.furtherFormats.id}>
-                      Sonstige Formate
-                    </Input.Label>
-                    <Input.HelperText>
-                      Bitte gib kurze Begriffe an.
-                    </Input.HelperText>
-                  </Input>
-                  <div className="mv--mt-1">
-                    <Button
-                      {...list.insert(fields.furtherFormats.name, {
-                        defaultValue: furtherFormat,
-                      })}
-                      variant="ghost"
-                      disabled={furtherFormat === ""}
-                    >
-                      Hinzufügen
-                    </Button>
-                  </div>
-                </div>
-              )}
+            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+              <Input
+                value={furtherFormat}
+                onChange={handleFurtherFormatInputChange}
+              >
+                <Input.Label htmlFor={fields.furtherFormats.id}>
+                  Sonstige Formate
+                </Input.Label>
+                <Input.HelperText>
+                  Bitte gib kurze Begriffe an.
+                </Input.HelperText>
+              </Input>
+              <div className="mv--mt-1">
+                <Button
+                  id={fields.furtherFormats.id}
+                  {...list.insert(fields.furtherFormats.name, {
+                    defaultValue: furtherFormat,
+                  })}
+                  variant="ghost"
+                  disabled={furtherFormat === ""}
+                >
+                  Hinzufügen
+                </Button>
+              </div>
+            </div>
             {furtherFormatsList.length > 0 && (
               <Chip.Container>
                 {furtherFormatsList.map((listFormat, index) => {
