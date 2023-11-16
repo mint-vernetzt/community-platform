@@ -59,8 +59,8 @@ const detailsSchema = z.object({
   excerpt: z
     .string()
     .max(
-      100,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 100."
+      250,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250."
     )
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
