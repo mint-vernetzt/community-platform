@@ -38,7 +38,11 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
 
   return (
     <div id={props.id}>
-      <noscript>{props.children}</noscript>
+      <noscript>
+        <div className={classes.replace(" mv-hidden", "")}>
+          {props.children}
+        </div>
+      </noscript>
       <div className={classes}>{props.children}</div>
     </div>
   );
