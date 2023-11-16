@@ -155,10 +155,11 @@ function Projects() {
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Finde inspirierende Projekte</H1>
+        <H1 like="h0">Entdecke inspirierende Projekte</H1>
         <p className="">
-          Hier kannst du einen Blick auf verschiedene Projekte der
-          MINT-Community werfen.
+          Finde passende Projekte, lerne von Erfahrungen anderer
+          MINT-Akteur:innen und teile Dein Wissen, indem Du Dein eigenes Projekt
+          anlegst.
         </p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
