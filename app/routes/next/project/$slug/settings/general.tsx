@@ -30,9 +30,22 @@ import {
 } from "./utils.server";
 
 const generalSchema = z.object({
-  name: z.string({
-    required_error: "Der Projektname ist eine erforderliche Angabe.",
-  }),
+  name: z
+    .string({
+      required_error: "Der Projektname ist eine erforderliche Angabe.",
+    })
+    .max(
+      80,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    ),
+  subline: z
+    .string()
+    .max(
+      90,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+    )
+    .optional()
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
   areas: z.array(z.string().uuid()),
@@ -45,10 +58,6 @@ const generalSchema = z.object({
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
   contactName: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  subline: z
     .string()
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
@@ -195,8 +204,6 @@ export async function action({ request, params }: DataFunctionArgs) {
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
         const { formats, areas, ...rest } = data;
-
-        console.log({ formats });
 
         try {
           await prismaClient.project.update({
