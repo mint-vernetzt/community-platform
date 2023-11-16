@@ -1,4 +1,3 @@
-import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
 import Avatar from "../../molecules/Avatar";
 import { Card } from "./Card";
 
@@ -7,6 +6,7 @@ export type ProjectCardProps = {
     name: string;
     slug: string;
     excerpt?: string | null;
+    subline?: string | null;
     background?: string | null;
     logo?: string | null;
     responsibleOrganizations: {
@@ -34,12 +34,14 @@ function ProjectCard(props: ProjectCardProps) {
           </h4>
         </div>
         <div className="mv-h-14">
-          {typeof project.excerpt !== "undefined" &&
-            project.excerpt !== null && (
-              <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-3">
-                {removeHtmlTags(project.excerpt)}
-              </p>
-            )}
+          {((typeof project.subline !== "undefined" &&
+            project.subline !== null) ||
+            (typeof project.excerpt !== "undefined" &&
+              project.excerpt !== null)) && (
+            <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-3">
+              {project.subline || project.excerpt}
+            </p>
+          )}
         </div>
       </Card.Body>
       <Card.Footer>

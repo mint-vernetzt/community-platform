@@ -259,6 +259,7 @@ export async function getAllProjects(
       logo: true,
       background: true,
       excerpt: true,
+      subline: true,
       awards: {
         select: {
           award: {
