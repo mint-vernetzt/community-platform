@@ -60,6 +60,21 @@ function Requirements() {
         Die Informationen zu finanziellem und personellem Rahmen beziehen sich
         auf das angegebene Projekt, nicht allgemein auf die Organisation.
       </p>
+
+      {project.timeframe === null &&
+        project.jobFillings === null &&
+        project.furtherJobFillings === null &&
+        project.yearlyBudget === null &&
+        project.financings.length === 0 &&
+        project.furtherFinancings === null &&
+        project.technicalRequirements === null &&
+        project.furtherTechnicalRequirements === null &&
+        project.roomSituation === null &&
+        project.furtherRoomSituation === null && (
+          <p className="mv-font-normal mv-text-neutral-800">
+            Informationen zu den Rahmenbedingungen wurden noch nicht eingetragen
+          </p>
+        )}
       {project.timeframe !== null && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
@@ -71,7 +86,8 @@ function Requirements() {
           <RichText html={project.timeframe} />
         </>
       )}
-      {(project.jobFillings !== null || project.furtherJobFillings) && (
+      {(project.jobFillings !== null ||
+        project.furtherJobFillings !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             Personelle Situation

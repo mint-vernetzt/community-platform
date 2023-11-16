@@ -104,8 +104,8 @@ function ProjectSettings() {
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>
           <Section.Body>
-            Lege hier Dein Gute-Praxis-Projekt an, um Akteur:innen zu
-            inspirieren ähnliche Projekte zu starten.
+            Teile Dein Wissen und Deine Erfahrungen. Inspiriere andere
+            Akteur:innen und ermögliche ihnen von Deinem Projekt zu lernen.
           </Section.Body>
         </Section>
       </div>
