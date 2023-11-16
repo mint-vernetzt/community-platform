@@ -481,7 +481,7 @@ function Attachments() {
                           Herunterladen
                         </Link>
                         <Link
-                          to={`./edit?type=document&id=${relation.document.id}&deep`}
+                          to={`./edit?type=document&id=${relation.document.id}&deep&modal`}
                         >
                           Bearbeiten
                         </Link>
@@ -619,7 +619,7 @@ function Attachments() {
                           Herunterladen
                         </Link>
                         <Link
-                          to={`./edit?type=image&id=${relation.image.id}&deep`}
+                          to={`./edit?type=image&id=${relation.image.id}&deep&modal`}
                         >
                           Bearbeiten
                         </Link>

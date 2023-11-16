@@ -445,6 +445,14 @@ export default function App() {
   const matches = useMatches();
   const isSettings = matches[1].id === "routes/next/project/$slug/settings";
 
+  const [searchParams] = useSearchParams();
+  const modal = searchParams.get("modal");
+  const isModal = searchParams.get("modal") !== null;
+
+  const bodyClasses = classNames(
+    modal !== null && modal !== "false" && "overflow-hidden"
+  );
+
   return (
     <html lang="de" data-theme="light">
       <head>
@@ -472,7 +480,7 @@ export default function App() {
         ) : null}
       </head>
 
-      <body>
+      <body className={bodyClasses}>
         <div className="flex flex-col min-h-screen">
           {isNonAppBaseRoute || isIndexRoute ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
