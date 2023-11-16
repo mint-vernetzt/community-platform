@@ -454,7 +454,9 @@ function Attachments() {
                         key={relation.document.id}
                         className="mv-flex mv-gap-2"
                       >
-                        {relation.document.filename}
+                        {relation.document.title !== null
+                          ? relation.document.title
+                          : relation.document.filename}
                         <Form method="post" encType="multipart/form-data">
                           <input
                             hidden
@@ -594,7 +596,9 @@ function Attachments() {
                 {loaderData.images.map((relation) => {
                   return (
                     <li key={relation.image.id} className="mv-flex mv-gap-2">
-                      {relation.image.filename}{" "}
+                      {relation.image.title !== null
+                        ? relation.image.title
+                        : relation.image.filename}
                       <Form method="post" encType="multipart/form-data">
                         <input
                           hidden

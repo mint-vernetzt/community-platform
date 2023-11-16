@@ -1,50 +1,62 @@
 import { DataFunctionArgs, json, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
-import { prismaClient } from "~/prisma.server";
 import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "../utils.server";
+import { prismaClient } from "~/prisma.server";
+import { parse } from "@conform-to/zod";
+import {
+  Form,
   Link,
+  useActionData,
   useLoaderData,
   useMatches,
   useSearchParams,
 } from "@remix-run/react";
-import { Section } from "@mint-vernetzt/components";
+import { Button, Input } from "@mint-vernetzt/components";
 import { z } from "zod";
+import { conform, useForm } from "@conform-to/react";
 
 const documentSchema = z.object({
   title: z
     .string()
+
     .optional()
     .transform((value) =>
-      typeof value !== "undefined" || value === "" ? null : value
+      typeof value === "undefined" || value === "" ? null : value
     ),
   description: z
     .string()
+    .max(80)
     .optional()
     .transform((value) =>
-      typeof value !== "undefined" || value === "" ? null : value
+      typeof value === "undefined" || value === "" ? null : value
     ),
 });
 
 const imageSchema = z.object({
   title: z
     .string()
+
     .optional()
     .transform((value) =>
-      typeof value !== "undefined" || value === "" ? null : value
+      typeof value === "undefined" || value === "" ? null : value
     ),
   description: z
     .string()
+    .max(80)
     .optional()
     .transform((value) =>
-      typeof value !== "undefined" || value === "" ? null : value
+      typeof value === "undefined" || value === "" ? null : value
     ),
   credits: z
     .string()
+    .max(80)
     .optional()
     .transform((value) =>
-      typeof value !== "undefined" || value === "" ? null : value
+      typeof value === "undefined" || value === "" ? null : value
     ),
 });
 
@@ -133,26 +145,140 @@ export const loader = async (args: DataFunctionArgs) => {
   return json(file, { headers: response.headers });
 };
 
+export const action = async (args: DataFunctionArgs) => {
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
+
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type") as null | "document" | "image";
+  const id = url.searchParams.get("id");
+
+  invariantResponse(
+    type !== null && (type === "document" || type === "image") && id !== null,
+    "Wrong or missing parameters",
+    {
+      status: 400,
+    }
+  );
+
+  let schema;
+  if (type === "document") {
+    schema = documentSchema;
+  } else {
+    schema = imageSchema;
+  }
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+  const hash = getSubmissionHash(submission);
+
+  if (typeof submission.value !== "undefined" && submission.value !== null) {
+    if (type === "document") {
+      await prismaClient.document.update({
+        where: {
+          id,
+        },
+        data: {
+          ...submission.value,
+        },
+      });
+    } else {
+      await prismaClient.image.update({
+        where: {
+          id,
+        },
+        data: {
+          ...submission.value,
+        },
+      });
+    }
+  } else {
+    return json({ status: "error", submission, hash } as const, {
+      headers: response.headers,
+      status: 400,
+    });
+  }
+
+  const redirectUrl = new URL("./", request.url);
+  redirectUrl.searchParams.set("deep", "true");
+
+  return redirect(redirectUrl.toString(), {
+    headers: response.headers,
+  });
+};
+
 function Edit() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const matches = useMatches();
+  const type = searchParams.get("type") as "document" | "image";
 
-  const type = searchParams.get("type");
+  let defaultValue;
+  if (type === "document") {
+    defaultValue = {
+      title: loaderData.document.title,
+      description: loaderData.document.description,
+    };
+  } else {
+    defaultValue = {
+      title: loaderData.image.title,
+      description: loaderData.image.description,
+      credits: loaderData.image.credits,
+    };
+  }
+
+  const [form, fields] = useForm({
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      let schema;
+      if (type === "document") {
+        schema = documentSchema;
+      } else {
+        schema = imageSchema;
+      }
+
+      const result = parse(values.formData, { schema });
+      return result;
+    },
+    defaultValue,
+    lastSubmission:
+      typeof actionData !== "undefined" ? actionData.submission : undefined,
+  });
 
   return (
-    <div className="mv-absolute mv-top-0 mv-left-0 mv-z-20 mv-w-full mv-min-h-full mv-bg-black mv-flex mv-justify-center mv-items-center mv-bg-opacity-50">
-      <div className="mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-6 mv-shadow-lg mv-rounded-lg">
+    <div className="mv-absolute mv-top-0 mv-left-0 mv-z-20 mv-w-full p-4 mv-min-h-full mv-bg-black mv-flex mv-justify-center mv-items-center mv-bg-opacity-50">
+      <div className="mv-w-[480px] mv-max-w-full mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-6 mv-shadow-lg mv-rounded-lg">
         <div className="mv-flex mv-justify-between">
-          <h2 className="mv-text-primary mv-text-2xl mv-font-semibold mv-mb-4">
+          <h2 className="mv-text-primary mv-text-5xl mv-font-semibold mv-mb-0">
             {type === "document"
               ? "Dokument edititeren"
               : "Fotoinformation edititeren"}
           </h2>
           <Link
-            to={matches[matches.length - 2].pathname} // last layout route
+            to={`${matches[matches.length - 2].pathname}?deep`} // last layout route
             prefetch="intent"
-            className="mv-px-4"
+            className="mv-pl-4"
           >
             <svg
               width="32"
@@ -170,6 +296,49 @@ function Edit() {
             </svg>
           </Link>
         </div>
+        <Form method="post" {...form.props}>
+          <div className="mv-flex mv-flex-col mv-gap-6">
+            <Input {...conform.input(fields.title)}>
+              <Input.Label>Titel</Input.Label>
+              {typeof fields.title.error !== "undefined" && (
+                <Input.Error>{fields.title.error}</Input.Error>
+              )}
+            </Input>
+            {type === "image" && (
+              <Input {...conform.input(fields.credits)} maxLength={80}>
+                <Input.Label>Credits</Input.Label>
+                <Input.HelperText>
+                  Bitte nenne hier den oder die Urheber:in des Bildes
+                </Input.HelperText>
+                {typeof fields.credits.error !== "undefined" && (
+                  <Input.Error>{fields.credits.error}</Input.Error>
+                )}
+              </Input>
+            )}
+            <Input {...conform.input(fields.description)} maxLength={80}>
+              <Input.Label>Beschreibung</Input.Label>
+              {type === "image" && (
+                <Input.HelperText>
+                  Hilf blinden Menschen mit Deiner Bildbeschreibung zu
+                  verstehen, was auf dem Bild zu sehen ist.
+                </Input.HelperText>
+              )}
+              {typeof fields.description.error !== "undefined" && (
+                <Input.Error>{fields.description.error}</Input.Error>
+              )}
+            </Input>
+            <div className="mv-flex mv-flex-col mv-gap-4">
+              <Button type="submit">Speichern</Button>
+              <Button
+                as="a"
+                href={`${matches[matches.length - 2].pathname}?deep`}
+                variant="outline"
+              >
+                Verwerfen
+              </Button>
+            </div>
+          </div>
+        </Form>
       </div>
     </div>
   );
