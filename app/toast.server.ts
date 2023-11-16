@@ -11,7 +11,7 @@ type Toast = {
 };
 
 const toastSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   key: z.string(),
   message: z.string(),
   level: z.string().optional(),
@@ -44,7 +44,9 @@ export async function redirectWithToast(
   let redirectUrl = url;
   if (toastOptions?.scrollIntoView && toast.id !== undefined) {
     const urlWithoutHashParam = url.split("#", 2)[0];
-    redirectUrl = `${urlWithoutHashParam}#${toast.id}`;
+    redirectUrl = `${urlWithoutHashParam}${
+      !urlWithoutHashParam.includes("?") ? "?" : "&"
+    }toast-trigger#${toast.id}`;
   }
   return redirect(redirectUrl, {
     ...init,

@@ -43,7 +43,9 @@ export async function redirectWithAlert(
   let redirectUrl = url;
   if (alertOptions?.scrollIntoView && alert.id !== undefined) {
     const urlWithoutHashParam = url.split("#", 2)[0];
-    redirectUrl = `${urlWithoutHashParam}#${alert.id}`;
+    redirectUrl = `${urlWithoutHashParam}${
+      !urlWithoutHashParam.includes("?") ? "?" : "&"
+    }alert-trigger#${alert.id}`;
   }
   return redirect(redirectUrl, {
     ...init,
