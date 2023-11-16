@@ -442,7 +442,7 @@ function About() {
               loaderData.project.hints !== null) && (
               <div className="mv-flex mv-flex-col mv-gap-4">
                 <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                  Sonstiges
+                  Weitere Informationen
                 </h3>
                 <RichText
                   additionalClassNames="mv-text-lg"
