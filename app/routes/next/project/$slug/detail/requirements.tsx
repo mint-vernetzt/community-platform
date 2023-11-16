@@ -56,6 +56,11 @@ function Requirements() {
 
   return (
     <>
+      <p className="mv-font-normal mv-text-neutral-800">
+        Die Informationen zu finanziellem und personellem Rahmen beziehen sich
+        auf das angegebene Projekt, nicht allgemein auf die Organisation.
+      </p>
+
       {project.timeframe === null &&
         project.jobFillings === null &&
         project.furtherJobFillings === null &&
