@@ -299,7 +299,12 @@ function Admins() {
     <Section>
       <BackButton to={location.pathname}>Admin-Rollen verwalten</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
-        Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
+        Wer verwaltet dieses Projekt auf der Community Plattform? Füge hier
+        weitere Administrator:innen hinzu oder entferne sie. Administrator:innen
+        können Projekte anlegen, bearbeiten, löschen, sowie Team-Mitglieder
+        hinzufügen. Sie sind nicht auf der Projekt-Detailseite sichtbar.
+        Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
+        Projekte nicht bearbeiten.
       </p>
       {typeof actionData !== "undefined" &&
         actionData !== null &&
