@@ -23,7 +23,7 @@ import classNames from "classnames";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getAlert, type Alert as AlertType } from "./alert.server";
+import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
@@ -40,14 +40,6 @@ export const meta: MetaFunction = () => {
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-export type RootRouteData = {
-  matomoUrl: string | undefined;
-  matomoSiteId: string | undefined;
-  sessionUserInfo?: SessionUserInfo;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  alert: AlertType | undefined;
-};
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
@@ -483,10 +475,14 @@ export default function App() {
             </div>
           ) : null}
           <main className="flex-auto relative pb-24 md:pb-8">
-            {typeof alert !== "undefined" &&
+            {alert !== null &&
             isNonAppBaseRoute === false &&
             isIndexRoute === false ? (
-              <div key={alert.message} className="w-full md:container md:mb-4">
+              <div
+                id={alert.id}
+                key={alert.message}
+                className="w-full md:container md:mb-4"
+              >
                 <Alert level={alert.level}>{alert.message}</Alert>
               </div>
             ) : null}

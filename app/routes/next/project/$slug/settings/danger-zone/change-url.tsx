@@ -114,10 +114,16 @@ export const action = async (args: DataFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    return redirectWithAlert(`${pathname}?deep`, {
-      level: "positive",
-      message: "URL wurde geändert.",
-    });
+    return redirectWithAlert(
+      `${pathname}?deep`,
+      {
+        id: "alert-container",
+        level: "positive",
+        message: "URL wurde geändert.",
+      },
+      { scrollIntoView: true },
+      { headers: response.headers }
+    );
   }
 
   return json(submission, { headers: response.headers });

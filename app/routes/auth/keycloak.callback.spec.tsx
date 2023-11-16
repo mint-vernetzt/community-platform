@@ -166,6 +166,7 @@ test("user is still registered with email and signs in with keycloak", async () 
       {
         message: "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
       },
+      { scrollIntoView: false },
       { headers: {} }
     )
   );

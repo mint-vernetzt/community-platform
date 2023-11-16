@@ -112,6 +112,7 @@ export const loader = async (args: LoaderArgs) => {
           message:
             "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
         },
+        { scrollIntoView: false },
         {
           headers: response.headers,
         }
