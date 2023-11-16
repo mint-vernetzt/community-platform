@@ -47,14 +47,6 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
       <div className="mv-rounded-lg mv-border mv-border-gray-300 mv-overflow-hidden">
         <div className="mv-border-0" id={`${toolbar}`}>
           <div className="ql-formats">
-            <select className="ql-header">
-              <option value="4">Überschrift 1</option>
-              <option value="" selected>
-                Text
-              </option>
-            </select>
-          </div>
-          <div className="ql-formats">
             <button className="ql-bold">fett</button>
             <button className="ql-italic">kursiv</button>
             <button className="ql-underline">unterstrichen</button>
