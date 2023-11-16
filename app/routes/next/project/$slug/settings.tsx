@@ -1,4 +1,4 @@
-import { Section, TextButton } from "@mint-vernetzt/components";
+import { Section, TextButton, Toast } from "@mint-vernetzt/components";
 import {
   Link,
   Outlet,
@@ -16,6 +16,8 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
+import { getToast } from "~/toast.server";
+import { combineHeaders } from "~/utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -51,11 +53,16 @@ export const loader = async (args: DataFunctionArgs) => {
 
   invariantResponse(project !== null, "Project not found", { status: 404 });
 
+  const { toast, headers: toastHeaders } = await getToast(request);
+
   return json(
     {
       project,
+      toast,
     },
-    { headers: response.headers }
+    {
+      headers: combineHeaders(response.headers, toastHeaders),
+    }
   );
 };
 
@@ -100,6 +107,13 @@ function ProjectSettings() {
           <h1 className="mv-mb-0">Projekt bearbeiten</h1>
         </div>
       </div>
+      {loaderData.toast !== null && (
+        <div id={loaderData.toast.id} className="md:mv-pt-4">
+          <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
+            {loaderData.toast.message}
+          </Toast>
+        </div>
+      )}
       <div className="mv-hidden md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>

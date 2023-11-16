@@ -7,7 +7,6 @@ import {
   Input,
   Section,
   Select,
-  Toast,
 } from "@mint-vernetzt/components";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
@@ -22,6 +21,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import { createAreaOptions } from "./general.server";
 import {
@@ -157,7 +157,12 @@ export const loader = async (args: DataFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  return json({ project, allFormats, areaOptions });
+  return json(
+    { project, allFormats, areaOptions },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -195,8 +200,6 @@ export async function action({ request, params }: DataFunctionArgs) {
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
         const { formats, areas, ...rest } = data;
-
-        console.log({ formats });
 
         try {
           await prismaClient.project.update({
@@ -268,9 +271,12 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json({ status: "success", submission, hash } as const, {
-    headers: response.headers,
-  });
+  return redirectWithToast(
+    `/next/project/${params.slug}/settings/general?deep`,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { scrollIntoView: true },
+    { headers: response.headers }
+  );
 }
 
 function General() {
@@ -659,12 +665,6 @@ function General() {
               </Controls>
             </div>
           </div>
-
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.status === "success" && (
-              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-            )}
         </div>
       </Form>
     </Section>
