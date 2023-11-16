@@ -346,19 +346,24 @@ function ProjectDetail() {
           </Modal>
         </>
       )}
-      <section className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden">
+      <section
+        id="tab-bar-container"
+        className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden"
+      >
         <div className="md:mv-flex xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
             <TabBar>
               {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below */}
               <TabBar.Item active={pathname.endsWith("/about")}>
-                <Link to="./about">Über das Projekt</Link>
+                <Link to="./about#tab-bar-container">Über das Projekt</Link>
               </TabBar.Item>
               <TabBar.Item active={pathname.endsWith("/requirements")}>
-                <Link to="./requirements">Rahmenbedingungen</Link>
+                <Link to="./requirements#tab-bar-container">
+                  Rahmenbedingungen
+                </Link>
               </TabBar.Item>
               {/* <TabBar.Item active={pathname.endsWith("/attachments")}>
-                <Link to="./attachments">Zugänglichkeit</Link>
+                <Link to="./attachments#tab-bar-container">Zugänglichkeit</Link>
               </TabBar.Item> */}
             </TabBar>
             <Outlet />
