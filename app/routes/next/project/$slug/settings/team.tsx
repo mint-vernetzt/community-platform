@@ -295,7 +295,9 @@ function Team() {
     <Section>
       <BackButton to={location.pathname}>Team verwalten</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
-        Füge Teammitglieder zu Deinem Projekt hinzu oder entferne sie.
+        Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder
+        entferne sie. Team-Mitglieder werden auf der Projekte-Detailseite
+        gezeigt. Sie können Projekte nicht bearbeiten.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
