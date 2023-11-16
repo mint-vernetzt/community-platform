@@ -1,6 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Button, Section, Toast } from "@mint-vernetzt/components";
+import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
   NodeOnDiskFile,
   json,
@@ -23,12 +23,21 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { BackButton } from "./__components";
+import {
+  BackButton,
+  MaterialList,
+  MaterialListItemControlsDelete,
+  MaterialListItemControlsDownload,
+  MaterialListItemControlsEdit,
+} from "./__components";
 import { getExtension, storeDocument, storeImage } from "./attachments.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { getPublicURL } from "~/storage.server";
+import { getImageURL } from "~/images.server";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -119,6 +128,8 @@ export const loader = async (args: DataFunctionArgs) => {
               filename: true,
               mimeType: true,
               sizeInMB: true,
+              description: true,
+              extension: true,
             },
           },
         },
@@ -129,11 +140,12 @@ export const loader = async (args: DataFunctionArgs) => {
             select: {
               id: true,
               title: true,
-              filename: true,
-              description: true,
               path: true,
+              filename: true,
               credits: true,
               sizeInMB: true,
+              description: true,
+              extension: true,
             },
           },
         },
@@ -142,6 +154,26 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   invariantResponse(project !== null, "Project not found", { status: 404 });
+
+  project.documents = project.documents.map((relation) => {
+    if (relation.document.mimeType === "image/jpeg") {
+      const publicURL = getPublicURL(authClient, relation.document.path);
+      console.log({ publicURL });
+      const thumbnail = getImageURL(publicURL, {
+        resize: { type: "fill", width: 144 },
+      });
+      return { ...relation, document: { ...relation.document, thumbnail } };
+    }
+    return relation;
+  });
+  project.images = project.images.map((relation) => {
+    const publicURL = getPublicURL(authClient, relation.image.path);
+    console.log({ publicURL });
+    const thumbnail = getImageURL(publicURL, {
+      resize: { type: "fill", width: 144 },
+    });
+    return { ...relation, image: { ...relation.image, thumbnail } };
+  });
 
   return json(project, { headers: response.headers });
 };
@@ -356,6 +388,8 @@ function Attachments() {
     }
   }, [actionData]);
 
+  console.log(loaderData);
+
   return (
     <Section>
       <Outlet />
@@ -447,17 +481,38 @@ function Attachments() {
             </h2>
             {loaderData !== null && loaderData.documents.length > 0 ? (
               <>
-                <ul>
+                <MaterialList>
                   {loaderData.documents.map((relation) => {
                     return (
-                      <li
-                        key={relation.document.id}
-                        className="mv-flex mv-gap-2"
-                      >
-                        {relation.document.title !== null
-                          ? relation.document.title
-                          : relation.document.filename}
-                        <Form method="post" encType="multipart/form-data">
+                      <MaterialList.Item key={relation.document.id}>
+                        {typeof relation.document.thumbnail !== "undefined" && (
+                          <Image
+                            src={relation.document.thumbnail}
+                            alt={relation.document.description || ""}
+                          />
+                        )}
+                        {relation.document.mimeType === "application/pdf" && (
+                          <MaterialList.Item.PDFIcon />
+                        )}
+                        <MaterialList.Item.Title>
+                          {relation.document.title !== null
+                            ? relation.document.title
+                            : relation.document.filename}
+                        </MaterialList.Item.Title>
+                        <MaterialList.Item.Meta>
+                          ({relation.document.extension},{" "}
+                          {relation.document.sizeInMB} MB)
+                        </MaterialList.Item.Meta>
+                        {relation.document.description !== null && (
+                          <MaterialList.Item.Paragraph>
+                            {relation.document.description}
+                          </MaterialList.Item.Paragraph>
+                        )}
+                        <Form
+                          method="post"
+                          encType="multipart/form-data"
+                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
+                        >
                           <input
                             hidden
                             name={conform.INTENT}
@@ -473,26 +528,35 @@ function Attachments() {
                             name="filename"
                             defaultValue={relation.document.filename}
                           />
-                          <Button type="submit">Löschen</Button>
+                          <MaterialList.Item.Controls.Delete type="submit" />
+                          <Link
+                            to={`./edit?type=document&id=${relation.document.id}&deep&modal`}
+                          >
+                            <MaterialList.Item.Controls.Edit />
+                          </Link>
+                          <Link
+                            to={`./download?type=document&id=${relation.document.id}`}
+                            reloadDocument
+                          >
+                            <MaterialList.Item.Controls.Download />
+                          </Link>
                         </Form>
-                        <Link
-                          to={`./download?type=document&id=${relation.document.id}`}
-                          reloadDocument
-                        >
-                          Herunterladen
-                        </Link>
-                        <Link
-                          to={`./edit?type=document&id=${relation.document.id}&deep&modal`}
-                        >
-                          Bearbeiten
-                        </Link>
-                      </li>
+                      </MaterialList.Item>
                     );
                   })}
-                </ul>
-                <Link to={`./download?type=documents`} reloadDocument>
-                  Alle herunterladen
-                </Link>
+                </MaterialList>
+                <div className="mv-max-w-fit">
+                  <Button
+                    as="a"
+                    href={`./download?type=documents`}
+                    variant="outline"
+                  >
+                    Alle herunterladen
+                  </Button>
+                </div>
+                {/* <Link to={`./download?type=documents`} reloadDocument>
+                  <Button Alle herunterladen
+                </Link> */}
               </>
             ) : (
               <p>Keine Dokumente vorhanden.</p>
@@ -591,14 +655,40 @@ function Attachments() {
           </h2>
           {loaderData !== null && loaderData.images.length > 0 ? (
             <>
-              <ul>
+              <MaterialList>
                 {loaderData.images.map((relation) => {
                   return (
-                    <li key={relation.image.id} className="mv-flex mv-gap-2">
-                      {relation.image.title !== null
-                        ? relation.image.title
-                        : relation.image.filename}
-                      <Form method="post" encType="multipart/form-data">
+                    <MaterialList.Item key={relation.image.id}>
+                      {typeof relation.image.thumbnail !== "undefined" && (
+                        <Image
+                          src={relation.image.thumbnail}
+                          alt={relation.image.description || ""}
+                        />
+                      )}
+                      <MaterialList.Item.Title>
+                        {relation.image.title !== null
+                          ? relation.image.title
+                          : relation.image.filename}
+                      </MaterialList.Item.Title>
+                      <MaterialList.Item.Meta>
+                        ({relation.image.extension}, {relation.image.sizeInMB}{" "}
+                        MB)
+                      </MaterialList.Item.Meta>
+                      {relation.image.description !== null && (
+                        <MaterialList.Item.Paragraph>
+                          {relation.image.description}
+                        </MaterialList.Item.Paragraph>
+                      )}
+                      {relation.image.credits !== null && (
+                        <MaterialList.Item.Paragraph>
+                          {relation.image.credits}
+                        </MaterialList.Item.Paragraph>
+                      )}
+                      <Form
+                        method="post"
+                        encType="multipart/form-data"
+                        className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
+                      >
                         <input
                           hidden
                           name={conform.INTENT}
@@ -614,23 +704,23 @@ function Attachments() {
                           name="filename"
                           defaultValue={relation.image.filename}
                         />
-                        <Button type="submit">Löschen</Button>
+                        <MaterialList.Item.Controls.Delete type="submit" />
+                        <Link
+                          to={`./edit?type=image&id=${relation.image.id}&deep&modal`}
+                        >
+                          <MaterialList.Item.Controls.Edit />
+                        </Link>
                         <Link
                           to={`./download?type=image&id=${relation.image.id}`}
                           reloadDocument
                         >
-                          Herunterladen
-                        </Link>
-                        <Link
-                          to={`./edit?type=image&id=${relation.image.id}&deep&modal`}
-                        >
-                          Bearbeiten
+                          <MaterialList.Item.Controls.Download />
                         </Link>
                       </Form>
-                    </li>
+                    </MaterialList.Item>
                   );
                 })}
-              </ul>
+              </MaterialList>
               <Link to={`./download?type=images`} reloadDocument>
                 Alle herunterladen
               </Link>
