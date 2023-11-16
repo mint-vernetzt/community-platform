@@ -34,7 +34,8 @@ function CircleButton(
     "mv-btn",
     "mv-btn-circle",
     size === "small" && "mv-w-8 mv-h-8 mv-border-1  mv-text-xl",
-    size === "medium" && "mv-w-12 mv-h-12 mv-border-1  mv-text-5xl",
+    size === "medium" &&
+      "mv-w-10 mv-h-10 mv-min-h-[2.5rem] mv-border-0 mv-text-3xl",
     size === "large" && "mv-w-16 mv-h-16 mv-border-2 mv-text-6xl", // TODO: design 54px (7xl is 48px) see: common/design/tailwind.config.js
     "mv-font-normal",
     // button disabled

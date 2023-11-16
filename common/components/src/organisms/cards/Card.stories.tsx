@@ -900,7 +900,7 @@ ProjectStory.storyName = "project";
 
 export function MaterialStory() {
   return (
-    <div className="mv-max-w-full">
+    <div className="mv-max-w-full mv-flex mv-gap-8 mv-flex-col">
       <MaterialCard
         materialItem={{
           slug: "",
@@ -911,6 +911,29 @@ export function MaterialStory() {
           excerpt:
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor",
           credit: "Vorname Nachname",
+        }}
+      />
+      <MaterialCard
+        materialItem={{
+          slug: "",
+          name: "und hier mal eine tolles PDF-Dokument",
+          file: "./error-music-background.jpeg",
+          filetype: "pdf",
+          filesize: "583KB",
+          excerpt:
+            "Eine superausführliche Beschreibung, die über mehre Zeilen geht, wenn die nicht vorher getrunkated wird",
+          credit: "Habich G. Macht",
+        }}
+      />
+      <MaterialCard
+        materialItem={{
+          slug: "",
+          name: "Ein rundes Logo",
+          file: "./mintvernetzt-logo.png",
+          filetype: "png",
+          filesize: "10KB",
+          excerpt:
+            "man sollte ja auch mal ausprobieren, wie sich ein rundes Logo verhält",
         }}
       />
     </div>
