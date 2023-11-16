@@ -477,8 +477,7 @@ function Attachments() {
                         </Form>
                         <Link
                           to={`./download?type=document&id=${relation.document.id}`}
-                          target="_blank"
-                          download
+                          reloadDocument
                         >
                           Herunterladen
                         </Link>
@@ -491,7 +490,7 @@ function Attachments() {
                     );
                   })}
                 </ul>
-                <Link to={`./download?type=documents`} target="_blank">
+                <Link to={`./download?type=documents`} reloadDocument>
                   Alle herunterladen
                 </Link>
               </>
@@ -618,7 +617,7 @@ function Attachments() {
                         <Button type="submit">Löschen</Button>
                         <Link
                           to={`./download?type=image&id=${relation.image.id}`}
-                          target="_blank"
+                          reloadDocument
                         >
                           Herunterladen
                         </Link>
@@ -632,7 +631,7 @@ function Attachments() {
                   );
                 })}
               </ul>
-              <Link to={`./download?type=images`} target="_blank">
+              <Link to={`./download?type=images`} reloadDocument>
                 Alle herunterladen
               </Link>
             </>
