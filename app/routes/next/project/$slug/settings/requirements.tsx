@@ -1,22 +1,5 @@
-import {
-  redirect,
-  type DataFunctionArgs,
-  json,
-  type LinksFunction,
-} from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
+import { conform, list, useFieldList, useForm } from "@conform-to/react";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
   Alert,
   Button,
@@ -25,16 +8,33 @@ import {
   Input,
   Section,
   Select,
-  Toast,
 } from "@mint-vernetzt/components";
-import { prismaClient } from "~/prisma.server";
-import { conform, list, useFieldList, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { z } from "zod";
+import {
+  json,
+  redirect,
+  type DataFunctionArgs,
+  type LinksFunction,
+} from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
 import React from "react";
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
+import { BackButton } from "./__components";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const requirementsSchema = z.object({
   timeframe: z
@@ -181,7 +181,12 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  return json({ project, allFinancings }, { headers: response.headers });
+  return json(
+    { project, allFinancings },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -296,9 +301,12 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json({ status: "success", submission, hash } as const, {
-    headers: response.headers,
-  });
+  return redirectWithToast(
+    `/next/project/${params.slug}/settings/requirements?deep`,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { scrollIntoView: true },
+    { headers: response.headers }
+  );
 }
 
 function Requirements() {
@@ -346,6 +354,8 @@ function Requirements() {
           Teile der Community mehr zu Deinen Rahmengegebenheiten mit.
         </p>
         <Form method="post" {...form.props}>
+          {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
+          <Button type="submit" hidden />
           <Input id="deep" defaultValue="true" type="hidden" />
           <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
@@ -545,11 +555,6 @@ function Requirements() {
                 </Controls>
               </div>
             </div>
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.status === "success" && (
-                <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-              )}
             {/* Workarround error messages because conform mapping and error displaying is not working yet with RTE components */}
             {fields.timeframe.error !== undefined && (
               <Alert level="negative">

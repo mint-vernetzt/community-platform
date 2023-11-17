@@ -6,7 +6,6 @@ import {
   Input,
   List,
   Section,
-  Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
@@ -24,8 +23,12 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -157,7 +160,12 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json({ project, searchResult }, { headers: response.headers });
+  return json(
+    { project, searchResult },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export const action = async (args: DataFunctionArgs) => {
@@ -186,6 +194,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
+  const hash = getSubmissionHash({ action: action });
   if (action.startsWith("add_")) {
     const username = action.replace("add_", "");
 
@@ -223,7 +232,16 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json({ success: true, action, profile });
+    return redirectWithToast(
+      `/next/project/${params.slug}/settings/admins?deep`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
+      },
+      { scrollIntoView: true },
+      { headers: response.headers }
+    );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
 
@@ -269,8 +287,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, profile },
+    return redirectWithToast(
+      `/next/project/${params.slug}/settings/admins?deep`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+      },
+      { scrollIntoView: true },
       { headers: response.headers }
     );
   }
@@ -301,6 +325,7 @@ function Admins() {
       <p className="mv-my-6 md:mv-mt-0">
         Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
+      {/* TODO: Is it nice to handle Alerts inside the settings route and use redirectWithAlert with scrollIntoView option? */}
       {typeof actionData !== "undefined" &&
         actionData !== null &&
         actionData.success === false && (
@@ -343,16 +368,6 @@ function Admins() {
                   </List.Item>
                 );
               })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("remove_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    entfernt.
-                  </Toast>
-                )}
             </List>
           </Form>
         </div>
@@ -399,17 +414,6 @@ function Admins() {
                   </List.Item>
                 );
               })}
-
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("add_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    hinzugefügt.
-                  </Toast>
-                )}
             </List>
           </Form>
         </div>

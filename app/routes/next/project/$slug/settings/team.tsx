@@ -5,13 +5,11 @@ import {
   Input,
   List,
   Section,
-  Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
-  useActionData,
   useLoaderData,
   useLocation,
   useSearchParams,
@@ -23,8 +21,12 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -192,6 +194,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
+  const hash = getSubmissionHash({ action: action });
   if (action.startsWith("add_")) {
     const username = action.replace("add_", "");
 
@@ -229,8 +232,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, profile },
+    return redirectWithToast(
+      `/next/project/${params.slug}/settings/team?deep`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+      },
+      { scrollIntoView: true },
       { headers: response.headers }
     );
   } else if (action.startsWith("remove_")) {
@@ -265,8 +274,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, profile },
+    return redirectWithToast(
+      `/next/project/${params.slug}/settings/team?deep`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+      },
+      { scrollIntoView: true },
       { headers: response.headers }
     );
   }
@@ -279,7 +294,6 @@ export const action = async (args: DataFunctionArgs) => {
 
 function Team() {
   const { project, searchResult } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
@@ -298,56 +312,49 @@ function Team() {
         Füge Teammitglieder zu Deinem Projekt hinzu oder entferne sie.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuelle Teammitglieder
-          </h2>
-          <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
-          <Form method="post">
-            <List>
-              {project.teamMembers.map((teamMember) => {
-                return (
-                  <List.Item key={teamMember.profile.username}>
-                    <Avatar {...teamMember.profile} />
-                    <List.Item.Title>
-                      {teamMember.profile.firstName}{" "}
-                      {teamMember.profile.lastName}
-                    </List.Item.Title>
-                    <List.Item.Subtitle>
-                      {project.admins.some((admin) => {
-                        return (
-                          admin.profile.username === teamMember.profile.username
-                        );
-                      })
-                        ? "Administrator:in"
-                        : "Teammitglied"}
-                    </List.Item.Subtitle>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`remove_${teamMember.profile.username}`}
-                        type="submit"
-                      >
-                        Entfernen
-                      </Button>
-                    </List.Item.Controls>
-                  </List.Item>
-                );
-              })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("remove_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    entfernt.
-                  </Toast>
-                )}
-            </List>
-          </Form>
-        </div>
+        {project.teamMembers.length > 0 && (
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Aktuelle Teammitglieder
+            </h2>
+            <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
+            <Form method="post">
+              <List>
+                {project.teamMembers.map((teamMember) => {
+                  return (
+                    <List.Item key={teamMember.profile.username}>
+                      <Avatar {...teamMember.profile} />
+                      <List.Item.Title>
+                        {teamMember.profile.firstName}{" "}
+                        {teamMember.profile.lastName}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {project.admins.some((admin) => {
+                          return (
+                            admin.profile.username ===
+                            teamMember.profile.username
+                          );
+                        })
+                          ? "Administrator:in"
+                          : "Teammitglied"}
+                      </List.Item.Subtitle>
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${teamMember.profile.username}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </Form>
+          </div>
+        )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Teammitglied hinzufügen
@@ -391,16 +398,6 @@ function Team() {
                   </List.Item>
                 );
               })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("add_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    hinzugefügt.
-                  </Toast>
-                )}
             </List>
           </Form>
         </div>

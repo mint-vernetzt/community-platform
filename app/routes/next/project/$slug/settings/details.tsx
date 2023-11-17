@@ -8,7 +8,6 @@ import {
   Input,
   Section,
   Select,
-  Toast,
 } from "@mint-vernetzt/components";
 import {
   json,
@@ -31,9 +30,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import { youtubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { getSubmissionHash } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -254,7 +256,9 @@ export const loader = async (args: DataFunctionArgs) => {
       allTargetGroups,
       allSpecialTargetGroups,
     },
-    { headers: response.headers }
+    {
+      headers: response.headers,
+    }
   );
 };
 
@@ -435,9 +439,12 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json({ status: "success", submission, hash } as const, {
-    headers: response.headers,
-  });
+  return redirectWithToast(
+    `/next/project/${params.slug}/settings/details?deep`,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { scrollIntoView: true },
+    { headers: response.headers }
+  );
 }
 
 function Details() {
@@ -1042,11 +1049,6 @@ function Details() {
               </Controls>
             </div>
           </div>
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.status === "success" && (
-              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-            )}
           {/* Workarround error messages because conform mapping and error displaying is not working yet with Select and RTE components */}
           {fields.additionalDisciplines.error !== undefined && (
             <Alert level="negative">
