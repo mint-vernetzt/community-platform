@@ -41,3 +41,8 @@ const REMOVE_HTML_TAGS_REPLACEMENT = "";
 export function removeHtmlTags(html: string) {
   return html.replace(REMOVE_HTML_TAGS_REGEX, REMOVE_HTML_TAGS_REPLACEMENT);
 }
+
+const REMOVE_HTML_ENTITY_REGEX = /(&([^;]+);)/gi;
+export function replaceHtmlEntities(html: string, replaceValue: string) {
+  return html.replace(REMOVE_HTML_ENTITY_REGEX, replaceValue);
+}

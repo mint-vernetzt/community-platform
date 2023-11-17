@@ -73,6 +73,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
           theme="snow"
           defaultValue={defaultValue}
           onChange={(content) => {
+            console.log(content);
             // Remove all html tags when input is empty (actually its not empty, instead they put a \n inside...)
             if (
               quillRef.current &&

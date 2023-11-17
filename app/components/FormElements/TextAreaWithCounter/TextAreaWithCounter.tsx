@@ -1,9 +1,13 @@
+import classNames from "classnames";
 import type { FormEventHandler } from "react";
 import React from "react";
+import {
+  removeHtmlTags,
+  replaceHtmlEntities,
+} from "~/lib/utils/sanitizeUserHtml";
 import Counter from "../../Counter/Counter";
 import type { TextAreaProps } from "../TextArea/TextArea";
 import TextArea from "../TextArea/TextArea";
-import classNames from "classnames";
 
 export interface TextAreaWithCounterProps {
   maxCharacters?: number;
@@ -24,10 +28,23 @@ const TextAreaWithCounter = React.forwardRef(
       onChange: defaultOnChange,
       ...rest
     } = props;
-    const defaultValueLength = defaultValue
-      ? // TODO: can this type assertion be removed and proofen by code?
-        (defaultValue as string).length
-      : 0;
+    // TODO: Same with schema
+    let defaultValueLength;
+    if (defaultValue !== null) {
+      // TODO: Can this type assertion be removed and proofen by code?
+      defaultValueLength = (defaultValue as string)?.length || 0;
+      if (props.rte) {
+        // Entities are being replaced by "x" just to get the right count for them
+        const sanitizedHtml = replaceHtmlEntities(
+          removeHtmlTags(defaultValue as string),
+          "x"
+        );
+        // TODO: Can this type assertion be removed and proofen by code?
+        defaultValueLength = sanitizedHtml.length;
+      }
+    } else {
+      defaultValueLength = 0;
+    }
     const [characterCount, updateCharacterCount] =
       React.useState(defaultValueLength);
     const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (
@@ -38,10 +55,15 @@ const TextAreaWithCounter = React.forwardRef(
         defaultOnChange(event);
       }
 
-      const contentLength =
-        props.rte === true
-          ? event.currentTarget.value.replace(/<[^>]*>/g, "").length
-          : event.currentTarget.value.length;
+      let contentLength = event.currentTarget.value.length;
+      if (props.rte) {
+        // Entities are being replaced by "x" just to get the right count for them
+        const sanitizedHtml = replaceHtmlEntities(
+          removeHtmlTags(event.currentTarget.value),
+          "x"
+        );
+        contentLength = sanitizedHtml.length;
+      }
 
       if (maxCharacters !== undefined && contentLength > maxCharacters) {
         event.currentTarget.value = event.currentTarget.value.substring(
