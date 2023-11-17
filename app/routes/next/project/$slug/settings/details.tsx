@@ -28,7 +28,11 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { invariantResponse } from "~/lib/utils/response";
-import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import {
+  removeHtmlTags,
+  replaceHtmlEntities,
+  sanitizeUserHtml,
+} from "~/lib/utils/sanitizeUserHtml";
 import { youtubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { BackButton } from "./__components";
@@ -63,52 +67,100 @@ const detailsSchema = z.object({
     .transform((value) => (value === undefined || value === "" ? null : value)),
   idea: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   goals: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   implementation: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   furtherDescription: z
     .string()
-    .max(
-      8000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 8000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000.",
+      }
+    ),
   targeting: z
     .string()
-    .max(
-      800,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   hints: z
     .string()
-    .max(
-      800,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   video: youtubeEmbedSchema,
   videoSubline: z
     .string()
