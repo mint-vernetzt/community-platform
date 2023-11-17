@@ -42,11 +42,6 @@ export function removeHtmlTags(html: string, replaceValue?: string) {
   return html.replace(HTML_TAG_REGEX, replaceValue || HTML_TAG_REPLACEMENT);
 }
 
-const HTML_LINE_BREAK_TAG_REGEX = /(<br>)/gi;
-export function countHtmlLineBreakTags(html: string) {
-  return html.match(HTML_LINE_BREAK_TAG_REGEX)?.length || 0;
-}
-
 const HTML_ENTITY_REGEX = /(&([^;]+);)/gi;
 const HTML_ENTITY_REPLACEMENT = "";
 export function replaceHtmlEntities(html: string, replaceValue?: string) {
@@ -54,8 +49,4 @@ export function replaceHtmlEntities(html: string, replaceValue?: string) {
     HTML_ENTITY_REGEX,
     replaceValue || HTML_ENTITY_REPLACEMENT
   );
-}
-
-export function countHtmlEntities(html: string) {
-  return html.match(HTML_ENTITY_REGEX)?.length || 0;
 }
