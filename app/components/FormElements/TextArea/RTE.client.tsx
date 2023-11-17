@@ -1,11 +1,5 @@
 import * as React from "react";
 import ReactQuill from "react-quill";
-import {
-  countHtmlEntities,
-  countHtmlLineBreakTags,
-  replaceHtmlEntities,
-  removeHtmlTags,
-} from "~/lib/utils/sanitizeUserHtml";
 
 export function setTextareaContentById(id: string, text: string) {
   if (typeof window !== "undefined") {
@@ -34,9 +28,11 @@ interface RTEProps {
 export function RTE({ id, defaultValue, maxLength }: RTEProps) {
   const quillRef = React.useRef<ReactQuill>(null);
   const toolbar = `toolbar_${id}`;
+  const [value, setValue] = React.useState(defaultValue);
 
   React.useEffect(() => {
     if (quillRef.current) {
+      // Add additional classnames
       const additionalClassNames = [
         "mv-border-l-0",
         "mv-border-r-0",
@@ -45,10 +41,40 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
       ];
       quillRef.current.getEditingArea().classList.add(...additionalClassNames);
       // Prevent focus trap by deleting the "Tab" key binding -> But this also removes the indentation functionality of the "Tab" key -> What is more important?
+      // Maybe we could add code that exits the focus trap when pushing "Tab" key twice in a short time?
       const keyboard = quillRef.current.getEditor().getModule("keyboard");
       delete keyboard.bindings[9];
+      // Undoing / preventing the input when content length is greater than the max length property (which is used for the character counter)
+      const content = quillRef.current.getEditor().getText();
+      const contentLength = content.length;
+      const trimmedContent = content.trim();
+      const trimmedContentLength = trimmedContent.length;
+      const htmlContent = quillRef.current.getEditorContents().toString();
+      const trimmedHtml = htmlContent
+        .replace(/^(<p><br><\/p>)+/gi, "")
+        .replace(/(<p><br><\/p>)+$/gi, "")
+        .replace(/^<p>( )+/gi, "<p>")
+        .replace(/( )+<\/p>$/gi, "</p>");
+      if (maxLength !== undefined && trimmedContentLength > maxLength) {
+        // Check the delta to also cut copy paste input
+        const delta = contentLength - maxLength - 1;
+        // Use slice to cut the string right were the cursor currently is at (Thats the place were to many characters got inserted, so there they have to be removed)
+        const currentCursorIndex =
+          quillRef.current.getEditorSelection()?.index || 0;
+        const slicedContent = `${trimmedContent.slice(
+          0,
+          currentCursorIndex - delta
+        )}${trimmedContent.slice(currentCursorIndex, contentLength)}`;
+        quillRef.current.getEditor().setText(slicedContent);
+        // Unfortunatly cursor moves to the beginning of the line after resetting the text. Thats why below line is added.
+        quillRef.current
+          .getEditor()
+          .setSelection(currentCursorIndex - delta, 0);
+      } else {
+        setTextareaContentById(id, trimmedHtml);
+      }
     }
-  }, [quillRef]);
+  }, [quillRef, value, maxLength, id]);
 
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
@@ -80,41 +106,8 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
           ref={quillRef}
           theme="snow"
           defaultValue={defaultValue}
-          modules={{ toolbar: `#${toolbar}` }}
-          onKeyDown={(event: React.KeyboardEvent<ReactQuill>) => {
-            if (quillRef.current) {
-              const htmlLineBreakCount = countHtmlLineBreakTags(
-                quillRef.current.getEditorContents().toString()
-              );
-              const htmlEntityCount = countHtmlEntities(
-                quillRef.current.getEditorContents().toString()
-              );
-              const sanitizedHtml = replaceHtmlEntities(
-                removeHtmlTags(quillRef.current.getEditorContents().toString())
-              );
-              // Html entities (f.e. &amp;) and html line breaks (<br>) are counted and added to the character counter
-              const contentLength =
-                sanitizedHtml.length + htmlLineBreakCount + htmlEntityCount;
-
-              if (maxLength !== undefined && contentLength <= maxLength) {
-                // Remove all html tags by setting an empty string when input is empty (actually its not empty, instead they put a \n inside...)
-                if (
-                  (quillRef.current.getEditingArea() as HTMLDivElement)
-                    .innerText === "\n"
-                ) {
-                  setTextareaContentById(id, "");
-                } else {
-                  console.log(quillRef.current.getEditorContents().toString());
-                  setTextareaContentById(
-                    id,
-                    quillRef.current.getEditorContents().toString()
-                  );
-                }
-              } else {
-                event.preventDefault();
-              }
-            }
-          }}
+          modules={{ toolbar: `#${toolbar}`, history: {} }}
+          onChange={setValue}
           className="mv-pb-10"
         />
       </div>
