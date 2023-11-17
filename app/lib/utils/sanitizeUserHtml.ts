@@ -36,13 +36,26 @@ export function sanitizeUserHtml(
   );
 }
 
-const REMOVE_HTML_TAGS_REGEX = /(<([^>]+)>)/gi;
-const REMOVE_HTML_TAGS_REPLACEMENT = "";
-export function removeHtmlTags(html: string) {
-  return html.replace(REMOVE_HTML_TAGS_REGEX, REMOVE_HTML_TAGS_REPLACEMENT);
+const HTML_TAG_REGEX = /(<([^>]+)>)/gi;
+const HTML_TAG_REPLACEMENT = "";
+export function removeHtmlTags(html: string, replaceValue?: string) {
+  return html.replace(HTML_TAG_REGEX, replaceValue || HTML_TAG_REPLACEMENT);
 }
 
-const REMOVE_HTML_ENTITY_REGEX = /(&([^;]+);)/gi;
-export function replaceHtmlEntities(html: string, replaceValue: string) {
-  return html.replace(REMOVE_HTML_ENTITY_REGEX, replaceValue);
+const HTML_LINE_BREAK_TAG_REGEX = /(<br>)/gi;
+export function countHtmlLineBreakTags(html: string) {
+  return html.match(HTML_LINE_BREAK_TAG_REGEX)?.length || 0;
+}
+
+const HTML_ENTITY_REGEX = /(&([^;]+);)/gi;
+const HTML_ENTITY_REPLACEMENT = "";
+export function replaceHtmlEntities(html: string, replaceValue?: string) {
+  return html.replace(
+    HTML_ENTITY_REGEX,
+    replaceValue || HTML_ENTITY_REPLACEMENT
+  );
+}
+
+export function countHtmlEntities(html: string) {
+  return html.match(HTML_ENTITY_REGEX)?.length || 0;
 }

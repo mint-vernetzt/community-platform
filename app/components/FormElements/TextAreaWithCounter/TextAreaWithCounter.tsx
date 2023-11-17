@@ -2,6 +2,8 @@ import classNames from "classnames";
 import type { FormEventHandler } from "react";
 import React from "react";
 import {
+  countHtmlEntities,
+  countHtmlLineBreakTags,
   removeHtmlTags,
   replaceHtmlEntities,
 } from "~/lib/utils/sanitizeUserHtml";
@@ -34,13 +36,16 @@ const TextAreaWithCounter = React.forwardRef(
       // TODO: Can this type assertion be removed and proofen by code?
       defaultValueLength = (defaultValue as string)?.length || 0;
       if (props.rte) {
-        // Entities are being replaced by "x" just to get the right count for them
-        const sanitizedHtml = replaceHtmlEntities(
-          removeHtmlTags(defaultValue as string),
-          "x"
+        const htmlLineBreakCount = countHtmlLineBreakTags(
+          defaultValue as string
         );
-        // TODO: Can this type assertion be removed and proofen by code?
-        defaultValueLength = sanitizedHtml.length;
+        const htmlEntityCount = countHtmlEntities(defaultValue as string);
+        const sanitizedHtml = replaceHtmlEntities(
+          removeHtmlTags(defaultValue as string)
+        );
+        // Html entities (f.e. &amp;) and html line breaks (<br>) are counted and added to the character counter
+        defaultValueLength =
+          sanitizedHtml.length + htmlLineBreakCount + htmlEntityCount;
       }
     } else {
       defaultValueLength = 0;
@@ -57,14 +62,17 @@ const TextAreaWithCounter = React.forwardRef(
 
       let contentLength = event.currentTarget.value.length;
       if (props.rte) {
-        // Entities are being replaced by "x" just to get the right count for them
-        const sanitizedHtml = replaceHtmlEntities(
-          removeHtmlTags(event.currentTarget.value),
-          "x"
+        const htmlLineBreakCount = countHtmlLineBreakTags(
+          event.currentTarget.value
         );
-        contentLength = sanitizedHtml.length;
+        const htmlEntityCount = countHtmlEntities(event.currentTarget.value);
+        const sanitizedHtml = replaceHtmlEntities(
+          removeHtmlTags(event.currentTarget.value)
+        );
+        // Html entities (f.e. &amp;) and html line breaks (<br>) are counted and added to the character counter
+        contentLength =
+          sanitizedHtml.length + htmlLineBreakCount + htmlEntityCount;
       }
-
       if (maxCharacters !== undefined && contentLength > maxCharacters) {
         event.currentTarget.value = event.currentTarget.value.substring(
           0,
