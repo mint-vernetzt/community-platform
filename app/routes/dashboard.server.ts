@@ -119,7 +119,7 @@ export async function enhancedRedirect(
     return redirectWithAlert(
       url,
       alert,
-      { scrollIntoView: false },
+      { scrollIntoView: true },
       options.response
     );
   }

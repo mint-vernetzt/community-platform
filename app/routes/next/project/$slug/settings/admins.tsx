@@ -325,7 +325,7 @@ function Admins() {
       <p className="mv-my-6 md:mv-mt-0">
         Füge Administrator:innen zu Deinem Projekt hinzu oder entferne sie.
       </p>
-      {/* TODO: Is it nice to handle Alerts inside the settings route and use redirectWithAlert with scrollIntoView option? */}
+      {/* TODO: Is it nice to handle these Alerts inside the settings.tsx route and use redirectWithAlert with scrollIntoView option? (Same mechanic like the settings toasts) */}
       {typeof actionData !== "undefined" &&
         actionData !== null &&
         actionData.success === false && (
