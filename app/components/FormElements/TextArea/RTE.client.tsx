@@ -30,20 +30,22 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
   const quillRef = React.useRef<ReactQuill>(null);
   const toolbar = `toolbar_${id}`;
 
+  React.useEffect(() => {
+    if (quillRef.current) {
+      const additionalClassNames = [
+        "mv-border-l-0",
+        "mv-border-r-0",
+        "mv-border-b-0",
+        "mv-border-t",
+      ];
+      quillRef.current.getEditingArea().classList.add(...additionalClassNames);
+    }
+  }, [quillRef]);
+
   return (
     <React.Suspense fallback={<div>Richtext Editor loading...</div>}>
       <div className="mv-rounded-lg mv-border mv-border-gray-300 mv-overflow-hidden">
         <div className="mv-border-0" id={`${toolbar}`}>
-          <div className="ql-formats">
-            <select className="ql-header">
-              <option value="2">Überschrift 1</option>
-              <option value="3">Überschrift 2</option>
-              <option value="4">Überschrift 3</option>
-              <option value="" selected>
-                Text
-              </option>
-            </select>
-          </div>
           <div className="ql-formats">
             <button className="ql-bold">fett</button>
             <button className="ql-italic">kursiv</button>
@@ -71,7 +73,16 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
           theme="snow"
           defaultValue={defaultValue}
           onChange={(content) => {
-            setTextareaContentById(id, content);
+            // Remove all html tags when input is empty (actually its not empty, instead they put a \n inside...)
+            if (
+              quillRef.current &&
+              (quillRef.current.getEditingArea() as HTMLDivElement)
+                .innerText === "\n"
+            ) {
+              setTextareaContentById(id, "");
+            } else {
+              setTextareaContentById(id, content);
+            }
           }}
           modules={{ toolbar: `#${toolbar}` }}
           onKeyDown={() => {
@@ -88,6 +99,7 @@ export function RTE({ id, defaultValue, maxLength }: RTEProps) {
                 );
             }
           }}
+          className="mv-pb-10"
         />
       </div>
     </React.Suspense>

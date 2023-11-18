@@ -1,6 +1,6 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { deriveProjectMode } from "~/routes/next/utils.server";
+import { deriveProjectMode } from "~/routes/next/project/utils.server";
 import crypto from "crypto";
 
 export async function getRedirectPathOnProtectedProjectRoute(args: {

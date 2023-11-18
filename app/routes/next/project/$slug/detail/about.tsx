@@ -199,6 +199,9 @@ export const loader = async (args: DataFunctionArgs) => {
 function About() {
   const loaderData = useLoaderData<typeof loader>();
 
+  // TODO:
+
+  // Question: Why dont we do this on the server? Is this executed when js is disabled? (Keyword Accessibility)
   const street = `${
     loaderData.project.street !== null ? loaderData.project.street : ""
   } ${
@@ -327,7 +330,7 @@ function About() {
       {loaderData.project.targetGroupAdditions !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Weitere Ergänzungen
+            Weitere
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.targetGroupAdditions}
@@ -439,7 +442,7 @@ function About() {
               loaderData.project.hints !== null) && (
               <div className="mv-flex mv-flex-col mv-gap-4">
                 <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                  Sonstiges
+                  Weitere Informationen
                 </h3>
                 <RichText
                   additionalClassNames="mv-text-lg"

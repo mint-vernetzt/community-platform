@@ -30,9 +30,22 @@ import {
 } from "./utils.server";
 
 const generalSchema = z.object({
-  name: z.string({
-    required_error: "Der Projektname ist eine erforderliche Angabe.",
-  }),
+  name: z
+    .string({
+      required_error: "Der Projektname ist eine erforderliche Angabe.",
+    })
+    .max(
+      80,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    ),
+  subline: z
+    .string()
+    .max(
+      90,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+    )
+    .optional()
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
   areas: z.array(z.string().uuid()),
@@ -40,38 +53,34 @@ const generalSchema = z.object({
     .string()
     .email("Bitte gib eine gültige E-Mail Adresse ein.")
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   phone: phoneSchema
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   contactName: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
-  subline: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   street: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   streetNumber: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   streetNumberAddition: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   zipCode: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   city: z
     .string()
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -195,8 +204,6 @@ export async function action({ request, params }: DataFunctionArgs) {
       generalSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
         const { formats, areas, ...rest } = data;
-
-        console.log({ formats });
 
         try {
           await prismaClient.project.update({
@@ -427,34 +434,31 @@ function General() {
                 })}
               </Chip.Container>
             )}
-            {typeof fields.furtherFormats !== "undefined" &&
-              typeof fields.furtherFormats.id !== "undefined" && (
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
-                  <Input
-                    id={fields.furtherFormats.id}
-                    value={furtherFormat}
-                    onChange={handleFurtherFormatInputChange}
-                  >
-                    <Input.Label htmlFor={fields.furtherFormats.id}>
-                      Sonstige Formate
-                    </Input.Label>
-                    <Input.HelperText>
-                      Bitte gib kurze Begriffe an.
-                    </Input.HelperText>
-                  </Input>
-                  <div className="mv--mt-1">
-                    <Button
-                      {...list.insert(fields.furtherFormats.name, {
-                        defaultValue: furtherFormat,
-                      })}
-                      variant="ghost"
-                      disabled={furtherFormat === ""}
-                    >
-                      Hinzufügen
-                    </Button>
-                  </div>
-                </div>
-              )}
+            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+              <Input
+                value={furtherFormat}
+                onChange={handleFurtherFormatInputChange}
+              >
+                <Input.Label htmlFor={fields.furtherFormats.id}>
+                  Sonstige Formate
+                </Input.Label>
+                <Input.HelperText>
+                  Bitte gib kurze Begriffe an.
+                </Input.HelperText>
+              </Input>
+              <div className="mv--mt-1">
+                <Button
+                  id={fields.furtherFormats.id}
+                  {...list.insert(fields.furtherFormats.name, {
+                    defaultValue: furtherFormat,
+                  })}
+                  variant="ghost"
+                  disabled={furtherFormat === ""}
+                >
+                  Hinzufügen
+                </Button>
+              </div>
+            </div>
             {furtherFormatsList.length > 0 && (
               <Chip.Container>
                 {furtherFormatsList.map((listFormat, index) => {

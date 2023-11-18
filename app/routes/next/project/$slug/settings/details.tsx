@@ -41,11 +41,8 @@ const detailsSchema = z.object({
   furtherDisciplines: z.array(z.string()),
   participantLimit: z
     .string()
-    .regex(/[0-9]*/g, {
-      message: "Die Anzahl der Teilnehmer:innen muss eine Zahl sein.",
-    })
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targetGroups: z.array(z.string().uuid()),
   specialTargetGroups: z.array(z.string().uuid()),
   targetGroupAdditions: z
@@ -55,15 +52,15 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   excerpt: z
     .string()
     .max(
-      100,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 100."
+      250,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   idea: z
     .string()
     .max(
@@ -71,7 +68,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   goals: z
     .string()
     .max(
@@ -79,7 +76,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   implementation: z
     .string()
     .max(
@@ -87,7 +84,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   furtherDescription: z
     .string()
     .max(
@@ -95,7 +92,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   targeting: z
     .string()
     .max(
@@ -103,7 +100,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   hints: z
     .string()
     .max(
@@ -111,7 +108,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   video: youtubeEmbedSchema,
   videoSubline: z
     .string()
@@ -120,7 +117,7 @@ const detailsSchema = z.object({
       "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
     )
     .optional()
-    .transform((value) => (value === undefined ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
 export const links: LinksFunction = () => [
@@ -164,6 +161,7 @@ export const loader = async (args: DataFunctionArgs) => {
       excerpt: true,
       participantLimit: true,
       furtherDisciplines: true,
+      targetGroupAdditions: true,
       disciplines: {
         select: {
           discipline: {
@@ -245,13 +243,16 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json({
-    project,
-    allDisciplines,
-    allAdditionalDisciplines,
-    allTargetGroups,
-    allSpecialTargetGroups,
-  });
+  return json(
+    {
+      project,
+      allDisciplines,
+      allAdditionalDisciplines,
+      allTargetGroups,
+      allSpecialTargetGroups,
+    },
+    { headers: response.headers }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -310,7 +311,6 @@ export async function action({ request, params }: DataFunctionArgs) {
           additionalDisciplines,
           targetGroups,
           specialTargetGroups,
-          excerpt,
           idea,
           goals,
           implementation,
@@ -327,7 +327,6 @@ export async function action({ request, params }: DataFunctionArgs) {
             },
             data: {
               ...rest,
-              excerpt: sanitizeUserHtml(excerpt),
               idea: sanitizeUserHtml(idea),
               goals: sanitizeUserHtml(goals),
               implementation: sanitizeUserHtml(implementation),
@@ -701,7 +700,7 @@ function Details() {
                   spielen eine Rolle?
                 </Input.Label>
                 <Input.HelperText>
-                  Bitte gib kurze Begriffe an.
+                  Bitte füge die Begriffe jeweils einzeln hinzu.
                 </Input.HelperText>
               </Input>
               <div className="mv--mt-1">
@@ -747,12 +746,16 @@ function Details() {
 
             <Input {...conform.input(fields.participantLimit)}>
               <Input.Label htmlFor={fields.participantLimit.id}>
-                Für wie viele Teilnehmer:innen ist Dein Projekt/Bildungangebot
-                gedacht?
+                Wenn Dein Projekt für eine konkrete Teilnehmer:innenzahl bspw.
+                pro Kurs konzipiert ist, gib diese bitte an.
               </Input.Label>
               {typeof fields.participantLimit.error !== "undefined" && (
                 <Input.Error>{fields.participantLimit.error}</Input.Error>
               )}
+              <Input.HelperText>
+                Hier kannst du Zahlen aber auch zusätzliche Informationen
+                eingeben.
+              </Input.HelperText>
             </Input>
 
             <Select onChange={handleSelectChange}>
@@ -895,7 +898,7 @@ function Details() {
 
             <Input {...conform.input(fields.targetGroupAdditions)}>
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
-                Ergänzungen
+                Weitere
               </Input.Label>
               {typeof fields.targetGroupAdditions.error !== "undefined" && (
                 <Input.Error>{fields.targetGroupAdditions.error}</Input.Error>
@@ -913,14 +916,14 @@ function Details() {
               Teaser angezeigt.
             </p>
 
-            <TextAreaWithCounter
-              {...conform.textarea(fields.excerpt)}
-              id={fields.excerpt.id || ""}
-              label="Kurzbeschreibung"
-              errorMessage={fields.excerpt.error}
-              maxCharacters={100}
-              rte
-            />
+            <Input {...conform.input(fields.excerpt)}>
+              <Input.Label htmlFor={fields.excerpt.id}>
+                Kurzbeschreibung
+              </Input.Label>
+              {typeof fields.excerpt.error !== "undefined" && (
+                <Input.Error>{fields.excerpt.error}</Input.Error>
+              )}
+            </Input>
           </div>
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
@@ -1049,11 +1052,6 @@ function Details() {
           {fields.additionalDisciplines.error !== undefined && (
             <Alert level="negative">
               Zusätzliche Disziplinen: {fields.additionalDisciplines.error}
-            </Alert>
-          )}
-          {fields.excerpt.error !== undefined && (
-            <Alert level="negative">
-              Kurzbeschreibung: {fields.excerpt.error}
             </Alert>
           )}
           {fields.idea.error !== undefined && (

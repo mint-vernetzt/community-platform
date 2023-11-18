@@ -3,6 +3,7 @@ import type {
   Discipline,
   EventType,
   ExperienceLevel,
+  Financing,
   Focus,
   Format,
   Offer,
@@ -24,6 +25,7 @@ export type GenericEntry =
   | Discipline
   | AdditionalDiscipline
   | Format
+  | Financing
   | ExperienceLevel;
 
 export type TableName =
@@ -38,6 +40,7 @@ export type TableName =
   | "discipline"
   | "additionalDiscipline"
   | "format"
+  | "financing"
   | "stage";
 
 type Lookup = {
