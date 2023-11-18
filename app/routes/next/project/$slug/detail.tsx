@@ -71,6 +71,18 @@ export const loader = async (args: DataFunctionArgs) => {
       logo: true,
       published: true,
       background: true,
+      timeframe: true,
+      jobFillings: true,
+      furtherJobFillings: true,
+      yearlyBudget: true,
+      financings: true,
+      furtherFinancings: true,
+      technicalRequirements: true,
+      furtherTechnicalRequirements: true,
+      roomSituation: true,
+      furtherRoomSituation: true,
+      documents: true,
+      images: true,
     },
     where: {
       slug,
@@ -354,12 +366,25 @@ function ProjectDetail() {
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about">Über das Projekt</Link>
               </TabBar.Item>
-              <TabBar.Item active={pathname.endsWith("/requirements")}>
-                <Link to="./requirements">Rahmenbedingungen</Link>
-              </TabBar.Item>
-              {/* <TabBar.Item active={pathname.endsWith("/attachments")}>
-                <Link to="./attachments">Zugänglichkeit</Link>
-              </TabBar.Item> */}
+              {(project.timeframe !== null ||
+                project.jobFillings !== null ||
+                project.furtherJobFillings !== null ||
+                project.yearlyBudget !== null ||
+                project.financings.length !== 0 ||
+                project.furtherFinancings !== null ||
+                project.technicalRequirements !== null ||
+                project.furtherTechnicalRequirements !== null ||
+                project.roomSituation !== null ||
+                project.furtherRoomSituation !== null) && (
+                <TabBar.Item active={pathname.endsWith("/requirements")}>
+                  <Link to="./requirements">Rahmenbedingungen</Link>
+                </TabBar.Item>
+              )}
+              {(project.documents.length > 0 || project.images.length > 0) && (
+                <TabBar.Item active={pathname.endsWith("/attachments")}>
+                  <Link to="./attachments">Material</Link>
+                </TabBar.Item>
+              )}
             </TabBar>
             <Outlet />
           </div>
