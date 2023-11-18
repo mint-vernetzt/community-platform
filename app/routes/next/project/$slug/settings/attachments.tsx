@@ -155,17 +155,17 @@ export const loader = async (args: DataFunctionArgs) => {
 
   invariantResponse(project !== null, "Project not found", { status: 404 });
 
-  project.documents = project.documents.map((relation) => {
-    if (relation.document.mimeType === "image/jpeg") {
-      const publicURL = getPublicURL(authClient, relation.document.path);
-      console.log({ publicURL });
-      const thumbnail = getImageURL(publicURL, {
-        resize: { type: "fill", width: 144 },
-      });
-      return { ...relation, document: { ...relation.document, thumbnail } };
-    }
-    return relation;
-  });
+  // project.documents = project.documents.map((relation) => {
+  //   if (relation.document.mimeType === "image/jpeg") {
+  //     const publicURL = getPublicURL(authClient, relation.document.path);
+  //     console.log({ publicURL });
+  //     const thumbnail = getImageURL(publicURL, {
+  //       resize: { type: "fill", width: 144 },
+  //     });
+  //     return { ...relation, document: { ...relation.document, thumbnail } };
+  //   }
+  //   return relation;
+  // });
   project.images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
     console.log({ publicURL });
@@ -485,14 +485,17 @@ function Attachments() {
                   {loaderData.documents.map((relation) => {
                     return (
                       <MaterialList.Item key={relation.document.id}>
-                        {typeof relation.document.thumbnail !== "undefined" && (
+                        {/* {typeof relation.document.thumbnail !== "undefined" && (
                           <Image
                             src={relation.document.thumbnail}
                             alt={relation.document.description || ""}
                           />
-                        )}
+                        )} */}
                         {relation.document.mimeType === "application/pdf" && (
                           <MaterialList.Item.PDFIcon />
+                        )}
+                        {relation.document.mimeType === "image/jpeg" && (
+                          <MaterialList.Item.JPGIcon />
                         )}
                         <MaterialList.Item.Title>
                           {relation.document.title !== null
@@ -545,11 +548,12 @@ function Attachments() {
                     );
                   })}
                 </MaterialList>
-                <div className="mv-max-w-fit">
+                <div className="mv-w-full md:mv-max-w-fit">
                   <Button
                     as="a"
                     href={`./download?type=documents`}
                     variant="outline"
+                    fullSize
                   >
                     Alle herunterladen
                   </Button>
@@ -681,7 +685,7 @@ function Attachments() {
                       )}
                       {relation.image.credits !== null && (
                         <MaterialList.Item.Paragraph>
-                          {relation.image.credits}
+                          Foto-Credit: {relation.image.credits}
                         </MaterialList.Item.Paragraph>
                       )}
                       <Form
@@ -721,9 +725,17 @@ function Attachments() {
                   );
                 })}
               </MaterialList>
-              <Link to={`./download?type=images`} reloadDocument>
-                Alle herunterladen
-              </Link>
+              <div className="mv-w-full md:mv-max-w-fit">
+                {/* TODO: Button as wrapper for Link (better relative path) */}
+                <Button
+                  as="a"
+                  href={`./attachments/download?type=images`}
+                  variant="outline"
+                  fullSize
+                >
+                  Alle herunterladen
+                </Button>
+              </div>
             </>
           ) : (
             <p>Keine Bilder vorhanden.</p>
