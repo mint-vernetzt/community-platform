@@ -771,7 +771,6 @@ model ProjectVisibility {
   instagram                    Boolean @default(true)
   xing                         Boolean @default(true)
   mastodon                     Boolean @default(true)
-  bluesky                      Boolean @default(true)
   tiktok                       Boolean @default(true)
   createdAt                    Boolean @default(true) @map("created_at")
   updatedAt                    Boolean @default(true) @map("updated_at")
