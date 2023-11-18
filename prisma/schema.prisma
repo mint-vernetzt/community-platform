@@ -656,17 +656,19 @@ model Stage {
 }
 
 model Document {
-  id          String            @id @default(uuid())
+  id          String              @id @default(uuid())
   path        String
-  mimeType    String            @map("mime_type")
+  mimeType    String              @map("mime_type")
+  credits     String?
   title       String?
   description String?
-  createdAt   DateTime          @default(now()) @map("created_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
   filename    String
-  sizeInMB    Float             @map("size_in_mb")
-  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
+  sizeInMB    Float               @map("size_in_mb")
+  updatedAt   DateTime            @default(now()) @updatedAt @map("updated_at")
   extension   String
   events      DocumentOfEvent[]
+  projects    DocumentOfProject[]
 
   @@map("documents")
 }
@@ -736,6 +738,8 @@ model Project {
   projectVisibility            ProjectVisibility?
   admins                       AdminOfProject[]
   areas                        AreasOnProjects[]
+  documents                    DocumentOfProject[]
+  images                       ImageOfProject[]
 
   @@map("projects")
 }
@@ -802,6 +806,8 @@ model ProjectVisibility {
   formats                      Boolean @default(true)
   teamMembers                  Boolean @default(true)
   areas                        Boolean @default(true)
+  documents                    Boolean @default(true)
+  images                       Boolean @default(true)
   admins                       Boolean @default(false)
   project                      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                    String  @unique
@@ -951,16 +957,43 @@ model TeamMemberOfProject {
   @@map("team_members_of_projects")
 }
 
+model DocumentOfProject {
+  projectId  String   @map("project_id")
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  documentId String   @map("document_id")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, documentId])
+  @@map("documents_of_projects")
+}
+
+model ImageOfProject {
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String  @map("project_id")
+  imageId   String  @map("image_id")
+  image     Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, imageId])
+  @@map("images_of_projects")
+}
+
 model Image {
-  id           String         @id @default(uuid())
+  id           String           @id @default(uuid())
   path         String
-  url          String
+  mimeType     String           @map("mime_type")
   credits      String?
-  alt          String?
+  title        String?
+  sizeInMB     Float            @map("size_in_mb")
+  filename     String
+  description  String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at")
+  extension    String
   Profile      Profile[]
   Organization Organization[]
   Event        Event[]
   Project      Project[]
+  projects     ImageOfProject[]
 
   @@map("image")
 }
