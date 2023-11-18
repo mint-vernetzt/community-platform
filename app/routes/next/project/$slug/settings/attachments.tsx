@@ -168,7 +168,6 @@ export const loader = async (args: DataFunctionArgs) => {
   // });
   project.images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
-    console.log({ publicURL });
     const thumbnail = getImageURL(publicURL, {
       resize: { type: "fill", width: 144 },
     });
@@ -387,8 +386,6 @@ function Attachments() {
       }
     }
   }, [actionData]);
-
-  console.log(loaderData);
 
   return (
     <Section>
