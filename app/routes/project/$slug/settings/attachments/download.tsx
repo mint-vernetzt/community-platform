@@ -1,4 +1,4 @@
-import { DataFunctionArgs, redirect } from "@remix-run/node";
+import { type DataFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";

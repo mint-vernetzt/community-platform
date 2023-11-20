@@ -1,5 +1,5 @@
 import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { DataFunctionArgs, json } from "@remix-run/node";
+import { type DataFunctionArgs, json } from "@remix-run/node";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";

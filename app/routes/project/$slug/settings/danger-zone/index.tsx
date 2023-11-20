@@ -1,7 +1,7 @@
 import { redirect, type DataFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { getRedirectPathOnProtectedProjectRoute } from "./../utils.server";
+import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
