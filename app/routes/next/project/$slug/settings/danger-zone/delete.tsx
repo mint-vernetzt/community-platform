@@ -158,7 +158,7 @@ function Delete() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Button type="submit" level="negative" fullSize>
-                Project löschen
+                Projekt löschen
               </Button>
             </div>
           </div>

@@ -30,9 +30,22 @@ import {
 } from "./utils.server";
 
 const generalSchema = z.object({
-  name: z.string({
-    required_error: "Der Projektname ist eine erforderliche Angabe.",
-  }),
+  name: z
+    .string({
+      required_error: "Der Projektname ist eine erforderliche Angabe.",
+    })
+    .max(
+      80,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    ),
+  subline: z
+    .string()
+    .max(
+      90,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+    )
+    .optional()
+    .transform((value) => (value === undefined || value === "" ? null : value)),
   formats: z.array(z.string().uuid()),
   furtherFormats: z.array(z.string()),
   areas: z.array(z.string().uuid()),
@@ -45,10 +58,6 @@ const generalSchema = z.object({
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
   contactName: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  subline: z
     .string()
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
@@ -433,34 +442,31 @@ function General() {
                 })}
               </Chip.Container>
             )}
-            {typeof fields.furtherFormats !== "undefined" &&
-              typeof fields.furtherFormats.id !== "undefined" && (
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
-                  <Input
-                    id={fields.furtherFormats.id}
-                    value={furtherFormat}
-                    onChange={handleFurtherFormatInputChange}
-                  >
-                    <Input.Label htmlFor={fields.furtherFormats.id}>
-                      Sonstige Formate
-                    </Input.Label>
-                    <Input.HelperText>
-                      Bitte gib kurze Begriffe an.
-                    </Input.HelperText>
-                  </Input>
-                  <div className="mv--mt-1">
-                    <Button
-                      {...list.insert(fields.furtherFormats.name, {
-                        defaultValue: furtherFormat,
-                      })}
-                      variant="ghost"
-                      disabled={furtherFormat === ""}
-                    >
-                      Hinzufügen
-                    </Button>
-                  </div>
-                </div>
-              )}
+            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+              <Input
+                value={furtherFormat}
+                onChange={handleFurtherFormatInputChange}
+              >
+                <Input.Label htmlFor={fields.furtherFormats.id}>
+                  Sonstige Formate
+                </Input.Label>
+                <Input.HelperText>
+                  Bitte gib kurze Begriffe an.
+                </Input.HelperText>
+              </Input>
+              <div className="mv--mt-1">
+                <Button
+                  id={fields.furtherFormats.id}
+                  {...list.insert(fields.furtherFormats.name, {
+                    defaultValue: furtherFormat,
+                  })}
+                  variant="ghost"
+                  disabled={furtherFormat === ""}
+                >
+                  Hinzufügen
+                </Button>
+              </div>
+            </div>
             {furtherFormatsList.length > 0 && (
               <Chip.Container>
                 {furtherFormatsList.map((listFormat, index) => {

@@ -29,7 +29,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveProjectMode } from "../../utils.server";
+import { deriveProjectMode } from "../utils.server";
 
 export function links() {
   return [
@@ -71,6 +71,18 @@ export const loader = async (args: DataFunctionArgs) => {
       logo: true,
       published: true,
       background: true,
+      timeframe: true,
+      jobFillings: true,
+      furtherJobFillings: true,
+      yearlyBudget: true,
+      financings: true,
+      furtherFinancings: true,
+      technicalRequirements: true,
+      furtherTechnicalRequirements: true,
+      roomSituation: true,
+      furtherRoomSituation: true,
+      documents: true,
+      images: true,
     },
     where: {
       slug,
@@ -353,18 +365,31 @@ function ProjectDetail() {
         <div className="md:mv-flex xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
             <TabBar>
-              {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below */}
+              {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below instead of the hash anchor */}
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about#tab-bar-container">Über das Projekt</Link>
               </TabBar.Item>
-              <TabBar.Item active={pathname.endsWith("/requirements")}>
-                <Link to="./requirements#tab-bar-container">
-                  Rahmenbedingungen
-                </Link>
-              </TabBar.Item>
-              {/* <TabBar.Item active={pathname.endsWith("/attachments")}>
-                <Link to="./attachments#tab-bar-container">Zugänglichkeit</Link>
-              </TabBar.Item> */}
+              {(project.timeframe !== null ||
+                project.jobFillings !== null ||
+                project.furtherJobFillings !== null ||
+                project.yearlyBudget !== null ||
+                project.financings.length !== 0 ||
+                project.furtherFinancings !== null ||
+                project.technicalRequirements !== null ||
+                project.furtherTechnicalRequirements !== null ||
+                project.roomSituation !== null ||
+                project.furtherRoomSituation !== null) && (
+                <TabBar.Item active={pathname.endsWith("/requirements")}>
+                  <Link to="./requirements#tab-bar-container">
+                    Rahmenbedingungen
+                  </Link>
+                </TabBar.Item>
+              )}
+              {(project.documents.length > 0 || project.images.length > 0) && (
+                <TabBar.Item active={pathname.endsWith("/attachments")}>
+                  <Link to="./attachments#tab-bar-container">Material</Link>
+                </TabBar.Item>
+              )}
             </TabBar>
             <Outlet />
           </div>

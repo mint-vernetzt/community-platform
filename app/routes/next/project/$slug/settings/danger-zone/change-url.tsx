@@ -159,9 +159,9 @@ function ChangeURL() {
         " zu erreichen.
       </p>
       <p>
-        Wenn Du die URL Deines Projekts änderst, dann ist Dein Projekt über den
-        bisherigen Link, solltest Du ihn bereits geteilt haben, nicht mehr
-        erreichbar.
+        Wenn du die URL deines Projekts änderst und den bisherigen Link bereits
+        geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar
+        sein.
       </p>
       <Form method="post" {...form.props}>
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">

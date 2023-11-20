@@ -351,7 +351,10 @@ function Requirements() {
       <Section>
         <BackButton to={location.pathname}>Rahmenbedingungen</BackButton>
         <p className="mv-my-6 md:mv-mt-0">
-          Teile der Community mehr zu Deinen Rahmengegebenheiten mit.
+          Die genannten Informationen zu Finanziellem und personellem Rahmen
+          beziehen sich auf das angegebene Projekt, nicht allgemein auf die
+          Organisation. Die Infos sollen eine Anregung sein für Interessierte,
+          die das Projekt als Inspiration nehmen wollen.
         </p>
         <Form method="post" {...form.props}>
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}

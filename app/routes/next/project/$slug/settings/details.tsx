@@ -43,9 +43,6 @@ const detailsSchema = z.object({
   furtherDisciplines: z.array(z.string()),
   participantLimit: z
     .string()
-    .regex(/[0-9]*/g, {
-      message: "Die Anzahl der Teilnehmer:innen muss eine Zahl sein.",
-    })
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
   targetGroups: z.array(z.string().uuid()),
@@ -61,8 +58,8 @@ const detailsSchema = z.object({
   excerpt: z
     .string()
     .max(
-      100,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 100."
+      250,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250."
     )
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
@@ -756,12 +753,16 @@ function Details() {
 
             <Input {...conform.input(fields.participantLimit)}>
               <Input.Label htmlFor={fields.participantLimit.id}>
-                Für wie viele Teilnehmer:innen ist Dein Projekt/Bildungangebot
-                gedacht?
+                Wenn Dein Projekt für eine konkrete Teilnehmer:innenzahl bspw.
+                pro Kurs konzipiert ist, gib diese bitte an.
               </Input.Label>
               {typeof fields.participantLimit.error !== "undefined" && (
                 <Input.Error>{fields.participantLimit.error}</Input.Error>
               )}
+              <Input.HelperText>
+                Hier kannst du Zahlen aber auch zusätzliche Informationen
+                eingeben.
+              </Input.HelperText>
             </Input>
 
             <Select onChange={handleSelectChange}>

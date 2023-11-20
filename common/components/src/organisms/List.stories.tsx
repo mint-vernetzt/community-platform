@@ -2,6 +2,14 @@ import Button from "../molecules/Button";
 import Avatar from "../molecules/Avatar";
 import List, { ListItem } from "./List";
 
+export function Workspace() {
+  return (
+    <ListItem>
+      <ListItem.Preview />
+    </ListItem>
+  );
+}
+
 export function ListItemPlayground() {
   return (
     <div className="mv-p-6 mv-flex mv-flex-col mv-gap-4">
