@@ -1,128 +1,33 @@
-import { notFound } from "remix-utils";
-import { prismaClient } from "~/prisma.server";
-import { type getProjectBySlug } from "./general.server";
+import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import crypto from "crypto";
+import { deriveProjectMode } from "~/routes/project/utils.server";
 
-export function transformProjectToForm(
-  project: NonNullable<Awaited<ReturnType<typeof getProjectBySlug>>>
-) {
-  return {
-    ...project,
-    targetGroups: project.targetGroups.map((item) => item.targetGroupId) ?? [],
-    disciplines: project.disciplines.map((item) => item.disciplineId) ?? [],
-  };
-}
-// TODO: fix any type
-export function transformFormToProject(form: any) {
-  const { userId: _userId, submit: _submit, ...project } = form;
-
-  return {
-    ...project,
-  };
-}
-
-export async function getOrganizationById(id: string) {
-  const organization = await prismaClient.organization.findFirst({
-    where: { id },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      responsibleForProject: {
-        select: {
-          project: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return organization;
-}
-
-export async function updateProjectById(
-  id: string,
-  // TODO: fix any type
-  projectData: any,
-  privateFields: string[]
-) {
-  let projectVisibility = await prismaClient.projectVisibility.findFirst({
-    where: {
-      project: {
-        id,
-      },
-    },
-  });
-  if (projectVisibility === null) {
-    throw notFound("Project visibilities not found");
+export async function getRedirectPathOnProtectedProjectRoute(args: {
+  request: Request;
+  slug: string;
+  sessionUser: User | null;
+  authClient?: SupabaseClient;
+}) {
+  const { request, slug, sessionUser } = args;
+  // redirect to login if not logged in
+  if (sessionUser === null) {
+    // redirect to target after login
+    // TODO: Maybe rename login_redirect to redirect_to everywhere?
+    const url = new URL(request.url);
+    return `/login?login_redirect=${url.pathname}`;
   }
 
-  let visibility: keyof typeof projectVisibility;
-  for (visibility in projectVisibility) {
-    if (
-      visibility !== "id" &&
-      visibility !== "projectId" &&
-      projectData.hasOwnProperty(visibility)
-    ) {
-      projectVisibility[visibility] = !privateFields.includes(`${visibility}`);
-    }
+  // check if admin of project and redirect to project details if not
+  const mode = await deriveProjectMode(sessionUser, slug);
+  if (mode !== "admin") {
+    return `/project/${slug}`;
   }
-  await prismaClient.$transaction([
-    prismaClient.project.update({
-      where: { id },
-      data: {
-        ...projectData,
-        updatedAt: new Date(),
-        targetGroups: {
-          deleteMany: {},
-          connectOrCreate: projectData.targetGroups.map(
-            (targetGroupId: string) => {
-              return {
-                where: {
-                  targetGroupId_projectId: {
-                    targetGroupId,
-                    projectId: id,
-                  },
-                },
-                create: {
-                  targetGroupId,
-                },
-              };
-            }
-          ),
-        },
-        disciplines: {
-          deleteMany: {},
-          connectOrCreate: projectData.disciplines.map((itemId: string) => {
-            return {
-              where: {
-                disciplineId_projectId: {
-                  disciplineId: itemId,
-                  projectId: id,
-                },
-              },
-              create: {
-                disciplineId: itemId,
-              },
-            };
-          }),
-        },
-      },
-    }),
-    prismaClient.projectVisibility.update({
-      where: {
-        id: projectVisibility.id,
-      },
-      data: projectVisibility,
-    }),
-  ]);
+
+  return null;
 }
 
-export async function deleteProjectBySlug(slug: string) {
-  await prismaClient.project.delete({
-    where: {
-      slug,
-    },
-  });
+export function getSubmissionHash(submission: object) {
+  const json = JSON.stringify(submission);
+  const hash = crypto.createHash("sha256").update(json).digest("hex");
+  return hash;
 }

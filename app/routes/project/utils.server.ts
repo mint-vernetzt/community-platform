@@ -1,6 +1,6 @@
-import type { User } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
-import { deriveMode, type Mode } from "~/utils.server";
+import { type Mode, deriveMode } from "~/utils.server";
 
 export type ProjectMode = Mode | "admin";
 
@@ -26,47 +26,4 @@ export async function deriveProjectMode(
     return "admin";
   }
   return mode;
-}
-
-export async function createProjectOnProfile(
-  profileId: string,
-  projectName: string,
-  projectSlug: string
-) {
-  const [profile] = await prismaClient.$transaction([
-    prismaClient.profile.update({
-      where: {
-        id: profileId,
-      },
-      data: {
-        teamMemberOfProjects: {
-          create: {
-            project: {
-              create: {
-                name: projectName,
-                slug: projectSlug,
-                published: true,
-                projectVisibility: {
-                  create: {},
-                },
-              },
-            },
-          },
-        },
-      },
-    }),
-    prismaClient.project.update({
-      where: {
-        slug: projectSlug,
-      },
-      data: {
-        admins: {
-          create: {
-            profileId: profileId,
-          },
-        },
-      },
-    }),
-  ]);
-  return profile;
 }

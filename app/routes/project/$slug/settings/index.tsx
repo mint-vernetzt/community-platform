@@ -1,17 +1,27 @@
-import type { DataFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { createAuthClient } from "~/auth.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { redirect, type DataFunctionArgs } from "@remix-run/node";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
-// handle "/general" as default route
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  createAuthClient(request, response);
+  const authClient = createAuthClient(request, response);
 
-  const slug = getParamValueOrThrow(params, "slug");
-  return redirect(`/project/${slug}/settings/general`, {
-    headers: response.headers,
+  const sessionUser = await getSessionUser(authClient);
+
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
   });
+
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  return redirect(redirectPath ?? "./general", { headers: response.headers });
 };
