@@ -5,6 +5,7 @@ import {
   Input,
   List,
   Section,
+  Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
@@ -21,12 +22,13 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
+import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { combineHeaders } from "~/utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -165,7 +167,12 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json({ project, searchResult }, { headers: response.headers });
+  const { toast, headers: toastHeaders } = await getToast(request);
+
+  return json(
+    { project, searchResult, toast },
+    { headers: combineHeaders(response.headers, toastHeaders) }
+  );
 };
 
 export const action = async (args: DataFunctionArgs) => {
@@ -233,11 +240,11 @@ export const action = async (args: DataFunctionArgs) => {
     });
 
     return redirectWithToast(
-      `/next/project/${params.slug}/settings/team?deep`,
+      request.url,
       {
-        id: "settings-toast",
+        id: "add-member-toast",
         key: hash,
-        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+        message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
       },
       { scrollIntoView: true },
       { headers: response.headers }
@@ -275,9 +282,9 @@ export const action = async (args: DataFunctionArgs) => {
     });
 
     return redirectWithToast(
-      `/next/project/${params.slug}/settings/team?deep`,
+      request.url,
       {
-        id: "settings-toast",
+        id: "remove-member-toast",
         key: hash,
         message: `${profile.firstName} ${profile.lastName} entfernt.`,
       },
@@ -293,7 +300,7 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 function Team() {
-  const { project, searchResult } = useLoaderData<typeof loader>();
+  const { project, searchResult, toast } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
@@ -314,6 +321,13 @@ function Team() {
         gezeigt. Sie können Projekte nicht bearbeiten.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+        {toast !== null && toast.id === "remove-member-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
         {project.teamMembers.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -355,6 +369,13 @@ function Team() {
                 })}
               </List>
             </Form>
+          </div>
+        )}
+        {toast !== null && toast.id === "add-member-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
           </div>
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">

@@ -5,6 +5,7 @@ import {
   Input,
   List,
   Section,
+  Toast,
 } from "@mint-vernetzt/components";
 import { type Organization, type Prisma } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
@@ -22,12 +23,13 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
+import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { combineHeaders } from "~/utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -238,11 +240,17 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json({
-    project,
-    ownOrganizations: notResponsibleOrganizations,
-    searchResult,
-  });
+  const { toast, headers: toastHeaders } = await getToast(request);
+
+  return json(
+    {
+      project,
+      ownOrganizations: notResponsibleOrganizations,
+      searchResult,
+      toast,
+    },
+    { headers: combineHeaders(response.headers, toastHeaders) }
+  );
 };
 
 export const action = async (args: DataFunctionArgs) => {
@@ -311,9 +319,9 @@ export const action = async (args: DataFunctionArgs) => {
     });
 
     return redirectWithToast(
-      `/next/project/${params.slug}/settings/responsible-orgs?deep`,
+      request.url,
       {
-        id: "settings-toast",
+        id: "add-organization-toast",
         key: hash,
         message: `${organization.name} hinzugefügt.`,
       },
@@ -352,9 +360,9 @@ export const action = async (args: DataFunctionArgs) => {
     });
 
     return redirectWithToast(
-      `/next/project/${params.slug}/settings/responsible-orgs?deep`,
+      request.url,
       {
-        id: "settings-toast",
+        id: "remove-organization-toast",
         key: hash,
         message: `${organization.name} entfernt.`,
       },
@@ -370,7 +378,7 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 function ResponsibleOrgs() {
-  const { project, ownOrganizations, searchResult } =
+  const { project, ownOrganizations, searchResult, toast } =
     useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -393,6 +401,13 @@ function ResponsibleOrgs() {
         verantwortlichen Organisationen.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+        {toast !== null && toast.id === "remove-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
         {project.responsibleOrganizations.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -426,6 +441,13 @@ function ResponsibleOrgs() {
                 })}
               </List>
             </Form>
+          </div>
+        )}
+        {toast !== null && toast.id === "add-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
           </div>
         )}
         {ownOrganizations.length > 0 && (

@@ -107,8 +107,8 @@ function ProjectSettings() {
           <h1 className="mv-mb-0">Projekt bearbeiten</h1>
         </div>
       </div>
-      {loaderData.toast !== null && (
-        <div id={loaderData.toast.id} className="md:mv-pt-4">
+      {loaderData.toast !== null && loaderData.toast.id === "settings-toast" && (
+        <div id={loaderData.toast.id} className="md:mv-py-4">
           <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
             {loaderData.toast.message}
           </Toast>
