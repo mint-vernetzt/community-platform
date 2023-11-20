@@ -18,6 +18,7 @@ import {
 } from "@remix-run/node";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -1084,9 +1085,17 @@ function Details() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
-                <Button type="reset" variant="outline" fullSize>
+                <Link
+                  to="."
+                  reloadDocument
+                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                >
                   Änderungen verwerfen
-                </Button>
+                </Link>
+                {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
+                {/* <Button type="reset" variant="outline" fullSize>
+                  Änderungen verwerfen
+                </Button> */}
                 {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
                 <Button type="submit" fullSize>
