@@ -1,47 +1,83 @@
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { conform, useForm } from "@conform-to/react";
 import {
-  Link,
-  useFetcher,
+  Alert,
+  Avatar,
+  Button,
+  Input,
+  List,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
+import { type Prisma, type Profile } from "@prisma/client";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  Form,
+  useActionData,
   useLoaderData,
-  useParams,
+  useLocation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { H3 } from "~/components/Heading/Heading";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveProjectMode } from "../../utils.server";
-import { getProject } from "./admins.server";
-import {
-  addAdminSchema,
-  type action as addAdminAction,
-} from "./admins/add-admin";
-import {
-  removeAdminSchema,
-  type action as removeAdminAction,
-} from "./admins/remove-admin";
+import { BackButton } from "./__components";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const authClient = createAuthClient(request, response);
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const slug = getParamValueOrThrow(params, "slug");
-  const project = await getProject(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
-  const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  const enhancedAdmins = project.admins.map((relation) => {
+  const authClient = createAuthClient(request, response);
+
+  const sessionUser = await getSessionUser(authClient);
+
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+
+  // get project admins
+  const project = await prismaClient.project.findFirst({
+    where: {
+      slug: params.slug,
+    },
+    include: {
+      admins: {
+        select: {
+          profile: {
+            select: {
+              username: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  invariantResponse(project !== null, "Not found", {
+    status: 404,
+  });
+
+  // enhance admins with avatar
+  project.admins = project.admins.map((relation) => {
     let avatar = relation.profile.avatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -52,197 +88,338 @@ export const loader = async (args: LoaderArgs) => {
         });
       }
     }
-    return { ...relation.profile, avatar };
+    return { profile: { ...relation.profile, avatar } };
   });
 
+  // get search query
   const url = new URL(request.url);
-  const suggestionsQuery =
-    url.searchParams.get("autocomplete_query") || undefined;
-  let adminSuggestions;
-  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
-    const query = suggestionsQuery.split(" ");
-    const alreadyAdminIds = project.admins.map((relation) => {
-      return relation.profile.id;
+  const queryString = url.searchParams.get("search") || undefined;
+  const query =
+    typeof queryString !== "undefined" ? queryString.split(" ") : [];
+
+  // get profiles via search query
+  let searchResult: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    avatar: string | null;
+  }[] = [];
+  if (
+    query.length > 0 &&
+    queryString !== undefined &&
+    queryString.length >= 3
+  ) {
+    const whereQueries: {
+      OR: {
+        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
+      }[];
+    }[] = [];
+    for (const word of query) {
+      whereQueries.push({
+        OR: [
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+          { username: { contains: word, mode: "insensitive" } },
+          { email: { contains: word, mode: "insensitive" } },
+        ],
+      });
+    }
+    searchResult = await prismaClient.profile.findMany({
+      where: {
+        AND: whereQueries,
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+        username: true,
+        avatar: true,
+      },
+      take: 10,
     });
-    adminSuggestions = await getProfileSuggestionsForAutocomplete(
-      authClient,
-      alreadyAdminIds,
-      query
+    searchResult = searchResult.filter((relation) => {
+      const isTeamMember = project.admins.some((teamMember) => {
+        return teamMember.profile.username === relation.username;
+      });
+      return !isTeamMember;
+    });
+    searchResult = searchResult.map((relation) => {
+      let avatar = relation.avatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        if (publicURL !== null) {
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return { ...relation, avatar };
+    });
+  }
+
+  return json({ project, searchResult }, { headers: response.headers });
+};
+
+export const action = async (args: DataFunctionArgs) => {
+  // get action type
+  const { request, params } = args;
+  const response = new Response();
+
+  const authClient = createAuthClient(request, response);
+  const sessionUser = await getSessionUser(authClient);
+
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  if (redirectPath !== null) {
+    return redirect(redirectPath, { headers: response.headers });
+  }
+
+  const formData = await request.formData();
+  const action = formData.get(conform.INTENT) as string;
+  if (action.startsWith("add_")) {
+    const username = action.replace("add_", "");
+
+    const project = await prismaClient.project.findFirst({
+      where: { slug: args.params.slug },
+      select: {
+        id: true,
+      },
+    });
+
+    const profile = await prismaClient.profile.findFirst({
+      where: { username },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    invariantResponse(project !== null && profile !== null, "Not found", {
+      status: 404,
+    });
+
+    await prismaClient.adminOfProject.upsert({
+      where: {
+        profileId_projectId: {
+          projectId: project.id,
+          profileId: profile.id,
+        },
+      },
+      update: {},
+      create: {
+        projectId: project.id,
+        profileId: profile.id,
+      },
+    });
+
+    return json({ success: true, action, profile });
+  } else if (action.startsWith("remove_")) {
+    const username = action.replace("remove_", "");
+
+    const project = await prismaClient.project.findFirst({
+      where: { slug: args.params.slug },
+      select: {
+        id: true,
+      },
+    });
+
+    const profile = await prismaClient.profile.findFirst({
+      where: { username },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    invariantResponse(project !== null && profile !== null, "Not found", {
+      status: 404,
+    });
+
+    const adminCount = await prismaClient.adminOfProject.count({
+      where: {
+        projectId: project.id,
+      },
+    });
+
+    if (adminCount <= 1) {
+      return json(
+        { success: false, action, profile: null },
+        { headers: response.headers }
+      );
+    }
+
+    await prismaClient.adminOfProject.delete({
+      where: {
+        profileId_projectId: {
+          projectId: project.id,
+          profileId: profile.id,
+        },
+      },
+    });
+
+    return json(
+      { success: true, action, profile },
+      { headers: response.headers }
     );
   }
 
   return json(
-    {
-      admins: enhancedAdmins,
-      adminSuggestions,
-    },
+    { success: false, action, profile: null },
     { headers: response.headers }
   );
 };
 
 function Admins() {
-  const { slug } = useParams();
-  const loaderData = useLoaderData<typeof loader>();
-  const addAdminFetcher = useFetcher<typeof addAdminAction>();
-  const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
+  const { project, searchResult } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
-  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const location = useLocation();
   const submit = useSubmit();
 
-  return (
-    <>
-      <h1 className="mb-8">Die Administrator:innen</h1>
-      <p className="mb-2">
-        Wer verwaltet das Projekt auf der Community Plattform? Füge hier weitere
-        Administrator:innen hinzu oder entferne sie.
-      </p>
-      <p className="mb-2">
-        Administrator:innen können Projekte bearbeiten, veröffentlichen oder
-        löschen. Sie sind nicht auf der Projekt-Detailseite sichtbar.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
-        Events im Entwurf einsehen, diese aber nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Administrator:in hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deinem Projekt ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
-        schema={addAdminSchema}
-        fetcher={addAdminFetcher}
-        action={`/project/${slug}/settings/admins/add-admin`}
-        onSubmit={() => {
-          submit({
-            method: "get",
-            action: `/project/${slug}/settings/admins`,
-          });
-        }}
-      >
-        {({ Field, Errors, Button, register }) => {
-          return (
-            <>
-              <Errors />
-              <div className="form-control w-full">
-                <div className="flex flex-row items-center mb-2">
-                  <div className="flex-auto">
-                    <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email
-                    </label>
-                  </div>
-                </div>
+  const [searchForm, searchFields] = useForm({
+    defaultValue: {
+      search: searchParams.get("search") || "",
+      deep: "true",
+    },
+  });
 
-                <div className="flex flex-row">
-                  <Field name="profileId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.adminSuggestions || []}
-                          suggestionsLoaderPath={`/project/${slug}/settings/admins`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("profileId")}
-                          searchParameter="autocomplete_query"
-                        />
-                      </>
-                    )}
-                  </Field>
-                  <div className="ml-2">
-                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
-                      +
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </>
-          );
-        }}
-      </Form>
-      {addAdminFetcher.data !== undefined &&
-      "message" in addAdminFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
-          {addAdminFetcher.data.message}
-        </div>
-      ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Administrator:innen</h4>
-      <p className="mb-8">
-        Hier siehst du alle Administrator:innen des Projekts auf einen Blick.{" "}
+  return (
+    <Section>
+      <BackButton to={location.pathname}>Admin-Rollen verwalten</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">
+        Wer verwaltet dieses Projekt auf der Community Plattform? Füge hier
+        weitere Administrator:innen hinzu oder entferne sie. Administrator:innen
+        können Projekte anlegen, bearbeiten, löschen, sowie Team-Mitglieder
+        hinzufügen. Sie sind nicht auf der Projekt-Detailseite sichtbar.
+        Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
+        Projekte nicht bearbeiten.
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-auto">
-        {loaderData.admins.map((admin) => {
-          const initials = getInitials(admin);
-          return (
-            <div
-              key={`team-member-${admin.id}`}
-              className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
-            >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
-                {admin.avatar !== null && admin.avatar !== "" ? (
-                  <img src={admin.avatar} alt={initials} />
-                ) : (
-                  <>{initials}</>
+      {typeof actionData !== "undefined" &&
+        actionData !== null &&
+        actionData.success === false && (
+          <Alert level="negative" key={actionData.action}>
+            {actionData.action.startsWith("remove_") &&
+              "Beim Entfernen ist etwas schief gelaufen"}
+            {actionData.action.startsWith("add_") &&
+              "Beim Hinzufügen ist etwas schief gelaufen"}
+          </Alert>
+        )}
+      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {project.admins.length <= 1
+              ? "Administrator:in"
+              : "Administrator:innen"}
+          </h2>
+          <Form method="post">
+            <List>
+              {project.admins.map((admins) => {
+                return (
+                  <List.Item key={admins.profile.username}>
+                    <Avatar {...admins.profile} />
+                    <List.Item.Title>
+                      {admins.profile.firstName} {admins.profile.lastName}
+                    </List.Item.Title>
+                    <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
+                    {project.admins.length > 1 && (
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${admins.profile.username}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    )}
+                  </List.Item>
+                );
+              })}
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.profile !== null &&
+                actionData.action.startsWith("remove_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                    entfernt.
+                  </Toast>
                 )}
-              </div>
-              <div className="pl-4">
-                <Link to={`/profile/${admin.username}`}>
-                  <H3
-                    like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
-                  >
-                    {admin.firstName} {admin.lastName}
-                  </H3>
-                </Link>
-                {admin.position ? (
-                  <p className="font-bold text-sm cursor-default">
-                    {admin.position}
-                  </p>
-                ) : null}
-              </div>
-              <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
-                  schema={removeAdminSchema}
-                  fetcher={removeAdminFetcher}
-                  action={`/project/${slug}/settings/admins/remove-admin`}
-                  hiddenFields={["profileId"]}
-                  values={{
-                    profileId: admin.id,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
-                    return (
-                      <>
-                        <Errors />
-                        <Field name="profileId" />
-                        {loaderData.admins.length > 1 ? (
-                          <Button
-                            className="ml-auto btn-none"
-                            title="entfernen"
-                          >
-                            <svg
-                              viewBox="0 0 10 10"
-                              width="10px"
-                              height="10px"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </Button>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </Form>
-              </div>
-            </div>
-          );
-        })}
+            </List>
+          </Form>
+        </div>
+        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            Administrator:in hinzufügen
+          </h2>
+          <Form
+            method="get"
+            onChange={(event) => {
+              submit(event.currentTarget);
+            }}
+            {...searchForm.props}
+          >
+            <Input {...conform.input(searchFields.deep)} type="hidden" />
+            <Input {...conform.input(searchFields.search)} standalone>
+              <Input.Label htmlFor={searchFields.search.id}>Suche</Input.Label>
+              <Input.SearchIcon />
+              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              {typeof searchFields.search.error !== "undefined" && (
+                <Input.Error>{searchFields.search.error}</Input.Error>
+              )}
+            </Input>
+          </Form>
+          <Form method="post">
+            <List>
+              {searchResult.map((profile) => {
+                return (
+                  <List.Item key={profile.username}>
+                    <Avatar {...profile} />
+                    <List.Item.Title>
+                      {profile.firstName} {profile.lastName}
+                    </List.Item.Title>
+                    <List.Item.Controls>
+                      <Button
+                        name={conform.INTENT}
+                        variant="outline"
+                        value={`add_${profile.username}`}
+                        type="submit"
+                      >
+                        Hinzufügen
+                      </Button>
+                    </List.Item.Controls>
+                  </List.Item>
+                );
+              })}
+
+              {typeof actionData !== "undefined" &&
+                actionData !== null &&
+                actionData.success === true &&
+                actionData.profile !== null &&
+                actionData.action.startsWith("add_") && (
+                  <Toast key={actionData.action}>
+                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
+                    hinzugefügt.
+                  </Toast>
+                )}
+            </List>
+          </Form>
+        </div>
       </div>
-    </>
+    </Section>
   );
 }
 

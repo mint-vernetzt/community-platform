@@ -1,17 +1,26 @@
+import { conform, useForm } from "@conform-to/react";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { Button, Input, Link } from "@mint-vernetzt/components";
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { generateProjectSlug } from "~/utils.server";
-import { createProjectOnProfile } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
+import { deriveMode, generateProjectSlug } from "~/utils.server";
+import { getSubmissionHash } from "./$slug/settings/utils.server";
 
-const schema = z.object({
-  projectName: z.string().min(1, "Bitte gib den Namen Deines Projekts ein."),
+const createSchema = z.object({
+  projectName: z
+    .string({
+      required_error: "Der Projektname ist eine erforderliche Angabe.",
+    })
+    .max(
+      80,
+      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    ),
 });
 
 export const loader = async (args: DataFunctionArgs) => {
@@ -19,111 +28,198 @@ export const loader = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-
-  await getSessionUserOrThrow(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, "projects");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveMode(sessionUser);
+  invariantResponse(
+    mode !== "anon",
+    "You have to be logged in to access this route",
+    {
+      status: 403,
+    }
+  );
 
   return json({}, { headers: response.headers });
 };
-
-const mutation = makeDomainFunction(schema)(async (values) => {
-  const slug = generateProjectSlug(values.projectName);
-  return { ...values, slug };
-});
 
 export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-
   const sessionUser = await getSessionUserOrThrow(authClient);
+  const mode = await deriveMode(sessionUser);
+  invariantResponse(
+    mode !== "anon",
+    "You have to be logged in to access this route",
+    {
+      status: 403,
+    }
+  );
 
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
+  // Validation
+  const formData = await request.formData();
+  const submission = await parse(formData, {
+    schema: (intent) =>
+      createSchema.transform(async (data, ctx) => {
+        const slug = generateProjectSlug(data.projectName);
+        if (intent !== "submit") {
+          return { ...data, slug };
+        }
+        try {
+          await prismaClient.profile.update({
+            where: {
+              id: sessionUser.id,
+            },
+            data: {
+              teamMemberOfProjects: {
+                create: {
+                  project: {
+                    create: {
+                      name: data.projectName,
+                      slug: slug,
+                      published: false,
+                      projectVisibility: {
+                        create: {},
+                      },
+                    },
+                  },
+                },
+              },
+              administeredProjects: {
+                create: {
+                  project: {
+                    connectOrCreate: {
+                      create: {
+                        name: data.projectName,
+                        slug: slug,
+                      },
+                      where: {
+                        slug: slug,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          });
+        } catch (e) {
+          console.warn(e);
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "Das Projekt konnte nicht angelegt werden. Bitte versuche es erneut oder wende dich an den Support.",
+          });
+          return z.NEVER;
+        }
+
+        return { ...data, slug };
+      }),
+    async: true,
   });
 
-  if (result.success) {
-    await createProjectOnProfile(
-      sessionUser.id,
-      result.data.projectName,
-      result.data.slug
-    );
-    return redirect(`/project/${result.data.slug}`, {
+  const hash = getSubmissionHash(submission);
+
+  if (submission.intent !== "submit") {
+    return json({ status: "idle", submission, hash } as const, {
       headers: response.headers,
     });
   }
+  if (!submission.value) {
+    return json({ status: "error", submission, hash } as const, {
+      headers: response.headers,
+      status: 400,
+    });
+  }
 
-  return json(result, { headers: response.headers });
+  return redirect(`/project/${submission.value.slug}/settings`, {
+    headers: response.headers,
+  });
 };
 
 function Create() {
+  const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
+
+  const [form, fields] = useForm({
+    id: "create-project-form",
+    constraint: getFieldsetConstraint(createSchema),
+    lastSubmission: actionData?.submission,
+    shouldValidate: "onSubmit",
+    shouldRevalidate: "onInput",
+    onValidate({ formData }) {
+      return parse(formData, { schema: createSchema });
+    },
+  });
 
   return (
     <>
-      <section className="container md:mt-2">
-        <div className="font-semi text-neutral-600 flex items-center">
-          {/* TODO: get back route from loader */}
-          <button onClick={() => navigate(-1)} className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              className="h-auto w-6"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path
-                fillRule="evenodd"
-                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-              />
-            </svg>
-            <span className="ml-2">Zurück</span>
-          </button>
-        </div>
-      </section>
       <div className="container relative pt-20 pb-44">
-        <div className="flex -mx-4 justify-center">
-          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
-            <h4 className="font-semibold">Projekt hinzufügen</h4>
-            <div className="pt-10 lg:pt-0">
-              <RemixForm
-                method="post"
-                schema={schema}
-                onTransition={({ reset, formState }) => {
-                  if (formState.isSubmitSuccessful) {
-                    reset();
-                  }
-                }}
+        <div className="mv-flex mv-justify-center">
+          <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
+            <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">
+              <h1 className="mv-text-primary mv-text-5xl mv-font-bold mv-mb-0">
+                Projekt anlegen
+              </h1>
+              {/* TODO: Add and style this when putting the create dialog inside a modal */}
+              {/* <CircleButton variant="ghost" size="small">
+                <svg
+                  width="9"
+                  height="9"
+                  viewBox="0 0 9 9"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M0.183617 0.183617C0.241674 0.125413 0.310643 0.0792341 0.386575 0.047726C0.462506 0.016218 0.543908 0 0.626117 0C0.708326 0 0.789728 0.016218 0.865659 0.047726C0.941591 0.0792341 1.01056 0.125413 1.06862 0.183617L4.37612 3.49237L7.68362 0.183617C7.74173 0.125507 7.81071 0.0794115 7.88664 0.0479627C7.96256 0.0165138 8.04394 0.000327229 8.12612 0.000327229C8.2083 0.000327229 8.28967 0.0165138 8.3656 0.0479627C8.44152 0.0794115 8.51051 0.125507 8.56862 0.183617C8.62673 0.241727 8.67282 0.310713 8.70427 0.386637C8.73572 0.462562 8.75191 0.543937 8.75191 0.626117C8.75191 0.708297 8.73572 0.789672 8.70427 0.865597C8.67282 0.941521 8.62673 1.01051 8.56862 1.06862L5.25987 4.37612L8.56862 7.68362C8.62673 7.74173 8.67282 7.81071 8.70427 7.88664C8.73572 7.96256 8.75191 8.04394 8.75191 8.12612C8.75191 8.2083 8.73572 8.28967 8.70427 8.3656C8.67282 8.44152 8.62673 8.51051 8.56862 8.56862C8.51051 8.62673 8.44152 8.67282 8.3656 8.70427C8.28967 8.73572 8.2083 8.75191 8.12612 8.75191C8.04394 8.75191 7.96256 8.73572 7.88664 8.70427C7.81071 8.67282 7.74173 8.62673 7.68362 8.56862L4.37612 5.25987L1.06862 8.56862C1.01051 8.62673 0.941521 8.67282 0.865597 8.70427C0.789672 8.73572 0.708297 8.75191 0.626117 8.75191C0.543937 8.75191 0.462562 8.73572 0.386637 8.70427C0.310713 8.67282 0.241727 8.62673 0.183617 8.56862C0.125507 8.51051 0.0794115 8.44152 0.0479627 8.3656C0.0165138 8.28967 0.000327229 8.2083 0.000327229 8.12612C0.000327229 8.04394 0.0165138 7.96256 0.0479627 7.88664C0.0794115 7.81071 0.125507 7.74173 0.183617 7.68362L3.49237 4.37612L0.183617 1.06862C0.125413 1.01056 0.0792341 0.941591 0.047726 0.865659C0.016218 0.789728 0 0.708326 0 0.626117C0 0.543908 0.016218 0.462506 0.047726 0.386575C0.0792341 0.310643 0.125413 0.241674 0.183617 0.183617Z"
+                    fill="#currentColor"
+                  />
+                </svg>
+              </CircleButton> */}
+            </div>
+            <p className="mv-text-sm">
+              Lege Dein Gute-Praxis-Projekt/Bildungsangebot an und inspiriere
+              damit andere MINT-Akteur:innen.
+            </p>
+            <p className="mv-text-sm">
+              Bitte beachte, dass Du hier nicht Deine Zielgruppe ansprichst,
+              sondern Dein Projekt für MINT-Akteur:innen vorstellst. Lies Dir
+              unsere{" "}
+              <Link
+                as="a"
+                to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                className="mv-text-primary"
+                isExternal
               >
-                {({ Field, Button, Errors, register }) => (
-                  <>
-                    <Field name="projectName" className="mb-4">
-                      {({ Errors }) => (
-                        <>
-                          <Input
-                            id="projectName"
-                            label="Name des Projekts*"
-                            {...register("projectName")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-                    <button
-                      type="submit"
-                      className="btn btn-outline-primary ml-auto btn-small mb-8"
-                    >
-                      Anlegen
-                    </button>
-                    <Errors />
-                  </>
+                Nutzungsbedingungen
+              </Link>{" "}
+              sorgfältig durch, da wir uns das Recht vorbehalten, Inhalte zu
+              löschen.
+            </p>
+            <Form method="post" {...form.props}>
+              <Input {...conform.input(fields.projectName)}>
+                <Input.Label htmlFor={fields.projectName.id}>
+                  Titel des Projekts oder Bildungsangebotes*
+                </Input.Label>
+                {typeof fields.projectName.error !== "undefined" && (
+                  <Input.Error>{fields.projectName.error}</Input.Error>
                 )}
-              </RemixForm>
+              </Input>
+            </Form>
+            <p className="mv-text-xs">*Erforderliche Angaben</p>
+            <p className="mv-text-xs">
+              Du erstellst einen Entwurf, der nur Dir angezeigt wird. Über
+              Projekt bearbeiten kannst Du nach der Entwurfserstellung Dein
+              Projekt mit Informationen anreichern und es anschließend
+              veröffentlichen.
+            </p>
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <Button type="submit" form={form.id}>
+                Entwurf speichern und bearbeiten
+              </Button>
+              {/* TODO: Add and style this when putting the create dialog inside a modal */}
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                Entwurf verwerfen
+              </Button>
             </div>
           </div>
         </div>

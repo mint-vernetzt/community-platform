@@ -2,7 +2,7 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
-  NodeOnDiskFile,
+  type NodeOnDiskFile,
   json,
   redirect,
   unstable_composeUploadHandlers,
@@ -21,23 +21,16 @@ import {
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import {
-  BackButton,
-  MaterialList,
-  MaterialListItemControlsDelete,
-  MaterialListItemControlsDownload,
-  MaterialListItemControlsEdit,
-} from "./__components";
+import { getPublicURL } from "~/storage.server";
+import { BackButton, MaterialList } from "./__components";
 import { getExtension, storeDocument, storeImage } from "./attachments.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { getPublicURL } from "~/storage.server";
-import { getImageURL } from "~/images.server";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
 
