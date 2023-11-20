@@ -490,7 +490,7 @@ export default function App() {
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
-          <main className="flex-auto pb-24 md:pb-8">
+          <main className="flex-auto pb-8">
             {typeof alert !== "undefined" &&
             isNonAppBaseRoute === false &&
             isIndexRoute === false ? (

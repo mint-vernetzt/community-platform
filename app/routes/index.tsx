@@ -475,7 +475,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="pt-16 pb-32 lg:pt-24 relative overflow-hidden lg:min-h-[700px]">
+      <section className="py-16 lg:py-24 relative overflow-hidden lg:min-h-[700px]">
         <div className="absolute top-0 left-1/2 lg:ml-[calc(992px/12*5)] 2xl:ml-[calc(1488px/12*5)] hidden lg:block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
             <g fill="none" fillRule="evenodd">

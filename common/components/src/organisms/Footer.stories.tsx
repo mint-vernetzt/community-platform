@@ -1,7 +1,11 @@
 import Footer from "./Footer";
 
 export function FooterPlayground() {
-  return <Footer />;
+  return (
+    <div className="mv-mt-8">
+      <Footer />
+    </div>
+  );
 }
 FooterPlayground.storyName = "Playground";
 FooterPlayground.parameters = {

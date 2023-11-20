@@ -3,58 +3,20 @@ import classNames from "classnames";
 
 function Footer(props: { isSettings?: boolean }) {
   const classes = classNames(
-    "shadow-md",
+    "mv-shadow-footer",
     props.isSettings && "hidden md:block"
   );
 
   return (
     <div className={classes}>
-      <footer
-        className="
-      mv-fixed mv-bottom-0 mv-left-0 mv-right-0 
-      lg:mv-relative mv-text-sm lg:mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-z-10 mv-bg-white
-      mv-grid 
-      peer-checked:mv-grid-rows-[1fr auto]
-      mv-grid-rows-[auto 0fr]
-      lg:mv-block"
-      >
-        <input
-          type="checkbox"
-          className="mv-peer         
-        mv-absolute mv-inset-x-0
-        mv-opacity-0 lg:mv-hidden mv-cursor-pointer 
-        mv-z-10 mv-h-[37px] mv-w-full
-        "
-        />
-        <div className="mv-footer-toggle mv-col-start-1 mv-row-start-1 lg:mv-hidden mv-z-0 mv-relative ">
-          <button className="mv-w-full mv-flex mv-items-center mv-bg-neutral-100 mv-text-primary mv-px-4 mv-py-2 mv-text-center mv-justify-between">
-            <span className="mv-w-3"></span>
-            <span className="">Impressum</span>
-            <span className="mv-toggle-arrow mv-transition-transform mv-w-3 peer-checked:mv-rotate-180">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill="currentColor"
-                  d="M11.27 8.913l-1.112 1.105c-0.167 0.167-0.435 0.167-0.603 0l-3.556-3.556-3.556 3.556c-0.167 0.167-0.435 0.167-0.603 0l-1.112-1.105c-0.167-0.167-0.167-0.442 0-0.609l4.969-4.962c0.167-0.167 0.435-0.167 0.603 0l4.969 4.962c0.167 0.167 0.167 0.442 0 0.609z"
-                ></path>
-              </svg>
-            </span>
-          </button>
-        </div>
-        <div
-          className={`mv-row-span-2 mv-overflow-hidden mv-max-h-0 mv-transition-[max-height_0.25s_ease-in-out] peer-checked:mv-overflow-auto peer-checked:mv-max-h-[calc(100svh-37px-50px)] mv-flex mv-flex-col lg:mv-max-h-fit`}
-        >
+      <footer className="mv-relative mv-text-sm mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-bg-white mv-block">
+        <div className={`mv-flex mv-flex-col lg:mv-max-h-fit`}>
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
           <div className="lg:mv-order-3 mv-container lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
               © 2021-2023 matrix gGmbH
             </div>
-            <div className="mv-py-4 lg:mv-py-0 lg:mv-w-6/12">
+            <div className="mv-pb-4 mv-pt-8 lg:mv-py-0 lg:mv-w-6/12">
               <ul className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-center mv-gap-4 lg:mv-gap-6">
                 <li>
                   <Link as="a" to="/imprint" isExternal>
