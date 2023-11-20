@@ -6,7 +6,6 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
@@ -37,13 +36,6 @@ export const loader = async (args: DataFunctionArgs) => {
       status: 403,
     }
   );
-  const featureAbilities = await getFeatureAbilities(
-    authClient,
-    "next_projects"
-  );
-  if (featureAbilities.next_projects.hasAccess === false) {
-    return redirect(`/project/create`, { headers: response.headers });
-  }
 
   return json({}, { headers: response.headers });
 };
@@ -62,13 +54,6 @@ export const action = async (args: DataFunctionArgs) => {
       status: 403,
     }
   );
-  const featureAbilities = await getFeatureAbilities(
-    authClient,
-    "next_projects"
-  );
-  if (featureAbilities.next_projects.hasAccess === false) {
-    return redirect(`/project/create`, { headers: response.headers });
-  }
 
   // Validation
   const formData = await request.formData();
@@ -145,7 +130,7 @@ export const action = async (args: DataFunctionArgs) => {
     });
   }
 
-  return redirect(`/next/project/${submission.value.slug}/settings`, {
+  return redirect(`/project/${submission.value.slug}/settings`, {
     headers: response.headers,
   });
 };

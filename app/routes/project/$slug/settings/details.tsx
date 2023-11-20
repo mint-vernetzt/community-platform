@@ -17,6 +17,7 @@ import {
 } from "@remix-run/node";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -27,7 +28,11 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { invariantResponse } from "~/lib/utils/response";
-import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import {
+  removeHtmlTags,
+  replaceHtmlEntities,
+  sanitizeUserHtml,
+} from "~/lib/utils/sanitizeUserHtml";
 import { youtubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
@@ -65,52 +70,100 @@ const detailsSchema = z.object({
     .transform((value) => (value === undefined || value === "" ? null : value)),
   idea: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   goals: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   implementation: z
     .string()
-    .max(
-      2000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+      }
+    ),
   furtherDescription: z
     .string()
-    .max(
-      8000,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 8000
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000.",
+      }
+    ),
   targeting: z
     .string()
-    .max(
-      800,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   hints: z
     .string()
-    .max(
-      800,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   video: youtubeEmbedSchema,
   videoSubline: z
     .string()
@@ -1039,9 +1092,17 @@ function Details() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
-                <Button type="reset" variant="outline" fullSize>
+                <Link
+                  to="."
+                  reloadDocument
+                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                >
                   Änderungen verwerfen
-                </Button>
+                </Link>
+                {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
+                {/* <Button type="reset" variant="outline" fullSize>
+                  Änderungen verwerfen
+                </Button> */}
                 {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
                 <Button type="submit" fullSize>

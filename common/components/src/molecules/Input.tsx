@@ -72,7 +72,13 @@ function InputError(props: React.PropsWithChildren<{}>) {
 
 function InputCounter(props: { currentCount: number; maxCount: number }) {
   return (
-    <div className="mv-text-sm mv-text-gray-700 mv-mt-2">
+    <div
+      className={`mv-text-sm ${
+        props.currentCount < props.maxCount
+          ? "mv-text-gray-700"
+          : "mv-text-negative-600"
+      } mv-mt-2`}
+    >
       {props.currentCount}/{props.maxCount}
     </div>
   );

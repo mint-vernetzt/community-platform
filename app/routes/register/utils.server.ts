@@ -13,6 +13,9 @@ export async function createProfile(
       profileVisibility: {
         create: {},
       },
+      notificationSettings: {
+        create: {},
+      },
       ...data,
     },
   });

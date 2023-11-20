@@ -23,12 +23,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
+import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { combineHeaders } from "~/utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
