@@ -66,8 +66,6 @@ export const action = async (args: DataFunctionArgs) => {
   const formData = await request.formData();
   const submission = parse(formData, { schema });
 
-  console.log("submission", submission);
-
   if (
     submission.intent === "submit" &&
     submission.value !== null &&
