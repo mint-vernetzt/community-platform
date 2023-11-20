@@ -281,7 +281,7 @@ export async function action({ request, params }: DataFunctionArgs) {
   }
 
   return redirectWithToast(
-    `/next/project/${params.slug}/settings/general?deep`,
+    request.url,
     { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
     { scrollIntoView: true },
     { headers: response.headers }
