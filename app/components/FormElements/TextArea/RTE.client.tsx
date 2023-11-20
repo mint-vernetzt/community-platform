@@ -109,9 +109,9 @@ export function RTE({ id, defaultValue, maxLength, quillRef }: RTEProps) {
         <ReactQuill
           ref={quillRef}
           theme="snow"
-          defaultValue={defaultValue}
           modules={{ toolbar: `#${toolbar}` }}
           onChange={setValue}
+          value={value}
           className="mv-pb-10"
         />
       </div>

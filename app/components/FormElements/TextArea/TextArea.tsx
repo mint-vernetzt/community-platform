@@ -29,6 +29,10 @@ const TextArea = React.forwardRef(
       ...rest
     } = props;
 
+    const quillRef = React.useRef<ReactQuill>(
+      props.quillRef !== undefined ? props.quillRef.current : null
+    );
+
     return (
       <div className="form-control w-full">
         <div className="flex flex-row items-center mb-2">
@@ -58,7 +62,7 @@ const TextArea = React.forwardRef(
                       id={id}
                       defaultValue={`${rest.defaultValue || ""}`}
                       maxLength={rest.maxLength}
-                      quillRef={props.quillRef}
+                      quillRef={quillRef}
                     />
                   );
                 }}

@@ -615,8 +615,8 @@ function Requirements() {
                   </Link>
                   {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                   {/* <Button type="reset" variant="outline" fullSize>
-                  Änderungen verwerfen
-                </Button> */}
+                    Änderungen verwerfen
+                  </Button> */}
                   {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
                   <Button type="submit" fullSize>
