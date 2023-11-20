@@ -66,12 +66,12 @@ const requirementsSchema = z.object({
       (value) => {
         return (
           // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
         );
       },
       {
         message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
       }
     ),
   furtherJobFillings: z
@@ -107,12 +107,12 @@ const requirementsSchema = z.object({
       (value) => {
         return (
           // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
         );
       },
       {
         message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
       }
     ),
   technicalRequirements: z
@@ -447,7 +447,7 @@ function Requirements() {
                 helperText="Wie viele Menschen sind an der Verwirklichung des Projektes
               oder Bildungsangebotes beteiligt?"
                 errorMessage={fields.jobFillings.error}
-                maxCharacters={500}
+                maxCharacters={800}
                 rte
               />
 
@@ -548,7 +548,7 @@ function Requirements() {
                 helperText="Nutze dieses Feld, wenn du keine passende Finanzierungsart
               vorgefunden hast."
                 errorMessage={fields.furtherFinancings.error}
-                maxCharacters={500}
+                maxCharacters={800}
                 rte
               />
             </div>
