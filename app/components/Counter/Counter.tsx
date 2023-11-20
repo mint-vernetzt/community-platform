@@ -5,7 +5,11 @@ export interface CounterProps {
 
 export function Counter({ currentCount, maxCount }: CounterProps) {
   return (
-    <div className="mv-text-sm mv-text-gray-700">
+    <div
+      className={`mv-text-sm ${
+        currentCount < maxCount ? "mv-text-gray-700" : "mv-text-negative-600"
+      }`}
+    >
       {currentCount}/{maxCount}
     </div>
   );

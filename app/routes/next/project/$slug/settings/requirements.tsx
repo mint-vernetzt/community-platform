@@ -1,22 +1,5 @@
-import {
-  redirect,
-  type DataFunctionArgs,
-  json,
-  type LinksFunction,
-} from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
+import { conform, list, useFieldList, useForm } from "@conform-to/react";
+import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
   Alert,
   Button,
@@ -27,40 +10,86 @@ import {
   Select,
   Toast,
 } from "@mint-vernetzt/components";
-import { prismaClient } from "~/prisma.server";
-import { conform, list, useFieldList, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { z } from "zod";
+import {
+  json,
+  redirect,
+  type DataFunctionArgs,
+  type LinksFunction,
+} from "@remix-run/node";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
 import React from "react";
 import quillStyles from "react-quill/dist/quill.snow.css";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import { invariantResponse } from "~/lib/utils/response";
+import {
+  removeHtmlTags,
+  replaceHtmlEntities,
+  sanitizeUserHtml,
+} from "~/lib/utils/sanitizeUserHtml";
+import { prismaClient } from "~/prisma.server";
+import { BackButton } from "./__components";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const requirementsSchema = z.object({
   timeframe: z
     .string()
-    .max(
-      200,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+      }
+    ),
   jobFillings: z
     .string()
-    .max(
-      500,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   furtherJobFillings: z
     .string()
-    .max(
-      200,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+      }
+    ),
   yearlyBudget: z
     .string()
     .max(
@@ -72,44 +101,84 @@ const requirementsSchema = z.object({
   financings: z.array(z.string().uuid()),
   furtherFinancings: z
     .string()
-    .max(
-      500,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+      }
+    ),
   technicalRequirements: z
     .string()
-    .max(
-      500,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+      }
+    ),
   furtherTechnicalRequirements: z
     .string()
-    .max(
-      500,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+      }
+    ),
   roomSituation: z
     .string()
-    .max(
-      200,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+      }
+    ),
   furtherRoomSituation: z
     .string()
-    .max(
-      200,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
-    )
     .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
+    .transform((value) => (value === undefined || value === "" ? null : value))
+    .refine(
+      (value) => {
+        return (
+          // Entities are being replaced by "x" just to get the right count for them.
+          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+        );
+      },
+      {
+        message:
+          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+      }
+    ),
 });
 
 export const links: LinksFunction = () => [
@@ -378,7 +447,7 @@ function Requirements() {
                 helperText="Wie viele Menschen sind an der Verwirklichung des Projektes
               oder Bildungsangebotes beteiligt?"
                 errorMessage={fields.jobFillings.error}
-                maxCharacters={500}
+                maxCharacters={800}
                 rte
               />
 
@@ -479,7 +548,7 @@ function Requirements() {
                 helperText="Nutze dieses Feld, wenn du keine passende Finanzierungsart
               vorgefunden hast."
                 errorMessage={fields.furtherFinancings.error}
-                maxCharacters={500}
+                maxCharacters={800}
                 rte
               />
             </div>
@@ -537,9 +606,17 @@ function Requirements() {
             <div className="mv-flex mv-w-full mv-justify-end">
               <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
                 <Controls>
-                  <Button type="reset" variant="outline" fullSize>
+                  <Link
+                    to="."
+                    reloadDocument
+                    className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                  >
                     Änderungen verwerfen
-                  </Button>
+                  </Link>
+                  {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
+                  {/* <Button type="reset" variant="outline" fullSize>
+                    Änderungen verwerfen
+                  </Button> */}
                   {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
                   <Button type="submit" fullSize>

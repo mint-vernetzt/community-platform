@@ -2,6 +2,7 @@ import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { RTE } from "./RTE.client";
 import { ClientOnly } from "remix-utils";
+import type ReactQuill from "react-quill";
 
 export interface TextAreaProps {
   id: string;
@@ -12,6 +13,7 @@ export interface TextAreaProps {
   publicPosition?: "top" | "side";
   onChange?: Function; // <--- ?
   rte?: boolean;
+  quillRef?: React.RefObject<ReactQuill>;
 }
 
 const TextArea = React.forwardRef(
@@ -26,6 +28,10 @@ const TextArea = React.forwardRef(
       rte = false,
       ...rest
     } = props;
+
+    const quillRef = React.useRef<ReactQuill>(
+      props.quillRef !== undefined ? props.quillRef.current : null
+    );
 
     return (
       <div className="form-control w-full">
@@ -56,6 +62,7 @@ const TextArea = React.forwardRef(
                       id={id}
                       defaultValue={`${rest.defaultValue || ""}`}
                       maxLength={rest.maxLength}
+                      quillRef={quillRef}
                     />
                   );
                 }}
