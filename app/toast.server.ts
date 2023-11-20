@@ -33,6 +33,7 @@ const TOAST_SESSION_STORAGE = createCookieSessionStorage({
   },
 });
 
+// Beware! This redirect cuts all existing hash parameters
 export async function redirectWithToast(
   url: string,
   toast: Toast,
