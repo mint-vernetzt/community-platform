@@ -5932,6 +5932,7 @@ export async function seedEntity<
             ...entity,
             id: data.user.id,
             profileVisibility: { create: {} },
+            notificationSettings: { create: {} },
           },
           select: { id: true },
         });
