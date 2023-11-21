@@ -42,7 +42,20 @@ export async function redirectWithToast(
     scrollToToast?: boolean;
   }
 ) {
-  const urlObject = new URL(url);
+  const baseUrl = process.env.COMMUNITY_BASE_URL;
+  let urlObject;
+  if (baseUrl !== undefined) {
+    if (url.startsWith(baseUrl)) {
+      urlObject = new URL(url);
+    } else {
+      urlObject = new URL(`${baseUrl}${url}`);
+    }
+  } else {
+    console.warn(
+      "Please provide your base url inside the .env to make redirectWithToast work."
+    );
+    return redirect(url, { ...redirectOptions?.init });
+  }
   urlObject.searchParams.set("toast-trigger", "");
   if (redirectOptions !== undefined) {
     const { scrollToToast = false } = redirectOptions;
