@@ -5,15 +5,15 @@ import { ZodError, z } from "zod";
 
 type Toast = {
   message: string;
+  key: string;
   id?: string;
-  key?: string;
   level?: ToastLevel;
 };
 
 const toastSchema = z.object({
   message: z.string(),
+  key: z.string(),
   id: z.string().optional(),
-  key: z.string().optional(),
   level: z.string().optional(),
 });
 
@@ -42,8 +42,21 @@ export async function redirectWithToast(
     scrollToToast?: boolean;
   }
 ) {
-  const urlObject = new URL(url);
-  urlObject.searchParams.set("toast-trigger", "");
+  const baseUrl = process.env.COMMUNITY_BASE_URL;
+  let urlObject;
+  if (baseUrl !== undefined) {
+    if (url.startsWith(baseUrl)) {
+      urlObject = new URL(url);
+    } else {
+      urlObject = new URL(`${baseUrl}${url}`);
+    }
+  } else {
+    console.warn(
+      "Please provide your base url inside the .env to make redirectWithToast work."
+    );
+    return redirect(url, { ...redirectOptions?.init });
+  }
+  urlObject.searchParams.set("toast-trigger", toast.key || "");
   if (redirectOptions !== undefined) {
     const { scrollToToast = false } = redirectOptions;
     if (scrollToToast && toast.id === undefined) {
@@ -55,25 +68,22 @@ export async function redirectWithToast(
       urlObject.hash = toast.id;
     }
   }
-  let finalUrl = url;
-  const baseUrl = process.env.COMMUNITY_BASE_URL;
-  if (baseUrl !== undefined && urlObject.toString().startsWith(baseUrl)) {
-    finalUrl = urlObject.toString().replace(baseUrl, "");
-  }
+
+  const finalUrl = `${urlObject.pathname}${urlObject.search}${urlObject.hash}`;
 
   return redirect(finalUrl, {
     ...redirectOptions?.init,
     headers: combineHeaders(
       redirectOptions?.init?.headers,
-      await createToastHeaders(toast.message, toast.id, toast.key, toast.level)
+      await createToastHeaders(toast.message, toast.key, toast.id, toast.level)
     ),
   });
 }
 
 async function createToastHeaders(
   message: string,
+  key: string,
   id?: string,
-  key?: string,
   level?: ToastLevel
 ) {
   const session = await TOAST_SESSION_STORAGE.getSession();
