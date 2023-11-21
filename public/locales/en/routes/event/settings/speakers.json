@@ -1,0 +1,22 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Vortragende",
+    "intro": "[en] Wer ist Speaker:in bei Eurer Veranstaltung? Füge hier weitere Speaker:innen hinzu oder entferne sie.",
+    "add": {
+      "headline": "[en] Vortragende hinzufügen",
+      "intro": "[en] Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
+      "label": "[en] Name oder Email der Speaker:in"
+    },
+    "current": {
+      "headline": "[en] Aktuelle Speaker:innen",
+      "intro": "[en] Hier siehst du alle Speaker:innen der Veranstaltung auf einen Blick.",
+      "remove": "[en] entfernen"
+    },
+    "publish": "[en] Veröffentlichen",
+    "hide": "[en] Verstecken"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "login": "[en] Anmelden",
+  "validation": {
+    "email": {
+      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
+      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+    }
+  },
+  "response": {
+    "headline": "[en] Passwort zurücksetzen",
+    "done": "[en] Eine E-Mail zum Zurücksetzen des Passworts wurde an <p>{email}</p> geschickt.",
+    "notice": "[en] Solltest Du Dich noch nicht unter dieser E-Mail-Adresse registriert haben, erhältst Du keine E-Mail zum Zurücksetzen des Passworts."
+  },
+  "form": {
+    "intro": "[en] Du hast Dein Passwort vergessen? Dann gib hier Deine E-Mail-Adresse ein, die Du bei der Anmeldung verwendet hast. Wir senden Dir eine Mail, über die Du ein neues Passwort einstellen kannst.",
+    "label": {
+      "email": "[en] E-Mail",
+      "submit": "[en] Passwort zurücksetzen"
+    }
+  }
+}

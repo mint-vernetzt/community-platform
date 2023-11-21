@@ -1,0 +1,13 @@
+{
+  "error": {
+    "profileNotFound": "[en] Profile not found"
+  },
+  "content": {
+    "welcome": "[en] Willkommen,",
+    "community": "[en] in Deiner MINTvernetzt-Community!",
+    "myProfile": "[en] Mein Profil besuchen",
+    "allProfiles": "[en] Alle Profile",
+    "organizations": "[en] Organisationen",
+    "allOrganizations": "[en] Alle Organisationen"
+  }
+}

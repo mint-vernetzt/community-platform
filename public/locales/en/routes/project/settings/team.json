@@ -1,0 +1,21 @@
+{
+  "error": {
+    "notFound": "[en] Project not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Das Team",
+    "intro1": "[en] Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder entferne sie.",
+    "intro2": "[en] Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten.",
+    "add": {
+      "headline": "[en] Teammitglied hinzufügen",
+      "intro": "[en] Füge hier Deinem Projekt ein bereits bestehendes Profil hinzu.",
+      "label": "[en] Name oder Email"
+    },
+    "current": {
+      "headline": "[en] Aktuelle Teammitglieder",
+      "intro": "[en] Hier siehst du alle Teammitglieder auf einen Blick.",
+      "remove": "[en] entfernen"
+    }
+  }
+}

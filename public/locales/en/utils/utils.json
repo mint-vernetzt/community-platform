@@ -1,0 +1,6 @@
+{
+  "timeDuration": {
+    "same": "[en] {{time}}",
+    "different": "[en] {{from}} - {{until}}"
+  }
+}

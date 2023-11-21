@@ -1,0 +1,7 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged",
+    "adminCount": "[en] Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu."
+  }
+}

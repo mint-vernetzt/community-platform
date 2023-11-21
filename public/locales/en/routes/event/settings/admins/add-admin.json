@@ -1,0 +1,11 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged",
+    "inputError": {
+      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
+      "alreadyAdmin": "[en] Das Profil unter diesem Namen ist bereits Administrator:in Eurer Veranstaltung."
+    }
+  },
+  "feedback": "[en] {{firstName}} {{lastName}} wurde als Administrator:in hinzugefügt."
+}

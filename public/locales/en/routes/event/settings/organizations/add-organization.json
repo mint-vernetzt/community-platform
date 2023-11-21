@@ -1,0 +1,8 @@
+{
+  "error": {
+    "notPrivileged": "[en] Not privileged",
+    "notFound": "[en] Es existiert noch keine Organisation mit diesem Namen.",
+    "inputError": "[en] Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich."
+  },
+  "feedback": "[en] Die Organisation \"{{title}}\" ist jetzt verantwortlich für Eure Veranstaltung."
+}

@@ -1,0 +1,19 @@
+{
+  "validation": {
+    "projectName": {
+      "min": "[en] Bitte gib den Namen Deines Projekts ein."
+    }
+  },
+  "content": {
+    "headline": "[en] Projekt hinzufügen",
+    "back": "[en] zurück"
+  },
+  "form": {
+    "projectName": {
+      "label": "[en] Name des Projekts*"
+    },
+    "submit": {
+      "label": "[en] Anlegen"
+    }
+  }
+}

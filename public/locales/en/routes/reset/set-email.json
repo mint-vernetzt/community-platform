@@ -1,0 +1,6 @@
+{
+  "error": {
+    "server": "[en] Could not set the session. Either the access and refresh token combination is invalid or an internal server occured.",
+    "badRequest": "[en] Request not from confirmation link or confirmation link expired."
+  }
+}

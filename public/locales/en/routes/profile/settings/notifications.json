@@ -1,0 +1,18 @@
+{
+  "error": {
+    "profileNotFound": "[en] Profile not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Benachrichtigungen",
+    "empty": "[en] Keine Einstellungen gefunden."
+  },
+  "form": {
+    "updates": {
+      "label": "[en] Ich möchte zu Plattform-Updates informiert werden."
+    },
+    "submit": {
+      "label": "[en] Speichern"
+    }
+  }
+}

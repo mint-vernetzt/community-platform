@@ -1,0 +1,11 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged",
+    "inputError": {
+      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
+      "alreadyIn": "[en] Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung."
+    }
+  },
+  "feedback": "[en] Das Profil mit dem Namen \"{{firstName}} {{lastName}}\" wurde als Speaker:in hinzugefügt."
+}

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "notPrivileged": "[en] Not privileged",
+    "server": "[en] Dokument konnte nicht in der Datenbank gespeichert werden."
+  }
+}

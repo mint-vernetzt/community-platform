@@ -1,0 +1,12 @@
+{
+  "error": {
+    "notPrivileged": "[en] Not privileged",
+    "notFound": {
+      "current": "[en] Die aktuelle Veranstaltung konnte nicht gefunden werden.",
+      "parent": "[en] Die Rahmenveranstaltung konnte nicht gefunden werden."
+    },
+    "notInTime": "[en] Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung.",
+    "inputError": "[en] Die zugehörige Veranstaltung liegt nicht im Zeitraum deiner Veranstaltung."
+  },
+  "feedback": "[en] Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung."
+}

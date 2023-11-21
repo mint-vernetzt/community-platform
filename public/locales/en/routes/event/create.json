@@ -1,0 +1,48 @@
+{
+  "validation": {
+    "name": {
+      "required": "[en] Bitte einen Veranstaltungsnamen angeben"
+    },
+    "startDate": {
+      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+    },
+    "startTime": {
+      "required": "[en] Bitte eine Startzeit angeben"
+    },
+    "endDate": {
+      "required": "[en] Bitte gib das Ende der Veranstaltung an",
+      "greaterThan": "[en] Das Enddatum darf nicht vor dem Startdatum liegen"
+    },
+    "endTime": {
+      "required": "[en] Bitte gib das Ende der Veranstaltung an",
+      "greaterThan": "[en] Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+    }
+  },
+  "error": {
+    "validationFailed": "[en] Validation failed"
+  },
+  "content": {
+    "back": "[en] Zurück",
+    "headline": "[en] Veranstaltung anlegen"
+  },
+  "form": {
+    "name": {
+      "label": "[en] Name der Veranstaltung"
+    },
+    "startDate": {
+      "label": "[en] Startdatum"
+    },
+    "startTime": {
+      "label": "[en] Startzeit"
+    },
+    "endDate": {
+      "label": "[en] Enddatum"
+    },
+    "endTime": {
+      "label": "[en] Endzeit"
+    },
+    "submit": {
+      "label": "[en] Anlegen"
+    }
+  }
+}

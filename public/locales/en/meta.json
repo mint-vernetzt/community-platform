@@ -1,0 +1,28 @@
+{
+  "root": {
+    "title": "[en] MINTvernetzt Community Plattform",
+    "logo": "[en] Logo: mint vernetzt",
+    "community": "[en] Community",
+    "profiles": "[en] Profile",
+    "organizations": "[en] Organisationen",
+    "events": "[en] Veranstaltungen",
+    "projects": "[en] Projekte",
+    "myProfile": "[en] Mein Profil",
+    "showProfile": "[en] Profil anzeigen",
+    "myOrganizations": "[en] Meine Organisationen",
+    "showOrganizations": "[en] Organisationen anzeigen",
+    "createOrganization": "[en] Organisation anlegen",
+    "myEvents": "[en] Meine Veranstaltungen",
+    "showEvents": "[en] Veranstaltungen anzeigen",
+    "createEvent": "[en] Veranstaltung anlegen",
+    "myProjects": "[en] Meine Projekte",
+    "showProjects": "[en] Projekte anzeigen",
+    "createProject": "[en] Projekt anlegen",
+    "logout": "[en] Logout",
+    "login": "[en] Anmelden",
+    "register": "[en] Registrieren",
+    "search": {
+      "placeholder": "[en] Suche (mind. 3 Buchstaben)"
+    }
+  }
+}

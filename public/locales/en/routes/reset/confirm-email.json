@@ -1,0 +1,18 @@
+{
+  "error": {
+    "missingConfirmationLink": "[en] Did not provide a confirmation link search parameter",
+    "invalidConfirmationStructure": "[en] The provided confirmation link has not the right structure",
+    "missingRedirect": "[en] Did not provide a redirect_to search parameter",
+    "invalidRedirectUrlStructure": "[en] The redirect_to url has not the right structure",
+    "invalidRedirectPathStructure": "[en] The login_redirect path has not the right structure",
+    "missingToken": "[en] Did not provide a token search parameter",
+    "tokenNoHex": "[en] The token parameter is not a hex value",
+    "missingTypeSearch": "[en] Did not provide a type search parameter",
+    "noEmailChange": "[en] The type parameter is not of type email_change"
+  },
+  "content": {
+    "headline": "[en] E-Mail-Adresse ändern",
+    "intro": "[en] Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu ändern, folge bitte diesem Link:",
+    "action": "[en] Neue Mailadresse bestätigen"
+  }
+}

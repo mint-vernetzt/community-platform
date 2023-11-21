@@ -1,0 +1,47 @@
+{
+  "content": {
+    "question": "[en] Bereits Mitglied?",
+    "login": "[en] Anmelden",
+    "create": "[en] Neues Profil anlegen",
+    "success": "[en] Das Profil für <b>{{email}}</b> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhal von 24 Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
+    "reset": "[en] Passwort zurücksetzen"
+  },
+  "form": {
+    "intro": "[en] Hier kannst Du Dein persönliches Profil anlegen. Die\n                      Organisationen, Netzwerke oder Unternehmen, in denen Du\n                      tätig bist, können im nächsten Schritt angelegt werden.",
+    "title": {
+      "label": "[en] Titel",
+      "options": {
+        "dr": "[en] Dr.",
+        "prof": "[en] Prof.",
+        "profdr": "[en] Prof. Dr."
+      }
+    },
+    "firstName": "[en] Vorname",
+    "lastName": "[en] Nachname",
+    "email": "[en] E-Mail",
+    "password": "[en] Passwort",
+    "acknowledgements": {
+      "intro": "[en] Ich erkläre mich mit der Geltung der",
+      "termsOfUse": "[en] Nutzungsbedingungen",
+      "bridge": "[en] einverstanden. Die",
+      "dataProtection": "[en] Datenschutzerklärung",
+      "outro": "[en] habe ich zur Kenntnis genommen."
+    },
+    "submit": "[en] Profil anlegen"
+  },
+  "validation": {
+    "firstName": {
+      "min": "[en] Bitte gib Deinen Vornamen ein."
+    },
+    "lastName": {
+      "min": "[en] Bitte gib Deinen Vornamen ein."
+    },
+    "email": {
+      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
+      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+    },
+    "password": {
+      "min": "[en] Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
+    }
+  }
+}

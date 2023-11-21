@@ -1,0 +1,37 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notPrivileged": "[en] Not privileged",
+    "inputError": "[en] Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen."
+  },
+  "validation": {
+    "participantLimit": {
+      "type": "[en] Bitte eine Zahl eingeben"
+    }
+  },
+  "content": {
+    "headline": "[en] Teilnehmende",
+    "intro": "[en] Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der Teilnehmenden festlegen.",
+    "limit": {
+      "headline": "[en] Begrenzung der Teilnehmenden",
+      "intro": "[en] Hier kann die Teilnehmerzahl begrenzt werden. Auch wenn die Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von der Warteliste zu den Teilnehmenden verschieben.",
+      "label": "[en] Begrenzung der Teilnehmenden",
+      "submit": "[en] Speichern",
+      "feedback": "[en] Deine Informationen wurden aktualisiert."
+    },
+    "add": {
+      "headline": "[en] Teilnehmende hinzufügen",
+      "intro": "[en] Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als Teilnehmende hinzu.",
+      "label": "[en] Name oder Email der Teilnehmer:in"
+    },
+    "current": {
+      "headline": "[en] Aktuelle Teilnehmende",
+      "intro": "[en] Hier siehst du alle Teilnehmenden auf einen Blick.",
+      "download1": "[en] Teilnehmerliste herunterladen",
+      "download2": "[en] Teilnehmerliste aller Subveranstaltungen herunterladen",
+      "remove": "[en] entfernen"
+    },
+    "hide": "[en] Verstecken",
+    "publish": "[en] Veröffentlichen"
+  }
+}

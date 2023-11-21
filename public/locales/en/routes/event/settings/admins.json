@@ -1,0 +1,36 @@
+{
+  "error": {
+    "notFound": "[en] Event not found",
+    "notProvileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Die Administrator:innen",
+    "intro": {
+      "who": "[en] Wer verwaltet die Veranstaltung auf der Community Plattform? Füge hier weitere Administrator:innen hinzu oder entferne sie.",
+      "what": "[en] Administrator:innen können Events bearbeiten, veröffentlichen, auf Entwurf zurück stellen, absagen und löschen. Sie sind nicht auf der Event-Detailseite sichtbar.",
+      "whom": "[en] Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten."
+    },
+    "add": {
+      "headline": "[en] Administrator:in hinzufügen",
+      "intro": "[en] Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu."
+    },
+    "current": {
+      "headline": "[en] Aktuelle Administrator:innen",
+      "intro": "[en] Hier siehst du alle Administrator:innen der Veranstaltung auf einen Blick."
+    }
+  },
+  "form": {
+    "name": {
+      "label": "[en] Name oder Email"
+    },
+    "remove": {
+      "label": "[en] Entfernen"
+    },
+    "publish": {
+      "label": "[en] Veröffentlichen"
+    },
+    "hide": {
+      "label": "[en] Verstecken"
+    }
+  }
+}

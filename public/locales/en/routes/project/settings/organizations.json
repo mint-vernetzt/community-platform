@@ -1,0 +1,25 @@
+{
+  "error": {
+    "notFound": "[en] Project not found",
+    "notPrivileged": "[en] Not privileged"
+  },
+  "content": {
+    "headline": "[en] Verantwortliche Organisationen",
+    "intro": "[en] Welche Organisation ist verantwortlich für Euer Projekt? Füge hier weitere Organisationen hinzu oder entferne sie.",
+    "add": {
+      "headline": "[en] Organisation hinzufügen",
+      "intro": "[en] Füge hier Deiner Veranstaltung eine bereits bestehende Organisation hinzu.",
+      "label": "[en] Name der Organisation"
+    },
+    "own": {
+      "headline": "[en] Eigene Organisationen hinzufügen",
+      "intro": "[en] Hier werden dir Deine eigenen Organisationen vorgeschlagen um sie auf einen Klick als verantwortliche Organisationen hinzuzufügen.",
+      "label": "[en] Hinzufügen"
+    },
+    "current": {
+      "headline": "[en] Aktuelle Organisationen",
+      "intro": "[en] Hier siehst du alle aktuell verantwortlichen Organisationen auf einen Blick.",
+      "remove": "[en] entfernen"
+    }
+  }
+}

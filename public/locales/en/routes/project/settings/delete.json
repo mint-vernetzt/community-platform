@@ -1,0 +1,17 @@
+{
+  "error": {
+    "notFound": {
+      "project": "[en] Project not found",
+      "profile": "[en] Profile not found"
+    },
+    "notPrivileged": "[en] Not privileged",
+    "inputError": "[en] Der Name des Projekts ist nicht korrekt",
+    "serverError": "[en] Das Projekt konnte nicht gelöscht werden."
+  },
+  "content": {
+    "headline": "[en] Projekt löschen",
+    "confirmation": "[en] Bitte gib den Namen des Projekts \"{{name}}\" ein, um das Löschen zu bestätigen. Wenn Du danach auf \"Projekt löschen” klickst, wird Euer Projekt ohne erneute Abfrage gelöscht.",
+    "label": "[en] Löschung bestätigen",
+    "delete": "[en] Projekt löschen"
+  }
+}
