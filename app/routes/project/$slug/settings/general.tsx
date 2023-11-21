@@ -445,19 +445,19 @@ function General() {
                 <Input.HelperText>
                   Bitte gib kurze Begriffe an.
                 </Input.HelperText>
+                <Input.Controls>
+                  <Button
+                    id={fields.furtherFormats.id}
+                    {...list.insert(fields.furtherFormats.name, {
+                      defaultValue: furtherFormat,
+                    })}
+                    variant="ghost"
+                    disabled={furtherFormat === ""}
+                  >
+                    Hinzufügen
+                  </Button>
+                </Input.Controls>
               </Input>
-              <div className="mv--mt-1">
-                <Button
-                  id={fields.furtherFormats.id}
-                  {...list.insert(fields.furtherFormats.name, {
-                    defaultValue: furtherFormat,
-                  })}
-                  variant="ghost"
-                  disabled={furtherFormat === ""}
-                >
-                  Hinzufügen
-                </Button>
-              </div>
             </div>
             {furtherFormatsList.length > 0 && (
               <Chip.Container>

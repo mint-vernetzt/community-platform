@@ -84,6 +84,14 @@ function InputCounter(props: { currentCount: number; maxCount: number }) {
   );
 }
 
+function InputControls(props: React.PropsWithChildren<{}>) {
+  return (
+    <div className="mv-flex mv-items-center mv-self-end mv-gap-2 mv-shrink">
+      {props.children}
+    </div>
+  );
+}
+
 export type InputProps = React.HTMLProps<HTMLInputElement> & {
   standalone?: boolean;
 };
@@ -160,6 +168,9 @@ function Input(props: InputProps) {
   const helperText = validChildren.find((child) => {
     return React.isValidElement(child) && child.type === InputHelperText;
   });
+  const controls = validChildren.find((child) => {
+    return React.isValidElement(child) && child.type === InputControls;
+  });
 
   const inputClasses = classNames(
     "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0",
@@ -173,21 +184,24 @@ function Input(props: InputProps) {
 
   return (
     <div className="w-full">
-      {label}
-      <div className="mv-relative">
-        <input
-          className={inputClasses}
-          {...inputProps}
-          name={name}
-          onChange={
-            props.maxLength !== undefined ? handleInputChange : props.onChange
-          }
-        />
-        {typeof icon !== "undefined" && (
-          <div className="mv-absolute mv-right-3 mv-top-1/2 mv--translate-y-1/2">
-            {icon}
-          </div>
-        )}
+      <div className="mv-relative mv-flex mv-gap-2 mv-flex-nowrap">
+        <div className="mv-grow">
+          {label}
+          <input
+            className={inputClasses}
+            {...inputProps}
+            name={name}
+            onChange={
+              props.maxLength !== undefined ? handleInputChange : props.onChange
+            }
+          />
+          {typeof icon !== "undefined" && (
+            <div className="mv-absolute mv-right-3 mv-top-2/3 mv--translate-y-1/2">
+              {icon}
+            </div>
+          )}
+        </div>
+        {typeof controls !== "undefined" && controls}
       </div>
       {props.maxLength !== undefined ? (
         <div className={inputCounterContainerClasses}>
@@ -213,5 +227,6 @@ Input.Label = InputLabel;
 Input.HelperText = InputHelperText;
 Input.Error = InputError;
 Input.SearchIcon = InputSearchIcon;
+Input.Controls = InputControls;
 
 export default Input;

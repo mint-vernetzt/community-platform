@@ -1,3 +1,4 @@
+import Button from "./Button";
 import Input from "./Input";
 
 type InputStoryProps = {
@@ -76,6 +77,29 @@ InputWithHelperText.args = {
   withError: false,
 };
 InputWithHelperText.parameters = {
+  controls: {
+    disable: false,
+  },
+};
+
+export function InputWithControls(props: InputStoryProps) {
+  return (
+    <Input id="input">
+      <Input.Label>Label</Input.Label>
+      <Input.HelperText>Helper text</Input.HelperText>
+      <Input.Controls>
+        <Button>Button</Button>
+      </Input.Controls>
+      {props.withError && <Input.Error>Error</Input.Error>}
+    </Input>
+  );
+}
+
+InputWithControls.storyName = "with control";
+InputWithControls.args = {
+  withError: false,
+};
+InputWithControls.parameters = {
   controls: {
     disable: false,
   },

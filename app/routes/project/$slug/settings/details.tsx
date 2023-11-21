@@ -755,18 +755,20 @@ function Details() {
                 <Input.HelperText>
                   Bitte füge die Begriffe jeweils einzeln hinzu.
                 </Input.HelperText>
+                <Input.Controls>
+                  <Button
+                    {...list.insert(fields.furtherDisciplines.name, {
+                      defaultValue: furtherDiscipline,
+                    })}
+                    variant="ghost"
+                    disabled={furtherDiscipline === ""}
+                  >
+                    Hinzufügen
+                  </Button>
+                </Input.Controls>
               </Input>
-              <div className="mv--mt-1">
-                <Button
-                  {...list.insert(fields.furtherDisciplines.name, {
-                    defaultValue: furtherDiscipline,
-                  })}
-                  variant="ghost"
-                  disabled={furtherDiscipline === ""}
-                >
-                  Hinzufügen
-                </Button>
-              </div>
+              {/* <div className="mv--mt-1">
+              </div> */}
             </div>
             {furtherDisciplinesList.length > 0 && (
               <Chip.Container>
