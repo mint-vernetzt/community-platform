@@ -14,6 +14,7 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  notificationSettings: any;
   administeredEvents: any;
   administeredOrganizations: any;
   administeredProjects: any;
@@ -124,6 +125,7 @@ export async function filterProfileByVisibility<
         key === "instagram" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
+        key === "notificationSettings" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -412,6 +414,8 @@ type ProjectWithRelations = Project & {
   teamMembers: any;
   projectVisibility: any;
   admins: any;
+  images: any;
+  documents: any;
   backgroundImage: any;
   _count: any;
 };
@@ -469,6 +473,8 @@ export async function filterProjectByVisibility<
         key === "formats" ||
         key === "financings" ||
         key === "areas" ||
+        key === "images" ||
+        key === "documents" ||
         key === "furtherFormats" ||
         key === "admins" ||
         key === "teamMembers"
@@ -488,6 +494,7 @@ export async function filterProjectByVisibility<
         key === "logo" ||
         key === "background" ||
         key === "headline" ||
+        key === "subline" ||
         key === "excerpt" ||
         key === "description" ||
         key === "furtherDescription" ||
