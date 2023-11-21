@@ -72,12 +72,10 @@ export default async function handleRequest(
     .use(Backend)
     .init({
       ...i18n,
-      // initImmediate: false,
       lng,
       ns,
       backend: {
         loadPath: function (lng: string, ns: string) {
-          console.log("SERVER: " + lng);
           return resolve(`./public/locales/${lng}/${ns}.json`);
         },
       },
