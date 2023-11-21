@@ -11,7 +11,6 @@ import { type Prisma, type Profile } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
-  useActionData,
   useLoaderData,
   useLocation,
   useSearchParams,
@@ -23,8 +22,13 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { getToast, redirectWithToast } from "~/toast.server";
+import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -163,7 +167,12 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json({ project, searchResult }, { headers: response.headers });
+  const { toast, headers: toastHeaders } = await getToast(request);
+
+  return json(
+    { project, searchResult, toast },
+    { headers: combineHeaders(response.headers, toastHeaders) }
+  );
 };
 
 export const action = async (args: DataFunctionArgs) => {
@@ -192,6 +201,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
+  const hash = getSubmissionHash({ action: action });
   if (action.startsWith("add_")) {
     const username = action.replace("add_", "");
 
@@ -229,9 +239,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, profile },
-      { headers: response.headers }
+    return redirectWithToast(
+      request.url,
+      {
+        id: "add-member-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
+      },
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
@@ -265,9 +280,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, profile },
-      { headers: response.headers }
+    return redirectWithToast(
+      request.url,
+      {
+        id: "remove-member-toast",
+        key: hash,
+        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+      },
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   }
 
@@ -278,8 +298,7 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 function Team() {
-  const { project, searchResult } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const { project, searchResult, toast } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
@@ -300,56 +319,63 @@ function Team() {
         gezeigt. Sie können Projekte nicht bearbeiten.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuelle Teammitglieder
-          </h2>
-          <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
-          <Form method="post">
-            <List>
-              {project.teamMembers.map((teamMember) => {
-                return (
-                  <List.Item key={teamMember.profile.username}>
-                    <Avatar {...teamMember.profile} />
-                    <List.Item.Title>
-                      {teamMember.profile.firstName}{" "}
-                      {teamMember.profile.lastName}
-                    </List.Item.Title>
-                    <List.Item.Subtitle>
-                      {project.admins.some((admin) => {
-                        return (
-                          admin.profile.username === teamMember.profile.username
-                        );
-                      })
-                        ? "Administrator:in"
-                        : "Teammitglied"}
-                    </List.Item.Subtitle>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`remove_${teamMember.profile.username}`}
-                        type="submit"
-                      >
-                        Entfernen
-                      </Button>
-                    </List.Item.Controls>
-                  </List.Item>
-                );
-              })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("remove_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    entfernt.
-                  </Toast>
-                )}
-            </List>
-          </Form>
-        </div>
+        {toast !== null && toast.id === "remove-member-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
+        {project.teamMembers.length > 0 && (
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Aktuelle Teammitglieder
+            </h2>
+            <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
+            <Form method="post">
+              <List>
+                {project.teamMembers.map((teamMember) => {
+                  return (
+                    <List.Item key={teamMember.profile.username}>
+                      <Avatar {...teamMember.profile} />
+                      <List.Item.Title>
+                        {teamMember.profile.firstName}{" "}
+                        {teamMember.profile.lastName}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {project.admins.some((admin) => {
+                          return (
+                            admin.profile.username ===
+                            teamMember.profile.username
+                          );
+                        })
+                          ? "Administrator:in"
+                          : "Teammitglied"}
+                      </List.Item.Subtitle>
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${teamMember.profile.username}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </Form>
+          </div>
+        )}
+        {toast !== null && toast.id === "add-member-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Teammitglied hinzufügen
@@ -393,16 +419,6 @@ function Team() {
                   </List.Item>
                 );
               })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.profile !== null &&
-                actionData.action.startsWith("add_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.profile.firstName} {actionData.profile.lastName}{" "}
-                    hinzugefügt.
-                  </Toast>
-                )}
             </List>
           </Form>
         </div>

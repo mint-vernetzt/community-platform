@@ -11,7 +11,6 @@ import { type Organization, type Prisma } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
-  useActionData,
   useLoaderData,
   useLocation,
   useSearchParams,
@@ -24,8 +23,13 @@ import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
+import { combineHeaders } from "~/utils.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -236,11 +240,17 @@ export const loader = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json({
-    project,
-    ownOrganizations: notResponsibleOrganizations,
-    searchResult,
-  });
+  const { toast, headers: toastHeaders } = await getToast(request);
+
+  return json(
+    {
+      project,
+      ownOrganizations: notResponsibleOrganizations,
+      searchResult,
+      toast,
+    },
+    { headers: combineHeaders(response.headers, toastHeaders) }
+  );
 };
 
 export const action = async (args: DataFunctionArgs) => {
@@ -269,6 +279,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
+  const hash = getSubmissionHash({ action: action });
   if (action.startsWith("add_")) {
     const slug = action.startsWith("add_own_")
       ? action.replace("add_own_", "")
@@ -307,9 +318,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, organization },
-      { headers: response.headers }
+    return redirectWithToast(
+      request.url,
+      {
+        id: "add-organization-toast",
+        key: hash,
+        message: `${organization.name} hinzugefügt.`,
+      },
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
@@ -342,9 +358,14 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    return json(
-      { success: true, action, organization },
-      { headers: response.headers }
+    return redirectWithToast(
+      request.url,
+      {
+        id: "remove-organization-toast",
+        key: hash,
+        message: `${organization.name} entfernt.`,
+      },
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   }
 
@@ -355,9 +376,8 @@ export const action = async (args: DataFunctionArgs) => {
 };
 
 function ResponsibleOrgs() {
-  const { project, ownOrganizations, searchResult } =
+  const { project, ownOrganizations, searchResult, toast } =
     useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
@@ -379,92 +399,91 @@ function ResponsibleOrgs() {
         verantwortlichen Organisationen.
       </p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuell hinzugefügte Organsiation(en)
-          </h2>
-          <p>
-            Hier siehst Du Organisationen, die aktuelle als verantwortliche
-            Organisation hinterlegt wurden.
-          </p>
-          <Form method="post">
-            <List>
-              {project.responsibleOrganizations.map((relation) => {
-                return (
-                  <List.Item key={relation.organization.slug}>
-                    <Avatar {...relation.organization} />
-                    <List.Item.Title>
-                      {relation.organization.name}
-                    </List.Item.Title>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`remove_${relation.organization.slug}`}
-                        type="submit"
-                      >
-                        Entfernen
-                      </Button>
-                    </List.Item.Controls>
-                  </List.Item>
-                );
-              })}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.organization !== null &&
-                actionData.action.startsWith("remove_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.organization.name} entfernt.
-                  </Toast>
-                )}
-            </List>
-          </Form>
-        </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Eigene Organisation(en) hinzufügen
-          </h2>
-          <p>
-            Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du
-            sie mit einen Klick als verantwortliche Organisationen hinzuzufügen
-            kannst.
-          </p>
-          <Form method="post">
-            <List>
-              {ownOrganizations.map((relation) => {
-                return (
-                  <List.Item key={relation.organization.slug}>
-                    <Avatar {...relation.organization} />
-                    <List.Item.Title>
-                      {relation.organization.name}
-                    </List.Item.Title>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`add_own_${relation.organization.slug}`}
-                        type="submit"
-                      >
-                        Hinzufügen
-                      </Button>
-                    </List.Item.Controls>
-                  </List.Item>
-                );
-              })}
-
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.organization !== null &&
-                actionData.action.startsWith("add_own_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.organization.name} hinzugefügt.
-                  </Toast>
-                )}
-            </List>
-          </Form>
-        </div>
+        {toast !== null && toast.id === "remove-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
+        {project.responsibleOrganizations.length > 0 && (
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Aktuell hinzugefügte Organsiation(en)
+            </h2>
+            <p>
+              Hier siehst Du Organisationen, die aktuelle als verantwortliche
+              Organisation hinterlegt wurden.
+            </p>
+            <Form method="post">
+              <List>
+                {project.responsibleOrganizations.map((relation) => {
+                  return (
+                    <List.Item key={relation.organization.slug}>
+                      <Avatar {...relation.organization} />
+                      <List.Item.Title>
+                        {relation.organization.name}
+                      </List.Item.Title>
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`remove_${relation.organization.slug}`}
+                          type="submit"
+                        >
+                          Entfernen
+                        </Button>
+                      </List.Item.Controls>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </Form>
+          </div>
+        )}
+        {toast !== null && toast.id === "add-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
+        {ownOrganizations.length > 0 && (
+          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              Eigene Organisation(en) hinzufügen
+            </h2>
+            <p>
+              Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass
+              Du sie mit einen Klick als verantwortliche Organisationen
+              hinzuzufügen kannst.
+            </p>
+            <Form method="post">
+              <List>
+                {ownOrganizations.map((relation) => {
+                  return (
+                    <List.Item key={relation.organization.slug}>
+                      <Avatar {...relation.organization} />
+                      <List.Item.Title>
+                        {relation.organization.name}
+                      </List.Item.Title>
+                      <List.Item.Controls>
+                        <Button
+                          name={conform.INTENT}
+                          variant="outline"
+                          value={`add_own_${relation.organization.slug}`}
+                          type="submit"
+                        >
+                          Hinzufügen
+                        </Button>
+                      </List.Item.Controls>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </Form>
+          </div>
+        )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             Andere Organisation(en) hinzufügen
@@ -506,17 +525,6 @@ function ResponsibleOrgs() {
                   </List.Item>
                 );
               })}
-
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.success === true &&
-                actionData.organization !== null &&
-                actionData.action.startsWith("add_") &&
-                !actionData.action.startsWith("add_own_") && (
-                  <Toast key={actionData.action}>
-                    {actionData.organization.name} hinzugefügt.
-                  </Toast>
-                )}
             </List>
           </Form>
         </div>

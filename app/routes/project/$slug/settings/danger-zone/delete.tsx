@@ -105,8 +105,10 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
     return redirectWithAlert(
-      "/dashboard",
-      { message: `Projekt "${project.name}" gelöscht.` },
+      `/dashboard`,
+      {
+        message: `Projekt "${project.name}" gelöscht.`,
+      },
       { headers: response.headers }
     );
   }

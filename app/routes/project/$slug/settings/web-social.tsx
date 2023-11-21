@@ -1,12 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import {
-  Button,
-  Controls,
-  Input,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
+import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -18,17 +12,18 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import {
-  tiktokSchema,
   facebookSchema,
   instagramSchema,
   linkedinSchema,
   mastodonSchema,
+  tiktokSchema,
   twitterSchema,
   websiteSchema,
   xingSchema,
   youtubeSchema,
 } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -91,7 +86,12 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json({ project }, { headers: response.headers });
+  return json(
+    { project },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -160,13 +160,10 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json(
-    {
-      status: "success",
-      submission,
-      hash,
-    } as const,
-    { headers: response.headers }
+  return redirectWithToast(
+    request.url,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { init: { headers: response.headers }, scrollToToast: true }
   );
 }
 
@@ -207,6 +204,8 @@ function WebSocial() {
         erfahren?
       </p>
       <Form method="post" {...form.props}>
+        {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
+        <Button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <Input id="deep" defaultValue="true" type="hidden" />
@@ -314,11 +313,6 @@ function WebSocial() {
               </Controls>
             </div>
           </div>
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.status === "success" && (
-              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-            )}
         </div>
       </Form>
     </Section>

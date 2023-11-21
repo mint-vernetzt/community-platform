@@ -4,11 +4,14 @@ import { Button, Input } from "@mint-vernetzt/components";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
+import { redirectWithToast } from "~/toast.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "../utils.server";
 
 function createSchema(constraint?: {
   isSlugUnique?: (slug: string) => Promise<boolean>;
@@ -114,10 +117,17 @@ export const action = async (args: DataFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    return redirectWithAlert(`${pathname}?deep`, {
-      level: "positive",
-      message: "URL wurde geändert.",
-    });
+    const hash = getSubmissionHash(submission);
+
+    return redirectWithToast(
+      `${pathname}?deep`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: "URL wurde geändert.",
+      },
+      { init: { headers: response.headers }, scrollToToast: true }
+    );
   }
 
   return json(submission, { headers: response.headers });
