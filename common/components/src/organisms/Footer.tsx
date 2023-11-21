@@ -3,7 +3,7 @@ import classNames from "classnames";
 
 function Footer(props: { isSettings?: boolean }) {
   const classes = classNames(
-    "mv-shadow-footer",
+    "mv-shadow-md",
     props.isSettings && "hidden md:block"
   );
 
