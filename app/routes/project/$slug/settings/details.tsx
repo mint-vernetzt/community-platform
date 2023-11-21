@@ -285,6 +285,8 @@ export const loader = async (args: DataFunctionArgs) => {
     select: {
       id: true,
       title: true,
+      // TODO: Remove this after splitting the targetGroups into Event- and ProjectTargetGroups
+      referenceId: true,
     },
   });
 
@@ -832,9 +834,13 @@ function Details() {
               </option>
               {allTargetGroups
                 .filter((targetGroup) => {
-                  return !targetGroupList.some((listTargetGroup) => {
-                    return listTargetGroup.defaultValue === targetGroup.id;
-                  });
+                  return (
+                    !targetGroupList.some((listTargetGroup) => {
+                      return listTargetGroup.defaultValue === targetGroup.id;
+                    }) &&
+                    // TODO: Remove this after splitting the targetGroups into Event- and ProjectTargetGroups
+                    targetGroup.referenceId < 18
+                  );
                 })
                 .map((filteredTargetGroup) => {
                   return (
