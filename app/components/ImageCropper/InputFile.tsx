@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 interface InputFileProps {
   id: string;
@@ -7,6 +8,7 @@ interface InputFileProps {
 }
 
 export function InputFile({ id, hasImage, onSelectFile }: InputFileProps) {
+  const { t } = useTranslation(["components/image-cropper"]);
   return (
     <>
       <label
@@ -24,7 +26,7 @@ export function InputFile({ id, hasImage, onSelectFile }: InputFileProps) {
         </svg>
         <span className="ml-2">
           {hasImage && "neues "}
-          Bild auswählen
+          {t("inputFile.select")}
         </span>
       </label>
       <input

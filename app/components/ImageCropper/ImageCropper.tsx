@@ -11,6 +11,7 @@ import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
 import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
+import { useTranslation } from "react-i18next";
 
 export interface ImageCropperProps {
   id: string;
@@ -73,6 +74,8 @@ function ImageCropper(props: ImageCropperProps) {
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
+
+  const { t } = useTranslation(["components/image-cropper"]);
 
   const {
     id,
@@ -216,7 +219,7 @@ function ImageCropper(props: ImageCropperProps) {
 
                 console.error({ err });
 
-                alert("Es ist leider ein Fehler aufgetreten.");
+                alert(t("imageCropper.error"));
               });
           },
           IMAGE_MIME,
@@ -272,7 +275,7 @@ function ImageCropper(props: ImageCropperProps) {
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
-                      if (!confirm("Bild wirklich entfernen?")) {
+                      if (!confirm(t("imageCropper.confirmation"))) {
                         e.preventDefault();
                       }
                     }}
@@ -402,7 +405,7 @@ function ImageCropper(props: ImageCropperProps) {
             handleCancel && handleCancel();
           }}
         >
-          Abbrechen
+          {t("imageCropper.reset")}
         </label>
 
         <button
@@ -410,7 +413,8 @@ function ImageCropper(props: ImageCropperProps) {
           className="btn btn-small btn-primary"
           disabled={isSaving || !imgSrc}
         >
-          Speichern{isSaving && "..."}
+          {t("imageCropper.submit")}
+          {isSaving && "..."}
         </button>
       </div>
     </div>
