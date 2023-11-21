@@ -483,14 +483,11 @@ export default function App() {
             </div>
           ) : null}
           <main className="flex-auto relative pb-24 md:pb-8">
-            {alert !== null &&
-            alert.id === "root-alert" &&
+            {typeof alert !== "undefined" &&
             isNonAppBaseRoute === false &&
             isIndexRoute === false ? (
-              <div id="root-alert" className="w-full md:container md:mb-4">
-                <Alert key={alert.key} level={alert.level}>
-                  {alert.message}
-                </Alert>
+              <div className="container">
+                <Alert level={alert.level}>{alert.message}</Alert>
               </div>
             ) : null}
             <Outlet />
