@@ -37,11 +37,11 @@ function OrganizationCard(
 ) {
   const { organization, publicAccess = false } = props;
 
-  const { t } = useTranslation(["organisms"]);
+  const { t } = useTranslation(["organisms/cards/organization-card"]);
 
   const emptyMessage = publicAccess
-    ? t("organizationCard.nonPublic", "-nicht öffentlich-")
-    : t("organizationCard.nonStated", "-nicht angegeben-");
+    ? t("nonPublic", "-nicht öffentlich-")
+    : t("nonStated", "-nicht angegeben-");
 
   return (
     <Card to={`/organization/${organization.slug}`}>
@@ -50,7 +50,7 @@ function OrganizationCard(
         {organization.background && <CardImage src={organization.background} />}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("organizationCard.match")}
+            {props.match}% {t("match")}
           </CardStatus>
         )}
       </CardHeader>
@@ -72,15 +72,12 @@ function OrganizationCard(
           </div>
         }
         <CardBodySection
-          title={t("organizationCard.areasOfActivity")}
+          title={t("areasOfActivity")}
           emptyMessage={emptyMessage}
         >
           {organization.areas.length > 0 ? organization.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection
-          title={t("organizationCard.focus")}
-          emptyMessage={emptyMessage}
-        >
+        <CardBodySection title={t("focus")} emptyMessage={emptyMessage}>
           {organization.focuses.length === 0 ? (
             ""
           ) : (

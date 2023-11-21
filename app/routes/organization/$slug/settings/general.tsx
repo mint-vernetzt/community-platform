@@ -23,7 +23,7 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -568,7 +568,7 @@ function Index() {
 
           <p className="mb-8">{t("content.websiteAndSocial.social.intro")}</p>
 
-          {socialMediaServices.map((service) => (
+          {createSocialMediaServices(t).map((service) => (
             <div className="w-full mb-4" key={service.id}>
               <InputText
                 {...register(service.id)}

@@ -39,13 +39,13 @@ function ProfileCard(
 ) {
   const { profile, publicAccess = false } = props;
 
-  const { t } = useTranslation(["organisms"]);
+  const { t } = useTranslation(["organisms/cards/profile-card"]);
 
   const fullName = getFullName(profile);
 
   const emptyMessage = publicAccess
-    ? t("profileCard.nonPublic", "-nicht öffentlich-")
-    : t("profileCard.nonStated", "-nicht angegeben-");
+    ? t("nonPublic", "-nicht öffentlich-")
+    : t("nonStated", "-nicht angegeben-");
 
   return (
     <Card to={`/profile/${profile.username}`}>
@@ -54,7 +54,7 @@ function ProfileCard(
         {profile.background && <CardImage src={profile.background} />}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("profileCard.match")}
+            {props.match}% {t("match")}
           </CardStatus>
         )}
       </CardHeader>
@@ -79,15 +79,12 @@ function ProfileCard(
           </div>
         }
         <CardBodySection
-          title={t("profileCard.areasOfActivity")}
+          title={t("areasOfActivity")}
           emptyMessage={emptyMessage}
         >
           {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection
-          title={t("profileCard.offer")}
-          emptyMessage={emptyMessage}
-        >
+        <CardBodySection title={t("offer")} emptyMessage={emptyMessage}>
           {profile.offers.length === 0 ? (
             ""
           ) : (

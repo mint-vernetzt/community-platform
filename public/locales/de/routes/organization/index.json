@@ -13,6 +13,7 @@
       "headline": "Logo"
     }
   },
+  "since": "Profil besteht seit dem {{timestamp}}",
   "content": {
     "contact": "Kontakt",
     "address": "Anschrift",

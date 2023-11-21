@@ -402,7 +402,7 @@ export default function Index() {
 
               <Modal id="modal-background-upload">
                 <ImageCropper
-                  headline={t("image.headline")}
+                  headline={t("image.background.headline")}
                   subject="organization"
                   id="modal-background-upload"
                   uploadKey="background"
@@ -608,14 +608,15 @@ export default function Index() {
                 <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                 <p className="text-xs mb-4 text-center">
-                  Profil besteht seit dem{" "}
-                  {utcToZonedTime(
-                    loaderData.organization.createdAt,
-                    "Europe/Berlin"
-                  ).toLocaleDateString("de-De", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
+                  {t("since", {
+                    timestamp: utcToZonedTime(
+                      loaderData.organization.createdAt,
+                      "Europe/Berlin"
+                    ).toLocaleDateString("de-De", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }),
                   })}
                 </p>
               </div>

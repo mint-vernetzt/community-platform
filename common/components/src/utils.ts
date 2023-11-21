@@ -1,3 +1,5 @@
+import { TFunction } from "i18next";
+
 export function getFullName(
   data: { academicTitle?: string | null; firstName: string; lastName: string },
   options: { withAcademicTitle: boolean } = { withAcademicTitle: true }
@@ -28,14 +30,18 @@ export function getInitials(
     : "";
 }
 
-export function getDateDuration(startTime: Date, endTime: Date) {
+export function getDateDuration(
+  startTime: Date,
+  endTime: Date,
+  locale: string
+) {
   let duration: string;
-  const formattedStartDate = startTime.toLocaleDateString("de-DE", {
+  const formattedStartDate = startTime.toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "2-digit",
   });
-  const formattedEndDate = endTime.toLocaleDateString("de-DE", {
+  const formattedEndDate = endTime.toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -46,23 +52,23 @@ export function getDateDuration(startTime: Date, endTime: Date) {
   const sameDay = formattedStartDate === formattedEndDate;
 
   if (sameDay) {
-    duration = startTime.toLocaleDateString("de-DE", {
+    duration = startTime.toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "2-digit",
     });
   } else if (sameMonth) {
     // 01. - 02. Januar 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
+    duration = `${startTime.toLocaleDateString(locale, {
       day: "2-digit",
-    })}. - ${endTime.toLocaleDateString("de-DE", {
+    })}. - ${endTime.toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "2-digit",
     })}`;
   } else if (sameYear) {
     // 01. Jan - 02. Feb 2022
-    duration = `${startTime.toLocaleDateString("de-DE", {
+    duration = `${startTime.toLocaleDateString(locale, {
       day: "2-digit",
       month: "short",
     })} – ${formattedEndDate}`;
@@ -73,22 +79,32 @@ export function getDateDuration(startTime: Date, endTime: Date) {
   return duration;
 }
 
-export function getTimeDuration(startTime: Date, endTime: Date) {
+export function getTimeDuration(
+  startTime: Date,
+  endTime: Date,
+  locale: string,
+  t: TFunction
+) {
   const sameTime = startTime.getTime() === endTime.getTime();
-  let result: string;
   if (sameTime) {
-    result = `${startTime.toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} Uhr`;
-  } else {
-    result = `${startTime.toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} - ${endTime.toLocaleTimeString("de-DE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} Uhr`;
+    return t("timeDuration.same", {
+      ns: "utils/utils",
+      time: startTime.toLocaleTimeString(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    });
   }
-  return result;
+
+  return t("timeDuration.different", {
+    ns: "utils/utils",
+    from: startTime.toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    until: endTime.toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  });
 }

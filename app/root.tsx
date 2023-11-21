@@ -113,12 +113,17 @@ export const loader = async (args: DataFunctionArgs) => {
 
 export const handle = {
   i18n: [
+    "routes/project/settings/general",
+    "utils/social-media-services",
+    /*
     "meta",
     "organisms",
-    "route/dashboard",
+    "routes/dashboard",
     "routes/imprint",
     "routes/index",
     "routes/login",
+    "routes/event/settings/general",
+    "routes/event/settings/events",
     "routes/explore/events",
     "routes/explore/organizations",
     "routes/explore/profiles",
@@ -145,6 +150,7 @@ export const handle = {
     "routes/search/projects",
     "routes/upload/delete",
     "routes/upload/image",
+     */
   ],
 };
 
