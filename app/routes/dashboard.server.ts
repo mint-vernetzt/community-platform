@@ -116,12 +116,9 @@ export async function enhancedRedirect(
 ) {
   const { alert } = await getAlert(options.request);
   if (alert !== null) {
-    return redirectWithAlert(
-      url,
-      alert,
-      { scrollIntoView: true },
-      options.response
-    );
+    return redirectWithAlert(url, alert, options.response, {
+      scrollToId: "root-alert",
+    });
   }
   return redirect(url, options.response);
 }

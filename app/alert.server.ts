@@ -4,14 +4,16 @@ import { combineHeaders } from "./utils.server";
 import { ZodError, z } from "zod";
 
 type Alert = {
-  id?: string;
-  level?: AlertLevel;
   message: string;
+  id: string;
+  key?: string;
+  level?: AlertLevel;
 };
 
 const alertSchema = z.object({
-  id: z.string().optional(),
   message: z.string(),
+  id: z.string(),
+  key: z.string().optional(),
   level: z.string().optional(),
 });
 
@@ -31,38 +33,42 @@ const ALERT_SESSION_STORAGE = createCookieSessionStorage({
   },
 });
 
+// Beware! This redirect cuts all existing hash parameters if using the scrollToId option
 export async function redirectWithAlert(
   url: string,
   alert: Alert,
-  // TODO: Change order of below and find all occurences enhance them with scrollIntoView
-  alertOptions?: {
-    scrollIntoView: boolean;
-  },
-  init?: ResponseInit
+  init?: ResponseInit,
+  redirectOptions?: {
+    scrollToId?: string;
+  }
 ) {
   let redirectUrl = url;
-  if (alertOptions?.scrollIntoView && alert.id !== undefined) {
+  if (
+    redirectOptions !== undefined &&
+    redirectOptions.scrollToId !== undefined
+  ) {
     const urlWithoutHashParam = url.split("#", 2)[0];
     redirectUrl = `${urlWithoutHashParam}${
       !urlWithoutHashParam.includes("?") ? "?" : "&"
-    }alert-trigger#${alert.id}`;
+    }alert-trigger#${redirectOptions.scrollToId}`;
   }
   return redirect(redirectUrl, {
     ...init,
     headers: combineHeaders(
       init?.headers,
-      await createAlertHeaders(alert.message, alert.id, alert.level)
+      await createAlertHeaders(alert.message, alert.id, alert.key, alert.level)
     ),
   });
 }
 
 async function createAlertHeaders(
   message: string,
-  id?: string,
+  id: string,
+  key?: string,
   level?: AlertLevel
 ) {
   const session = await ALERT_SESSION_STORAGE.getSession();
-  const alert = { message, id, level: level ?? "positive" };
+  const alert = { message, id, key, level: level ?? "positive" };
   session.flash(ALERT_KEY, alert);
   const cookie = await ALERT_SESSION_STORAGE.commitSession(session);
   return new Headers({ "set-cookie": cookie });

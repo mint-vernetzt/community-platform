@@ -4,16 +4,16 @@ import { type ToastLevel } from "@mint-vernetzt/components";
 import { ZodError, z } from "zod";
 
 type Toast = {
-  id?: string;
-  key: string;
   message: string;
+  id: string;
+  key?: string;
   level?: ToastLevel;
 };
 
 const toastSchema = z.object({
-  id: z.string().optional(),
-  key: z.string(),
   message: z.string(),
+  id: z.string(),
+  key: z.string().optional(),
   level: z.string().optional(),
 });
 
@@ -33,35 +33,38 @@ const TOAST_SESSION_STORAGE = createCookieSessionStorage({
   },
 });
 
-// Beware! This redirect cuts all existing hash parameters
+// Beware! This redirect cuts all existing hash parameters if using the scrollToId option
 export async function redirectWithToast(
   url: string,
   toast: Toast,
-  toastOptions?: {
-    scrollIntoView: boolean;
-  },
-  init?: ResponseInit
+  init?: ResponseInit,
+  redirectOptions?: {
+    scrollToId?: string;
+  }
 ) {
   let redirectUrl = url;
-  if (toastOptions?.scrollIntoView && toast.id !== undefined) {
+  if (
+    redirectOptions !== undefined &&
+    redirectOptions.scrollToId !== undefined
+  ) {
     const urlWithoutHashParam = url.split("#", 2)[0];
     redirectUrl = `${urlWithoutHashParam}${
       !urlWithoutHashParam.includes("?") ? "?" : "&"
-    }toast-trigger#${toast.id}`;
+    }toast-trigger#${redirectOptions.scrollToId}`;
   }
   return redirect(redirectUrl, {
     ...init,
     headers: combineHeaders(
       init?.headers,
-      await createToastHeaders(toast.message, toast.key, toast.id, toast.level)
+      await createToastHeaders(toast.message, toast.id, toast.key, toast.level)
     ),
   });
 }
 
 async function createToastHeaders(
   message: string,
-  key: string,
-  id?: string,
+  id: string,
+  key?: string,
   level?: ToastLevel
 ) {
   const session = await TOAST_SESSION_STORAGE.getSession();

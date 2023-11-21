@@ -243,8 +243,8 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
       },
-      { scrollIntoView: true },
-      { headers: response.headers }
+      { headers: response.headers },
+      { scrollToId: "add-admin-toast" }
     );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
@@ -298,8 +298,8 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} entfernt.`,
       },
-      { scrollIntoView: true },
-      { headers: response.headers }
+      { headers: response.headers },
+      { scrollToId: "remove-admin-toast" }
     );
   }
 
@@ -334,7 +334,6 @@ function Admins() {
         Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
         Projekte nicht bearbeiten.
       </p>
-      {/* TODO: Is it nice to handle these Alerts inside the settings.tsx route and use redirectWithAlert with scrollIntoView option? (Same mechanic like the settings toasts) */}
       {typeof actionData !== "undefined" &&
         actionData !== null &&
         actionData.success === false && (

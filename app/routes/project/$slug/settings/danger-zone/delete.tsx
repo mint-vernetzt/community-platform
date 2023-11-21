@@ -107,11 +107,11 @@ export const action = async (args: DataFunctionArgs) => {
     return redirectWithAlert(
       `/dashboard`,
       {
-        id: "delete-project-alert",
+        id: "root-alert",
         message: `Projekt "${project.name}" gelöscht.`,
       },
-      { scrollIntoView: true },
-      { headers: response.headers }
+      { headers: response.headers },
+      { scrollToId: "root-alert" }
     );
   }
 

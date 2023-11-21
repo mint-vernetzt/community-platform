@@ -109,10 +109,10 @@ export const loader = async (args: LoaderArgs) => {
       return redirectWithAlert(
         loginRedirect || "/dashboard",
         {
+          id: "root-alert",
           message:
             "Deine MINT-ID wurde erfolgreich mit Deinem Profil verknüpft.",
         },
-        { scrollIntoView: false },
         {
           headers: response.headers,
         }
