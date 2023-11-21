@@ -4,6 +4,7 @@
     "notPublished": "Event not published"
   },
   "content": {
+    "clock": "{{date}}, {{time}} Uhr",
     "backgroundImage": "Aktuelles Hintergrundbild",
     "borderOfImage": "Rahmen des Hintergrundbildes",
     "back": "Zurück",

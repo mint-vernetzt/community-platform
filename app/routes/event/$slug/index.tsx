@@ -51,6 +51,7 @@ import {
 } from "./utils.server";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 export function links() {
   return [
@@ -417,16 +418,18 @@ function getForm(loaderData: {
   }
 }
 
-function formatDateTime(date: Date) {
-  const formattedDate = `${date.toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  })}, ${date.toLocaleTimeString("de-DE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })} Uhr`;
-  return formattedDate;
+function formatDateTime(date: Date, language: string, t: TFunction) {
+  return t("content.clock", {
+    date: date.toLocaleDateString(language, {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }),
+    time: date.toLocaleTimeString(language, {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  });
 }
 
 function Index() {
@@ -455,7 +458,7 @@ function Index() {
     "Europe/Berlin"
   );
 
-  const { t } = useTranslation(["routes/event/index"]);
+  const { t, i18n } = useTranslation(["routes/event/index"]);
 
   const beforeParticipationPeriod = now < participationFrom;
 
@@ -868,10 +871,14 @@ function Index() {
               <div className="text-xs leading-6">
                 {t("content.event.start")}
               </div>
-              <div className="pb-3 md:pb-0">{formatDateTime(startTime)}</div>
+              <div className="pb-3 md:pb-0">
+                {formatDateTime(startTime, i18n.language, t)}
+              </div>
 
               <div className="text-xs leading-6">{t("content.event.end")}</div>
-              <div className="pb-3 md:pb-0">{formatDateTime(endTime)}</div>
+              <div className="pb-3 md:pb-0">
+                {formatDateTime(endTime, i18n.language, t)}
+              </div>
 
               {participationFrom > now ? (
                 <>
@@ -879,7 +886,7 @@ function Index() {
                     {t("content.event.registrationStart")}
                   </div>
                   <div className="pb-3 md:pb-0">
-                    {formatDateTime(participationFrom)}
+                    {formatDateTime(participationFrom, i18n.language, t)}
                   </div>
                 </>
               ) : null}
@@ -889,7 +896,7 @@ function Index() {
                     {t("content.event.registrationEnd")}
                   </div>
                   <div className="pb-3 md:pb-0">
-                    {formatDateTime(participationUntil)}
+                    {formatDateTime(participationUntil, t, i18n.language)}
                   </div>
                 </>
               ) : null}
