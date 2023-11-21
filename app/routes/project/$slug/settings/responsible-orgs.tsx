@@ -325,8 +325,7 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${organization.name} hinzugefügt.`,
       },
-      { headers: response.headers },
-      { scrollToId: "add-organization-toast" }
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
@@ -366,8 +365,7 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${organization.name} entfernt.`,
       },
-      { headers: response.headers },
-      { scrollToId: "remove-organization-toast" }
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   }
 

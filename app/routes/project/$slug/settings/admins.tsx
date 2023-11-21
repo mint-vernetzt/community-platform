@@ -243,8 +243,7 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
       },
-      { headers: response.headers },
-      { scrollToId: "add-admin-toast" }
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
@@ -298,8 +297,7 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} entfernt.`,
       },
-      { headers: response.headers },
-      { scrollToId: "remove-admin-toast" }
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   }
 

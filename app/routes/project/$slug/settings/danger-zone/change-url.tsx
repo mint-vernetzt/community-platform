@@ -126,8 +126,7 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: "URL wurde geändert.",
       },
-      { headers: response.headers },
-      { scrollToId: "settings-toast" }
+      { init: { headers: response.headers }, scrollToToast: true }
     );
   }
 

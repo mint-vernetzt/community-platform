@@ -5,14 +5,14 @@ import { ZodError, z } from "zod";
 
 type Toast = {
   message: string;
-  id: string;
+  id?: string;
   key?: string;
   level?: ToastLevel;
 };
 
 const toastSchema = z.object({
   message: z.string(),
-  id: z.string(),
+  id: z.string().optional(),
   key: z.string().optional(),
   level: z.string().optional(),
 });
@@ -37,25 +37,29 @@ const TOAST_SESSION_STORAGE = createCookieSessionStorage({
 export async function redirectWithToast(
   url: string,
   toast: Toast,
-  init?: ResponseInit,
   redirectOptions?: {
-    scrollToId?: string;
+    init?: ResponseInit;
+    scrollToToast?: boolean;
   }
 ) {
-  let redirectUrl = url;
-  if (
-    redirectOptions !== undefined &&
-    redirectOptions.scrollToId !== undefined
-  ) {
-    const urlWithoutHashParam = url.split("#", 2)[0];
-    redirectUrl = `${urlWithoutHashParam}${
-      !urlWithoutHashParam.includes("?") ? "?" : "&"
-    }toast-trigger#${redirectOptions.scrollToId}`;
+  const urlObject = new URL(url);
+  urlObject.searchParams.set("toast-trigger", "");
+  if (redirectOptions !== undefined) {
+    const { scrollToToast = false } = redirectOptions;
+    if (scrollToToast && toast.id === undefined) {
+      console.warn(
+        "You selected the option scrollToToast without providing a toast id. Scrolling won't work."
+      );
+    }
+    if (scrollToToast && toast.id !== undefined) {
+      urlObject.hash = toast.id;
+    }
   }
-  return redirect(redirectUrl, {
-    ...init,
+
+  return redirect(urlObject.toString(), {
+    ...redirectOptions?.init,
     headers: combineHeaders(
-      init?.headers,
+      redirectOptions?.init?.headers,
       await createToastHeaders(toast.message, toast.id, toast.key, toast.level)
     ),
   });
@@ -63,7 +67,7 @@ export async function redirectWithToast(
 
 async function createToastHeaders(
   message: string,
-  id: string,
+  id?: string,
   key?: string,
   level?: ToastLevel
 ) {

@@ -163,8 +163,7 @@ export async function action({ request, params }: DataFunctionArgs) {
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
-    { headers: response.headers },
-    { scrollToId: "settings-toast" }
+    { init: { headers: response.headers }, scrollToToast: true }
   );
 }
 
