@@ -157,7 +157,7 @@ function TabBar(props: TabBarProps) {
     <>
       <div className="mv-w-full mv-relative">
         <div
-          className="mv-overflow-x-scroll"
+          className="mv-overflow-x-auto"
           onScroll={handleScroll}
           ref={scrollContainerRef}
         >
