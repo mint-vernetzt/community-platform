@@ -172,7 +172,7 @@ function Projects() {
         </CardContainer>
       </section>
       {shouldFetch && (
-        <div className="mv-w-full mv-flex mv-justify-center pb-4 md:pb-0">
+        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
           <fetcher.Form method="get">
             <input key="page" type="hidden" name="page" value={page + 1} />
             <Button
