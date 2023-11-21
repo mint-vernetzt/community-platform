@@ -12,6 +12,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProjectMode } from "../../utils.server";
 import { getProfileByUserId, getProjectBySlug } from "./delete.server";
 import { deleteProjectBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const schema = z.object({
   projectName: z.string().optional(),
@@ -22,7 +25,9 @@ const environmentSchema = z.object({ slug: z.string(), name: z.string() });
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/delete",
+  ]);
   const authClient = createAuthClient(request, response);
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
@@ -31,10 +36,12 @@ export const loader = async (args: DataFunctionArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound.project"), { status: 404 });
 
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   return json(
     {
@@ -44,41 +51,45 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.projectName !== environment.name) {
-    throw new InputError(
-      "Der Name des Projekts ist nicht korrekt",
-      "projectName"
-    );
-  }
-  try {
-    await deleteProjectBySlug(environment.slug);
-  } catch (error) {
-    throw "Das Projekt konnte nicht gelöscht werden.";
-  }
-});
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    if (values.projectName !== environment.name) {
+      throw new InputError(t("error.inputError"), "projectName");
+    }
+    try {
+      await deleteProjectBySlug(environment.slug);
+    } catch (error) {
+      throw t("error.serverError");
+    }
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/delete",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
   const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound.project"), { status: 404 });
   const profile = await getProfileByUserId(sessionUser.id);
-  invariantResponse(profile, "Profile not found", { status: 404 });
+  invariantResponse(profile, t("error.notFound.profile"), { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { slug: slug, name: project.name },
   });
 
@@ -93,15 +104,14 @@ export const action = async (args: DataFunctionArgs) => {
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["routes/project/settings/delete"]);
 
   return (
     <>
-      <h1 className="mb-8">Projekt löschen</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
       <p className="mb-8">
-        Bitte gib den Namen des Projekts "{loaderData.projectName}" ein, um das
-        Löschen zu bestätigen. Wenn Du danach auf "Projekt löschen” klickst,
-        wird Euer Projekt ohne erneute Abfrage gelöscht.
+        {t("content.confirmation", { name: loaderData.projectName })}
       </p>
 
       <RemixForm method="post" schema={schema}>
@@ -112,7 +122,7 @@ function Delete() {
                 <>
                   <Input
                     id="projectName"
-                    label="Löschung bestätigen"
+                    label={t("content.label")}
                     {...register("projectName")}
                   />
                   <Errors />
@@ -123,7 +133,7 @@ function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Projekt löschen
+              {t("content.delete")}
             </button>
             <Errors />
           </>

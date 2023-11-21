@@ -27,26 +27,33 @@ import {
   getResponsibleOrganizationDataFromProject,
 } from "./organizations.server";
 import {
-  addOrganizationSchema,
   type action as addOrganizationAction,
+  addOrganizationSchema,
 } from "./organizations/add-organization";
 import {
-  removeOrganizationSchema,
   type action as removeOrganizationAction,
+  removeOrganizationSchema,
 } from "./organizations/remove-organization";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/organizations",
+  ]);
 
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound"), { status: 404 });
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
@@ -126,19 +133,14 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/project/settings/organizations"]);
 
   return (
     <>
-      <h1 className="mb-8">Verantwortliche Organisationen</h1>
-      <p className="mb-8">
-        Welche Organisation ist verantwortlich für Euer Projekt? Füge hier
-        weitere Organisationen hinzu oder entferne sie.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Organisation hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung eine bereits bestehende Organisation
-        hinzu.
-      </p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <Form
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
@@ -158,7 +160,7 @@ function Organizations() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der Organisation
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -200,12 +202,9 @@ function Organizations() {
       {loaderData.ownOrganizationsSuggestions.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            Eigene Organisationen hinzufügen
+            {t("content.own.headline")}
           </h4>
-          <p className="mb-8">
-            Hier werden dir Deine eigenen Organisationen vorgeschlagen um sie
-            auf einen Klick als verantwortliche Organisationen hinzuzufügen.
-          </p>
+          <p className="mb-8">{t("content.own.intro")}</p>
           <div className="mb-4 md:max-h-[630px] overflow-auto">
             <ul>
               {loaderData.ownOrganizationsSuggestions.map((organization) => {
@@ -263,7 +262,7 @@ function Organizations() {
                               title="Hinzufügen"
                               type="submit"
                             >
-                              Hinzufügen
+                              {t("content.own.label")}
                             </button>
                           </>
                         );
@@ -276,11 +275,10 @@ function Organizations() {
           </div>
         </>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Organisationen</h4>
-      <p className="mb-8">
-        Hier siehst du alle aktuell verantwortlichen Organisationen auf einen
-        Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         <ul>
           {loaderData.responsibleOrganizations.map((organization) => {
@@ -334,7 +332,7 @@ function Organizations() {
                           <Field name="organizationId" />
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"

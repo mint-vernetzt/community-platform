@@ -3,6 +3,7 @@
     "profileNotFound": "Profile not found"
   },
   "profile": {
+    "contact": "Kontakt",
     "changeImage": "Bild ändern",
     "existsSince": "Profil besteht seit dem {{timestamp}}",
     "introduction": "Hi, ich bin {{name}}",
@@ -24,11 +25,13 @@
     },
     "projects": {
       "title": "Projekte",
-      "create": "Projekt anlegen"
+      "create": "Projekt anlegen",
+      "to": "Zum Projekt"
     },
     "comingEvents": {
       "title": "Bevorstehende Veranstaltungen",
-      "create": "Veranstaltung anlegen"
+      "create": "Veranstaltung anlegen",
+      "team": "Organisation/Team"
     },
     "pastEvents": {
       "title": "Bevorstehende Veranstaltungen",

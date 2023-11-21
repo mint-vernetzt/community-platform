@@ -12,6 +12,7 @@ import {
   disconnectOrganizationFromProject,
   getProjectBySlug,
 } from "./utils.server";
+import i18next from "~/i18next.server";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -26,18 +27,23 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/organizations/remove-organization",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const project = await getProjectBySlug(slug);
-    invariantResponse(project, "Project not Found", { status: 404 });
+    invariantResponse(project, t("error.notFound"), { status: 404 });
     await disconnectOrganizationFromProject(
       project.id,
       result.data.organizationId

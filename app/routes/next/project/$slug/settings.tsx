@@ -89,7 +89,7 @@ function ProjectSettings() {
         <div className="mv-flex mv-flex-col mv-gap-8 lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
-              Zum Projekt
+              yy Zum Projekt
             </Link>
           </TextButton>
           <h1 className="mv-mb-0">Projekt bearbeiten</h1>

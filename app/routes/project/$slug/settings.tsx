@@ -1,8 +1,9 @@
 import { NavLink, Outlet } from "@remix-run/react";
-import { redirect, type LoaderArgs } from "@remix-run/node";
+import { type LoaderArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { useTranslation } from "react-i18next";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
@@ -31,6 +32,7 @@ function Settings() {
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
+  const { t } = useTranslation(["routes/project/settings"]);
 
   return (
     <>
@@ -38,7 +40,7 @@ function Settings() {
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Projekt bearbeiten</h3>
+              <h3 className="font-bold mb-7">{t("content.headline")}</h3>
               <menu>
                 <ul>
                   <li>
@@ -46,7 +48,7 @@ function Settings() {
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Allgemein
+                      {t("content.navigation.general")}
                     </NavLink>
                   </li>
                   <li>
@@ -54,7 +56,7 @@ function Settings() {
                       to="admins"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Administrator:innen
+                      {t("content.navigation.admins")}
                     </NavLink>
                   </li>
                   <li>
@@ -62,7 +64,7 @@ function Settings() {
                       to="team"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Team
+                      {t("content.navigation.team")}
                     </NavLink>
                   </li>
                   <li>
@@ -70,7 +72,7 @@ function Settings() {
                       to="organizations"
                       className={({ isActive }) => getClassName(isActive)}
                     >
-                      Verantwortliche Organisationen
+                      {t("content.navigation.organizations")}
                     </NavLink>
                   </li>
                 </ul>
@@ -80,7 +82,7 @@ function Settings() {
                     to="delete"
                     className={({ isActive }) => getClassName(isActive)}
                   >
-                    Projekt löschen
+                    {t("content.navigation.delete")}
                   </NavLink>
                 </div>
               </menu>

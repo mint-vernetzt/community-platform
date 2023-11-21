@@ -13,6 +13,8 @@ import {
   getProfileById,
   getProjectBySlug,
 } from "./add-admin.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -24,58 +26,62 @@ const environmentSchema = z.object({
 
 export const addAdminSchema = schema;
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const profile = await getProfileById(values.profileId);
-  if (profile === null) {
-    throw new InputError(
-      "Es existiert noch kein Profil unter diesem Namen.",
-      "profileId"
-    );
-  }
-  const alreadyAdmin = profile.administeredProjects.some((relation) => {
-    return relation.project.slug === environment.projectSlug;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const profile = await getProfileById(values.profileId);
+    if (profile === null) {
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
+    }
+    const alreadyAdmin = profile.administeredProjects.some((relation) => {
+      return relation.project.slug === environment.projectSlug;
+    });
+    if (alreadyAdmin) {
+      throw new InputError(t("error.inputError.alreadyAdmin"), "profileId");
+    }
+    return {
+      ...values,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    };
   });
-  if (alreadyAdmin) {
-    throw new InputError(
-      "Das Profil unter diesem Namen ist bereits Administrator:in Eures Projekts.",
-      "profileId"
-    );
-  }
-  return {
-    ...values,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-  };
-});
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/admins/add-admin",
+  ]);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { projectSlug: slug },
   });
 
   if (result.success === true) {
     const project = await getProjectBySlug(slug);
-    invariantResponse(project, "Project not found", { status: 404 });
+    invariantResponse(project, t("error.notFound"), { status: 404 });
     await addAdminToProject(project.id, result.data.profileId);
 
     return json(
       {
-        message: `"${result.data.firstName} ${result.data.lastName}" wurde als Administrator:in hinzugefügt.`,
+        message: t("feedback", {
+          firstName: result.data.firstName,
+          lastName: result.data.lastName,
+        }),
       },
       { headers: response.headers }
     );

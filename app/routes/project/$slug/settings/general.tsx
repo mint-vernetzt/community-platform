@@ -18,7 +18,7 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormDataValidationResultOrThrow,
@@ -40,38 +40,45 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveProjectMode } from "../../utils.server";
 import { getProjectBySlug, getProjectBySlugForAction } from "./general.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const schema = object({
-  name: string().required(),
-  headline: string(),
-  excerpt: nullOrString(multiline()),
-  description: nullOrString(multiline()),
-  email: nullOrString(
-    string().email("Deine Eingabe entspricht nicht dem Format einer E-Mail.")
-  ),
-  phone: nullOrString(phone()),
-  street: nullOrString(string()),
-  streetNumber: nullOrString(string()),
-  zipCode: nullOrString(string()),
-  city: nullOrString(string()),
-  website: nullOrString(website()),
-  facebook: nullOrString(social("facebook")),
-  linkedin: nullOrString(social("linkedin")),
-  twitter: nullOrString(social("twitter")),
-  youtube: nullOrString(social("youtube")),
-  instagram: nullOrString(social("instagram")),
-  xing: nullOrString(social("xing")),
-  targetGroups: array(string().required()).required(),
-  disciplines: array(string().required()).required(),
-  submit: string().required(),
-  privateFields: array(string().required()).required(),
-});
+const createSchema = (t: TFunction) => {
+  return object({
+    name: string().required(),
+    headline: string(),
+    excerpt: nullOrString(multiline()),
+    description: nullOrString(multiline()),
+    email: nullOrString(string().email(t("validation.email.email"))),
+    phone: nullOrString(phone()),
+    street: nullOrString(string()),
+    streetNumber: nullOrString(string()),
+    zipCode: nullOrString(string()),
+    city: nullOrString(string()),
+    website: nullOrString(website()),
+    facebook: nullOrString(social("facebook")),
+    linkedin: nullOrString(social("linkedin")),
+    twitter: nullOrString(social("twitter")),
+    youtube: nullOrString(social("youtube")),
+    instagram: nullOrString(social("instagram")),
+    xing: nullOrString(social("xing")),
+    targetGroups: array(string().required()).required(),
+    disciplines: array(string().required()).required(),
+    submit: string().required(),
+    privateFields: array(string().required()).required(),
+  });
+};
 
-type FormType = InferType<typeof schema>;
+type SchemaType = ReturnType<typeof createSchema>;
+type FormType = InferType<SchemaType>;
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/general",
+  ]);
 
   const authClient = createAuthClient(request, response);
 
@@ -79,10 +86,12 @@ export const loader = async (args: LoaderArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound"), { status: 404 });
   const projectVisibilities = await getProjectVisibilitiesBySlugOrThrow(slug);
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const targetGroups = await getTargetGroups();
   const disciplines = await getDisciplines();
@@ -106,18 +115,21 @@ export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/general",
+  ]);
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const project = await getProjectBySlugForAction(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound"), { status: 404 });
   const mode = await deriveProjectMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  const result = await getFormDataValidationResultOrThrow<typeof schema>(
+  const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,
-    schema
+    createSchema(t)
   );
 
   let updated = false;
@@ -154,7 +166,10 @@ export const action = async (args: ActionArgs) => {
 
 function General() {
   const { slug } = useParams();
-
+  const { t } = useTranslation([
+    "routes/project/settings/general",
+    "utils/social-media-services",
+  ]);
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
@@ -264,16 +279,14 @@ function General() {
           reset({}, { keepValues: true });
         }}
       >
-        <h1 className="mb-8">Dein Projekt</h1>
-        <h4 className="mb-4 font-semibold">Allgemein</h4>
-        <p className="mb-8">
-          Gib den Namen und die Kontaktdaten für Dein Projekt ein.
-        </p>
+        <h1 className="mb-8">{t("content.headline")}</h1>
+        <h4 className="mb-4 font-semibold">{t("content.general.headline")}</h4>
+        <p className="mb-8">{t("content.general.intro")}</p>
         <div className="mb-6">
           <InputText
             {...register("name")}
             id="name"
-            label="Name"
+            label={t("form.name.label")}
             defaultValue={project.name}
             errorMessage={errors?.name?.message}
             withPublicPrivateToggle={false}
@@ -285,7 +298,7 @@ function General() {
             <InputText
               {...register("email")}
               id="email"
-              label="E-Mail"
+              label={t("form.email.label")}
               defaultValue={project.email || ""}
               errorMessage={errors?.email?.message}
               withPublicPrivateToggle={false}
@@ -296,7 +309,7 @@ function General() {
             <InputText
               {...register("phone")}
               id="phone"
-              label="Telefon"
+              label={t("form.phone.label")}
               defaultValue={project.phone || ""}
               errorMessage={errors?.phone?.message}
               withPublicPrivateToggle={false}
@@ -304,13 +317,13 @@ function General() {
             />
           </div>
         </div>
-        <h4 className="mb-4 font-semibold">Anschrift</h4>
+        <h4 className="mb-4 font-semibold">{t("content.address.headline")}</h4>
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4 mb-6">
             <InputText
               {...register("street")}
               id="street"
-              label="Straßenname"
+              label={t("form.street.label")}
               defaultValue={project.street || ""}
               errorMessage={errors?.street?.message}
               withPublicPrivateToggle={false}
@@ -321,7 +334,7 @@ function General() {
             <InputText
               {...register("streetNumber")}
               id="streetNumber"
-              label="Hausnummer"
+              label={t("form.streetNumber.label")}
               defaultValue={project.streetNumber || ""}
               errorMessage={errors?.streetNumber?.message}
               withPublicPrivateToggle={false}
@@ -334,7 +347,7 @@ function General() {
             <InputText
               {...register("zipCode")}
               id="zipCode"
-              label="PLZ"
+              label={t("form.zipCode.label")}
               defaultValue={project.zipCode || ""}
               errorMessage={errors?.zipCode?.message}
               withPublicPrivateToggle={false}
@@ -345,7 +358,7 @@ function General() {
             <InputText
               {...register("city")}
               id="city"
-              label="Stadt"
+              label={t("form.city.label")}
               defaultValue={project.city || ""}
               errorMessage={errors?.city?.message}
               withPublicPrivateToggle={false}
@@ -355,15 +368,15 @@ function General() {
         </div>
         <hr className="border-neutral-400 my-10 lg:my-16" />
 
-        <h4 className="font-semibold mb-4">Über das Projekt</h4>
+        <h4 className="font-semibold mb-4">{t("content.about.headline")}</h4>
 
-        <p className="mb-8">Teile der Community mehr über Dein Projekt mit.</p>
+        <p className="mb-8">{t("content.about.intro")}</p>
 
         <div className="mb-6">
           <InputText
             {...register("headline")}
             id="headline"
-            label="Überschrift"
+            label={t("form.headline.label")}
             defaultValue={project.headline || ""}
             errorMessage={errors?.headline?.message}
             withPublicPrivateToggle={false}
@@ -375,7 +388,7 @@ function General() {
             {...register("excerpt")}
             id="excerpt"
             defaultValue={project.excerpt || ""}
-            label="Kurzbeschreibung"
+            label={t("form.excerpt.label")}
             errorMessage={errors?.excerpt?.message}
             withPublicPrivateToggle={false}
             isPublic={projectVisibilities.excerpt}
@@ -386,7 +399,7 @@ function General() {
             {...register("description")}
             id="description"
             defaultValue={project.description || ""}
-            label="Ausführliche Beschreibung"
+            label={t("form.description.label")}
             errorMessage={errors?.description?.message}
             maxCharacters={2000}
             withPublicPrivateToggle={false}
@@ -400,8 +413,8 @@ function General() {
         <div className="mb-4">
           <SelectAdd
             name="targetGroups"
-            label={"Zielgruppen"}
-            placeholder="Füge die Zielgruppen hinzu."
+            label={t("form.targetGroups.label")}
+            placeholder={t("form.targetGroups.placeholder")}
             entries={selectedTargetGroups.map((targetGroup) => ({
               label: targetGroup.title,
               value: targetGroup.id,
@@ -414,8 +427,8 @@ function General() {
         <div className="mb-4">
           <SelectAdd
             name="disciplines"
-            label={"Disziplinen"}
-            placeholder="Füge die Disziplinen hinzu."
+            label={t("form.disciplines.label")}
+            placeholder={t("form.disciplines.placeholder")}
             entries={selectedDisciplines.map((item) => ({
               label: item.title,
               value: item.id,
@@ -428,21 +441,21 @@ function General() {
 
         <hr className="border-neutral-400 my-10 lg:my-16" />
 
-        <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+        <h2 className="mb-8">{t("content.websiteAndSocial.headline")}</h2>
 
-        <h4 className="mb-4 font-semibold">Website</h4>
+        <h4 className="mb-4 font-semibold">
+          {t("content.websiteAndSocial.website.headline")}
+        </h4>
 
-        <p className="mb-8">
-          Wo kann die Community mehr über Euer Angebot erfahren?
-        </p>
+        <p className="mb-8">{t("content.websiteAndSocial.website.intro")}</p>
 
         <div className="basis-full mb-4">
           <InputText
             {...register("website")}
             id="website"
-            label="Website"
+            label={t("form.website.label")}
             defaultValue={project.website || ""}
-            placeholder="domainname.tld"
+            placeholder={t("form.website.placeholder")}
             errorMessage={errors?.website?.message}
             withClearButton
             withPublicPrivateToggle={false}
@@ -452,13 +465,13 @@ function General() {
 
         <hr className="border-neutral-400 my-10 lg:my-16" />
 
-        <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+        <h4 className="mb-4 font-semibold">
+          {t("content.websiteAndSocial.social.headline")}
+        </h4>
 
-        <p className="mb-8">
-          In welchen Netzwerken ist Dein Projekt vertreten?
-        </p>
+        <p className="mb-8">{t("content.websiteAndSocial.social.intro")}</p>
 
-        {socialMediaServices.map((service) => {
+        {createSocialMediaServices(t).map((service) => {
           return (
             <div className="w-full mb-4" key={service.id}>
               <InputText
@@ -486,7 +499,7 @@ function General() {
                     : "hidden"
                 }`}
               >
-                Deine Informationen wurden aktualisiert.
+                {t("content.feedback")}
               </div>
 
               {isFormChanged ? (
@@ -506,7 +519,7 @@ function General() {
                 className="btn btn-primary ml-4"
                 disabled={isSubmitting || !isFormChanged}
               >
-                Speichern
+                {t("form.submit.label")}
               </button>
             </div>
           </div>

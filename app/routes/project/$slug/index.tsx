@@ -29,6 +29,8 @@ import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../utils.server";
 import { getProjectBySlugOrThrow } from "./utils.server";
 import { notFound } from "remix-utils";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
 export function links() {
   return [
@@ -79,6 +81,7 @@ function hasWebsiteOrSocialService(
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, ["routes/project/index"]);
 
   const authClient = createAuthClient(request, response);
 
@@ -106,7 +109,7 @@ export const loader = async (args: LoaderArgs) => {
   };
 
   if (mode === "anon" && project.published === false) {
-    throw notFound("Project not found");
+    throw notFound(t("error.notFound"));
   }
   if (mode === "anon") {
     // Filtering by visbility settings
@@ -191,15 +194,13 @@ export const loader = async (args: LoaderArgs) => {
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(["routes/project/index"]);
 
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {loaderData.project.background ? (
-          <img
-            src={loaderData.project.background}
-            alt={`Aktuelles Hintergrundbild`}
-          />
+          <img src={loaderData.project.background} alt={t("content.alt")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
         )}
@@ -248,12 +249,12 @@ function Index() {
                 htmlFor="modal-background-upload"
                 className="btn btn-primary btn-small modal-button"
               >
-                Bild ändern
+                {t("content.image.change")}
               </label>
 
               <Modal id="modal-background-upload">
                 <ImageCropper
-                  headline="Hintergrundbild"
+                  headline={t("content.image.headline")}
                   subject="project"
                   id="modal-background-upload"
                   uploadKey="background"
@@ -332,7 +333,9 @@ function Index() {
                         >
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
-                        <span className="ml-2 mr-4">Logo ändern</span>
+                        <span className="ml-2 mr-4">
+                          {t("content.logo.change")}
+                        </span>
                       </label>
                       <Modal id="modal-avatar">
                         <ImageCropper
@@ -340,7 +343,7 @@ function Index() {
                           subject="project"
                           slug={loaderData.project.slug}
                           uploadKey="logo"
-                          headline="Logo"
+                          headline={t("content.logo.headline")}
                           image={loaderData.project.logo || undefined}
                           aspect={1 / 1}
                           minCropWidth={100}
@@ -540,7 +543,7 @@ function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/project/${loaderData.project.slug}/settings`}
                   >
-                    Projekt bearbeiten
+                    {t("content.edit")}
                   </Link>
                 </div>
               ) : null}
@@ -596,7 +599,7 @@ function Index() {
             {loaderData.project.description !== null &&
             loaderData.project.description !== "" ? (
               <>
-                <H4 className="font-bold mb-4">Beschreibung</H4>
+                <H4 className="font-bold mb-4">{t("content.description")}</H4>
                 <RichText
                   html={loaderData.project.description}
                   additionalClassNames="mb-6"
@@ -606,7 +609,9 @@ function Index() {
 
             {loaderData.project.awards.length > 0 ? (
               <>
-                <H4 className="font-bold mb-4 mt-8 lg:mt-16">Auszeichnungen</H4>
+                <H4 className="font-bold mb-4 mt-8 lg:mt-16">
+                  {t("content.awards")}
+                </H4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {loaderData.project.awards.map((item) => {
                     const date = utcToZonedTime(
@@ -668,7 +673,7 @@ function Index() {
             {loaderData.project.responsibleOrganizations.length > 0 ? (
               <>
                 <H4 className="font-bold mb-4 mt-8 lg:mt-16">
-                  Ein Projekt von
+                  {t("content.projectOf")}
                 </H4>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.project.responsibleOrganizations.map((item) => {
@@ -691,7 +696,9 @@ function Index() {
 
             {loaderData.project.teamMembers.length > 0 ? (
               <>
-                <H4 className="font-bold mb-4 mt-4 lg:mt-12">Das Team</H4>
+                <H4 className="font-bold mb-4 mt-4 lg:mt-12">
+                  {t("content.team")}
+                </H4>
                 <div className="flex flex-wrap -mx-3 lg:items-stretch">
                   {loaderData.project.teamMembers.map((item) => {
                     return (

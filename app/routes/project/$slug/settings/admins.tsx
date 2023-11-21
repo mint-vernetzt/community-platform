@@ -22,24 +22,31 @@ import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../../utils.server";
 import { getProject } from "./admins.server";
 import {
-  addAdminSchema,
   type action as addAdminAction,
+  addAdminSchema,
 } from "./admins/add-admin";
 import {
-  removeAdminSchema,
   type action as removeAdminAction,
+  removeAdminSchema,
 } from "./admins/remove-admin";
+import { useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, [
+    "routes/project/settings/admins",
+  ]);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const project = await getProject(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.projectNotFound"), { status: 404 });
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const enhancedAdmins = project.admins.map((relation) => {
     let avatar = relation.profile.avatar;
@@ -88,26 +95,16 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/project/settings/admins"]);
 
   return (
     <>
-      <h1 className="mb-8">Die Administrator:innen</h1>
-      <p className="mb-2">
-        Wer verwaltet das Projekt auf der Community Plattform? Füge hier weitere
-        Administrator:innen hinzu oder entferne sie.
-      </p>
-      <p className="mb-2">
-        Administrator:innen können Projekte bearbeiten, veröffentlichen oder
-        löschen. Sie sind nicht auf der Projekt-Detailseite sichtbar.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
-        Events im Entwurf einsehen, diese aber nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Administrator:in hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deinem Projekt ein bereits bestehendes Profil hinzu.
-      </p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro1")}</p>
+      <p className="mb-2">{t("content.intro2")}</p>
+      <p className="mb-8">{t("content.intro3")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <Form
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
@@ -127,7 +124,7 @@ function Admins() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -164,10 +161,10 @@ function Admins() {
           {addAdminFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Administrator:innen</h4>
-      <p className="mb-8">
-        Hier siehst du alle Administrator:innen des Projekts auf einen Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
           const initials = getInitials(admin);
@@ -217,7 +214,7 @@ function Admins() {
                         {loaderData.admins.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"

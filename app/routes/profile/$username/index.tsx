@@ -421,7 +421,9 @@ export default function Index() {
               </div>
               {hasContactInformations(loaderData.data) ||
               hasWebsiteOrSocialService(loaderData.data, ExternalServices) ? (
-                <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
+                <h5 className="font-semibold mb-6 mt-8">
+                  {t("profile.contact")}
+                </h5>
               ) : null}
               {hasContactInformations(loaderData.data) ? (
                 <>
@@ -768,7 +770,7 @@ export default function Index() {
                             ) : null}
                             <div className="hidden md:flex items-center flex-initial">
                               <button className="btn btn-primary">
-                                Zum Projekt
+                                {t("section.projects.to")}
                               </button>
                             </div>
                           </div>
@@ -810,7 +812,7 @@ export default function Index() {
                       id="team-member-future-events"
                       className="mb-4 font-bold"
                     >
-                      Organisation/Team
+                      {t("section.comingEvents.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.teamMemberOfEvents.map(
@@ -916,11 +918,11 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      Veröffentlicht
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      Entwurf
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>

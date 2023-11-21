@@ -26,7 +26,7 @@ import {
 } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -532,7 +532,7 @@ export default function Index() {
 
             <p className="mb-8">{t("websiteSocialMedia.socialMedia.intro")}</p>
 
-            {socialMediaServices.map((service) => (
+            {createSocialMediaServices(t).map((service) => (
               <div className="w-full mb-4" key={service.id}>
                 <InputText
                   {...register(service.id)}
