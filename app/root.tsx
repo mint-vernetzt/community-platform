@@ -167,7 +167,7 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+  const isSettings = matches[1].id === "routes/project/$slug/settings";
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
 
@@ -443,11 +443,10 @@ export default function App() {
   const isIndexRoute = location.pathname === "/";
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+  const isSettings = matches[1].id === "routes/project/$slug/settings";
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
-  const isModal = searchParams.get("modal") !== null;
 
   const bodyClasses = classNames(
     modal !== null && modal !== "false" && "overflow-hidden"
