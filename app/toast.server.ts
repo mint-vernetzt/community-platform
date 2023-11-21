@@ -55,8 +55,13 @@ export async function redirectWithToast(
       urlObject.hash = toast.id;
     }
   }
+  let finalUrl = url;
+  const baseUrl = process.env.COMMUNITY_BASE_URL;
+  if (baseUrl !== undefined && urlObject.toString().startsWith(baseUrl)) {
+    finalUrl = urlObject.toString().replace(baseUrl, "");
+  }
 
-  return redirect(urlObject.toString(), {
+  return redirect(finalUrl, {
     ...redirectOptions?.init,
     headers: combineHeaders(
       redirectOptions?.init?.headers,
