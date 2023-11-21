@@ -5,15 +5,15 @@ import { ZodError, z } from "zod";
 
 type Toast = {
   message: string;
+  key: string;
   id?: string;
-  key?: string;
   level?: ToastLevel;
 };
 
 const toastSchema = z.object({
   message: z.string(),
+  key: z.string(),
   id: z.string().optional(),
-  key: z.string().optional(),
   level: z.string().optional(),
 });
 
@@ -56,7 +56,7 @@ export async function redirectWithToast(
     );
     return redirect(url, { ...redirectOptions?.init });
   }
-  urlObject.searchParams.set("toast-trigger", "");
+  urlObject.searchParams.set("toast-trigger", toast.key || "");
   if (redirectOptions !== undefined) {
     const { scrollToToast = false } = redirectOptions;
     if (scrollToToast && toast.id === undefined) {
@@ -75,15 +75,15 @@ export async function redirectWithToast(
     ...redirectOptions?.init,
     headers: combineHeaders(
       redirectOptions?.init?.headers,
-      await createToastHeaders(toast.message, toast.id, toast.key, toast.level)
+      await createToastHeaders(toast.message, toast.key, toast.id, toast.level)
     ),
   });
 }
 
 async function createToastHeaders(
   message: string,
+  key: string,
   id?: string,
-  key?: string,
   level?: ToastLevel
 ) {
   const session = await TOAST_SESSION_STORAGE.getSession();
