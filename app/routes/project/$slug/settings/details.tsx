@@ -491,7 +491,6 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  console.log(request.url);
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
