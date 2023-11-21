@@ -753,6 +753,7 @@ model ProjectVisibility {
   backgroundImage              Boolean @default(true) @map("background_image")
   backgroundImageId            Boolean @default(true) @map("background_image_id")
   headline                     Boolean @default(true)
+  subline                      Boolean @default(true)
   excerpt                      Boolean @default(true)
   description                  Boolean @default(true) // legacy
   furtherDescription           Boolean @default(true) @map("further_description")
