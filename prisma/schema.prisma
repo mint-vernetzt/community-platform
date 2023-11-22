@@ -618,8 +618,6 @@ model ProjectTargetGroupOfProject {
 
 model EventTargetGroup {
   id           String                          @id @default(uuid())
-  slug         String                          @unique
-  title        String                          @unique
   events       EventTargetGroupOfEvent[]
   targetGroups EventTargetGroupOfTargetGroup[]
 
@@ -628,8 +626,6 @@ model EventTargetGroup {
 
 model ProjectTargetGroup {
   id           String                            @id @default(uuid())
-  slug         String                            @unique
-  title        String                            @unique
   projects     ProjectTargetGroupOfProject[]
   targetGroups ProjectTargetGroupOfTargetGroup[]
 
