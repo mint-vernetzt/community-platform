@@ -104,7 +104,7 @@ function ProjectSettings() {
               Zum Projekt
             </Link>
           </TextButton>
-          <h1 className="mv-mb-0">Projekt bearbeiten</h1>
+          <h3 className="mv-mb-0 mv-font-bold">Projekt bearbeiten</h3>
         </div>
       </div>
       {loaderData.toast !== null && loaderData.toast.id === "settings-toast" && (
