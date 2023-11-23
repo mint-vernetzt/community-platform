@@ -10,7 +10,9 @@ import stages from "./data/stages.json";
 import tags from "./data/tags.json";
 import formats from "./data/formats.json";
 import financings from "./data/financings.json";
-import targetGroups from "./data/targetGroups.json";
+import targetGroups from "./data/targetGroups_legacy.json";
+import eventTargetGroups from "./data/eventTargetGroups.json";
+import projectTargetGroups from "./data/projectTargetGroups.json";
 import specialTargetGroups from "./data/specialTargetGroups.json";
 import type { GenericEntry, TableName } from "./utils";
 import { importDataset } from "./utils";
@@ -20,7 +22,9 @@ const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "organizationType", data: organizationTypes },
   { tableName: "focus", data: focuses },
   { tableName: "tag", data: tags },
-  { tableName: "targetGroup", data: targetGroups },
+  { tableName: "eventTargetGroup", data: eventTargetGroups },
+  { tableName: "projectTargetGroup", data: projectTargetGroups },
+  { tableName: "targetGroup", data: targetGroups }, // legacy
   { tableName: "specialTargetGroup", data: specialTargetGroups },
   { tableName: "eventType", data: eventTypes },
   { tableName: "experienceLevel", data: experienceLevels },

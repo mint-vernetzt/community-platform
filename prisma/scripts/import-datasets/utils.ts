@@ -1,6 +1,7 @@
 import type {
   AdditionalDiscipline,
   Discipline,
+  EventTargetGroup,
   EventType,
   ExperienceLevel,
   Financing,
@@ -8,6 +9,7 @@ import type {
   Format,
   Offer,
   OrganizationType,
+  ProjectTargetGroup,
   SpecialTargetGroup,
   Tag,
   TargetGroup,
@@ -19,7 +21,9 @@ export type GenericEntry =
   | OrganizationType
   | Focus
   | Tag
-  | TargetGroup
+  | TargetGroup // legacy
+  | EventTargetGroup
+  | ProjectTargetGroup
   | SpecialTargetGroup
   | EventType
   | Discipline
@@ -33,7 +37,9 @@ export type TableName =
   | "organizationType"
   | "focus"
   | "tag"
-  | "targetGroup"
+  | "targetGroup" // legacy
+  | "eventTargetGroup"
+  | "projectTargetGroup"
   | "specialTargetGroup"
   | "eventType"
   | "experienceLevel"
