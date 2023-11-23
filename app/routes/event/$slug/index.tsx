@@ -953,14 +953,17 @@ function Index() {
                 </>
               ) : null}
 
-              {loaderData.event.targetGroups.length > 0 ? (
+              {loaderData.event.eventTargetGroups.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">Zielgruppe</div>
                   <div className="event-tags -m-1 pb-3 md:pb-0">
-                    {loaderData.event.targetGroups.map((item, index) => {
+                    {loaderData.event.eventTargetGroups.map((item, index) => {
                       return (
-                        <div key={`targetGroups-${index}`} className="badge">
-                          {item.targetGroup.title}
+                        <div
+                          key={`eventTargetGroups-${index}`}
+                          className="badge"
+                        >
+                          {item.eventTargetGroup.title}
                         </div>
                       );
                     })}

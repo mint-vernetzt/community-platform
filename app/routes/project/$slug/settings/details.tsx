@@ -48,7 +48,7 @@ const detailsSchema = z.object({
     .string()
     .optional()
     .transform((value) => (value === undefined || value === "" ? null : value)),
-  targetGroups: z.array(z.string().uuid()),
+  projectTargetGroups: z.array(z.string().uuid()),
   specialTargetGroups: z.array(z.string().uuid()),
   targetGroupAdditions: z
     .string()
@@ -235,9 +235,9 @@ export const loader = async (args: DataFunctionArgs) => {
           },
         },
       },
-      targetGroups: {
+      projectTargetGroups: {
         select: {
-          targetGroup: {
+          projectTargetGroup: {
             select: {
               id: true,
               title: true,
@@ -279,12 +279,14 @@ export const loader = async (args: DataFunctionArgs) => {
       },
     });
 
-  const allTargetGroups = await prismaClient.targetGroup.findMany({
-    select: {
-      id: true,
-      title: true,
-    },
-  });
+  const allProjectTargetGroups = await prismaClient.projectTargetGroup.findMany(
+    {
+      select: {
+        id: true,
+        title: true,
+      },
+    }
+  );
 
   const allSpecialTargetGroups = await prismaClient.specialTargetGroup.findMany(
     {
@@ -301,7 +303,7 @@ export const loader = async (args: DataFunctionArgs) => {
       project,
       allDisciplines,
       allAdditionalDisciplines,
-      allTargetGroups,
+      allProjectTargetGroups,
       allSpecialTargetGroups,
     },
     { headers: response.headers }
@@ -362,7 +364,7 @@ export async function action({ request, params }: DataFunctionArgs) {
         const {
           disciplines,
           additionalDisciplines,
-          targetGroups,
+          projectTargetGroups,
           specialTargetGroups,
           idea,
           goals,
@@ -420,21 +422,23 @@ export async function action({ request, params }: DataFunctionArgs) {
                   }
                 ),
               },
-              targetGroups: {
+              projectTargetGroups: {
                 deleteMany: {},
-                connectOrCreate: targetGroups.map((targetGroupId: string) => {
-                  return {
-                    where: {
-                      targetGroupId_projectId: {
-                        targetGroupId: targetGroupId,
-                        projectId: project.id,
+                connectOrCreate: projectTargetGroups.map(
+                  (projectTargetGroupId: string) => {
+                    return {
+                      where: {
+                        projectTargetGroupId_projectId: {
+                          projectTargetGroupId: projectTargetGroupId,
+                          projectId: project.id,
+                        },
                       },
-                    },
-                    create: {
-                      targetGroupId,
-                    },
-                  };
-                }),
+                      create: {
+                        projectTargetGroupId: projectTargetGroupId,
+                      },
+                    };
+                  }
+                ),
               },
               specialTargetGroups: {
                 deleteMany: {},
@@ -497,13 +501,13 @@ function Details() {
     project,
     allDisciplines,
     allAdditionalDisciplines,
-    allTargetGroups,
+    allProjectTargetGroups,
     allSpecialTargetGroups,
   } = loaderData;
   const {
     disciplines,
     additionalDisciplines,
-    targetGroups,
+    projectTargetGroups,
     specialTargetGroups,
     ...rest
   } = project;
@@ -521,8 +525,8 @@ function Details() {
       additionalDisciplines: project.additionalDisciplines.map(
         (relation) => relation.additionalDiscipline.id
       ),
-      targetGroups: project.targetGroups.map(
-        (relation) => relation.targetGroup.id
+      projectTargetGroups: project.projectTargetGroups.map(
+        (relation) => relation.projectTargetGroup.id
       ),
       specialTargetGroups: project.specialTargetGroups.map(
         (relation) => relation.specialTargetGroup.id
@@ -565,7 +569,7 @@ function Details() {
     form.ref,
     fields.furtherDisciplines
   );
-  const targetGroupList = useFieldList(form.ref, fields.targetGroups);
+  const targetGroupList = useFieldList(form.ref, fields.projectTargetGroups);
   const specialTargetGroupList = useFieldList(
     form.ref,
     fields.specialTargetGroups
@@ -812,7 +816,7 @@ function Details() {
             </Input>
 
             <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.targetGroups.id}>
+              <Select.Label htmlFor={fields.projectTargetGroups.id}>
                 Welche Zielgruppe spricht das Projekt an?
               </Select.Label>
               <Select.HelperText>
@@ -821,7 +825,7 @@ function Details() {
               <option selected hidden>
                 Bitte auswählen
               </option>
-              {allTargetGroups
+              {allProjectTargetGroups
                 .filter((targetGroup) => {
                   return !targetGroupList.some((listTargetGroup) => {
                     return listTargetGroup.defaultValue === targetGroup.id;
@@ -832,7 +836,7 @@ function Details() {
                     <React.Fragment key={`${filteredTargetGroup.id}-fragment`}>
                       <button
                         hidden
-                        {...list.insert(fields.targetGroups.name, {
+                        {...list.insert(fields.projectTargetGroups.name, {
                           defaultValue: filteredTargetGroup.id,
                         })}
                       >
@@ -854,7 +858,7 @@ function Details() {
                 {targetGroupList.map((listTargetGroup, index) => {
                   return (
                     <Chip key={listTargetGroup.key}>
-                      {allTargetGroups.find((targetGroup) => {
+                      {allProjectTargetGroups.find((targetGroup) => {
                         return targetGroup.id === listTargetGroup.defaultValue;
                       })?.title || "Not Found"}
                       <Input
@@ -863,7 +867,7 @@ function Details() {
                       />
                       <Chip.Delete>
                         <button
-                          {...list.remove(fields.targetGroups.name, {
+                          {...list.remove(fields.projectTargetGroups.name, {
                             index,
                           })}
                         />

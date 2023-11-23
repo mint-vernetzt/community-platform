@@ -1,10 +1,8 @@
-import { redirect } from "@remix-run/node";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import type { BinaryToTextEncoding } from "crypto";
 import { createHmac, randomBytes } from "crypto";
 import { forbidden, serverError } from "remix-utils";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
-import { getAlert, redirectWithAlert } from "./alert.server";
 import { getSession } from "./auth.server";
 import { prismaClient } from "./prisma.server";
 
@@ -112,8 +110,8 @@ export async function getTags() {
   return tags;
 }
 
-export async function getTargetGroups() {
-  const targetGroups = await prismaClient.targetGroup.findMany();
+export async function getEventTargetGroups() {
+  const targetGroups = await prismaClient.eventTargetGroup.findMany();
   return targetGroups;
 }
 
