@@ -209,7 +209,9 @@ export const action = async (args: DataFunctionArgs) => {
     intent === "upload_document" ||
       intent === "upload_image" ||
       intent === "delete_document" ||
-      intent === "delete_image",
+      intent === "delete_image" ||
+      intent === "validate/document" ||
+      intent === "validate/image",
     "No valid action",
     {
       status: 400,
@@ -218,7 +220,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   let submission;
 
-  if (intent === "upload_document") {
+  if (intent === "upload_document" || intent === "validate/document") {
     submission = parse(formData, {
       schema: documentUploadSchema,
     });
@@ -228,6 +230,12 @@ export const action = async (args: DataFunctionArgs) => {
       "No valid submission",
       { status: 400 }
     );
+
+    if (intent === "validate/document") {
+      return json({ status: "idle", submission } as const, {
+        headers: response.headers,
+      });
+    }
 
     const filename = submission.value.filename as string;
     const document = submission.value.document as NodeOnDiskFile;
@@ -240,7 +248,7 @@ export const action = async (args: DataFunctionArgs) => {
     invariantResponse(error === null, "Error on storing document", {
       status: 400,
     });
-  } else if (intent === "upload_image") {
+  } else if (intent === "upload_image" || intent === "validate/image") {
     submission = parse(formData, {
       schema: imageUploadSchema,
     });
@@ -250,6 +258,12 @@ export const action = async (args: DataFunctionArgs) => {
       { status: 400 }
     );
 
+    if (intent === "validate/image") {
+      return json({ status: "idle", submission } as const, {
+        headers: response.headers,
+      });
+    }
+
     const filename = submission.value.filename as string;
     const image = submission.value.image as NodeOnDiskFile;
 
@@ -258,6 +272,7 @@ export const action = async (args: DataFunctionArgs) => {
       filename,
       image,
     });
+    console.log(error);
 
     invariantResponse(error === null, "Error on storing document", {
       status: 400,

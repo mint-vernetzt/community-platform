@@ -7,7 +7,6 @@ import {
   Input,
   Section,
   Select,
-  Toast,
 } from "@mint-vernetzt/components";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
@@ -22,6 +21,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import { createAreaOptions } from "./general.server";
 import {
@@ -166,7 +166,12 @@ export const loader = async (args: DataFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  return json({ project, allFormats, areaOptions });
+  return json(
+    { project, allFormats, areaOptions },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -275,9 +280,11 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json({ status: "success", submission, hash } as const, {
-    headers: response.headers,
-  });
+  return redirectWithToast(
+    request.url,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { init: { headers: response.headers }, scrollToToast: true }
+  );
 }
 
 function General() {
@@ -445,19 +452,19 @@ function General() {
                 <Input.HelperText>
                   Bitte gib kurze Begriffe an.
                 </Input.HelperText>
+                <Input.Controls>
+                  <Button
+                    id={fields.furtherFormats.id}
+                    {...list.insert(fields.furtherFormats.name, {
+                      defaultValue: furtherFormat,
+                    })}
+                    variant="ghost"
+                    disabled={furtherFormat === ""}
+                  >
+                    Hinzufügen
+                  </Button>
+                </Input.Controls>
               </Input>
-              <div className="mv--mt-1">
-                <Button
-                  id={fields.furtherFormats.id}
-                  {...list.insert(fields.furtherFormats.name, {
-                    defaultValue: furtherFormat,
-                  })}
-                  variant="ghost"
-                  disabled={furtherFormat === ""}
-                >
-                  Hinzufügen
-                </Button>
-              </div>
             </div>
             {furtherFormatsList.length > 0 && (
               <Chip.Container>
@@ -663,12 +670,6 @@ function General() {
               </Controls>
             </div>
           </div>
-
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.status === "success" && (
-              <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-            )}
         </div>
       </Form>
     </Section>

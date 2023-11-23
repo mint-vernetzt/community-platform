@@ -1,4 +1,4 @@
-import { DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs } from "@remix-run/node";
 import JSZip from "jszip";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";

@@ -8,7 +8,6 @@ import {
   Input,
   Section,
   Select,
-  Toast,
 } from "@mint-vernetzt/components";
 import {
   json,
@@ -40,6 +39,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { redirectWithToast } from "~/toast.server";
 
 const requirementsSchema = z.object({
   timeframe: z
@@ -250,7 +250,12 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  return json({ project, allFinancings }, { headers: response.headers });
+  return json(
+    { project, allFinancings },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -365,9 +370,11 @@ export async function action({ request, params }: DataFunctionArgs) {
     });
   }
 
-  return json({ status: "success", submission, hash } as const, {
-    headers: response.headers,
-  });
+  return redirectWithToast(
+    request.url,
+    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { init: { headers: response.headers }, scrollToToast: true }
+  );
 }
 
 function Requirements() {
@@ -418,6 +425,8 @@ function Requirements() {
           die das Projekt als Inspiration nehmen wollen.
         </p>
         <Form method="post" {...form.props}>
+          {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
+          <Button type="submit" hidden />
           <Input id="deep" defaultValue="true" type="hidden" />
           <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
@@ -625,11 +634,6 @@ function Requirements() {
                 </Controls>
               </div>
             </div>
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.status === "success" && (
-                <Toast key={actionData.hash}>Daten gespeichert.</Toast>
-              )}
             {/* Workarround error messages because conform mapping and error displaying is not working yet with RTE components */}
             {fields.timeframe.error !== undefined && (
               <Alert level="negative">

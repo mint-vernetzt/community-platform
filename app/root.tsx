@@ -23,7 +23,7 @@ import classNames from "classnames";
 import * as React from "react";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
-import { getAlert, type Alert as AlertType } from "./alert.server";
+import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
@@ -40,14 +40,6 @@ export const meta: MetaFunction = () => {
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-export type RootRouteData = {
-  matomoUrl: string | undefined;
-  matomoSiteId: string | undefined;
-  sessionUserInfo?: SessionUserInfo;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-  alert: AlertType | undefined;
-};
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
@@ -167,7 +159,7 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+  const isSettings = matches[1].id === "routes/project/$slug/settings";
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
 
@@ -443,11 +435,10 @@ export default function App() {
   const isIndexRoute = location.pathname === "/";
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/next/project/$slug/settings";
+  const isSettings = matches[1].id === "routes/project/$slug/settings";
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
-  const isModal = searchParams.get("modal") !== null;
 
   const bodyClasses = classNames(
     modal !== null && modal !== "false" && "overflow-hidden"
@@ -490,11 +481,11 @@ export default function App() {
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
-          <main className="flex-auto pb-24 md:pb-8">
+          <main className="flex-auto relative pb-24 md:pb-8">
             {typeof alert !== "undefined" &&
             isNonAppBaseRoute === false &&
             isIndexRoute === false ? (
-              <div key={alert.message} className="w-full md:container md:mb-4">
+              <div className="container">
                 <Alert level={alert.level}>{alert.message}</Alert>
               </div>
             ) : null}

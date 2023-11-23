@@ -1,5 +1,4 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { get } from "cypress/types/lodash";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";

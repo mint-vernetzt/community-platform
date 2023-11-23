@@ -1,9 +1,9 @@
-import Toast, { type ToastVariant } from "./Toast";
+import Toast, { type ToastLevel } from "./Toast";
 
 export function ToastPlayground(props: {
   text: string;
   delay: number;
-  variant: ToastVariant;
+  variant: ToastLevel;
 }) {
   const { text, ...otherProps } = props;
   return (

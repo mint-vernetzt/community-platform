@@ -21,6 +21,7 @@ export {
 export type {
   AlertProps,
   AlertLevel,
+  ToastLevel,
   AvatarProps,
   ButtonProps,
   CircleButtonProps,
