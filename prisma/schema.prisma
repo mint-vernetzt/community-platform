@@ -384,7 +384,7 @@ model EventVisibility {
   responsibleOrganizations Boolean @default(true)
   speakers                 Boolean @default(true)
   tags                     Boolean @default(true)
-  targetGroups             Boolean @default(true)
+  targetGroups             Boolean @default(true) // legacy
   eventTargetGroups        Boolean @default(true)
   teamMembers              Boolean @default(true)
   admins                   Boolean @default(false)
@@ -570,6 +570,46 @@ model Focus {
   @@map("focuses")
 }
 
+model EventTargetGroupOfEvent {
+  eventTargetGroupId String           @map("event_target_group_id")
+  eventId            String           @map("event_id")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  event              Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventTargetGroup   EventTargetGroup @relation(fields: [eventTargetGroupId], references: [id], onDelete: Cascade)
+
+  @@id([eventTargetGroupId, eventId])
+  @@map("event_target_groups_of_events")
+}
+
+model ProjectTargetGroupOfProject {
+  projectTargetGroupId String             @map("project_target_group_id")
+  projectId            String             @map("project_id")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  project              Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectTargetGroup   ProjectTargetGroup @relation(fields: [projectTargetGroupId], references: [id], onDelete: Cascade)
+
+  @@id([projectTargetGroupId, projectId])
+  @@map("project_target_groups_of_projects")
+}
+
+model EventTargetGroup {
+  id     String                    @id @default(uuid())
+  slug   String                    @unique
+  title  String                    @unique
+  events EventTargetGroupOfEvent[]
+
+  @@map("event_target_groups")
+}
+
+model ProjectTargetGroup {
+  id       String                        @id @default(uuid())
+  slug     String                        @unique
+  title    String                        @unique
+  projects ProjectTargetGroupOfProject[]
+
+  @@map("project_target_groups")
+}
+
 model TargetGroupOfEvent {
   // legacy: Whole model
   targetGroupId String      @map("target_group_id")
@@ -594,76 +634,14 @@ model TargetGroupOfProject {
   @@map("target_groups_of_projects")
 }
 
-model EventTargetGroupOfEvent {
-  eventTargetGroupId String           @map("event_target_group_id")
-  eventId            String           @map("event_id")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  event              Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventTargetGroup   EventTargetGroup @relation(fields: [eventTargetGroupId], references: [id], onDelete: Cascade)
-
-  @@id([eventTargetGroupId, eventId])
-  @@map("event_target_groups_of_events")
-}
-
-model ProjectTargetGroupOfProject {
-  projectTargetGroupId String             @map("project_target_group_id")
-  projectId            String             @map("project_id")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  project              Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectTargetGroup   ProjectTargetGroup @relation(fields: [projectTargetGroupId], references: [id], onDelete: Cascade)
-
-  @@id([projectTargetGroupId, projectId])
-  @@map("project_target_groups_of_projects")
-}
-
-model EventTargetGroup {
-  id           String                          @id @default(uuid())
-  events       EventTargetGroupOfEvent[]
-  targetGroups EventTargetGroupOfTargetGroup[]
-
-  @@map("event_target_groups")
-}
-
-model ProjectTargetGroup {
-  id           String                            @id @default(uuid())
-  projects     ProjectTargetGroupOfProject[]
-  targetGroups ProjectTargetGroupOfTargetGroup[]
-
-  @@map("project_target_groups")
-}
-
-model EventTargetGroupOfTargetGroup {
-  eventTargetGroupId String           @map("event_target_group_id")
-  targetGroupId      String           @map("target_group_id")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  eventTargetGroup   EventTargetGroup @relation(fields: [targetGroupId], references: [id], onDelete: Cascade)
-  targetGroup        TargetGroup      @relation(fields: [eventTargetGroupId], references: [id], onDelete: Cascade)
-
-  @@id([eventTargetGroupId, targetGroupId])
-  @@map("event_target_groups_of_target_groups")
-}
-
-model ProjectTargetGroupOfTargetGroup {
-  projectTargetGroupId String             @map("project_target_group_id")
-  targetGroupId        String             @map("target_group_id")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  projectTargetGroup   ProjectTargetGroup @relation(fields: [targetGroupId], references: [id], onDelete: Cascade)
-  targetGroup          TargetGroup        @relation(fields: [projectTargetGroupId], references: [id], onDelete: Cascade)
-
-  @@id([projectTargetGroupId, targetGroupId])
-  @@map("project_target_groups_of_target_groups")
-}
-
 model TargetGroup {
-  id                  String                            @id @default(uuid())
-  referenceId         Int                               @unique // legacy
-  slug                String                            @unique
-  title               String                            @unique
-  projectTargetGroups ProjectTargetGroupOfTargetGroup[]
-  eventTargetGroups   EventTargetGroupOfTargetGroup[]
-
-  events   TargetGroupOfEvent[] // Legacy
-  projects TargetGroupOfProject[] // Legacy
+  // Legacy: whole model
+  id          String                 @id @default(uuid())
+  referenceId Int                    @unique
+  slug        String                 @unique
+  title       String                 @unique
+  events      TargetGroupOfEvent[]
+  projects    TargetGroupOfProject[]
 
   @@map("target_groups")
 }
@@ -881,7 +859,7 @@ model ProjectVisibility {
   disciplines                  Boolean @default(true)
   additionalDisciplines        Boolean @default(true) @map("additional_disciplines")
   responsibleOrganizations     Boolean @default(true)
-  targetGroups                 Boolean @default(true)
+  targetGroups                 Boolean @default(true) // Legacy
   projectTargetGroups          Boolean @default(true)
   specialTargetGroups          Boolean @default(true)
   formats                      Boolean @default(true)
