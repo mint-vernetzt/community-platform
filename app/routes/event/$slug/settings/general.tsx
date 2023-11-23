@@ -815,7 +815,7 @@ function General() {
 
           <div className="mb-4">
             <SelectAdd
-              name="targetGroups"
+              name="eventTargetGroups"
               label={"Zielgruppen"}
               placeholder="Füge die Zielgruppen hinzu."
               entries={selectedEventTargetGroups.map((targetGroup) => ({
@@ -824,7 +824,7 @@ function General() {
               }))}
               options={eventTargetGroupOptions}
               withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.targetGroups}
+              isPublic={eventVisibilities.eventTargetGroups}
             />
           </div>
           <div className="mb-4">
