@@ -280,6 +280,7 @@ type EventWithRelations = Event & {
   speakers: any;
   tags: any;
   targetGroups: any;
+  eventTargetGroups: any;
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
@@ -341,7 +342,8 @@ export async function filterEventByVisibility<
         key === "responsibleOrganizations" ||
         key === "speakers" ||
         key === "tags" ||
-        key === "targetGroups" ||
+        key === "targetGroups" || // legacy
+        key === "eventTargetGroups" ||
         key === "teamMembers" ||
         key === "admins" ||
         key === "waitingList"
@@ -369,7 +371,7 @@ export async function filterEventByVisibility<
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
         key === "description" ||
-        key === "background" ||
+        key === "background" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
         key === "participantLimit" ||
@@ -407,6 +409,7 @@ type ProjectWithRelations = Project & {
   additionalDisciplines: any;
   responsibleOrganizations: any;
   targetGroups: any;
+  projectTargetGroups: any;
   specialTargetGroups: any;
   formats: any;
   financings: any;
@@ -469,7 +472,8 @@ export async function filterProjectByVisibility<
         key === "furtherDisciplines" ||
         key === "specialTargetGroups" ||
         key === "responsibleOrganizations" ||
-        key === "targetGroups" ||
+        key === "targetGroups" || // legacy
+        key === "projectTargetGroups" ||
         key === "formats" ||
         key === "financings" ||
         key === "areas" ||
@@ -492,11 +496,11 @@ export async function filterProjectByVisibility<
       // All other fields in Project that are optional (String?, Relation?, etc...)
       else if (
         key === "logo" ||
-        key === "background" ||
+        key === "background" || // legacy
         key === "headline" ||
         key === "subline" ||
         key === "excerpt" ||
-        key === "description" ||
+        key === "description" || // legacy
         key === "furtherDescription" ||
         key === "email" ||
         key === "phone" ||
