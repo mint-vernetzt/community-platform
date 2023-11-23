@@ -37,7 +37,7 @@ jest.mock("~/prisma.server", () => {
       stage: {
         findMany: jest.fn(),
       },
-      targetGroup: {
+      eventTargetGroup: {
         findMany: jest.fn(),
       },
       eventType: {
@@ -83,9 +83,9 @@ const dbLoaderEvent = {
       focusId: "some-focus-id",
     },
   ],
-  targetGroups: [
+  eventTargetGroups: [
     {
-      targetGroupId: "some-target-group-id",
+      eventTargetGroupId: "some-target-group-id",
     },
   ],
   types: [
@@ -125,7 +125,7 @@ const transformedLoaderEvent = {
   participationFromTime: "09:00",
   focuses: ["some-focus-id"],
   tags: ["some-tag-id"],
-  targetGroups: ["some-target-group-id"],
+  eventTargetGroups: ["some-target-group-id"],
   types: ["some-event-type-id"],
   areas: ["some-area-id"],
   experienceLevel: "some-experience-level-id",
@@ -272,19 +272,19 @@ describe("/event/$slug/settings/general", () => {
         ];
       });
 
-      (prismaClient.targetGroup.findMany as jest.Mock).mockImplementationOnce(
-        () => {
-          return [
-            {
-              targetGroupId: "some-target-group-id",
-              targetGroup: {
-                id: "some-target-group-id",
-                title: "some-target-group-title",
-              },
+      (
+        prismaClient.eventTargetGroup.findMany as jest.Mock
+      ).mockImplementationOnce(() => {
+        return [
+          {
+            eventTargetGroupId: "some-target-group-id",
+            eventTargetGroup: {
+              id: "some-target-group-id",
+              title: "some-target-group-title",
             },
-          ];
-        }
-      );
+          },
+        ];
+      });
 
       (
         prismaClient.experienceLevel.findMany as jest.Mock
@@ -364,10 +364,10 @@ describe("/event/$slug/settings/general", () => {
           },
         },
       ]);
-      expect(responseBody.targetGroups).toStrictEqual([
+      expect(responseBody.eventTargetGroups).toStrictEqual([
         {
-          targetGroupId: "some-target-group-id",
-          targetGroup: {
+          eventTargetGroupId: "some-target-group-id",
+          eventTargetGroup: {
             id: "some-target-group-id",
             title: "some-target-group-title",
           },
@@ -507,7 +507,7 @@ describe("/event/$slug/settings/general", () => {
         published: "off",
         updatedAt: "",
         focuses: [],
-        targetGroups: [],
+        eventTargetGroups: [],
         experienceLevel: "",
         types: [],
         tags: [],
