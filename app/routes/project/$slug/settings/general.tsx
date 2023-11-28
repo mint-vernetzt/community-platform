@@ -18,6 +18,7 @@ import {
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
@@ -293,16 +294,16 @@ function General() {
   const { project, allFormats, areaOptions } = loaderData;
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
-  const formId = "general-form";
+  const defaultValues = {
+    // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
+    ...rest,
+    formats: project.formats.map((relation) => relation.format.id),
+    areas: project.areas.map((relation) => relation.area.id),
+  };
   const [form, fields] = useForm({
-    id: formId,
+    id: "general-form",
     constraint: getFieldsetConstraint(generalSchema),
-    defaultValue: {
-      // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
-      ...rest,
-      formats: project.formats.map((relation) => relation.format.id),
-      areas: project.areas.map((relation) => relation.area.id),
-    },
+    defaultValue: defaultValues,
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
@@ -310,8 +311,9 @@ function General() {
       return parse(formData, { schema: generalSchema });
     },
   });
+
   const formatList = useFieldList(form.ref, fields.formats);
-  const furtherFormatsList = useFieldList(form.ref, fields.furtherFormats);
+  const furtherFormatList = useFieldList(form.ref, fields.furtherFormats);
   const areaList = useFieldList(form.ref, fields.areas);
 
   const [furtherFormat, setFurtherFormat] = React.useState<string>("");
@@ -334,6 +336,85 @@ function General() {
     }
   };
 
+  // TODO: When this is working try useOutletContext to provide the formRef from parent route settings and implement usePrompt on this hierarchy.
+  const [isDirty, setIsDirty] = React.useState(false);
+  const [defaultFormValues, setFormState] = React.useState(defaultValues);
+  const handleFormChange = (event: React.FormEvent<HTMLFormElement>) => {
+    // TODO: Check if current values === defaultValues
+    // If not -> isDirty = true
+    // else -> isDirty = false
+    console.log("ON CHANGE!");
+    const formData = new FormData(event.currentTarget);
+    const formValues: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      formValues[key] = value.toString();
+    });
+
+    // Now you can use formValues for any comparison or manipulation
+    console.log("Form values:", formValues);
+    console.log("Default values:", defaultFormValues);
+    console.log("Format list:", formatList);
+    console.log("Further format list:", furtherFormatList);
+    console.log("Area list:", areaList);
+
+    // console.log({
+    //   form: form,
+    //   fields: fields,
+    //   event: event,
+    // });
+    // console.log(form.values);
+    // console.log(fields.city);
+    // const fieldArray =
+    // for (const field of fields) {
+    //   console.log(field);
+    // }
+    // const isDirty = JSON.stringify(formState) === JSON.stringify(form.ref);
+    // console.log(fields.email);
+    // console.log(event.currentTarget.);
+    // const json = JSON.stringify(event.currentTarget.children);
+    // console.log(json);
+    setIsDirty(true);
+  };
+
+  const [formEvent, setFormEvent] =
+    React.useState<React.FormEvent<HTMLFormElement> | null>(null);
+
+  React.useEffect(() => {
+    if (form.ref.current !== null) {
+      // TODO: Check if current values === defaultValues
+      // If not -> isDirty = true
+      // else -> isDirty = false
+      const formData = new FormData(form.ref.current);
+      const formValues: Record<string, unknown> = {};
+      formData.forEach((value, key) => {
+        const listMatches = key.match(/\[[0-9]+\]/);
+        if (listMatches !== null && listMatches.length >= 1) {
+          const newKey = key.split("[")[0];
+          if (
+            formValues[newKey] !== undefined &&
+            Array.isArray(formValues[newKey]) &&
+            typeof value === "string"
+          ) {
+            (formValues[newKey] as Array<string>).push(value as string);
+          }
+          if (formValues[newKey] === undefined && typeof value === "string") {
+            formValues[newKey] = [value];
+          }
+        } else {
+          formValues[key] = value;
+        }
+      });
+
+      // Now you can use formValues for any comparison or manipulation
+      console.log("Form values:", formValues);
+      console.log("Default values:", defaultFormValues);
+    }
+  }, [formEvent]);
+
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  // usePrompt("Hello from usePrompt -- Are you sure you want to leave?", isDirty);
+
   return (
     <Section>
       <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
@@ -341,7 +422,7 @@ function General() {
         Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot
         mit.
       </p>
-      <Form method="post" {...form.props}>
+      <Form method="post" {...form.props} onChange={setFormEvent}>
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
@@ -466,9 +547,9 @@ function General() {
                 </Input.Controls>
               </Input>
             </div>
-            {furtherFormatsList.length > 0 && (
+            {furtherFormatList.length > 0 && (
               <Chip.Container>
-                {furtherFormatsList.map((listFormat, index) => {
+                {furtherFormatList.map((listFormat, index) => {
                   return (
                     <Chip key={listFormat.key}>
                       <Input type="hidden" {...conform.input(listFormat)} />
