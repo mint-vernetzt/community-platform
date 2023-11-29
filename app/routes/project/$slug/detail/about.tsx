@@ -79,9 +79,9 @@ export const loader = async (args: DataFunctionArgs) => {
         },
       },
       furtherDisciplines: true,
-      targetGroups: {
+      projectTargetGroups: {
         select: {
-          targetGroup: {
+          projectTargetGroup: {
             select: {
               title: true,
             },
@@ -295,16 +295,16 @@ function About() {
           </div>
         </div>
       )}
-      {loaderData.project.targetGroups.length > 0 && (
+      {loaderData.project.projectTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
             Zielgruppe(n)
           </h3>
           <Chip.Container>
-            {loaderData.project.targetGroups.map((relation) => {
+            {loaderData.project.projectTargetGroups.map((relation) => {
               return (
-                <Chip key={relation.targetGroup.title} color="primary">
-                  {relation.targetGroup.title}
+                <Chip key={relation.projectTargetGroup.title} color="primary">
+                  {relation.projectTargetGroup.title}
                 </Chip>
               );
             })}
