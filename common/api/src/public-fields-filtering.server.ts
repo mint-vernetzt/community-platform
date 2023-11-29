@@ -14,6 +14,7 @@ type ProfileWithRelations = Profile & {
   teamMemberOfProjects: any;
   waitingForEvents: any;
   profileVisibility: any;
+  notificationSettings: any;
   administeredEvents: any;
   administeredOrganizations: any;
   administeredProjects: any;
@@ -124,6 +125,7 @@ export async function filterProfileByVisibility<
         key === "instagram" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
+        key === "notificationSettings" ||
         key === "youtube"
       ) {
         filteredFields[key] =
@@ -278,6 +280,7 @@ type EventWithRelations = Event & {
   speakers: any;
   tags: any;
   targetGroups: any;
+  eventTargetGroups: any;
   teamMembers: any;
   waitingList: any;
   eventVisibility: any;
@@ -339,7 +342,8 @@ export async function filterEventByVisibility<
         key === "responsibleOrganizations" ||
         key === "speakers" ||
         key === "tags" ||
-        key === "targetGroups" ||
+        key === "targetGroups" || // legacy
+        key === "eventTargetGroups" ||
         key === "teamMembers" ||
         key === "admins" ||
         key === "waitingList"
@@ -367,7 +371,7 @@ export async function filterEventByVisibility<
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
         key === "description" ||
-        key === "background" ||
+        key === "background" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
         key === "participantLimit" ||
@@ -405,6 +409,7 @@ type ProjectWithRelations = Project & {
   additionalDisciplines: any;
   responsibleOrganizations: any;
   targetGroups: any;
+  projectTargetGroups: any;
   specialTargetGroups: any;
   formats: any;
   financings: any;
@@ -412,6 +417,8 @@ type ProjectWithRelations = Project & {
   teamMembers: any;
   projectVisibility: any;
   admins: any;
+  images: any;
+  documents: any;
   backgroundImage: any;
   _count: any;
 };
@@ -465,10 +472,13 @@ export async function filterProjectByVisibility<
         key === "furtherDisciplines" ||
         key === "specialTargetGroups" ||
         key === "responsibleOrganizations" ||
-        key === "targetGroups" ||
+        key === "targetGroups" || // legacy
+        key === "projectTargetGroups" ||
         key === "formats" ||
         key === "financings" ||
         key === "areas" ||
+        key === "images" ||
+        key === "documents" ||
         key === "furtherFormats" ||
         key === "admins" ||
         key === "teamMembers"
@@ -486,10 +496,11 @@ export async function filterProjectByVisibility<
       // All other fields in Project that are optional (String?, Relation?, etc...)
       else if (
         key === "logo" ||
-        key === "background" ||
+        key === "background" || // legacy
         key === "headline" ||
+        key === "subline" ||
         key === "excerpt" ||
-        key === "description" ||
+        key === "description" || // legacy
         key === "furtherDescription" ||
         key === "email" ||
         key === "phone" ||

@@ -30,9 +30,9 @@ export async function getEventBySlug(slug: string) {
           tagId: true,
         },
       },
-      targetGroups: {
+      eventTargetGroups: {
         select: {
-          targetGroupId: true,
+          eventTargetGroupId: true,
         },
       },
       types: {

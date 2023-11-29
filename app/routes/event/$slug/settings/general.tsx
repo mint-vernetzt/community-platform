@@ -42,7 +42,7 @@ import {
   getFocuses,
   getStages,
   getTags,
-  getTargetGroups,
+  getEventTargetGroups,
   getTypes,
 } from "~/utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
@@ -128,7 +128,7 @@ const schema = object({
   subline: nullOrString(multiline()),
   description: nullOrString(multiline()),
   focuses: array(string().required()).required(),
-  targetGroups: array(string().required()).required(),
+  eventTargetGroups: array(string().required()).required(),
   experienceLevel: nullOrString(string()),
   stage: nullOrString(string()),
   types: array(string().required()).required(),
@@ -166,7 +166,7 @@ export const loader = async (args: LoaderArgs) => {
   const focuses = await getFocuses();
   const types = await getTypes();
   const tags = await getTags();
-  const targetGroups = await getTargetGroups();
+  const eventTargetGroups = await getEventTargetGroups();
   const experienceLevels = await getExperienceLevels();
   const stages = await getStages();
   const areas = await getAreas();
@@ -180,7 +180,7 @@ export const loader = async (args: LoaderArgs) => {
       focuses,
       types,
       tags,
-      targetGroups,
+      eventTargetGroups,
       experienceLevels,
       stages,
       areas,
@@ -242,7 +242,7 @@ export const action = async (args: ActionArgs) => {
     const listData: (keyof FormType)[] = [
       "focuses",
       "types",
-      "targetGroups",
+      "eventTargetGroups",
       "tags",
       "areas",
     ];
@@ -270,7 +270,7 @@ function General() {
     eventVisibilities,
     focuses,
     types,
-    targetGroups,
+    eventTargetGroups,
     tags,
     experienceLevels,
     stages,
@@ -284,13 +284,13 @@ function General() {
   const actionData = useActionData<typeof action>();
   let event: typeof loaderData["event"];
   if (actionData !== undefined) {
-    const { focuses, types, targetGroups, tags, areas, ...rest } =
+    const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
       originalEvent;
     event = {
       ...rest,
       focuses: actionData.data.focuses,
       types: actionData.data.types,
-      targetGroups: actionData.data.targetGroups,
+      eventTargetGroups: actionData.data.eventTargetGroups,
       tags: actionData.data.tags,
       areas: actionData.data.areas,
     };
@@ -363,9 +363,9 @@ function General() {
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
-  const targetGroupOptions = targetGroups
+  const eventTargetGroupOptions = eventTargetGroups
     .filter((targetGroup) => {
-      return !event.targetGroups.includes(targetGroup.id);
+      return !event.eventTargetGroups.includes(targetGroup.id);
     })
     .map((targetGroup) => {
       return {
@@ -374,10 +374,12 @@ function General() {
       };
     });
 
-  const selectedTargetGroups =
-    event.targetGroups && targetGroups
-      ? targetGroups
-          .filter((targetGroup) => event.targetGroups.includes(targetGroup.id))
+  const selectedEventTargetGroups =
+    event.eventTargetGroups && eventTargetGroups
+      ? eventTargetGroups
+          .filter((targetGroup) =>
+            event.eventTargetGroups.includes(targetGroup.id)
+          )
           .sort((a, b) => a.title.localeCompare(b.title))
       : [];
 
@@ -813,16 +815,16 @@ function General() {
 
           <div className="mb-4">
             <SelectAdd
-              name="targetGroups"
+              name="eventTargetGroups"
               label={"Zielgruppen"}
               placeholder="Füge die Zielgruppen hinzu."
-              entries={selectedTargetGroups.map((targetGroup) => ({
+              entries={selectedEventTargetGroups.map((targetGroup) => ({
                 label: targetGroup.title,
                 value: targetGroup.id,
               }))}
-              options={targetGroupOptions}
+              options={eventTargetGroupOptions}
               withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.targetGroups}
+              isPublic={eventVisibilities.eventTargetGroups}
             />
           </div>
           <div className="mb-4">

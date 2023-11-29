@@ -128,8 +128,10 @@ export function transformEventToForm(
     participationFromTime,
     focuses: event.focuses.map((focus) => focus.focusId) ?? [],
     tags: event.tags.map((tag) => tag.tagId) ?? [],
-    targetGroups:
-      event.targetGroups.map((targetGroup) => targetGroup.targetGroupId) ?? [],
+    eventTargetGroups:
+      event.eventTargetGroups.map(
+        (eventTargetGroup) => eventTargetGroup.eventTargetGroupId
+      ) ?? [],
     types: event.types.map((type) => type.eventTypeId) ?? [],
     areas: event.areas.map((area) => area.areaId) ?? [],
     experienceLevel: event.experienceLevel?.id || "",
@@ -273,19 +275,19 @@ export async function updateEventById(
             };
           }),
         },
-        targetGroups: {
+        eventTargetGroups: {
           deleteMany: {},
-          connectOrCreate: eventData.targetGroups.map(
-            (targetGroupId: string) => {
+          connectOrCreate: eventData.eventTargetGroups.map(
+            (eventTargetGroupId: string) => {
               return {
                 where: {
-                  targetGroupId_eventId: {
-                    targetGroupId,
+                  eventTargetGroupId_eventId: {
+                    eventTargetGroupId,
                     eventId: id,
                   },
                 },
                 create: {
-                  targetGroupId,
+                  eventTargetGroupId,
                 },
               };
             }

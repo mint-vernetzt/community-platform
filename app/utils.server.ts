@@ -110,8 +110,8 @@ export async function getTags() {
   return tags;
 }
 
-export async function getTargetGroups() {
-  const targetGroups = await prismaClient.targetGroup.findMany();
+export async function getEventTargetGroups() {
+  const targetGroups = await prismaClient.eventTargetGroup.findMany();
   return targetGroups;
 }
 

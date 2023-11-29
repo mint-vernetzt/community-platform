@@ -236,9 +236,9 @@ export async function getEvent(slug: string) {
           },
         },
       },
-      targetGroups: {
+      eventTargetGroups: {
         select: {
-          targetGroup: {
+          eventTargetGroup: {
             select: {
               title: true,
             },
