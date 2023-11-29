@@ -12,6 +12,8 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
+import React from "react";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 
 function createSchema(constraint?: {
   isSlugUnique?: (slug: string) => Promise<boolean>;
@@ -146,6 +148,14 @@ function ChangeURL() {
     lastSubmission: actionData,
   });
 
+  const [isDirty, setIsDirty] = React.useState(false);
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  usePrompt(
+    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    isDirty
+  );
+
   return (
     <>
       <p>
@@ -162,7 +172,19 @@ function ChangeURL() {
         geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar
         sein.
       </p>
-      <Form method="post" {...form.props}>
+      <Form
+        method="post"
+        {...form.props}
+        onChange={() => {
+          setIsDirty(true);
+        }}
+        onReset={() => {
+          setIsDirty(false);
+        }}
+        onSubmitCapture={() => {
+          setIsDirty(false);
+        }}
+      >
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <Input id="deep" defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>

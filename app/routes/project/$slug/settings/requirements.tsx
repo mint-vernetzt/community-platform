@@ -40,6 +40,7 @@ import {
   getSubmissionHash,
 } from "./utils.server";
 import { redirectWithToast } from "~/toast.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const requirementsSchema = z.object({
   timeframe: z
@@ -414,6 +415,14 @@ function Requirements() {
     }
   };
 
+  const [isDirty, setIsDirty] = React.useState(false);
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  usePrompt(
+    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    isDirty
+  );
+
   return (
     <>
       <Section>
@@ -424,7 +433,19 @@ function Requirements() {
           Organisation. Die Infos sollen eine Anregung sein für Interessierte,
           die das Projekt als Inspiration nehmen wollen.
         </p>
-        <Form method="post" {...form.props}>
+        <Form
+          method="post"
+          {...form.props}
+          onChange={() => {
+            setIsDirty(true);
+          }}
+          onReset={() => {
+            setIsDirty(false);
+          }}
+          onSubmitCapture={() => {
+            setIsDirty(false);
+          }}
+        >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
           <Button type="submit" hidden />
           <Input id="deep" defaultValue="true" type="hidden" />

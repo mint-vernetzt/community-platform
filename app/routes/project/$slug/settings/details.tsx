@@ -41,6 +41,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -601,13 +602,33 @@ function Details() {
     }
   };
 
+  const [isDirty, setIsDirty] = React.useState(false);
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  usePrompt(
+    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    isDirty
+  );
+
   return (
     <Section>
       <BackButton to={location.pathname}>Projekt-Details</BackButton>
       <p className="mv-my-6 md:mv-mt-0">
         Teile der Community mehr über Dein Projekt oder Bildungsangebot mit.
       </p>
-      <Form method="post" {...form.props}>
+      <Form
+        method="post"
+        {...form.props}
+        onChange={() => {
+          setIsDirty(true);
+        }}
+        onReset={() => {
+          setIsDirty(false);
+        }}
+        onSubmitCapture={() => {
+          setIsDirty(false);
+        }}
+      >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
