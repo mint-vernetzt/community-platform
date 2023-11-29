@@ -436,13 +436,22 @@ function Requirements() {
         <Form
           method="post"
           {...form.props}
-          onChange={() => {
-            setIsDirty(true);
+          onChange={(event) => {
+            // On RTE the onChange is called during first render
+            // That breaks our logic that the form is dirty when it got changed
+            // Therefore we check textarea elements specifically
+            // TODO: How can we get arround this assertions?
+            const input = event.target as HTMLInputElement;
+            if (
+              input.type === "textarea" &&
+              input.value === project[input.name as keyof typeof project]
+            ) {
+              setIsDirty(false);
+            } else {
+              setIsDirty(true);
+            }
           }}
           onReset={() => {
-            setIsDirty(false);
-          }}
-          onSubmitCapture={() => {
             setIsDirty(false);
           }}
         >
@@ -649,7 +658,13 @@ function Requirements() {
                   </Button> */}
                   {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-                  <Button type="submit" fullSize>
+                  <Button
+                    type="submit"
+                    fullSize
+                    onClick={() => {
+                      setIsDirty(false);
+                    }}
+                  >
                     Speichern
                   </Button>
                 </Controls>

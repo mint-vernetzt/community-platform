@@ -222,9 +222,6 @@ function WebSocial() {
         onReset={() => {
           setIsDirty(false);
         }}
-        onSubmitCapture={() => {
-          setIsDirty(false);
-        }}
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
@@ -329,7 +326,13 @@ function WebSocial() {
                 </Button>
                 {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-                <Button type="submit" fullSize>
+                <Button
+                  type="submit"
+                  fullSize
+                  onClick={() => {
+                    setIsDirty(false);
+                  }}
+                >
                   Speichern
                 </Button>
               </Controls>
