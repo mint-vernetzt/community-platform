@@ -1126,13 +1126,24 @@ function Details() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
-                <Link
+                {/* <Link
                   to="."
                   reloadDocument
                   className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                 >
                   Änderungen verwerfen
-                </Link>
+                </Link> */}
+                <Button
+                  as="a"
+                  href="./details"
+                  variant="outline"
+                  onClick={() => {
+                    setIsDirty(false);
+                  }}
+                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                >
+                  Änderungen verwerfen
+                </Button>
                 {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                 {/* <Button type="reset" variant="outline" fullSize>
                   Änderungen verwerfen
